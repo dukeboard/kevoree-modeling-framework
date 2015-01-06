@@ -1,17 +1,10 @@
 package org.kevoree.modeling.test.datastore;
 
 import geometry.GeometryUniverse;
-import geometry.GeometryView;
-import geometry.Library;
 import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.ModelListener;
-import org.kevoree.modeling.api.data.MemoryKDataBase;
-import org.kevoree.modeling.databases.websocket.WebSocketKBroker;
-
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import org.kevoree.modeling.databases.websocket.WebSocketBroker;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by gregory.nain on 10/11/14.
@@ -24,7 +17,7 @@ public class MainClientTest {
         Semaphore s = new Semaphore(0);
 
         GeometryUniverse geoUniverse = new GeometryUniverse();
-        geoUniverse.storage().setEventBroker(new WebSocketKBroker(geoUniverse.storage().eventBroker(), false, "localhost", WebSocketKBroker.DEFAULT_PORT));
+        geoUniverse.storage().setEventBroker(new WebSocketBroker("localhost", 23665));
 
         geoUniverse.listen(new ModelListener() {
             @Override

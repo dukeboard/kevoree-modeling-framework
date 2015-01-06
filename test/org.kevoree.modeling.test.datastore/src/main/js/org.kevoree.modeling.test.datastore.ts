@@ -126,7 +126,7 @@ module geometry {
                 this.all(geometry.meta.MetaLibrary.REF_SHAPES,  (kObjects : org.kevoree.modeling.api.KObject[]) => {
                     if (p_callback != null) {
                         var casted: geometry.Shape[] = new Array();
-                        for (var i: number = 0; i < casted.length; i++) {
+                        for (var i: number = 0; i < kObjects.length; i++) {
                             casted[i] = <geometry.Shape>kObjects[i];
                         }
                         p_callback(casted);

@@ -851,7 +851,6 @@ var org;
                     var AbstractKUniverse = (function () {
                         function AbstractKUniverse() {
                             this._storage = new org.kevoree.modeling.api.data.DefaultKStore();
-                            this._storage.connect(null);
                         }
                         AbstractKUniverse.prototype.metaModel = function () {
                             throw "Abstract method";
@@ -894,6 +893,7 @@ var org;
                         };
                         AbstractKUniverse.prototype.setEventBroker = function (eventBroker) {
                             this.storage().setEventBroker(eventBroker);
+                            eventBroker.setMetaModel(this.metaModel());
                             return this;
                         };
                         AbstractKUniverse.prototype.setDataBase = function (dataBase) {
@@ -940,11 +940,9 @@ var org;
                                 else {
                                     var cleanedQuery = query;
                                     if (cleanedQuery.equals("/")) {
-                                        var res = new java.util.ArrayList();
-                                        if (rootObj != null) {
-                                            res.add(rootObj);
-                                        }
-                                        callback(res.toArray(new Array()));
+                                        var param = new Array();
+                                        param[0] = rootObj;
+                                        callback(param);
                                     }
                                     else {
                                         if (cleanedQuery.startsWith("/")) {
@@ -1256,104 +1254,131 @@ var org;
                                 }
                                 return;
                             }
-                            if (this._db == null) {
+                            if (this._db == null || this._eventBroker == null) {
                                 if (callback != null) {
-                                    callback(new java.lang.Exception("Please attach a KDataBase first !"));
+                                    callback(new java.lang.Exception("Please attach a KDataBase AND a KBroker first !"));
                                 }
                             }
-                            var keys = new Array();
-                            keys[0] = this.keyLastPrefix();
-                            this._db.get(keys, function (strings, error) {
-                                if (error != null) {
-                                    if (callback != null) {
-                                        callback(error);
-                                    }
-                                }
-                                else {
-                                    if (strings.length == 1) {
-                                        try {
-                                            var payloadPrefix = strings[0];
-                                            if (payloadPrefix == null || payloadPrefix.equals("")) {
-                                                payloadPrefix = "0";
-                                            }
-                                            var newPrefix = java.lang.Short.parseShort(payloadPrefix);
-                                            var keys2 = new Array();
-                                            keys2[0] = _this.keyLastDimIndex(payloadPrefix);
-                                            keys2[1] = _this.keyLastObjIndex(payloadPrefix);
-                                            _this._db.get(keys2, function (strings, error) {
-                                                if (error != null) {
-                                                    if (callback != null) {
-                                                        callback(error);
-                                                    }
-                                                }
-                                                else {
-                                                    if (strings.length == 2) {
-                                                        try {
-                                                            var dimIndexPayload = strings[0];
-                                                            if (dimIndexPayload == null || dimIndexPayload.equals("")) {
-                                                                dimIndexPayload = "0";
-                                                            }
-                                                            var objIndexPayload = strings[1];
-                                                            if (objIndexPayload == null || objIndexPayload.equals("")) {
-                                                                objIndexPayload = "0";
-                                                            }
-                                                            var newDimIndex = java.lang.Long.parseLong(dimIndexPayload);
-                                                            var newObjIndex = java.lang.Long.parseLong(objIndexPayload);
-                                                            var keys3 = new Array(new Array());
-                                                            var payloadKeys3 = new Array();
-                                                            payloadKeys3[0] = _this.keyLastPrefix();
-                                                            if (newPrefix == java.lang.Short.MAX_VALUE) {
-                                                                payloadKeys3[1] = "" + java.lang.Short.MIN_VALUE;
-                                                            }
-                                                            else {
-                                                                payloadKeys3[1] = "" + (newPrefix + 1);
-                                                            }
-                                                            keys3[0] = payloadKeys3;
-                                                            _this._db.put(keys3, function (throwable) {
-                                                                _this._dimensionKeyCalculator = new org.kevoree.modeling.api.data.KeyCalculator(newPrefix, newDimIndex);
-                                                                _this._objectKeyCalculator = new org.kevoree.modeling.api.data.KeyCalculator(newPrefix, newObjIndex);
-                                                                _this.isConnected = true;
-                                                                if (callback != null) {
-                                                                    callback(null);
-                                                                }
-                                                            });
-                                                        }
-                                                        catch ($ex$) {
-                                                            if ($ex$ instanceof java.lang.Exception) {
-                                                                var e = $ex$;
-                                                                if (callback != null) {
-                                                                    callback(e);
-                                                                }
-                                                            }
+                            else {
+                                this._eventBroker.connect(function (throwable) {
+                                    if (throwable == null) {
+                                        _this._db.connect(function (throwable) {
+                                            if (throwable == null) {
+                                                var keys = new Array();
+                                                keys[0] = _this.keyLastPrefix();
+                                                _this._db.get(keys, function (strings, error) {
+                                                    if (error != null) {
+                                                        if (callback != null) {
+                                                            callback(error);
                                                         }
                                                     }
                                                     else {
-                                                        if (callback != null) {
-                                                            callback(new java.lang.Exception("Error while connecting the KDataStore..."));
+                                                        if (strings.length == 1) {
+                                                            try {
+                                                                var payloadPrefix = strings[0];
+                                                                if (payloadPrefix == null || payloadPrefix.equals("")) {
+                                                                    payloadPrefix = "0";
+                                                                }
+                                                                var newPrefix = java.lang.Short.parseShort(payloadPrefix);
+                                                                var keys2 = new Array();
+                                                                keys2[0] = _this.keyLastDimIndex(payloadPrefix);
+                                                                keys2[1] = _this.keyLastObjIndex(payloadPrefix);
+                                                                _this._db.get(keys2, function (strings, error) {
+                                                                    if (error != null) {
+                                                                        if (callback != null) {
+                                                                            callback(error);
+                                                                        }
+                                                                    }
+                                                                    else {
+                                                                        if (strings.length == 2) {
+                                                                            try {
+                                                                                var dimIndexPayload = strings[0];
+                                                                                if (dimIndexPayload == null || dimIndexPayload.equals("")) {
+                                                                                    dimIndexPayload = "0";
+                                                                                }
+                                                                                var objIndexPayload = strings[1];
+                                                                                if (objIndexPayload == null || objIndexPayload.equals("")) {
+                                                                                    objIndexPayload = "0";
+                                                                                }
+                                                                                var newDimIndex = java.lang.Long.parseLong(dimIndexPayload);
+                                                                                var newObjIndex = java.lang.Long.parseLong(objIndexPayload);
+                                                                                var keys3 = new Array(new Array());
+                                                                                var payloadKeys3 = new Array();
+                                                                                payloadKeys3[0] = _this.keyLastPrefix();
+                                                                                if (newPrefix == java.lang.Short.MAX_VALUE) {
+                                                                                    payloadKeys3[1] = "" + java.lang.Short.MIN_VALUE;
+                                                                                }
+                                                                                else {
+                                                                                    payloadKeys3[1] = "" + (newPrefix + 1);
+                                                                                }
+                                                                                keys3[0] = payloadKeys3;
+                                                                                _this._db.put(keys3, function (throwable) {
+                                                                                    _this._dimensionKeyCalculator = new org.kevoree.modeling.api.data.KeyCalculator(newPrefix, newDimIndex);
+                                                                                    _this._objectKeyCalculator = new org.kevoree.modeling.api.data.KeyCalculator(newPrefix, newObjIndex);
+                                                                                    _this.isConnected = true;
+                                                                                    if (callback != null) {
+                                                                                        callback(null);
+                                                                                    }
+                                                                                });
+                                                                            }
+                                                                            catch ($ex$) {
+                                                                                if ($ex$ instanceof java.lang.Exception) {
+                                                                                    var e = $ex$;
+                                                                                    if (callback != null) {
+                                                                                        callback(e);
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                        else {
+                                                                            if (callback != null) {
+                                                                                callback(new java.lang.Exception("Error while connecting the KDataStore..."));
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                });
+                                                            }
+                                                            catch ($ex$) {
+                                                                if ($ex$ instanceof java.lang.Exception) {
+                                                                    var e = $ex$;
+                                                                    if (callback != null) {
+                                                                        callback(e);
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        else {
+                                                            if (callback != null) {
+                                                                callback(new java.lang.Exception("Error while connecting the KDataStore..."));
+                                                            }
                                                         }
                                                     }
-                                                }
-                                            });
-                                        }
-                                        catch ($ex$) {
-                                            if ($ex$ instanceof java.lang.Exception) {
-                                                var e = $ex$;
-                                                if (callback != null) {
-                                                    callback(e);
-                                                }
+                                                });
                                             }
-                                        }
+                                            else {
+                                                callback(throwable);
+                                            }
+                                        });
                                     }
                                     else {
-                                        if (callback != null) {
-                                            callback(new java.lang.Exception("Error while connecting the KDataStore..."));
-                                        }
+                                        callback(throwable);
                                     }
-                                }
-                            });
+                                });
+                            }
                         };
                         DefaultKStore.prototype.close = function (callback) {
+                            var _this = this;
                             this.isConnected = false;
+                            if (this._db != null) {
+                                this._db.close(function (throwable) {
+                                    if (_this._eventBroker != null) {
+                                        _this._eventBroker.close(callback);
+                                    }
+                                    else {
+                                        callback(null);
+                                    }
+                                });
+                            }
                         };
                         DefaultKStore.prototype.keyTree = function (dim, key) {
                             return "" + dim + DefaultKStore.KEY_SEP + key;
@@ -1581,6 +1606,8 @@ var org;
                                         var toLoadIndex = toLoadIndexes.get(i);
                                         toLoadKeys[i] = _this.keyPayload(objects[toLoadIndex][DefaultKStore.INDEX_RESOLVED_DIM], objects[toLoadIndex][DefaultKStore.INDEX_RESOLVED_TIME], keys[i]);
                                     }
+                                    System.err.println(toLoadKeys[0] + "/" + objects[0][DefaultKStore.INDEX_RESOLVED_DIM] + "/" + objects[0][DefaultKStore.INDEX_RESOLVED_TIME]);
+                                    System.err.println(originView.now());
                                     _this._db.get(toLoadKeys, function (strings, error) {
                                         if (error != null) {
                                             error.printStackTrace();
@@ -1596,6 +1623,9 @@ var org;
                                                         resolved[i] = originView.createProxy(entry.metaClass, entry.timeTree, keys[index]);
                                                         _this.write_cache(objects[i][DefaultKStore.INDEX_RESOLVED_DIM], objects[i][DefaultKStore.INDEX_RESOLVED_TIME], keys[index], entry);
                                                     }
+                                                }
+                                                else {
+                                                    System.err.println("Not resolvable UUID " + toLoadIndexes.get(i));
                                                 }
                                             }
                                             callback(resolved);
@@ -1820,8 +1850,8 @@ var org;
                             }
                         };
                         DefaultKStore.KEY_SEP = ',';
-                        DefaultKStore.UNIVERSE_NOT_CONNECTED_ERROR = "Please connect your universe prior to create a dimension or an object";
                         DefaultKStore.OUT_OF_CACHE_MESSAGE = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
+                        DefaultKStore.UNIVERSE_NOT_CONNECTED_ERROR = "Please connect your universe prior to create a dimension or an object";
                         DefaultKStore.INDEX_RESOLVED_DIM = 0;
                         DefaultKStore.INDEX_RESOLVED_TIME = 1;
                         DefaultKStore.INDEX_RESOLVED_TIMETREE = 2;
@@ -2223,6 +2253,11 @@ var org;
                         MemoryKDataBase.prototype.commit = function (callback) {
                             callback(null);
                         };
+                        MemoryKDataBase.prototype.connect = function (callback) {
+                            if (callback != null) {
+                                callback(null);
+                            }
+                        };
                         MemoryKDataBase.prototype.close = function (callback) {
                             this.backend.clear();
                         };
@@ -2258,6 +2293,17 @@ var org;
                         function DefaultKBroker() {
                             this.listeners = new java.util.HashMap();
                         }
+                        DefaultKBroker.prototype.connect = function (callback) {
+                            if (callback != null) {
+                                callback(null);
+                            }
+                        };
+                        DefaultKBroker.prototype.close = function (callback) {
+                            this.listeners.clear();
+                            if (callback != null) {
+                                callback(null);
+                            }
+                        };
                         DefaultKBroker.prototype.registerListener = function (origin, listener, scope) {
                             var tuple = new Array();
                             if (origin instanceof org.kevoree.modeling.api.abs.AbstractKDimension) {
@@ -2313,6 +2359,9 @@ var org;
                             }
                         };
                         DefaultKBroker.prototype.flush = function (dimensionKey) {
+                        };
+                        DefaultKBroker.prototype.setMetaModel = function (p_metaModel) {
+                            this._metaModel = p_metaModel;
                         };
                         DefaultKBroker.prototype.unregister = function (listener) {
                             this.listeners.remove(listener);
@@ -2383,7 +2432,7 @@ var org;
                             sb.append(DefaultKEvent.RIGHT_BRACE);
                             return sb.toString();
                         };
-                        DefaultKEvent.fromJSON = function (payload) {
+                        DefaultKEvent.fromJSON = function (payload, metaModel) {
                             var lexer = new org.kevoree.modeling.api.json.Lexer(payload);
                             var currentToken = lexer.nextToken();
                             if (currentToken.tokenType() == org.kevoree.modeling.api.json.Type.LEFT_BRACE) {
@@ -2396,7 +2445,7 @@ var org;
                                             currentAttributeName = currentToken.value().toString();
                                         }
                                         else {
-                                            org.kevoree.modeling.api.event.DefaultKEvent.setEventAttribute(event, currentAttributeName, currentToken.value().toString());
+                                            org.kevoree.modeling.api.event.DefaultKEvent.setEventAttribute(event, currentAttributeName, currentToken.value().toString(), metaModel);
                                             currentAttributeName = null;
                                         }
                                     }
@@ -2406,7 +2455,7 @@ var org;
                             }
                             return null;
                         };
-                        DefaultKEvent.setEventAttribute = function (event, currentAttributeName, value) {
+                        DefaultKEvent.setEventAttribute = function (event, currentAttributeName, value, metaModel) {
                             if (currentAttributeName.equals(DefaultKEvent.DIMENSION_KEY)) {
                                 event._dimensionKey = java.lang.Long.parseLong(value);
                             }
@@ -2424,9 +2473,16 @@ var org;
                                         }
                                         else {
                                             if (currentAttributeName.equals(DefaultKEvent.CLASS_KEY)) {
+                                                event._metaClass = metaModel.metaClass(value);
                                             }
                                             else {
                                                 if (currentAttributeName.equals(DefaultKEvent.ELEMENT_KEY)) {
+                                                    if (event._metaClass != null) {
+                                                        event._metaElement = event._metaClass.metaAttribute(value);
+                                                        if (event._metaElement == null) {
+                                                            event._metaElement = event._metaClass.metaReference(value);
+                                                        }
+                                                    }
                                                 }
                                                 else {
                                                     if (currentAttributeName.equals(DefaultKEvent.VALUE_KEY)) {
@@ -2907,65 +2963,67 @@ var org;
                             });
                         };
                         JsonModelSerializer.printJSON = function (elem, builder) {
-                            builder.append("{\n");
-                            builder.append("\t\"" + JsonModelSerializer.KEY_META + "\" : \"");
-                            builder.append(elem.metaClass().metaName());
-                            builder.append("\",\n");
-                            builder.append("\t\"" + JsonModelSerializer.KEY_UUID + "\" : \"");
-                            builder.append(elem.uuid() + "");
-                            if (elem.isRoot()) {
+                            if (elem != null) {
+                                builder.append("{\n");
+                                builder.append("\t\"" + JsonModelSerializer.KEY_META + "\" : \"");
+                                builder.append(elem.metaClass().metaName());
                                 builder.append("\",\n");
-                                builder.append("\t\"" + JsonModelSerializer.KEY_ROOT + "\" : \"");
-                                builder.append("true");
-                            }
-                            builder.append("\",\n");
-                            for (var i = 0; i < elem.metaClass().metaAttributes().length; i++) {
-                                var payload = elem.get(elem.metaClass().metaAttributes()[i]);
-                                if (payload != null) {
-                                    builder.append("\t");
-                                    builder.append("\"");
-                                    builder.append(elem.metaClass().metaAttributes()[i].metaName());
-                                    builder.append("\" : \"");
-                                    builder.append(payload.toString());
+                                builder.append("\t\"" + JsonModelSerializer.KEY_UUID + "\" : \"");
+                                builder.append(elem.uuid() + "");
+                                if (elem.isRoot()) {
                                     builder.append("\",\n");
+                                    builder.append("\t\"" + JsonModelSerializer.KEY_ROOT + "\" : \"");
+                                    builder.append("true");
                                 }
-                            }
-                            for (var i = 0; i < elem.metaClass().metaReferences().length; i++) {
-                                var raw = elem.view().dimension().universe().storage().raw(elem, org.kevoree.modeling.api.data.AccessMode.READ);
-                                var payload = null;
-                                if (raw != null) {
-                                    payload = raw[elem.metaClass().metaReferences()[i].index()];
-                                }
-                                if (payload != null) {
-                                    builder.append("\t");
-                                    builder.append("\"");
-                                    builder.append(elem.metaClass().metaReferences()[i].metaName());
-                                    builder.append("\" :");
-                                    if (elem.metaClass().metaReferences()[i].single()) {
+                                builder.append("\",\n");
+                                for (var i = 0; i < elem.metaClass().metaAttributes().length; i++) {
+                                    var payload = elem.get(elem.metaClass().metaAttributes()[i]);
+                                    if (payload != null) {
+                                        builder.append("\t");
                                         builder.append("\"");
+                                        builder.append(elem.metaClass().metaAttributes()[i].metaName());
+                                        builder.append("\" : \"");
                                         builder.append(payload.toString());
-                                        builder.append("\"");
+                                        builder.append("\",\n");
                                     }
-                                    else {
-                                        var elems = payload;
-                                        var elemsArr = elems.toArray(new Array());
-                                        var isFirst = true;
-                                        builder.append(" [");
-                                        for (var j = 0; j < elemsArr.length; j++) {
-                                            if (!isFirst) {
-                                                builder.append(",");
-                                            }
-                                            builder.append("\"");
-                                            builder.append(elemsArr[j] + "");
-                                            builder.append("\"");
-                                            isFirst = false;
-                                        }
-                                        builder.append("]");
-                                    }
-                                    builder.append(",\n");
                                 }
+                                for (var i = 0; i < elem.metaClass().metaReferences().length; i++) {
+                                    var raw = elem.view().dimension().universe().storage().raw(elem, org.kevoree.modeling.api.data.AccessMode.READ);
+                                    var payload = null;
+                                    if (raw != null) {
+                                        payload = raw[elem.metaClass().metaReferences()[i].index()];
+                                    }
+                                    if (payload != null) {
+                                        builder.append("\t");
+                                        builder.append("\"");
+                                        builder.append(elem.metaClass().metaReferences()[i].metaName());
+                                        builder.append("\" :");
+                                        if (elem.metaClass().metaReferences()[i].single()) {
+                                            builder.append("\"");
+                                            builder.append(payload.toString());
+                                            builder.append("\"");
+                                        }
+                                        else {
+                                            var elems = payload;
+                                            var elemsArr = elems.toArray(new Array());
+                                            var isFirst = true;
+                                            builder.append(" [");
+                                            for (var j = 0; j < elemsArr.length; j++) {
+                                                if (!isFirst) {
+                                                    builder.append(",");
+                                                }
+                                                builder.append("\"");
+                                                builder.append(elemsArr[j] + "");
+                                                builder.append("\"");
+                                                isFirst = false;
+                                            }
+                                            builder.append("]");
+                                        }
+                                        builder.append(",\n");
+                                    }
+                                }
+                                builder.append("}\n");
                             }
-                            builder.append("}\n");
                         };
                         JsonModelSerializer.KEY_META = "@meta";
                         JsonModelSerializer.KEY_UUID = "@uuid";
@@ -2973,6 +3031,8 @@ var org;
                         JsonModelSerializer.PARENT_META = "@parent";
                         JsonModelSerializer.PARENT_REF_META = "@ref";
                         JsonModelSerializer.INBOUNDS_META = "@inbounds";
+                        JsonModelSerializer.TIME_META = "@time";
+                        JsonModelSerializer.DIM_META = "@dimension";
                         return JsonModelSerializer;
                     })();
                     json.JsonModelSerializer = JsonModelSerializer;
@@ -7471,19 +7531,6 @@ var org;
                         return SerializationContext;
                     })();
                     xmi.SerializationContext = SerializationContext;
-                    var XmiFormat = (function () {
-                        function XmiFormat(p_view) {
-                            this._view = p_view;
-                        }
-                        XmiFormat.prototype.save = function (model, callback) {
-                            org.kevoree.modeling.api.xmi.XMIModelSerializer.save(model, callback);
-                        };
-                        XmiFormat.prototype.load = function (payload, callback) {
-                            org.kevoree.modeling.api.xmi.XMIModelLoader.load(this._view, payload, callback);
-                        };
-                        return XmiFormat;
-                    })();
-                    xmi.XmiFormat = XmiFormat;
                     var XMILoadingContext = (function () {
                         function XMILoadingContext() {
                             this.loadedRoots = null;
@@ -7912,6 +7959,19 @@ var org;
                         return XMIResolveCommand;
                     })();
                     xmi.XMIResolveCommand = XMIResolveCommand;
+                    var XmiFormat = (function () {
+                        function XmiFormat(p_view) {
+                            this._view = p_view;
+                        }
+                        XmiFormat.prototype.save = function (model, callback) {
+                            org.kevoree.modeling.api.xmi.XMIModelSerializer.save(model, callback);
+                        };
+                        XmiFormat.prototype.load = function (payload, callback) {
+                            org.kevoree.modeling.api.xmi.XMIModelLoader.load(this._view, payload, callback);
+                        };
+                        return XmiFormat;
+                    })();
+                    xmi.XmiFormat = XmiFormat;
                     var XmlParser = (function () {
                         function XmlParser(str) {
                             this.current = 0;

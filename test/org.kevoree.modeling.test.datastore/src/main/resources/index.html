@@ -5,7 +5,7 @@
     <title></title>
 
     <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
-    <script src="./java.js"></script>
+    <!--<script src="./java.js"></script>-->
     <script src="./org.kevoree.modeling.test.datastore-all.js"></script>
     <script src="./org.kevoree.modeling.microframework.databases.websocket.js"></script>
 </head>
@@ -16,68 +16,80 @@
 
 <script>
 
-    var dataBaseConnection = new org.kevoree.modeling.database.websocket.WebSocketDataBase("ws://localhost:23664");
-    var geometryUniverse;
-    dataBaseConnection.setAfterConnection(function(){
-        geometryUniverse = new geometry.GeometryUniverse();
-        geometryUniverse.storage().setDataBase(dataBaseConnection);
-        geometryUniverse.storage().setEventBroker(new org.kevoree.modeling.database.websocket.WebSocketKBroker(geometryUniverse.storage().eventBroker(), "ws://localhost:23665"));
+    var dataBaseConnection = new org.kevoree.modeling.database.websocket.WebSocketDataBaseClient("ws://localhost:23664");
+    var broker = new org.kevoree.modeling.database.websocket.WebSocketBrokerClient("ws://localhost:23665");
+    var geometryUniverse  = new geometry.GeometryUniverse();
+    //broker.setMetaModel(geometryUniverse.metaModel());
+    geometryUniverse.setDataBase(dataBaseConnection);
+    geometryUniverse.setEventBroker(broker);
 
-        console.log("Looking for the dimension");
-        geometryUniverse.dimension(0, function(dimension){
+    geometryUniverse.connect(function(err){
+        if(err == null) {
+            console.log("Looking for the dimension");
+            var dimension = geometryUniverse.dimension(0);
             var view = dimension.time(0);
             view.select("/", function(results){
                 if(results === undefined || results.length == 0) {
                     console.error("No root found.", results)
                 } else {
                     var lib = results[0];
-                    lib.eachShapes(function(shape){addShapeToDisplay(shape)}, function(error){if(error){console.error(error);}});
+                    lib.eachShapes(function(shapes){
+                        if(shapes != null) {
+                            for(var i in shapes) {
+                                addShapeToDisplay(shapes[i]);
+                            }
+                        } else {
+                            console.error("No shapes found");
+                        }});
 
                     dimension.listen(function(event){
-                        if(event.kActionType() == org.kevoree.modeling.api.KActionType.ADD.toString() && event.metaClass() == lib.metaClass().metaName() && event.metaElement() == lib.metaReference("shapes").metaName()) {
-                            var newVal = JSON.parse(event.newValue());
+                        if(event.actionType() == org.kevoree.modeling.api.KActionType.ADD && event.metaClass() == lib.metaClass() && event.metaElement() == lib.metaClass().metaReference("shapes")) {
+                            console.log(event.value());
+                            addShapeToDisplay(event.value());
+                            /*
+                            var newVal = event.value();
                             view.lookup(newVal.uuid, function(shape){
-                                addShapeToDisplay(shape);
-                            });
+
+                            });*/
                         }
                     });
                     console.log("Yeah go ahead !")
                 }
             });
-        });
+        } else {
+            console.log(err);
+            err.printStackTrace()
+        }
     });
-    dataBaseConnection.connect();
 
     function addShapeToDisplay(shape) {
         $('<div id="'+shape.getName()+'" style="height:50px;width:50px;display: inline-block; margin: 10px;background-color: '+shape.getColor()+';"></div>').appendTo($('body'));
         shape.listen(function(event){
-            if(event.metaElement() == shape.metaAttribute("color").metaName()) {
-                $('div#' + shape.getName()).css('background-color',event.newValue())
+            if(event.metaElement() == shape.metaClass().metaAttribute("color")) {
+                console.log("In da place", event.value());
+                $('div#' + shape.getName()).css('background-color', event.value());
             }
         });
-        //shape.jump(shape.timeTree().first(), function(firstShape){
-        //});
     }
 
     $('#addNewShapeButton').on('click', addNewShape);
 
     function addNewShape() {
-        geometryUniverse.dimension(0, function(dimension) {
-            var view = dimension.time(0);
-            view.select("/", function (results) {
-                if (results === undefined || results.length == 0) {
-                    console.error("No root found.", results)
-                } else {
-                    var lib = results[0];
-                    var index = lib.sizeOfShapes();
-                    index = index +1;
-                    var newShape = view.createShape();
-                    newShape.setName("Shape"+index);
-                    newShape.setColor("grey");
-                    lib.addShapes(newShape);
-                    dimension.save(function(err){if(err){console.error(err);}});
-                }
-            });
+        var dimension = geometryUniverse.dimension(0);
+        var view = dimension.time(0);
+        view.select("/", function (results) {
+            if (results === undefined || results.length == 0) {
+                console.error("No root found.", results)
+            } else {
+                var lib = results[0];
+                var index = lib.sizeOfShapes();
+                index = index +1;
+                var newShape = view.createShape();
+                newShape.setName("Shape"+index);
+                newShape.setColor("grey");
+                lib.addShapes(newShape);
+                dimension.save(function(err){if(err){console.error(err);}});
+            }
         });
     }
 

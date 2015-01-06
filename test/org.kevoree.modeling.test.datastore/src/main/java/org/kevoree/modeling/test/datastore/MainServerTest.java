@@ -1,15 +1,12 @@
 package org.kevoree.modeling.test.datastore;
 
-import geometry.GeometryUniverse;
-import geometry.GeometryView;
-import geometry.Library;
-import org.kevoree.modeling.api.KActionType;
+import geometry.*;
+import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.ModelListener;
-import org.kevoree.modeling.api.data.DefaultKStore;
-import org.kevoree.modeling.api.data.MemoryKDataBase;
-import org.kevoree.modeling.databases.websocket.WebSocketDataBase;
-import org.kevoree.modeling.databases.websocket.WebSocketKBroker;
+import org.kevoree.modeling.api.event.DefaultKEvent;
+import org.kevoree.modeling.databases.websocket.WebSocketBroker;
+import org.kevoree.modeling.databases.websocket.WebSocketDataBaseWrapper;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -20,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  * Created by gregory.nain on 10/11/14.
  */
 public class MainServerTest {
-
+    public static String[] colors = new String[]{"red", "green", "blue"};
 
     public static void main(String[] args) {
 
@@ -29,69 +26,77 @@ public class MainServerTest {
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
         GeometryUniverse geoUniverse = new GeometryUniverse();
-        WebSocketDataBase wsDbWrapper = new WebSocketDataBase(geoUniverse.storage().dataBase(), 23664);
+        WebSocketDataBaseWrapper wsDbWrapper = new WebSocketDataBaseWrapper(geoUniverse.storage().dataBase(), 23664);
+        geoUniverse.setDataBase(wsDbWrapper);
+        WebSocketBroker wsb = new WebSocketBroker("0.0.0.0", 23665);
+        geoUniverse.setEventBroker(wsb);
 
-        geoUniverse.storage().setEventBroker(new WebSocketKBroker(geoUniverse.storage().eventBroker(), true));
+        geoUniverse.connect(new Callback<Throwable>() {
+            @Override
+            public void on(Throwable throwable) {
+                if(throwable != null) {
+                    throwable.printStackTrace();
+                } else {
+                    GeometryDimension dimension = geoUniverse.dimension(0);
+                    GeometryView geoFactory = dimension.time(originOfTime);
+                    geoFactory.select("/", results -> {
+                        if (results == null || results.length == 0) {
+                            Library lib = geoFactory.createLibrary();
+                            geoFactory.setRoot(lib, new Callback<Throwable>() {
+                                @Override
+                                public void on(Throwable throwable) {
+                                    if (throwable != null) {
+                                        throwable.printStackTrace();
+                                    }
+                                }
+                            });
+                            lib.addShapes(geoFactory.createShape().setName("ShapeR").setColor(colors[0]));
+                            lib.addShapes(geoFactory.createShape().setName("ShapeG").setColor(colors[1]));
+                            lib.addShapes(geoFactory.createShape().setName("ShapeB").setColor(colors[2]));
 
-        String[] colors = new String[]{"red", "green", "blue"};
+                            dimension.save(Utils.DefaultPrintStackTraceCallback);
 
-        geoUniverse.dimension(0, (dimension)->{
-
-            GeometryView geoFactory = dimension.time(originOfTime);
-            geoFactory.select("/", results -> {
-                if (results == null || results.length == 0) {
-                    Library lib = geoFactory.createLibrary();
-                    geoFactory.setRoot(lib);
-                    lib.addShapes(geoFactory.createShape().setName("ShapeR").setColor(colors[0]));
-                    lib.addShapes(geoFactory.createShape().setName("ShapeG").setColor(colors[1]));
-                    lib.addShapes(geoFactory.createShape().setName("ShapeB").setColor(colors[2]));
-
-                    dimension.save(Utils.DefaultPrintStackTraceCallback);
-                    System.out.println("Base model commited");
+                            System.out.println("Base model committed");
+                        }
+                    });
                 }
-            });
-            dimension.listen(new ModelListener() {
-                @Override
-                public void on(KEvent evt) {
-                    //System.out.println("NewEvent:" + evt.toJSON());
-                }
-            });
-
-
+            }
         });
 
+
+
 /*
+
         Semaphore s = new Semaphore(0);
         try {
             s.acquire();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
         */
+
         Runnable task = new Runnable() {
             int turn = 0, i = 0;
             public void run() {
-                geoUniverse.dimension(0, (dimension)->{
-                    GeometryView geoFactory = dimension.time(originOfTime);
-                    geoFactory.select("/", results -> {
-                        if(results == null || results.length == 0) {
-                            System.err.println("Root not found");
-                        } else {
-                            Library root = (Library) results[0];
-                            root.eachShapes((shape)->{
-                                i++;
-                                shape.setColor(colors[(turn + i)%3]);
-                            },error->{
-                                if(error != null) {
-                                    error.printStackTrace();
+                GeometryDimension dimension = geoUniverse.dimension(0);
+                GeometryView geoFactory = dimension.time(originOfTime);
+                geoFactory.select("/", results -> {
+                    if (results == null || results.length == 0) {
+                        System.err.println("Root not found");
+                    } else {
+                        Library root = (Library) results[0];
+                        root.eachShapes((shapes) -> {
+                            if(shapes != null) {
+                                for (Shape shape : shapes) {
+                                    i++;
+                                    shape.setColor(colors[(turn + i) % 3]);
                                 }
-                                turn++;
-                            });
-                            dimension.saveUnload(Utils.DefaultPrintStackTraceCallback);
-                        }
-                    });
+                            }
+                        });
+                        dimension.saveUnload(Utils.DefaultPrintStackTraceCallback);
+                    }
                 });
+                turn++;
             }
         };
         executor.scheduleWithFixedDelay(task, 8000, 2000, TimeUnit.MILLISECONDS);

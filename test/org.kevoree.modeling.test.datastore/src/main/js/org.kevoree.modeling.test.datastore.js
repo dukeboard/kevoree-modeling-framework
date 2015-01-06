@@ -85,7 +85,7 @@ var geometry;
                 this.all(geometry.meta.MetaLibrary.REF_SHAPES, function (kObjects) {
                     if (p_callback != null) {
                         var casted = new Array();
-                        for (var i = 0; i < casted.length; i++) {
+                        for (var i = 0; i < kObjects.length; i++) {
                             casted[i] = kObjects[i];
                         }
                         p_callback(casted);

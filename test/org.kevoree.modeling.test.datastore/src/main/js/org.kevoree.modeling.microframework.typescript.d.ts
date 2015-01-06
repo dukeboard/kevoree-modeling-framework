@@ -124,7 +124,6 @@ declare module org {
                     stream(query: string, callback: (p: KObject) => void): void;
                     dimension(): KDimension<any, any, any>;
                     now(): number;
-                    createProxy(clazz: meta.MetaClass, timeTree: time.TimeTree, key: number): KObject;
                     listen(listener: (p: KEvent) => void): void;
                     slice(elems: java.util.List<KObject>, callback: (p: trace.TraceSequence) => void): void;
                     json(): ModelFormat;
@@ -385,9 +384,9 @@ declare module org {
                         private _operationManager;
                         private _objectKeyCalculator;
                         private _dimensionKeyCalculator;
+                        private static OUT_OF_CACHE_MESSAGE;
                         private isConnected;
                         private static UNIVERSE_NOT_CONNECTED_ERROR;
-                        private static OUT_OF_CACHE_MESSAGE;
                         private static INDEX_RESOLVED_DIM;
                         private static INDEX_RESOLVED_TIME;
                         private static INDEX_RESOLVED_TIMETREE;
@@ -446,17 +445,8 @@ declare module org {
                         put(payloads: string[][], error: (p: java.lang.Throwable) => void): void;
                         remove(keys: string[], error: (p: java.lang.Throwable) => void): void;
                         commit(error: (p: java.lang.Throwable) => void): void;
-                        close(error: (p: java.lang.Throwable) => void): void;
-                    }
-                    class KeyCalculator {
-                        static LONG_LIMIT_JS: number;
-                        static INDEX_LIMIT: number;
-                        private _prefix;
-                        private _currentIndex;
-                        constructor(prefix: number, currentIndex: number);
-                        nextKey(): number;
-                        lastComputedIndex(): number;
-                        prefix(): number;
+                        connect(callback: (p: java.lang.Throwable) => void): void;
+                        close(callback: (p: java.lang.Throwable) => void): void;
                     }
                     interface KStore {
                         lookup(originView: KView, key: number, callback: (p: KObject) => void): void;
@@ -480,6 +470,16 @@ declare module org {
                         connect(callback: (p: java.lang.Throwable) => void): void;
                         close(callback: (p: java.lang.Throwable) => void): void;
                     }
+                    class KeyCalculator {
+                        static LONG_LIMIT_JS: number;
+                        static INDEX_LIMIT: number;
+                        private _prefix;
+                        private _currentIndex;
+                        constructor(prefix: number, currentIndex: number);
+                        nextKey(): number;
+                        lastComputedIndex(): number;
+                        prefix(): number;
+                    }
                     class MemoryKDataBase implements KDataBase {
                         private backend;
                         static DEBUG: boolean;
@@ -487,6 +487,7 @@ declare module org {
                         get(keys: string[], callback: (p: string[], p1: java.lang.Throwable) => void): void;
                         remove(keys: string[], callback: (p: java.lang.Throwable) => void): void;
                         commit(callback: (p: java.lang.Throwable) => void): void;
+                        connect(callback: (p: java.lang.Throwable) => void): void;
                         close(callback: (p: java.lang.Throwable) => void): void;
                     }
                     module cache {
@@ -509,10 +510,13 @@ declare module org {
                         private static UUID_INDEX;
                         private static TUPLE_SIZE;
                         private listeners;
-                        constructor();
+                        private _metaModel;
+                        connect(callback: (p: java.lang.Throwable) => void): void;
+                        close(callback: (p: java.lang.Throwable) => void): void;
                         registerListener(origin: any, listener: (p: KEvent) => void, scope: any): void;
                         notify(event: KEvent): void;
                         flush(dimensionKey: number): void;
+                        setMetaModel(p_metaModel: meta.MetaModel): void;
                         unregister(listener: (p: KEvent) => void): void;
                     }
                     class DefaultKEvent implements KEvent {
@@ -542,15 +546,18 @@ declare module org {
                         value(): any;
                         toString(): string;
                         toJSON(): string;
-                        static fromJSON(payload: string): KEvent;
-                        private static setEventAttribute(event, currentAttributeName, value);
+                        static fromJSON(payload: string, metaModel: meta.MetaModel): KEvent;
+                        private static setEventAttribute(event, currentAttributeName, value, metaModel);
                         toTrace(): trace.ModelTrace;
                     }
                     interface KEventBroker {
+                        connect(callback: (p: java.lang.Throwable) => void): void;
+                        close(callback: (p: java.lang.Throwable) => void): void;
                         registerListener(origin: any, listener: (p: KEvent) => void, scope: any): void;
+                        unregister(listener: (p: KEvent) => void): void;
                         notify(event: KEvent): void;
                         flush(dimensionKey: number): void;
-                        unregister(listener: (p: KEvent) => void): void;
+                        setMetaModel(metaModel: meta.MetaModel): void;
                     }
                 }
                 module extrapolation {
@@ -596,6 +603,8 @@ declare module org {
                         static PARENT_META: string;
                         static PARENT_REF_META: string;
                         static INBOUNDS_META: string;
+                        static TIME_META: string;
+                        static DIM_META: string;
                         static serialize(model: KObject, callback: (p: string, p1: java.lang.Throwable) => void): void;
                         static printJSON(elem: KObject, builder: java.lang.StringBuilder): void;
                     }
@@ -1299,12 +1308,6 @@ declare module org {
                         elementsCount: java.util.HashMap<string, number>;
                         packageList: java.util.ArrayList<string>;
                     }
-                    class XmiFormat implements ModelFormat {
-                        private _view;
-                        constructor(p_view: KView);
-                        save(model: KObject, callback: (p: string, p1: java.lang.Throwable) => void): void;
-                        load(payload: string, callback: (p: java.lang.Throwable) => void): void;
-                    }
                     class XMILoadingContext {
                         xmiReader: XmlParser;
                         loadedRoots: KObject;
@@ -1344,6 +1347,12 @@ declare module org {
                         private ref;
                         constructor(context: XMILoadingContext, target: KObject, mutatorType: KActionType, refName: string, ref: string);
                         run(): void;
+                    }
+                    class XmiFormat implements ModelFormat {
+                        private _view;
+                        constructor(p_view: KView);
+                        save(model: KObject, callback: (p: string, p1: java.lang.Throwable) => void): void;
+                        load(payload: string, callback: (p: java.lang.Throwable) => void): void;
                     }
                     class XmlParser {
                         private payload;

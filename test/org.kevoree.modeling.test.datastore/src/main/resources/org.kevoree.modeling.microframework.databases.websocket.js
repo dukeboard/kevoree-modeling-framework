@@ -6,25 +6,50 @@ var org;
         (function (modeling) {
             (function (database) {
                 (function (websocket) {
-                    var WebSocketKBroker = (function () {
-                        function WebSocketKBroker(baseBroker, connectionUri) {
-                            var _this = this;
+                    var WebSocketBrokerClient = (function () {
+                        function WebSocketBrokerClient(connectionUri) {
                             this.storedEvents = new java.util.HashMap();
-                            this._baseBroker = baseBroker;
-                            this.clientConnection = new WebSocket(connectionUri);
+                            this._baseBroker = new org.kevoree.modeling.api.event.DefaultKBroker();
+                            this._connectionUri = connectionUri;
+                        }
+                        WebSocketBrokerClient.prototype.connect = function (callback) {
+                            var _this = this;
+                            this.clientConnection = new WebSocket(this._connectionUri);
                             this.clientConnection.onmessage = function (message) {
                                 var json = JSON.parse(message.data);
                                 for (var i = 0; i < json.events.length; i++) {
-                                    var kEvent = org.kevoree.modeling.api.event.DefaultKEvent.fromJSON(json.events[i]);
+                                    var kEvent = org.kevoree.modeling.api.event.DefaultKEvent.fromJSON(json.events[i], _this._metaModel);
                                     _this.notifyOnly(kEvent);
                                 }
                             };
-                        }
-                        WebSocketKBroker.prototype.registerListener = function (origin, listener) {
-                            this._baseBroker.registerListener(origin, listener);
+                            if (callback != null) {
+                                callback(null);
+                            }
                         };
 
-                        WebSocketKBroker.prototype.notify = function (event) {
+                        WebSocketBrokerClient.prototype.close = function (callback) {
+                            var _this = this;
+                            this._baseBroker.close(function (e) {
+                                _this.clientConnection.close();
+                                if (callback != null) {
+                                    callback(e);
+                                }
+                            });
+                        };
+
+                        WebSocketBrokerClient.prototype.setMetaModel = function (metaModel) {
+                            this._metaModel = metaModel;
+                        };
+
+                        WebSocketBrokerClient.prototype.registerListener = function (origin, listener, scope) {
+                            this._baseBroker.registerListener(origin, listener, scope);
+                        };
+
+                        WebSocketBrokerClient.prototype.unregister = function (listener) {
+                            this._baseBroker.unregister(listener);
+                        };
+
+                        WebSocketBrokerClient.prototype.notify = function (event) {
                             this._baseBroker.notify(event);
                             var dimEvents = this.storedEvents.get(event.dimension());
                             if (dimEvents == null) {
@@ -34,11 +59,11 @@ var org;
                             dimEvents.add(event);
                         };
 
-                        WebSocketKBroker.prototype.notifyOnly = function (event) {
+                        WebSocketBrokerClient.prototype.notifyOnly = function (event) {
                             this._baseBroker.notify(event);
                         };
 
-                        WebSocketKBroker.prototype.flush = function (dimensionKey) {
+                        WebSocketBrokerClient.prototype.flush = function (dimensionKey) {
                             var eventList = this.storedEvents.remove(dimensionKey);
                             if (eventList != null) {
                                 var serializedEventList = [];
@@ -49,23 +74,19 @@ var org;
                                 this.clientConnection.send(JSON.stringify(jsonMessage));
                             }
                         };
-                        return WebSocketKBroker;
+                        return WebSocketBrokerClient;
                     })();
-                    websocket.WebSocketKBroker = WebSocketKBroker;
+                    websocket.WebSocketBrokerClient = WebSocketBrokerClient;
 
-                    var WebSocketDataBase = (function () {
-                        function WebSocketDataBase(connectionUri) {
+                    var WebSocketDataBaseClient = (function () {
+                        function WebSocketDataBaseClient(connectionUri) {
                             this.getCallbacks = new java.util.ArrayList();
                             this.putCallbacks = new java.util.ArrayList();
                             this.removeCallbacks = new java.util.ArrayList();
                             this.commitCallbacks = new java.util.ArrayList();
                             this.connectionUri = connectionUri;
                         }
-                        WebSocketDataBase.prototype.setAfterConnection = function (callback) {
-                            this.afterConnectionCallback = callback;
-                        };
-
-                        WebSocketDataBase.prototype.connect = function () {
+                        WebSocketDataBaseClient.prototype.connect = function (callback) {
                             var _this = this;
                             this.clientConnection = new WebSocket(this.connectionUri);
                             this.clientConnection.onmessage = function (message) {
@@ -99,13 +120,20 @@ var org;
                                 console.error(error);
                             };
                             this.clientConnection.onopen = function () {
-                                if (_this.afterConnectionCallback != null) {
-                                    _this.afterConnectionCallback();
+                                if (callback != null) {
+                                    callback(null);
                                 }
                             };
                         };
 
-                        WebSocketDataBase.prototype.get = function (keys, callback) {
+                        WebSocketDataBaseClient.prototype.close = function (callback) {
+                            this.clientConnection.close();
+                            if (callback != null) {
+                                callback(null);
+                            }
+                        };
+
+                        WebSocketDataBaseClient.prototype.get = function (keys, callback) {
                             var value = [];
                             for (var i = 0; i < keys.length; i++) {
                                 value.push(keys[i]);
@@ -116,7 +144,7 @@ var org;
                             this.clientConnection.send(stringified);
                         };
 
-                        WebSocketDataBase.prototype.put = function (payloads, error) {
+                        WebSocketDataBaseClient.prototype.put = function (payloads, error) {
                             var payloadList = [];
                             for (var i = 0; i < payloads.length; i++) {
                                 var keyValue = [];
@@ -130,17 +158,14 @@ var org;
                             this.clientConnection.send(stringified);
                         };
 
-                        WebSocketDataBase.prototype.remove = function (keys, error) {
+                        WebSocketDataBaseClient.prototype.remove = function (keys, error) {
                         };
 
-                        WebSocketDataBase.prototype.commit = function (error) {
+                        WebSocketDataBaseClient.prototype.commit = function (error) {
                         };
-
-                        WebSocketDataBase.prototype.close = function (error) {
-                        };
-                        return WebSocketDataBase;
+                        return WebSocketDataBaseClient;
                     })();
-                    websocket.WebSocketDataBase = WebSocketDataBase;
+                    websocket.WebSocketDataBaseClient = WebSocketDataBaseClient;
                 })(database.websocket || (database.websocket = {}));
                 var websocket = database.websocket;
             })(modeling.database || (modeling.database = {}));
