@@ -42,21 +42,21 @@ public class JSONSaveTest {
         });
         String payloadResult = "[\n" +
                 "{\n" +
-                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                "\t\"@uuid\" : \"1\",\n" +
-                "\t\"@root\" : \"true\",\n" +
-                "\t\"name\" : \"root\",\n" +
-                "\t\"children\" : [\"2\",\"3\"],\n" +
+                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\"\n" +
+                "\t,\"@uuid\" : \"1\"\n" +
+                "\t,\"@root\" : \"true\"\n" +
+                "\t,\"name\" : \"root\"\n" +
+                "\t,\"children\" : [\"2\",\"3\"]\n" +
                 "}\n" +
                 ",{\n" +
-                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                "\t\"@uuid\" : \"2\",\n" +
-                "\t\"name\" : \"n1\",\n" +
+                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\"\n" +
+                "\t,\"@uuid\" : \"2\"\n" +
+                "\t,\"name\" : \"n1\"\n" +
                 "}\n" +
                 ",{\n" +
-                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                "\t\"@uuid\" : \"3\",\n" +
-                "\t\"name\" : \"n2\",\n" +
+                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\"\n" +
+                "\t,\"@uuid\" : \"3\"\n" +
+                "\t,\"name\" : \"n2\"\n" +
                 "}\n" +
                 "]\n";
 

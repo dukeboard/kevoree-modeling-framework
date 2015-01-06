@@ -73,7 +73,6 @@ public class JSONLoadTest {
                 time0.json().save(kObjects[0], new ThrowableCallback<String>() {
                     @Override
                     public void on(String s, Throwable error) {
-                        System.out.println(s);
                         Assert.assertEquals(s, "[\n" +
                                 "{\n" +
                                 "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\"\n" +
