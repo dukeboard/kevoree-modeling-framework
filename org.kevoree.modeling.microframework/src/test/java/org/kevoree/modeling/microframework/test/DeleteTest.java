@@ -102,7 +102,7 @@ public class DeleteTest {
                 //}
             }
         });
-        CloudView factory2_2 = dimension.time(2l);
+        CloudView factory2_2 = dimension.time(1l);
         factory2_2.select("/", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] results) {
