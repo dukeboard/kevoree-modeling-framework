@@ -104,7 +104,7 @@ public abstract class AbstractKView implements KView {
     }
 
     public KObject createProxy(MetaClass clazz, TimeTree timeTree, long key) {
-        //toto check the radixKey
+        //TODO check the radixKey
         return internalCreate(clazz, timeTree, key);
     }
 
