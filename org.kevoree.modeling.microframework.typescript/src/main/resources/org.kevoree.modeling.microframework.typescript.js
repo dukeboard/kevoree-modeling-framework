@@ -1426,7 +1426,7 @@ var org;
                         };
                         DefaultKStore.prototype.raw = function (origin, accessMode) {
                             var resolvedTime = origin.timeTree().resolve(origin.now());
-                            var needCopy = accessMode.equals(org.kevoree.modeling.api.data.AccessMode.WRITE) && resolvedTime != origin.now();
+                            var needCopy = accessMode.equals(org.kevoree.modeling.api.data.AccessMode.WRITE) && (resolvedTime != origin.now());
                             var dimensionCache = this.caches.get(origin.dimension().key());
                             if (dimensionCache == null) {
                                 throw new java.lang.RuntimeException(DefaultKStore.OUT_OF_CACHE_MESSAGE);
@@ -1453,7 +1453,6 @@ var org;
                             }
                             else {
                                 var cloned = new Array();
-                                cloned[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX] = true;
                                 for (var i = 0; i < payload.length; i++) {
                                     var resolved = payload[i];
                                     if (resolved != null) {
@@ -1474,6 +1473,7 @@ var org;
                                         }
                                     }
                                 }
+                                cloned[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX] = true;
                                 var clonedEntry = new org.kevoree.modeling.api.data.CacheEntry();
                                 clonedEntry.raw = cloned;
                                 clonedEntry.metaClass = entry.metaClass;
@@ -1510,7 +1510,7 @@ var org;
                                         var idObj = keys[k];
                                         var cached_entry = timeCache.payload_cache.get(idObj);
                                         var cached_raw = cached_entry.raw;
-                                        if (cached_raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX] != null && cached_raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX].toString().equals("true")) {
+                                        if (cached_raw != null && cached_raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX] != null && cached_raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX].toString().equals("true")) {
                                             var payloadA = new Array();
                                             payloadA[0] = this.keyPayload(dimension.key(), now, idObj);
                                             payloadA[1] = org.kevoree.modeling.api.data.JsonRaw.encode(cached_raw, idObj, cached_entry.metaClass);
@@ -1606,8 +1606,6 @@ var org;
                                         var toLoadIndex = toLoadIndexes.get(i);
                                         toLoadKeys[i] = _this.keyPayload(objects[toLoadIndex][DefaultKStore.INDEX_RESOLVED_DIM], objects[toLoadIndex][DefaultKStore.INDEX_RESOLVED_TIME], keys[i]);
                                     }
-                                    System.err.println(toLoadKeys[0] + "/" + objects[0][DefaultKStore.INDEX_RESOLVED_DIM] + "/" + objects[0][DefaultKStore.INDEX_RESOLVED_TIME]);
-                                    System.err.println(originView.now());
                                     _this._db.get(toLoadKeys, function (strings, error) {
                                         if (error != null) {
                                             error.printStackTrace();
@@ -1623,9 +1621,6 @@ var org;
                                                         resolved[i] = originView.createProxy(entry.metaClass, entry.timeTree, keys[index]);
                                                         _this.write_cache(objects[i][DefaultKStore.INDEX_RESOLVED_DIM], objects[i][DefaultKStore.INDEX_RESOLVED_TIME], keys[index], entry);
                                                     }
-                                                }
-                                                else {
-                                                    System.err.println("Not resolvable UUID " + toLoadIndexes.get(i));
                                                 }
                                             }
                                             callback(resolved);
@@ -1729,7 +1724,7 @@ var org;
                                     for (var k = 0; k < keys.length; k++) {
                                         var idObj = keys[k];
                                         var cachedEntry = timeCache.payload_cache.get(idObj);
-                                        if (cachedEntry != null && cachedEntry.raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX] != null && cachedEntry.raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX].toString().equals("true")) {
+                                        if (cachedEntry != null && cachedEntry.raw != null && cachedEntry.raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX] != null && cachedEntry.raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX].toString().equals("true")) {
                                             sizeCache++;
                                         }
                                     }
