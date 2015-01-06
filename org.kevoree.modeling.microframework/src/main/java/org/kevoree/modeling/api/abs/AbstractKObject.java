@@ -230,7 +230,8 @@ public abstract class AbstractKObject implements KObject {
                 builder.append("=");
                 Object payload = get(att);
                 if (payload != null) {
-                    builder.append(payload.toString());//TODO, forbid multiple cardinality as domainKey
+                    //TODO, forbid multiple cardinality as domainKey
+                    builder.append(payload.toString());
                 }
             }
         }
@@ -542,20 +543,25 @@ public abstract class AbstractKObject implements KObject {
         if (toResolveds.isEmpty()) {
             end.on(null);
         } else {
-            view().lookupAll(toResolveds.toArray(new Long[toResolveds.size()]), new Callback<KObject[]>() {
+            Long[] toResolvedArr = toResolveds.toArray(new Long[toResolveds.size()]);
+            view().lookupAll(toResolvedArr, new Callback<KObject[]>() {
                 @Override
                 public void on(KObject[] resolveds) {
                     final List<KObject> nextDeep = new ArrayList<KObject>();
                     for (int i = 0; i < resolveds.length; i++) {
                         KObject resolved = resolveds[i];
-                        VisitResult result = visitor.visit(resolved);
-                        if (result.equals(VisitResult.STOP)) {
-                            end.on(null);
+                        if(resolved == null){
+                            System.err.println("Unknow object with ID "+toResolvedArr[i]);
                         } else {
-                            if (deep) {
-                                if (result.equals(VisitResult.CONTINUE)) {
-                                    if (alreadyVisited == null || !alreadyVisited.contains(resolved.uuid())) {
-                                        nextDeep.add(resolved);
+                            VisitResult result = visitor.visit(resolved);
+                            if (result.equals(VisitResult.STOP)) {
+                                end.on(null);
+                            } else {
+                                if (deep) {
+                                    if (result.equals(VisitResult.CONTINUE)) {
+                                        if (alreadyVisited == null || !alreadyVisited.contains(resolved.uuid())) {
+                                            nextDeep.add(resolved);
+                                        }
                                     }
                                 }
                             }
