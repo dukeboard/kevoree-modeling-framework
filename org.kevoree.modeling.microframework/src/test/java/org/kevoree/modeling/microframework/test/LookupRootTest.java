@@ -11,10 +11,10 @@ import org.kevoree.modeling.microframework.test.cloud.*;
  * Created by thomas on 06/01/15.
  */
 public class LookupRootTest {
-    
+
     @Test
     public void loadRootFromMemoryTest() {
-        MemoryKDataBase.DEBUG = true;
+//        MemoryKDataBase.DEBUG = true;
 
         final CloudUniverse universe = new CloudUniverse();
         universe.setDataBase(new MemoryKDataBase());
