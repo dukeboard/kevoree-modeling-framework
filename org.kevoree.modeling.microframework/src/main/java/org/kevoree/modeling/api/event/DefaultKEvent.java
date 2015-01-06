@@ -22,7 +22,7 @@ public class DefaultKEvent implements KEvent {
     private MetaClass _metaClass;
     private Meta _metaElement;
     private Object _value;
-
+    
     public DefaultKEvent(KActionType p_type, KObject p_source, Meta p_meta, Object p_newValue) {
         if (p_source != null) {
             this._dimensionKey = p_source.dimension().key();
@@ -131,7 +131,12 @@ public class DefaultKEvent implements KEvent {
         } else if (currentAttributeName.equals(CLASS_KEY)) {
             event._metaClass = metaModel.metaClass(value);
         } else if (currentAttributeName.equals(ELEMENT_KEY)) {
-            //event._metaElement = value;
+            if (event._metaClass != null) {
+                event._metaElement = event._metaClass.metaAttribute(value);
+                if (event._metaElement != null) {
+                    event._metaElement = event._metaClass.metaReference(value);
+                }
+            }
         } else if (currentAttributeName.equals(VALUE_KEY)) {
             event._value = JsonString.unescape(value);
         } else {
@@ -155,5 +160,6 @@ public class DefaultKEvent implements KEvent {
         }
         return null;
     }
+
 
 }
