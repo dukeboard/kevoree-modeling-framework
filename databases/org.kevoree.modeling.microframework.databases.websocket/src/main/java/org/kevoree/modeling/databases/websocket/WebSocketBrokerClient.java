@@ -11,6 +11,7 @@ import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.event.DefaultKBroker;
 import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.event.KEventBroker;
+import org.kevoree.modeling.api.meta.MetaModel;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -28,6 +29,8 @@ public class WebSocketBrokerClient implements KEventBroker {
     private String _ip;
     private int _port;
     private Map<Long, ArrayList<KEvent>> storedEvents = new HashMap<Long, ArrayList<KEvent>>();
+
+    private MetaModel _metaModel;
 
     public WebSocketBrokerClient(String ip, int port) {
         this._baseBroker = new DefaultKBroker();
@@ -54,7 +57,7 @@ public class WebSocketBrokerClient implements KEventBroker {
                     JsonArray events = message.get("events").asArray();
                     for (int i = 0; i < events.size(); i++) {
                         System.out.println(events.get(i).asString());
-                        KEvent kEvent = DefaultKEvent.fromJSON(events.get(i).asString());
+                        KEvent kEvent = DefaultKEvent.fromJSON(events.get(i).asString(), _metaModel);
                         notifyOnly(kEvent);
                     }
                 }
@@ -117,6 +120,11 @@ public class WebSocketBrokerClient implements KEventBroker {
             String message = jsonMessage.toString();
             client.send(message);
         }
+    }
+
+    @Override
+    public void setMetaModel(MetaModel p_metaModel) {
+        this._metaModel = p_metaModel;
     }
 
 }

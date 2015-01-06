@@ -3,6 +3,7 @@ package org.kevoree.modeling.api.event;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.ModelListener;
+import org.kevoree.modeling.api.meta.MetaModel;
 
 /**
  * Created by gregory.nain on 11/11/14.
@@ -20,5 +21,7 @@ public interface KEventBroker {
     void notify(KEvent event);
 
     void flush(Long dimensionKey);
+
+    void setMetaModel(MetaModel metaModel);
 
 }

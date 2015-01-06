@@ -40,6 +40,8 @@ public class DefaultKStore implements KStore {
     private KeyCalculator _objectKeyCalculator = null;
     private KeyCalculator _dimensionKeyCalculator = null;
 
+    private static final String OUT_OF_CACHE_MESSAGE = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
+
     public DefaultKStore() {
         this._db = new MemoryKDataBase();
         this._eventBroker = new DefaultKBroker();
@@ -247,8 +249,6 @@ public class DefaultKStore implements KStore {
         write_cache(obj.dimension().key(), obj.now(), obj.uuid(), cacheEntry);
     }
 
-    private static final String OUT_OF_CACHE_MESSAGE = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
-
     //TODO
     @Override
     public Object[] raw(KObject origin, AccessMode accessMode) {
@@ -436,7 +436,7 @@ public class DefaultKStore implements KStore {
                         if (entry == null) {
                             toLoadIndexes.add(i);
                         } else {
-                            resolved[i] = ((AbstractKView)originView).createProxy(entry.metaClass, entry.timeTree, keys[i]);
+                            resolved[i] = ((AbstractKView) originView).createProxy(entry.metaClass, entry.timeTree, keys[i]);
                         }
                     }
                 }
@@ -448,6 +448,8 @@ public class DefaultKStore implements KStore {
                         int toLoadIndex = toLoadIndexes.get(i);
                         toLoadKeys[i] = keyPayload((Long) objects[toLoadIndex][INDEX_RESOLVED_DIM], (Long) objects[toLoadIndex][INDEX_RESOLVED_TIME], keys[i]);
                     }
+                    System.err.println(toLoadKeys[0]+"/"+objects[0][INDEX_RESOLVED_DIM]+"/"+objects[0][INDEX_RESOLVED_TIME]);
+                    System.err.println(originView.now());
                     _db.get(toLoadKeys, new ThrowableCallback<String[]>() {
                         @Override
                         public void on(String[] strings, Throwable error) {
@@ -463,7 +465,7 @@ public class DefaultKStore implements KStore {
                                         if (entry != null) {
                                             entry.timeTree = (TimeTree) objects[index][INDEX_RESOLVED_TIMETREE];
                                             //Create and Add the proxy
-                                            resolved[i] = ((AbstractKView)originView).createProxy(entry.metaClass, entry.timeTree, keys[index]);
+                                            resolved[i] = ((AbstractKView) originView).createProxy(entry.metaClass, entry.timeTree, keys[index]);
                                             //Save the cache value
                                             write_cache((Long) objects[i][INDEX_RESOLVED_DIM], (Long) objects[i][INDEX_RESOLVED_TIME], keys[index], entry);
                                         }

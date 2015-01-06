@@ -92,6 +92,7 @@ public abstract class AbstractKUniverse<A extends KDimension> implements KUniver
     @Override
     public KUniverse<A> setEventBroker(KEventBroker eventBroker) {
         storage().setEventBroker(eventBroker);
+        eventBroker.setMetaModel(metaModel());
         return this;
     }
 

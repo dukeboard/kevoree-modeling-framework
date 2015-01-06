@@ -16,6 +16,7 @@ import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.event.DefaultKBroker;
 import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.event.KEventBroker;
+import org.kevoree.modeling.api.meta.MetaModel;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,6 +34,8 @@ public class WebSocketBroker extends AbstractReceiveListener implements KEventBr
     private Undertow server;
     private ArrayList<WebSocketChannel> webSocketClients = new ArrayList<>();
     private Map<Long, ArrayList<KEvent>> storedEvents = new HashMap<Long, ArrayList<KEvent>>();
+
+    private MetaModel _metaModel;
 
     private String _ip;
     private int _port;
@@ -114,6 +117,11 @@ public class WebSocketBroker extends AbstractReceiveListener implements KEventBr
     }
 
     @Override
+    public void setMetaModel(MetaModel p_metaModel) {
+        this._metaModel = p_metaModel;
+    }
+
+    @Override
     public void unregister(ModelListener listener) {
         _baseBroker.unregister(listener);
     }
@@ -141,7 +149,7 @@ public class WebSocketBroker extends AbstractReceiveListener implements KEventBr
         JsonObject jsonMessage = JsonObject.readFrom(messageData);
         JsonArray events = jsonMessage.get("events").asArray();
         for (int i = 0; i < events.size(); i++) {
-            KEvent event = DefaultKEvent.fromJSON(events.get(i).asString());
+            KEvent event = DefaultKEvent.fromJSON(events.get(i).asString(),this._metaModel);
             notifyOnly(event);
         }
 

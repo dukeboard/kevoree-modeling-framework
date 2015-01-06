@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.data.MemoryKDataBase;
 import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
@@ -15,9 +16,10 @@ import org.kevoree.modeling.microframework.test.cloud.Node;
  */
 public class DeleteTest {
 
-
     @Test
     public void basicDeleteTest() {
+
+        MemoryKDataBase.DEBUG = true;
 
         CloudUniverse universe = new CloudUniverse();
         universe.connect(null);
@@ -28,22 +30,19 @@ public class DeleteTest {
         dimension.saveUnload(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
-                if(throwable != null) {
+                if (throwable != null) {
                     throwable.printStackTrace();
                 }
             }
         });
-
-
         CloudView factory1 = dimension.time(1l);
         Element e = factory1.createElement();
         factory1.select("/", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] results) {
-                if(results != null && results.length > 0) {
-                    Node n2 = (Node)results[0];
+                if (results != null && results.length > 0) {
+                    Node n2 = (Node) results[0];
                     n2.setElement(e);
-
                 }
 
             }
@@ -51,27 +50,29 @@ public class DeleteTest {
         dimension.saveUnload(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
-                if(throwable != null) {
+                if (throwable != null) {
                     throwable.printStackTrace();
                 }
             }
         });
-
-
         CloudView factory2 = dimension.time(2l);
+        System.err.println("#1");
         factory2.select("/", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] results) {
-                if(results != null && results.length > 0) {
-                    Node n2 = (Node)results[0];
+
+                System.err.println("#2");
+
+                if (results != null && results.length > 0) {
+                    Node n2 = (Node) results[0];
                     n2.getElement(new Callback<Element>() {
                         @Override
                         public void on(Element element) {
-                            if(element != null) {
+                            if (element != null) {
                                 element.delete(new Callback<Throwable>() {
                                     @Override
                                     public void on(Throwable throwable) {
-                                        if(throwable != null) {
+                                        if (throwable != null) {
                                             throwable.printStackTrace();
                                         }
                                     }
@@ -82,21 +83,23 @@ public class DeleteTest {
                 }
             }
         });
+
+
+        /*
         dimension.saveUnload(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
-                if(throwable != null) {
+                if (throwable != null) {
                     throwable.printStackTrace();
                 }
             }
         });
-
         CloudView factory3 = dimension.time(3l);
         factory3.select("/", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] results) {
-                if(results != null && results.length > 0) {
-                    Node n2 = (Node)results[0];
+                if (results != null && results.length > 0) {
+                    Node n2 = (Node) results[0];
                     n2.getElement(new Callback<Element>() {
                         @Override
                         public void on(Element element) {
@@ -106,13 +109,12 @@ public class DeleteTest {
                 }
             }
         });
-
         CloudView factory2_2 = dimension.time(2l);
         factory2_2.select("/", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] results) {
-                if(results != null && results.length > 0) {
-                    Node n2 = (Node)results[0];
+                if (results != null && results.length > 0) {
+                    Node n2 = (Node) results[0];
                     n2.getElement(new Callback<Element>() {
                         @Override
                         public void on(Element element) {
@@ -123,8 +125,8 @@ public class DeleteTest {
             }
         });
 
+        */
+
     }
-
-
 
 }

@@ -74,11 +74,9 @@ public abstract class AbstractKView implements KView {
                 } else {
                     String cleanedQuery = query;
                     if (cleanedQuery.equals("/")) {
-                        ArrayList<KObject> res = new ArrayList<KObject>();
-                        if (rootObj != null) {
-                            res.add(rootObj);
-                        }
-                        callback.on(res.toArray(new KObject[res.size()]));
+                        KObject[] param = new KObject[1];
+                        param[0] = rootObj;
+                        callback.on(param);
                     } else {
                         if (cleanedQuery.startsWith("/")) {
                             cleanedQuery = cleanedQuery.substring(1);
