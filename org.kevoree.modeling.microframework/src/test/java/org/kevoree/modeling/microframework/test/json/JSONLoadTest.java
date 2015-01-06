@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
 import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
@@ -27,19 +28,19 @@ public class JSONLoadTest {
         time0.json().load("[\n" +
                 "{\n" +
                 "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                "\t\"@uuid\" : \"1\",\n" +
+                "\t\"@uuid\" : \"2\",\n" +
                 "\t\"@root\" : \"true\",\n" +
                 "\t\"name\":\"root\",\n" +
-                "\t\"children\": [\"2\",\"3\"],\n" +
-                "}\n" +
-                ",{\n" +
-                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                "\t\"@uuid\" : \"2\",\n" +
-                "\t\"name\":\"n1\",\n" +
+                "\t\"children\": [\"3\",\"4\"],\n" +
                 "}\n" +
                 ",{\n" +
                 "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
                 "\t\"@uuid\" : \"3\",\n" +
+                "\t\"name\":\"n1\",\n" +
+                "}\n" +
+                ",{\n" +
+                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                "\t\"@uuid\" : \"4\",\n" +
                 "\t\"name\":\"n2\",\n" +
                 "}\n" +
                 "]", new Callback<Throwable>() {
@@ -64,7 +65,38 @@ public class JSONLoadTest {
             }
         });
 
-        Assert.assertEquals(passed[0],2);
+        Assert.assertEquals(passed[0], 2);
+
+        time0.select("/", new Callback<KObject[]>() {
+            @Override
+            public void on(KObject[] kObjects) {
+                time0.json().save(kObjects[0], new ThrowableCallback<String>() {
+                    @Override
+                    public void on(String s, Throwable error) {
+                        Assert.assertEquals(s, "[\n" +
+                                "{\n" +
+                                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                                "\t\"@uuid\" : \"1\",\n" +
+                                "\t\"@root\" : \"true\",\n" +
+                                "\t\"name\" : \"root\",\n" +
+                                "\t\"children\" : [\"2\",\"3\"],\n" +
+                                "}\n" +
+                                ",{\n" +
+                                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                                "\t\"@uuid\" : \"2\",\n" +
+                                "\t\"name\" : \"n1\",\n" +
+                                "}\n" +
+                                ",{\n" +
+                                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                                "\t\"@uuid\" : \"3\",\n" +
+                                "\t\"name\" : \"n2\",\n" +
+                                "}\n" +
+                                "]\n");
+                    }
+                });
+            }
+        });
+
 
     }
 

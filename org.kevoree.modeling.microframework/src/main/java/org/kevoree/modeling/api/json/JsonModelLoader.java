@@ -71,121 +71,142 @@ public class JsonModelLoader {
                     }
                     currentToken = lexer.nextToken();
                 }
-
-
-
+                Map<Long, Long> mappedKeys = new HashMap<Long, Long>();
                 for (int i = 0; i < alls.size(); i++) {
-                    Map<String, Object> elem = alls.get(i);
-                    String meta = elem.get(JsonModelSerializer.KEY_META).toString();
-                    Long kid = Long.parseLong(elem.get(JsonModelSerializer.KEY_UUID).toString());
-                    boolean isRoot = false;
-                    Object root = elem.get(JsonModelSerializer.KEY_ROOT);
-                    if (root != null) {
-                        isRoot = root.toString().equals("true");
+                    try {
+                        Map<String, Object> elem = alls.get(i);
+                        Long kid = Long.parseLong(elem.get(JsonModelSerializer.KEY_UUID).toString());
+                        mappedKeys.put(kid, factory.dimension().universe().storage().nextObjectKey());
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                    TimeTree timeTree = new DefaultTimeTree();
-                    timeTree.insert(factory.now());
-                    MetaClass metaClass = metaModel.metaClass(meta);
-                    KObject current = ((AbstractKView) factory).createProxy(metaClass, timeTree, kid);
-                    factory.dimension().universe().storage().initKObject(current, factory);
-                    if (isRoot) {
-                        factory.setRoot(current, null);//todo force the direct set
-                    }
-                    Object[] raw = factory.dimension().universe().storage().raw(current, AccessMode.WRITE);
-                    String[] metaKeys = elem.keySet().toArray(new String[elem.size()]);
-                    if (metaKeys[i].equals(JsonModelSerializer.INBOUNDS_META)) {
-                        HashMap<Long, MetaReference> inbounds = new HashMap<Long, MetaReference>();
-                        raw[Index.INBOUNDS_INDEX] = inbounds;
-                        Object inbounds_payload = content.get(metaKeys[i]);
-                        try {
-                            HashSet<String> raw_keys = (HashSet<String>) inbounds_payload;
-                            String[] raw_keys_p = raw_keys.toArray(new String[raw_keys.size()]);
-                            for (int j = 0; j < raw_keys_p.length; j++) {
-                                String raw_elem = raw_keys_p[j];
-                                String[] tuple = raw_elem.split(JsonRaw.SEP);
-                                if (tuple.length == 3) {
-                                    Long raw_k = Long.parseLong(tuple[0]);
-                                    MetaClass foundMeta = metaModel.metaClass(tuple[1].trim());
-                                    if (foundMeta != null) {
-                                        MetaReference metaReference = foundMeta.metaReference(tuple[2].trim());
-                                        if (metaReference != null) {
-                                            inbounds.put(raw_k, metaReference);
+                }
+                for (int i = 0; i < alls.size(); i++) {
+                    try {
+                        Map<String, Object> elem = alls.get(i);
+                        Long kid = Long.parseLong(elem.get(JsonModelSerializer.KEY_UUID).toString());
+                        String meta = elem.get(JsonModelSerializer.KEY_META).toString();
+                        TimeTree timeTree = new DefaultTimeTree();
+                        timeTree.insert(factory.now());
+                        MetaClass metaClass = metaModel.metaClass(meta);
+                        KObject current = ((AbstractKView) factory).createProxy(metaClass, timeTree, mappedKeys.get(kid));
+                        factory.dimension().universe().storage().initKObject(current, factory);
+                        Object[] raw = factory.dimension().universe().storage().raw(current, AccessMode.WRITE);
+                        String[] metaKeys = elem.keySet().toArray(new String[elem.size()]);
+                        for (int h = 0; h < metaKeys.length; h++) {
+                            String metaKey = metaKeys[h];
+                            Object payload_content = elem.get(metaKey);
+                            if (metaKey.equals(JsonModelSerializer.INBOUNDS_META)) {
+                                HashMap<Long, MetaReference> inbounds = new HashMap<Long, MetaReference>();
+                                raw[Index.INBOUNDS_INDEX] = inbounds;
+                                try {
+                                    HashSet<String> raw_keys = (HashSet<String>) payload_content;
+                                    String[] raw_keys_p = raw_keys.toArray(new String[raw_keys.size()]);
+                                    for (int hh = 0; hh < raw_keys_p.length; hh++) {
+                                        String raw_elem = raw_keys_p[hh];
+                                        String[] tuple = raw_elem.split(JsonRaw.SEP);
+                                        if (tuple.length == 3) {
+                                            Long raw_k = Long.parseLong(tuple[0]);
+                                            if (mappedKeys.containsKey(raw_k)) {
+                                                raw_k = mappedKeys.get(raw_k);
+                                            }
+                                            MetaClass foundMeta = metaModel.metaClass(tuple[1].trim());
+                                            if (foundMeta != null) {
+                                                MetaReference metaReference = foundMeta.metaReference(tuple[2].trim());
+                                                if (metaReference != null) {
+                                                    inbounds.put(raw_k, metaReference);
+                                                }
+                                            }
                                         }
                                     }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    } else if (metaKeys[i].equals(JsonModelSerializer.PARENT_META)) {
-                        try {
-                            raw[Index.PARENT_INDEX] = Long.parseLong(content.get(metaKeys[i]).toString());
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    } else if (metaKeys[i].equals(JsonModelSerializer.PARENT_REF_META)) {
-                        try {
-                            String parentRef_payload = content.get(metaKeys[i]).toString();
-                            String[] elems = parentRef_payload.split(JsonRaw.SEP);
-                            if (elems.length == 2) {
-                                MetaClass foundMeta = metaModel.metaClass(elems[0].trim());
-                                if (foundMeta != null) {
-                                    MetaReference metaReference = foundMeta.metaReference(elems[1].trim());
-                                    if (metaReference != null) {
-                                        raw[Index.REF_IN_PARENT_INDEX] = metaReference;
+                            } else if (metaKey.equals(JsonModelSerializer.PARENT_META)) {
+                                try {
+                                    Long raw_k = Long.parseLong(payload_content.toString());
+                                    if (mappedKeys.containsKey(raw_k)) {
+                                        raw_k = mappedKeys.get(raw_k);
                                     }
+                                    raw[Index.PARENT_INDEX] = raw_k;
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    } else if (metaKeys[i].equals(JsonModelSerializer.KEY_ROOT)) {
-                        try {
-                            if ("true".equals(content.get(metaKeys[i]))) {
-                                raw[Index.IS_ROOT_INDEX] = true;
+                            } else if (metaKey.equals(JsonModelSerializer.PARENT_REF_META)) {
+                                try {
+                                    String parentRef_payload = payload_content.toString();
+                                    String[] elems = parentRef_payload.split(JsonRaw.SEP);
+                                    if (elems.length == 2) {
+                                        MetaClass foundMeta = metaModel.metaClass(elems[0].trim());
+                                        if (foundMeta != null) {
+                                            MetaReference metaReference = foundMeta.metaReference(elems[1].trim());
+                                            if (metaReference != null) {
+                                                raw[Index.REF_IN_PARENT_INDEX] = metaReference;
+                                            }
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            } else if (metaKey.equals(JsonModelSerializer.KEY_ROOT)) {
+                                try {
+                                    if ("true".equals(payload_content)) {
+                                        raw[Index.IS_ROOT_INDEX] = true;
+                                    } else {
+                                        raw[Index.IS_ROOT_INDEX] = false;
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            } else if (metaKey.equals(JsonModelSerializer.KEY_META)) {
+                                //nothing metaClass is already set
                             } else {
-                                raw[Index.IS_ROOT_INDEX] = false;
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    } else if (metaKeys[i].equals(JsonModelSerializer.KEY_META)) {
-                        //nothing metaClass is already set
-                    } else {
-                        MetaAttribute metaAttribute = metaClass.metaAttribute(metaKeys[i]);
-                        MetaReference metaReference = metaClass.metaReference(metaKeys[i]);
-                        Object insideContent = content.get(metaKeys[i]);
-                        if (insideContent != null) {
-                            if (metaAttribute != null) {
-                                raw[metaAttribute.index()] = metaAttribute.strategy().load(insideContent.toString(), metaAttribute, factory.now());
-                            } else if (metaReference != null) {
-                                if (metaReference.single()) {
-                                    try {
-                                        raw[metaReference.index()] = Long.parseLong(insideContent.toString());
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                } else {
-                                    try {
-                                        Set<Long> convertedRaw = new HashSet<Long>();
-                                        Set<String> plainRawSet = (Set<String>) insideContent;
-                                        String[] plainRawList = plainRawSet.toArray(new String[plainRawSet.size()]);
-                                        for (int l = 0; l < plainRawList.length; l++) {
-                                            String plainRaw = plainRawList[l];
+                                MetaAttribute metaAttribute = metaClass.metaAttribute(metaKey);
+                                MetaReference metaReference = metaClass.metaReference(metaKey);
+                                if (payload_content != null) {
+                                    if (metaAttribute != null) {
+                                        raw[metaAttribute.index()] = metaAttribute.strategy().load(payload_content.toString(), metaAttribute, factory.now());
+                                    } else if (metaReference != null) {
+                                        if (metaReference.single()) {
                                             try {
-                                                Long converted = Long.parseLong(plainRaw);
-                                                convertedRaw.add(converted);
+                                                raw[metaReference.index()] = Long.parseLong(payload_content.toString());
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                        } else {
+                                            try {
+                                                Set<Long> convertedRaw = new HashSet<Long>();
+                                                Set<String> plainRawSet = (Set<String>) payload_content;
+                                                String[] plainRawList = plainRawSet.toArray(new String[plainRawSet.size()]);
+                                                for (int l = 0; l < plainRawList.length; l++) {
+                                                    String plainRaw = plainRawList[l];
+                                                    try {
+                                                        Long converted = Long.parseLong(plainRaw);
+                                                        if (mappedKeys.containsKey(converted)) {
+                                                            converted = mappedKeys.get(converted);
+                                                        }
+                                                        convertedRaw.add(converted);
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                                raw[metaReference.index()] = convertedRaw;
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
                                         }
-                                        raw[metaReference.index()] = convertedRaw;
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
                                     }
                                 }
                             }
                         }
+                        if (raw[Index.IS_ROOT_INDEX] == null) {
+                            raw[Index.IS_ROOT_INDEX] = false;
+                        }
+                        if (raw[Index.IS_ROOT_INDEX].equals(true)) {
+                            factory.setRoot(current, null);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
                 if (callback != null) {
