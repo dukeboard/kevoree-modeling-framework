@@ -266,8 +266,6 @@ module org {
 
                     now(): number;
 
-                    createProxy(clazz: org.kevoree.modeling.api.meta.MetaClass, timeTree: org.kevoree.modeling.api.time.TimeTree, key: number): org.kevoree.modeling.api.KObject;
-
                     listen(listener: (p : org.kevoree.modeling.api.KEvent) => void): void;
 
                     slice(elems: java.util.List<org.kevoree.modeling.api.KObject>, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void;
@@ -1169,6 +1167,7 @@ module org {
 
                         public setEventBroker(eventBroker: org.kevoree.modeling.api.event.KEventBroker): org.kevoree.modeling.api.KUniverse<any> {
                             this.storage().setEventBroker(eventBroker);
+                            eventBroker.setMetaModel(this.metaModel());
                             return this;
                         }
 
@@ -1224,11 +1223,9 @@ module org {
                                 } else {
                                     var cleanedQuery: string = query;
                                     if (cleanedQuery.equals("/")) {
-                                        var res: java.util.ArrayList<org.kevoree.modeling.api.KObject> = new java.util.ArrayList<org.kevoree.modeling.api.KObject>();
-                                        if (rootObj != null) {
-                                            res.add(rootObj);
-                                        }
-                                        callback(res.toArray(new Array()));
+                                        var param: org.kevoree.modeling.api.KObject[] = new Array();
+                                        param[0] = rootObj;
+                                        callback(param);
                                     } else {
                                         if (cleanedQuery.startsWith("/")) {
                                             cleanedQuery = cleanedQuery.substring(1);
@@ -1599,9 +1596,9 @@ module org {
                         private _operationManager: org.kevoree.modeling.api.util.KOperationManager;
                         private _objectKeyCalculator: org.kevoree.modeling.api.data.KeyCalculator = null;
                         private _dimensionKeyCalculator: org.kevoree.modeling.api.data.KeyCalculator = null;
+                        private static OUT_OF_CACHE_MESSAGE: string = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
                         private isConnected: boolean = false;
                         private static UNIVERSE_NOT_CONNECTED_ERROR: string = "Please connect your universe prior to create a dimension or an object";
-                        private static OUT_OF_CACHE_MESSAGE: string = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
                         private static INDEX_RESOLVED_DIM: number = 0;
                         private static INDEX_RESOLVED_TIME: number = 1;
                         private static INDEX_RESOLVED_TIMETREE: number = 2;
@@ -1955,7 +1952,7 @@ module org {
                                         if (entry == null) {
                                             toLoadIndexes.add(i);
                                         } else {
-                                            resolved[i] = originView.createProxy(entry.metaClass, entry.timeTree, keys[i]);
+                                            resolved[i] = (<org.kevoree.modeling.api.abs.AbstractKView>originView).createProxy(entry.metaClass, entry.timeTree, keys[i]);
                                         }
                                     }
                                 }
@@ -1967,6 +1964,8 @@ module org {
                                         var toLoadIndex: number = toLoadIndexes.get(i);
                                         toLoadKeys[i] = this.keyPayload(<number>objects[toLoadIndex][DefaultKStore.INDEX_RESOLVED_DIM], <number>objects[toLoadIndex][DefaultKStore.INDEX_RESOLVED_TIME], keys[i]);
                                     }
+                                    System.err.println(toLoadKeys[0] + "/" + objects[0][DefaultKStore.INDEX_RESOLVED_DIM] + "/" + objects[0][DefaultKStore.INDEX_RESOLVED_TIME]);
+                                    System.err.println(originView.now());
                                     this._db.get(toLoadKeys,  (strings : string[], error : java.lang.Throwable) => {
                                         if (error != null) {
                                             error.printStackTrace();
@@ -1978,7 +1977,7 @@ module org {
                                                     var entry: org.kevoree.modeling.api.data.CacheEntry = org.kevoree.modeling.api.data.JsonRaw.decode(strings[i], originView, <number>objects[index][DefaultKStore.INDEX_RESOLVED_TIME]);
                                                     if (entry != null) {
                                                         entry.timeTree = <org.kevoree.modeling.api.time.TimeTree>objects[index][DefaultKStore.INDEX_RESOLVED_TIMETREE];
-                                                        resolved[i] = originView.createProxy(entry.metaClass, entry.timeTree, keys[index]);
+                                                        resolved[i] = (<org.kevoree.modeling.api.abs.AbstractKView>originView).createProxy(entry.metaClass, entry.timeTree, keys[index]);
                                                         this.write_cache(<number>objects[i][DefaultKStore.INDEX_RESOLVED_DIM], <number>objects[i][DefaultKStore.INDEX_RESOLVED_TIME], keys[index], entry);
                                                     }
                                                 } else {
@@ -2683,9 +2682,7 @@ module org {
                         private static UUID_INDEX: number = 2;
                         private static TUPLE_SIZE: number = 3;
                         private listeners: java.util.HashMap<(p : org.kevoree.modeling.api.KEvent) => void, number[]> = new java.util.HashMap<(p : org.kevoree.modeling.api.KEvent) => void, number[]>();
-                        constructor() {
-                        }
-
+                        private _metaModel: org.kevoree.modeling.api.meta.MetaModel;
                         public connect(callback: (p : java.lang.Throwable) => void): void {
                             if (callback != null) {
                                 callback(null);
@@ -2753,6 +2750,10 @@ module org {
                         }
 
                         public flush(dimensionKey: number): void {
+                        }
+
+                        public setMetaModel(p_metaModel: org.kevoree.modeling.api.meta.MetaModel): void {
+                            this._metaModel = p_metaModel;
                         }
 
                         public unregister(listener: (p : org.kevoree.modeling.api.KEvent) => void): void {
@@ -2847,7 +2848,7 @@ module org {
                             return sb.toString();
                         }
 
-                        public static fromJSON(payload: string): org.kevoree.modeling.api.KEvent {
+                        public static fromJSON(payload: string, metaModel: org.kevoree.modeling.api.meta.MetaModel): org.kevoree.modeling.api.KEvent {
                             var lexer: org.kevoree.modeling.api.json.Lexer = new org.kevoree.modeling.api.json.Lexer(payload);
                             var currentToken: org.kevoree.modeling.api.json.JsonToken = lexer.nextToken();
                             if (currentToken.tokenType() == org.kevoree.modeling.api.json.Type.LEFT_BRACE) {
@@ -2859,7 +2860,7 @@ module org {
                                         if (currentAttributeName == null) {
                                             currentAttributeName = currentToken.value().toString();
                                         } else {
-                                            org.kevoree.modeling.api.event.DefaultKEvent.setEventAttribute(event, currentAttributeName, currentToken.value().toString());
+                                            org.kevoree.modeling.api.event.DefaultKEvent.setEventAttribute(event, currentAttributeName, currentToken.value().toString(), metaModel);
                                             currentAttributeName = null;
                                         }
                                     }
@@ -2870,7 +2871,7 @@ module org {
                             return null;
                         }
 
-                        private static setEventAttribute(event: org.kevoree.modeling.api.event.DefaultKEvent, currentAttributeName: string, value: string): void {
+                        private static setEventAttribute(event: org.kevoree.modeling.api.event.DefaultKEvent, currentAttributeName: string, value: string, metaModel: org.kevoree.modeling.api.meta.MetaModel): void {
                             if (currentAttributeName.equals(DefaultKEvent.DIMENSION_KEY)) {
                                 event._dimensionKey = java.lang.Long.parseLong(value);
                             } else {
@@ -2884,8 +2885,15 @@ module org {
                                             event._actionType = org.kevoree.modeling.api.KActionType.parse(value);
                                         } else {
                                             if (currentAttributeName.equals(DefaultKEvent.CLASS_KEY)) {
+                                                event._metaClass = metaModel.metaClass(value);
                                             } else {
                                                 if (currentAttributeName.equals(DefaultKEvent.ELEMENT_KEY)) {
+                                                    if (event._metaClass != null) {
+                                                        event._metaElement = event._metaClass.metaAttribute(value);
+                                                        if (event._metaElement == null) {
+                                                            event._metaElement = event._metaClass.metaReference(value);
+                                                        }
+                                                    }
                                                 } else {
                                                     if (currentAttributeName.equals(DefaultKEvent.VALUE_KEY)) {
                                                         event._value = org.kevoree.modeling.api.json.JsonString.unescape(value);
@@ -2930,6 +2938,8 @@ module org {
                         notify(event: org.kevoree.modeling.api.KEvent): void;
 
                         flush(dimensionKey: number): void;
+
+                        setMetaModel(metaModel: org.kevoree.modeling.api.meta.MetaModel): void;
 
                     }
 
@@ -3195,7 +3205,7 @@ module org {
                                         var timeTree: org.kevoree.modeling.api.time.TimeTree = new org.kevoree.modeling.api.time.DefaultTimeTree();
                                         timeTree.insert(factory.now());
                                         var metaClass: org.kevoree.modeling.api.meta.MetaClass = metaModel.metaClass(meta);
-                                        var current: org.kevoree.modeling.api.KObject = factory.createProxy(metaClass, timeTree, kid);
+                                        var current: org.kevoree.modeling.api.KObject = (<org.kevoree.modeling.api.abs.AbstractKView>factory).createProxy(metaClass, timeTree, kid);
                                         factory.dimension().universe().storage().initKObject(current, factory);
                                         if (isRoot) {
                                             factory.setRoot(current, null);
@@ -7862,7 +7872,7 @@ module org {
                                                             if (trace instanceof org.kevoree.modeling.api.trace.ModelNewTrace) {
                                                                 var tree: org.kevoree.modeling.api.time.DefaultTimeTree = new org.kevoree.modeling.api.time.DefaultTimeTree();
                                                                 tree.insert(this._targetModel.now());
-                                                                var newCreated: org.kevoree.modeling.api.KObject = this._targetModel.view().createProxy(<org.kevoree.modeling.api.meta.MetaClass>trace.meta(), tree, trace.sourceUUID());
+                                                                var newCreated: org.kevoree.modeling.api.KObject = (<org.kevoree.modeling.api.abs.AbstractKView>this._targetModel.view()).createProxy(<org.kevoree.modeling.api.meta.MetaClass>trace.meta(), tree, trace.sourceUUID());
                                                                 cached.put(newCreated.uuid(), newCreated);
                                                             } else {
                                                                 System.err.println("Unknow traceType: " + trace);

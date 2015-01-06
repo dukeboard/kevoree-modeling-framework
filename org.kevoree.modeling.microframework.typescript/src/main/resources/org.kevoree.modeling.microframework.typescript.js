@@ -893,6 +893,7 @@ var org;
                         };
                         AbstractKUniverse.prototype.setEventBroker = function (eventBroker) {
                             this.storage().setEventBroker(eventBroker);
+                            eventBroker.setMetaModel(this.metaModel());
                             return this;
                         };
                         AbstractKUniverse.prototype.setDataBase = function (dataBase) {
@@ -939,11 +940,9 @@ var org;
                                 else {
                                     var cleanedQuery = query;
                                     if (cleanedQuery.equals("/")) {
-                                        var res = new java.util.ArrayList();
-                                        if (rootObj != null) {
-                                            res.add(rootObj);
-                                        }
-                                        callback(res.toArray(new Array()));
+                                        var param = new Array();
+                                        param[0] = rootObj;
+                                        callback(param);
                                     }
                                     else {
                                         if (cleanedQuery.startsWith("/")) {
@@ -1607,6 +1606,8 @@ var org;
                                         var toLoadIndex = toLoadIndexes.get(i);
                                         toLoadKeys[i] = _this.keyPayload(objects[toLoadIndex][DefaultKStore.INDEX_RESOLVED_DIM], objects[toLoadIndex][DefaultKStore.INDEX_RESOLVED_TIME], keys[i]);
                                     }
+                                    System.err.println(toLoadKeys[0] + "/" + objects[0][DefaultKStore.INDEX_RESOLVED_DIM] + "/" + objects[0][DefaultKStore.INDEX_RESOLVED_TIME]);
+                                    System.err.println(originView.now());
                                     _this._db.get(toLoadKeys, function (strings, error) {
                                         if (error != null) {
                                             error.printStackTrace();
@@ -1849,8 +1850,8 @@ var org;
                             }
                         };
                         DefaultKStore.KEY_SEP = ',';
-                        DefaultKStore.UNIVERSE_NOT_CONNECTED_ERROR = "Please connect your universe prior to create a dimension or an object";
                         DefaultKStore.OUT_OF_CACHE_MESSAGE = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
+                        DefaultKStore.UNIVERSE_NOT_CONNECTED_ERROR = "Please connect your universe prior to create a dimension or an object";
                         DefaultKStore.INDEX_RESOLVED_DIM = 0;
                         DefaultKStore.INDEX_RESOLVED_TIME = 1;
                         DefaultKStore.INDEX_RESOLVED_TIMETREE = 2;
@@ -2359,6 +2360,9 @@ var org;
                         };
                         DefaultKBroker.prototype.flush = function (dimensionKey) {
                         };
+                        DefaultKBroker.prototype.setMetaModel = function (p_metaModel) {
+                            this._metaModel = p_metaModel;
+                        };
                         DefaultKBroker.prototype.unregister = function (listener) {
                             this.listeners.remove(listener);
                         };
@@ -2428,7 +2432,7 @@ var org;
                             sb.append(DefaultKEvent.RIGHT_BRACE);
                             return sb.toString();
                         };
-                        DefaultKEvent.fromJSON = function (payload) {
+                        DefaultKEvent.fromJSON = function (payload, metaModel) {
                             var lexer = new org.kevoree.modeling.api.json.Lexer(payload);
                             var currentToken = lexer.nextToken();
                             if (currentToken.tokenType() == org.kevoree.modeling.api.json.Type.LEFT_BRACE) {
@@ -2441,7 +2445,7 @@ var org;
                                             currentAttributeName = currentToken.value().toString();
                                         }
                                         else {
-                                            org.kevoree.modeling.api.event.DefaultKEvent.setEventAttribute(event, currentAttributeName, currentToken.value().toString());
+                                            org.kevoree.modeling.api.event.DefaultKEvent.setEventAttribute(event, currentAttributeName, currentToken.value().toString(), metaModel);
                                             currentAttributeName = null;
                                         }
                                     }
@@ -2451,7 +2455,7 @@ var org;
                             }
                             return null;
                         };
-                        DefaultKEvent.setEventAttribute = function (event, currentAttributeName, value) {
+                        DefaultKEvent.setEventAttribute = function (event, currentAttributeName, value, metaModel) {
                             if (currentAttributeName.equals(DefaultKEvent.DIMENSION_KEY)) {
                                 event._dimensionKey = java.lang.Long.parseLong(value);
                             }
@@ -2469,9 +2473,16 @@ var org;
                                         }
                                         else {
                                             if (currentAttributeName.equals(DefaultKEvent.CLASS_KEY)) {
+                                                event._metaClass = metaModel.metaClass(value);
                                             }
                                             else {
                                                 if (currentAttributeName.equals(DefaultKEvent.ELEMENT_KEY)) {
+                                                    if (event._metaClass != null) {
+                                                        event._metaElement = event._metaClass.metaAttribute(value);
+                                                        if (event._metaElement == null) {
+                                                            event._metaElement = event._metaClass.metaReference(value);
+                                                        }
+                                                    }
                                                 }
                                                 else {
                                                     if (currentAttributeName.equals(DefaultKEvent.VALUE_KEY)) {

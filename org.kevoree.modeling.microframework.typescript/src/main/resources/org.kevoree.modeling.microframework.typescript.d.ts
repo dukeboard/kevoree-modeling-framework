@@ -124,7 +124,6 @@ declare module org {
                     stream(query: string, callback: (p: KObject) => void): void;
                     dimension(): KDimension<any, any, any>;
                     now(): number;
-                    createProxy(clazz: meta.MetaClass, timeTree: time.TimeTree, key: number): KObject;
                     listen(listener: (p: KEvent) => void): void;
                     slice(elems: java.util.List<KObject>, callback: (p: trace.TraceSequence) => void): void;
                     json(): ModelFormat;
@@ -385,9 +384,9 @@ declare module org {
                         private _operationManager;
                         private _objectKeyCalculator;
                         private _dimensionKeyCalculator;
+                        private static OUT_OF_CACHE_MESSAGE;
                         private isConnected;
                         private static UNIVERSE_NOT_CONNECTED_ERROR;
-                        private static OUT_OF_CACHE_MESSAGE;
                         private static INDEX_RESOLVED_DIM;
                         private static INDEX_RESOLVED_TIME;
                         private static INDEX_RESOLVED_TIMETREE;
@@ -511,12 +510,13 @@ declare module org {
                         private static UUID_INDEX;
                         private static TUPLE_SIZE;
                         private listeners;
-                        constructor();
+                        private _metaModel;
                         connect(callback: (p: java.lang.Throwable) => void): void;
                         close(callback: (p: java.lang.Throwable) => void): void;
                         registerListener(origin: any, listener: (p: KEvent) => void, scope: any): void;
                         notify(event: KEvent): void;
                         flush(dimensionKey: number): void;
+                        setMetaModel(p_metaModel: meta.MetaModel): void;
                         unregister(listener: (p: KEvent) => void): void;
                     }
                     class DefaultKEvent implements KEvent {
@@ -546,8 +546,8 @@ declare module org {
                         value(): any;
                         toString(): string;
                         toJSON(): string;
-                        static fromJSON(payload: string): KEvent;
-                        private static setEventAttribute(event, currentAttributeName, value);
+                        static fromJSON(payload: string, metaModel: meta.MetaModel): KEvent;
+                        private static setEventAttribute(event, currentAttributeName, value, metaModel);
                         toTrace(): trace.ModelTrace;
                     }
                     interface KEventBroker {
@@ -557,6 +557,7 @@ declare module org {
                         unregister(listener: (p: KEvent) => void): void;
                         notify(event: KEvent): void;
                         flush(dimensionKey: number): void;
+                        setMetaModel(metaModel: meta.MetaModel): void;
                     }
                 }
                 module extrapolation {
