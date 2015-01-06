@@ -88,13 +88,13 @@ public class LookupRootTest {
         final CloudUniverse universe1 = new CloudUniverse();
         universe1.setDataBase(db);
         universe1.connect(null);
-        final CloudDimension cloudDimension1 = universe1.newDimension();
+        final CloudDimension cloudDimension1 = universe1.dimension(dimension0.key());
         final CloudView cloudView1 = cloudDimension1.time(1l);
 
         cloudView1.select("/", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] kObjects) {
-                System.out.println(kObjects[0]);
+                Assert.assertNotNull(kObjects[0]);
             }
         });
 
