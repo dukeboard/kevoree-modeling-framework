@@ -3,6 +3,7 @@ package org.kevoree.modeling.api.json;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.data.Index;
 import org.kevoree.modeling.api.data.JsonRaw;
@@ -82,7 +83,7 @@ public class JsonModelLoader {
                     TimeTree timeTree = new DefaultTimeTree();
                     timeTree.insert(factory.now());
                     MetaClass metaClass = metaModel.metaClass(meta);
-                    KObject current = factory.createProxy(metaClass, timeTree, kid);
+                    KObject current = ((AbstractKView)factory).createProxy(metaClass, timeTree, kid);
                     factory.dimension().universe().storage().initKObject(current, factory);
                     if (isRoot) {
                         factory.setRoot(current, null);//todo force the direct set

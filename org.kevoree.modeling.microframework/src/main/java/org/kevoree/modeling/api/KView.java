@@ -28,10 +28,7 @@ public interface KView {
     public KDimension dimension();
 
     public long now();
-
-    //TODO maybe hide...
-    public KObject createProxy(MetaClass clazz, TimeTree timeTree, long key);
-
+    
     public void listen(ModelListener listener);
 
     public void slice(List<KObject> elems, Callback<TraceSequence> callback);

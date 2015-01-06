@@ -6,6 +6,7 @@ import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.abs.AbstractKObject;
+import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.data.cache.DimensionCache;
 import org.kevoree.modeling.api.data.cache.TimeCache;
 import org.kevoree.modeling.api.event.DefaultKBroker;
@@ -435,7 +436,7 @@ public class DefaultKStore implements KStore {
                         if (entry == null) {
                             toLoadIndexes.add(i);
                         } else {
-                            resolved[i] = originView.createProxy(entry.metaClass, entry.timeTree, keys[i]);
+                            resolved[i] = ((AbstractKView)originView).createProxy(entry.metaClass, entry.timeTree, keys[i]);
                         }
                     }
                 }
@@ -462,7 +463,7 @@ public class DefaultKStore implements KStore {
                                         if (entry != null) {
                                             entry.timeTree = (TimeTree) objects[index][INDEX_RESOLVED_TIMETREE];
                                             //Create and Add the proxy
-                                            resolved[i] = originView.createProxy(entry.metaClass, entry.timeTree, keys[index]);
+                                            resolved[i] = ((AbstractKView)originView).createProxy(entry.metaClass, entry.timeTree, keys[index]);
                                             //Save the cache value
                                             write_cache((Long) objects[i][INDEX_RESOLVED_DIM], (Long) objects[i][INDEX_RESOLVED_TIME], keys[index], entry);
                                         }

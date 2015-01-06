@@ -3,6 +3,7 @@ package org.kevoree.modeling.api.trace;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
@@ -93,7 +94,7 @@ public class ModelTraceApplicator {
                                 } else if (trace instanceof ModelNewTrace) {
                                     DefaultTimeTree tree = new DefaultTimeTree();
                                     tree.insert(_targetModel.now());
-                                    KObject newCreated = _targetModel.view().createProxy((MetaClass) trace.meta(), tree, trace.sourceUUID());
+                                    KObject newCreated = ((AbstractKView)_targetModel.view()).createProxy((MetaClass) trace.meta(), tree, trace.sourceUUID());
                                     cached.put(newCreated.uuid(), newCreated);
                                 } else {
                                     System.err.println("Unknow traceType: " + trace);

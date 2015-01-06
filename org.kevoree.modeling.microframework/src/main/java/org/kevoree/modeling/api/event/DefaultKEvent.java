@@ -6,17 +6,13 @@ import org.kevoree.modeling.api.json.JsonString;
 import org.kevoree.modeling.api.json.JsonToken;
 import org.kevoree.modeling.api.json.Lexer;
 import org.kevoree.modeling.api.json.Type;
-import org.kevoree.modeling.api.meta.Meta;
+import org.kevoree.modeling.api.meta.*;
 import org.kevoree.modeling.api.KActionType;
-import org.kevoree.modeling.api.meta.MetaAttribute;
-import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.trace.ModelAddTrace;
 import org.kevoree.modeling.api.trace.ModelNewTrace;
 import org.kevoree.modeling.api.trace.ModelSetTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
 
-//TODO fix serilization
 public class DefaultKEvent implements KEvent {
 
     private Long _dimensionKey;
@@ -100,7 +96,7 @@ public class DefaultKEvent implements KEvent {
         return sb.toString();
     }
 
-    public static KEvent fromJSON(String payload) {
+    public static KEvent fromJSON(String payload, MetaModel metaModel) {
         Lexer lexer = new Lexer(payload);
         JsonToken currentToken = lexer.nextToken();
         if (currentToken.tokenType() == Type.LEFT_BRACE) {
@@ -112,7 +108,7 @@ public class DefaultKEvent implements KEvent {
                     if (currentAttributeName == null) {
                         currentAttributeName = currentToken.value().toString();
                     } else {
-                        setEventAttribute(event, currentAttributeName, currentToken.value().toString());
+                        setEventAttribute(event, currentAttributeName, currentToken.value().toString(), metaModel);
                         currentAttributeName = null;
                     }
                 }
@@ -123,7 +119,7 @@ public class DefaultKEvent implements KEvent {
         return null;
     }
 
-    private static void setEventAttribute(DefaultKEvent event, String currentAttributeName, String value) {
+    private static void setEventAttribute(DefaultKEvent event, String currentAttributeName, String value, MetaModel metaModel) {
         if (currentAttributeName.equals(DIMENSION_KEY)) {
             event._dimensionKey = Long.parseLong(value);
         } else if (currentAttributeName.equals(TIME_KEY)) {
@@ -133,13 +129,13 @@ public class DefaultKEvent implements KEvent {
         } else if (currentAttributeName.equals(TYPE_KEY)) {
             event._actionType = KActionType.parse(value);
         } else if (currentAttributeName.equals(CLASS_KEY)) {
-            //event._metaClass = value;
+            event._metaClass = metaModel.metaClass(value);
         } else if (currentAttributeName.equals(ELEMENT_KEY)) {
             //event._metaElement = value;
         } else if (currentAttributeName.equals(VALUE_KEY)) {
             event._value = JsonString.unescape(value);
         } else {
-            //WTF !
+            //strange value...
         }
     }
 
