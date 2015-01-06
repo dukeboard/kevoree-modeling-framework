@@ -254,7 +254,7 @@ public class DefaultKStore implements KStore {
     public Object[] raw(KObject origin, AccessMode accessMode) {
         //TODO manage multi dimension, and protect for potential null
         long resolvedTime = origin.timeTree().resolve(origin.now());
-        boolean needCopy = accessMode.equals(AccessMode.WRITE) && resolvedTime != origin.now();
+        boolean needCopy = accessMode.equals(AccessMode.WRITE) && (resolvedTime != origin.now());
         DimensionCache dimensionCache = caches.get(origin.dimension().key());
         if (dimensionCache == null) {
             throw new RuntimeException(OUT_OF_CACHE_MESSAGE);
@@ -281,7 +281,6 @@ public class DefaultKStore implements KStore {
         } else {
             //deep copy the structure
             Object[] cloned = new Object[payload.length];
-            cloned[Index.IS_DIRTY_INDEX] = true;
             for (int i = 0; i < payload.length; i++) {
                 Object resolved = payload[i];
                 if (resolved != null) {
@@ -298,6 +297,7 @@ public class DefaultKStore implements KStore {
                     }
                 }
             }
+            cloned[Index.IS_DIRTY_INDEX] = true;
             CacheEntry clonedEntry = new CacheEntry();
             clonedEntry.raw = cloned;
             clonedEntry.metaClass = entry.metaClass;
@@ -448,8 +448,6 @@ public class DefaultKStore implements KStore {
                         int toLoadIndex = toLoadIndexes.get(i);
                         toLoadKeys[i] = keyPayload((Long) objects[toLoadIndex][INDEX_RESOLVED_DIM], (Long) objects[toLoadIndex][INDEX_RESOLVED_TIME], keys[i]);
                     }
-                    System.err.println(toLoadKeys[0]+"/"+objects[0][INDEX_RESOLVED_DIM]+"/"+objects[0][INDEX_RESOLVED_TIME]);
-                    System.err.println(originView.now());
                     _db.get(toLoadKeys, new ThrowableCallback<String[]>() {
                         @Override
                         public void on(String[] strings, Throwable error) {

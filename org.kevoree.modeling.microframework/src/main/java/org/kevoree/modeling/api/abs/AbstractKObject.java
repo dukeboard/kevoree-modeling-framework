@@ -376,10 +376,8 @@ public abstract class AbstractKObject implements KObject {
                         }
                         ((AbstractKObject) param).internal_mutate(KActionType.ADD, metaReference.opposite(), this, false);
                     }
-
                     KEvent event = new DefaultKEvent(actionType, this, metaReference, param);
                     view().dimension().universe().storage().eventBroker().notify(event);
-
                 }
             }
         } else if (actionType.equals(KActionType.REMOVE)) {

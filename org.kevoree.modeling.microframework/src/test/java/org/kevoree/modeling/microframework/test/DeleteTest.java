@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
 import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
@@ -40,11 +41,10 @@ public class DeleteTest {
         factory1.select("/", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] results) {
-                if (results != null && results.length > 0) {
+               // if (results != null && results.length > 0) {
                     Node n2 = (Node) results[0];
                     n2.setElement(e);
-                }
-
+                //}
             }
         });
         dimension.saveUnload(new Callback<Throwable>() {
@@ -56,14 +56,10 @@ public class DeleteTest {
             }
         });
         CloudView factory2 = dimension.time(2l);
-        System.err.println("#1");
         factory2.select("/", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] results) {
-
-                System.err.println("#2");
-
-                if (results != null && results.length > 0) {
+                //if (results != null && results.length > 0) {
                     Node n2 = (Node) results[0];
                     n2.getElement(new Callback<Element>() {
                         @Override
@@ -80,7 +76,7 @@ public class DeleteTest {
                             }
                         }
                     });
-                }
+                //}
             }
         });
 
