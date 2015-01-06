@@ -1,29 +1,20 @@
 package org.kevoree.modeling.api.data;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KDimension;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.ThrowableCallback;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.data.cache.DimensionCache;
 import org.kevoree.modeling.api.data.cache.TimeCache;
 import org.kevoree.modeling.api.event.DefaultKBroker;
 import org.kevoree.modeling.api.event.KEventBroker;
-import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.DefaultTimeTree;
+import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 import org.kevoree.modeling.api.time.rbtree.LongTreeNode;
 import org.kevoree.modeling.api.util.DefaultOperationManager;
 import org.kevoree.modeling.api.util.KOperationManager;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by duke on 10/17/14.
@@ -330,7 +321,9 @@ public class DefaultKStore implements KStore {
     public void save(KDimension dimension, Callback<Throwable> callback) {
         DimensionCache dimensionCache = caches.get(dimension.key());
         if (dimensionCache == null) {
-            callback.on(null);
+            if (callback != null) {
+                callback.on(null);
+            }
         } else {
             Long[] times = dimensionCache.timesCaches.keySet().toArray(new Long[dimensionCache.timesCaches.keySet().size()]);
             int sizeCache = size_dirties(dimensionCache) + 2;
@@ -397,7 +390,9 @@ public class DefaultKStore implements KStore {
                 if (throwable == null) {
                     discard(dimension, callback);
                 } else {
-                    callback.on(throwable);
+                    if (callback != null) {
+                        callback.on(throwable);
+                    }
                 }
             }
         });

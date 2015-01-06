@@ -19,7 +19,9 @@ public class MemoryKDataBase implements KDataBase {
                 System.out.println("PUT " + payloads[i][0] + "->" + payloads[i][1]);
             }
         }
-        callback.on(null);
+        if (callback != null) {
+            callback.on(null);
+        }
     }
 
     @Override
@@ -31,7 +33,9 @@ public class MemoryKDataBase implements KDataBase {
                 System.out.println("GET " + keys[i] + "->" + values[i]);
             }
         }
-        callback.on(values, null);
+        if (callback != null) {
+            callback.on(values, null);
+        }
     }
 
     @Override
@@ -39,12 +43,16 @@ public class MemoryKDataBase implements KDataBase {
         for (int i = 0; i < keys.length; i++) {
             backend.remove(keys[i]);
         }
-        callback.on(null);
+        if (callback != null) {
+            callback.on(null);
+        }
     }
 
     @Override
     public void commit(Callback<Throwable> callback) {
-        callback.on(null);//noop
+        if (callback != null) {
+            callback.on(null);//noop
+        }
     }
 
     @Override
