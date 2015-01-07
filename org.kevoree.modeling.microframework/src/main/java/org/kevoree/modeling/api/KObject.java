@@ -31,8 +31,6 @@ public interface KObject {
 
     public void select(String query, Callback<KObject[]> callback);
 
-    public void stream(String query, Callback<KObject> callback);
-
     public void listen(ModelListener listener);
 
     /* Visit API */

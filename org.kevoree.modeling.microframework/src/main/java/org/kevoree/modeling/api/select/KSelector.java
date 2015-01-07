@@ -2,6 +2,7 @@ package org.kevoree.modeling.api.select;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
@@ -18,7 +19,7 @@ import java.util.Set;
  */
 public class KSelector {
 
-    public static void select(final KObject root, String query, final Callback<KObject[]> callback) {
+    public static void select(final KView view, final KObject[] roots, String query, final Callback<KObject[]> callback) {
         if (callback == null) {
             return;
         }
@@ -28,23 +29,26 @@ public class KSelector {
         } else {
             String relationNameRegex = extractedQuery.relationName.replace("*", ".*");
             Set<Long> collected = new HashSet<Long>();
-            Object[] raw = root.dimension().universe().storage().raw(root, AccessMode.READ);
-            for (int i = 0; i < root.metaClass().metaReferences().length; i++) {
-                MetaReference reference = root.metaClass().metaReferences()[i];
-                if (reference.metaName().matches(relationNameRegex)) {
-                    Object refPayLoad = raw[reference.index()];
-                    if (refPayLoad != null) {
-                        if (refPayLoad instanceof Set) {
-                            Set<Long> castedSet = (Set<Long>) refPayLoad;
-                            collected.addAll(castedSet);
-                        } else {
-                            Long castedLong = (Long) refPayLoad;
-                            collected.add(castedLong);
+            for (int k = 0; k < roots.length; k++) {
+                KObject root = roots[k];
+                Object[] raw = root.dimension().universe().storage().raw(root, AccessMode.READ);
+                for (int i = 0; i < root.metaClass().metaReferences().length; i++) {
+                    MetaReference reference = root.metaClass().metaReferences()[i];
+                    if (reference.metaName().matches(relationNameRegex)) {
+                        Object refPayLoad = raw[reference.index()];
+                        if (refPayLoad != null) {
+                            if (refPayLoad instanceof Set) {
+                                Set<Long> castedSet = (Set<Long>) refPayLoad;
+                                collected.addAll(castedSet);
+                            } else {
+                                Long castedLong = (Long) refPayLoad;
+                                collected.add(castedLong);
+                            }
                         }
                     }
                 }
             }
-            root.view().lookupAll(collected.toArray(new Long[collected.size()]), new Callback<KObject[]>() {
+            view.lookupAll(collected.toArray(new Long[collected.size()]), new Callback<KObject[]>() {
                 @Override
                 public void on(KObject[] resolveds) {
                     List<KObject> nextGeneration = new ArrayList<KObject>();
@@ -85,33 +89,15 @@ public class KSelector {
                             }
                         }
                     }
-                    final List<KObject> childSelected = new ArrayList<KObject>();
+                    KObject[] nextArr = nextGeneration.toArray(new KObject[nextGeneration.size()]);
                     if (extractedQuery.subQuery == null || extractedQuery.subQuery.isEmpty()) {
-                        childSelected.add(root);
-                        callback.on(nextGeneration.toArray(new KObject[nextGeneration.size()]));
+                        callback.on(nextArr);
                     } else {
-                        //Recursive call
-                        Helper.forall(nextGeneration.toArray(new KObject[nextGeneration.size()]), new CallBackChain<KObject>() {
-                            @Override
-                            public void on(KObject kObject, Callback<Throwable> next) {
-                                select(kObject, extractedQuery.subQuery, new Callback<KObject[]>() {
-                                    @Override
-                                    public void on(KObject[] kObjects) {
-                                        childSelected.addAll(childSelected);
-                                    }
-                                });
-                            }
-                        }, new Callback<Throwable>() {
-                            @Override
-                            public void on(Throwable throwable) {
-                                callback.on(childSelected.toArray(new KObject[childSelected.size()]));
-                            }
-                        });
+                        select(view, nextArr, extractedQuery.subQuery, callback);
                     }
                 }
             });
         }
-
     }
 
 }

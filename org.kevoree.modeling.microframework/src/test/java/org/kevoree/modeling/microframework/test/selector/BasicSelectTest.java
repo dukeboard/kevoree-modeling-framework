@@ -140,12 +140,13 @@ public class BasicSelectTest {
             }
         });
 
+        /*
         node.select("/children[name=n1]/children[name=n2]", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] selecteds) {
                 Assert.assertEquals(0, selecteds.length);
             }
-        });
+        });*/
 
         node.select("children[name=n1]/children[name=n2]/children[name=*]", new Callback<KObject[]>() {
             @Override
@@ -153,6 +154,7 @@ public class BasicSelectTest {
                 Assert.assertEquals(2, selecteds.length);
             }
         });
+
     }
 
 }

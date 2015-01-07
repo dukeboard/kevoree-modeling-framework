@@ -81,7 +81,9 @@ public abstract class AbstractKView implements KView {
                         if (cleanedQuery.startsWith("/")) {
                             cleanedQuery = cleanedQuery.substring(1);
                         }
-                        KSelector.select(rootObj, cleanedQuery, callback);
+                        KObject[] roots = new KObject[1];
+                        roots[0] = rootObj;
+                        KSelector.select(rootObj.view(), roots, cleanedQuery, callback);
                     }
                 }
             }
