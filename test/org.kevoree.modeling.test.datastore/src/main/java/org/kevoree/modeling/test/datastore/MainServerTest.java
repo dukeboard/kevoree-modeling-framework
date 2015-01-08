@@ -50,9 +50,11 @@ public class MainServerTest {
                                     }
                                 }
                             });
-                            lib.addShapes(geoFactory.createShape().setName("ShapeR").setColor(colors[0]));
-                            lib.addShapes(geoFactory.createShape().setName("ShapeG").setColor(colors[1]));
-                            lib.addShapes(geoFactory.createShape().setName("ShapeB").setColor(colors[2]));
+                            for(int i = 0; i < 3; i++) {
+                                lib.addShapes(geoFactory.createShape().setName("ShapeO" + i).setColor(colors[i%3]));
+
+                            }
+
 
                             dimension.save(Utils.DefaultPrintStackTraceCallback);
 

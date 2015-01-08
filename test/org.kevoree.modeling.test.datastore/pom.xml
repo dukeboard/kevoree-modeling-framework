@@ -22,7 +22,6 @@
     </dependencies>
 
     <build>
-        <sourceDirectory>target/generated-sources/kmf</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.kevoree.modeling</groupId>

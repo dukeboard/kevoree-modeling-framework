@@ -46,11 +46,6 @@
                         if(event.actionType() == org.kevoree.modeling.api.KActionType.ADD && event.metaClass() == lib.metaClass() && event.metaElement() == lib.metaClass().metaReference("shapes")) {
                             console.log(event.value());
                             addShapeToDisplay(event.value());
-                            /*
-                            var newVal = event.value();
-                            view.lookup(newVal.uuid, function(shape){
-
-                            });*/
                         }
                     });
                     console.log("Yeah go ahead !")
@@ -66,7 +61,6 @@
         $('<div id="'+shape.getName()+'" style="height:50px;width:50px;display: inline-block; margin: 10px;background-color: '+shape.getColor()+';"></div>').appendTo($('body'));
         shape.listen(function(event){
             if(event.metaElement() == shape.metaClass().metaAttribute("color")) {
-                console.log("In da place", event.value());
                 $('div#' + shape.getName()).css('background-color', event.value());
             }
         });
