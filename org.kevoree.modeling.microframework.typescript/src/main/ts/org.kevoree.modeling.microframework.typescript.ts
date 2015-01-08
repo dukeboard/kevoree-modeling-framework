@@ -847,7 +847,7 @@ module org {
                             if (alreadyVisited != null) {
                                 alreadyVisited.add(this.uuid());
                             }
-                            var toResolveds: java.util.Set<number> = new java.util.HashSet<number>();
+                            var toResolveIds: java.util.Set<number> = new java.util.HashSet<number>();
                             for (var i: number = 0; i < this.metaClass().metaReferences().length; i++) {
                                 var reference: org.kevoree.modeling.api.meta.MetaReference = this.metaClass().metaReferences()[i];
                                 if (!(treeOnly && !reference.contained())) {
@@ -861,24 +861,28 @@ module org {
                                             var ol: java.util.Set<number> = <java.util.Set<number>>o;
                                             var olArr: number[] = ol.toArray(new Array());
                                             for (var k: number = 0; k < olArr.length; k++) {
-                                                toResolveds.add(olArr[k]);
+                                                if (alreadyVisited == null || !alreadyVisited.contains(olArr[k])) {
+                                                    toResolveIds.add(olArr[k]);
+                                                }
                                             }
                                         } else {
-                                            toResolveds.add(<number>o);
+                                            if (alreadyVisited == null || !alreadyVisited.contains(<number>o)) {
+                                                toResolveIds.add(<number>o);
+                                            }
                                         }
                                     }
                                 }
                             }
-                            if (toResolveds.isEmpty()) {
+                            if (toResolveIds.isEmpty()) {
                                 end(null);
                             } else {
-                                var toResolvedArr: number[] = toResolveds.toArray(new Array());
-                                this.view().lookupAll(toResolvedArr,  (resolveds : org.kevoree.modeling.api.KObject[]) => {
+                                var toResolveIdsArr: number[] = toResolveIds.toArray(new Array());
+                                this.view().lookupAll(toResolveIdsArr,  (resolveds : org.kevoree.modeling.api.KObject[]) => {
                                     var nextDeep: java.util.List<org.kevoree.modeling.api.KObject> = new java.util.ArrayList<org.kevoree.modeling.api.KObject>();
                                     for (var i: number = 0; i < resolveds.length; i++) {
                                         var resolved: org.kevoree.modeling.api.KObject = resolveds[i];
                                         if (resolved == null) {
-                                            System.err.println("Unknow object with ID " + toResolvedArr[i]);
+                                            System.err.println("Unknow object with ID " + toResolveIdsArr[i]);
                                         } else {
                                             var result: org.kevoree.modeling.api.VisitResult = visitor(resolved);
                                             if (result != null && result.equals(org.kevoree.modeling.api.VisitResult.STOP)) {
@@ -904,16 +908,20 @@ module org {
                                                 end(null);
                                             } else {
                                                 if (treeOnly) {
-                                                    nextDeep.get(ii[0]).treeVisit(visitor, next.get(0));
+                                                    var abstractKObject: org.kevoree.modeling.api.abs.AbstractKObject = <org.kevoree.modeling.api.abs.AbstractKObject>nextDeep.get(ii[0]);
+                                                    abstractKObject.internal_visit(visitor, next.get(0), true, true, alreadyVisited);
                                                 } else {
-                                                    nextDeep.get(ii[0]).graphVisit(visitor, next.get(0));
+                                                    var abstractKObject: org.kevoree.modeling.api.abs.AbstractKObject = <org.kevoree.modeling.api.abs.AbstractKObject>nextDeep.get(ii[0]);
+                                                    abstractKObject.internal_visit(visitor, next.get(0), true, false, alreadyVisited);
                                                 }
                                             }
                                         });
                                         if (treeOnly) {
-                                            nextDeep.get(ii[0]).treeVisit(visitor, next.get(0));
+                                            var abstractKObject: org.kevoree.modeling.api.abs.AbstractKObject = <org.kevoree.modeling.api.abs.AbstractKObject>nextDeep.get(ii[0]);
+                                            abstractKObject.internal_visit(visitor, next.get(0), true, true, alreadyVisited);
                                         } else {
-                                            nextDeep.get(ii[0]).graphVisit(visitor, next.get(0));
+                                            var abstractKObject: org.kevoree.modeling.api.abs.AbstractKObject = <org.kevoree.modeling.api.abs.AbstractKObject>nextDeep.get(ii[0]);
+                                            abstractKObject.internal_visit(visitor, next.get(0), true, false, alreadyVisited);
                                         }
                                     } else {
                                         end(null);
@@ -2588,23 +2596,25 @@ module org {
 
                         public static LONG_LIMIT_JS: number = 0x001FFFFFFFFFFFFF;
                         public static INDEX_LIMIT: number = 0x0000001FFFFFFFFF;
-                        private _prefix: number;
+                        private _prefix: string;
                         private _currentIndex: number;
                         constructor(prefix: number, currentIndex: number) {
-                            this._prefix = (<number>prefix) << 53 - 16;
-                            this._currentIndex = currentIndex;
+                            this._prefix = "0x" + prefix.toString(16);
+                             this._currentIndex = currentIndex;
                         }
 
                         public nextKey(): number {
-                            if (this._currentIndex == KeyCalculator.INDEX_LIMIT) {
-                                throw new java.lang.IndexOutOfBoundsException("Object Index could not be created because it exceeded the capacity of the current prefix. Ask for a new prefix.");
+                            if (this._currentIndex == KeyCalculator.INDEX_LIMIT)  {
+                             throw new java.lang.IndexOutOfBoundsException("Object Index could not be created because it exceeded the capacity of the current prefix. Ask for a new prefix.");
                             }
-                            this._currentIndex++;
-                            var objectKey: number = this._prefix + this._currentIndex;
-                            if (objectKey > KeyCalculator.LONG_LIMIT_JS) {
-                                throw new java.lang.IndexOutOfBoundsException("Object Index exceeds teh maximum JavaScript number capacity. (2^53)");
+                             this._currentIndex++;
+                             var indexHex = this._currentIndex.toString(16);
+                             var objectKey = parseInt(this._prefix + "000000000".substring(0,9-indexHex.length) + indexHex, 16);
+                             if (objectKey > KeyCalculator.LONG_LIMIT_JS) 
+                            {
+                             throw new java.lang.IndexOutOfBoundsException("Object Index exceeds teh maximum JavaScript number capacity. (2^53)");
                             }
-                            return objectKey;
+                             return objectKey;
                         }
 
                         public lastComputedIndex(): number {
@@ -2612,7 +2622,7 @@ module org {
                         }
 
                         public prefix(): number {
-                            return <number>(this._prefix >> 53 - 16);
+                            return parseInt(this._prefix,16);
                         }
 
                     }

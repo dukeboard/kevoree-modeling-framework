@@ -67,7 +67,6 @@ declare module org {
                     parent(callback: (p: KObject) => void): void;
                     parentUuid(): number;
                     select(query: string, callback: (p: KObject[]) => void): void;
-                    stream(query: string, callback: (p: KObject) => void): void;
                     listen(listener: (p: KEvent) => void): void;
                     visitAttributes(visitor: (p: meta.MetaAttribute, p1: any) => void): void;
                     visit(visitor: (p: KObject) => VisitResult, end: (p: java.lang.Throwable) => void): void;
@@ -202,7 +201,6 @@ declare module org {
                         referenceInParent(): meta.MetaReference;
                         delete(callback: (p: java.lang.Throwable) => void): void;
                         select(query: string, callback: (p: KObject[]) => void): void;
-                        stream(query: string, callback: (p: KObject) => void): void;
                         listen(listener: (p: KEvent) => void): void;
                         domainKey(): string;
                         get(p_attribute: meta.MetaAttribute): any;
@@ -983,7 +981,7 @@ declare module org {
                         isNegative(): boolean;
                     }
                     class KSelector {
-                        static select(root: KObject, query: string, callback: (p: KObject[]) => void): void;
+                        static select(view: KView, roots: KObject[], query: string, callback: (p: KObject[]) => void): void;
                     }
                 }
                 module time {

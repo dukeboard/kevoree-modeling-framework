@@ -595,7 +595,7 @@ var org;
                             if (alreadyVisited != null) {
                                 alreadyVisited.add(this.uuid());
                             }
-                            var toResolveds = new java.util.HashSet();
+                            var toResolveIds = new java.util.HashSet();
                             for (var i = 0; i < this.metaClass().metaReferences().length; i++) {
                                 var reference = this.metaClass().metaReferences()[i];
                                 if (!(treeOnly && !reference.contained())) {
@@ -609,26 +609,30 @@ var org;
                                             var ol = o;
                                             var olArr = ol.toArray(new Array());
                                             for (var k = 0; k < olArr.length; k++) {
-                                                toResolveds.add(olArr[k]);
+                                                if (alreadyVisited == null || !alreadyVisited.contains(olArr[k])) {
+                                                    toResolveIds.add(olArr[k]);
+                                                }
                                             }
                                         }
                                         else {
-                                            toResolveds.add(o);
+                                            if (alreadyVisited == null || !alreadyVisited.contains(o)) {
+                                                toResolveIds.add(o);
+                                            }
                                         }
                                     }
                                 }
                             }
-                            if (toResolveds.isEmpty()) {
+                            if (toResolveIds.isEmpty()) {
                                 end(null);
                             }
                             else {
-                                var toResolvedArr = toResolveds.toArray(new Array());
-                                this.view().lookupAll(toResolvedArr, function (resolveds) {
+                                var toResolveIdsArr = toResolveIds.toArray(new Array());
+                                this.view().lookupAll(toResolveIdsArr, function (resolveds) {
                                     var nextDeep = new java.util.ArrayList();
                                     for (var i = 0; i < resolveds.length; i++) {
                                         var resolved = resolveds[i];
                                         if (resolved == null) {
-                                            System.err.println("Unknow object with ID " + toResolvedArr[i]);
+                                            System.err.println("Unknow object with ID " + toResolveIdsArr[i]);
                                         }
                                         else {
                                             var result = visitor(resolved);
@@ -657,18 +661,22 @@ var org;
                                             }
                                             else {
                                                 if (treeOnly) {
-                                                    nextDeep.get(ii[0]).treeVisit(visitor, next.get(0));
+                                                    var abstractKObject = nextDeep.get(ii[0]);
+                                                    abstractKObject.internal_visit(visitor, next.get(0), true, true, alreadyVisited);
                                                 }
                                                 else {
-                                                    nextDeep.get(ii[0]).graphVisit(visitor, next.get(0));
+                                                    var abstractKObject = nextDeep.get(ii[0]);
+                                                    abstractKObject.internal_visit(visitor, next.get(0), true, false, alreadyVisited);
                                                 }
                                             }
                                         });
                                         if (treeOnly) {
-                                            nextDeep.get(ii[0]).treeVisit(visitor, next.get(0));
+                                            var abstractKObject = nextDeep.get(ii[0]);
+                                            abstractKObject.internal_visit(visitor, next.get(0), true, true, alreadyVisited);
                                         }
                                         else {
-                                            nextDeep.get(ii[0]).graphVisit(visitor, next.get(0));
+                                            var abstractKObject = nextDeep.get(ii[0]);
+                                            abstractKObject.internal_visit(visitor, next.get(0), true, false, alreadyVisited);
                                         }
                                     }
                                     else {
@@ -2207,7 +2215,7 @@ var org;
                     data.JsonRaw = JsonRaw;
                     var KeyCalculator = (function () {
                         function KeyCalculator(prefix, currentIndex) {
-                            this._prefix = prefix << 53 - 16;
+                            this._prefix = "0x" + prefix.toString(16);
                             this._currentIndex = currentIndex;
                         }
                         KeyCalculator.prototype.nextKey = function () {
@@ -2215,7 +2223,8 @@ var org;
                                 throw new java.lang.IndexOutOfBoundsException("Object Index could not be created because it exceeded the capacity of the current prefix. Ask for a new prefix.");
                             }
                             this._currentIndex++;
-                            var objectKey = this._prefix + this._currentIndex;
+                            var indexHex = this._currentIndex.toString(16);
+                            var objectKey = parseInt(this._prefix + "000000000".substring(0, 9 - indexHex.length) + indexHex, 16);
                             if (objectKey > KeyCalculator.LONG_LIMIT_JS) {
                                 throw new java.lang.IndexOutOfBoundsException("Object Index exceeds teh maximum JavaScript number capacity. (2^53)");
                             }
@@ -2225,7 +2234,7 @@ var org;
                             return this._currentIndex;
                         };
                         KeyCalculator.prototype.prefix = function () {
-                            return (this._prefix >> 53 - 16);
+                            return parseInt(this._prefix, 16);
                         };
                         KeyCalculator.LONG_LIMIT_JS = 0x001FFFFFFFFFFFFF;
                         KeyCalculator.INDEX_LIMIT = 0x0000001FFFFFFFFF;
