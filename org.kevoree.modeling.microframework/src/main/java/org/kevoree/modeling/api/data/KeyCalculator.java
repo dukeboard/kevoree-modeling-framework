@@ -13,15 +13,21 @@ public class KeyCalculator {
 
     /**
      * @native:ts
+     * {@code
      * private _prefix: string;
+     * }
      */
     private long _prefix;
     private long _currentIndex;
 
     /**
      * @native:ts
-      this._prefix = "0x" + prefix.toString(16);
-      this._currentIndex = currentIndex;
+     * {@code
+     * this._prefix = "0x" + prefix.toString(16);
+     * this._currentIndex = currentIndex;
+     * }
+     * @param currentIndex
+     * @param prefix
      */
     public KeyCalculator(short prefix, long currentIndex) {
         this._prefix = ((long) prefix) << 53 - 16;
@@ -29,6 +35,7 @@ public class KeyCalculator {
     }
 
     /**@native:ts
+     * {@code
      * if (this._currentIndex == KeyCalculator.INDEX_LIMIT) {
      * throw new java.lang.IndexOutOfBoundsException("Object Index could not be created because it exceeded the capacity of the current prefix. Ask for a new prefix.");
      * }
@@ -39,6 +46,8 @@ public class KeyCalculator {
      * throw new java.lang.IndexOutOfBoundsException("Object Index exceeds teh maximum JavaScript number capacity. (2^53)");
      * }
      * return objectKey;
+     * }
+     *
      */
     public long nextKey() {
         if (_currentIndex == INDEX_LIMIT) {
@@ -59,7 +68,9 @@ public class KeyCalculator {
 
     /**
      * @native:ts
+     * {@code
      * return parseInt(this._prefix,16);
+     * }
      */
     public short prefix() {
         return (short) (_prefix >> 53 - 16);
