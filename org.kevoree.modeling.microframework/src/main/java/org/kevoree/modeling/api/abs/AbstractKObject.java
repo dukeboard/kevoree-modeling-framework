@@ -1,21 +1,10 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.InboundReference;
-import org.kevoree.modeling.api.KActionType;
-import org.kevoree.modeling.api.KDimension;
-import org.kevoree.modeling.api.KEvent;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.ModelAttributeVisitor;
-import org.kevoree.modeling.api.ModelListener;
-import org.kevoree.modeling.api.ModelVisitor;
-import org.kevoree.modeling.api.TraceRequest;
-import org.kevoree.modeling.api.VisitResult;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.data.Index;
-import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.data.JsonRaw;
+import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaOperation;
@@ -32,12 +21,7 @@ import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.trace.TraceSequence;
 import org.kevoree.modeling.api.util.Helper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by duke on 10/9/14.
@@ -519,7 +503,7 @@ public abstract class AbstractKObject implements KObject {
         if (alreadyVisited != null) {
             alreadyVisited.add(uuid());
         }
-        Set<Long> toResolveds = new HashSet<Long>();
+        Set<Long> toResolveIds = new HashSet<Long>();
         for (int i = 0; i < metaClass().metaReferences().length; i++) {
             MetaReference reference = metaClass().metaReferences()[i];
             if (!(treeOnly && !reference.contained())) {
@@ -533,26 +517,31 @@ public abstract class AbstractKObject implements KObject {
                         Set<Long> ol = (Set<Long>) o;
                         Long[] olArr = ol.toArray(new Long[ol.size()]);
                         for (int k = 0; k < olArr.length; k++) {
-                            toResolveds.add(olArr[k]);
+                            if (alreadyVisited == null || !alreadyVisited.contains(olArr[k])) {
+                                toResolveIds.add(olArr[k]);
+                            }
                         }
                     } else {
-                        toResolveds.add((Long) o);
+                        if (alreadyVisited == null || !alreadyVisited.contains((Long) o)) {
+                            toResolveIds.add((Long) o);
+                        }
                     }
                 }
             }
         }
-        if (toResolveds.isEmpty()) {
+        if (toResolveIds.isEmpty()) {
             end.on(null);
         } else {
-            Long[] toResolvedArr = toResolveds.toArray(new Long[toResolveds.size()]);
-            view().lookupAll(toResolvedArr, new Callback<KObject[]>() {
+            Long[] toResolveIdsArr = toResolveIds.toArray(new Long[toResolveIds.size()]);
+            view().lookupAll(toResolveIdsArr, new Callback<KObject[]>() {
                 @Override
                 public void on(KObject[] resolveds) {
                     final List<KObject> nextDeep = new ArrayList<KObject>();
+
                     for (int i = 0; i < resolveds.length; i++) {
                         KObject resolved = resolveds[i];
                         if (resolved == null) {
-                            System.err.println("Unknow object with ID " + toResolvedArr[i]);
+                            System.err.println("Unknow object with ID " + toResolveIdsArr[i]);
                         } else {
                             VisitResult result = visitor.visit(resolved);
                             if (result != null && result.equals(VisitResult.STOP)) {
@@ -580,17 +569,21 @@ public abstract class AbstractKObject implements KObject {
                                     end.on(null);
                                 } else {
                                     if (treeOnly) {
-                                        nextDeep.get(ii[0]).treeVisit(visitor, next.get(0));
+                                        AbstractKObject abstractKObject = (AbstractKObject) nextDeep.get(ii[0]);
+                                        abstractKObject.internal_visit(visitor, next.get(0), true, true, alreadyVisited);
                                     } else {
-                                        nextDeep.get(ii[0]).graphVisit(visitor, next.get(0));
+                                        AbstractKObject abstractKObject = (AbstractKObject) nextDeep.get(ii[0]);
+                                        abstractKObject.internal_visit(visitor, next.get(0), true, false, alreadyVisited);
                                     }
                                 }
                             }
                         });
                         if (treeOnly) {
-                            nextDeep.get(ii[0]).treeVisit(visitor, next.get(0));
+                            AbstractKObject abstractKObject = (AbstractKObject) nextDeep.get(ii[0]);
+                            abstractKObject.internal_visit(visitor, next.get(0), true, true, alreadyVisited);
                         } else {
-                            nextDeep.get(ii[0]).graphVisit(visitor, next.get(0));
+                            AbstractKObject abstractKObject = (AbstractKObject) nextDeep.get(ii[0]);
+                            abstractKObject.internal_visit(visitor, next.get(0), true, false, alreadyVisited);
                         }
                     } else {
                         end.on(null);

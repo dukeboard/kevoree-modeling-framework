@@ -3,6 +3,7 @@ package org.kevoree.modeling.api.data;
 /**
  * Created by gregory.nain on 02/12/14.
  */
+// TODO must be synchronized
 public class KeyCalculator {
 
     // Limit long lengths to 53 bits because of JS limitation
