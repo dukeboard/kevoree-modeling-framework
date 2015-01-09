@@ -2,7 +2,6 @@ package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.extrapolation.Extrapolation;
 import org.kevoree.modeling.api.meta.MetaAttribute;
-import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaType;
 
 /**

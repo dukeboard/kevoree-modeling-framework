@@ -17,7 +17,6 @@ import org.kevoree.modeling.api.time.DefaultTimeTree;
 import org.kevoree.modeling.api.trace.TraceSequence;
 import org.kevoree.modeling.api.xmi.XmiFormat;
 
-import java.util.ArrayList;
 import java.util.List;
 
 

@@ -1,6 +1,9 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.meta.*;
+import org.kevoree.modeling.api.meta.MetaAttribute;
+import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaOperation;
+import org.kevoree.modeling.api.meta.MetaReference;
 
 import java.util.HashMap;
 
