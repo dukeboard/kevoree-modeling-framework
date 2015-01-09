@@ -589,34 +589,34 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.visit = function (visitor, end) {
-                            this.internal_visit(visitor, end, false, false, null);
+                            this.internal_visit(visitor, end, false, false, null, null);
                         };
-                        AbstractKObject.prototype.internal_visit = function (visitor, end, deep, treeOnly, alreadyVisited) {
-                            if (alreadyVisited != null) {
-                                alreadyVisited.add(this.uuid());
+                        AbstractKObject.prototype.internal_visit = function (visitor, end, deep, containedOnly, visited, traversed) {
+                            if (traversed != null) {
+                                traversed.add(this.uuid());
                             }
                             var toResolveIds = new java.util.HashSet();
                             for (var i = 0; i < this.metaClass().metaReferences().length; i++) {
                                 var reference = this.metaClass().metaReferences()[i];
-                                if (!(treeOnly && !reference.contained())) {
+                                if (!(containedOnly && !reference.contained())) {
                                     var raw = this.view().dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
-                                    var o = null;
+                                    var obj = null;
                                     if (raw != null) {
-                                        o = raw[reference.index()];
+                                        obj = raw[reference.index()];
                                     }
-                                    if (o != null) {
-                                        if (o instanceof java.util.Set) {
-                                            var ol = o;
-                                            var olArr = ol.toArray(new Array());
-                                            for (var k = 0; k < olArr.length; k++) {
-                                                if (alreadyVisited == null || !alreadyVisited.contains(olArr[k])) {
-                                                    toResolveIds.add(olArr[k]);
+                                    if (obj != null) {
+                                        if (obj instanceof java.util.Set) {
+                                            var ids = obj;
+                                            var idArr = ids.toArray(new Array());
+                                            for (var k = 0; k < idArr.length; k++) {
+                                                if (traversed == null || !traversed.contains(idArr[k])) {
+                                                    toResolveIds.add(idArr[k]);
                                                 }
                                             }
                                         }
                                         else {
-                                            if (alreadyVisited == null || !alreadyVisited.contains(o)) {
-                                                toResolveIds.add(o);
+                                            if (traversed == null || !traversed.contains(obj)) {
+                                                toResolveIds.add(obj);
                                             }
                                         }
                                     }
@@ -627,56 +627,55 @@ var org;
                             }
                             else {
                                 var toResolveIdsArr = toResolveIds.toArray(new Array());
-                                this.view().lookupAll(toResolveIdsArr, function (resolveds) {
+                                this.view().lookupAll(toResolveIdsArr, function (resolvedArr) {
                                     var nextDeep = new java.util.ArrayList();
-                                    for (var i = 0; i < resolveds.length; i++) {
-                                        var resolved = resolveds[i];
-                                        if (resolved == null) {
-                                            System.err.println("Unknow object with ID " + toResolveIdsArr[i]);
+                                    for (var i = 0; i < resolvedArr.length; i++) {
+                                        var resolved = resolvedArr[i];
+                                        var result = org.kevoree.modeling.api.VisitResult.CONTINUE;
+                                        if (visitor != null && (visited == null || !visited.contains(resolved.uuid()))) {
+                                            result = visitor(resolved);
+                                        }
+                                        if (visited != null) {
+                                            visited.add(resolved.uuid());
+                                        }
+                                        if (result != null && result.equals(org.kevoree.modeling.api.VisitResult.STOP)) {
+                                            end(null);
                                         }
                                         else {
-                                            var result = visitor(resolved);
-                                            if (result != null && result.equals(org.kevoree.modeling.api.VisitResult.STOP)) {
-                                                end(null);
-                                            }
-                                            else {
-                                                if (deep) {
-                                                    if (result.equals(org.kevoree.modeling.api.VisitResult.CONTINUE)) {
-                                                        if (alreadyVisited == null || !alreadyVisited.contains(resolved.uuid())) {
-                                                            nextDeep.add(resolved);
-                                                        }
+                                            if (deep) {
+                                                if (result.equals(org.kevoree.modeling.api.VisitResult.CONTINUE)) {
+                                                    if (traversed == null || !traversed.contains(resolved.uuid())) {
+                                                        nextDeep.add(resolved);
                                                     }
                                                 }
                                             }
                                         }
                                     }
                                     if (!nextDeep.isEmpty()) {
-                                        var ii = new Array();
-                                        ii[0] = 0;
+                                        var index = new Array();
+                                        index[0] = 0;
                                         var next = new java.util.ArrayList();
                                         next.add(function (throwable) {
-                                            ii[0] = ii[0] + 1;
-                                            if (ii[0] == nextDeep.size()) {
+                                            index[0] = index[0] + 1;
+                                            if (index[0] == nextDeep.size()) {
                                                 end(null);
                                             }
                                             else {
-                                                if (treeOnly) {
-                                                    var abstractKObject = nextDeep.get(ii[0]);
-                                                    abstractKObject.internal_visit(visitor, next.get(0), true, true, alreadyVisited);
+                                                var abstractKObject = nextDeep.get(index[0]);
+                                                if (containedOnly) {
+                                                    abstractKObject.internal_visit(visitor, next.get(0), true, true, visited, traversed);
                                                 }
                                                 else {
-                                                    var abstractKObject = nextDeep.get(ii[0]);
-                                                    abstractKObject.internal_visit(visitor, next.get(0), true, false, alreadyVisited);
+                                                    abstractKObject.internal_visit(visitor, next.get(0), true, false, visited, traversed);
                                                 }
                                             }
                                         });
-                                        if (treeOnly) {
-                                            var abstractKObject = nextDeep.get(ii[0]);
-                                            abstractKObject.internal_visit(visitor, next.get(0), true, true, alreadyVisited);
+                                        var abstractKObject = nextDeep.get(index[0]);
+                                        if (containedOnly) {
+                                            abstractKObject.internal_visit(visitor, next.get(0), true, true, visited, traversed);
                                         }
                                         else {
-                                            var abstractKObject = nextDeep.get(ii[0]);
-                                            abstractKObject.internal_visit(visitor, next.get(0), true, false, alreadyVisited);
+                                            abstractKObject.internal_visit(visitor, next.get(0), true, false, visited, traversed);
                                         }
                                     }
                                     else {
@@ -686,10 +685,10 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.graphVisit = function (visitor, end) {
-                            this.internal_visit(visitor, end, true, false, new java.util.HashSet());
+                            this.internal_visit(visitor, end, true, false, new java.util.HashSet(), new java.util.HashSet());
                         };
                         AbstractKObject.prototype.treeVisit = function (visitor, end) {
-                            this.internal_visit(visitor, end, true, true, null);
+                            this.internal_visit(visitor, end, true, true, null, null);
                         };
                         AbstractKObject.prototype.toJSON = function () {
                             return org.kevoree.modeling.api.data.JsonRaw.encode(this.view().dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ), this._uuid, this._metaClass);
@@ -1642,8 +1641,8 @@ var org;
                                                     var entry = org.kevoree.modeling.api.data.JsonRaw.decode(strings[i], originView, objects[index][DefaultKStore.INDEX_RESOLVED_TIME]);
                                                     if (entry != null) {
                                                         entry.timeTree = objects[index][DefaultKStore.INDEX_RESOLVED_TIMETREE];
-                                                        resolved[i] = originView.createProxy(entry.metaClass, entry.timeTree, keys[index]);
-                                                        _this.write_cache(objects[i][DefaultKStore.INDEX_RESOLVED_DIM], objects[i][DefaultKStore.INDEX_RESOLVED_TIME], keys[index], entry);
+                                                        resolved[index] = originView.createProxy(entry.metaClass, entry.timeTree, keys[index]);
+                                                        _this.write_cache(objects[index][DefaultKStore.INDEX_RESOLVED_DIM], objects[index][DefaultKStore.INDEX_RESOLVED_TIME], keys[index], entry);
                                                     }
                                                 }
                                             }

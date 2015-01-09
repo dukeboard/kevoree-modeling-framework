@@ -214,7 +214,7 @@ declare module org {
                         all(p_metaReference: meta.MetaReference, p_callback: (p: KObject[]) => void): void;
                         visitAttributes(visitor: (p: meta.MetaAttribute, p1: any) => void): void;
                         visit(visitor: (p: KObject) => VisitResult, end: (p: java.lang.Throwable) => void): void;
-                        private internal_visit(visitor, end, deep, treeOnly, alreadyVisited);
+                        private internal_visit(visitor, end, deep, containedOnly, visited, traversed);
                         graphVisit(visitor: (p: KObject) => VisitResult, end: (p: java.lang.Throwable) => void): void;
                         treeVisit(visitor: (p: KObject) => VisitResult, end: (p: java.lang.Throwable) => void): void;
                         toJSON(): string;
