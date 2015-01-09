@@ -1,17 +1,6 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.InboundReference;
-import org.kevoree.modeling.api.KActionType;
-import org.kevoree.modeling.api.KDimension;
-import org.kevoree.modeling.api.KEvent;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.ModelAttributeVisitor;
-import org.kevoree.modeling.api.ModelListener;
-import org.kevoree.modeling.api.ModelVisitor;
-import org.kevoree.modeling.api.TraceRequest;
-import org.kevoree.modeling.api.VisitResult;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.data.Index;
 import org.kevoree.modeling.api.data.JsonRaw;
@@ -32,12 +21,7 @@ import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.trace.TraceSequence;
 import org.kevoree.modeling.api.util.Helper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by duke on 10/9/14.
@@ -512,34 +496,36 @@ public abstract class AbstractKObject implements KObject {
     }
 
     public void visit(ModelVisitor visitor, Callback<Throwable> end) {
-        internal_visit(visitor, end, false, false, null);
+        internal_visit(visitor, end, false, false, null, null);
     }
 
-    private void internal_visit(final ModelVisitor visitor, final Callback<Throwable> end, final boolean deep, final boolean treeOnly, final HashSet<Long> alreadyVisited) {
-        if (alreadyVisited != null) {
-            alreadyVisited.add(uuid());
+    private void internal_visit(final ModelVisitor visitor, final Callback<Throwable> end,
+                                boolean deep, boolean containedOnly, final HashSet<Long> visited, final HashSet<Long> traversed) {
+        if (traversed != null) {
+            traversed.add(uuid());
         }
-        Set<Long> toResolveIds = new HashSet<Long>();
+
+        final Set<Long> toResolveIds = new HashSet<Long>();
         for (int i = 0; i < metaClass().metaReferences().length; i++) {
-            MetaReference reference = metaClass().metaReferences()[i];
-            if (!(treeOnly && !reference.contained())) {
+            final MetaReference reference = metaClass().metaReferences()[i];
+            if (!(containedOnly && !reference.contained())) {
                 Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.READ);
-                Object o = null;
+                Object obj = null;
                 if (raw != null) {
-                    o = raw[reference.index()];
+                    obj = raw[reference.index()];
                 }
-                if (o != null) {
-                    if (o instanceof Set) {
-                        Set<Long> ol = (Set<Long>) o;
-                        Long[] olArr = ol.toArray(new Long[ol.size()]);
-                        for (int k = 0; k < olArr.length; k++) {
-                            if (alreadyVisited == null || !alreadyVisited.contains(olArr[k])) {
-                                toResolveIds.add(olArr[k]);
+                if (obj != null) {
+                    if (obj instanceof Set) {
+                        Set<Long> ids = (Set<Long>) obj;
+                        Long[] idArr = ids.toArray(new Long[ids.size()]);
+                        for (int k = 0; k < idArr.length; k++) {
+                            if (traversed == null || !traversed.contains(idArr[k])) { // this is for optimization
+                                toResolveIds.add(idArr[k]);
                             }
                         }
                     } else {
-                        if (alreadyVisited == null || !alreadyVisited.contains((Long) o)) {
-                            toResolveIds.add((Long) o);
+                        if (traversed == null || !traversed.contains(obj)) { // this is for optimization
+                            toResolveIds.add((Long) obj);
                         }
                     }
                 }
@@ -548,58 +534,63 @@ public abstract class AbstractKObject implements KObject {
         if (toResolveIds.isEmpty()) {
             end.on(null);
         } else {
-            Long[] toResolveIdsArr = toResolveIds.toArray(new Long[toResolveIds.size()]);
+            final Long[] toResolveIdsArr = toResolveIds.toArray(new Long[toResolveIds.size()]);
             view().lookupAll(toResolveIdsArr, new Callback<KObject[]>() {
                 @Override
-                public void on(KObject[] resolveds) {
+                public void on(KObject[] resolvedArr) {
                     final List<KObject> nextDeep = new ArrayList<KObject>();
 
-                    for (int i = 0; i < resolveds.length; i++) {
-                        KObject resolved = resolveds[i];
-                        if (resolved == null) {
-                            System.err.println("Unknow object with ID " + toResolveIdsArr[i]);
+                    for (int i = 0; i < resolvedArr.length; i++) {
+                        final KObject resolved = resolvedArr[i];
+
+                        VisitResult result = VisitResult.CONTINUE;
+                        if (visitor != null && (visited == null || !visited.contains(resolved.uuid()))) {
+                            result = visitor.visit(resolved);
+                        }
+                        if (visited != null) {
+                            visited.add(resolved.uuid());
+                        }
+
+                        if (result != null && result.equals(VisitResult.STOP)) {
+                            end.on(null);
+
                         } else {
-                            VisitResult result = visitor.visit(resolved);
-                            if (result != null && result.equals(VisitResult.STOP)) {
-                                end.on(null);
-                            } else {
-                                if (deep) {
-                                    if (result.equals(VisitResult.CONTINUE)) {
-                                        if (alreadyVisited == null || !alreadyVisited.contains(resolved.uuid())) {
-                                            nextDeep.add(resolved);
-                                        }
+                            if (deep) {
+                                if (result.equals(VisitResult.CONTINUE)) {
+                                    if (traversed == null || !traversed.contains(resolved.uuid())) {
+                                        nextDeep.add(resolved);
                                     }
                                 }
                             }
                         }
+
                     }
                     if (!nextDeep.isEmpty()) {
-                        final int[] ii = new int[1];
-                        ii[0] = 0;
+                        final int[] index = new int[1];
+                        index[0] = 0;
                         final List<Callback<Throwable>> next = new ArrayList<Callback<Throwable>>();
                         next.add(new Callback<Throwable>() {
                             @Override
                             public void on(Throwable throwable) {
-                                ii[0] = ii[0] + 1;
-                                if (ii[0] == nextDeep.size()) {
+                                index[0] = index[0] + 1;
+                                if (index[0] == nextDeep.size()) {
                                     end.on(null);
                                 } else {
-                                    if (treeOnly) {
-                                        AbstractKObject abstractKObject = (AbstractKObject) nextDeep.get(ii[0]);
-                                        abstractKObject.internal_visit(visitor, next.get(0), true, true, alreadyVisited);
+                                    final AbstractKObject abstractKObject = (AbstractKObject) nextDeep.get(index[0]);
+                                    if (containedOnly) {
+                                        abstractKObject.internal_visit(visitor, next.get(0), true, true, visited, traversed);
                                     } else {
-                                        AbstractKObject abstractKObject = (AbstractKObject) nextDeep.get(ii[0]);
-                                        abstractKObject.internal_visit(visitor, next.get(0), true, false, alreadyVisited);
+                                        abstractKObject.internal_visit(visitor, next.get(0), true, false, visited, traversed);
                                     }
                                 }
                             }
                         });
-                        if (treeOnly) {
-                            AbstractKObject abstractKObject = (AbstractKObject) nextDeep.get(ii[0]);
-                            abstractKObject.internal_visit(visitor, next.get(0), true, true, alreadyVisited);
+
+                        final AbstractKObject abstractKObject = (AbstractKObject) nextDeep.get(index[0]);
+                        if (containedOnly) {
+                            abstractKObject.internal_visit(visitor, next.get(0), true, true, visited, traversed);
                         } else {
-                            AbstractKObject abstractKObject = (AbstractKObject) nextDeep.get(ii[0]);
-                            abstractKObject.internal_visit(visitor, next.get(0), true, false, alreadyVisited);
+                            abstractKObject.internal_visit(visitor, next.get(0), true, false, visited, traversed);
                         }
                     } else {
                         end.on(null);
@@ -610,11 +601,11 @@ public abstract class AbstractKObject implements KObject {
     }
 
     public void graphVisit(ModelVisitor visitor, Callback<Throwable> end) {
-        internal_visit(visitor, end, true, false, new HashSet<Long>());
+        internal_visit(visitor, end, true, false, new HashSet<Long>(), new HashSet<Long>());
     }
 
     public void treeVisit(ModelVisitor visitor, Callback<Throwable> end) {
-        internal_visit(visitor, end, true, true, null);
+        internal_visit(visitor, end, true, true, null, null);
     }
 
     public String toJSON() {
