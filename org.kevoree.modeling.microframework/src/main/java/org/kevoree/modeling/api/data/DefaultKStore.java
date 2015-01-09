@@ -458,9 +458,9 @@ public class DefaultKStore implements KStore {
                                         if (entry != null) {
                                             entry.timeTree = (TimeTree) objects[index][INDEX_RESOLVED_TIMETREE];
                                             //Create and Add the proxy
-                                            resolved[i] = ((AbstractKView) originView).createProxy(entry.metaClass, entry.timeTree, keys[index]);
+                                            resolved[index] = ((AbstractKView) originView).createProxy(entry.metaClass, entry.timeTree, keys[index]);
                                             //Save the cache value
-                                            write_cache((Long) objects[i][INDEX_RESOLVED_DIM], (Long) objects[i][INDEX_RESOLVED_TIME], keys[index], entry);
+                                            write_cache((Long) objects[index][INDEX_RESOLVED_DIM], (Long) objects[index][INDEX_RESOLVED_TIME], keys[index], entry);
                                         }
                                     }
                                 }
