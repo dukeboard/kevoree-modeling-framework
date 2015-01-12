@@ -169,7 +169,11 @@ public class JsonModelLoader {
                                     } else if (metaReference != null) {
                                         if (metaReference.single()) {
                                             try {
-                                                raw[metaReference.index()] = Long.parseLong(payload_content.toString());
+                                                Long converted = Long.parseLong(payload_content.toString());
+                                                if (mappedKeys.containsKey(converted)) {
+                                                    converted = mappedKeys.get(converted);
+                                                }
+                                                raw[metaReference.index()] = converted;
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
