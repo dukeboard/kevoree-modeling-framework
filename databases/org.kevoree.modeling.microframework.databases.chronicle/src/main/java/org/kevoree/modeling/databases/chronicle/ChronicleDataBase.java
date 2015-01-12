@@ -17,12 +17,16 @@ public class ChronicleDataBase implements KDataBase {
     private ChronicleMap<String, String> raw;
 
     public ChronicleDataBase(String storagePath) throws IOException {
-        File location = new File(storagePath);
-        if (!location.exists()) {
-            location.mkdirs();
+        if (storagePath == null) {
+            raw = ChronicleMapBuilder.of(String.class, String.class).create();
+        } else {
+            File location = new File(storagePath);
+            if (!location.exists()) {
+                location.mkdirs();
+            }
+            File targetDB = new File(location, "data");
+            raw = ChronicleMapBuilder.of(String.class, String.class).createPersistedTo(targetDB);
         }
-        File targetDB = new File(location, "data");
-        raw = ChronicleMapBuilder.of(String.class, String.class).createPersistedTo(targetDB);
     }
 
     @Override
@@ -78,7 +82,7 @@ public class ChronicleDataBase implements KDataBase {
     @Override
     public void connect(Callback<Throwable> callback) {
         //noop
-        if(callback != null){
+        if (callback != null) {
             callback.on(null);
         }
     }
