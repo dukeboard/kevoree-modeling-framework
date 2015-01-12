@@ -454,13 +454,13 @@ public class DefaultKStore implements KStore {
                                     if (strings[i] != null) {
                                         int index = toLoadIndexes.get(i);
                                         //Create the raw CacheEntry
-                                        CacheEntry entry = JsonRaw.decode(strings[i], originView, (Long) objects[index][INDEX_RESOLVED_TIME]);
+                                        CacheEntry entry = JsonRaw.decode(strings[i], originView, (Long) objects[i][INDEX_RESOLVED_TIME]);
                                         if (entry != null) {
-                                            entry.timeTree = (TimeTree) objects[index][INDEX_RESOLVED_TIMETREE];
+                                            entry.timeTree = (TimeTree) objects[i][INDEX_RESOLVED_TIMETREE];
                                             //Create and Add the proxy
-                                            resolved[index] = ((AbstractKView) originView).createProxy(entry.metaClass, entry.timeTree, keys[index]);
+                                            resolved[index] = ((AbstractKView) originView).createProxy(entry.metaClass, entry.timeTree, keys[i]);
                                             //Save the cache value
-                                            write_cache((Long) objects[index][INDEX_RESOLVED_DIM], (Long) objects[index][INDEX_RESOLVED_TIME], keys[index], entry);
+                                            write_cache((Long) objects[i][INDEX_RESOLVED_DIM], (Long) objects[i][INDEX_RESOLVED_TIME], keys[i], entry);
                                         }
                                     }
                                 }
