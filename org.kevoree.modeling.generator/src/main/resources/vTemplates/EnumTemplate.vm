@@ -1,8 +1,13 @@
 package ${context.pack};
 
-public class ${context.getName()} {
+public enum ${context.getName()} {
+#set($maxEnum = ${context.litterals.size()})
+#set($idx = 1)
 #foreach($enumAtt in ${context.litterals})
-    public static final ${context.getName()} $enumAtt.toUpperCase() = new ${context.getName()}();
+    $enumAtt.toUpperCase()#if($idx < $maxEnum),
+#else;
+#end
+#set($idx = $idx + 1)
 #end
 }
 #* @vtlvariable name="context" type="org.kevoree.modeling.ast.MModelEnum" *#

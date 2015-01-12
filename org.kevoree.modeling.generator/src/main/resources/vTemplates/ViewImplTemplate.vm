@@ -12,7 +12,7 @@ public class ${context.metaModelName}ViewImpl extends org.kevoree.modeling.api.a
             return null;
         }
         switch (p_clazz.index()) {
-#foreach($class in $context.model.classifiers)
+#foreach($class in $context.model.getClasses())
     #set($lastIdx = $class.fqn.lastIndexOf(".")+1)
             case ${class.index} : return new ${class.fqn.substring(0,$class.fqn.lastIndexOf("."))}.impl.${class.fqn.substring($lastIdx)}Impl(this, p_key, p_timeTree, p_clazz);
 #end
@@ -20,7 +20,7 @@ public class ${context.metaModelName}ViewImpl extends org.kevoree.modeling.api.a
         }
     }
 
-#foreach($class in $context.model.classifiers)
+#foreach($class in $context.model.getClasses())
 #set($lastIdx = $class.fqn.lastIndexOf(".")+1)
     @Override
     public $class.fqn create$class.fqn.substring($lastIdx)() {

@@ -1,5 +1,6 @@
 package org.kevoree.modeling.ast;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -23,4 +24,14 @@ public class MModel {
         classifiers.put(classifier.getFqn(), classifier);
     }
 
+    public Collection<MModelClass> getClasses() {
+        ArrayList<MModelClass> classes = new ArrayList<MModelClass>();
+        for(MModelClassifier cls : classifiers.values()) {
+            if(cls instanceof MModelClass) {
+                classes.add((MModelClass)cls);
+            }
+        }
+        return classes;
+
+    }
 }

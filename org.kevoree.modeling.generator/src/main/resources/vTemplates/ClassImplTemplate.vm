@@ -52,7 +52,7 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
     }
 
     @Override
-    public void get${context.generationContext.helper.toCamelCase(${ref.getName()})}(org.kevoree.modeling.api.Callback<${ref.getType().fqn}> p_callback) {
+    public void get${context.generationContext.helper.toCamelCase(${ref.getName()})}(final org.kevoree.modeling.api.Callback<${ref.getType().fqn}> p_callback) {
         this.single(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject>() {
             @Override
             public void on(org.kevoree.modeling.api.KObject kObject) {
@@ -77,7 +77,7 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
     }
 
     @Override
-    public void each${context.generationContext.helper.toCamelCase(${ref.getName()})}(org.kevoree.modeling.api.Callback<${ref.getType().fqn}[]> p_callback) {
+    public void each${context.generationContext.helper.toCamelCase(${ref.getName()})}(final org.kevoree.modeling.api.Callback<${ref.getType().fqn}[]> p_callback) {
        this.all(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject[]>() {
             @Override
             public void on(org.kevoree.modeling.api.KObject[] kObjects) {

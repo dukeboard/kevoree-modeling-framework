@@ -51,7 +51,7 @@ public class MMPsiVisitor extends MetaModelVisitor {
             o.getClassElemDeclarationList().forEach(decl -> {
                 if (decl.getRelationDeclaration() != null) {
                     MetaModelRelationDeclaration relationDecl = decl.getRelationDeclaration();
-                    if (ProcessorHelper.getInstance().isPrimitive(context, relationDecl.getTypeDeclaration())) {
+                    if (ProcessorHelper.getInstance().isPrimitive(relationDecl.getTypeDeclaration()) || ProcessorHelper.getInstance().isEnum(context, relationDecl.getTypeDeclaration())) {
                         MModelAttribute attribute = new MModelAttribute(relationDecl.getRelationName().getText(), relationDecl.getTypeDeclaration().getName());
                         if (relationDecl.getAnnotations() != null) {
                             relationDecl.getAnnotations().getAnnotationList().forEach(ann -> {

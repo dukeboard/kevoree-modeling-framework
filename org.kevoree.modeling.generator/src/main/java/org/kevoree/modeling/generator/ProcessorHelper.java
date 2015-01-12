@@ -57,56 +57,53 @@ public class ProcessorHelper {
         }
     }
 
-    public boolean isPrimitive(GenerationContext context, MetaModelTypeDeclaration tDecl) {
-        if(PrimitiveTypes.isPrimitive(tDecl.getName())) {
-            return true;
-        } else {
-            MModelClassifier resolved = context.getModel().get(tDecl.getName());
-            return resolved != null && resolved instanceof MModelEnum;
-        }
+    public boolean isPrimitive(MetaModelTypeDeclaration tDecl) {
+        return isPrimitive(tDecl.getName());
     }
+
+    public boolean isPrimitive(String tDecl) {
+        return PrimitiveTypes.isPrimitive(tDecl);
+    }
+
+    public boolean isEnum(GenerationContext context, MetaModelTypeDeclaration tDecl) {
+        MModelClassifier resolved = context.getModel().get(tDecl.getName());
+        return resolved != null && resolved instanceof MModelEnum;
+    }
+
 
     public String convertToJavaType(String t) {
         return PrimitiveTypes.toEcoreType(t);
     }
 
     public void consolidate(MModel model) {
-        for (MModelClassifier decl : model.getClassifiers()) {
+        for (MModelClass decl : model.getClasses()) {
             internal_consolidate(decl);
         }
     }
 
-    private void internal_consolidate(MModelClassifier classifierRelDecls) {
-        if (classifierRelDecls instanceof MModelClass) {
-            MModelClass classRelDecls = (MModelClass) classifierRelDecls;
-            int globalIndex = 5;
-            int localIndex = 0;
-            for (MModelAttribute att : classRelDecls.getAttributes()) {
-                att.setIndex(globalIndex);
-                att.setAttIndex(localIndex);
-                globalIndex++;
-                localIndex++;
-            }
-            localIndex = 0;
-            for (MModelReference ref : classRelDecls.getReferences()) {
-                ref.setIndex(globalIndex);
-                ref.setRefIndex(localIndex);
-                globalIndex++;
-                localIndex++;
-            }
-            localIndex = 0;
-            for (MModelOperation op : classRelDecls.getOperations()) {
-                op.setIndex(globalIndex);
-                op.setOpIndex(localIndex);
-                globalIndex++;
-                localIndex++;
-            }
+    private void internal_consolidate(MModelClass classRelDecls) {
+        int globalIndex = 5;
+        int localIndex = 0;
+        for (MModelAttribute att : classRelDecls.getAttributes()) {
+            att.setIndex(globalIndex);
+            att.setAttIndex(localIndex);
+            globalIndex++;
+            localIndex++;
         }
-        /*
-        else {
-            throw new UnsupportedOperationException("Enums not yet supported:" + classifierRelDecls.getClass());
+        localIndex = 0;
+        for (MModelReference ref : classRelDecls.getReferences()) {
+            ref.setIndex(globalIndex);
+            ref.setRefIndex(localIndex);
+            globalIndex++;
+            localIndex++;
         }
-        */
+        localIndex = 0;
+        for (MModelOperation op : classRelDecls.getOperations()) {
+            op.setIndex(globalIndex);
+            op.setOpIndex(localIndex);
+            globalIndex++;
+            localIndex++;
+        }
     }
 
     public String toCamelCase(String ref) {

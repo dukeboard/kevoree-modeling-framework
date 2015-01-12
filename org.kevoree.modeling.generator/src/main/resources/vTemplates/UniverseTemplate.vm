@@ -7,8 +7,8 @@ public class ${context.metaModelName}Universe extends org.kevoree.modeling.api.a
     public ${context.metaModelName}Universe() {
         super();
         _metaModel = new org.kevoree.modeling.api.abs.AbstractMetaModel("${context.metaModelName}", -1);
-        org.kevoree.modeling.api.meta.MetaClass[] tempMetaClasses = new org.kevoree.modeling.api.meta.MetaClass[${context.model.classifiers.size()}];
-        #foreach($class in $context.model.classifiers)
+        org.kevoree.modeling.api.meta.MetaClass[] tempMetaClasses = new org.kevoree.modeling.api.meta.MetaClass[${context.model.getClasses().size()}];
+        #foreach($class in $context.model.getClasses())
             tempMetaClasses[${class.index}] = ${class.pack}.meta.Meta${class.name}.getInstance();
         #end
         ((org.kevoree.modeling.api.abs.AbstractMetaModel) _metaModel).init(tempMetaClasses);
