@@ -78,7 +78,7 @@ public class JsonModelSerializer {
                     builder.append(",\"");
                     builder.append(elem.metaClass().metaAttributes()[i].metaName());
                     builder.append("\" : \"");
-                    builder.append(payload.toString());
+                    builder.append(elem.metaClass().metaAttributes()[i].metaType().save(payload));
                     builder.append("\"\n");
                 }
             }

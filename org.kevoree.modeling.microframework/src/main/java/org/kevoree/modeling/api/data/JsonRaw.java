@@ -229,7 +229,7 @@ public class JsonRaw {
         for (int i = 0; i < metaAttributes.length; i++) {
             Object payload_res = raw[metaAttributes[i].index()];
             if(payload_res != null) {
-                String attrsPayload = metaAttributes[i].strategy().save(payload_res);
+                String attrsPayload = metaAttributes[i].strategy().save(payload_res,metaAttributes[i]);
                 if (attrsPayload != null) {
                     builder.append("\t");
                     builder.append("\"");

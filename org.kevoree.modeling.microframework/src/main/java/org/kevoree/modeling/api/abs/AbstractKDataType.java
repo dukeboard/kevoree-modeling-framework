@@ -5,7 +5,7 @@ import org.kevoree.modeling.api.KMetaType;
 /**
  * Created by duke on 12/01/15.
  */
-public class AbstractKDataType implements KMetaType {
+public abstract class AbstractKDataType implements KMetaType {
 
     private String _name;
 

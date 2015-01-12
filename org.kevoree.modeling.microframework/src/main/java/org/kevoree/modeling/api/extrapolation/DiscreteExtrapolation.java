@@ -40,9 +40,9 @@ public class DiscreteExtrapolation implements Extrapolation {
     }
 
     @Override
-    public String save(Object cache) {
+    public String save(Object cache, MetaAttribute attribute) {
         if (cache != null) {
-            return cache.toString();
+            return attribute.metaType().save(cache);
         } else {
             return null;
         }
@@ -50,32 +50,10 @@ public class DiscreteExtrapolation implements Extrapolation {
 
     @Override
     public Object load(String payload, MetaAttribute attribute, long now) {
-        return convertRaw(attribute, payload);
-    }
-
-    public static Object convertRaw(MetaAttribute attribute, Object raw) {
-        try {
-            if (attribute.metaType().equals(PrimitiveMetaTypes.STRING)) {
-                return raw.toString();
-            } else if (attribute.metaType().equals(PrimitiveMetaTypes.LONG)) {
-                return Long.parseLong(raw.toString());
-            } else if (attribute.metaType().equals(PrimitiveMetaTypes.INT)) {
-                return Integer.parseInt(raw.toString());
-            } else if (attribute.metaType().equals(PrimitiveMetaTypes.BOOL)) {
-                return raw.toString().equals("true");
-            } else if (attribute.metaType().equals(PrimitiveMetaTypes.SHORT)) {
-                return Short.parseShort(raw.toString());
-            } else if (attribute.metaType().equals(PrimitiveMetaTypes.DOUBLE)) {
-                return Double.parseDouble(raw.toString());
-            } else if (attribute.metaType().equals(PrimitiveMetaTypes.FLOAT)) {
-                return Float.parseFloat(raw.toString());
-            } else {
-                return null;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+        if (payload != null) {
+            return attribute.metaType().load(payload);
         }
+        return null;
     }
 
 }

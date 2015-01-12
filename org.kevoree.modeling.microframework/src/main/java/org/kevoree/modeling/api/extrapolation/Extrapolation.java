@@ -12,7 +12,7 @@ public interface Extrapolation {
 
     public void mutate(KObject current, MetaAttribute attribute, Object payload);
 
-    public abstract String save(Object cache);
+    public abstract String save(Object cache, MetaAttribute attribute);
 
     public abstract Object load(String payload, MetaAttribute attribute, long now);
 

@@ -62,7 +62,7 @@ public class PolynomialExtrapolation implements Extrapolation {
     }
 
     @Override
-    public String save(Object cache) {
+    public String save(Object cache, MetaAttribute attribute) {
         try {
             return ((PolynomialModel) cache).save();
         } catch (Exception e) {

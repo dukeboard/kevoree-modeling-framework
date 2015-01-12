@@ -9,4 +9,8 @@ public interface KMetaType {
 
     public boolean isEnum();
 
+    public String save(Object src);
+
+    public Object load(String payload);
+
 }
