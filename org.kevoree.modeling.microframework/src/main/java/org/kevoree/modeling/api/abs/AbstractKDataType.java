@@ -26,4 +26,9 @@ public abstract class AbstractKDataType implements KMetaType {
         return _isEnum;
     }
 
+    @Override
+    public abstract String save(Object src);
+
+    @Override
+    public abstract Object load(String payload);
 }
