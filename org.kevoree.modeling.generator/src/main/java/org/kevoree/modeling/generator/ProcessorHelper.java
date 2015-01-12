@@ -57,8 +57,13 @@ public class ProcessorHelper {
         }
     }
 
-    public boolean isPrimitive(MetaModelTypeDeclaration tDecl) {
-        return PrimitiveTypes.isPrimitive(tDecl.getName());
+    public boolean isPrimitive(GenerationContext context, MetaModelTypeDeclaration tDecl) {
+        if(PrimitiveTypes.isPrimitive(tDecl.getName())) {
+            return true;
+        } else {
+            MModelClassifier resolved = context.getModel().get(tDecl.getName());
+            return resolved != null && resolved instanceof MModelEnum;
+        }
     }
 
     public String convertToJavaType(String t) {
