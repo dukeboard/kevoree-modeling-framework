@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.reflexive;
+package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObject;
