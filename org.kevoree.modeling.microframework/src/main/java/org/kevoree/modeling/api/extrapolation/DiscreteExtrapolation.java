@@ -3,7 +3,7 @@ package org.kevoree.modeling.api.extrapolation;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.meta.MetaAttribute;
-import org.kevoree.modeling.api.meta.MetaType;
+import org.kevoree.modeling.api.meta.PrimitiveMetaTypes;
 
 /**
  * Created by duke on 10/28/14.
@@ -55,19 +55,19 @@ public class DiscreteExtrapolation implements Extrapolation {
 
     public static Object convertRaw(MetaAttribute attribute, Object raw) {
         try {
-            if (attribute.metaType().equals(MetaType.STRING)) {
+            if (attribute.metaType().equals(PrimitiveMetaTypes.STRING)) {
                 return raw.toString();
-            } else if (attribute.metaType().equals(MetaType.LONG)) {
+            } else if (attribute.metaType().equals(PrimitiveMetaTypes.LONG)) {
                 return Long.parseLong(raw.toString());
-            } else if (attribute.metaType().equals(MetaType.INT)) {
+            } else if (attribute.metaType().equals(PrimitiveMetaTypes.INT)) {
                 return Integer.parseInt(raw.toString());
-            } else if (attribute.metaType().equals(MetaType.BOOL)) {
+            } else if (attribute.metaType().equals(PrimitiveMetaTypes.BOOL)) {
                 return raw.toString().equals("true");
-            } else if (attribute.metaType().equals(MetaType.SHORT)) {
+            } else if (attribute.metaType().equals(PrimitiveMetaTypes.SHORT)) {
                 return Short.parseShort(raw.toString());
-            } else if (attribute.metaType().equals(MetaType.DOUBLE)) {
+            } else if (attribute.metaType().equals(PrimitiveMetaTypes.DOUBLE)) {
                 return Double.parseDouble(raw.toString());
-            } else if (attribute.metaType().equals(MetaType.FLOAT)) {
+            } else if (attribute.metaType().equals(PrimitiveMetaTypes.FLOAT)) {
                 return Float.parseFloat(raw.toString());
             } else {
                 return null;

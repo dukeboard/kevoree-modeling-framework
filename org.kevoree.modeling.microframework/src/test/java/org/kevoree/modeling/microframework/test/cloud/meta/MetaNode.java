@@ -3,8 +3,6 @@ package org.kevoree.modeling.microframework.test.cloud.meta;
 import org.kevoree.modeling.api.abs.*;
 import org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation;
 import org.kevoree.modeling.api.meta.*;
-import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
-import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 
 /**
  * Created by duke on 07/12/14.
@@ -20,9 +18,9 @@ public class MetaNode extends AbstractMetaClass {
         return INSTANCE;
     }
 
-    public static final MetaAttribute ATT_NAME = new AbstractMetaAttribute("name", 5, 5, true, MetaType.STRING, DiscreteExtrapolation.instance());
+    public static final MetaAttribute ATT_NAME = new AbstractMetaAttribute("name", 5, 5, true, PrimitiveMetaTypes.STRING, DiscreteExtrapolation.instance());
 
-    public static final MetaAttribute ATT_VALUE = new AbstractMetaAttribute("value", 6, 5, false, MetaType.STRING, DiscreteExtrapolation.instance());
+    public static final MetaAttribute ATT_VALUE = new AbstractMetaAttribute("value", 6, 5, false, PrimitiveMetaTypes.STRING, DiscreteExtrapolation.instance());
 
     public static final MetaReference REF_CHILDREN = new AbstractMetaReference("children", 7, true, false, new LazyResolver() {
         @Override

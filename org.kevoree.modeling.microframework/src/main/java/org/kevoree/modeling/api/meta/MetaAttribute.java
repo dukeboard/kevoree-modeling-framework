@@ -1,5 +1,6 @@
 package org.kevoree.modeling.api.meta;
 
+import org.kevoree.modeling.api.KMetaType;
 import org.kevoree.modeling.api.extrapolation.Extrapolation;
 
 /**
@@ -9,7 +10,7 @@ public interface MetaAttribute extends Meta {
 
     boolean key();
 
-    MetaType metaType();
+    KMetaType metaType();
 
     Extrapolation strategy();
 
