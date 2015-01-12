@@ -60,8 +60,9 @@ public class KSelector {
                         for (int i = 0; i < resolveds.length; i++) {
                             KObject resolved = resolveds[i];
                             boolean selectedForNext = true;
-                            for (String paramKey : extractedQuery.params.keySet()) {
-                                KQueryParam param = extractedQuery.params.get(paramKey);
+                            String[] paramKeys = extractedQuery.params.keySet().toArray(new String[extractedQuery.params.keySet().size()]);
+                            for (int h = 0; h < paramKeys.length; h++) {
+                                KQueryParam param = extractedQuery.params.get(paramKeys[h]);
                                 for (int j = 0; j < resolved.metaClass().metaAttributes().length; j++) {
                                     MetaAttribute metaAttribute = resolved.metaClass().metaAttributes()[j];
                                     if (metaAttribute.metaName().matches(param.name().replace("*", ".*"))) {

@@ -3,7 +3,7 @@ package org.kevoree.modeling.microframework.test.cloud.impl;
 import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.abs.AbstractKView;
-import org.kevoree.modeling.api.abs.DynamicKObject;
+import org.kevoree.modeling.api.reflexive.DynamicKObject;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.microframework.test.cloud.*;
