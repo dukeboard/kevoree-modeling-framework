@@ -84,12 +84,13 @@ module org {
 
                     export class WebSocketDataBaseClient implements org.kevoree.modeling.api.data.KDataBase {
 
+                        private callbackId = 0;
                         private clientConnection:WebSocket;
                         private connectionUri:string;
-                        private getCallbacks:java.util.ArrayList<(p1:string[], p2:java.lang.Throwable) => void> = new java.util.ArrayList<(p1:string[], p2:java.lang.Throwable) => void>();
-                        private putCallbacks:java.util.ArrayList<(p1:java.lang.Throwable) => void> = new java.util.ArrayList<(p1:java.lang.Throwable) => void>();
-                        private removeCallbacks:java.util.ArrayList<(p1:java.lang.Throwable) => void> = new java.util.ArrayList<(p1:java.lang.Throwable) => void>();
-                        private commitCallbacks:java.util.ArrayList<(p1:java.lang.Throwable) => void> = new java.util.ArrayList<(p1:java.lang.Throwable) => void>();
+                        private getCallbacks:java.util.HashMap<string, (p1:string[], p2:java.lang.Throwable) => void> = new java.util.HashMap<string, (p1:string[], p2:java.lang.Throwable) => void>();
+                        private putCallbacks:java.util.HashMap<string, (p1:java.lang.Throwable) => void> = new java.util.HashMap<string, (p1:java.lang.Throwable) => void>();
+                        private removeCallbacks:java.util.HashMap<string, (p1:java.lang.Throwable) => void> = new java.util.HashMap<string, (p1:java.lang.Throwable) => void>();
+                        private commitCallbacks:java.util.HashMap<string, (p1:java.lang.Throwable) => void> = new java.util.HashMap<string, (p1:java.lang.Throwable) => void>();
 
                         constructor(connectionUri) {
                             this.connectionUri = connectionUri;
@@ -100,22 +101,30 @@ module org {
                             this.clientConnection.onmessage = (message:MessageEvent) => {
                                 var json = JSON.parse(message.data);
                                 if (json.action == "get") {
-                                    var getCallback = this.getCallbacks.poll();//nop
-                                    if (json.status == "success") {
-                                        getCallback(json.value, null);
-                                    } else if (json.status == "error") {
-                                        getCallback(null, new java.lang.Exception(json.value));
+                                    var getCallback = this.getCallbacks.get(json.id);
+                                    if(getCallback !== undefined && getCallback != null) {
+                                        if (json.status == "success") {
+                                            getCallback(json.value, null);
+                                        } else if (json.status == "error") {
+                                            getCallback(null, new java.lang.Exception(json.value));
+                                        } else {
+                                            console.error("WebSocketDatabase: Status '" + json.action + "' of not supported yet.")
+                                        }
                                     } else {
-                                        console.error("WebSocketDatabase: Status '" + json.action + "' of not supported yet.")
+                                        console.error("No callback registered for message:", json);
                                     }
                                 } else if (json.action == "put") {
-                                    var putCallback = this.putCallbacks.poll();
-                                    if (json.status == "success") {
-                                        putCallback(null);
-                                    } else if (json.status == "error") {
-                                        putCallback(new java.lang.Exception(json.value));
+                                    var putCallback = this.putCallbacks.get(json.id);
+                                    if(putCallback !== undefined && putCallback != null) {
+                                        if (json.status == "success") {
+                                            putCallback(null);
+                                        } else if (json.status == "error") {
+                                            putCallback(new java.lang.Exception(json.value));
+                                        } else {
+                                            console.error("WebSocketDatabase: Status '" + json.action + "' of not supported yet.")
+                                        }
                                     } else {
-                                        console.error("WebSocketDatabase: Status '" + json.action + "' of not supported yet.")
+                                        console.error("No callback registered for message:", json);
                                     }
                                 } else {
                                     console.error("WebSocketDatabase: Frame of type'" + json.action + "' not supported yet.")
@@ -141,13 +150,22 @@ module org {
                             }
                         }
 
+                        private getCallbackId() : number {
+                            if(this.callbackId == 300) {
+                                this.callbackId = 0;
+                            } else {
+                                this.callbackId = this.callbackId + 1;
+                            }
+                            return this.callbackId;
+                        }
+
                         public get(keys:string[], callback:(p1:string[], p2:java.lang.Throwable) => void):void {
                             var value = [];
                             for (var i = 0; i < keys.length; i++) {
                                 value.push(keys[i]);
                             }
-                            var jsonMessage = {"action": "get", "value": value};
-                            this.getCallbacks.add(callback);
+                            var jsonMessage = {"action": "get", "value": value, "id" : this.getCallbackId()};
+                            this.getCallbacks.put(jsonMessage.id, callback);
                             var stringified = JSON.stringify(jsonMessage);
                             this.clientConnection.send(stringified);
 
@@ -162,8 +180,8 @@ module org {
                                 keyValue[1] = payloads[i][1];
                                 payloadList.push(keyValue);
                             }
-                            var jsonMessage = {"action": "put", "value": payloadList};
-                            this.putCallbacks.add(error);
+                            var jsonMessage = {"action": "put", "value": payloadList, "id" : this.getCallbackId()};
+                            this.putCallbacks.put(jsonMessage.id, error);
                             var stringified = JSON.stringify(jsonMessage);
                             this.clientConnection.send(stringified);
                         }

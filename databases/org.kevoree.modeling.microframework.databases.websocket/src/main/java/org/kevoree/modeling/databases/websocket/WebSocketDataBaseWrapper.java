@@ -87,6 +87,7 @@ public class WebSocketDataBaseWrapper extends AbstractReceiveListener implements
                     public void on(String[] resultPayload, Throwable error) {
                         JsonObject response = new JsonObject();
                         response.add("action", jsonMessage.get("action").asString());
+                        response.add("id", jsonMessage.get("id").asInt());
                         if (error != null) {
                             response.add("status", "error");
                             response.add("value", error.getMessage());
@@ -118,6 +119,7 @@ public class WebSocketDataBaseWrapper extends AbstractReceiveListener implements
                     public void on(Throwable throwable) {
                         JsonObject response = new JsonObject();
                         response.add("action", jsonMessage.get("action").asString());
+                        response.add("id", jsonMessage.get("id").asInt());
                         if (throwable != null) {
                             response.add("status", "error");
                             response.add("value", throwable.getMessage());
@@ -128,7 +130,6 @@ public class WebSocketDataBaseWrapper extends AbstractReceiveListener implements
                         WebSockets.sendText(response.toString(), channel, null);
                     }
                 });
-
             }
             break;
             case REMOVE_ACTION: {
