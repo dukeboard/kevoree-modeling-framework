@@ -81,7 +81,9 @@ public class Generator {
                     Path metaFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + cgc.classDeclaration.getPack().replace(".", File.separator) + File.separator + "meta" + File.separator + "Meta" + cgc.classDeclaration.getName() + ".java");
                     callVelocity(metaFilePath, "vTemplates/MetaClassTemplate2.vm", cgc);
                 } else if(classDecl instanceof MModelEnum) {
-                    //TODO: Enum generation
+                    MModelEnum enumDecl = (MModelEnum)classDecl;
+                    Path apiFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + enumDecl.getFqn().replace(".", File.separator) + ".java");
+                    callVelocity(apiFilePath, "vTemplates/EnumTemplate.vm", enumDecl);
                 }
             }
         } catch (Exception e) {

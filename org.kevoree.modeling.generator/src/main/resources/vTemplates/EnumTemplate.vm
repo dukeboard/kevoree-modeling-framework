@@ -1,0 +1,8 @@
+package ${context.pack};
+
+public class ${context.getName()} {
+#foreach($enumAtt in ${context.litterals})
+    public static final ${context.getName()} $enumAtt.toUpperCase() = new ${context.getName()}();
+#end
+}
+#* @vtlvariable name="context" type="org.kevoree.modeling.ast.MModelEnum" *#
