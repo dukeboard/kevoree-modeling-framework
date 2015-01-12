@@ -28,6 +28,9 @@ interface String {
 declare class StringUtils {
     static copyValueOf(data: string[], offset: number, count: number): string;
 }
+interface Boolean {
+    equals: (other: String) => boolean;
+}
 declare module java {
     module lang {
         class Double {

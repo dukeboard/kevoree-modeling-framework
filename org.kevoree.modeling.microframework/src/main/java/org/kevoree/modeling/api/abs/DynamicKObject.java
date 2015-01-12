@@ -1,7 +1,6 @@
 package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.time.TimeTree;
 

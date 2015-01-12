@@ -957,6 +957,8 @@ declare module org {
                         }
                     }
                 }
+                module reflexive {
+                }
                 module select {
                     class KQuery {
                         static OPEN_BRACKET: string;

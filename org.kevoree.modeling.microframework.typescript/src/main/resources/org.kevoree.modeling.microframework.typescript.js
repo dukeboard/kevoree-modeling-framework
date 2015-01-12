@@ -14,6 +14,9 @@ var org;
             (function (api) {
                 var InboundReference = (function () {
                     function InboundReference(reference, object) {
+                        if (reference === undefined || object === undefined) {
+                            throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                        }
                         this.reference = reference;
                         this.object = object;
                     }
@@ -29,6 +32,9 @@ var org;
                 var KActionType = (function () {
                     function KActionType(code) {
                         this._code = "";
+                        if (code === undefined) {
+                            throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                        }
                         this._code = code;
                     }
                     KActionType.prototype.toString = function () {
@@ -38,6 +44,9 @@ var org;
                         return this._code;
                     };
                     KActionType.parse = function (s) {
+                        if (s === undefined) {
+                            throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                        }
                         for (var i = 0; i < org.kevoree.modeling.api.KActionType.values().length; i++) {
                             var current = org.kevoree.modeling.api.KActionType.values()[i];
                             if (current.code().equals(s)) {
@@ -111,6 +120,9 @@ var org;
                 (function (abs) {
                     var AbstractKDimension = (function () {
                         function AbstractKDimension(p_universe, p_key) {
+                            if (p_universe === undefined || p_key === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._universe = p_universe;
                             this._key = p_key;
                         }
@@ -121,36 +133,69 @@ var org;
                             return this._universe;
                         };
                         AbstractKDimension.prototype.save = function (callback) {
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.universe().storage().save(this, callback);
                         };
                         AbstractKDimension.prototype.saveUnload = function (callback) {
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.universe().storage().saveUnload(this, callback);
                         };
                         AbstractKDimension.prototype.delete = function (callback) {
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.universe().storage().delete(this, callback);
                         };
                         AbstractKDimension.prototype.discard = function (callback) {
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.universe().storage().discard(this, callback);
                         };
                         AbstractKDimension.prototype.parent = function (callback) {
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                         };
                         AbstractKDimension.prototype.children = function (callback) {
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                         };
                         AbstractKDimension.prototype.fork = function (callback) {
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                         };
                         AbstractKDimension.prototype.time = function (timePoint) {
+                            if (timePoint === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             return this.internal_create(timePoint);
                         };
                         AbstractKDimension.prototype.listen = function (listener) {
+                            if (listener === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.universe().storage().eventBroker().registerListener(this, listener, null);
                         };
                         AbstractKDimension.prototype.listenAllTimes = function (target, listener) {
+                            if (target === undefined || listener === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.universe().storage().eventBroker().registerListener(this, listener, target);
                         };
                         AbstractKDimension.prototype.internal_create = function (timePoint) {
                             throw "Abstract method";
                         };
                         AbstractKDimension.prototype.equals = function (obj) {
+                            if (obj === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (!(obj instanceof org.kevoree.modeling.api.abs.AbstractKDimension)) {
                                 return false;
                             }
@@ -164,6 +209,9 @@ var org;
                     abs.AbstractKDimension = AbstractKDimension;
                     var AbstractKObject = (function () {
                         function AbstractKObject(p_view, p_uuid, p_timeTree, p_metaClass) {
+                            if (p_view === undefined || p_uuid === undefined || p_timeTree === undefined || p_metaClass === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._view = p_view;
                             this._uuid = p_uuid;
                             this._timeTree = p_timeTree;
@@ -188,6 +236,9 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.setRoot = function (isRoot) {
+                            if (isRoot === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._view.dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ)[org.kevoree.modeling.api.data.Index.IS_ROOT_INDEX] = isRoot;
                         };
                         AbstractKObject.prototype.now = function () {
@@ -201,6 +252,9 @@ var org;
                         };
                         AbstractKObject.prototype.path = function (callback) {
                             var _this = this;
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (this.isRoot()) {
                                 callback("/");
                             }
@@ -221,6 +275,9 @@ var org;
                             return this._view.dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ)[org.kevoree.modeling.api.data.Index.PARENT_INDEX];
                         };
                         AbstractKObject.prototype.parent = function (callback) {
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var parentKID = this.parentUuid();
                             if (parentKID == null) {
                                 callback(null);
@@ -233,6 +290,9 @@ var org;
                             return this._view.dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ)[org.kevoree.modeling.api.data.Index.REF_IN_PARENT_INDEX];
                         };
                         AbstractKObject.prototype.delete = function (callback) {
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var toRemove = this;
                             var rawPayload = this._view.dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.DELETE);
                             var payload = rawPayload[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX];
@@ -262,6 +322,9 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.select = function (query, callback) {
+                            if (query === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (callback == null) {
                                 return;
                             }
@@ -300,6 +363,9 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.listen = function (listener) {
+                            if (listener === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.dimension().universe().storage().eventBroker().registerListener(this, listener, null);
                         };
                         AbstractKObject.prototype.domainKey = function () {
@@ -328,6 +394,9 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.get = function (p_attribute) {
+                            if (p_attribute === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var transposed = this.internal_transpose_att(p_attribute);
                             if (transposed == null) {
                                 throw new java.lang.RuntimeException("Bad KMF usage, the attribute named " + p_attribute.metaName() + " is not part of " + this.metaClass().metaName());
@@ -337,6 +406,9 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.set = function (p_attribute, payload) {
+                            if (p_attribute === undefined || payload === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var transposed = this.internal_transpose_att(p_attribute);
                             if (transposed == null) {
                                 throw new java.lang.RuntimeException("Bad KMF usage, the attribute named " + p_attribute.metaName() + " is not part of " + this.metaClass().metaName());
@@ -347,6 +419,9 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.getOrCreateInbounds = function (obj, payloadIndex) {
+                            if (obj === undefined || payloadIndex === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var rawWrite = this.view().dimension().universe().storage().raw(obj, org.kevoree.modeling.api.data.AccessMode.WRITE);
                             if (rawWrite[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] != null && rawWrite[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] instanceof java.util.HashMap) {
                                 return rawWrite[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX];
@@ -369,6 +444,9 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.removeFromContainer = function (param) {
+                            if (param === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (param != null && param.parentUuid() != null && param.parentUuid() != this._uuid) {
                                 this.view().lookup(param.parentUuid(), function (parent) {
                                     parent.internal_mutate(org.kevoree.modeling.api.KActionType.REMOVE, param.referenceInParent(), param, true);
@@ -376,10 +454,16 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.mutate = function (actionType, metaReference, param) {
+                            if (actionType === undefined || metaReference === undefined || param === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.internal_mutate(actionType, metaReference, param, true);
                         };
                         AbstractKObject.prototype.internal_mutate = function (actionType, metaReferenceP, param, setOpposite) {
                             var _this = this;
+                            if (actionType === undefined || metaReferenceP === undefined || param === undefined || setOpposite === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var metaReference = this.internal_transpose_ref(metaReferenceP);
                             if (metaReference == null) {
                                 throw new java.lang.RuntimeException("Bad KMF usage, the attribute named " + metaReferenceP.metaName() + " is not part of " + this.metaClass().metaName());
@@ -506,6 +590,9 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.size = function (p_metaReference) {
+                            if (p_metaReference === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var transposed = this.internal_transpose_ref(p_metaReference);
                             if (transposed == null) {
                                 throw new java.lang.RuntimeException("Bad KMF usage, the attribute named " + p_metaReference.metaName() + " is not part of " + this.metaClass().metaName());
@@ -523,6 +610,9 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.single = function (p_metaReference, p_callback) {
+                            if (p_metaReference === undefined || p_callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var transposed = this.internal_transpose_ref(p_metaReference);
                             if (transposed == null) {
                                 throw new java.lang.RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + this.metaClass().metaName());
@@ -550,6 +640,9 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.all = function (p_metaReference, p_callback) {
+                            if (p_metaReference === undefined || p_callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var transposed = this.internal_transpose_ref(p_metaReference);
                             if (transposed == null) {
                                 throw new java.lang.RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + this.metaClass().metaName());
@@ -583,15 +676,24 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.visitAttributes = function (visitor) {
+                            if (visitor === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var metaAttributes = this.metaClass().metaAttributes();
                             for (var i = 0; i < metaAttributes.length; i++) {
                                 visitor(metaAttributes[i], this.get(metaAttributes[i]));
                             }
                         };
                         AbstractKObject.prototype.visit = function (visitor, end) {
+                            if (visitor === undefined || end === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.internal_visit(visitor, end, false, false, null, null);
                         };
                         AbstractKObject.prototype.internal_visit = function (visitor, end, deep, containedOnly, visited, traversed) {
+                            if (visitor === undefined || end === undefined || deep === undefined || containedOnly === undefined || visited === undefined || traversed === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (traversed != null) {
                                 traversed.add(this.uuid());
                             }
@@ -685,9 +787,15 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.graphVisit = function (visitor, end) {
+                            if (visitor === undefined || end === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.internal_visit(visitor, end, true, false, new java.util.HashSet(), new java.util.HashSet());
                         };
                         AbstractKObject.prototype.treeVisit = function (visitor, end) {
+                            if (visitor === undefined || end === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.internal_visit(visitor, end, true, true, null, null);
                         };
                         AbstractKObject.prototype.toJSON = function () {
@@ -697,6 +805,9 @@ var org;
                             return this.toJSON();
                         };
                         AbstractKObject.prototype.traces = function (request) {
+                            if (request === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var traces = new java.util.ArrayList();
                             if (org.kevoree.modeling.api.TraceRequest.ATTRIBUTES_ONLY.equals(request) || org.kevoree.modeling.api.TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
                                 for (var i = 0; i < this.metaClass().metaAttributes().length; i++) {
@@ -732,6 +843,9 @@ var org;
                             return traces.toArray(new Array());
                         };
                         AbstractKObject.prototype.inbounds = function (callback, end) {
+                            if (callback === undefined || end === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var rawPayload = this.view().dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
                             if (rawPayload == null) {
                                 end(new java.lang.Exception("Object not initialized."));
@@ -795,11 +909,17 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.set_parent = function (p_parentKID, p_metaReference) {
+                            if (p_parentKID === undefined || p_metaReference === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var raw = this._view.dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.WRITE);
                             raw[org.kevoree.modeling.api.data.Index.PARENT_INDEX] = p_parentKID;
                             raw[org.kevoree.modeling.api.data.Index.REF_IN_PARENT_INDEX] = p_metaReference;
                         };
                         AbstractKObject.prototype.equals = function (obj) {
+                            if (obj === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (!(obj instanceof org.kevoree.modeling.api.abs.AbstractKObject)) {
                                 return false;
                             }
@@ -809,20 +929,35 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.diff = function (target, callback) {
+                            if (target === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             org.kevoree.modeling.api.operation.DefaultModelCompare.diff(this, target, callback);
                         };
                         AbstractKObject.prototype.merge = function (target, callback) {
+                            if (target === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             org.kevoree.modeling.api.operation.DefaultModelCompare.merge(this, target, callback);
                         };
                         AbstractKObject.prototype.intersection = function (target, callback) {
+                            if (target === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             org.kevoree.modeling.api.operation.DefaultModelCompare.intersection(this, target, callback);
                         };
                         AbstractKObject.prototype.slice = function (callback) {
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var params = new java.util.ArrayList();
                             params.add(this);
                             org.kevoree.modeling.api.operation.DefaultModelSlicer.slice(params, callback);
                         };
                         AbstractKObject.prototype.jump = function (time, callback) {
+                            if (time === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.view().dimension().time(time).lookup(this.uuid(), function (kObject) {
                                 if (callback != null) {
                                     try {
@@ -839,15 +974,27 @@ var org;
                             });
                         };
                         AbstractKObject.prototype.internal_transpose_ref = function (p) {
+                            if (p === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             return this.metaClass().metaReference(p.metaName());
                         };
                         AbstractKObject.prototype.internal_transpose_att = function (p) {
+                            if (p === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             return this.metaClass().metaAttribute(p.metaName());
                         };
                         AbstractKObject.prototype.internal_transpose_op = function (p) {
+                            if (p === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             return this.metaClass().metaOperation(p.metaName());
                         };
                         AbstractKObject.prototype.traverse = function (p_metaReference) {
+                            if (p_metaReference === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             return new org.kevoree.modeling.api.promise.DefaultKTraversalPromise(this, p_metaReference);
                         };
                         return AbstractKObject;
@@ -856,11 +1003,20 @@ var org;
                     var AbstractKObjectInfer = (function (_super) {
                         __extends(AbstractKObjectInfer, _super);
                         function AbstractKObjectInfer(p_view, p_uuid, p_timeTree, p_metaClass) {
+                            if (p_view === undefined || p_uuid === undefined || p_timeTree === undefined || p_metaClass === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             _super.call(this, p_view, p_uuid, p_timeTree, p_metaClass);
                         }
                         AbstractKObjectInfer.prototype.infer = function (callback) {
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                         };
                         AbstractKObjectInfer.prototype.learn = function (param, callback) {
+                            if (param === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                         };
                         return AbstractKObjectInfer;
                     })(org.kevoree.modeling.api.abs.AbstractKObject);
@@ -873,9 +1029,15 @@ var org;
                             throw "Abstract method";
                         };
                         AbstractKUniverse.prototype.connect = function (callback) {
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._storage.connect(callback);
                         };
                         AbstractKUniverse.prototype.close = function (callback) {
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._storage.close(callback);
                         };
                         AbstractKUniverse.prototype.storage = function () {
@@ -891,33 +1053,63 @@ var org;
                             throw "Abstract method";
                         };
                         AbstractKUniverse.prototype.dimension = function (key) {
+                            if (key === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var newDimension = this.internal_create(key);
                             this.storage().initDimension(newDimension);
                             return newDimension;
                         };
                         AbstractKUniverse.prototype.saveAll = function (callback) {
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                         };
                         AbstractKUniverse.prototype.deleteAll = function (callback) {
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                         };
                         AbstractKUniverse.prototype.unloadAll = function (callback) {
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                         };
                         AbstractKUniverse.prototype.disable = function (listener) {
+                            if (listener === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                         };
                         AbstractKUniverse.prototype.stream = function (query, callback) {
+                            if (query === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                         };
                         AbstractKUniverse.prototype.listen = function (listener) {
+                            if (listener === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.storage().eventBroker().registerListener(this, listener, null);
                         };
                         AbstractKUniverse.prototype.setEventBroker = function (eventBroker) {
+                            if (eventBroker === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.storage().setEventBroker(eventBroker);
                             eventBroker.setMetaModel(this.metaModel());
                             return this;
                         };
                         AbstractKUniverse.prototype.setDataBase = function (dataBase) {
+                            if (dataBase === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.storage().setDataBase(dataBase);
                             return this;
                         };
                         AbstractKUniverse.prototype.setOperation = function (metaOperation, operation) {
+                            if (metaOperation === undefined || operation === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.storage().operationManager().registerOperation(metaOperation, operation);
                         };
                         return AbstractKUniverse;
@@ -925,6 +1117,9 @@ var org;
                     abs.AbstractKUniverse = AbstractKUniverse;
                     var AbstractKView = (function () {
                         function AbstractKView(p_now, p_dimension) {
+                            if (p_now === undefined || p_dimension === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._now = p_now;
                             this._dimension = p_dimension;
                         }
@@ -935,14 +1130,23 @@ var org;
                             return this._dimension;
                         };
                         AbstractKView.prototype.createFQN = function (metaClassName) {
+                            if (metaClassName === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             return this.create(this.dimension().universe().metaModel().metaClass(metaClassName));
                         };
                         AbstractKView.prototype.setRoot = function (elem, callback) {
+                            if (elem === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             elem.set_parent(null, null);
                             elem.setRoot(true);
                             this.dimension().universe().storage().setRoot(elem, callback);
                         };
                         AbstractKView.prototype.select = function (query, callback) {
+                            if (query === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (callback == null) {
                                 return;
                             }
@@ -973,17 +1177,32 @@ var org;
                             });
                         };
                         AbstractKView.prototype.lookup = function (kid, callback) {
+                            if (kid === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.dimension().universe().storage().lookup(this, kid, callback);
                         };
                         AbstractKView.prototype.lookupAll = function (keys, callback) {
+                            if (keys === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.dimension().universe().storage().lookupAll(this, keys, callback);
                         };
                         AbstractKView.prototype.stream = function (query, callback) {
+                            if (query === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                         };
                         AbstractKView.prototype.createProxy = function (clazz, timeTree, key) {
+                            if (clazz === undefined || timeTree === undefined || key === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             return this.internalCreate(clazz, timeTree, key);
                         };
                         AbstractKView.prototype.create = function (clazz) {
+                            if (clazz === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var newObj = this.internalCreate(clazz, new org.kevoree.modeling.api.time.DefaultTimeTree().insert(this.now()), this.dimension().universe().storage().nextObjectKey());
                             if (newObj != null) {
                                 this.dimension().universe().storage().initKObject(newObj, this);
@@ -992,12 +1211,18 @@ var org;
                             return newObj;
                         };
                         AbstractKView.prototype.listen = function (listener) {
+                            if (listener === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.dimension().universe().storage().eventBroker().registerListener(this, listener, null);
                         };
                         AbstractKView.prototype.internalCreate = function (clazz, timeTree, key) {
                             throw "Abstract method";
                         };
                         AbstractKView.prototype.slice = function (elems, callback) {
+                            if (elems === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             org.kevoree.modeling.api.operation.DefaultModelSlicer.slice(elems, callback);
                         };
                         AbstractKView.prototype.json = function () {
@@ -1007,6 +1232,9 @@ var org;
                             return new org.kevoree.modeling.api.xmi.XmiFormat(this);
                         };
                         AbstractKView.prototype.equals = function (obj) {
+                            if (obj === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (!(obj instanceof org.kevoree.modeling.api.abs.AbstractKView)) {
                                 return false;
                             }
@@ -1020,6 +1248,9 @@ var org;
                     abs.AbstractKView = AbstractKView;
                     var AbstractMetaAttribute = (function () {
                         function AbstractMetaAttribute(p_name, p_index, p_precision, p_key, p_metaType, p_extrapolation) {
+                            if (p_name === undefined || p_index === undefined || p_precision === undefined || p_key === undefined || p_metaType === undefined || p_extrapolation === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._name = p_name;
                             this._index = p_index;
                             this._precision = p_precision;
@@ -1046,6 +1277,9 @@ var org;
                             return this._extrapolation;
                         };
                         AbstractMetaAttribute.prototype.setExtrapolation = function (extrapolation) {
+                            if (extrapolation === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._extrapolation = extrapolation;
                         };
                         return AbstractMetaAttribute;
@@ -1056,6 +1290,9 @@ var org;
                             this._atts_indexes = new java.util.HashMap();
                             this._refs_indexes = new java.util.HashMap();
                             this._ops_indexes = new java.util.HashMap();
+                            if (p_name === undefined || p_index === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._name = p_name;
                             this._index = p_index;
                         }
@@ -1066,6 +1303,9 @@ var org;
                             return this._name;
                         };
                         AbstractMetaClass.prototype.init = function (p_atts, p_refs, p_operations) {
+                            if (p_atts === undefined || p_refs === undefined || p_operations === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._atts = p_atts;
                             for (var i = 0; i < this._atts.length; i++) {
                                 this._atts_indexes.put(this._atts[i].metaName(), i);
@@ -1089,6 +1329,9 @@ var org;
                             return this._operations;
                         };
                         AbstractMetaClass.prototype.metaAttribute = function (name) {
+                            if (name === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var resolved = this._atts_indexes.get(name);
                             if (resolved == null) {
                                 return null;
@@ -1098,6 +1341,9 @@ var org;
                             }
                         };
                         AbstractMetaClass.prototype.metaReference = function (name) {
+                            if (name === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var resolved = this._refs_indexes.get(name);
                             if (resolved == null) {
                                 return null;
@@ -1107,6 +1353,9 @@ var org;
                             }
                         };
                         AbstractMetaClass.prototype.metaOperation = function (name) {
+                            if (name === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var resolved = this._ops_indexes.get(name);
                             if (resolved == null) {
                                 return null;
@@ -1121,6 +1370,9 @@ var org;
                     var AbstractMetaModel = (function () {
                         function AbstractMetaModel(p_name, p_index) {
                             this._metaClasses_indexes = new java.util.HashMap();
+                            if (p_name === undefined || p_index === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._name = p_name;
                             this._index = p_index;
                         }
@@ -1134,6 +1386,9 @@ var org;
                             return this._metaClasses;
                         };
                         AbstractMetaModel.prototype.metaClass = function (name) {
+                            if (name === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var resolved = this._metaClasses_indexes.get(name);
                             if (resolved == null) {
                                 return null;
@@ -1143,6 +1398,9 @@ var org;
                             }
                         };
                         AbstractMetaModel.prototype.init = function (p_metaClasses) {
+                            if (p_metaClasses === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._metaClasses_indexes.clear();
                             this._metaClasses = p_metaClasses;
                             for (var i = 0; i < this._metaClasses.length; i++) {
@@ -1154,6 +1412,9 @@ var org;
                     abs.AbstractMetaModel = AbstractMetaModel;
                     var AbstractMetaOperation = (function () {
                         function AbstractMetaOperation(p_name, p_index, p_lazyMetaClass) {
+                            if (p_name === undefined || p_index === undefined || p_lazyMetaClass === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._name = p_name;
                             this._index = p_index;
                             this._lazyMetaClass = p_lazyMetaClass;
@@ -1175,6 +1436,9 @@ var org;
                     abs.AbstractMetaOperation = AbstractMetaOperation;
                     var AbstractMetaReference = (function () {
                         function AbstractMetaReference(p_name, p_index, p_contained, p_single, p_lazyMetaType, p_lazyMetaOpposite, p_lazyMetaOrigin) {
+                            if (p_name === undefined || p_index === undefined || p_contained === undefined || p_single === undefined || p_lazyMetaType === undefined || p_lazyMetaOpposite === undefined || p_lazyMetaOrigin === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._name = p_name;
                             this._index = p_index;
                             this._contained = p_contained;
@@ -1221,6 +1485,9 @@ var org;
                     var DynamicKObject = (function (_super) {
                         __extends(DynamicKObject, _super);
                         function DynamicKObject(p_view, p_uuid, p_timeTree, p_metaClass) {
+                            if (p_view === undefined || p_uuid === undefined || p_timeTree === undefined || p_metaClass === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             _super.call(this, p_view, p_uuid, p_timeTree, p_metaClass);
                         }
                         return DynamicKObject;
@@ -1267,6 +1534,9 @@ var org;
                         }
                         DefaultKStore.prototype.connect = function (callback) {
                             var _this = this;
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (this.isConnected) {
                                 if (callback != null) {
                                     callback(null);
@@ -1387,6 +1657,9 @@ var org;
                         };
                         DefaultKStore.prototype.close = function (callback) {
                             var _this = this;
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.isConnected = false;
                             if (this._db != null) {
                                 this._db.close(function (throwable) {
@@ -1400,24 +1673,42 @@ var org;
                             }
                         };
                         DefaultKStore.prototype.keyTree = function (dim, key) {
+                            if (dim === undefined || key === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             return "" + dim + DefaultKStore.KEY_SEP + key;
                         };
                         DefaultKStore.prototype.keyRoot = function (dim) {
+                            if (dim === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             return "" + dim + DefaultKStore.KEY_SEP + "root";
                         };
                         DefaultKStore.prototype.keyRootTree = function (dim) {
+                            if (dim === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             return "" + dim.key() + DefaultKStore.KEY_SEP + "root";
                         };
                         DefaultKStore.prototype.keyPayload = function (dim, time, key) {
+                            if (dim === undefined || time === undefined || key === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             return "" + dim + DefaultKStore.KEY_SEP + time + DefaultKStore.KEY_SEP + key;
                         };
                         DefaultKStore.prototype.keyLastPrefix = function () {
                             return "ring_prefix";
                         };
                         DefaultKStore.prototype.keyLastDimIndex = function (prefix) {
+                            if (prefix === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             return "index_dim_" + prefix;
                         };
                         DefaultKStore.prototype.keyLastObjIndex = function (prefix) {
+                            if (prefix === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             return "index_obj_" + prefix;
                         };
                         DefaultKStore.prototype.nextDimensionKey = function () {
@@ -1433,8 +1724,14 @@ var org;
                             return this._objectKeyCalculator.nextKey();
                         };
                         DefaultKStore.prototype.initDimension = function (dimension) {
+                            if (dimension === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                         };
                         DefaultKStore.prototype.initKObject = function (obj, originView) {
+                            if (obj === undefined || originView === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.write_tree(obj.dimension().key(), obj.uuid(), obj.timeTree());
                             var cacheEntry = new org.kevoree.modeling.api.data.CacheEntry();
                             cacheEntry.raw = new Array();
@@ -1444,6 +1741,9 @@ var org;
                             this.write_cache(obj.dimension().key(), obj.now(), obj.uuid(), cacheEntry);
                         };
                         DefaultKStore.prototype.raw = function (origin, accessMode) {
+                            if (origin === undefined || accessMode === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var resolvedTime = origin.timeTree().resolve(origin.now());
                             var needCopy = accessMode.equals(org.kevoree.modeling.api.data.AccessMode.WRITE) && (resolvedTime != origin.now());
                             var dimensionCache = this.caches.get(origin.dimension().key());
@@ -1503,15 +1803,24 @@ var org;
                             }
                         };
                         DefaultKStore.prototype.discard = function (dimension, callback) {
+                            if (dimension === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.caches.remove(dimension.key());
                             if (callback != null) {
                                 callback(null);
                             }
                         };
                         DefaultKStore.prototype.delete = function (dimension, callback) {
+                            if (dimension === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             throw new java.lang.RuntimeException("Not implemented yet !");
                         };
                         DefaultKStore.prototype.save = function (dimension, callback) {
+                            if (dimension === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var dimensionCache = this.caches.get(dimension.key());
                             if (dimensionCache == null) {
                                 if (callback != null) {
@@ -1577,6 +1886,9 @@ var org;
                         };
                         DefaultKStore.prototype.saveUnload = function (dimension, callback) {
                             var _this = this;
+                            if (dimension === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.save(dimension, function (throwable) {
                                 if (throwable == null) {
                                     _this.discard(dimension, callback);
@@ -1589,6 +1901,9 @@ var org;
                             });
                         };
                         DefaultKStore.prototype.lookup = function (originView, key, callback) {
+                            if (originView === undefined || key === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var keys = new Array();
                             keys[0] = key;
                             this.lookupAll(originView, keys, function (kObjects) {
@@ -1606,6 +1921,9 @@ var org;
                         };
                         DefaultKStore.prototype.lookupAll = function (originView, keys, callback) {
                             var _this = this;
+                            if (originView === undefined || keys === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.internal_resolve_dim_time(originView, keys, function (objects) {
                                 var resolved = new Array();
                                 var toLoadIndexes = new java.util.ArrayList();
@@ -1638,11 +1956,11 @@ var org;
                                             for (var i = 0; i < strings.length; i++) {
                                                 if (strings[i] != null) {
                                                     var index = toLoadIndexes.get(i);
-                                                    var entry = org.kevoree.modeling.api.data.JsonRaw.decode(strings[i], originView, objects[index][DefaultKStore.INDEX_RESOLVED_TIME]);
+                                                    var entry = org.kevoree.modeling.api.data.JsonRaw.decode(strings[i], originView, objects[i][DefaultKStore.INDEX_RESOLVED_TIME]);
                                                     if (entry != null) {
-                                                        entry.timeTree = objects[index][DefaultKStore.INDEX_RESOLVED_TIMETREE];
-                                                        resolved[index] = originView.createProxy(entry.metaClass, entry.timeTree, keys[index]);
-                                                        _this.write_cache(objects[index][DefaultKStore.INDEX_RESOLVED_DIM], objects[index][DefaultKStore.INDEX_RESOLVED_TIME], keys[index], entry);
+                                                        entry.timeTree = objects[i][DefaultKStore.INDEX_RESOLVED_TIMETREE];
+                                                        resolved[index] = originView.createProxy(entry.metaClass, entry.timeTree, keys[i]);
+                                                        _this.write_cache(objects[i][DefaultKStore.INDEX_RESOLVED_DIM], objects[i][DefaultKStore.INDEX_RESOLVED_TIME], keys[i], entry);
                                                     }
                                                 }
                                             }
@@ -1654,6 +1972,9 @@ var org;
                         };
                         DefaultKStore.prototype.getRoot = function (originView, callback) {
                             var _this = this;
+                            if (originView === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.resolve_roots(originView.dimension(), function (longRBTree) {
                                 if (longRBTree == null) {
                                     callback(null);
@@ -1670,6 +1991,9 @@ var org;
                             });
                         };
                         DefaultKStore.prototype.setRoot = function (newRoot, callback) {
+                            if (newRoot === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.resolve_roots(newRoot.dimension(), function (longRBTree) {
                                 longRBTree.insert(newRoot.now(), newRoot.uuid());
                                 newRoot.setRoot(true);
@@ -1682,18 +2006,27 @@ var org;
                             return this._eventBroker;
                         };
                         DefaultKStore.prototype.setEventBroker = function (p_eventBroker) {
+                            if (p_eventBroker === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._eventBroker = p_eventBroker;
                         };
                         DefaultKStore.prototype.dataBase = function () {
                             return this._db;
                         };
                         DefaultKStore.prototype.setDataBase = function (p_dataBase) {
+                            if (p_dataBase === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._db = p_dataBase;
                         };
                         DefaultKStore.prototype.operationManager = function () {
                             return this._operationManager;
                         };
                         DefaultKStore.prototype.read_cache = function (dimensionKey, timeKey, uuid) {
+                            if (dimensionKey === undefined || timeKey === undefined || uuid === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var dimensionCache = this.caches.get(dimensionKey);
                             if (dimensionCache != null) {
                                 var timeCache = dimensionCache.timesCaches.get(timeKey);
@@ -1709,6 +2042,9 @@ var org;
                             }
                         };
                         DefaultKStore.prototype.write_cache = function (dimensionKey, timeKey, uuid, cacheEntry) {
+                            if (dimensionKey === undefined || timeKey === undefined || uuid === undefined || cacheEntry === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var dimensionCache = this.caches.get(dimensionKey);
                             if (dimensionCache == null) {
                                 dimensionCache = new org.kevoree.modeling.api.data.cache.DimensionCache();
@@ -1722,6 +2058,9 @@ var org;
                             timeCache.payload_cache.put(uuid, cacheEntry);
                         };
                         DefaultKStore.prototype.write_tree = function (dimensionKey, uuid, timeTree) {
+                            if (dimensionKey === undefined || uuid === undefined || timeTree === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var dimensionCache = this.caches.get(dimensionKey);
                             if (dimensionCache == null) {
                                 dimensionCache = new org.kevoree.modeling.api.data.cache.DimensionCache();
@@ -1730,6 +2069,9 @@ var org;
                             dimensionCache.timeTreeCache.put(uuid, timeTree);
                         };
                         DefaultKStore.prototype.write_roots = function (dimensionKey, timeTree) {
+                            if (dimensionKey === undefined || timeTree === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var dimensionCache = this.caches.get(dimensionKey);
                             if (dimensionCache == null) {
                                 dimensionCache = new org.kevoree.modeling.api.data.cache.DimensionCache();
@@ -1738,6 +2080,9 @@ var org;
                             dimensionCache.roots = timeTree;
                         };
                         DefaultKStore.prototype.size_dirties = function (dimensionCache) {
+                            if (dimensionCache === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var times = dimensionCache.timesCaches.keySet().toArray(new Array());
                             var sizeCache = 0;
                             for (var i = 0; i < times.length; i++) {
@@ -1769,6 +2114,9 @@ var org;
                             return sizeCache;
                         };
                         DefaultKStore.prototype.internal_resolve_dim_time = function (originView, uuids, callback) {
+                            if (originView === undefined || uuids === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var result = new Array(new Array());
                             this.resolve_timeTrees(originView.dimension(), uuids, function (timeTrees) {
                                 for (var i = 0; i < timeTrees.length; i++) {
@@ -1783,6 +2131,9 @@ var org;
                         };
                         DefaultKStore.prototype.resolve_timeTrees = function (dimension, keys, callback) {
                             var _this = this;
+                            if (dimension === undefined || keys === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var toLoad = new java.util.ArrayList();
                             var result = new Array();
                             for (var i = 0; i < keys.length; i++) {
@@ -1837,6 +2188,9 @@ var org;
                         };
                         DefaultKStore.prototype.resolve_roots = function (dimension, callback) {
                             var _this = this;
+                            if (dimension === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var dimensionCache = this.caches.get(dimension.key());
                             if (dimensionCache != null && dimensionCache.roots != null) {
                                 callback(dimensionCache.roots);
@@ -1892,6 +2246,9 @@ var org;
                         function JsonRaw() {
                         }
                         JsonRaw.decode = function (payload, currentView, now) {
+                            if (payload === undefined || currentView === undefined || now === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (payload == null) {
                                 return null;
                             }
@@ -2092,6 +2449,9 @@ var org;
                             }
                         };
                         JsonRaw.encode = function (raw, uuid, p_metaClass) {
+                            if (raw === undefined || uuid === undefined || p_metaClass === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var metaReferences = p_metaClass.metaReferences();
                             var metaAttributes = p_metaClass.metaAttributes();
                             var builder = new java.lang.StringBuilder();
@@ -2214,6 +2574,9 @@ var org;
                     data.JsonRaw = JsonRaw;
                     var KeyCalculator = (function () {
                         function KeyCalculator(prefix, currentIndex) {
+                            if (prefix === undefined || currentIndex === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._prefix = "0x" + prefix.toString(16);
                             this._currentIndex = currentIndex;
                         }
@@ -2245,6 +2608,9 @@ var org;
                             this.backend = new java.util.HashMap();
                         }
                         MemoryKDataBase.prototype.put = function (payloads, callback) {
+                            if (payloads === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             for (var i = 0; i < payloads.length; i++) {
                                 this.backend.put(payloads[i][0], payloads[i][1]);
                                 if (MemoryKDataBase.DEBUG) {
@@ -2256,6 +2622,9 @@ var org;
                             }
                         };
                         MemoryKDataBase.prototype.get = function (keys, callback) {
+                            if (keys === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var values = new Array();
                             for (var i = 0; i < keys.length; i++) {
                                 values[i] = this.backend.get(keys[i]);
@@ -2268,6 +2637,9 @@ var org;
                             }
                         };
                         MemoryKDataBase.prototype.remove = function (keys, callback) {
+                            if (keys === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             for (var i = 0; i < keys.length; i++) {
                                 this.backend.remove(keys[i]);
                             }
@@ -2276,16 +2648,25 @@ var org;
                             }
                         };
                         MemoryKDataBase.prototype.commit = function (callback) {
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (callback != null) {
                                 callback(null);
                             }
                         };
                         MemoryKDataBase.prototype.connect = function (callback) {
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (callback != null) {
                                 callback(null);
                             }
                         };
                         MemoryKDataBase.prototype.close = function (callback) {
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.backend.clear();
                         };
                         MemoryKDataBase.DEBUG = false;
@@ -2321,17 +2702,26 @@ var org;
                             this.listeners = new java.util.HashMap();
                         }
                         DefaultKBroker.prototype.connect = function (callback) {
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (callback != null) {
                                 callback(null);
                             }
                         };
                         DefaultKBroker.prototype.close = function (callback) {
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.listeners.clear();
                             if (callback != null) {
                                 callback(null);
                             }
                         };
                         DefaultKBroker.prototype.registerListener = function (origin, listener, scope) {
+                            if (origin === undefined || listener === undefined || scope === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var tuple = new Array();
                             if (origin instanceof org.kevoree.modeling.api.abs.AbstractKDimension) {
                                 tuple[DefaultKBroker.DIM_INDEX] = origin.key();
@@ -2361,6 +2751,9 @@ var org;
                             this.listeners.put(listener, tuple);
                         };
                         DefaultKBroker.prototype.notify = function (event) {
+                            if (event === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var keys = this.listeners.keySet().toArray(new Array());
                             for (var i = 0; i < keys.length; i++) {
                                 var tuple = this.listeners.get(keys[i]);
@@ -2386,11 +2779,20 @@ var org;
                             }
                         };
                         DefaultKBroker.prototype.flush = function (dimensionKey) {
+                            if (dimensionKey === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                         };
                         DefaultKBroker.prototype.setMetaModel = function (p_metaModel) {
+                            if (p_metaModel === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._metaModel = p_metaModel;
                         };
                         DefaultKBroker.prototype.unregister = function (listener) {
+                            if (listener === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.listeners.remove(listener);
                         };
                         DefaultKBroker.DIM_INDEX = 0;
@@ -2402,6 +2804,9 @@ var org;
                     _event.DefaultKBroker = DefaultKBroker;
                     var DefaultKEvent = (function () {
                         function DefaultKEvent(p_type, p_source, p_meta, p_newValue) {
+                            if (p_type === undefined || p_source === undefined || p_meta === undefined || p_newValue === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (p_source != null) {
                                 this._dimensionKey = p_source.dimension().key();
                                 this._time = p_source.now();
@@ -2460,6 +2865,9 @@ var org;
                             return sb.toString();
                         };
                         DefaultKEvent.fromJSON = function (payload, metaModel) {
+                            if (payload === undefined || metaModel === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var lexer = new org.kevoree.modeling.api.json.Lexer(payload);
                             var currentToken = lexer.nextToken();
                             if (currentToken.tokenType() == org.kevoree.modeling.api.json.Type.LEFT_BRACE) {
@@ -2483,6 +2891,9 @@ var org;
                             return null;
                         };
                         DefaultKEvent.setEventAttribute = function (event, currentAttributeName, value, metaModel) {
+                            if (event === undefined || currentAttributeName === undefined || value === undefined || metaModel === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (currentAttributeName.equals(DefaultKEvent.DIMENSION_KEY)) {
                                 event._dimensionKey = java.lang.Long.parseLong(value);
                             }
@@ -2564,6 +2975,9 @@ var org;
                             return DiscreteExtrapolation.INSTANCE;
                         };
                         DiscreteExtrapolation.prototype.extrapolate = function (current, attribute) {
+                            if (current === undefined || attribute === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var payload = current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ);
                             if (payload != null) {
                                 return payload[attribute.index()];
@@ -2573,12 +2987,18 @@ var org;
                             }
                         };
                         DiscreteExtrapolation.prototype.mutate = function (current, attribute, payload) {
+                            if (current === undefined || attribute === undefined || payload === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var internalPayload = current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE);
                             if (internalPayload != null) {
                                 internalPayload[attribute.index()] = payload;
                             }
                         };
                         DiscreteExtrapolation.prototype.save = function (cache) {
+                            if (cache === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (cache != null) {
                                 return cache.toString();
                             }
@@ -2587,9 +3007,15 @@ var org;
                             }
                         };
                         DiscreteExtrapolation.prototype.load = function (payload, attribute, now) {
+                            if (payload === undefined || attribute === undefined || now === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             return org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.convertRaw(attribute, payload);
                         };
                         DiscreteExtrapolation.convertRaw = function (attribute, raw) {
+                            if (attribute === undefined || raw === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             try {
                                 if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.STRING)) {
                                     return raw.toString();
@@ -2643,6 +3069,9 @@ var org;
                         function PolynomialExtrapolation() {
                         }
                         PolynomialExtrapolation.prototype.extrapolate = function (current, attribute) {
+                            if (current === undefined || attribute === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var pol = current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ)[attribute.index()];
                             if (pol != null) {
                                 var extrapolatedValue = pol.extrapolate(current.now());
@@ -2678,6 +3107,9 @@ var org;
                             }
                         };
                         PolynomialExtrapolation.prototype.mutate = function (current, attribute, payload) {
+                            if (current === undefined || attribute === undefined || payload === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var raw = current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ);
                             var previous = raw[attribute.index()];
                             if (previous == null) {
@@ -2701,6 +3133,9 @@ var org;
                             }
                         };
                         PolynomialExtrapolation.prototype.save = function (cache) {
+                            if (cache === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             try {
                                 return cache.save();
                             }
@@ -2713,6 +3148,9 @@ var org;
                             }
                         };
                         PolynomialExtrapolation.prototype.load = function (payload, attribute, now) {
+                            if (payload === undefined || attribute === undefined || now === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var pol = this.createPolynomialModel(now, attribute.precision());
                             pol.load(payload);
                             return pol;
@@ -2724,6 +3162,9 @@ var org;
                             return PolynomialExtrapolation.INSTANCE;
                         };
                         PolynomialExtrapolation.prototype.createPolynomialModel = function (origin, precision) {
+                            if (origin === undefined || precision === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             return new org.kevoree.modeling.api.polynomial.doublepolynomial.DoublePolynomialModel(origin, precision, 20, org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES);
                         };
                         return PolynomialExtrapolation;
@@ -2734,12 +3175,21 @@ var org;
                 (function (json) {
                     var JsonFormat = (function () {
                         function JsonFormat(p_view) {
+                            if (p_view === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._view = p_view;
                         }
                         JsonFormat.prototype.save = function (model, callback) {
+                            if (model === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             org.kevoree.modeling.api.json.JsonModelSerializer.serialize(model, callback);
                         };
                         JsonFormat.prototype.load = function (payload, callback) {
+                            if (payload === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             org.kevoree.modeling.api.json.JsonModelLoader.load(this._view, payload, callback);
                         };
                         return JsonFormat;
@@ -2749,6 +3199,9 @@ var org;
                         function JsonModelLoader() {
                         }
                         JsonModelLoader.load = function (factory, payload, callback) {
+                            if (factory === undefined || payload === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (payload == null) {
                                 callback(null);
                             }
@@ -2934,7 +3387,11 @@ var org;
                                                                             if (metaReference != null) {
                                                                                 if (metaReference.single()) {
                                                                                     try {
-                                                                                        raw[metaReference.index()] = java.lang.Long.parseLong(payload_content.toString());
+                                                                                        var converted = java.lang.Long.parseLong(payload_content.toString());
+                                                                                        if (mappedKeys.containsKey(converted)) {
+                                                                                            converted = mappedKeys.get(converted);
+                                                                                        }
+                                                                                        raw[metaReference.index()] = converted;
                                                                                     }
                                                                                     catch ($ex$) {
                                                                                         if ($ex$ instanceof java.lang.Exception) {
@@ -3009,6 +3466,9 @@ var org;
                         function JsonModelSerializer() {
                         }
                         JsonModelSerializer.serialize = function (model, callback) {
+                            if (model === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var builder = new java.lang.StringBuilder();
                             builder.append("[\n");
                             org.kevoree.modeling.api.json.JsonModelSerializer.printJSON(model, builder);
@@ -3022,6 +3482,9 @@ var org;
                             });
                         };
                         JsonModelSerializer.printJSON = function (elem, builder) {
+                            if (elem === undefined || builder === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (elem != null) {
                                 builder.append("{\n");
                                 builder.append("\t\"" + JsonModelSerializer.KEY_META + "\" : \"");
@@ -3099,6 +3562,9 @@ var org;
                         function JsonString() {
                         }
                         JsonString.encodeBuffer = function (buffer, chain) {
+                            if (buffer === undefined || chain === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (chain == null) {
                                 return;
                             }
@@ -3160,11 +3626,17 @@ var org;
                             }
                         };
                         JsonString.encode = function (chain) {
+                            if (chain === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var sb = new java.lang.StringBuilder();
                             org.kevoree.modeling.api.json.JsonString.encodeBuffer(sb, chain);
                             return sb.toString();
                         };
                         JsonString.unescape = function (src) {
+                            if (src === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (src == null) {
                                 return null;
                             }
@@ -3229,6 +3701,9 @@ var org;
                     json.JsonString = JsonString;
                     var JsonToken = (function () {
                         function JsonToken(p_tokenType, p_value) {
+                            if (p_tokenType === undefined || p_value === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._tokenType = p_tokenType;
                             this._value = p_value;
                         }
@@ -3257,10 +3732,16 @@ var org;
                             this.BOOLEAN_LETTERS = null;
                             this.DIGIT = null;
                             this.index = 0;
+                            if (payload === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.bytes = payload;
                             this.EOF = new org.kevoree.modeling.api.json.JsonToken(org.kevoree.modeling.api.json.Type.EOF, null);
                         }
                         Lexer.prototype.isSpace = function (c) {
+                            if (c === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             return c == ' ' || c == '\r' || c == '\n' || c == '\t';
                         };
                         Lexer.prototype.nextChar = function () {
@@ -3273,6 +3754,9 @@ var org;
                             return this.index >= this.bytes.length;
                         };
                         Lexer.prototype.isBooleanLetter = function (c) {
+                            if (c === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (this.BOOLEAN_LETTERS == null) {
                                 this.BOOLEAN_LETTERS = new java.util.HashSet();
                                 this.BOOLEAN_LETTERS.add('f');
@@ -3287,6 +3771,9 @@ var org;
                             return this.BOOLEAN_LETTERS.contains(c);
                         };
                         Lexer.prototype.isDigit = function (c) {
+                            if (c === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (this.DIGIT == null) {
                                 this.DIGIT = new java.util.HashSet();
                                 this.DIGIT.add('0');
@@ -3303,6 +3790,9 @@ var org;
                             return this.DIGIT.contains(c);
                         };
                         Lexer.prototype.isValueLetter = function (c) {
+                            if (c === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             return c == '-' || c == '+' || c == '.' || this.isDigit(c) || this.isBooleanLetter(c);
                         };
                         Lexer.prototype.nextToken = function () {
@@ -3398,6 +3888,9 @@ var org;
                     json.Lexer = Lexer;
                     var Type = (function () {
                         function Type(p_value) {
+                            if (p_value === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._value = p_value;
                         }
                         Type.prototype.equals = function (other) {
@@ -3465,6 +3958,9 @@ var org;
                         function DefaultModelCloner() {
                         }
                         DefaultModelCloner.clone = function (originalObject, callback) {
+                            if (originalObject === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (originalObject == null || originalObject.view() == null || originalObject.view().dimension() == null) {
                                 callback(null);
                             }
@@ -3483,15 +3979,27 @@ var org;
                         function DefaultModelCompare() {
                         }
                         DefaultModelCompare.diff = function (origin, target, callback) {
+                            if (origin === undefined || target === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             org.kevoree.modeling.api.operation.DefaultModelCompare.internal_diff(origin, target, false, false, callback);
                         };
                         DefaultModelCompare.merge = function (origin, target, callback) {
+                            if (origin === undefined || target === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             org.kevoree.modeling.api.operation.DefaultModelCompare.internal_diff(origin, target, false, true, callback);
                         };
                         DefaultModelCompare.intersection = function (origin, target, callback) {
+                            if (origin === undefined || target === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             org.kevoree.modeling.api.operation.DefaultModelCompare.internal_diff(origin, target, true, false, callback);
                         };
                         DefaultModelCompare.internal_diff = function (origin, target, inter, merge, callback) {
+                            if (origin === undefined || target === undefined || inter === undefined || merge === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var traces = new java.util.ArrayList();
                             var tracesRef = new java.util.ArrayList();
                             var objectsMap = new java.util.HashMap();
@@ -3549,6 +4057,9 @@ var org;
                             });
                         };
                         DefaultModelCompare.internal_createTraces = function (current, sibling, inter, merge, references, attributes) {
+                            if (current === undefined || sibling === undefined || inter === undefined || merge === undefined || references === undefined || attributes === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var traces = new java.util.ArrayList();
                             var values = new java.util.HashMap();
                             if (attributes) {
@@ -3707,6 +4218,9 @@ var org;
                         function DefaultModelSlicer() {
                         }
                         DefaultModelSlicer.internal_prune = function (elem, traces, cache, parentMap, callback) {
+                            if (elem === undefined || traces === undefined || cache === undefined || parentMap === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var parents = new java.util.ArrayList();
                             var parentExplorer = new java.util.ArrayList();
                             parentExplorer.add(function (currentParent) {
@@ -3756,6 +4270,9 @@ var org;
                             elem.parent(parentExplorer.get(0));
                         };
                         DefaultModelSlicer.slice = function (elems, callback) {
+                            if (elems === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var traces = new java.util.ArrayList();
                             var tempMap = new java.util.HashMap();
                             var parentMap = new java.util.HashMap();
@@ -3785,6 +4302,9 @@ var org;
                         var DoublePolynomialModel = (function () {
                             function DoublePolynomialModel(p_timeOrigin, p_toleratedError, p_maxDegree, p_prioritization) {
                                 this._isDirty = false;
+                                if (p_timeOrigin === undefined || p_toleratedError === undefined || p_maxDegree === undefined || p_prioritization === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this._polyTime = new org.kevoree.modeling.api.polynomial.doublepolynomial.TimePolynomial(p_timeOrigin);
                                 this._prioritization = p_prioritization;
                                 this._maxDegree = p_maxDegree;
@@ -3802,6 +4322,9 @@ var org;
                                 return this._polyTime.timeOrigin();
                             };
                             DoublePolynomialModel.prototype.comparePolynome = function (p2, err) {
+                                if (p2 === undefined || err === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (this._weights.length != p2._weights.length) {
                                     return false;
                                 }
@@ -3813,9 +4336,15 @@ var org;
                                 return true;
                             };
                             DoublePolynomialModel.prototype.extrapolate = function (time) {
+                                if (time === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 return this.test_extrapolate(this._polyTime.denormalize(time), this._weights);
                             };
                             DoublePolynomialModel.prototype.insert = function (time, value) {
+                                if (time === undefined || value === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (this._weights == null) {
                                     this.internal_feed(time, value);
                                     this._isDirty = true;
@@ -3875,6 +4404,9 @@ var org;
                                 return builder.toString();
                             };
                             DoublePolynomialModel.prototype.load = function (payload) {
+                                if (payload === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var parts = payload.split(DoublePolynomialModel.sep);
                                 if (parts.length == 2) {
                                     var welems = parts[0].split(DoublePolynomialModel.sepW);
@@ -3910,6 +4442,9 @@ var org;
                                 return tol;
                             };
                             DoublePolynomialModel.prototype.internal_feed = function (time, value) {
+                                if (time === undefined || value === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (this._weights == null) {
                                     this._weights = new Array();
                                     this._weights[0] = value;
@@ -3917,6 +4452,9 @@ var org;
                                 }
                             };
                             DoublePolynomialModel.prototype.maxError = function (computedWeights, time, value) {
+                                if (computedWeights === undefined || time === undefined || value === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var maxErr = 0;
                                 var temp;
                                 var ds;
@@ -3935,6 +4473,9 @@ var org;
                                 return maxErr;
                             };
                             DoublePolynomialModel.prototype.test_extrapolate = function (time, weights) {
+                                if (time === undefined || weights === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var result = 0;
                                 var power = 1;
                                 for (var j = 0; j < weights.length; j++) {
@@ -3951,6 +4492,9 @@ var org;
                         var TimePolynomial = (function () {
                             function TimePolynomial(p_timeOrigin) {
                                 this._isDirty = false;
+                                if (p_timeOrigin === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this._timeOrigin = p_timeOrigin;
                             }
                             TimePolynomial.prototype.timeOrigin = function () {
@@ -3971,9 +4515,15 @@ var org;
                                 }
                             };
                             TimePolynomial.prototype.denormalize = function (p_time) {
+                                if (p_time === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 return (p_time - this._timeOrigin) / this._samplingPeriod;
                             };
                             TimePolynomial.prototype.getNormalizedTime = function (id) {
+                                if (id === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var result = 0;
                                 var power = 1;
                                 for (var j = 0; j < this._weights.length; j++) {
@@ -3983,12 +4533,18 @@ var org;
                                 return result;
                             };
                             TimePolynomial.prototype.extrapolate = function (id) {
+                                if (id === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 return this.test_extrapolate(id, this._weights);
                             };
                             TimePolynomial.prototype.nbSamples = function () {
                                 return this._nbSamples;
                             };
                             TimePolynomial.prototype.insert = function (time) {
+                                if (time === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (this._weights == null) {
                                     this._timeOrigin = time;
                                     this._weights = new Array();
@@ -4047,6 +4603,9 @@ var org;
                                 return false;
                             };
                             TimePolynomial.prototype.maxError = function (computedWeights, lastId, newtime) {
+                                if (computedWeights === undefined || lastId === undefined || newtime === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var maxErr = 0;
                                 var time;
                                 var temp;
@@ -4064,6 +4623,9 @@ var org;
                                 return maxErr;
                             };
                             TimePolynomial.prototype.test_extrapolate = function (id, newWeights) {
+                                if (id === undefined || newWeights === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var result = 0;
                                 var power = 1;
                                 for (var j = 0; j < newWeights.length; j++) {
@@ -4098,6 +4660,9 @@ var org;
                                 return builder.toString();
                             };
                             TimePolynomial.prototype.load = function (payload) {
+                                if (payload === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var parts = payload.split(org.kevoree.modeling.api.polynomial.doublepolynomial.DoublePolynomialModel.sepW);
                                 this._weights = new Array();
                                 for (var i = 0; i < parts.length - 2; i++) {
@@ -4123,6 +4688,9 @@ var org;
                                 this.samples = new java.util.ArrayList();
                                 this._lastIndex = -1;
                                 this._isDirty = false;
+                                if (timeOrigin === undefined || toleratedError === undefined || maxDegree === undefined || prioritization === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this.timeOrigin = timeOrigin;
                                 this.degradeFactor = 1;
                                 this.prioritization = prioritization;
@@ -4144,6 +4712,9 @@ var org;
                                 return this.timeOrigin;
                             };
                             SimplePolynomialModel.prototype.getMaxErr = function (degree, toleratedError, maxDegree, prioritization) {
+                                if (degree === undefined || toleratedError === undefined || maxDegree === undefined || prioritization === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var tol = toleratedError;
                                 if (prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.HIGHDEGREES) {
                                     tol = toleratedError / Math.pow(2, maxDegree - degree);
@@ -4161,6 +4732,9 @@ var org;
                                 return tol;
                             };
                             SimplePolynomialModel.prototype.internal_feed = function (time, value) {
+                                if (time === undefined || value === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (this.weights == null) {
                                     this.weights = new Array();
                                     this.weights[0] = value;
@@ -4169,6 +4743,9 @@ var org;
                                 }
                             };
                             SimplePolynomialModel.prototype.maxError = function (computedWeights, time, value) {
+                                if (computedWeights === undefined || time === undefined || value === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var maxErr = 0;
                                 var temp = 0;
                                 var ds;
@@ -4187,6 +4764,9 @@ var org;
                                 return maxErr;
                             };
                             SimplePolynomialModel.prototype.comparePolynome = function (p2, err) {
+                                if (p2 === undefined || err === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (this.weights.length != p2.weights.length) {
                                     return false;
                                 }
@@ -4198,6 +4778,9 @@ var org;
                                 return true;
                             };
                             SimplePolynomialModel.prototype.internal_extrapolate = function (time, weights) {
+                                if (time === undefined || weights === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var result = 0;
                                 var t = (time - this.timeOrigin) / this.degradeFactor;
                                 var power = 1;
@@ -4208,9 +4791,15 @@ var org;
                                 return result;
                             };
                             SimplePolynomialModel.prototype.extrapolate = function (time) {
+                                if (time === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 return this.internal_extrapolate(time, this.weights);
                             };
                             SimplePolynomialModel.prototype.insert = function (time, value) {
+                                if (time === undefined || value === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (this.weights == null) {
                                     this.internal_feed(time, value);
                                     this._lastIndex = time;
@@ -4268,6 +4857,9 @@ var org;
                                 return builder.toString();
                             };
                             SimplePolynomialModel.prototype.load = function (payload) {
+                                if (payload === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var elems = payload.split(SimplePolynomialModel.sep);
                                 this.weights = new Array();
                                 for (var i = 0; i < elems.length; i++) {
@@ -4292,6 +4884,9 @@ var org;
                                 this.decomposer = new org.kevoree.modeling.api.polynomial.util.QRDecompositionHouseholderColumn_D64();
                             }
                             AdjLinearSolverQr.prototype.setA = function (A) {
+                                if (A === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (A.numRows > this.maxRows || A.numCols > this.maxCols) {
                                     this.setMaxSize(A.numRows, A.numCols);
                                 }
@@ -4307,6 +4902,9 @@ var org;
                                 return true;
                             };
                             AdjLinearSolverQr.prototype.solveU = function (U, b, n) {
+                                if (U === undefined || b === undefined || n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 for (var i = n - 1; i >= 0; i--) {
                                     var sum = b[i];
                                     var indexU = i * n + i + 1;
@@ -4317,6 +4915,9 @@ var org;
                                 }
                             };
                             AdjLinearSolverQr.prototype.solve = function (B, X) {
+                                if (B === undefined || X === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var BnumCols = B.numCols;
                                 this.Y.reshape(this.numRows, 1, false);
                                 this.Z.reshape(this.numRows, 1, false);
@@ -4332,6 +4933,9 @@ var org;
                                 }
                             };
                             AdjLinearSolverQr.prototype.setMaxSize = function (maxRows, maxCols) {
+                                if (maxRows === undefined || maxCols === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 maxRows += 5;
                                 this.maxRows = maxRows;
                                 this.maxCols = maxCols;
@@ -4345,6 +4949,9 @@ var org;
                         util.AdjLinearSolverQr = AdjLinearSolverQr;
                         var DataSample = (function () {
                             function DataSample(time, value) {
+                                if (time === undefined || value === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this.time = time;
                                 this.value = value;
                             }
@@ -4353,11 +4960,17 @@ var org;
                         util.DataSample = DataSample;
                         var DenseMatrix64F = (function () {
                             function DenseMatrix64F(numRows, numCols) {
+                                if (numRows === undefined || numCols === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this.data = new Array();
                                 this.numRows = numRows;
                                 this.numCols = numCols;
                             }
                             DenseMatrix64F.multTransA_smallMV = function (A, B, C) {
+                                if (A === undefined || B === undefined || C === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var cIndex = 0;
                                 for (var i = 0; i < A.numCols; i++) {
                                     var total = 0.0;
@@ -4370,6 +4983,9 @@ var org;
                                 }
                             };
                             DenseMatrix64F.multTransA_reorderMV = function (A, B, C) {
+                                if (A === undefined || B === undefined || C === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (A.numRows == 0) {
                                     org.kevoree.modeling.api.polynomial.util.DenseMatrix64F.fill(C, 0);
                                     return;
@@ -4387,6 +5003,9 @@ var org;
                                 }
                             };
                             DenseMatrix64F.multTransA_reorderMM = function (a, b, c) {
+                                if (a === undefined || b === undefined || c === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (a.numCols == 0 || a.numRows == 0) {
                                     org.kevoree.modeling.api.polynomial.util.DenseMatrix64F.fill(c, 0);
                                     return;
@@ -4412,6 +5031,9 @@ var org;
                                 }
                             };
                             DenseMatrix64F.multTransA_smallMM = function (a, b, c) {
+                                if (a === undefined || b === undefined || c === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var cIndex = 0;
                                 for (var i = 0; i < a.numCols; i++) {
                                     for (var j = 0; j < b.numCols; j++) {
@@ -4428,6 +5050,9 @@ var org;
                                 }
                             };
                             DenseMatrix64F.multTransA = function (a, b, c) {
+                                if (a === undefined || b === undefined || c === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (b.numCols == 1) {
                                     if (a.numCols >= org.kevoree.modeling.api.polynomial.util.DenseMatrix64F.MULT_COLUMN_SWITCH) {
                                         org.kevoree.modeling.api.polynomial.util.DenseMatrix64F.multTransA_reorderMV(a, b, c);
@@ -4446,6 +5071,9 @@ var org;
                                 }
                             };
                             DenseMatrix64F.setIdentity = function (mat) {
+                                if (mat === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var width = mat.numRows < mat.numCols ? mat.numRows : mat.numCols;
                                 java.util.Arrays.fill(mat.data, 0, mat.getNumElements(), 0);
                                 var index = 0;
@@ -4455,6 +5083,9 @@ var org;
                                 }
                             };
                             DenseMatrix64F.widentity = function (width) {
+                                if (width === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var ret = new org.kevoree.modeling.api.polynomial.util.DenseMatrix64F(width, width);
                                 for (var i = 0; i < width; i++) {
                                     ret.cset(i, i, 1.0);
@@ -4462,6 +5093,9 @@ var org;
                                 return ret;
                             };
                             DenseMatrix64F.identity = function (numRows, numCols) {
+                                if (numRows === undefined || numCols === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var ret = new org.kevoree.modeling.api.polynomial.util.DenseMatrix64F(numRows, numCols);
                                 var small = numRows < numCols ? numRows : numCols;
                                 for (var i = 0; i < small; i++) {
@@ -4470,18 +5104,33 @@ var org;
                                 return ret;
                             };
                             DenseMatrix64F.fill = function (a, value) {
+                                if (a === undefined || value === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 java.util.Arrays.fill(a.data, 0, a.getNumElements(), value);
                             };
                             DenseMatrix64F.prototype.get = function (index) {
+                                if (index === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 return this.data[index];
                             };
                             DenseMatrix64F.prototype.set = function (index, val) {
+                                if (index === undefined || val === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 return this.data[index] = val;
                             };
                             DenseMatrix64F.prototype.plus = function (index, val) {
+                                if (index === undefined || val === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 return this.data[index] += val;
                             };
                             DenseMatrix64F.prototype.reshape = function (numRows, numCols, saveValues) {
+                                if (numRows === undefined || numCols === undefined || saveValues === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (this.data.length < numRows * numCols) {
                                     var d = new Array();
                                     if (saveValues) {
@@ -4493,9 +5142,15 @@ var org;
                                 this.numCols = numCols;
                             };
                             DenseMatrix64F.prototype.cset = function (row, col, value) {
+                                if (row === undefined || col === undefined || value === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this.data[row * this.numCols + col] = value;
                             };
                             DenseMatrix64F.prototype.unsafe_get = function (row, col) {
+                                if (row === undefined || col === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 return this.data[row * this.numCols + col];
                             };
                             DenseMatrix64F.prototype.getNumElements = function () {
@@ -4507,6 +5162,9 @@ var org;
                         util.DenseMatrix64F = DenseMatrix64F;
                         var PolynomialFitEjml = (function () {
                             function PolynomialFitEjml(degree) {
+                                if (degree === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this.coef = new org.kevoree.modeling.api.polynomial.util.DenseMatrix64F(degree + 1, 1);
                                 this.A = new org.kevoree.modeling.api.polynomial.util.DenseMatrix64F(1, degree + 1);
                                 this.y = new org.kevoree.modeling.api.polynomial.util.DenseMatrix64F(1, 1);
@@ -4516,6 +5174,9 @@ var org;
                                 return this.coef.data;
                             };
                             PolynomialFitEjml.prototype.fit = function (samplePoints, observations) {
+                                if (samplePoints === undefined || observations === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this.y.reshape(observations.length, 1, false);
                                 System.arraycopy(observations, 0, this.y.data, 0, observations.length);
                                 this.A.reshape(this.y.numRows, this.coef.numRows, false);
@@ -4556,6 +5217,9 @@ var org;
                             function QRDecompositionHouseholderColumn_D64() {
                             }
                             QRDecompositionHouseholderColumn_D64.prototype.setExpectedMaxSize = function (numRows, numCols) {
+                                if (numRows === undefined || numCols === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this.numCols = numCols;
                                 this.numRows = numRows;
                                 this.minLength = Math.min(numCols, numRows);
@@ -4576,6 +5240,9 @@ var org;
                                 }
                             };
                             QRDecompositionHouseholderColumn_D64.prototype.getQ = function (Q, compact) {
+                                if (Q === undefined || compact === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (compact) {
                                     if (Q == null) {
                                         Q = org.kevoree.modeling.api.polynomial.util.DenseMatrix64F.identity(this.numRows, this.minLength);
@@ -4602,6 +5269,9 @@ var org;
                                 return Q;
                             };
                             QRDecompositionHouseholderColumn_D64.prototype.getR = function (R, compact) {
+                                if (R === undefined || compact === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (R == null) {
                                     if (compact) {
                                         R = new org.kevoree.modeling.api.polynomial.util.DenseMatrix64F(this.minLength, this.numCols);
@@ -4629,6 +5299,9 @@ var org;
                                 return R;
                             };
                             QRDecompositionHouseholderColumn_D64.prototype.decompose = function (A) {
+                                if (A === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this.setExpectedMaxSize(A.numRows, A.numCols);
                                 this.convertToColumnMajor(A);
                                 this.error = false;
@@ -4639,6 +5312,9 @@ var org;
                                 return !this.error;
                             };
                             QRDecompositionHouseholderColumn_D64.prototype.convertToColumnMajor = function (A) {
+                                if (A === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 for (var x = 0; x < this.numCols; x++) {
                                     var colQ = this.dataQR[x];
                                     for (var y = 0; y < this.numRows; y++) {
@@ -4647,6 +5323,9 @@ var org;
                                 }
                             };
                             QRDecompositionHouseholderColumn_D64.prototype.householder = function (j) {
+                                if (j === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var u = this.dataQR[j];
                                 var max = org.kevoree.modeling.api.polynomial.util.QRDecompositionHouseholderColumn_D64.findMax(u, j, this.numRows - j);
                                 if (max == 0.0) {
@@ -4664,6 +5343,9 @@ var org;
                                 this.gammas[j] = this.gamma;
                             };
                             QRDecompositionHouseholderColumn_D64.prototype.updateA = function (w) {
+                                if (w === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var u = this.dataQR[w];
                                 for (var j = w + 1; j < this.numCols; j++) {
                                     var colQ = this.dataQR[j];
@@ -4679,6 +5361,9 @@ var org;
                                 }
                             };
                             QRDecompositionHouseholderColumn_D64.findMax = function (u, startU, length) {
+                                if (u === undefined || startU === undefined || length === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var max = -1;
                                 var index = startU;
                                 var stopIndex = startU + length;
@@ -4692,11 +5377,17 @@ var org;
                                 return max;
                             };
                             QRDecompositionHouseholderColumn_D64.divideElements = function (j, numRows, u, u_0) {
+                                if (j === undefined || numRows === undefined || u === undefined || u_0 === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 for (var i = j; i < numRows; i++) {
                                     u[i] /= u_0;
                                 }
                             };
                             QRDecompositionHouseholderColumn_D64.computeTauAndDivide = function (j, numRows, u, max) {
+                                if (j === undefined || numRows === undefined || u === undefined || max === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var tau = 0;
                                 for (var i = j; i < numRows; i++) {
                                     var d = u[i] /= max;
@@ -4709,6 +5400,9 @@ var org;
                                 return tau;
                             };
                             QRDecompositionHouseholderColumn_D64.rank1UpdateMultR = function (A, u, gamma, colA0, w0, w1, _temp) {
+                                if (A === undefined || u === undefined || gamma === undefined || colA0 === undefined || w0 === undefined || w1 === undefined || _temp === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 for (var i = colA0; i < A.numCols; i++) {
                                     _temp[i] = u[w0] * A.data[w0 * A.numCols + i];
                                 }
@@ -4740,12 +5434,18 @@ var org;
                     var DefaultKTraversalPromise = (function () {
                         function DefaultKTraversalPromise(p_root, p_ref) {
                             this._terminated = false;
+                            if (p_root === undefined || p_ref === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._initAction = new org.kevoree.modeling.api.promise.actions.KTraverseAction(p_ref);
                             this._initObjs = new Array();
                             this._initObjs[0] = p_root;
                             this._lastAction = this._initAction;
                         }
                         DefaultKTraversalPromise.prototype.traverse = function (p_metaReference) {
+                            if (p_metaReference === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (this._terminated) {
                                 throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
                             }
@@ -4755,6 +5455,9 @@ var org;
                             return this;
                         };
                         DefaultKTraversalPromise.prototype.attribute = function (p_attribute, p_expectedValue) {
+                            if (p_attribute === undefined || p_expectedValue === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (this._terminated) {
                                 throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
                             }
@@ -4764,6 +5467,9 @@ var org;
                             return this;
                         };
                         DefaultKTraversalPromise.prototype.filter = function (p_filter) {
+                            if (p_filter === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (this._terminated) {
                                 throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
                             }
@@ -4773,11 +5479,17 @@ var org;
                             return this;
                         };
                         DefaultKTraversalPromise.prototype.then = function (callback) {
+                            if (callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._terminated = true;
                             this._lastAction.chain(new org.kevoree.modeling.api.promise.actions.KFinalAction(callback));
                             this._initAction.execute(this._initObjs);
                         };
                         DefaultKTraversalPromise.prototype.map = function (attribute, callback) {
+                            if (attribute === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._terminated = true;
                             this._lastAction.chain(new org.kevoree.modeling.api.promise.actions.KMapAction(attribute, callback));
                             this._initAction.execute(this._initObjs);
@@ -4789,12 +5501,21 @@ var org;
                     (function (actions) {
                         var KFilterAction = (function () {
                             function KFilterAction(p_filter) {
+                                if (p_filter === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this._filter = p_filter;
                             }
                             KFilterAction.prototype.chain = function (p_next) {
+                                if (p_next === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this._next = p_next;
                             };
                             KFilterAction.prototype.execute = function (p_inputs) {
+                                if (p_inputs === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var nextStep = new java.util.ArrayList();
                                 for (var i = 0; i < p_inputs.length; i++) {
                                     try {
@@ -4816,13 +5537,22 @@ var org;
                         actions.KFilterAction = KFilterAction;
                         var KFilterAttributeAction = (function () {
                             function KFilterAttributeAction(p_attribute, p_expectedValue) {
+                                if (p_attribute === undefined || p_expectedValue === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this._attribute = p_attribute;
                                 this._expectedValue = p_expectedValue;
                             }
                             KFilterAttributeAction.prototype.chain = function (p_next) {
+                                if (p_next === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this._next = p_next;
                             };
                             KFilterAttributeAction.prototype.execute = function (p_inputs) {
+                                if (p_inputs === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (p_inputs == null || p_inputs.length == 0) {
                                     this._next.execute(p_inputs);
                                     return;
@@ -4910,11 +5640,20 @@ var org;
                         actions.KFilterAttributeAction = KFilterAttributeAction;
                         var KFinalAction = (function () {
                             function KFinalAction(p_callback) {
+                                if (p_callback === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this._finalCallback = p_callback;
                             }
                             KFinalAction.prototype.chain = function (next) {
+                                if (next === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                             };
                             KFinalAction.prototype.execute = function (inputs) {
+                                if (inputs === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this._finalCallback(inputs);
                             };
                             return KFinalAction;
@@ -4922,12 +5661,21 @@ var org;
                         actions.KFinalAction = KFinalAction;
                         var KMapAction = (function () {
                             function KMapAction(p_attribute, p_callback) {
+                                if (p_attribute === undefined || p_callback === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this._finalCallback = p_callback;
                                 this._attribute = p_attribute;
                             }
                             KMapAction.prototype.chain = function (next) {
+                                if (next === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                             };
                             KMapAction.prototype.execute = function (inputs) {
+                                if (inputs === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var collected = new java.util.ArrayList();
                                 for (var i = 0; i < inputs.length; i++) {
                                     if (inputs[i] != null) {
@@ -4944,13 +5692,22 @@ var org;
                         actions.KMapAction = KMapAction;
                         var KTraverseAction = (function () {
                             function KTraverseAction(p_reference) {
+                                if (p_reference === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this._reference = p_reference;
                             }
                             KTraverseAction.prototype.chain = function (p_next) {
+                                if (p_next === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this._next = p_next;
                             };
                             KTraverseAction.prototype.execute = function (p_inputs) {
                                 var _this = this;
+                                if (p_inputs === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (p_inputs == null || p_inputs.length == 0) {
                                     this._next.execute(p_inputs);
                                     return;
@@ -5042,6 +5799,9 @@ var org;
                 (function (select) {
                     var KQuery = (function () {
                         function KQuery(relationName, params, subQuery, oldString, previousIsDeep, previousIsRefDeep) {
+                            if (relationName === undefined || params === undefined || subQuery === undefined || oldString === undefined || previousIsDeep === undefined || previousIsRefDeep === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.relationName = relationName;
                             this.params = params;
                             this.subQuery = subQuery;
@@ -5050,6 +5810,9 @@ var org;
                             this.previousIsRefDeep = previousIsRefDeep;
                         }
                         KQuery.extractFirstQuery = function (query) {
+                            if (query === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (query == null || query.length == 0) {
                                 return null;
                             }
@@ -5187,6 +5950,9 @@ var org;
                     select.KQuery = KQuery;
                     var KQueryParam = (function () {
                         function KQueryParam(p_name, p_value, p_negative) {
+                            if (p_name === undefined || p_value === undefined || p_negative === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._name = p_name;
                             this._value = p_value;
                             this._negative = p_negative;
@@ -5207,6 +5973,9 @@ var org;
                         function KSelector() {
                         }
                         KSelector.select = function (view, roots, query, callback) {
+                            if (view === undefined || roots === undefined || query === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (callback == null) {
                                 return;
                             }
@@ -5248,10 +6017,9 @@ var org;
                                         for (var i = 0; i < resolveds.length; i++) {
                                             var resolved = resolveds[i];
                                             var selectedForNext = true;
-                                            //TODO resolve for-each cycle
-                                            var paramKey;
-                                            for (paramKey in extractedQuery.params.keySet()) {
-                                                var param = extractedQuery.params.get(paramKey);
+                                            var paramKeys = extractedQuery.params.keySet().toArray(new Array());
+                                            for (var h = 0; h < paramKeys.length; h++) {
+                                                var param = extractedQuery.params.get(paramKeys[h]);
                                                 for (var j = 0; j < resolved.metaClass().metaAttributes().length; j++) {
                                                     var metaAttribute = resolved.metaClass().metaAttributes()[j];
                                                     if (metaAttribute.metaName().matches(param.name().replace("*", ".*"))) {
@@ -5303,9 +6071,15 @@ var org;
                             this.versionTree = new org.kevoree.modeling.api.time.rbtree.RBTree();
                         }
                         DefaultTimeTree.prototype.walk = function (walker) {
+                            if (walker === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.walkAsc(walker);
                         };
                         DefaultTimeTree.prototype.walkAsc = function (walker) {
+                            if (walker === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var elem = this.versionTree.first();
                             while (elem != null) {
                                 walker(elem.getKey());
@@ -5313,6 +6087,9 @@ var org;
                             }
                         };
                         DefaultTimeTree.prototype.walkDesc = function (walker) {
+                            if (walker === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var elem = this.versionTree.last();
                             while (elem != null) {
                                 walker(elem.getKey());
@@ -5320,6 +6097,9 @@ var org;
                             }
                         };
                         DefaultTimeTree.prototype.walkRangeAsc = function (walker, from, to) {
+                            if (walker === undefined || from === undefined || to === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var from2 = from;
                             var to2 = to;
                             if (from > to) {
@@ -5338,6 +6118,9 @@ var org;
                             }
                         };
                         DefaultTimeTree.prototype.walkRangeDesc = function (walker, from, to) {
+                            if (walker === undefined || from === undefined || to === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var from2 = from;
                             var to2 = to;
                             if (from > to) {
@@ -5375,6 +6158,9 @@ var org;
                             }
                         };
                         DefaultTimeTree.prototype.next = function (from) {
+                            if (from === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var nextNode = this.versionTree.next(from);
                             if (nextNode != null) {
                                 return nextNode.getKey();
@@ -5384,6 +6170,9 @@ var org;
                             }
                         };
                         DefaultTimeTree.prototype.previous = function (from) {
+                            if (from === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var previousNode = this.versionTree.previous(from);
                             if (previousNode != null) {
                                 return previousNode.getKey();
@@ -5393,6 +6182,9 @@ var org;
                             }
                         };
                         DefaultTimeTree.prototype.resolve = function (time) {
+                            if (time === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var previousNode = this.versionTree.previousOrEqual(time);
                             if (previousNode != null) {
                                 return previousNode.getKey();
@@ -5402,11 +6194,17 @@ var org;
                             }
                         };
                         DefaultTimeTree.prototype.insert = function (time) {
+                            if (time === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.versionTree.insert(time, org.kevoree.modeling.api.time.rbtree.State.EXISTS);
                             this.dirty = true;
                             return this;
                         };
                         DefaultTimeTree.prototype.delete = function (time) {
+                            if (time === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.versionTree.insert(time, org.kevoree.modeling.api.time.rbtree.State.DELETED);
                             this.dirty = true;
                             return this;
@@ -5418,12 +6216,18 @@ var org;
                             return this.versionTree.size();
                         };
                         DefaultTimeTree.prototype.setDirty = function (state) {
+                            if (state === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.dirty = state;
                         };
                         DefaultTimeTree.prototype.toString = function () {
                             return this.versionTree.serialize();
                         };
                         DefaultTimeTree.prototype.load = function (payload) {
+                            if (payload === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.versionTree.unserialize(payload);
                             this.dirty = false;
                         };
@@ -5468,6 +6272,9 @@ var org;
                                 return builder.toString();
                             };
                             LongRBTree.prototype.unserialize = function (payload) {
+                                if (payload === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (payload == null || payload.length == 0) {
                                     return;
                                 }
@@ -5488,6 +6295,9 @@ var org;
                                 this.dirty = false;
                             };
                             LongRBTree.prototype.previousOrEqual = function (key) {
+                                if (key === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var p = this.root;
                                 if (p == null) {
                                     return null;
@@ -5522,6 +6332,9 @@ var org;
                                 return null;
                             };
                             LongRBTree.prototype.nextOrEqual = function (key) {
+                                if (key === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var p = this.root;
                                 if (p == null) {
                                     return null;
@@ -5556,6 +6369,9 @@ var org;
                                 return null;
                             };
                             LongRBTree.prototype.previous = function (key) {
+                                if (key === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var p = this.root;
                                 if (p == null) {
                                     return null;
@@ -5586,6 +6402,9 @@ var org;
                                 return null;
                             };
                             LongRBTree.prototype.previousWhileNot = function (key, until) {
+                                if (key === undefined || until === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var elm = this.previousOrEqual(key);
                                 if (elm.value == until) {
                                     return null;
@@ -5603,6 +6422,9 @@ var org;
                                 }
                             };
                             LongRBTree.prototype.next = function (key) {
+                                if (key === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var p = this.root;
                                 if (p == null) {
                                     return null;
@@ -5633,6 +6455,9 @@ var org;
                                 return null;
                             };
                             LongRBTree.prototype.nextWhileNot = function (key, until) {
+                                if (key === undefined || until === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var elm = this.nextOrEqual(key);
                                 if (elm.value == until) {
                                     return null;
@@ -5680,6 +6505,9 @@ var org;
                                 return null;
                             };
                             LongRBTree.prototype.firstWhileNot = function (key, until) {
+                                if (key === undefined || until === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var elm = this.previousOrEqual(key);
                                 if (elm == null) {
                                     return null;
@@ -5702,6 +6530,9 @@ var org;
                                 return prev;
                             };
                             LongRBTree.prototype.lastWhileNot = function (key, until) {
+                                if (key === undefined || until === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var elm = this.previousOrEqual(key);
                                 if (elm == null) {
                                     return null;
@@ -5724,6 +6555,9 @@ var org;
                                 return next;
                             };
                             LongRBTree.prototype.lookupNode = function (key) {
+                                if (key === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var n = this.root;
                                 if (n == null) {
                                     return null;
@@ -5744,6 +6578,9 @@ var org;
                                 return n;
                             };
                             LongRBTree.prototype.lookup = function (key) {
+                                if (key === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var n = this.lookupNode(key);
                                 if (n == null) {
                                     return null;
@@ -5753,6 +6590,9 @@ var org;
                                 }
                             };
                             LongRBTree.prototype.rotateLeft = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var r = n.getRight();
                                 this.replaceNode(n, r);
                                 n.setRight(r.getLeft());
@@ -5763,6 +6603,9 @@ var org;
                                 n.setParent(r);
                             };
                             LongRBTree.prototype.rotateRight = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var l = n.getLeft();
                                 this.replaceNode(n, l);
                                 n.setLeft(l.getRight());
@@ -5773,6 +6616,9 @@ var org;
                                 n.setParent(l);
                             };
                             LongRBTree.prototype.replaceNode = function (oldn, newn) {
+                                if (oldn === undefined || newn === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (oldn.getParent() == null) {
                                     this.root = newn;
                                 }
@@ -5789,6 +6635,9 @@ var org;
                                 }
                             };
                             LongRBTree.prototype.insert = function (key, value) {
+                                if (key === undefined || value === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this.dirty = true;
                                 var insertedNode = new org.kevoree.modeling.api.time.rbtree.LongTreeNode(key, value, org.kevoree.modeling.api.time.rbtree.Color.RED, null, null);
                                 if (this.root == null) {
@@ -5830,6 +6679,9 @@ var org;
                                 this.insertCase1(insertedNode);
                             };
                             LongRBTree.prototype.insertCase1 = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (n.getParent() == null) {
                                     n.color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
                                 }
@@ -5838,6 +6690,9 @@ var org;
                                 }
                             };
                             LongRBTree.prototype.insertCase2 = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
                                     return;
                                 }
@@ -5846,6 +6701,9 @@ var org;
                                 }
                             };
                             LongRBTree.prototype.insertCase3 = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (this.nodeColor(n.uncle()) == org.kevoree.modeling.api.time.rbtree.Color.RED) {
                                     n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
                                     n.uncle().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
@@ -5857,6 +6715,9 @@ var org;
                                 }
                             };
                             LongRBTree.prototype.insertCase4 = function (n_n) {
+                                if (n_n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var n = n_n;
                                 if (n == n.getParent().getRight() && n.getParent() == n.grandparent().getLeft()) {
                                     this.rotateLeft(n.getParent());
@@ -5871,6 +6732,9 @@ var org;
                                 this.insertCase5(n);
                             };
                             LongRBTree.prototype.insertCase5 = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
                                 n.grandparent().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
                                 if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getLeft()) {
@@ -5881,6 +6745,9 @@ var org;
                                 }
                             };
                             LongRBTree.prototype.delete = function (key) {
+                                if (key === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var n = this.lookupNode(key);
                                 if (n == null) {
                                     return;
@@ -5911,6 +6778,9 @@ var org;
                                 }
                             };
                             LongRBTree.prototype.deleteCase1 = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (n.getParent() == null) {
                                     return;
                                 }
@@ -5919,6 +6789,9 @@ var org;
                                 }
                             };
                             LongRBTree.prototype.deleteCase2 = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.RED) {
                                     n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
                                     n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
@@ -5932,6 +6805,9 @@ var org;
                                 this.deleteCase3(n);
                             };
                             LongRBTree.prototype.deleteCase3 = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
                                     n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
                                     this.deleteCase1(n.getParent());
@@ -5941,6 +6817,9 @@ var org;
                                 }
                             };
                             LongRBTree.prototype.deleteCase4 = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.time.rbtree.Color.RED && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
                                     n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
                                     n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
@@ -5950,6 +6829,9 @@ var org;
                                 }
                             };
                             LongRBTree.prototype.deleteCase5 = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (n == n.getParent().getLeft() && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.RED && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
                                     n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
                                     n.sibling().getLeft().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
@@ -5965,6 +6847,9 @@ var org;
                                 this.deleteCase6(n);
                             };
                             LongRBTree.prototype.deleteCase6 = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 n.sibling().color = this.nodeColor(n.getParent());
                                 n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
                                 if (n == n.getParent().getLeft()) {
@@ -5977,6 +6862,9 @@ var org;
                                 }
                             };
                             LongRBTree.prototype.nodeColor = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (n == null) {
                                     return org.kevoree.modeling.api.time.rbtree.Color.BLACK;
                                 }
@@ -5990,6 +6878,9 @@ var org;
                         var LongTreeNode = (function () {
                             function LongTreeNode(key, value, color, left, right) {
                                 this.parent = null;
+                                if (key === undefined || value === undefined || color === undefined || left === undefined || right === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this.key = key;
                                 this.value = value;
                                 this.color = color;
@@ -6036,21 +6927,33 @@ var org;
                                 return this.left;
                             };
                             LongTreeNode.prototype.setLeft = function (left) {
+                                if (left === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this.left = left;
                             };
                             LongTreeNode.prototype.getRight = function () {
                                 return this.right;
                             };
                             LongTreeNode.prototype.setRight = function (right) {
+                                if (right === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this.right = right;
                             };
                             LongTreeNode.prototype.getParent = function () {
                                 return this.parent;
                             };
                             LongTreeNode.prototype.setParent = function (parent) {
+                                if (parent === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this.parent = parent;
                             };
                             LongTreeNode.prototype.serialize = function (builder) {
+                                if (builder === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 builder.append("|");
                                 if (this.color == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
                                     builder.append(LongTreeNode.BLACK);
@@ -6132,9 +7035,15 @@ var org;
                                 }
                             };
                             LongTreeNode.unserialize = function (ctx) {
+                                if (ctx === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 return org.kevoree.modeling.api.time.rbtree.LongTreeNode.internal_unserialize(true, ctx);
                             };
                             LongTreeNode.internal_unserialize = function (rightBranch, ctx) {
+                                if (rightBranch === undefined || ctx === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (ctx.index >= ctx.payload.length) {
                                     return null;
                                 }
@@ -6221,6 +7130,9 @@ var org;
                                 return builder.toString();
                             };
                             RBTree.prototype.unserialize = function (payload) {
+                                if (payload === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (payload == null || payload.length == 0) {
                                     return;
                                 }
@@ -6239,6 +7151,9 @@ var org;
                                 this.root = org.kevoree.modeling.api.time.rbtree.TreeNode.unserialize(ctx);
                             };
                             RBTree.prototype.previousOrEqual = function (key) {
+                                if (key === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var p = this.root;
                                 if (p == null) {
                                     return null;
@@ -6273,6 +7188,9 @@ var org;
                                 return null;
                             };
                             RBTree.prototype.nextOrEqual = function (key) {
+                                if (key === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var p = this.root;
                                 if (p == null) {
                                     return null;
@@ -6307,6 +7225,9 @@ var org;
                                 return null;
                             };
                             RBTree.prototype.previous = function (key) {
+                                if (key === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var p = this.root;
                                 if (p == null) {
                                     return null;
@@ -6337,6 +7258,9 @@ var org;
                                 return null;
                             };
                             RBTree.prototype.previousWhileNot = function (key, until) {
+                                if (key === undefined || until === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var elm = this.previousOrEqual(key);
                                 if (elm.value.equals(until)) {
                                     return null;
@@ -6354,6 +7278,9 @@ var org;
                                 }
                             };
                             RBTree.prototype.next = function (key) {
+                                if (key === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var p = this.root;
                                 if (p == null) {
                                     return null;
@@ -6384,6 +7311,9 @@ var org;
                                 return null;
                             };
                             RBTree.prototype.nextWhileNot = function (key, until) {
+                                if (key === undefined || until === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var elm = this.nextOrEqual(key);
                                 if (elm.value.equals(until)) {
                                     return null;
@@ -6431,6 +7361,9 @@ var org;
                                 return null;
                             };
                             RBTree.prototype.firstWhileNot = function (key, until) {
+                                if (key === undefined || until === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var elm = this.previousOrEqual(key);
                                 if (elm == null) {
                                     return null;
@@ -6453,6 +7386,9 @@ var org;
                                 return prev;
                             };
                             RBTree.prototype.lastWhileNot = function (key, until) {
+                                if (key === undefined || until === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var elm = this.previousOrEqual(key);
                                 if (elm == null) {
                                     return null;
@@ -6475,6 +7411,9 @@ var org;
                                 return next;
                             };
                             RBTree.prototype.lookupNode = function (key) {
+                                if (key === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var n = this.root;
                                 if (n == null) {
                                     return null;
@@ -6495,6 +7434,9 @@ var org;
                                 return n;
                             };
                             RBTree.prototype.lookup = function (key) {
+                                if (key === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var n = this.lookupNode(key);
                                 if (n == null) {
                                     return null;
@@ -6504,6 +7446,9 @@ var org;
                                 }
                             };
                             RBTree.prototype.rotateLeft = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var r = n.getRight();
                                 this.replaceNode(n, r);
                                 n.setRight(r.getLeft());
@@ -6514,6 +7459,9 @@ var org;
                                 n.setParent(r);
                             };
                             RBTree.prototype.rotateRight = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var l = n.getLeft();
                                 this.replaceNode(n, l);
                                 n.setLeft(l.getRight());
@@ -6524,6 +7472,9 @@ var org;
                                 n.setParent(l);
                             };
                             RBTree.prototype.replaceNode = function (oldn, newn) {
+                                if (oldn === undefined || newn === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (oldn.getParent() == null) {
                                     this.root = newn;
                                 }
@@ -6540,6 +7491,9 @@ var org;
                                 }
                             };
                             RBTree.prototype.insert = function (key, value) {
+                                if (key === undefined || value === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var insertedNode = new org.kevoree.modeling.api.time.rbtree.TreeNode(key, value, org.kevoree.modeling.api.time.rbtree.Color.RED, null, null);
                                 if (this.root == null) {
                                     this._size++;
@@ -6580,6 +7534,9 @@ var org;
                                 this.insertCase1(insertedNode);
                             };
                             RBTree.prototype.insertCase1 = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (n.getParent() == null) {
                                     n.color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
                                 }
@@ -6588,6 +7545,9 @@ var org;
                                 }
                             };
                             RBTree.prototype.insertCase2 = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
                                     return;
                                 }
@@ -6596,6 +7556,9 @@ var org;
                                 }
                             };
                             RBTree.prototype.insertCase3 = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (this.nodeColor(n.uncle()) == org.kevoree.modeling.api.time.rbtree.Color.RED) {
                                     n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
                                     n.uncle().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
@@ -6607,6 +7570,9 @@ var org;
                                 }
                             };
                             RBTree.prototype.insertCase4 = function (n_n) {
+                                if (n_n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var n = n_n;
                                 if (n == n.getParent().getRight() && n.getParent() == n.grandparent().getLeft()) {
                                     this.rotateLeft(n.getParent());
@@ -6621,6 +7587,9 @@ var org;
                                 this.insertCase5(n);
                             };
                             RBTree.prototype.insertCase5 = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
                                 n.grandparent().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
                                 if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getLeft()) {
@@ -6631,6 +7600,9 @@ var org;
                                 }
                             };
                             RBTree.prototype.delete = function (key) {
+                                if (key === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 var n = this.lookupNode(key);
                                 if (n == null) {
                                     return;
@@ -6661,6 +7633,9 @@ var org;
                                 }
                             };
                             RBTree.prototype.deleteCase1 = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (n.getParent() == null) {
                                     return;
                                 }
@@ -6669,6 +7644,9 @@ var org;
                                 }
                             };
                             RBTree.prototype.deleteCase2 = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.RED) {
                                     n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
                                     n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
@@ -6682,6 +7660,9 @@ var org;
                                 this.deleteCase3(n);
                             };
                             RBTree.prototype.deleteCase3 = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
                                     n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
                                     this.deleteCase1(n.getParent());
@@ -6691,6 +7672,9 @@ var org;
                                 }
                             };
                             RBTree.prototype.deleteCase4 = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.time.rbtree.Color.RED && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
                                     n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
                                     n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
@@ -6700,6 +7684,9 @@ var org;
                                 }
                             };
                             RBTree.prototype.deleteCase5 = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (n == n.getParent().getLeft() && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.RED && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
                                     n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
                                     n.sibling().getLeft().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
@@ -6715,6 +7702,9 @@ var org;
                                 this.deleteCase6(n);
                             };
                             RBTree.prototype.deleteCase6 = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 n.sibling().color = this.nodeColor(n.getParent());
                                 n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
                                 if (n == n.getParent().getLeft()) {
@@ -6727,6 +7717,9 @@ var org;
                                 }
                             };
                             RBTree.prototype.nodeColor = function (n) {
+                                if (n === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (n == null) {
                                     return org.kevoree.modeling.api.time.rbtree.Color.BLACK;
                                 }
@@ -6758,6 +7751,9 @@ var org;
                         var TreeNode = (function () {
                             function TreeNode(key, value, color, left, right) {
                                 this.parent = null;
+                                if (key === undefined || value === undefined || color === undefined || left === undefined || right === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this.key = key;
                                 this.value = value;
                                 this.color = color;
@@ -6807,21 +7803,33 @@ var org;
                                 return this.left;
                             };
                             TreeNode.prototype.setLeft = function (left) {
+                                if (left === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this.left = left;
                             };
                             TreeNode.prototype.getRight = function () {
                                 return this.right;
                             };
                             TreeNode.prototype.setRight = function (right) {
+                                if (right === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this.right = right;
                             };
                             TreeNode.prototype.getParent = function () {
                                 return this.parent;
                             };
                             TreeNode.prototype.setParent = function (parent) {
+                                if (parent === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 this.parent = parent;
                             };
                             TreeNode.prototype.serialize = function (builder) {
+                                if (builder === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 builder.append("|");
                                 if (this.value == org.kevoree.modeling.api.time.rbtree.State.DELETED) {
                                     if (this.color == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
@@ -6911,9 +7919,15 @@ var org;
                                 }
                             };
                             TreeNode.unserialize = function (ctx) {
+                                if (ctx === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 return org.kevoree.modeling.api.time.rbtree.TreeNode.internal_unserialize(true, ctx);
                             };
                             TreeNode.internal_unserialize = function (rightBranch, ctx) {
+                                if (rightBranch === undefined || ctx === undefined) {
+                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                                }
                                 if (ctx.index >= ctx.payload.length) {
                                     return null;
                                 }
@@ -6996,6 +8010,9 @@ var org;
                 (function (_trace) {
                     var ModelAddTrace = (function () {
                         function ModelAddTrace(p_srcUUID, p_reference, p_paramUUID) {
+                            if (p_srcUUID === undefined || p_reference === undefined || p_paramUUID === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._srcUUID = p_srcUUID;
                             this._reference = p_reference;
                             this._paramUUID = p_paramUUID;
@@ -7058,6 +8075,9 @@ var org;
                     _trace.ModelAddTrace = ModelAddTrace;
                     var ModelNewTrace = (function () {
                         function ModelNewTrace(p_srcUUID, p_metaClass) {
+                            if (p_srcUUID === undefined || p_metaClass === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._srcUUID = p_srcUUID;
                             this._metaClass = p_metaClass;
                         }
@@ -7075,6 +8095,9 @@ var org;
                     _trace.ModelNewTrace = ModelNewTrace;
                     var ModelRemoveTrace = (function () {
                         function ModelRemoveTrace(p_srcUUID, p_reference, p_paramUUID) {
+                            if (p_srcUUID === undefined || p_reference === undefined || p_paramUUID === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._srcUUID = p_srcUUID;
                             this._reference = p_reference;
                             this._paramUUID = p_paramUUID;
@@ -7133,6 +8156,9 @@ var org;
                     _trace.ModelRemoveTrace = ModelRemoveTrace;
                     var ModelSetTrace = (function () {
                         function ModelSetTrace(p_srcUUID, p_attribute, p_content) {
+                            if (p_srcUUID === undefined || p_attribute === undefined || p_content === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._srcUUID = p_srcUUID;
                             this._attribute = p_attribute;
                             this._content = p_content;
@@ -7193,10 +8219,16 @@ var org;
                     _trace.ModelSetTrace = ModelSetTrace;
                     var ModelTraceApplicator = (function () {
                         function ModelTraceApplicator(p_targetModel) {
+                            if (p_targetModel === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._targetModel = p_targetModel;
                         }
                         ModelTraceApplicator.prototype.applyTraceSequence = function (traceSeq, callback) {
                             var _this = this;
+                            if (traceSeq === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             try {
                                 var traces = traceSeq.traces();
                                 var dependencies = new java.util.HashSet();
@@ -7315,6 +8347,9 @@ var org;
                     var ModelTraceConstants = (function () {
                         function ModelTraceConstants(p_code) {
                             this._code = "";
+                            if (p_code === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._code = p_code;
                         }
                         ModelTraceConstants.prototype.toString = function () {
@@ -7365,10 +8400,16 @@ var org;
                             return this._traces.toArray(new Array());
                         };
                         TraceSequence.prototype.populate = function (addtraces) {
+                            if (addtraces === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._traces.addAll(addtraces);
                             return this;
                         };
                         TraceSequence.prototype.append = function (seq) {
+                            if (seq === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._traces.addAll(seq._traces);
                             return this;
                         };
@@ -7388,6 +8429,9 @@ var org;
                             return buffer.toString();
                         };
                         TraceSequence.prototype.applyOn = function (target, callback) {
+                            if (target === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var traceApplicator = new org.kevoree.modeling.api.trace.ModelTraceApplicator(target);
                             traceApplicator.applyTraceSequence(this, callback);
                             return true;
@@ -7408,9 +8452,15 @@ var org;
                     var DefaultOperationManager = (function () {
                         function DefaultOperationManager(store) {
                             this.operationCallbacks = new java.util.HashMap();
+                            if (store === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._store = store;
                         }
                         DefaultOperationManager.prototype.registerOperation = function (operation, callback) {
+                            if (operation === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var clazzOperations = this.operationCallbacks.get(operation.origin().index());
                             if (clazzOperations == null) {
                                 clazzOperations = new java.util.HashMap();
@@ -7419,6 +8469,9 @@ var org;
                             clazzOperations.put(operation.index(), callback);
                         };
                         DefaultOperationManager.prototype.call = function (source, operation, param, callback) {
+                            if (source === undefined || operation === undefined || param === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var clazzOperations = this.operationCallbacks.get(source.metaClass().index());
                             if (clazzOperations != null) {
                                 var operationCore = clazzOperations.get(operation.index());
@@ -7438,12 +8491,18 @@ var org;
                         function Helper() {
                         }
                         Helper.forall = function (inputs, each, end) {
+                            if (inputs === undefined || each === undefined || end === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (inputs == null) {
                                 return;
                             }
                             org.kevoree.modeling.api.util.Helper.process(inputs, 0, each, end);
                         };
                         Helper.process = function (arr, index, each, end) {
+                            if (arr === undefined || index === undefined || each === undefined || end === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (index >= arr.length) {
                                 if (end != null) {
                                     end(null);
@@ -7464,6 +8523,9 @@ var org;
                             }
                         };
                         Helper.parentPath = function (currentPath) {
+                            if (currentPath === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (currentPath == null || currentPath.length == 0) {
                                 return null;
                             }
@@ -7484,12 +8546,21 @@ var org;
                             }
                         };
                         Helper.attachedToRoot = function (path) {
+                            if (path === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             return path.length > 0 && path.charAt(0) == Helper.pathSep;
                         };
                         Helper.isRoot = function (path) {
+                            if (path === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             return path.length == 1 && path.charAt(0) == org.kevoree.modeling.api.util.Helper.pathSep;
                         };
                         Helper.path = function (parent, reference, target) {
+                            if (parent === undefined || reference === undefined || target === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (org.kevoree.modeling.api.util.Helper.isRoot(parent)) {
                                 return Helper.pathSep + reference.metaName() + Helper.pathIDOpen + target.domainKey() + Helper.pathIDClose;
                             }
@@ -7510,6 +8581,9 @@ var org;
                         }
                         TimeMachine.prototype.set = function (target) {
                             var _this = this;
+                            if (target === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (this._syncCallback != null) {
                                 if (this._previous == null) {
                                     if (this._deepMonitoring) {
@@ -7551,6 +8625,9 @@ var org;
                         };
                         TimeMachine.prototype.jumpTime = function (targetTime) {
                             var _this = this;
+                            if (targetTime === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (this._previous != null) {
                                 this._previous.jump(targetTime, function (resolved) {
                                     _this.set(resolved);
@@ -7559,6 +8636,9 @@ var org;
                         };
                         TimeMachine.prototype.jumpDimension = function (targetDimension) {
                             var _this = this;
+                            if (targetDimension === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (this._previous != null) {
                                 this._previous.dimension().universe().dimension(targetDimension).time(this._previous.now()).lookup(this._previous.uuid(), function (resolved) {
                                     _this.set(resolved);
@@ -7566,6 +8646,9 @@ var org;
                             }
                         };
                         TimeMachine.prototype.init = function (p_deepMonitoring, p_callback) {
+                            if (p_deepMonitoring === undefined || p_callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._syncCallback = p_callback;
                             this._deepMonitoring = p_deepMonitoring;
                             return this;
@@ -7596,9 +8679,15 @@ var org;
                             this.oppositesAlreadySet = new java.util.HashMap();
                         }
                         XMILoadingContext.prototype.isOppositeAlreadySet = function (localRef, oppositeRef) {
+                            if (localRef === undefined || oppositeRef === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             return (this.oppositesAlreadySet.get(oppositeRef + "_" + localRef) != null || (this.oppositesAlreadySet.get(localRef + "_" + oppositeRef) != null));
                         };
                         XMILoadingContext.prototype.storeOppositeRelation = function (localRef, oppositeRef) {
+                            if (localRef === undefined || oppositeRef === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.oppositesAlreadySet.put(localRef + "_" + oppositeRef, true);
                         };
                         return XMILoadingContext;
@@ -7606,9 +8695,15 @@ var org;
                     xmi.XMILoadingContext = XMILoadingContext;
                     var XMIModelLoader = (function () {
                         function XMIModelLoader(p_factory) {
+                            if (p_factory === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._factory = p_factory;
                         }
                         XMIModelLoader.unescapeXml = function (src) {
+                            if (src === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var builder = null;
                             var i = 0;
                             while (i < src.length) {
@@ -7664,6 +8759,9 @@ var org;
                             }
                         };
                         XMIModelLoader.load = function (p_view, str, callback) {
+                            if (p_view === undefined || str === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var parser = new org.kevoree.modeling.api.xmi.XmlParser(str);
                             if (!parser.hasNext()) {
                                 callback(null);
@@ -7676,6 +8774,9 @@ var org;
                             }
                         };
                         XMIModelLoader.deserialize = function (p_view, context) {
+                            if (p_view === undefined || context === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             try {
                                 var nsURI;
                                 var reader = context.xmiReader;
@@ -7716,6 +8817,9 @@ var org;
                             }
                         };
                         XMIModelLoader.callFactory = function (p_view, ctx, objectType) {
+                            if (p_view === undefined || ctx === undefined || objectType === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var modelElem = null;
                             if (objectType != null) {
                                 modelElem = p_view.createFQN(objectType);
@@ -7742,6 +8846,9 @@ var org;
                             return modelElem;
                         };
                         XMIModelLoader.loadObject = function (p_view, ctx, xmiAddress, objectType) {
+                            if (p_view === undefined || ctx === undefined || xmiAddress === undefined || objectType === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var elementTagName = ctx.xmiReader.getLocalName();
                             var modelElem = org.kevoree.modeling.api.xmi.XMIModelLoader.callFactory(p_view, ctx, objectType);
                             if (modelElem == null) {
@@ -7822,6 +8929,9 @@ var org;
                         function XMIModelSerializer() {
                         }
                         XMIModelSerializer.save = function (model, callback) {
+                            if (model === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var context = new org.kevoree.modeling.api.xmi.SerializationContext();
                             context.model = model;
                             context.finishCallback = callback;
@@ -7893,6 +9003,9 @@ var org;
                             });
                         };
                         XMIModelSerializer.escapeXml = function (ostream, chain) {
+                            if (ostream === undefined || chain === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (chain == null) {
                                 return;
                             }
@@ -7930,12 +9043,18 @@ var org;
                             }
                         };
                         XMIModelSerializer.formatMetaClassName = function (metaClassName) {
+                            if (metaClassName === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             var lastPoint = metaClassName.lastIndexOf('.');
                             var pack = metaClassName.substring(0, lastPoint);
                             var cls = metaClassName.substring(lastPoint + 1);
                             return pack + ":" + cls;
                         };
                         XMIModelSerializer.nonContainedReferencesCallbackChain = function (ref, next, p_context, p_currentElement) {
+                            if (ref === undefined || next === undefined || p_context === undefined || p_currentElement === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (!ref.contained()) {
                                 var value = new Array();
                                 p_currentElement.all(ref, function (objs) {
@@ -7951,6 +9070,9 @@ var org;
                             }
                         };
                         XMIModelSerializer.containedReferencesCallbackChain = function (ref, nextReference, context, currentElement) {
+                            if (ref === undefined || nextReference === undefined || context === undefined || currentElement === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             if (ref.contained()) {
                                 currentElement.all(ref, function (objs) {
                                     for (var i = 0; i < objs.length; i++) {
@@ -7992,6 +9114,9 @@ var org;
                     xmi.XMIModelSerializer = XMIModelSerializer;
                     var XMIResolveCommand = (function () {
                         function XMIResolveCommand(context, target, mutatorType, refName, ref) {
+                            if (context === undefined || target === undefined || mutatorType === undefined || refName === undefined || ref === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.context = context;
                             this.target = target;
                             this.mutatorType = mutatorType;
@@ -8016,12 +9141,21 @@ var org;
                     xmi.XMIResolveCommand = XMIResolveCommand;
                     var XmiFormat = (function () {
                         function XmiFormat(p_view) {
+                            if (p_view === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this._view = p_view;
                         }
                         XmiFormat.prototype.save = function (model, callback) {
+                            if (model === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             org.kevoree.modeling.api.xmi.XMIModelSerializer.save(model, callback);
                         };
                         XmiFormat.prototype.load = function (payload, callback) {
+                            if (payload === undefined || callback === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             org.kevoree.modeling.api.xmi.XMIModelLoader.load(this._view, payload, callback);
                         };
                         return XmiFormat;
@@ -8036,6 +9170,9 @@ var org;
                             this.attributesValues = new java.util.ArrayList();
                             this.attributeName = new java.lang.StringBuilder();
                             this.attributeValue = new java.lang.StringBuilder();
+                            if (str === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             this.payload = str;
                             this.currentChar = this.readChar();
                         }
@@ -8053,12 +9190,21 @@ var org;
                             return this.attributesNames.size();
                         };
                         XmlParser.prototype.getAttributeLocalName = function (i) {
+                            if (i === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             return this.attributesNames.get(i);
                         };
                         XmlParser.prototype.getAttributePrefix = function (i) {
+                            if (i === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             return this.attributesPrefixes.get(i);
                         };
                         XmlParser.prototype.getAttributeValue = function (i) {
+                            if (i === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
                             return this.attributesValues.get(i);
                         };
                         XmlParser.prototype.readChar = function () {

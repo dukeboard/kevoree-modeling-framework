@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.kevoree.modeling.microframework.databases.websocket</artifactId>
     <name>Kevoree :: Modeling :: DataBases :: WebSocket</name>
@@ -42,56 +43,14 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.9</version>
+                <groupId>org.kevoree.modeling</groupId>
+                <artifactId>org.kevoree.modeling.java2typescript.mavenplugin</artifactId>
+                <version>${java2typescript.plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>unpack</id>
-                        <phase>generate-sources</phase>
+                        <id>compile-ts</id>
                         <goals>
-                            <goal>unpack-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includes>**/*.js,**/*.ts</includes>
-                            <outputDirectory>${project.build.directory}/js</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
-                <executions>
-                    <execution>
-                        <phase>prepare-package</phase>
-                        <configuration>
-                            <tasks>
-                                <copy todir="${project.build.directory}/js" overwrite="true">
-                                    <fileset dir="${basedir}/src/main/ts" />
-                                </copy>
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>pl.allegro</groupId>
-                <artifactId>grunt-maven-plugin</artifactId>
-                <version>1.4.1</version>
-                <configuration>
-                    <gruntExecutable>${basedir}/node_modules/grunt-cli/bin/grunt</gruntExecutable>
-                    <gruntBuildDirectory>${project.build.directory}/grunt</gruntBuildDirectory>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>npm</goal>
-                            <goal>grunt</goal>
+                            <goal>tsc</goal>
                         </goals>
                     </execution>
                 </executions>

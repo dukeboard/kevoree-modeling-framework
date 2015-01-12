@@ -48,7 +48,13 @@ var StringUtils = (function () {
     return StringUtils;
 })();
 String.prototype.matches = function (regEx) {
-    return this.match(regEx).length > 0;
+    if (regEx == null) {
+        return false;
+    }
+    else {
+        var m = this.match(regEx);
+        return m != null && m.length > 0;
+    }
 };
 String.prototype.isEmpty = function () {
     return this.length == 0;
@@ -71,6 +77,9 @@ String.prototype.endsWith = function (other) {
         }
     }
     return true;
+};
+Boolean.prototype.equals = function (other) {
+    return this == other;
 };
 var java;
 (function (java) {
