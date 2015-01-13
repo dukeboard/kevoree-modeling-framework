@@ -43,58 +43,62 @@ public class KFilterAttributeAction implements KTraversalAction {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
                     Object[] raw = currentView.dimension().universe().storage().raw(loopObj, AccessMode.READ);
-                    if (_attribute == null) {
-                        if (_expectedValue == null) {
-                            nextStep.add(loopObj);
-                        } else {
-                            for (int j = 0; j < loopObj.metaClass().metaAttributes().length; j++) {
-                                MetaAttribute ref = loopObj.metaClass().metaAttributes()[j];
-                                Object resolved = raw[ref.index()];
-                                if (resolved == null) {
-                                    if (_expectedValue.toString().equals("*")) {
-                                        nextStep.add(loopObj);
-                                    } else {
-                                        //drop
-                                    }
-                                } else {
-                                    if (resolved == _expectedValue) {
-                                        nextStep.add(loopObj);
-                                    } else {
-                                        if (resolved.toString().matches(_expectedValue.toString().replace("*", ".*"))) {
+                    if (raw != null) {
+                        if (_attribute == null) {
+                            if (_expectedValue == null) {
+                                nextStep.add(loopObj);
+                            } else {
+                                for (int j = 0; j < loopObj.metaClass().metaAttributes().length; j++) {
+                                    MetaAttribute ref = loopObj.metaClass().metaAttributes()[j];
+                                    Object resolved = raw[ref.index()];
+                                    if (resolved == null) {
+                                        if (_expectedValue.toString().equals("*")) {
                                             nextStep.add(loopObj);
                                         } else {
                                             //drop
+                                        }
+                                    } else {
+                                        if (resolved == _expectedValue) {
+                                            nextStep.add(loopObj);
+                                        } else {
+                                            if (resolved.toString().matches(_expectedValue.toString().replace("*", ".*"))) {
+                                                nextStep.add(loopObj);
+                                            } else {
+                                                //drop
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            MetaAttribute translatedAtt = loopObj.internal_transpose_att(_attribute);
+                            if (translatedAtt != null) {
+                                Object resolved = raw[translatedAtt.index()];
+                                if (_expectedValue == null) {
+                                    nextStep.add(loopObj);
+                                } else {
+                                    if (resolved == null) {
+                                        if (_expectedValue.toString().equals("*")) {
+                                            nextStep.add(loopObj);
+                                        } else {
+                                            //drop
+                                        }
+                                    } else {
+                                        if (resolved == _expectedValue) {
+                                            nextStep.add(loopObj);
+                                        } else {
+                                            if (resolved.toString().matches(_expectedValue.toString().replace("*", ".*"))) {
+                                                nextStep.add(loopObj);
+                                            } else {
+                                                //drop
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
                     } else {
-                        MetaAttribute translatedAtt = loopObj.internal_transpose_att(_attribute);
-                        if (translatedAtt != null) {
-                            Object resolved = raw[translatedAtt.index()];
-                            if (_expectedValue == null) {
-                                nextStep.add(loopObj);
-                            } else {
-                                if (resolved == null) {
-                                    if (_expectedValue.toString().equals("*")) {
-                                        nextStep.add(loopObj);
-                                    } else {
-                                        //drop
-                                    }
-                                } else {
-                                    if (resolved == _expectedValue) {
-                                        nextStep.add(loopObj);
-                                    } else {
-                                        if (resolved.toString().matches(_expectedValue.toString().replace("*", ".*"))) {
-                                            nextStep.add(loopObj);
-                                        } else {
-                                            //drop
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        System.err.println("WARN: Empty KObject "+loopObj.uuid());
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
