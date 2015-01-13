@@ -23,8 +23,6 @@ public interface KView {
 
     public void lookupAll(Long[] keys, Callback<KObject[]> callback);
 
-    public void stream(String query, Callback<KObject> callback);
-
     public KDimension dimension();
 
     public long now();

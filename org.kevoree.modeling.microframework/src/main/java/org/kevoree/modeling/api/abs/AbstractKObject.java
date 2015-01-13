@@ -19,6 +19,7 @@ import org.kevoree.modeling.api.trace.ModelAddTrace;
 import org.kevoree.modeling.api.trace.ModelSetTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.trace.TraceSequence;
+import org.kevoree.modeling.api.util.Checker;
 import org.kevoree.modeling.api.util.Helper;
 
 import java.util.*;
@@ -460,6 +461,9 @@ public abstract class AbstractKObject implements KObject {
     }
 
     public void all(MetaReference p_metaReference, final Callback<KObject[]> p_callback) {
+        if (!Checker.isDefined(p_callback)) {
+            return;
+        }
         MetaReference transposed = internal_transpose_ref(p_metaReference);
         if (transposed == null) {
             throw new RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + metaClass().metaName());
@@ -764,11 +768,19 @@ public abstract class AbstractKObject implements KObject {
     }
 
     public MetaReference internal_transpose_ref(MetaReference p) {
-        return metaClass().metaReference(p.metaName());
+        if (!Checker.isDefined(p)) {
+            return null;
+        } else {
+            return metaClass().metaReference(p.metaName());
+        }
     }
 
     public MetaAttribute internal_transpose_att(MetaAttribute p) {
-        return metaClass().metaAttribute(p.metaName());
+        if (!Checker.isDefined(p)) {
+            return null;
+        } else {
+            return metaClass().metaAttribute(p.metaName());
+        }
     }
 
     public MetaOperation internal_transpose_op(MetaOperation p) {

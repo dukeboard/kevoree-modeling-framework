@@ -6,6 +6,7 @@ import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ModelFormat;
 import org.kevoree.modeling.api.ThrowableCallback;
+import org.kevoree.modeling.api.util.Checker;
 
 /**
  * Created by duke on 11/5/14.
@@ -20,12 +21,20 @@ public class JsonFormat implements ModelFormat {
 
     @Override
     public void save(KObject model, ThrowableCallback<String> callback) {
-        JsonModelSerializer.serialize(model, callback);
+        if (Checker.isDefined(model) && Checker.isDefined(callback)) {
+            JsonModelSerializer.serialize(model, callback);
+        } else {
+            throw new RuntimeException("one parameter is null");
+        }
     }
 
     @Override
     public void load(String payload, Callback<Throwable> callback) {
-        JsonModelLoader.load(_view, payload, callback);
+        if (Checker.isDefined(payload) && Checker.isDefined(callback)) {
+            JsonModelLoader.load(_view, payload, callback);
+        } else {
+            throw new RuntimeException("one parameter is null");
+        }
     }
-    
+
 }

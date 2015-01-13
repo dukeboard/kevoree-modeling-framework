@@ -15,6 +15,7 @@ import org.kevoree.modeling.api.select.KSelector;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.DefaultTimeTree;
 import org.kevoree.modeling.api.trace.TraceSequence;
+import org.kevoree.modeling.api.util.Checker;
 import org.kevoree.modeling.api.xmi.XmiFormat;
 
 import java.util.List;
@@ -99,11 +100,6 @@ public abstract class AbstractKView implements KView {
         dimension().universe().storage().lookupAll(this, keys, callback);
     }
 
-    @Override
-    public void stream(String query, Callback<KObject> callback) {
-
-    }
-
     public KObject createProxy(MetaClass clazz, TimeTree timeTree, long key) {
         //TODO check the radixKey
         return internalCreate(clazz, timeTree, key);
@@ -111,6 +107,9 @@ public abstract class AbstractKView implements KView {
 
     @Override
     public KObject create(MetaClass clazz) {
+        if (!Checker.isDefined(clazz)) {
+            return null;
+        }
         KObject newObj = internalCreate(clazz, new DefaultTimeTree().insert(now()), dimension().universe().storage().nextObjectKey());
         if (newObj != null) {
             dimension().universe().storage().initKObject(newObj, this);
@@ -141,6 +140,9 @@ public abstract class AbstractKView implements KView {
 
     @Override
     public boolean equals(Object obj) {
+        if (!Checker.isDefined(obj)) {
+            return false;
+        }
         if (!(obj instanceof AbstractKView)) {
             return false;
         } else {

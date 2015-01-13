@@ -866,6 +866,9 @@ module org {
                         }
 
                         public all(p_metaReference: org.kevoree.modeling.api.meta.MetaReference, p_callback: (p : org.kevoree.modeling.api.KObject[]) => void): void {
+                            if (p_metaReference == null || p_callback == null) {
+                                return;
+                            }
                             var transposed: org.kevoree.modeling.api.meta.MetaReference = this.internal_transpose_ref(p_metaReference);
                             if (transposed == null) {
                                 throw new java.lang.RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + this.metaClass().metaName());
@@ -8073,6 +8076,14 @@ module org {
                     export interface CallBackChain<A> {
 
                         on(a: A, next: (p : java.lang.Throwable) => void): void;
+
+                    }
+
+                    export class Checker {
+
+                        public static isDefined(param: any): boolean {
+                            return param != undefined && param != null;
+                        }
 
                     }
 

@@ -595,6 +595,9 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.all = function (p_metaReference, p_callback) {
+                            if (p_metaReference == null || p_callback == null) {
+                                return;
+                            }
                             var transposed = this.internal_transpose_ref(p_metaReference);
                             if (transposed == null) {
                                 throw new java.lang.RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + this.metaClass().metaName());
@@ -7394,6 +7397,15 @@ var org;
                 })(trace = api.trace || (api.trace = {}));
                 var util;
                 (function (util) {
+                    var Checker = (function () {
+                        function Checker() {
+                        }
+                        Checker.isDefined = function (param) {
+                            return param != undefined && param != null;
+                        };
+                        return Checker;
+                    })();
+                    util.Checker = Checker;
                     var DefaultOperationManager = (function () {
                         function DefaultOperationManager(store) {
                             this.operationCallbacks = new java.util.HashMap();

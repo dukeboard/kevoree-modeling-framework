@@ -87,8 +87,8 @@ module org {
                         private callbackId = 0;
                         private clientConnection:WebSocket;
                         private connectionUri:string;
-                        private getCallbacks:java.util.HashMap<string, (p1:string[], p2:java.lang.Throwable) => void> = new java.util.HashMap<string, (p1:string[], p2:java.lang.Throwable) => void>();
-                        private putCallbacks:java.util.HashMap<string, (p1:java.lang.Throwable) => void> = new java.util.HashMap<string, (p1:java.lang.Throwable) => void>();
+                        private getCallbacks:java.util.HashMap<number, (p1:string[], p2:java.lang.Throwable) => void> = new java.util.HashMap<number, (p1:string[], p2:java.lang.Throwable) => void>();
+                        private putCallbacks:java.util.HashMap<number, (p1:java.lang.Throwable) => void> = new java.util.HashMap<number, (p1:java.lang.Throwable) => void>();
                         private removeCallbacks:java.util.HashMap<string, (p1:java.lang.Throwable) => void> = new java.util.HashMap<string, (p1:java.lang.Throwable) => void>();
                         private commitCallbacks:java.util.HashMap<string, (p1:java.lang.Throwable) => void> = new java.util.HashMap<string, (p1:java.lang.Throwable) => void>();
 
@@ -151,7 +151,7 @@ module org {
                         }
 
                         private getCallbackId() : number {
-                            if(this.callbackId == 300) {
+                            if(this.callbackId == 1000) {
                                 this.callbackId = 0;
                             } else {
                                 this.callbackId = this.callbackId + 1;
@@ -164,7 +164,7 @@ module org {
                             for (var i = 0; i < keys.length; i++) {
                                 value.push(keys[i]);
                             }
-                            var jsonMessage = {"action": "get", "value": value, "id" : this.getCallbackId().toString()};
+                            var jsonMessage = {"action": "get", "value": value, "id" : this.getCallbackId()};
                             this.getCallbacks.put(jsonMessage.id, callback);
                             var stringified = JSON.stringify(jsonMessage);
                             this.clientConnection.send(stringified);
@@ -178,7 +178,7 @@ module org {
                                 keyValue[1] = payloads[i][1];
                                 payloadList.push(keyValue);
                             }
-                            var jsonMessage = {"action": "put", "value": payloadList, "id" : this.getCallbackId().toString()};
+                            var jsonMessage = {"action": "put", "value": payloadList, "id" : this.getCallbackId()};
                             this.putCallbacks.put(jsonMessage.id, error);
                             var stringified = JSON.stringify(jsonMessage);
                             this.clientConnection.send(stringified);

@@ -1274,6 +1274,9 @@ declare module org {
                     interface CallBackChain<A> {
                         on(a: A, next: (p: java.lang.Throwable) => void): void;
                     }
+                    class Checker {
+                        static isDefined(param: any): boolean;
+                    }
                     class DefaultOperationManager implements KOperationManager {
                         private operationCallbacks;
                         private _store;
