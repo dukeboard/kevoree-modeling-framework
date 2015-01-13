@@ -425,7 +425,7 @@ public abstract class AbstractKObject implements KObject {
                 }
 
                 //Inbounds
-                Map<Long, MetaReference> inboundRefs = getOrCreateInbounds(param, Index.INBOUNDS_INDEX);
+                Map<Long, MetaReference> inboundRefs = getOrCreateInbounds(param);
                 inboundRefs.remove(uuid());
             }
         }

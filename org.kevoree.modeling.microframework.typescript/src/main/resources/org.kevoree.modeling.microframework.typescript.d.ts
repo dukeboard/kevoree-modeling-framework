@@ -126,7 +126,6 @@ declare module org {
                     select(query: string, callback: (p: KObject[]) => void): void;
                     lookup(key: number, callback: (p: KObject) => void): void;
                     lookupAll(keys: number[], callback: (p: KObject[]) => void): void;
-                    stream(query: string, callback: (p: KObject) => void): void;
                     dimension(): KDimension<any, any, any>;
                     now(): number;
                     listen(listener: (p: KEvent) => void): void;
@@ -220,7 +219,7 @@ declare module org {
                         domainKey(): string;
                         get(p_attribute: meta.MetaAttribute): any;
                         set(p_attribute: meta.MetaAttribute, payload: any): void;
-                        private getOrCreateInbounds(obj, payloadIndex);
+                        private getOrCreateInbounds(obj);
                         private removeFromContainer(param);
                         mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject): void;
                         internal_mutate(actionType: KActionType, metaReferenceP: meta.MetaReference, param: KObject, setOpposite: boolean): void;
@@ -284,7 +283,6 @@ declare module org {
                         select(query: string, callback: (p: KObject[]) => void): void;
                         lookup(kid: number, callback: (p: KObject) => void): void;
                         lookupAll(keys: number[], callback: (p: KObject[]) => void): void;
-                        stream(query: string, callback: (p: KObject) => void): void;
                         createProxy(clazz: meta.MetaClass, timeTree: time.TimeTree, key: number): KObject;
                         create(clazz: meta.MetaClass): KObject;
                         listen(listener: (p: KEvent) => void): void;
