@@ -454,7 +454,7 @@ public abstract class AbstractKObject implements KObject {
                     view().dimension().universe().storage().eventBroker().notify(event);
                 }
                 //Inbounds
-                if (!inDelete) {
+                if(!inDelete){
                     Map<Long, MetaReference> inboundRefs = getOrCreateInbounds(param);
                     if (inboundRefs != null) {
                         inboundRefs.remove(uuid());

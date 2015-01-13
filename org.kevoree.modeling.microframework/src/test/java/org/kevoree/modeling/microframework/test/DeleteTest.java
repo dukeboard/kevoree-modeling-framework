@@ -98,7 +98,7 @@ public class DeleteTest {
 
                         n42.delete(null);
                        // System.out.println("n2=" + n2);
-                     //   System.out.println("n42="+n42.getName());
+                      // System.out.println("n42="+n42.getName());
 
                     }
                 });

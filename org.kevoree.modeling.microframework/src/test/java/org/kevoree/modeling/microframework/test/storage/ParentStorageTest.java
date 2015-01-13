@@ -50,12 +50,13 @@ public class ParentStorageTest {
         //We clear the cache
         dimension0.discard(null);
 
+        /*
         try {
             root.eachChildren(null);
             Assert.assertNull(root);
         } catch (Exception e) {
             Assert.assertNotNull(e);
-        }
+        }*/
 
         time0.lookup(n1.uuid(), new Callback<KObject>() {
             @Override
@@ -109,13 +110,15 @@ public class ParentStorageTest {
         //We clear the cache
         dimension0.saveUnload(null);
 
+        /*
         try {
             root.eachChildren(null);
             Assert.assertNull(root);
         } catch (Exception e) {
             Assert.assertNotNull(e);
         }
-
+*/
+        
         time0.lookup(n1.uuid(), new Callback<KObject>() {
             @Override
             public void on(KObject r_n1) {
