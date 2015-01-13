@@ -43,7 +43,12 @@ public class JsonModelSerializer {
             @Override
             public VisitResult visit(KObject elem) {
                 builder.append(",");
-                printJSON(elem, builder);
+                try {
+                    printJSON(elem, builder);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    builder.append("{}");
+                }
                 return VisitResult.CONTINUE;
             }
         }, new Callback<Throwable>() {
