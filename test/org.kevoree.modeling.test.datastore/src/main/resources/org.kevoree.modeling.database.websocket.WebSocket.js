@@ -76,10 +76,11 @@ var org;
                     websocket.WebSocketBrokerClient = WebSocketBrokerClient;
                     var WebSocketDataBaseClient = (function () {
                         function WebSocketDataBaseClient(connectionUri) {
-                            this.getCallbacks = new java.util.ArrayList();
-                            this.putCallbacks = new java.util.ArrayList();
-                            this.removeCallbacks = new java.util.ArrayList();
-                            this.commitCallbacks = new java.util.ArrayList();
+                            this.callbackId = 0;
+                            this.getCallbacks = new java.util.HashMap();
+                            this.putCallbacks = new java.util.HashMap();
+                            this.removeCallbacks = new java.util.HashMap();
+                            this.commitCallbacks = new java.util.HashMap();
                             this.connectionUri = connectionUri;
                         }
                         WebSocketDataBaseClient.prototype.connect = function (callback) {
@@ -88,27 +89,37 @@ var org;
                             this.clientConnection.onmessage = function (message) {
                                 var json = JSON.parse(message.data);
                                 if (json.action == "get") {
-                                    var getCallback = _this.getCallbacks.poll(); //nop
-                                    if (json.status == "success") {
-                                        getCallback(json.value, null);
-                                    }
-                                    else if (json.status == "error") {
-                                        getCallback(null, new java.lang.Exception(json.value));
+                                    var getCallback = _this.getCallbacks.get(json.id);
+                                    if (getCallback !== undefined && getCallback != null) {
+                                        if (json.status == "success") {
+                                            getCallback(json.value, null);
+                                        }
+                                        else if (json.status == "error") {
+                                            getCallback(null, new java.lang.Exception(json.value));
+                                        }
+                                        else {
+                                            console.error("WebSocketDatabase: Status '" + json.action + "' of not supported yet.");
+                                        }
                                     }
                                     else {
-                                        console.error("WebSocketDatabase: Status '" + json.action + "' of not supported yet.");
+                                        console.error("No callback registered for message:", json);
                                     }
                                 }
                                 else if (json.action == "put") {
-                                    var putCallback = _this.putCallbacks.poll();
-                                    if (json.status == "success") {
-                                        putCallback(null);
-                                    }
-                                    else if (json.status == "error") {
-                                        putCallback(new java.lang.Exception(json.value));
+                                    var putCallback = _this.putCallbacks.get(json.id);
+                                    if (putCallback !== undefined && putCallback != null) {
+                                        if (json.status == "success") {
+                                            putCallback(null);
+                                        }
+                                        else if (json.status == "error") {
+                                            putCallback(new java.lang.Exception(json.value));
+                                        }
+                                        else {
+                                            console.error("WebSocketDatabase: Status '" + json.action + "' of not supported yet.");
+                                        }
                                     }
                                     else {
-                                        console.error("WebSocketDatabase: Status '" + json.action + "' of not supported yet.");
+                                        console.error("No callback registered for message:", json);
                                     }
                                 }
                                 else {
@@ -133,13 +144,22 @@ var org;
                                 callback(null);
                             }
                         };
+                        WebSocketDataBaseClient.prototype.getCallbackId = function () {
+                            if (this.callbackId == 1000) {
+                                this.callbackId = 0;
+                            }
+                            else {
+                                this.callbackId = this.callbackId + 1;
+                            }
+                            return this.callbackId;
+                        };
                         WebSocketDataBaseClient.prototype.get = function (keys, callback) {
                             var value = [];
                             for (var i = 0; i < keys.length; i++) {
                                 value.push(keys[i]);
                             }
-                            var jsonMessage = { "action": "get", "value": value };
-                            this.getCallbacks.add(callback);
+                            var jsonMessage = { "action": "get", "value": value, "id": this.getCallbackId() };
+                            this.getCallbacks.put(jsonMessage.id, callback);
                             var stringified = JSON.stringify(jsonMessage);
                             this.clientConnection.send(stringified);
                         };
@@ -151,8 +171,8 @@ var org;
                                 keyValue[1] = payloads[i][1];
                                 payloadList.push(keyValue);
                             }
-                            var jsonMessage = { "action": "put", "value": payloadList };
-                            this.putCallbacks.add(error);
+                            var jsonMessage = { "action": "put", "value": payloadList, "id": this.getCallbackId() };
+                            this.putCallbacks.put(jsonMessage.id, error);
                             var stringified = JSON.stringify(jsonMessage);
                             this.clientConnection.send(stringified);
                         };

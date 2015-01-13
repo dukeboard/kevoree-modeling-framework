@@ -22,6 +22,7 @@ declare module org {
                         flush(dimensionKey: any): void;
                     }
                     class WebSocketDataBaseClient implements api.data.KDataBase {
+                        private callbackId;
                         private clientConnection;
                         private connectionUri;
                         private getCallbacks;
@@ -31,6 +32,7 @@ declare module org {
                         constructor(connectionUri: any);
                         connect(callback: (p: java.lang.Throwable) => void): void;
                         close(callback: (p: java.lang.Throwable) => void): void;
+                        private getCallbackId();
                         get(keys: string[], callback: (p1: string[], p2: java.lang.Throwable) => void): void;
                         put(payloads: string[][], error: (p1: java.lang.Throwable) => void): void;
                         remove(keys: string[], error: (p1: java.lang.Throwable) => void): void;
