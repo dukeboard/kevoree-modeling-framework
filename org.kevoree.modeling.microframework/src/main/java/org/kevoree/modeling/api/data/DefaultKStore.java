@@ -250,15 +250,17 @@ public class DefaultKStore implements KStore {
         boolean needCopy = accessMode.equals(AccessMode.WRITE) && (resolvedTime != origin.now());
         DimensionCache dimensionCache = caches.get(origin.dimension().key());
         if (dimensionCache == null) {
-            throw new RuntimeException(OUT_OF_CACHE_MESSAGE);
+            System.err.println(OUT_OF_CACHE_MESSAGE);
         }
         TimeCache timeCache = dimensionCache.timesCaches.get(resolvedTime);
         if (timeCache == null) {
-            throw new RuntimeException(OUT_OF_CACHE_MESSAGE);
+            System.err.println(OUT_OF_CACHE_MESSAGE);
+            return null;
         }
         CacheEntry entry = timeCache.payload_cache.get(origin.uuid());
         if (entry == null) {
-            throw new RuntimeException(OUT_OF_CACHE_MESSAGE);
+            System.err.println(OUT_OF_CACHE_MESSAGE);
+            return null;
         }
         Object[] payload = entry.raw;
         if (accessMode.equals(AccessMode.DELETE)) {
@@ -267,8 +269,8 @@ public class DefaultKStore implements KStore {
             return payload;
         }
         if (payload == null) {
-            throw new RuntimeException(DELETED_MESSAGE);
-            //return null;
+            System.err.println(DELETED_MESSAGE);
+            return null;
         } else {
             if (!needCopy) {
                 if (accessMode.equals(AccessMode.WRITE)) {
