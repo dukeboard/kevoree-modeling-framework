@@ -161,15 +161,25 @@ public abstract class AbstractKObject implements KObject {
         } else {
             Object payload = rawPayload[Index.INBOUNDS_INDEX];
             if (payload != null) {
+                Map<Long, MetaReference> refs;
                 try {
-                    Map<Long, MetaReference> refs = (Map<Long, MetaReference>) payload;
+                    refs = (Map<Long, MetaReference>) payload;
+                } catch (Exception e) {
+                    refs = null;
+                    e.printStackTrace();
+                    if (callback != null) {
+                        callback.on(e);
+                    }
+                }
+                if (refs != null) {
                     Long[] refArr = refs.keySet().toArray(new Long[refs.size()]);
+                    final Map<Long, MetaReference> finalRefs = refs;
                     view().lookupAll(refArr, new Callback<KObject[]>() {
                         @Override
                         public void on(KObject[] resolved) {
                             for (int i = 0; i < resolved.length; i++) {
                                 if (resolved[i] != null) {
-                                    ((AbstractKObject) resolved[i]).internal_mutate(KActionType.REMOVE, refs.get(refArr[i]), toRemove, false);
+                                    ((AbstractKObject) resolved[i]).internal_mutate(KActionType.REMOVE, finalRefs.get(refArr[i]), toRemove, false);
                                 }
                             }
                             if (callback != null) {
@@ -177,11 +187,6 @@ public abstract class AbstractKObject implements KObject {
                             }
                         }
                     });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    if (callback != null) {
-                        callback.on(e);
-                    }
                 }
             } else {
                 if (callback != null) {
@@ -483,17 +488,20 @@ public abstract class AbstractKObject implements KObject {
                 p_callback.on(null);
             } else {
                 Object o = raw[transposed.index()];
+                Long casted = null;
                 try {
-                    Long casted = (Long) o;
+                    casted = (Long) o;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    p_callback.on(null);
+                }
+                if (casted != null) {
                     view().lookup(casted, new Callback<KObject>() {
                         @Override
                         public void on(KObject resolved) {
                             p_callback.on(resolved);
                         }
                     });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    p_callback.on(null);
                 }
             }
         }
