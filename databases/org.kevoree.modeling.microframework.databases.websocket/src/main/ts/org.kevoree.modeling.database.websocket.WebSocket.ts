@@ -164,12 +164,10 @@ module org {
                             for (var i = 0; i < keys.length; i++) {
                                 value.push(keys[i]);
                             }
-                            var jsonMessage = {"action": "get", "value": value, "id" : this.getCallbackId()};
+                            var jsonMessage = {"action": "get", "value": value, "id" : this.getCallbackId().toString()};
                             this.getCallbacks.put(jsonMessage.id, callback);
                             var stringified = JSON.stringify(jsonMessage);
                             this.clientConnection.send(stringified);
-
-
                         }
 
                         public put(payloads:string[][], error:(p1:java.lang.Throwable) => void):void {
@@ -180,7 +178,7 @@ module org {
                                 keyValue[1] = payloads[i][1];
                                 payloadList.push(keyValue);
                             }
-                            var jsonMessage = {"action": "put", "value": payloadList, "id" : this.getCallbackId()};
+                            var jsonMessage = {"action": "put", "value": payloadList, "id" : this.getCallbackId().toString()};
                             this.putCallbacks.put(jsonMessage.id, error);
                             var stringified = JSON.stringify(jsonMessage);
                             this.clientConnection.send(stringified);

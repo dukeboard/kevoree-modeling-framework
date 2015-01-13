@@ -13,10 +13,6 @@ module org {
                     private reference: org.kevoree.modeling.api.meta.MetaReference;
                     private object: org.kevoree.modeling.api.KObject;
                     constructor(reference: org.kevoree.modeling.api.meta.MetaReference, object: org.kevoree.modeling.api.KObject) {
-                        if(reference === undefined || object === undefined) {
-                            throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                        }
-
                         this.reference = reference;
                         this.object = object;
                     }
@@ -40,10 +36,6 @@ module org {
                     public static NEW: KActionType = new KActionType("NEW");
                     private _code: string = "";
                     constructor(code: string) {
-                        if(code === undefined) {
-                            throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                        }
-
                         this._code = code;
                     }
 
@@ -56,10 +48,6 @@ module org {
                     }
 
                     public static parse(s: string): org.kevoree.modeling.api.KActionType {
-                        if(s === undefined) {
-                            throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                        }
-
                         for (var i: number = 0; i < org.kevoree.modeling.api.KActionType.values().length; i++) {
                             var current: org.kevoree.modeling.api.KActionType = org.kevoree.modeling.api.KActionType.values()[i];
                             if (current.code().equals(s)) {
@@ -374,10 +362,6 @@ module org {
                         private _name: string;
                         private _isEnum: boolean = false;
                         constructor(p_name: string, p_isEnum: boolean) {
-                            if(p_name === undefined || p_isEnum === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._name = p_name;
                             this._isEnum = p_isEnum;
                         }
@@ -391,10 +375,6 @@ module org {
                         }
 
                         public save(src: any): string {
-                            if(src === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (src != null) {
                                 return src.toString();
                             }
@@ -402,10 +382,6 @@ module org {
                         }
 
                         public load(payload: string): any {
-                            if(payload === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (this == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING) {
                                 return payload;
                             }
@@ -437,10 +413,6 @@ module org {
                         private _universe: org.kevoree.modeling.api.KUniverse<any>;
                         private _key: number;
                         constructor(p_universe: org.kevoree.modeling.api.KUniverse<any>, p_key: number) {
-                            if(p_universe === undefined || p_key === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._universe = p_universe;
                             this._key = p_key;
                         }
@@ -454,79 +426,39 @@ module org {
                         }
 
                         public save(callback: (p : java.lang.Throwable) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.universe().storage().save(this, callback);
                         }
 
                         public saveUnload(callback: (p : java.lang.Throwable) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.universe().storage().saveUnload(this, callback);
                         }
 
                         public delete(callback: (p : java.lang.Throwable) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.universe().storage().delete(this, callback);
                         }
 
                         public discard(callback: (p : java.lang.Throwable) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.universe().storage().discard(this, callback);
                         }
 
                         public parent(callback: (p : B) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                         }
 
                         public children(callback: (p : B[]) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                         }
 
                         public fork(callback: (p : B) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                         }
 
                         public time(timePoint: number): A {
-                            if(timePoint === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             return this.internal_create(timePoint);
                         }
 
                         public listen(listener: (p : org.kevoree.modeling.api.KEvent) => void): void {
-                            if(listener === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.universe().storage().eventBroker().registerListener(this, listener, null);
                         }
 
                         public listenAllTimes(target: org.kevoree.modeling.api.KObject, listener: (p : org.kevoree.modeling.api.KEvent) => void): void {
-                            if(target === undefined || listener === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.universe().storage().eventBroker().registerListener(this, listener, target);
                         }
 
@@ -535,10 +467,6 @@ module org {
                         }
 
                         public equals(obj: any): boolean {
-                            if(obj === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (!(obj instanceof org.kevoree.modeling.api.abs.AbstractKDimension)) {
                                 return false;
                             } else {
@@ -556,10 +484,6 @@ module org {
                         private _timeTree: org.kevoree.modeling.api.time.TimeTree;
                         private _metaClass: org.kevoree.modeling.api.meta.MetaClass;
                         constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_timeTree: org.kevoree.modeling.api.time.TimeTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
-                            if(p_view === undefined || p_uuid === undefined || p_timeTree === undefined || p_metaClass === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._view = p_view;
                             this._uuid = p_uuid;
                             this._timeTree = p_timeTree;
@@ -588,10 +512,6 @@ module org {
                         }
 
                         public setRoot(isRoot: boolean): void {
-                            if(isRoot === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._view.dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ)[org.kevoree.modeling.api.data.Index.IS_ROOT_INDEX] = isRoot;
                         }
 
@@ -608,10 +528,6 @@ module org {
                         }
 
                         public path(callback: (p : string) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (this.isRoot()) {
                                 callback("/");
                             } else {
@@ -632,10 +548,6 @@ module org {
                         }
 
                         public parent(callback: (p : org.kevoree.modeling.api.KObject) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var parentKID: number = this.parentUuid();
                             if (parentKID == null) {
                                 callback(null);
@@ -649,10 +561,6 @@ module org {
                         }
 
                         public delete(callback: (p : java.lang.Throwable) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var toRemove: org.kevoree.modeling.api.KObject = this;
                             var rawPayload: any[] = this._view.dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.DELETE);
                             var payload: any = rawPayload[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX];
@@ -681,10 +589,6 @@ module org {
                         }
 
                         public select(query: string, callback: (p : org.kevoree.modeling.api.KObject[]) => void): void {
-                            if(query === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (callback == null) {
                                 return;
                             }
@@ -721,10 +625,6 @@ module org {
                         }
 
                         public listen(listener: (p : org.kevoree.modeling.api.KEvent) => void): void {
-                            if(listener === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.dimension().universe().storage().eventBroker().registerListener(this, listener, null);
                         }
 
@@ -754,10 +654,6 @@ module org {
                         }
 
                         public get(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute): any {
-                            if(p_attribute === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var transposed: org.kevoree.modeling.api.meta.MetaAttribute = this.internal_transpose_att(p_attribute);
                             if (transposed == null) {
                                 throw new java.lang.RuntimeException("Bad KMF usage, the attribute named " + p_attribute.metaName() + " is not part of " + this.metaClass().metaName());
@@ -767,10 +663,6 @@ module org {
                         }
 
                         public set(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, payload: any): void {
-                            if(p_attribute === undefined || payload === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var transposed: org.kevoree.modeling.api.meta.MetaAttribute = this.internal_transpose_att(p_attribute);
                             if (transposed == null) {
                                 throw new java.lang.RuntimeException("Bad KMF usage, the attribute named " + p_attribute.metaName() + " is not part of " + this.metaClass().metaName());
@@ -781,10 +673,6 @@ module org {
                         }
 
                         private getOrCreateInbounds(obj: org.kevoree.modeling.api.KObject, payloadIndex: number): java.util.HashMap<number, org.kevoree.modeling.api.meta.MetaReference> {
-                            if(obj === undefined || payloadIndex === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var rawWrite: any[] = this.view().dimension().universe().storage().raw(obj, org.kevoree.modeling.api.data.AccessMode.WRITE);
                             if (rawWrite[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] != null && rawWrite[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] instanceof java.util.HashMap) {
                                 return <java.util.HashMap<number, org.kevoree.modeling.api.meta.MetaReference>>rawWrite[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX];
@@ -806,10 +694,6 @@ module org {
                         }
 
                         private removeFromContainer(param: org.kevoree.modeling.api.KObject): void {
-                            if(param === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (param != null && param.parentUuid() != null && param.parentUuid() != this._uuid) {
                                 this.view().lookup(param.parentUuid(),  (parent : org.kevoree.modeling.api.KObject) => {
                                     (<org.kevoree.modeling.api.abs.AbstractKObject>parent).internal_mutate(org.kevoree.modeling.api.KActionType.REMOVE, param.referenceInParent(), param, true);
@@ -818,18 +702,10 @@ module org {
                         }
 
                         public mutate(actionType: org.kevoree.modeling.api.KActionType, metaReference: org.kevoree.modeling.api.meta.MetaReference, param: org.kevoree.modeling.api.KObject): void {
-                            if(actionType === undefined || metaReference === undefined || param === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.internal_mutate(actionType, metaReference, param, true);
                         }
 
                         public internal_mutate(actionType: org.kevoree.modeling.api.KActionType, metaReferenceP: org.kevoree.modeling.api.meta.MetaReference, param: org.kevoree.modeling.api.KObject, setOpposite: boolean): void {
-                            if(actionType === undefined || metaReferenceP === undefined || param === undefined || setOpposite === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var metaReference: org.kevoree.modeling.api.meta.MetaReference = this.internal_transpose_ref(metaReferenceP);
                             if (metaReference == null) {
                                 throw new java.lang.RuntimeException("Bad KMF usage, the attribute named " + metaReferenceP.metaName() + " is not part of " + this.metaClass().metaName());
@@ -949,10 +825,6 @@ module org {
                         }
 
                         public size(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): number {
-                            if(p_metaReference === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var transposed: org.kevoree.modeling.api.meta.MetaReference = this.internal_transpose_ref(p_metaReference);
                             if (transposed == null) {
                                 throw new java.lang.RuntimeException("Bad KMF usage, the attribute named " + p_metaReference.metaName() + " is not part of " + this.metaClass().metaName());
@@ -969,10 +841,6 @@ module org {
                         }
 
                         public single(p_metaReference: org.kevoree.modeling.api.meta.MetaReference, p_callback: (p : org.kevoree.modeling.api.KObject) => void): void {
-                            if(p_metaReference === undefined || p_callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var transposed: org.kevoree.modeling.api.meta.MetaReference = this.internal_transpose_ref(p_metaReference);
                             if (transposed == null) {
                                 throw new java.lang.RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + this.metaClass().metaName());
@@ -998,10 +866,6 @@ module org {
                         }
 
                         public all(p_metaReference: org.kevoree.modeling.api.meta.MetaReference, p_callback: (p : org.kevoree.modeling.api.KObject[]) => void): void {
-                            if(p_metaReference === undefined || p_callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var transposed: org.kevoree.modeling.api.meta.MetaReference = this.internal_transpose_ref(p_metaReference);
                             if (transposed == null) {
                                 throw new java.lang.RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + this.metaClass().metaName());
@@ -1032,10 +896,6 @@ module org {
                         }
 
                         public visitAttributes(visitor: (p : org.kevoree.modeling.api.meta.MetaAttribute, p1 : any) => void): void {
-                            if(visitor === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var metaAttributes: org.kevoree.modeling.api.meta.MetaAttribute[] = this.metaClass().metaAttributes();
                             for (var i: number = 0; i < metaAttributes.length; i++) {
                                 visitor(metaAttributes[i], this.get(metaAttributes[i]));
@@ -1043,18 +903,10 @@ module org {
                         }
 
                         public visit(visitor: (p : org.kevoree.modeling.api.KObject) => org.kevoree.modeling.api.VisitResult, end: (p : java.lang.Throwable) => void): void {
-                            if(visitor === undefined || end === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.internal_visit(visitor, end, false, false, null, null);
                         }
 
                         private internal_visit(visitor: (p : org.kevoree.modeling.api.KObject) => org.kevoree.modeling.api.VisitResult, end: (p : java.lang.Throwable) => void, deep: boolean, containedOnly: boolean, visited: java.util.HashSet<number>, traversed: java.util.HashSet<number>): void {
-                            if(visitor === undefined || end === undefined || deep === undefined || containedOnly === undefined || visited === undefined || traversed === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (traversed != null) {
                                 traversed.add(this.uuid());
                             }
@@ -1142,18 +994,10 @@ module org {
                         }
 
                         public graphVisit(visitor: (p : org.kevoree.modeling.api.KObject) => org.kevoree.modeling.api.VisitResult, end: (p : java.lang.Throwable) => void): void {
-                            if(visitor === undefined || end === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.internal_visit(visitor, end, true, false, new java.util.HashSet<number>(), new java.util.HashSet<number>());
                         }
 
                         public treeVisit(visitor: (p : org.kevoree.modeling.api.KObject) => org.kevoree.modeling.api.VisitResult, end: (p : java.lang.Throwable) => void): void {
-                            if(visitor === undefined || end === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.internal_visit(visitor, end, true, true, null, null);
                         }
 
@@ -1166,10 +1010,6 @@ module org {
                         }
 
                         public traces(request: org.kevoree.modeling.api.TraceRequest): org.kevoree.modeling.api.trace.ModelTrace[] {
-                            if(request === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var traces: java.util.List<org.kevoree.modeling.api.trace.ModelTrace> = new java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>();
                             if (org.kevoree.modeling.api.TraceRequest.ATTRIBUTES_ONLY.equals(request) || org.kevoree.modeling.api.TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
                                 for (var i: number = 0; i < this.metaClass().metaAttributes().length; i++) {
@@ -1205,10 +1045,6 @@ module org {
                         }
 
                         public inbounds(callback: (p : org.kevoree.modeling.api.InboundReference) => void, end: (p : java.lang.Throwable) => void): void {
-                            if(callback === undefined || end === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var rawPayload: any[] = this.view().dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
                             if (rawPayload == null) {
                                 end(new java.lang.Exception("Object not initialized."));
@@ -1267,20 +1103,12 @@ module org {
                         }
 
                         public set_parent(p_parentKID: number, p_metaReference: org.kevoree.modeling.api.meta.MetaReference): void {
-                            if(p_parentKID === undefined || p_metaReference === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var raw: any[] = this._view.dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.WRITE);
                             raw[org.kevoree.modeling.api.data.Index.PARENT_INDEX] = p_parentKID;
                             raw[org.kevoree.modeling.api.data.Index.REF_IN_PARENT_INDEX] = p_metaReference;
                         }
 
                         public equals(obj: any): boolean {
-                            if(obj === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (!(obj instanceof org.kevoree.modeling.api.abs.AbstractKObject)) {
                                 return false;
                             } else {
@@ -1290,44 +1118,24 @@ module org {
                         }
 
                         public diff(target: org.kevoree.modeling.api.KObject, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void {
-                            if(target === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             org.kevoree.modeling.api.operation.DefaultModelCompare.diff(this, target, callback);
                         }
 
                         public merge(target: org.kevoree.modeling.api.KObject, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void {
-                            if(target === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             org.kevoree.modeling.api.operation.DefaultModelCompare.merge(this, target, callback);
                         }
 
                         public intersection(target: org.kevoree.modeling.api.KObject, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void {
-                            if(target === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             org.kevoree.modeling.api.operation.DefaultModelCompare.intersection(this, target, callback);
                         }
 
                         public slice(callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var params: java.util.ArrayList<org.kevoree.modeling.api.KObject> = new java.util.ArrayList<org.kevoree.modeling.api.KObject>();
                             params.add(this);
                             org.kevoree.modeling.api.operation.DefaultModelSlicer.slice(params, callback);
                         }
 
                         public jump<U extends org.kevoree.modeling.api.KObject> (time: number, callback: (p : U) => void): void {
-                            if(time === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.view().dimension().time(time).lookup(this.uuid(),  (kObject : org.kevoree.modeling.api.KObject) => {
                                 if (callback != null) {
                                     try {
@@ -1344,34 +1152,18 @@ module org {
                         }
 
                         public internal_transpose_ref(p: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.meta.MetaReference {
-                            if(p === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             return this.metaClass().metaReference(p.metaName());
                         }
 
                         public internal_transpose_att(p: org.kevoree.modeling.api.meta.MetaAttribute): org.kevoree.modeling.api.meta.MetaAttribute {
-                            if(p === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             return this.metaClass().metaAttribute(p.metaName());
                         }
 
                         public internal_transpose_op(p: org.kevoree.modeling.api.meta.MetaOperation): org.kevoree.modeling.api.meta.MetaOperation {
-                            if(p === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             return this.metaClass().metaOperation(p.metaName());
                         }
 
                         public traverse(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.promise.KTraversalPromise {
-                            if(p_metaReference === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             return new org.kevoree.modeling.api.promise.DefaultKTraversalPromise(this, p_metaReference);
                         }
 
@@ -1380,25 +1172,13 @@ module org {
                     export class AbstractKObjectInfer<A> extends org.kevoree.modeling.api.abs.AbstractKObject implements org.kevoree.modeling.api.KInfer<any> {
 
                         constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_timeTree: org.kevoree.modeling.api.time.TimeTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
-                            if(p_view === undefined || p_uuid === undefined || p_timeTree === undefined || p_metaClass === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             super(p_view, p_uuid, p_timeTree, p_metaClass);
                         }
 
                         public infer(callback: (p : A) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                         }
 
                         public learn(param: A, callback: (p : java.lang.Throwable) => void): void {
-                            if(param === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                         }
 
                     }
@@ -1415,18 +1195,10 @@ module org {
                         }
 
                         public connect(callback: (p : java.lang.Throwable) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._storage.connect(callback);
                         }
 
                         public close(callback: (p : java.lang.Throwable) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._storage.close(callback);
                         }
 
@@ -1446,82 +1218,42 @@ module org {
                         }
 
                         public dimension(key: number): A {
-                            if(key === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var newDimension: A = this.internal_create(key);
                             this.storage().initDimension(newDimension);
                             return newDimension;
                         }
 
                         public saveAll(callback: (p : boolean) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                         }
 
                         public deleteAll(callback: (p : boolean) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                         }
 
                         public unloadAll(callback: (p : boolean) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                         }
 
                         public disable(listener: (p : org.kevoree.modeling.api.KEvent) => void): void {
-                            if(listener === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                         }
 
                         public stream(query: string, callback: (p : org.kevoree.modeling.api.KObject) => void): void {
-                            if(query === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                         }
 
                         public listen(listener: (p : org.kevoree.modeling.api.KEvent) => void): void {
-                            if(listener === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.storage().eventBroker().registerListener(this, listener, null);
                         }
 
                         public setEventBroker(eventBroker: org.kevoree.modeling.api.event.KEventBroker): org.kevoree.modeling.api.KUniverse<any> {
-                            if(eventBroker === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.storage().setEventBroker(eventBroker);
                             eventBroker.setMetaModel(this.metaModel());
                             return this;
                         }
 
                         public setDataBase(dataBase: org.kevoree.modeling.api.data.KDataBase): org.kevoree.modeling.api.KUniverse<any> {
-                            if(dataBase === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.storage().setDataBase(dataBase);
                             return this;
                         }
 
                         public setOperation(metaOperation: org.kevoree.modeling.api.meta.MetaOperation, operation: (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void): void {
-                            if(metaOperation === undefined || operation === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.storage().operationManager().registerOperation(metaOperation, operation);
                         }
 
@@ -1532,10 +1264,6 @@ module org {
                         private _now: number;
                         private _dimension: org.kevoree.modeling.api.KDimension<any, any, any>;
                         constructor(p_now: number, p_dimension: org.kevoree.modeling.api.KDimension<any, any, any>) {
-                            if(p_now === undefined || p_dimension === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._now = p_now;
                             this._dimension = p_dimension;
                         }
@@ -1549,28 +1277,16 @@ module org {
                         }
 
                         public createFQN(metaClassName: string): org.kevoree.modeling.api.KObject {
-                            if(metaClassName === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             return this.create(this.dimension().universe().metaModel().metaClass(metaClassName));
                         }
 
                         public setRoot(elem: org.kevoree.modeling.api.KObject, callback: (p : java.lang.Throwable) => void): void {
-                            if(elem === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             (<org.kevoree.modeling.api.abs.AbstractKObject>elem).set_parent(null, null);
                             (<org.kevoree.modeling.api.abs.AbstractKObject>elem).setRoot(true);
                             this.dimension().universe().storage().setRoot(elem, callback);
                         }
 
                         public select(query: string, callback: (p : org.kevoree.modeling.api.KObject[]) => void): void {
-                            if(query === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (callback == null) {
                                 return;
                             }
@@ -1600,41 +1316,21 @@ module org {
                         }
 
                         public lookup(kid: number, callback: (p : org.kevoree.modeling.api.KObject) => void): void {
-                            if(kid === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.dimension().universe().storage().lookup(this, kid, callback);
                         }
 
                         public lookupAll(keys: number[], callback: (p : org.kevoree.modeling.api.KObject[]) => void): void {
-                            if(keys === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.dimension().universe().storage().lookupAll(this, keys, callback);
                         }
 
                         public stream(query: string, callback: (p : org.kevoree.modeling.api.KObject) => void): void {
-                            if(query === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                         }
 
                         public createProxy(clazz: org.kevoree.modeling.api.meta.MetaClass, timeTree: org.kevoree.modeling.api.time.TimeTree, key: number): org.kevoree.modeling.api.KObject {
-                            if(clazz === undefined || timeTree === undefined || key === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             return this.internalCreate(clazz, timeTree, key);
                         }
 
                         public create(clazz: org.kevoree.modeling.api.meta.MetaClass): org.kevoree.modeling.api.KObject {
-                            if(clazz === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var newObj: org.kevoree.modeling.api.KObject = this.internalCreate(clazz, new org.kevoree.modeling.api.time.DefaultTimeTree().insert(this.now()), this.dimension().universe().storage().nextObjectKey());
                             if (newObj != null) {
                                 this.dimension().universe().storage().initKObject(newObj, this);
@@ -1644,10 +1340,6 @@ module org {
                         }
 
                         public listen(listener: (p : org.kevoree.modeling.api.KEvent) => void): void {
-                            if(listener === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.dimension().universe().storage().eventBroker().registerListener(this, listener, null);
                         }
 
@@ -1656,10 +1348,6 @@ module org {
                         }
 
                         public slice(elems: java.util.List<org.kevoree.modeling.api.KObject>, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void {
-                            if(elems === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             org.kevoree.modeling.api.operation.DefaultModelSlicer.slice(elems, callback);
                         }
 
@@ -1672,10 +1360,6 @@ module org {
                         }
 
                         public equals(obj: any): boolean {
-                            if(obj === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (!(obj instanceof org.kevoree.modeling.api.abs.AbstractKView)) {
                                 return false;
                             } else {
@@ -1719,18 +1403,10 @@ module org {
                         }
 
                         public setExtrapolation(extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation): void {
-                            if(extrapolation === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._extrapolation = extrapolation;
                         }
 
                         constructor(p_name: string, p_index: number, p_precision: number, p_key: boolean, p_metaType: org.kevoree.modeling.api.KMetaType, p_extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation) {
-                            if(p_name === undefined || p_index === undefined || p_precision === undefined || p_key === undefined || p_metaType === undefined || p_extrapolation === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._name = p_name;
                             this._index = p_index;
                             this._precision = p_precision;
@@ -1760,19 +1436,11 @@ module org {
                         }
 
                         constructor(p_name: string, p_index: number) {
-                            if(p_name === undefined || p_index === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._name = p_name;
                             this._index = p_index;
                         }
 
                         public init(p_atts: org.kevoree.modeling.api.meta.MetaAttribute[], p_refs: org.kevoree.modeling.api.meta.MetaReference[], p_operations: org.kevoree.modeling.api.meta.MetaOperation[]): void {
-                            if(p_atts === undefined || p_refs === undefined || p_operations === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._atts = p_atts;
                             for (var i: number = 0; i < this._atts.length; i++) {
                                 this._atts_indexes.put(this._atts[i].metaName(), i);
@@ -1800,10 +1468,6 @@ module org {
                         }
 
                         public metaAttribute(name: string): org.kevoree.modeling.api.meta.MetaAttribute {
-                            if(name === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var resolved: number = this._atts_indexes.get(name);
                             if (resolved == null) {
                                 return null;
@@ -1813,10 +1477,6 @@ module org {
                         }
 
                         public metaReference(name: string): org.kevoree.modeling.api.meta.MetaReference {
-                            if(name === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var resolved: number = this._refs_indexes.get(name);
                             if (resolved == null) {
                                 return null;
@@ -1826,10 +1486,6 @@ module org {
                         }
 
                         public metaOperation(name: string): org.kevoree.modeling.api.meta.MetaOperation {
-                            if(name === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var resolved: number = this._ops_indexes.get(name);
                             if (resolved == null) {
                                 return null;
@@ -1855,10 +1511,6 @@ module org {
                         }
 
                         constructor(p_name: string, p_index: number) {
-                            if(p_name === undefined || p_index === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._name = p_name;
                             this._index = p_index;
                         }
@@ -1868,10 +1520,6 @@ module org {
                         }
 
                         public metaClass(name: string): org.kevoree.modeling.api.meta.MetaClass {
-                            if(name === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var resolved: number = this._metaClasses_indexes.get(name);
                             if (resolved == null) {
                                 return null;
@@ -1881,10 +1529,6 @@ module org {
                         }
 
                         public init(p_metaClasses: org.kevoree.modeling.api.meta.MetaClass[]): void {
-                            if(p_metaClasses === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._metaClasses_indexes.clear();
                             this._metaClasses = p_metaClasses;
                             for (var i: number = 0; i < this._metaClasses.length; i++) {
@@ -1908,10 +1552,6 @@ module org {
                         }
 
                         constructor(p_name: string, p_index: number, p_lazyMetaClass: () => org.kevoree.modeling.api.meta.Meta) {
-                            if(p_name === undefined || p_index === undefined || p_lazyMetaClass === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._name = p_name;
                             this._index = p_index;
                             this._lazyMetaClass = p_lazyMetaClass;
@@ -1974,10 +1614,6 @@ module org {
                         }
 
                         constructor(p_name: string, p_index: number, p_contained: boolean, p_single: boolean, p_lazyMetaType: () => org.kevoree.modeling.api.meta.Meta, p_lazyMetaOpposite: () => org.kevoree.modeling.api.meta.Meta, p_lazyMetaOrigin: () => org.kevoree.modeling.api.meta.Meta) {
-                            if(p_name === undefined || p_index === undefined || p_contained === undefined || p_single === undefined || p_lazyMetaType === undefined || p_lazyMetaOpposite === undefined || p_lazyMetaOrigin === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._name = p_name;
                             this._index = p_index;
                             this._contained = p_contained;
@@ -1992,10 +1628,6 @@ module org {
                     export class DynamicKObject extends org.kevoree.modeling.api.abs.AbstractKObject {
 
                         constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_timeTree: org.kevoree.modeling.api.time.TimeTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
-                            if(p_view === undefined || p_uuid === undefined || p_timeTree === undefined || p_metaClass === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             super(p_view, p_uuid, p_timeTree, p_metaClass);
                         }
 
@@ -2056,10 +1688,6 @@ module org {
                         }
 
                         public connect(callback: (p : java.lang.Throwable) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (this.isConnected) {
                                 if (callback != null) {
                                     callback(null);
@@ -2170,10 +1798,6 @@ module org {
                         }
 
                         public close(callback: (p : java.lang.Throwable) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.isConnected = false;
                             if (this._db != null) {
                                 this._db.close( (throwable : java.lang.Throwable) => {
@@ -2187,34 +1811,18 @@ module org {
                         }
 
                         private keyTree(dim: number, key: number): string {
-                            if(dim === undefined || key === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             return "" + dim + DefaultKStore.KEY_SEP + key;
                         }
 
                         private keyRoot(dim: number): string {
-                            if(dim === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             return "" + dim + DefaultKStore.KEY_SEP + "root";
                         }
 
                         private keyRootTree(dim: org.kevoree.modeling.api.KDimension<any, any, any>): string {
-                            if(dim === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             return "" + dim.key() + DefaultKStore.KEY_SEP + "root";
                         }
 
                         private keyPayload(dim: number, time: number, key: number): string {
-                            if(dim === undefined || time === undefined || key === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             return "" + dim + DefaultKStore.KEY_SEP + time + DefaultKStore.KEY_SEP + key;
                         }
 
@@ -2223,18 +1831,10 @@ module org {
                         }
 
                         private keyLastDimIndex(prefix: string): string {
-                            if(prefix === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             return "index_dim_" + prefix;
                         }
 
                         private keyLastObjIndex(prefix: string): string {
-                            if(prefix === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             return "index_obj_" + prefix;
                         }
 
@@ -2253,17 +1853,9 @@ module org {
                         }
 
                         public initDimension(dimension: org.kevoree.modeling.api.KDimension<any, any, any>): void {
-                            if(dimension === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                         }
 
                         public initKObject(obj: org.kevoree.modeling.api.KObject, originView: org.kevoree.modeling.api.KView): void {
-                            if(obj === undefined || originView === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.write_tree(obj.dimension().key(), obj.uuid(), obj.timeTree());
                             var cacheEntry: org.kevoree.modeling.api.data.CacheEntry = new org.kevoree.modeling.api.data.CacheEntry();
                             cacheEntry.raw = new Array();
@@ -2274,10 +1866,6 @@ module org {
                         }
 
                         public raw(origin: org.kevoree.modeling.api.KObject, accessMode: org.kevoree.modeling.api.data.AccessMode): any[] {
-                            if(origin === undefined || accessMode === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var resolvedTime: number = origin.timeTree().resolve(origin.now());
                             var needCopy: boolean = accessMode.equals(org.kevoree.modeling.api.data.AccessMode.WRITE) && (resolvedTime != origin.now());
                             var dimensionCache: org.kevoree.modeling.api.data.cache.DimensionCache = this.caches.get(origin.dimension().key());
@@ -2335,10 +1923,6 @@ module org {
                         }
 
                         public discard(dimension: org.kevoree.modeling.api.KDimension<any, any, any>, callback: (p : java.lang.Throwable) => void): void {
-                            if(dimension === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.caches.remove(dimension.key());
                             if (callback != null) {
                                 callback(null);
@@ -2346,18 +1930,10 @@ module org {
                         }
 
                         public delete(dimension: org.kevoree.modeling.api.KDimension<any, any, any>, callback: (p : java.lang.Throwable) => void): void {
-                            if(dimension === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             throw new java.lang.RuntimeException("Not implemented yet !");
                         }
 
                         public save(dimension: org.kevoree.modeling.api.KDimension<any, any, any>, callback: (p : java.lang.Throwable) => void): void {
-                            if(dimension === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var dimensionCache: org.kevoree.modeling.api.data.cache.DimensionCache = this.caches.get(dimension.key());
                             if (dimensionCache == null) {
                                 if (callback != null) {
@@ -2422,10 +1998,6 @@ module org {
                         }
 
                         public saveUnload(dimension: org.kevoree.modeling.api.KDimension<any, any, any>, callback: (p : java.lang.Throwable) => void): void {
-                            if(dimension === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.save(dimension,  (throwable : java.lang.Throwable) => {
                                 if (throwable == null) {
                                     this.discard(dimension, callback);
@@ -2438,10 +2010,6 @@ module org {
                         }
 
                         public lookup(originView: org.kevoree.modeling.api.KView, key: number, callback: (p : org.kevoree.modeling.api.KObject) => void): void {
-                            if(originView === undefined || key === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var keys: number[] = new Array();
                             keys[0] = key;
                             this.lookupAll(originView, keys,  (kObjects : org.kevoree.modeling.api.KObject[]) => {
@@ -2458,10 +2026,6 @@ module org {
                         }
 
                         public lookupAll(originView: org.kevoree.modeling.api.KView, keys: number[], callback: (p : org.kevoree.modeling.api.KObject[]) => void): void {
-                            if(originView === undefined || keys === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.internal_resolve_dim_time(originView, keys,  (objects : any[][]) => {
                                 var resolved: org.kevoree.modeling.api.KObject[] = new Array();
                                 var toLoadIndexes: java.util.List<number> = new java.util.ArrayList<number>();
@@ -2507,10 +2071,6 @@ module org {
                         }
 
                         public getRoot(originView: org.kevoree.modeling.api.KView, callback: (p : org.kevoree.modeling.api.KObject) => void): void {
-                            if(originView === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.resolve_roots(originView.dimension(),  (longRBTree : org.kevoree.modeling.api.time.rbtree.LongRBTree) => {
                                 if (longRBTree == null) {
                                     callback(null);
@@ -2526,10 +2086,6 @@ module org {
                         }
 
                         public setRoot(newRoot: org.kevoree.modeling.api.KObject, callback: (p : java.lang.Throwable) => void): void {
-                            if(newRoot === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.resolve_roots(newRoot.dimension(),  (longRBTree : org.kevoree.modeling.api.time.rbtree.LongRBTree) => {
                                 longRBTree.insert(newRoot.now(), newRoot.uuid());
                                 (<org.kevoree.modeling.api.abs.AbstractKObject>newRoot).setRoot(true);
@@ -2544,10 +2100,6 @@ module org {
                         }
 
                         public setEventBroker(p_eventBroker: org.kevoree.modeling.api.event.KEventBroker): void {
-                            if(p_eventBroker === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._eventBroker = p_eventBroker;
                         }
 
@@ -2556,10 +2108,6 @@ module org {
                         }
 
                         public setDataBase(p_dataBase: org.kevoree.modeling.api.data.KDataBase): void {
-                            if(p_dataBase === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._db = p_dataBase;
                         }
 
@@ -2568,10 +2116,6 @@ module org {
                         }
 
                         private read_cache(dimensionKey: number, timeKey: number, uuid: number): org.kevoree.modeling.api.data.CacheEntry {
-                            if(dimensionKey === undefined || timeKey === undefined || uuid === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var dimensionCache: org.kevoree.modeling.api.data.cache.DimensionCache = this.caches.get(dimensionKey);
                             if (dimensionCache != null) {
                                 var timeCache: org.kevoree.modeling.api.data.cache.TimeCache = dimensionCache.timesCaches.get(timeKey);
@@ -2586,10 +2130,6 @@ module org {
                         }
 
                         private write_cache(dimensionKey: number, timeKey: number, uuid: number, cacheEntry: org.kevoree.modeling.api.data.CacheEntry): void {
-                            if(dimensionKey === undefined || timeKey === undefined || uuid === undefined || cacheEntry === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var dimensionCache: org.kevoree.modeling.api.data.cache.DimensionCache = this.caches.get(dimensionKey);
                             if (dimensionCache == null) {
                                 dimensionCache = new org.kevoree.modeling.api.data.cache.DimensionCache();
@@ -2604,10 +2144,6 @@ module org {
                         }
 
                         private write_tree(dimensionKey: number, uuid: number, timeTree: org.kevoree.modeling.api.time.TimeTree): void {
-                            if(dimensionKey === undefined || uuid === undefined || timeTree === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var dimensionCache: org.kevoree.modeling.api.data.cache.DimensionCache = this.caches.get(dimensionKey);
                             if (dimensionCache == null) {
                                 dimensionCache = new org.kevoree.modeling.api.data.cache.DimensionCache();
@@ -2617,10 +2153,6 @@ module org {
                         }
 
                         private write_roots(dimensionKey: number, timeTree: org.kevoree.modeling.api.time.rbtree.LongRBTree): void {
-                            if(dimensionKey === undefined || timeTree === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var dimensionCache: org.kevoree.modeling.api.data.cache.DimensionCache = this.caches.get(dimensionKey);
                             if (dimensionCache == null) {
                                 dimensionCache = new org.kevoree.modeling.api.data.cache.DimensionCache();
@@ -2630,10 +2162,6 @@ module org {
                         }
 
                         private size_dirties(dimensionCache: org.kevoree.modeling.api.data.cache.DimensionCache): number {
-                            if(dimensionCache === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var times: number[] = dimensionCache.timesCaches.keySet().toArray(new Array());
                             var sizeCache: number = 0;
                             for (var i: number = 0; i < times.length; i++) {
@@ -2666,10 +2194,6 @@ module org {
                         }
 
                         private internal_resolve_dim_time(originView: org.kevoree.modeling.api.KView, uuids: number[], callback: (p : any[][]) => void): void {
-                            if(originView === undefined || uuids === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var result: any[][] = new Array(new Array());
                             this.resolve_timeTrees(originView.dimension(), uuids,  (timeTrees : org.kevoree.modeling.api.time.TimeTree[]) => {
                                 for (var i: number = 0; i < timeTrees.length; i++) {
@@ -2684,10 +2208,6 @@ module org {
                         }
 
                         private resolve_timeTrees(dimension: org.kevoree.modeling.api.KDimension<any, any, any>, keys: number[], callback: (p : org.kevoree.modeling.api.time.TimeTree[]) => void): void {
-                            if(dimension === undefined || keys === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var toLoad: java.util.List<number> = new java.util.ArrayList<number>();
                             var result: org.kevoree.modeling.api.time.TimeTree[] = new Array();
                             for (var i: number = 0; i < keys.length; i++) {
@@ -2737,10 +2257,6 @@ module org {
                         }
 
                         private resolve_roots(dimension: org.kevoree.modeling.api.KDimension<any, any, any>, callback: (p : org.kevoree.modeling.api.time.rbtree.LongRBTree) => void): void {
-                            if(dimension === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var dimensionCache: org.kevoree.modeling.api.data.cache.DimensionCache = this.caches.get(dimension.key());
                             if (dimensionCache != null && dimensionCache.roots != null) {
                                 callback(dimensionCache.roots);
@@ -2785,10 +2301,6 @@ module org {
 
                         public static SEP: string = "@";
                         public static decode(payload: string, currentView: org.kevoree.modeling.api.KView, now: number): org.kevoree.modeling.api.data.CacheEntry {
-                            if(payload === undefined || currentView === undefined || now === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (payload == null) {
                                 return null;
                             }
@@ -2968,10 +2480,6 @@ module org {
                         }
 
                         public static encode(raw: any[], uuid: number, p_metaClass: org.kevoree.modeling.api.meta.MetaClass): string {
-                            if(raw === undefined || uuid === undefined || p_metaClass === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var metaReferences: org.kevoree.modeling.api.meta.MetaReference[] = p_metaClass.metaReferences();
                             var metaAttributes: org.kevoree.modeling.api.meta.MetaAttribute[] = p_metaClass.metaAttributes();
                             var builder: java.lang.StringBuilder = new java.lang.StringBuilder();
@@ -3154,10 +2662,6 @@ module org {
                         private _prefix: string;
                         private _currentIndex: number;
                         constructor(prefix: number, currentIndex: number) {
-                            if(prefix === undefined || currentIndex === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._prefix = "0x" + prefix.toString(16);
                              this._currentIndex = currentIndex;
                         }
@@ -3191,10 +2695,6 @@ module org {
                         private backend: java.util.HashMap<string, string> = new java.util.HashMap<string, string>();
                         public static DEBUG: boolean = false;
                         public put(payloads: string[][], callback: (p : java.lang.Throwable) => void): void {
-                            if(payloads === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             for (var i: number = 0; i < payloads.length; i++) {
                                 this.backend.put(payloads[i][0], payloads[i][1]);
                                 if (MemoryKDataBase.DEBUG) {
@@ -3207,10 +2707,6 @@ module org {
                         }
 
                         public get(keys: string[], callback: (p : string[], p1 : java.lang.Throwable) => void): void {
-                            if(keys === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var values: string[] = new Array();
                             for (var i: number = 0; i < keys.length; i++) {
                                 values[i] = this.backend.get(keys[i]);
@@ -3224,10 +2720,6 @@ module org {
                         }
 
                         public remove(keys: string[], callback: (p : java.lang.Throwable) => void): void {
-                            if(keys === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             for (var i: number = 0; i < keys.length; i++) {
                                 this.backend.remove(keys[i]);
                             }
@@ -3237,30 +2729,18 @@ module org {
                         }
 
                         public commit(callback: (p : java.lang.Throwable) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (callback != null) {
                                 callback(null);
                             }
                         }
 
                         public connect(callback: (p : java.lang.Throwable) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (callback != null) {
                                 callback(null);
                             }
                         }
 
                         public close(callback: (p : java.lang.Throwable) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.backend.clear();
                         }
 
@@ -3293,20 +2773,12 @@ module org {
                         private listeners: java.util.HashMap<(p : org.kevoree.modeling.api.KEvent) => void, number[]> = new java.util.HashMap<(p : org.kevoree.modeling.api.KEvent) => void, number[]>();
                         private _metaModel: org.kevoree.modeling.api.meta.MetaModel;
                         public connect(callback: (p : java.lang.Throwable) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (callback != null) {
                                 callback(null);
                             }
                         }
 
                         public close(callback: (p : java.lang.Throwable) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.listeners.clear();
                             if (callback != null) {
                                 callback(null);
@@ -3314,10 +2786,6 @@ module org {
                         }
 
                         public registerListener(origin: any, listener: (p : org.kevoree.modeling.api.KEvent) => void, scope: any): void {
-                            if(origin === undefined || listener === undefined || scope === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var tuple: number[] = new Array();
                             if (origin instanceof org.kevoree.modeling.api.abs.AbstractKDimension) {
                                 tuple[DefaultKBroker.DIM_INDEX] = (<org.kevoree.modeling.api.abs.AbstractKDimension<any, any, any>>origin).key();
@@ -3345,10 +2813,6 @@ module org {
                         }
 
                         public notify(event: org.kevoree.modeling.api.KEvent): void {
-                            if(event === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var keys: {(p : org.kevoree.modeling.api.KEvent) : void;}[] = this.listeners.keySet().toArray(new Array());
                             for (var i: number = 0; i < keys.length; i++) {
                                 var tuple: any[] = this.listeners.get(keys[i]);
@@ -3375,25 +2839,13 @@ module org {
                         }
 
                         public flush(dimensionKey: number): void {
-                            if(dimensionKey === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                         }
 
                         public setMetaModel(p_metaModel: org.kevoree.modeling.api.meta.MetaModel): void {
-                            if(p_metaModel === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._metaModel = p_metaModel;
                         }
 
                         public unregister(listener: (p : org.kevoree.modeling.api.KEvent) => void): void {
-                            if(listener === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.listeners.remove(listener);
                         }
 
@@ -3418,10 +2870,6 @@ module org {
                         private static ELEMENT_KEY: string = "elem";
                         private static VALUE_KEY: string = "value";
                         constructor(p_type: org.kevoree.modeling.api.KActionType, p_source: org.kevoree.modeling.api.KObject, p_meta: org.kevoree.modeling.api.meta.Meta, p_newValue: any) {
-                            if(p_type === undefined || p_source === undefined || p_meta === undefined || p_newValue === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (p_source != null) {
                                 this._dimensionKey = p_source.dimension().key();
                                 this._time = p_source.now();
@@ -3490,10 +2938,6 @@ module org {
                         }
 
                         public static fromJSON(payload: string, metaModel: org.kevoree.modeling.api.meta.MetaModel): org.kevoree.modeling.api.KEvent {
-                            if(payload === undefined || metaModel === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var lexer: org.kevoree.modeling.api.json.Lexer = new org.kevoree.modeling.api.json.Lexer(payload);
                             var currentToken: org.kevoree.modeling.api.json.JsonToken = lexer.nextToken();
                             if (currentToken.tokenType() == org.kevoree.modeling.api.json.Type.LEFT_BRACE) {
@@ -3517,10 +2961,6 @@ module org {
                         }
 
                         private static setEventAttribute(event: org.kevoree.modeling.api.event.DefaultKEvent, currentAttributeName: string, value: string, metaModel: org.kevoree.modeling.api.meta.MetaModel): void {
-                            if(event === undefined || currentAttributeName === undefined || value === undefined || metaModel === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (currentAttributeName.equals(DefaultKEvent.DIMENSION_KEY)) {
                                 event._dimensionKey = java.lang.Long.parseLong(value);
                             } else {
@@ -3605,10 +3045,6 @@ module org {
                         }
 
                         public extrapolate(current: org.kevoree.modeling.api.KObject, attribute: org.kevoree.modeling.api.meta.MetaAttribute): any {
-                            if(current === undefined || attribute === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var payload: any[] = current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ);
                             if (payload != null) {
                                 return payload[attribute.index()];
@@ -3618,10 +3054,6 @@ module org {
                         }
 
                         public mutate(current: org.kevoree.modeling.api.KObject, attribute: org.kevoree.modeling.api.meta.MetaAttribute, payload: any): void {
-                            if(current === undefined || attribute === undefined || payload === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var internalPayload: any[] = current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE);
                             if (internalPayload != null) {
                                 internalPayload[attribute.index()] = payload;
@@ -3629,10 +3061,6 @@ module org {
                         }
 
                         public save(cache: any, attribute: org.kevoree.modeling.api.meta.MetaAttribute): string {
-                            if(cache === undefined || attribute === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (cache != null) {
                                 return attribute.metaType().save(cache);
                             } else {
@@ -3641,10 +3069,6 @@ module org {
                         }
 
                         public load(payload: string, attribute: org.kevoree.modeling.api.meta.MetaAttribute, now: number): any {
-                            if(payload === undefined || attribute === undefined || now === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (payload != null) {
                                 return attribute.metaType().load(payload);
                             }
@@ -3669,10 +3093,6 @@ module org {
 
                         private static INSTANCE: org.kevoree.modeling.api.extrapolation.PolynomialExtrapolation;
                         public extrapolate(current: org.kevoree.modeling.api.KObject, attribute: org.kevoree.modeling.api.meta.MetaAttribute): any {
-                            if(current === undefined || attribute === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var pol: org.kevoree.modeling.api.polynomial.PolynomialModel = <org.kevoree.modeling.api.polynomial.PolynomialModel>current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ)[attribute.index()];
                             if (pol != null) {
                                 var extrapolatedValue: number = pol.extrapolate(current.now());
@@ -3703,10 +3123,6 @@ module org {
                         }
 
                         public mutate(current: org.kevoree.modeling.api.KObject, attribute: org.kevoree.modeling.api.meta.MetaAttribute, payload: any): void {
-                            if(current === undefined || attribute === undefined || payload === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var raw: any[] = current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ);
                             var previous: any = raw[attribute.index()];
                             if (previous == null) {
@@ -3729,10 +3145,6 @@ module org {
                         }
 
                         public save(cache: any, attribute: org.kevoree.modeling.api.meta.MetaAttribute): string {
-                            if(cache === undefined || attribute === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             try {
                                 return (<org.kevoree.modeling.api.polynomial.PolynomialModel>cache).save();
                             } catch ($ex$) {
@@ -3745,10 +3157,6 @@ module org {
                         }
 
                         public load(payload: string, attribute: org.kevoree.modeling.api.meta.MetaAttribute, now: number): any {
-                            if(payload === undefined || attribute === undefined || now === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var pol: org.kevoree.modeling.api.polynomial.PolynomialModel = this.createPolynomialModel(now, attribute.precision());
                             pol.load(payload);
                             return pol;
@@ -3762,10 +3170,6 @@ module org {
                         }
 
                         private createPolynomialModel(origin: number, precision: number): org.kevoree.modeling.api.polynomial.PolynomialModel {
-                            if(origin === undefined || precision === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             return new org.kevoree.modeling.api.polynomial.doublepolynomial.DoublePolynomialModel(origin, precision, 20, org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES);
                         }
 
@@ -3777,26 +3181,14 @@ module org {
 
                         private _view: org.kevoree.modeling.api.KView;
                         constructor(p_view: org.kevoree.modeling.api.KView) {
-                            if(p_view === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._view = p_view;
                         }
 
                         public save(model: org.kevoree.modeling.api.KObject, callback: (p : string, p1 : java.lang.Throwable) => void): void {
-                            if(model === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             org.kevoree.modeling.api.json.JsonModelSerializer.serialize(model, callback);
                         }
 
                         public load(payload: string, callback: (p : java.lang.Throwable) => void): void {
-                            if(payload === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             org.kevoree.modeling.api.json.JsonModelLoader.load(this._view, payload, callback);
                         }
 
@@ -3805,10 +3197,6 @@ module org {
                     export class JsonModelLoader {
 
                         public static load(factory: org.kevoree.modeling.api.KView, payload: string, callback: (p : java.lang.Throwable) => void): void {
-                            if(factory === undefined || payload === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (payload == null) {
                                 callback(null);
                             } else {
@@ -4055,10 +3443,6 @@ module org {
                         public static TIME_META: string = "@time";
                         public static DIM_META: string = "@dimension";
                         public static serialize(model: org.kevoree.modeling.api.KObject, callback: (p : string, p1 : java.lang.Throwable) => void): void {
-                            if(model === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var builder: java.lang.StringBuilder = new java.lang.StringBuilder();
                             builder.append("[\n");
                             org.kevoree.modeling.api.json.JsonModelSerializer.printJSON(model, builder);
@@ -4073,10 +3457,6 @@ module org {
                         }
 
                         public static printJSON(elem: org.kevoree.modeling.api.KObject, builder: java.lang.StringBuilder): void {
-                            if(elem === undefined || builder === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (elem != null) {
                                 builder.append("{\n");
                                 builder.append("\t\"" + JsonModelSerializer.KEY_META + "\" : \"");
@@ -4145,10 +3525,6 @@ module org {
 
                         private static ESCAPE_CHAR: string = '\\';
                         public static encodeBuffer(buffer: java.lang.StringBuilder, chain: string): void {
-                            if(buffer === undefined || chain === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (chain == null) {
                                 return;
                             }
@@ -4204,20 +3580,12 @@ module org {
                         }
 
                         public static encode(chain: string): string {
-                            if(chain === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var sb: java.lang.StringBuilder = new java.lang.StringBuilder();
                             org.kevoree.modeling.api.json.JsonString.encodeBuffer(sb, chain);
                             return sb.toString();
                         }
 
                         public static unescape(src: string): string {
-                            if(src === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (src == null) {
                                 return null;
                             }
@@ -4282,10 +3650,6 @@ module org {
                         private _tokenType: org.kevoree.modeling.api.json.Type;
                         private _value: any;
                         constructor(p_tokenType: org.kevoree.modeling.api.json.Type, p_value: any) {
-                            if(p_tokenType === undefined || p_value === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._tokenType = p_tokenType;
                             this._value = p_value;
                         }
@@ -4320,19 +3684,11 @@ module org {
                         private index: number = 0;
                         private static DEFAULT_BUFFER_SIZE: number = 1024 * 4;
                         constructor(payload: string) {
-                            if(payload === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.bytes = payload;
                             this.EOF = new org.kevoree.modeling.api.json.JsonToken(org.kevoree.modeling.api.json.Type.EOF, null);
                         }
 
                         public isSpace(c: string): boolean {
-                            if(c === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             return c == ' ' || c == '\r' || c == '\n' || c == '\t';
                         }
 
@@ -4349,10 +3705,6 @@ module org {
                         }
 
                         private isBooleanLetter(c: string): boolean {
-                            if(c === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (this.BOOLEAN_LETTERS == null) {
                                 this.BOOLEAN_LETTERS = new java.util.HashSet<string>();
                                 this.BOOLEAN_LETTERS.add('f');
@@ -4368,10 +3720,6 @@ module org {
                         }
 
                         private isDigit(c: string): boolean {
-                            if(c === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (this.DIGIT == null) {
                                 this.DIGIT = new java.util.HashSet<string>();
                                 this.DIGIT.add('0');
@@ -4389,10 +3737,6 @@ module org {
                         }
 
                         private isValueLetter(c: string): boolean {
-                            if(c === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             return c == '-' || c == '+' || c == '.' || this.isDigit(c) || this.isBooleanLetter(c);
                         }
 
@@ -4487,10 +3831,6 @@ module org {
                         public static EOF: Type = new Type(42);
                         private _value: number;
                         constructor(p_value: number) {
-                            if(p_value === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._value = p_value;
                         }
 
@@ -4596,10 +3936,6 @@ module org {
                     export class DefaultModelCloner {
 
                         public static clone<A extends org.kevoree.modeling.api.KObject> (originalObject: A, callback: (p : A) => void): void {
-                            if(originalObject === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (originalObject == null || originalObject.view() == null || originalObject.view().dimension() == null) {
                                 callback(null);
                             } else {
@@ -4616,34 +3952,18 @@ module org {
                     export class DefaultModelCompare {
 
                         public static diff(origin: org.kevoree.modeling.api.KObject, target: org.kevoree.modeling.api.KObject, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void {
-                            if(origin === undefined || target === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             org.kevoree.modeling.api.operation.DefaultModelCompare.internal_diff(origin, target, false, false, callback);
                         }
 
                         public static merge(origin: org.kevoree.modeling.api.KObject, target: org.kevoree.modeling.api.KObject, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void {
-                            if(origin === undefined || target === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             org.kevoree.modeling.api.operation.DefaultModelCompare.internal_diff(origin, target, false, true, callback);
                         }
 
                         public static intersection(origin: org.kevoree.modeling.api.KObject, target: org.kevoree.modeling.api.KObject, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void {
-                            if(origin === undefined || target === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             org.kevoree.modeling.api.operation.DefaultModelCompare.internal_diff(origin, target, true, false, callback);
                         }
 
                         private static internal_diff(origin: org.kevoree.modeling.api.KObject, target: org.kevoree.modeling.api.KObject, inter: boolean, merge: boolean, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void {
-                            if(origin === undefined || target === undefined || inter === undefined || merge === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var traces: java.util.List<org.kevoree.modeling.api.trace.ModelTrace> = new java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>();
                             var tracesRef: java.util.List<org.kevoree.modeling.api.trace.ModelTrace> = new java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>();
                             var objectsMap: java.util.Map<number, org.kevoree.modeling.api.KObject> = new java.util.HashMap<number, org.kevoree.modeling.api.KObject>();
@@ -4699,10 +4019,6 @@ module org {
                         }
 
                         private static internal_createTraces(current: org.kevoree.modeling.api.KObject, sibling: org.kevoree.modeling.api.KObject, inter: boolean, merge: boolean, references: boolean, attributes: boolean): java.util.List<org.kevoree.modeling.api.trace.ModelTrace> {
-                            if(current === undefined || sibling === undefined || inter === undefined || merge === undefined || references === undefined || attributes === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var traces: java.util.List<org.kevoree.modeling.api.trace.ModelTrace> = new java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>();
                             var values: java.util.Map<org.kevoree.modeling.api.meta.MetaAttribute, string> = new java.util.HashMap<org.kevoree.modeling.api.meta.MetaAttribute, string>();
                             if (attributes) {
@@ -4849,10 +4165,6 @@ module org {
                     export class DefaultModelSlicer {
 
                         private static internal_prune(elem: org.kevoree.modeling.api.KObject, traces: java.util.List<org.kevoree.modeling.api.trace.ModelTrace>, cache: java.util.Map<number, org.kevoree.modeling.api.KObject>, parentMap: java.util.Map<number, org.kevoree.modeling.api.KObject>, callback: (p : java.lang.Throwable) => void): void {
-                            if(elem === undefined || traces === undefined || cache === undefined || parentMap === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var parents: java.util.List<org.kevoree.modeling.api.KObject> = new java.util.ArrayList<org.kevoree.modeling.api.KObject>();
                             var parentExplorer: java.util.List<(p : org.kevoree.modeling.api.KObject) => void> = new java.util.ArrayList<(p : org.kevoree.modeling.api.KObject) => void>();
                             parentExplorer.add( (currentParent : org.kevoree.modeling.api.KObject) => {
@@ -4902,10 +4214,6 @@ module org {
                         }
 
                         public static slice(elems: java.util.List<org.kevoree.modeling.api.KObject>, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void {
-                            if(elems === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var traces: java.util.List<org.kevoree.modeling.api.trace.ModelTrace> = new java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>();
                             var tempMap: java.util.Map<number, org.kevoree.modeling.api.KObject> = new java.util.HashMap<number, org.kevoree.modeling.api.KObject>();
                             var parentMap: java.util.Map<number, org.kevoree.modeling.api.KObject> = new java.util.HashMap<number, org.kevoree.modeling.api.KObject>();
@@ -4957,10 +4265,6 @@ module org {
                             private _weights: number[];
                             private _polyTime: org.kevoree.modeling.api.polynomial.doublepolynomial.TimePolynomial;
                             constructor(p_timeOrigin: number, p_toleratedError: number, p_maxDegree: number, p_prioritization: org.kevoree.modeling.api.polynomial.util.Prioritization) {
-                                if(p_timeOrigin === undefined || p_toleratedError === undefined || p_maxDegree === undefined || p_prioritization === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this._polyTime = new org.kevoree.modeling.api.polynomial.doublepolynomial.TimePolynomial(p_timeOrigin);
                                 this._prioritization = p_prioritization;
                                 this._maxDegree = p_maxDegree;
@@ -4980,10 +4284,6 @@ module org {
                             }
 
                             public comparePolynome(p2: org.kevoree.modeling.api.polynomial.doublepolynomial.DoublePolynomialModel, err: number): boolean {
-                                if(p2 === undefined || err === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (this._weights.length != p2._weights.length) {
                                     return false;
                                 }
@@ -4996,18 +4296,10 @@ module org {
                             }
 
                             public extrapolate(time: number): number {
-                                if(time === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 return this.test_extrapolate(this._polyTime.denormalize(time), this._weights);
                             }
 
                             public insert(time: number, value: number): boolean {
-                                if(time === undefined || value === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (this._weights == null) {
                                     this.internal_feed(time, value);
                                     this._isDirty = true;
@@ -5069,10 +4361,6 @@ module org {
                             }
 
                             public load(payload: string): void {
-                                if(payload === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var parts: string[] = payload.split(DoublePolynomialModel.sep);
                                 if (parts.length == 2) {
                                     var welems: string[] = parts[0].split(DoublePolynomialModel.sepW);
@@ -5108,10 +4396,6 @@ module org {
                             }
 
                             private internal_feed(time: number, value: number): void {
-                                if(time === undefined || value === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (this._weights == null) {
                                     this._weights = new Array();
                                     this._weights[0] = value;
@@ -5120,10 +4404,6 @@ module org {
                             }
 
                             private maxError(computedWeights: number[], time: number, value: number): number {
-                                if(computedWeights === undefined || time === undefined || value === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var maxErr: number = 0;
                                 var temp: number;
                                 var ds: number;
@@ -5143,10 +4423,6 @@ module org {
                             }
 
                             private test_extrapolate(time: number, weights: number[]): number {
-                                if(time === undefined || weights === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var result: number = 0;
                                 var power: number = 1;
                                 for (var j: number = 0; j < weights.length; j++) {
@@ -5168,10 +4444,6 @@ module org {
                             private _nbSamples: number;
                             private _samplingPeriod: number;
                             constructor(p_timeOrigin: number) {
-                                if(p_timeOrigin === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this._timeOrigin = p_timeOrigin;
                             }
 
@@ -5196,18 +4468,10 @@ module org {
                             }
 
                             public denormalize(p_time: number): number {
-                                if(p_time === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 return (<number>(p_time - this._timeOrigin)) / this._samplingPeriod;
                             }
 
                             public getNormalizedTime(id: number): number {
-                                if(id === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var result: number = 0;
                                 var power: number = 1;
                                 for (var j: number = 0; j < this._weights.length; j++) {
@@ -5218,10 +4482,6 @@ module org {
                             }
 
                             public extrapolate(id: number): number {
-                                if(id === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 return this.test_extrapolate(id, this._weights);
                             }
 
@@ -5230,10 +4490,6 @@ module org {
                             }
 
                             public insert(time: number): boolean {
-                                if(time === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (this._weights == null) {
                                     this._timeOrigin = time;
                                     this._weights = new Array();
@@ -5292,10 +4548,6 @@ module org {
                             }
 
                             private maxError(computedWeights: number[], lastId: number, newtime: number): number {
-                                if(computedWeights === undefined || lastId === undefined || newtime === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var maxErr: number = 0;
                                 var time: number;
                                 var temp: number;
@@ -5314,10 +4566,6 @@ module org {
                             }
 
                             private test_extrapolate(id: number, newWeights: number[]): number {
-                                if(id === undefined || newWeights === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var result: number = 0;
                                 var power: number = 1;
                                 for (var j: number = 0; j < newWeights.length; j++) {
@@ -5356,10 +4604,6 @@ module org {
                             }
 
                             public load(payload: string): void {
-                                if(payload === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var parts: string[] = payload.split(org.kevoree.modeling.api.polynomial.doublepolynomial.DoublePolynomialModel.sepW);
                                 this._weights = new Array();
                                 for (var i: number = 0; i < parts.length - 2; i++) {
@@ -5391,10 +4635,6 @@ module org {
                             private static sep: string = "/";
                             private _isDirty: boolean = false;
                             constructor(timeOrigin: number, toleratedError: number, maxDegree: number, prioritization: org.kevoree.modeling.api.polynomial.util.Prioritization) {
-                                if(timeOrigin === undefined || toleratedError === undefined || maxDegree === undefined || prioritization === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this.timeOrigin = timeOrigin;
                                 this.degradeFactor = 1;
                                 this.prioritization = prioritization;
@@ -5419,10 +4659,6 @@ module org {
                             }
 
                             private getMaxErr(degree: number, toleratedError: number, maxDegree: number, prioritization: org.kevoree.modeling.api.polynomial.util.Prioritization): number {
-                                if(degree === undefined || toleratedError === undefined || maxDegree === undefined || prioritization === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var tol: number = toleratedError;
                                 if (prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.HIGHDEGREES) {
                                     tol = toleratedError / Math.pow(2, maxDegree - degree);
@@ -5439,10 +4675,6 @@ module org {
                             }
 
                             private internal_feed(time: number, value: number): void {
-                                if(time === undefined || value === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (this.weights == null) {
                                     this.weights = new Array();
                                     this.weights[0] = value;
@@ -5452,10 +4684,6 @@ module org {
                             }
 
                             private maxError(computedWeights: number[], time: number, value: number): number {
-                                if(computedWeights === undefined || time === undefined || value === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var maxErr: number = 0;
                                 var temp: number = 0;
                                 var ds: org.kevoree.modeling.api.polynomial.util.DataSample;
@@ -5475,10 +4703,6 @@ module org {
                             }
 
                             public comparePolynome(p2: org.kevoree.modeling.api.polynomial.simplepolynomial.SimplePolynomialModel, err: number): boolean {
-                                if(p2 === undefined || err === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (this.weights.length != p2.weights.length) {
                                     return false;
                                 }
@@ -5491,10 +4715,6 @@ module org {
                             }
 
                             private internal_extrapolate(time: number, weights: number[]): number {
-                                if(time === undefined || weights === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var result: number = 0;
                                 var t: number = (<number>(time - this.timeOrigin)) / this.degradeFactor;
                                 var power: number = 1;
@@ -5506,18 +4726,10 @@ module org {
                             }
 
                             public extrapolate(time: number): number {
-                                if(time === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 return this.internal_extrapolate(time, this.weights);
                             }
 
                             public insert(time: number, value: number): boolean {
-                                if(time === undefined || value === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (this.weights == null) {
                                     this.internal_feed(time, value);
                                     this._lastIndex = time;
@@ -5578,10 +4790,6 @@ module org {
                             }
 
                             public load(payload: string): void {
-                                if(payload === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var elems: string[] = payload.split(SimplePolynomialModel.sep);
                                 this.weights = new Array();
                                 for (var i: number = 0; i < elems.length; i++) {
@@ -5610,10 +4818,6 @@ module org {
                             private Y: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F;
                             private Z: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F;
                             public setA(A: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F): boolean {
-                                if(A === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (A.numRows > this.maxRows || A.numCols > this.maxCols) {
                                     this.setMaxSize(A.numRows, A.numCols);
                                 }
@@ -5630,10 +4834,6 @@ module org {
                             }
 
                             private solveU(U: number[], b: number[], n: number): void {
-                                if(U === undefined || b === undefined || n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 for (var i: number = n - 1; i >= 0; i--) {
                                     var sum: number = b[i];
                                     var indexU: number = i * n + i + 1;
@@ -5645,10 +4845,6 @@ module org {
                             }
 
                             public solve(B: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F, X: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F): void {
-                                if(B === undefined || X === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var BnumCols: number = B.numCols;
                                 this.Y.reshape(this.numRows, 1, false);
                                 this.Z.reshape(this.numRows, 1, false);
@@ -5669,10 +4865,6 @@ module org {
                             }
 
                             public setMaxSize(maxRows: number, maxCols: number): void {
-                                if(maxRows === undefined || maxCols === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 maxRows += 5;
                                 this.maxRows = maxRows;
                                 this.maxCols = maxCols;
@@ -5689,10 +4881,6 @@ module org {
                             public time: number;
                             public value: number;
                             constructor(time: number, value: number) {
-                                if(time === undefined || value === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this.time = time;
                                 this.value = value;
                             }
@@ -5706,10 +4894,6 @@ module org {
                             public data: number[];
                             public static MULT_COLUMN_SWITCH: number = 15;
                             public static multTransA_smallMV(A: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F, B: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F, C: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F): void {
-                                if(A === undefined || B === undefined || C === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var cIndex: number = 0;
                                 for (var i: number = 0; i < A.numCols; i++) {
                                     var total: number = 0.0;
@@ -5723,10 +4907,6 @@ module org {
                             }
 
                             public static multTransA_reorderMV(A: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F, B: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F, C: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F): void {
-                                if(A === undefined || B === undefined || C === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (A.numRows == 0) {
                                     org.kevoree.modeling.api.polynomial.util.DenseMatrix64F.fill(C, 0);
                                     return;
@@ -5745,10 +4925,6 @@ module org {
                             }
 
                             public static multTransA_reorderMM(a: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F, b: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F, c: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F): void {
-                                if(a === undefined || b === undefined || c === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (a.numCols == 0 || a.numRows == 0) {
                                     org.kevoree.modeling.api.polynomial.util.DenseMatrix64F.fill(c, 0);
                                     return;
@@ -5775,10 +4951,6 @@ module org {
                             }
 
                             public static multTransA_smallMM(a: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F, b: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F, c: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F): void {
-                                if(a === undefined || b === undefined || c === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var cIndex: number = 0;
                                 for (var i: number = 0; i < a.numCols; i++) {
                                     for (var j: number = 0; j < b.numCols; j++) {
@@ -5796,10 +4968,6 @@ module org {
                             }
 
                             public static multTransA(a: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F, b: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F, c: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F): void {
-                                if(a === undefined || b === undefined || c === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (b.numCols == 1) {
                                     if (a.numCols >= org.kevoree.modeling.api.polynomial.util.DenseMatrix64F.MULT_COLUMN_SWITCH) {
                                         org.kevoree.modeling.api.polynomial.util.DenseMatrix64F.multTransA_reorderMV(a, b, c);
@@ -5816,10 +4984,6 @@ module org {
                             }
 
                             public static setIdentity(mat: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F): void {
-                                if(mat === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var width: number = mat.numRows < mat.numCols ? mat.numRows : mat.numCols;
                                 java.util.Arrays.fill(mat.data, 0, mat.getNumElements(), 0);
                                 var index: number = 0;
@@ -5830,10 +4994,6 @@ module org {
                             }
 
                             public static widentity(width: number): org.kevoree.modeling.api.polynomial.util.DenseMatrix64F {
-                                if(width === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var ret: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F = new org.kevoree.modeling.api.polynomial.util.DenseMatrix64F(width, width);
                                 for (var i: number = 0; i < width; i++) {
                                     ret.cset(i, i, 1.0);
@@ -5842,10 +5002,6 @@ module org {
                             }
 
                             public static identity(numRows: number, numCols: number): org.kevoree.modeling.api.polynomial.util.DenseMatrix64F {
-                                if(numRows === undefined || numCols === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var ret: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F = new org.kevoree.modeling.api.polynomial.util.DenseMatrix64F(numRows, numCols);
                                 var small: number = numRows < numCols ? numRows : numCols;
                                 for (var i: number = 0; i < small; i++) {
@@ -5855,52 +5011,28 @@ module org {
                             }
 
                             public static fill(a: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F, value: number): void {
-                                if(a === undefined || value === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 java.util.Arrays.fill(a.data, 0, a.getNumElements(), value);
                             }
 
                             public get(index: number): number {
-                                if(index === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 return this.data[index];
                             }
 
                             public set(index: number, val: number): number {
-                                if(index === undefined || val === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 return this.data[index] = val;
                             }
 
                             public plus(index: number, val: number): number {
-                                if(index === undefined || val === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 return this.data[index] += val;
                             }
 
                             constructor(numRows: number, numCols: number) {
-                                if(numRows === undefined || numCols === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this.data = new Array();
                                 this.numRows = numRows;
                                 this.numCols = numCols;
                             }
 
                             public reshape(numRows: number, numCols: number, saveValues: boolean): void {
-                                if(numRows === undefined || numCols === undefined || saveValues === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (this.data.length < numRows * numCols) {
                                     var d: number[] = new Array();
                                     if (saveValues) {
@@ -5913,18 +5045,10 @@ module org {
                             }
 
                             public cset(row: number, col: number, value: number): void {
-                                if(row === undefined || col === undefined || value === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this.data[row * this.numCols + col] = value;
                             }
 
                             public unsafe_get(row: number, col: number): number {
-                                if(row === undefined || col === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 return this.data[row * this.numCols + col];
                             }
 
@@ -5941,10 +5065,6 @@ module org {
                             public y: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F;
                             public solver: org.kevoree.modeling.api.polynomial.util.AdjLinearSolverQr;
                             constructor(degree: number) {
-                                if(degree === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this.coef = new org.kevoree.modeling.api.polynomial.util.DenseMatrix64F(degree + 1, 1);
                                 this.A = new org.kevoree.modeling.api.polynomial.util.DenseMatrix64F(1, degree + 1);
                                 this.y = new org.kevoree.modeling.api.polynomial.util.DenseMatrix64F(1, 1);
@@ -5956,10 +5076,6 @@ module org {
                             }
 
                             public fit(samplePoints: number[], observations: number[]): void {
-                                if(samplePoints === undefined || observations === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this.y.reshape(observations.length, 1, false);
                                 System.arraycopy(observations, 0, this.y.data, 0, observations.length);
                                 this.A.reshape(this.y.numRows, this.coef.numRows, false);
@@ -6006,10 +5122,6 @@ module org {
                             public tau: number;
                             public error: boolean;
                             public setExpectedMaxSize(numRows: number, numCols: number): void {
-                                if(numRows === undefined || numCols === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this.numCols = numCols;
                                 this.numRows = numRows;
                                 this.minLength = Math.min(numCols, numRows);
@@ -6031,10 +5143,6 @@ module org {
                             }
 
                             public getQ(Q: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F, compact: boolean): org.kevoree.modeling.api.polynomial.util.DenseMatrix64F {
-                                if(Q === undefined || compact === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (compact) {
                                     if (Q == null) {
                                         Q = org.kevoree.modeling.api.polynomial.util.DenseMatrix64F.identity(this.numRows, this.minLength);
@@ -6059,10 +5167,6 @@ module org {
                             }
 
                             public getR(R: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F, compact: boolean): org.kevoree.modeling.api.polynomial.util.DenseMatrix64F {
-                                if(R === undefined || compact === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (R == null) {
                                     if (compact) {
                                         R = new org.kevoree.modeling.api.polynomial.util.DenseMatrix64F(this.minLength, this.numCols);
@@ -6089,10 +5193,6 @@ module org {
                             }
 
                             public decompose(A: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F): boolean {
-                                if(A === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this.setExpectedMaxSize(A.numRows, A.numCols);
                                 this.convertToColumnMajor(A);
                                 this.error = false;
@@ -6104,10 +5204,6 @@ module org {
                             }
 
                             public convertToColumnMajor(A: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F): void {
-                                if(A === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 for (var x: number = 0; x < this.numCols; x++) {
                                     var colQ: number[] = this.dataQR[x];
                                     for (var y: number = 0; y < this.numRows; y++) {
@@ -6117,10 +5213,6 @@ module org {
                             }
 
                             public householder(j: number): void {
-                                if(j === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var u: number[] = this.dataQR[j];
                                 var max: number = org.kevoree.modeling.api.polynomial.util.QRDecompositionHouseholderColumn_D64.findMax(u, j, this.numRows - j);
                                 if (max == 0.0) {
@@ -6138,10 +5230,6 @@ module org {
                             }
 
                             public updateA(w: number): void {
-                                if(w === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var u: number[] = this.dataQR[w];
                                 for (var j: number = w + 1; j < this.numCols; j++) {
                                     var colQ: number[] = this.dataQR[j];
@@ -6158,10 +5246,6 @@ module org {
                             }
 
                             public static findMax(u: number[], startU: number, length: number): number {
-                                if(u === undefined || startU === undefined || length === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var max: number = -1;
                                 var index: number = startU;
                                 var stopIndex: number = startU + length;
@@ -6176,20 +5260,12 @@ module org {
                             }
 
                             public static divideElements(j: number, numRows: number, u: number[], u_0: number): void {
-                                if(j === undefined || numRows === undefined || u === undefined || u_0 === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 for (var i: number = j; i < numRows; i++) {
                                     u[i] /= u_0;
                                 }
                             }
 
                             public static computeTauAndDivide(j: number, numRows: number, u: number[], max: number): number {
-                                if(j === undefined || numRows === undefined || u === undefined || max === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var tau: number = 0;
                                 for (var i: number = j; i < numRows; i++) {
                                     var d: number = u[i] /= max;
@@ -6203,10 +5279,6 @@ module org {
                             }
 
                             public static rank1UpdateMultR(A: org.kevoree.modeling.api.polynomial.util.DenseMatrix64F, u: number[], gamma: number, colA0: number, w0: number, w1: number, _temp: number[]): void {
-                                if(A === undefined || u === undefined || gamma === undefined || colA0 === undefined || w0 === undefined || w1 === undefined || _temp === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 for (var i: number = colA0; i < A.numCols; i++) {
                                     _temp[i] = u[w0] * A.data[w0 * A.numCols + i];
                                 }
@@ -6241,10 +5313,6 @@ module org {
                         private _lastAction: org.kevoree.modeling.api.promise.KTraversalAction;
                         private _terminated: boolean = false;
                         constructor(p_root: org.kevoree.modeling.api.KObject, p_ref: org.kevoree.modeling.api.meta.MetaReference) {
-                            if(p_root === undefined || p_ref === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._initAction = new org.kevoree.modeling.api.promise.actions.KTraverseAction(p_ref);
                             this._initObjs = new Array();
                             this._initObjs[0] = p_root;
@@ -6252,10 +5320,6 @@ module org {
                         }
 
                         public traverse(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.promise.KTraversalPromise {
-                            if(p_metaReference === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (this._terminated) {
                                 throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
                             }
@@ -6266,10 +5330,6 @@ module org {
                         }
 
                         public attribute(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_expectedValue: any): org.kevoree.modeling.api.promise.KTraversalPromise {
-                            if(p_attribute === undefined || p_expectedValue === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (this._terminated) {
                                 throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
                             }
@@ -6280,10 +5340,6 @@ module org {
                         }
 
                         public filter(p_filter: (p : org.kevoree.modeling.api.KObject) => boolean): org.kevoree.modeling.api.promise.KTraversalPromise {
-                            if(p_filter === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (this._terminated) {
                                 throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
                             }
@@ -6294,20 +5350,12 @@ module org {
                         }
 
                         public then(callback: (p : org.kevoree.modeling.api.KObject[]) => void): void {
-                            if(callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._terminated = true;
                             this._lastAction.chain(new org.kevoree.modeling.api.promise.actions.KFinalAction(callback));
                             this._initAction.execute(this._initObjs);
                         }
 
                         public map(attribute: org.kevoree.modeling.api.meta.MetaAttribute, callback: (p : any[]) => void): void {
-                            if(attribute === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._terminated = true;
                             this._lastAction.chain(new org.kevoree.modeling.api.promise.actions.KMapAction(attribute, callback));
                             this._initAction.execute(this._initObjs);
@@ -6349,26 +5397,14 @@ module org {
                             private _next: org.kevoree.modeling.api.promise.KTraversalAction;
                             private _filter: (p : org.kevoree.modeling.api.KObject) => boolean;
                             constructor(p_filter: (p : org.kevoree.modeling.api.KObject) => boolean) {
-                                if(p_filter === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this._filter = p_filter;
                             }
 
                             public chain(p_next: org.kevoree.modeling.api.promise.KTraversalAction): void {
-                                if(p_next === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this._next = p_next;
                             }
 
                             public execute(p_inputs: org.kevoree.modeling.api.KObject[]): void {
-                                if(p_inputs === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var nextStep: java.util.List<org.kevoree.modeling.api.KObject> = new java.util.ArrayList<org.kevoree.modeling.api.KObject>();
                                 for (var i: number = 0; i < p_inputs.length; i++) {
                                     try {
@@ -6393,27 +5429,15 @@ module org {
                             private _attribute: org.kevoree.modeling.api.meta.MetaAttribute;
                             private _expectedValue: any;
                             constructor(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_expectedValue: any) {
-                                if(p_attribute === undefined || p_expectedValue === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this._attribute = p_attribute;
                                 this._expectedValue = p_expectedValue;
                             }
 
                             public chain(p_next: org.kevoree.modeling.api.promise.KTraversalAction): void {
-                                if(p_next === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this._next = p_next;
                             }
 
                             public execute(p_inputs: org.kevoree.modeling.api.KObject[]): void {
-                                if(p_inputs === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (p_inputs == null || p_inputs.length == 0) {
                                     this._next.execute(p_inputs);
                                     return;
@@ -6490,25 +5514,13 @@ module org {
 
                             private _finalCallback: (p : org.kevoree.modeling.api.KObject[]) => void;
                             constructor(p_callback: (p : org.kevoree.modeling.api.KObject[]) => void) {
-                                if(p_callback === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this._finalCallback = p_callback;
                             }
 
                             public chain(next: org.kevoree.modeling.api.promise.KTraversalAction): void {
-                                if(next === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                             }
 
                             public execute(inputs: org.kevoree.modeling.api.KObject[]): void {
-                                if(inputs === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this._finalCallback(inputs);
                             }
 
@@ -6519,26 +5531,14 @@ module org {
                             private _finalCallback: (p : any[]) => void;
                             private _attribute: org.kevoree.modeling.api.meta.MetaAttribute;
                             constructor(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_callback: (p : any[]) => void) {
-                                if(p_attribute === undefined || p_callback === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this._finalCallback = p_callback;
                                 this._attribute = p_attribute;
                             }
 
                             public chain(next: org.kevoree.modeling.api.promise.KTraversalAction): void {
-                                if(next === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                             }
 
                             public execute(inputs: org.kevoree.modeling.api.KObject[]): void {
-                                if(inputs === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var collected: java.util.List<any> = new java.util.ArrayList<any>();
                                 for (var i: number = 0; i < inputs.length; i++) {
                                     if (inputs[i] != null) {
@@ -6558,26 +5558,14 @@ module org {
                             private _next: org.kevoree.modeling.api.promise.KTraversalAction;
                             private _reference: org.kevoree.modeling.api.meta.MetaReference;
                             constructor(p_reference: org.kevoree.modeling.api.meta.MetaReference) {
-                                if(p_reference === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this._reference = p_reference;
                             }
 
                             public chain(p_next: org.kevoree.modeling.api.promise.KTraversalAction): void {
-                                if(p_next === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this._next = p_next;
                             }
 
                             public execute(p_inputs: org.kevoree.modeling.api.KObject[]): void {
-                                if(p_inputs === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (p_inputs == null || p_inputs.length == 0) {
                                     this._next.execute(p_inputs);
                                     return;
@@ -6673,10 +5661,6 @@ module org {
                         public previousIsDeep: boolean;
                         public previousIsRefDeep: boolean;
                         constructor(relationName: string, params: java.util.Map<string, org.kevoree.modeling.api.select.KQueryParam>, subQuery: string, oldString: string, previousIsDeep: boolean, previousIsRefDeep: boolean) {
-                            if(relationName === undefined || params === undefined || subQuery === undefined || oldString === undefined || previousIsDeep === undefined || previousIsRefDeep === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.relationName = relationName;
                             this.params = params;
                             this.subQuery = subQuery;
@@ -6686,10 +5670,6 @@ module org {
                         }
 
                         public static extractFirstQuery(query: string): org.kevoree.modeling.api.select.KQuery {
-                            if(query === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (query == null || query.length == 0) {
                                 return null;
                             }
@@ -6820,10 +5800,6 @@ module org {
                         private _value: string;
                         private _negative: boolean;
                         constructor(p_name: string, p_value: string, p_negative: boolean) {
-                            if(p_name === undefined || p_value === undefined || p_negative === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._name = p_name;
                             this._value = p_value;
                             this._negative = p_negative;
@@ -6846,10 +5822,6 @@ module org {
                     export class KSelector {
 
                         public static select(view: org.kevoree.modeling.api.KView, roots: org.kevoree.modeling.api.KObject[], query: string, callback: (p : org.kevoree.modeling.api.KObject[]) => void): void {
-                            if(view === undefined || roots === undefined || query === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (callback == null) {
                                 return;
                             }
@@ -6937,18 +5909,10 @@ module org {
                         public dirty: boolean = true;
                         public versionTree: org.kevoree.modeling.api.time.rbtree.RBTree = new org.kevoree.modeling.api.time.rbtree.RBTree();
                         public walk(walker: (p : number) => void): void {
-                            if(walker === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.walkAsc(walker);
                         }
 
                         public walkAsc(walker: (p : number) => void): void {
-                            if(walker === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var elem: org.kevoree.modeling.api.time.rbtree.TreeNode = this.versionTree.first();
                             while (elem != null){
                                 walker(elem.getKey());
@@ -6957,10 +5921,6 @@ module org {
                         }
 
                         public walkDesc(walker: (p : number) => void): void {
-                            if(walker === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var elem: org.kevoree.modeling.api.time.rbtree.TreeNode = this.versionTree.last();
                             while (elem != null){
                                 walker(elem.getKey());
@@ -6969,10 +5929,6 @@ module org {
                         }
 
                         public walkRangeAsc(walker: (p : number) => void, from: number, to: number): void {
-                            if(walker === undefined || from === undefined || to === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var from2: number = from;
                             var to2: number = to;
                             if (from > to) {
@@ -6992,10 +5948,6 @@ module org {
                         }
 
                         public walkRangeDesc(walker: (p : number) => void, from: number, to: number): void {
-                            if(walker === undefined || from === undefined || to === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var from2: number = from;
                             var to2: number = to;
                             if (from > to) {
@@ -7034,10 +5986,6 @@ module org {
                         }
 
                         public next(from: number): number {
-                            if(from === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var nextNode: org.kevoree.modeling.api.time.rbtree.TreeNode = this.versionTree.next(from);
                             if (nextNode != null) {
                                 return nextNode.getKey();
@@ -7047,10 +5995,6 @@ module org {
                         }
 
                         public previous(from: number): number {
-                            if(from === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var previousNode: org.kevoree.modeling.api.time.rbtree.TreeNode = this.versionTree.previous(from);
                             if (previousNode != null) {
                                 return previousNode.getKey();
@@ -7060,10 +6004,6 @@ module org {
                         }
 
                         public resolve(time: number): number {
-                            if(time === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var previousNode: org.kevoree.modeling.api.time.rbtree.TreeNode = this.versionTree.previousOrEqual(time);
                             if (previousNode != null) {
                                 return previousNode.getKey();
@@ -7073,20 +6013,12 @@ module org {
                         }
 
                         public insert(time: number): org.kevoree.modeling.api.time.TimeTree {
-                            if(time === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.versionTree.insert(time, org.kevoree.modeling.api.time.rbtree.State.EXISTS);
                             this.dirty = true;
                             return this;
                         }
 
                         public delete(time: number): org.kevoree.modeling.api.time.TimeTree {
-                            if(time === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.versionTree.insert(time, org.kevoree.modeling.api.time.rbtree.State.DELETED);
                             this.dirty = true;
                             return this;
@@ -7101,10 +6033,6 @@ module org {
                         }
 
                         public setDirty(state: boolean): void {
-                            if(state === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.dirty = state;
                         }
 
@@ -7113,10 +6041,6 @@ module org {
                         }
 
                         public load(payload: string): void {
-                            if(payload === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.versionTree.unserialize(payload);
                             this.dirty = false;
                         }
@@ -7197,10 +6121,6 @@ module org {
                             }
 
                             public unserialize(payload: string): void {
-                                if(payload === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (payload == null || payload.length == 0) {
                                     return;
                                 }
@@ -7222,10 +6142,6 @@ module org {
                             }
 
                             public previousOrEqual(key: number): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                if(key === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var p: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.root;
                                 if (p == null) {
                                     return null;
@@ -7258,10 +6174,6 @@ module org {
                             }
 
                             public nextOrEqual(key: number): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                if(key === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var p: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.root;
                                 if (p == null) {
                                     return null;
@@ -7294,10 +6206,6 @@ module org {
                             }
 
                             public previous(key: number): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                if(key === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var p: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.root;
                                 if (p == null) {
                                     return null;
@@ -7325,10 +6233,6 @@ module org {
                             }
 
                             public previousWhileNot(key: number, until: number): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                if(key === undefined || until === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var elm: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.previousOrEqual(key);
                                 if (elm.value == until) {
                                     return null;
@@ -7345,10 +6249,6 @@ module org {
                             }
 
                             public next(key: number): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                if(key === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var p: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.root;
                                 if (p == null) {
                                     return null;
@@ -7376,10 +6276,6 @@ module org {
                             }
 
                             public nextWhileNot(key: number, until: number): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                if(key === undefined || until === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var elm: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.nextOrEqual(key);
                                 if (elm.value == until) {
                                     return null;
@@ -7426,10 +6322,6 @@ module org {
                             }
 
                             public firstWhileNot(key: number, until: number): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                if(key === undefined || until === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var elm: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.previousOrEqual(key);
                                 if (elm == null) {
                                     return null;
@@ -7451,10 +6343,6 @@ module org {
                             }
 
                             public lastWhileNot(key: number, until: number): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                if(key === undefined || until === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var elm: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.previousOrEqual(key);
                                 if (elm == null) {
                                     return null;
@@ -7476,10 +6364,6 @@ module org {
                             }
 
                             private lookupNode(key: number): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                if(key === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var n: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.root;
                                 if (n == null) {
                                     return null;
@@ -7499,10 +6383,6 @@ module org {
                             }
 
                             public lookup(key: number): number {
-                                if(key === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var n: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.lookupNode(key);
                                 if (n == null) {
                                     return null;
@@ -7512,10 +6392,6 @@ module org {
                             }
 
                             private rotateLeft(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var r: org.kevoree.modeling.api.time.rbtree.LongTreeNode = n.getRight();
                                 this.replaceNode(n, r);
                                 n.setRight(r.getLeft());
@@ -7527,10 +6403,6 @@ module org {
                             }
 
                             private rotateRight(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var l: org.kevoree.modeling.api.time.rbtree.LongTreeNode = n.getLeft();
                                 this.replaceNode(n, l);
                                 n.setLeft(l.getRight());
@@ -7542,10 +6414,6 @@ module org {
                             }
 
                             private replaceNode(oldn: org.kevoree.modeling.api.time.rbtree.LongTreeNode, newn: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if(oldn === undefined || newn === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (oldn.getParent() == null) {
                                     this.root = newn;
                                 } else {
@@ -7561,10 +6429,6 @@ module org {
                             }
 
                             public insert(key: number, value: number): void {
-                                if(key === undefined || value === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this.dirty = true;
                                 var insertedNode: org.kevoree.modeling.api.time.rbtree.LongTreeNode = new org.kevoree.modeling.api.time.rbtree.LongTreeNode(key, value, org.kevoree.modeling.api.time.rbtree.Color.RED, null, null);
                                 if (this.root == null) {
@@ -7602,10 +6466,6 @@ module org {
                             }
 
                             private insertCase1(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (n.getParent() == null) {
                                     n.color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
                                 } else {
@@ -7614,10 +6474,6 @@ module org {
                             }
 
                             private insertCase2(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
                                     return;
                                 } else {
@@ -7626,10 +6482,6 @@ module org {
                             }
 
                             private insertCase3(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (this.nodeColor(n.uncle()) == org.kevoree.modeling.api.time.rbtree.Color.RED) {
                                     n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
                                     n.uncle().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
@@ -7641,10 +6493,6 @@ module org {
                             }
 
                             private insertCase4(n_n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if(n_n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var n: org.kevoree.modeling.api.time.rbtree.LongTreeNode = n_n;
                                 if (n == n.getParent().getRight() && n.getParent() == n.grandparent().getLeft()) {
                                     this.rotateLeft(n.getParent());
@@ -7659,10 +6507,6 @@ module org {
                             }
 
                             private insertCase5(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
                                 n.grandparent().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
                                 if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getLeft()) {
@@ -7673,10 +6517,6 @@ module org {
                             }
 
                             public delete(key: number): void {
-                                if(key === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var n: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.lookupNode(key);
                                 if (n == null) {
                                     return;
@@ -7706,10 +6546,6 @@ module org {
                             }
 
                             private deleteCase1(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (n.getParent() == null) {
                                     return;
                                 } else {
@@ -7718,10 +6554,6 @@ module org {
                             }
 
                             private deleteCase2(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.RED) {
                                     n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
                                     n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
@@ -7735,10 +6567,6 @@ module org {
                             }
 
                             private deleteCase3(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
                                     n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
                                     this.deleteCase1(n.getParent());
@@ -7748,10 +6576,6 @@ module org {
                             }
 
                             private deleteCase4(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.time.rbtree.Color.RED && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
                                     n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
                                     n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
@@ -7761,10 +6585,6 @@ module org {
                             }
 
                             private deleteCase5(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (n == n.getParent().getLeft() && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.RED && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
                                     n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
                                     n.sibling().getLeft().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
@@ -7780,10 +6600,6 @@ module org {
                             }
 
                             private deleteCase6(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 n.sibling().color = this.nodeColor(n.getParent());
                                 n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
                                 if (n == n.getParent().getLeft()) {
@@ -7796,10 +6612,6 @@ module org {
                             }
 
                             private nodeColor(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): org.kevoree.modeling.api.time.rbtree.Color {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (n == null) {
                                     return org.kevoree.modeling.api.time.rbtree.Color.BLACK;
                                 } else {
@@ -7820,10 +6632,6 @@ module org {
                             private right: org.kevoree.modeling.api.time.rbtree.LongTreeNode;
                             private parent: org.kevoree.modeling.api.time.rbtree.LongTreeNode = null;
                             constructor(key: number, value: number, color: org.kevoree.modeling.api.time.rbtree.Color, left: org.kevoree.modeling.api.time.rbtree.LongTreeNode, right: org.kevoree.modeling.api.time.rbtree.LongTreeNode) {
-                                if(key === undefined || value === undefined || color === undefined || left === undefined || right === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this.key = key;
                                 this.value = value;
                                 this.color = color;
@@ -7871,10 +6679,6 @@ module org {
                             }
 
                             public setLeft(left: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if(left === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this.left = left;
                             }
 
@@ -7883,10 +6687,6 @@ module org {
                             }
 
                             public setRight(right: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if(right === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this.right = right;
                             }
 
@@ -7895,18 +6695,10 @@ module org {
                             }
 
                             public setParent(parent: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if(parent === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this.parent = parent;
                             }
 
                             public serialize(builder: java.lang.StringBuilder): void {
-                                if(builder === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 builder.append("|");
                                 if (this.color == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
                                     builder.append(LongTreeNode.BLACK);
@@ -7981,18 +6773,10 @@ module org {
                             }
 
                             public static unserialize(ctx: org.kevoree.modeling.api.time.rbtree.TreeReaderContext): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                if(ctx === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 return org.kevoree.modeling.api.time.rbtree.LongTreeNode.internal_unserialize(true, ctx);
                             }
 
                             public static internal_unserialize(rightBranch: boolean, ctx: org.kevoree.modeling.api.time.rbtree.TreeReaderContext): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                if(rightBranch === undefined || ctx === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (ctx.index >= ctx.payload.length) {
                                     return null;
                                 }
@@ -8078,10 +6862,6 @@ module org {
                             }
 
                             public unserialize(payload: string): void {
-                                if(payload === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (payload == null || payload.length == 0) {
                                     return;
                                 }
@@ -8101,10 +6881,6 @@ module org {
                             }
 
                             public previousOrEqual(key: number): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                if(key === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var p: org.kevoree.modeling.api.time.rbtree.TreeNode = this.root;
                                 if (p == null) {
                                     return null;
@@ -8137,10 +6913,6 @@ module org {
                             }
 
                             public nextOrEqual(key: number): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                if(key === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var p: org.kevoree.modeling.api.time.rbtree.TreeNode = this.root;
                                 if (p == null) {
                                     return null;
@@ -8173,10 +6945,6 @@ module org {
                             }
 
                             public previous(key: number): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                if(key === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var p: org.kevoree.modeling.api.time.rbtree.TreeNode = this.root;
                                 if (p == null) {
                                     return null;
@@ -8204,10 +6972,6 @@ module org {
                             }
 
                             public previousWhileNot(key: number, until: org.kevoree.modeling.api.time.rbtree.State): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                if(key === undefined || until === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var elm: org.kevoree.modeling.api.time.rbtree.TreeNode = this.previousOrEqual(key);
                                 if (elm.value.equals(until)) {
                                     return null;
@@ -8224,10 +6988,6 @@ module org {
                             }
 
                             public next(key: number): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                if(key === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var p: org.kevoree.modeling.api.time.rbtree.TreeNode = this.root;
                                 if (p == null) {
                                     return null;
@@ -8255,10 +7015,6 @@ module org {
                             }
 
                             public nextWhileNot(key: number, until: org.kevoree.modeling.api.time.rbtree.State): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                if(key === undefined || until === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var elm: org.kevoree.modeling.api.time.rbtree.TreeNode = this.nextOrEqual(key);
                                 if (elm.value.equals(until)) {
                                     return null;
@@ -8305,10 +7061,6 @@ module org {
                             }
 
                             public firstWhileNot(key: number, until: org.kevoree.modeling.api.time.rbtree.State): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                if(key === undefined || until === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var elm: org.kevoree.modeling.api.time.rbtree.TreeNode = this.previousOrEqual(key);
                                 if (elm == null) {
                                     return null;
@@ -8330,10 +7082,6 @@ module org {
                             }
 
                             public lastWhileNot(key: number, until: org.kevoree.modeling.api.time.rbtree.State): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                if(key === undefined || until === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var elm: org.kevoree.modeling.api.time.rbtree.TreeNode = this.previousOrEqual(key);
                                 if (elm == null) {
                                     return null;
@@ -8355,10 +7103,6 @@ module org {
                             }
 
                             private lookupNode(key: number): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                if(key === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var n: org.kevoree.modeling.api.time.rbtree.TreeNode = this.root;
                                 if (n == null) {
                                     return null;
@@ -8378,10 +7122,6 @@ module org {
                             }
 
                             public lookup(key: number): org.kevoree.modeling.api.time.rbtree.State {
-                                if(key === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var n: org.kevoree.modeling.api.time.rbtree.TreeNode = this.lookupNode(key);
                                 if (n == null) {
                                     return null;
@@ -8391,10 +7131,6 @@ module org {
                             }
 
                             private rotateLeft(n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var r: org.kevoree.modeling.api.time.rbtree.TreeNode = n.getRight();
                                 this.replaceNode(n, r);
                                 n.setRight(r.getLeft());
@@ -8406,10 +7142,6 @@ module org {
                             }
 
                             private rotateRight(n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var l: org.kevoree.modeling.api.time.rbtree.TreeNode = n.getLeft();
                                 this.replaceNode(n, l);
                                 n.setLeft(l.getRight());
@@ -8421,10 +7153,6 @@ module org {
                             }
 
                             private replaceNode(oldn: org.kevoree.modeling.api.time.rbtree.TreeNode, newn: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if(oldn === undefined || newn === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (oldn.getParent() == null) {
                                     this.root = newn;
                                 } else {
@@ -8440,10 +7168,6 @@ module org {
                             }
 
                             public insert(key: number, value: org.kevoree.modeling.api.time.rbtree.State): void {
-                                if(key === undefined || value === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var insertedNode: org.kevoree.modeling.api.time.rbtree.TreeNode = new org.kevoree.modeling.api.time.rbtree.TreeNode(key, value, org.kevoree.modeling.api.time.rbtree.Color.RED, null, null);
                                 if (this.root == null) {
                                     this._size++;
@@ -8480,10 +7204,6 @@ module org {
                             }
 
                             private insertCase1(n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (n.getParent() == null) {
                                     n.color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
                                 } else {
@@ -8492,10 +7212,6 @@ module org {
                             }
 
                             private insertCase2(n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
                                     return;
                                 } else {
@@ -8504,10 +7220,6 @@ module org {
                             }
 
                             private insertCase3(n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (this.nodeColor(n.uncle()) == org.kevoree.modeling.api.time.rbtree.Color.RED) {
                                     n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
                                     n.uncle().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
@@ -8519,10 +7231,6 @@ module org {
                             }
 
                             private insertCase4(n_n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if(n_n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var n: org.kevoree.modeling.api.time.rbtree.TreeNode = n_n;
                                 if (n == n.getParent().getRight() && n.getParent() == n.grandparent().getLeft()) {
                                     this.rotateLeft(n.getParent());
@@ -8537,10 +7245,6 @@ module org {
                             }
 
                             private insertCase5(n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
                                 n.grandparent().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
                                 if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getLeft()) {
@@ -8551,10 +7255,6 @@ module org {
                             }
 
                             public delete(key: number): void {
-                                if(key === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 var n: org.kevoree.modeling.api.time.rbtree.TreeNode = this.lookupNode(key);
                                 if (n == null) {
                                     return;
@@ -8584,10 +7284,6 @@ module org {
                             }
 
                             private deleteCase1(n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (n.getParent() == null) {
                                     return;
                                 } else {
@@ -8596,10 +7292,6 @@ module org {
                             }
 
                             private deleteCase2(n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.RED) {
                                     n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
                                     n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
@@ -8613,10 +7305,6 @@ module org {
                             }
 
                             private deleteCase3(n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
                                     n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
                                     this.deleteCase1(n.getParent());
@@ -8626,10 +7314,6 @@ module org {
                             }
 
                             private deleteCase4(n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.time.rbtree.Color.RED && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
                                     n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
                                     n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
@@ -8639,10 +7323,6 @@ module org {
                             }
 
                             private deleteCase5(n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (n == n.getParent().getLeft() && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.RED && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
                                     n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
                                     n.sibling().getLeft().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
@@ -8658,10 +7338,6 @@ module org {
                             }
 
                             private deleteCase6(n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 n.sibling().color = this.nodeColor(n.getParent());
                                 n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
                                 if (n == n.getParent().getLeft()) {
@@ -8674,10 +7350,6 @@ module org {
                             }
 
                             private nodeColor(n: org.kevoree.modeling.api.time.rbtree.TreeNode): org.kevoree.modeling.api.time.rbtree.Color {
-                                if(n === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (n == null) {
                                     return org.kevoree.modeling.api.time.rbtree.Color.BLACK;
                                 } else {
@@ -8720,10 +7392,6 @@ module org {
                             }
 
                             constructor(key: number, value: org.kevoree.modeling.api.time.rbtree.State, color: org.kevoree.modeling.api.time.rbtree.Color, left: org.kevoree.modeling.api.time.rbtree.TreeNode, right: org.kevoree.modeling.api.time.rbtree.TreeNode) {
-                                if(key === undefined || value === undefined || color === undefined || left === undefined || right === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this.key = key;
                                 this.value = value;
                                 this.color = color;
@@ -8771,10 +7439,6 @@ module org {
                             }
 
                             public setLeft(left: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if(left === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this.left = left;
                             }
 
@@ -8783,10 +7447,6 @@ module org {
                             }
 
                             public setRight(right: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if(right === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this.right = right;
                             }
 
@@ -8795,18 +7455,10 @@ module org {
                             }
 
                             public setParent(parent: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if(parent === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 this.parent = parent;
                             }
 
                             public serialize(builder: java.lang.StringBuilder): void {
-                                if(builder === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 builder.append("|");
                                 if (this.value == org.kevoree.modeling.api.time.rbtree.State.DELETED) {
                                     if (this.color == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
@@ -8887,18 +7539,10 @@ module org {
                             }
 
                             public static unserialize(ctx: org.kevoree.modeling.api.time.rbtree.TreeReaderContext): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                if(ctx === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 return org.kevoree.modeling.api.time.rbtree.TreeNode.internal_unserialize(true, ctx);
                             }
 
                             public static internal_unserialize(rightBranch: boolean, ctx: org.kevoree.modeling.api.time.rbtree.TreeReaderContext): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                if(rightBranch === undefined || ctx === undefined) {
-                                    throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                                }
-
                                 if (ctx.index >= ctx.payload.length) {
                                     return null;
                                 }
@@ -8981,10 +7625,6 @@ module org {
                         private _reference: org.kevoree.modeling.api.meta.MetaReference;
                         private _paramUUID: number;
                         constructor(p_srcUUID: number, p_reference: org.kevoree.modeling.api.meta.MetaReference, p_paramUUID: number) {
-                            if(p_srcUUID === undefined || p_reference === undefined || p_paramUUID === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._srcUUID = p_srcUUID;
                             this._reference = p_reference;
                             this._paramUUID = p_paramUUID;
@@ -9055,10 +7695,6 @@ module org {
                         private _srcUUID: number;
                         private _metaClass: org.kevoree.modeling.api.meta.MetaClass;
                         constructor(p_srcUUID: number, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
-                            if(p_srcUUID === undefined || p_metaClass === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._srcUUID = p_srcUUID;
                             this._metaClass = p_metaClass;
                         }
@@ -9083,10 +7719,6 @@ module org {
                         private _reference: org.kevoree.modeling.api.meta.MetaReference;
                         private _paramUUID: number;
                         constructor(p_srcUUID: number, p_reference: org.kevoree.modeling.api.meta.MetaReference, p_paramUUID: number) {
-                            if(p_srcUUID === undefined || p_reference === undefined || p_paramUUID === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._srcUUID = p_srcUUID;
                             this._reference = p_reference;
                             this._paramUUID = p_paramUUID;
@@ -9154,10 +7786,6 @@ module org {
                         private _attribute: org.kevoree.modeling.api.meta.MetaAttribute;
                         private _content: any;
                         constructor(p_srcUUID: number, p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_content: any) {
-                            if(p_srcUUID === undefined || p_attribute === undefined || p_content === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._srcUUID = p_srcUUID;
                             this._attribute = p_attribute;
                             this._content = p_content;
@@ -9235,18 +7863,10 @@ module org {
 
                         private _targetModel: org.kevoree.modeling.api.KObject;
                         constructor(p_targetModel: org.kevoree.modeling.api.KObject) {
-                            if(p_targetModel === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._targetModel = p_targetModel;
                         }
 
                         public applyTraceSequence(traceSeq: org.kevoree.modeling.api.trace.TraceSequence, callback: (p : java.lang.Throwable) => void): void {
-                            if(traceSeq === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             try {
                                 var traces: org.kevoree.modeling.api.trace.ModelTrace[] = traceSeq.traces();
                                 var dependencies: java.util.HashSet<number> = new java.util.HashSet<number>();
@@ -9368,10 +7988,6 @@ module org {
                         public static dp: ModelTraceConstants = new ModelTraceConstants(":");
                         private _code: string = "";
                         constructor(p_code: string) {
-                            if(p_code === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._code = p_code;
                         }
 
@@ -9410,19 +8026,11 @@ module org {
                         }
 
                         public populate(addtraces: java.util.List<org.kevoree.modeling.api.trace.ModelTrace>): org.kevoree.modeling.api.trace.TraceSequence {
-                            if(addtraces === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._traces.addAll(addtraces);
                             return this;
                         }
 
                         public append(seq: org.kevoree.modeling.api.trace.TraceSequence): org.kevoree.modeling.api.trace.TraceSequence {
-                            if(seq === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._traces.addAll(seq._traces);
                             return this;
                         }
@@ -9444,10 +8052,6 @@ module org {
                         }
 
                         public applyOn(target: org.kevoree.modeling.api.KObject, callback: (p : java.lang.Throwable) => void): boolean {
-                            if(target === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var traceApplicator: org.kevoree.modeling.api.trace.ModelTraceApplicator = new org.kevoree.modeling.api.trace.ModelTraceApplicator(target);
                             traceApplicator.applyTraceSequence(this, callback);
                             return true;
@@ -9477,18 +8081,10 @@ module org {
                         private operationCallbacks: java.util.Map<number, java.util.Map<number, (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void>> = new java.util.HashMap<number, java.util.Map<number, (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void>>();
                         private _store: org.kevoree.modeling.api.data.KStore;
                         constructor(store: org.kevoree.modeling.api.data.KStore) {
-                            if(store === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._store = store;
                         }
 
                         public registerOperation(operation: org.kevoree.modeling.api.meta.MetaOperation, callback: (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void): void {
-                            if(operation === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var clazzOperations: java.util.Map<number, (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void> = this.operationCallbacks.get(operation.origin().index());
                             if (clazzOperations == null) {
                                 clazzOperations = new java.util.HashMap<number, (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void>();
@@ -9498,10 +8094,6 @@ module org {
                         }
 
                         public call(source: org.kevoree.modeling.api.KObject, operation: org.kevoree.modeling.api.meta.MetaOperation, param: any[], callback: (p : any) => void): void {
-                            if(source === undefined || operation === undefined || param === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var clazzOperations: java.util.Map<number, (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void> = this.operationCallbacks.get(source.metaClass().index());
                             if (clazzOperations != null) {
                                 var operationCore: (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void = clazzOperations.get(operation.index());
@@ -9522,10 +8114,6 @@ module org {
                         private static pathIDClose: string = ']';
                         private static rootPath: string = "/";
                         public static forall<A> (inputs: A[], each: (p : A, p1 : (p : java.lang.Throwable) => void) => void, end: (p : java.lang.Throwable) => void): void {
-                            if(inputs === undefined || each === undefined || end === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (inputs == null) {
                                 return;
                             }
@@ -9533,10 +8121,6 @@ module org {
                         }
 
                         private static process<A> (arr: A[], index: number, each: (p : A, p1 : (p : java.lang.Throwable) => void) => void, end: (p : java.lang.Throwable) => void): void {
-                            if(arr === undefined || index === undefined || each === undefined || end === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (index >= arr.length) {
                                 if (end != null) {
                                     end(null);
@@ -9556,10 +8140,6 @@ module org {
                         }
 
                         public static parentPath(currentPath: string): string {
-                            if(currentPath === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (currentPath == null || currentPath.length == 0) {
                                 return null;
                             }
@@ -9579,26 +8159,14 @@ module org {
                         }
 
                         public static attachedToRoot(path: string): boolean {
-                            if(path === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             return path.length > 0 && path.charAt(0) == Helper.pathSep;
                         }
 
                         public static isRoot(path: string): boolean {
-                            if(path === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             return path.length == 1 && path.charAt(0) == org.kevoree.modeling.api.util.Helper.pathSep;
                         }
 
                         public static path(parent: string, reference: org.kevoree.modeling.api.meta.MetaReference, target: org.kevoree.modeling.api.KObject): string {
-                            if(parent === undefined || reference === undefined || target === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (org.kevoree.modeling.api.util.Helper.isRoot(parent)) {
                                 return Helper.pathSep + reference.metaName() + Helper.pathIDOpen + target.domainKey() + Helper.pathIDClose;
                             } else {
@@ -9623,10 +8191,6 @@ module org {
                         private _deepMonitoring: boolean;
                         private _listener: (p : org.kevoree.modeling.api.KEvent) => void = null;
                         public set(target: org.kevoree.modeling.api.KObject): void {
-                            if(target === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (this._syncCallback != null) {
                                 if (this._previous == null) {
                                     if (this._deepMonitoring) {
@@ -9666,10 +8230,6 @@ module org {
                         }
 
                         public jumpTime(targetTime: number): void {
-                            if(targetTime === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (this._previous != null) {
                                 this._previous.jump(targetTime,  (resolved : org.kevoree.modeling.api.KObject) => {
                                     this.set(resolved);
@@ -9678,10 +8238,6 @@ module org {
                         }
 
                         public jumpDimension(targetDimension: number): void {
-                            if(targetDimension === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (this._previous != null) {
                                 this._previous.dimension().universe().dimension(targetDimension).time(this._previous.now()).lookup(this._previous.uuid(),  (resolved : org.kevoree.modeling.api.KObject) => {
                                     this.set(resolved);
@@ -9690,10 +8246,6 @@ module org {
                         }
 
                         public init(p_deepMonitoring: boolean, p_callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): org.kevoree.modeling.api.util.TimeMachine {
-                            if(p_deepMonitoring === undefined || p_callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._syncCallback = p_callback;
                             this._deepMonitoring = p_deepMonitoring;
                             return this;
@@ -9726,18 +8278,10 @@ module org {
                         public oppositesAlreadySet: java.util.HashMap<string, boolean> = new java.util.HashMap<string, boolean>();
                         public successCallback: (p : java.lang.Throwable) => void;
                         public isOppositeAlreadySet(localRef: string, oppositeRef: string): boolean {
-                            if(localRef === undefined || oppositeRef === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             return (this.oppositesAlreadySet.get(oppositeRef + "_" + localRef) != null || (this.oppositesAlreadySet.get(localRef + "_" + oppositeRef) != null));
                         }
 
                         public storeOppositeRelation(localRef: string, oppositeRef: string): void {
-                            if(localRef === undefined || oppositeRef === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.oppositesAlreadySet.put(localRef + "_" + oppositeRef, true);
                         }
 
@@ -9750,18 +8294,10 @@ module org {
                         public static LOADER_XMI_XSI: string = "xsi";
                         public static LOADER_XMI_NS_URI: string = "nsURI";
                         constructor(p_factory: org.kevoree.modeling.api.KView) {
-                            if(p_factory === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._factory = p_factory;
                         }
 
                         public static unescapeXml(src: string): string {
-                            if(src === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var builder: java.lang.StringBuilder = null;
                             var i: number = 0;
                             while (i < src.length){
@@ -9812,10 +8348,6 @@ module org {
                         }
 
                         public static load(p_view: org.kevoree.modeling.api.KView, str: string, callback: (p : java.lang.Throwable) => void): void {
-                            if(p_view === undefined || str === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var parser: org.kevoree.modeling.api.xmi.XmlParser = new org.kevoree.modeling.api.xmi.XmlParser(str);
                             if (!parser.hasNext()) {
                                 callback(null);
@@ -9828,10 +8360,6 @@ module org {
                         }
 
                         private static deserialize(p_view: org.kevoree.modeling.api.KView, context: org.kevoree.modeling.api.xmi.XMILoadingContext): void {
-                            if(p_view === undefined || context === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             try {
                                 var nsURI: string;
                                 var reader: org.kevoree.modeling.api.xmi.XmlParser = context.xmiReader;
@@ -9872,10 +8400,6 @@ module org {
                         }
 
                         private static callFactory(p_view: org.kevoree.modeling.api.KView, ctx: org.kevoree.modeling.api.xmi.XMILoadingContext, objectType: string): org.kevoree.modeling.api.KObject {
-                            if(p_view === undefined || ctx === undefined || objectType === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var modelElem: org.kevoree.modeling.api.KObject = null;
                             if (objectType != null) {
                                 modelElem = p_view.createFQN(objectType);
@@ -9902,10 +8426,6 @@ module org {
                         }
 
                         private static loadObject(p_view: org.kevoree.modeling.api.KView, ctx: org.kevoree.modeling.api.xmi.XMILoadingContext, xmiAddress: string, objectType: string): org.kevoree.modeling.api.KObject {
-                            if(p_view === undefined || ctx === undefined || xmiAddress === undefined || objectType === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var elementTagName: string = ctx.xmiReader.getLocalName();
                             var modelElem: org.kevoree.modeling.api.KObject = org.kevoree.modeling.api.xmi.XMIModelLoader.callFactory(p_view, ctx, objectType);
                             if (modelElem == null) {
@@ -9977,10 +8497,6 @@ module org {
                     export class XMIModelSerializer {
 
                         public static save(model: org.kevoree.modeling.api.KObject, callback: (p : string, p1 : java.lang.Throwable) => void): void {
-                            if(model === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var context: org.kevoree.modeling.api.xmi.SerializationContext = new org.kevoree.modeling.api.xmi.SerializationContext();
                             context.model = model;
                             context.finishCallback = callback;
@@ -10050,10 +8566,6 @@ module org {
                         }
 
                         public static escapeXml(ostream: java.lang.StringBuilder, chain: string): void {
-                            if(ostream === undefined || chain === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (chain == null) {
                                 return;
                             }
@@ -10087,10 +8599,6 @@ module org {
                         }
 
                         public static formatMetaClassName(metaClassName: string): string {
-                            if(metaClassName === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             var lastPoint: number = metaClassName.lastIndexOf('.');
                             var pack: string = metaClassName.substring(0, lastPoint);
                             var cls: string = metaClassName.substring(lastPoint + 1);
@@ -10098,10 +8606,6 @@ module org {
                         }
 
                         private static nonContainedReferencesCallbackChain(ref: org.kevoree.modeling.api.meta.MetaReference, next: (p : java.lang.Throwable) => void, p_context: org.kevoree.modeling.api.xmi.SerializationContext, p_currentElement: org.kevoree.modeling.api.KObject): void {
-                            if(ref === undefined || next === undefined || p_context === undefined || p_currentElement === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (!ref.contained()) {
                                 var value: string[] = new Array();
                                 p_currentElement.all(ref,  (objs : org.kevoree.modeling.api.KObject[]) => {
@@ -10117,10 +8621,6 @@ module org {
                         }
 
                         private static containedReferencesCallbackChain(ref: org.kevoree.modeling.api.meta.MetaReference, nextReference: (p : java.lang.Throwable) => void, context: org.kevoree.modeling.api.xmi.SerializationContext, currentElement: org.kevoree.modeling.api.KObject): void {
-                            if(ref === undefined || nextReference === undefined || context === undefined || currentElement === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             if (ref.contained()) {
                                 currentElement.all(ref,  (objs : org.kevoree.modeling.api.KObject[]) => {
                                     for (var i: number = 0; i < objs.length; i++) {
@@ -10166,10 +8666,6 @@ module org {
                         private refName: string;
                         private ref: string;
                         constructor(context: org.kevoree.modeling.api.xmi.XMILoadingContext, target: org.kevoree.modeling.api.KObject, mutatorType: org.kevoree.modeling.api.KActionType, refName: string, ref: string) {
-                            if(context === undefined || target === undefined || mutatorType === undefined || refName === undefined || ref === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.context = context;
                             this.target = target;
                             this.mutatorType = mutatorType;
@@ -10197,26 +8693,14 @@ module org {
 
                         private _view: org.kevoree.modeling.api.KView;
                         constructor(p_view: org.kevoree.modeling.api.KView) {
-                            if(p_view === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this._view = p_view;
                         }
 
                         public save(model: org.kevoree.modeling.api.KObject, callback: (p : string, p1 : java.lang.Throwable) => void): void {
-                            if(model === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             org.kevoree.modeling.api.xmi.XMIModelSerializer.save(model, callback);
                         }
 
                         public load(payload: string, callback: (p : java.lang.Throwable) => void): void {
-                            if(payload === undefined || callback === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             org.kevoree.modeling.api.xmi.XMIModelLoader.load(this._view, payload, callback);
                         }
 
@@ -10237,10 +8721,6 @@ module org {
                         private attributeName: java.lang.StringBuilder = new java.lang.StringBuilder();
                         private attributeValue: java.lang.StringBuilder = new java.lang.StringBuilder();
                         constructor(str: string) {
-                            if(str === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             this.payload = str;
                             this.currentChar = this.readChar();
                         }
@@ -10263,26 +8743,14 @@ module org {
                         }
 
                         public getAttributeLocalName(i: number): string {
-                            if(i === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             return this.attributesNames.get(i);
                         }
 
                         public getAttributePrefix(i: number): string {
-                            if(i === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             return this.attributesPrefixes.get(i);
                         }
 
                         public getAttributeValue(i: number): string {
-                            if(i === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
-                            }
-
                             return this.attributesValues.get(i);
                         }
 

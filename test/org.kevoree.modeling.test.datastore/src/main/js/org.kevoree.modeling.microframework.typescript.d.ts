@@ -57,6 +57,12 @@ declare module org {
                     infer(callback: (p: A) => void): void;
                     learn(param: A, callback: (p: java.lang.Throwable) => void): void;
                 }
+                interface KMetaType {
+                    name(): string;
+                    isEnum(): boolean;
+                    save(src: any): string;
+                    load(payload: string): any;
+                }
                 interface KObject {
                     dimension(): KDimension<any, any, any>;
                     isRoot(): boolean;
@@ -162,6 +168,15 @@ declare module org {
                     static values(): VisitResult[];
                 }
                 module abs {
+                    class AbstractKDataType implements KMetaType {
+                        private _name;
+                        private _isEnum;
+                        constructor(p_name: string, p_isEnum: boolean);
+                        name(): string;
+                        isEnum(): boolean;
+                        save(src: any): string;
+                        load(payload: string): any;
+                    }
                     class AbstractKDimension<A extends KView, B extends KDimension<any, any, any>, C extends KUniverse<any>> implements KDimension<any, any, any> {
                         private _universe;
                         private _key;
@@ -214,7 +229,7 @@ declare module org {
                         all(p_metaReference: meta.MetaReference, p_callback: (p: KObject[]) => void): void;
                         visitAttributes(visitor: (p: meta.MetaAttribute, p1: any) => void): void;
                         visit(visitor: (p: KObject) => VisitResult, end: (p: java.lang.Throwable) => void): void;
-                        private internal_visit(visitor, end, deep, treeOnly, alreadyVisited);
+                        private internal_visit(visitor, end, deep, containedOnly, visited, traversed);
                         graphVisit(visitor: (p: KObject) => VisitResult, end: (p: java.lang.Throwable) => void): void;
                         treeVisit(visitor: (p: KObject) => VisitResult, end: (p: java.lang.Throwable) => void): void;
                         toJSON(): string;
@@ -286,14 +301,14 @@ declare module org {
                         private _key;
                         private _metaType;
                         private _extrapolation;
-                        metaType(): meta.MetaType;
+                        metaType(): KMetaType;
                         index(): number;
                         metaName(): string;
                         precision(): number;
                         key(): boolean;
                         strategy(): extrapolation.Extrapolation;
                         setExtrapolation(extrapolation: extrapolation.Extrapolation): void;
-                        constructor(p_name: string, p_index: number, p_precision: number, p_key: boolean, p_metaType: meta.MetaType, p_extrapolation: extrapolation.Extrapolation);
+                        constructor(p_name: string, p_index: number, p_precision: number, p_key: boolean, p_metaType: KMetaType, p_extrapolation: extrapolation.Extrapolation);
                     }
                     class AbstractMetaClass implements meta.MetaClass {
                         private _name;
@@ -564,21 +579,20 @@ declare module org {
                         static instance(): Extrapolation;
                         extrapolate(current: KObject, attribute: meta.MetaAttribute): any;
                         mutate(current: KObject, attribute: meta.MetaAttribute, payload: any): void;
-                        save(cache: any): string;
+                        save(cache: any, attribute: meta.MetaAttribute): string;
                         load(payload: string, attribute: meta.MetaAttribute, now: number): any;
-                        static convertRaw(attribute: meta.MetaAttribute, raw: any): any;
                     }
                     interface Extrapolation {
                         extrapolate(current: KObject, attribute: meta.MetaAttribute): any;
                         mutate(current: KObject, attribute: meta.MetaAttribute, payload: any): void;
-                        save(cache: any): string;
+                        save(cache: any, attribute: meta.MetaAttribute): string;
                         load(payload: string, attribute: meta.MetaAttribute, now: number): any;
                     }
                     class PolynomialExtrapolation implements Extrapolation {
                         private static INSTANCE;
                         extrapolate(current: KObject, attribute: meta.MetaAttribute): any;
                         mutate(current: KObject, attribute: meta.MetaAttribute, payload: any): void;
-                        save(cache: any): string;
+                        save(cache: any, attribute: meta.MetaAttribute): string;
                         load(payload: string, attribute: meta.MetaAttribute, now: number): any;
                         static instance(): Extrapolation;
                         private createPolynomialModel(origin, precision);
@@ -660,7 +674,7 @@ declare module org {
                     }
                     interface MetaAttribute extends Meta {
                         key(): boolean;
-                        metaType(): MetaType;
+                        metaType(): KMetaType;
                         strategy(): extrapolation.Extrapolation;
                         precision(): number;
                         setExtrapolation(extrapolation: extrapolation.Extrapolation): void;
@@ -687,17 +701,14 @@ declare module org {
                         opposite(): MetaReference;
                         origin(): MetaClass;
                     }
-                    class MetaType {
-                        static STRING: MetaType;
-                        static LONG: MetaType;
-                        static INT: MetaType;
-                        static BOOL: MetaType;
-                        static SHORT: MetaType;
-                        static DOUBLE: MetaType;
-                        static FLOAT: MetaType;
-                        equals(other: any): boolean;
-                        static _MetaTypeVALUES: MetaType[];
-                        static values(): MetaType[];
+                    class PrimitiveMetaTypes {
+                        static STRING: KMetaType;
+                        static LONG: KMetaType;
+                        static INT: KMetaType;
+                        static BOOL: KMetaType;
+                        static SHORT: KMetaType;
+                        static DOUBLE: KMetaType;
+                        static FLOAT: KMetaType;
                     }
                 }
                 module operation {
@@ -956,6 +967,8 @@ declare module org {
                             execute(p_inputs: KObject[]): void;
                         }
                     }
+                }
+                module reflexive {
                 }
                 module select {
                     class KQuery {

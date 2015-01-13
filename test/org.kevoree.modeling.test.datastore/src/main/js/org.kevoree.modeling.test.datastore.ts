@@ -205,8 +205,8 @@ module geometry {
         export class MetaShape extends org.kevoree.modeling.api.abs.AbstractMetaClass {
 
             private static INSTANCE: geometry.meta.MetaShape = null;
-            public static ATT_COLOR: org.kevoree.modeling.api.meta.MetaAttribute = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("color", 5, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
-            public static ATT_NAME: org.kevoree.modeling.api.meta.MetaAttribute = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 6, 0, true, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+            public static ATT_COLOR: org.kevoree.modeling.api.meta.MetaAttribute = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("color", 5, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+            public static ATT_NAME: org.kevoree.modeling.api.meta.MetaAttribute = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 6, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
             public static getInstance(): geometry.meta.MetaShape {
                 if (MetaShape.INSTANCE == null) {
                     MetaShape.INSTANCE = new geometry.meta.MetaShape();

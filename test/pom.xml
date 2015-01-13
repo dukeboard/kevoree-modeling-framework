@@ -61,6 +61,7 @@
         <module>org.kevoree.modeling.test.opposite</module>
         <module>org.kevoree.modeling.test.datastore</module>
         <module>org.kevoree.modeling.test.diamond</module>
+		<module>org.kevoree.modeling.test.kevoree</module>
     </modules>
 
     <dependencies>

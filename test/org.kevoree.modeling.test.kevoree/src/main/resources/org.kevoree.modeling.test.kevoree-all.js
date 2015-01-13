@@ -8711,178 +8711,4216 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var geometry;
-(function (geometry) {
-    var GeometryDimension = (function (_super) {
-        __extends(GeometryDimension, _super);
-        function GeometryDimension(universe, key) {
+var org;
+(function (org) {
+    var KevoreeDimension = (function (_super) {
+        __extends(KevoreeDimension, _super);
+        function KevoreeDimension(universe, key) {
             _super.call(this, universe, key);
         }
-        GeometryDimension.prototype.internal_create = function (timePoint) {
-            return new geometry.impl.GeometryViewImpl(timePoint, this);
+        KevoreeDimension.prototype.internal_create = function (timePoint) {
+            return new org.impl.KevoreeViewImpl(timePoint, this);
         };
-        return GeometryDimension;
+        return KevoreeDimension;
     })(org.kevoree.modeling.api.abs.AbstractKDimension);
-    geometry.GeometryDimension = GeometryDimension;
-    var GeometryUniverse = (function (_super) {
-        __extends(GeometryUniverse, _super);
-        function GeometryUniverse() {
+    org.KevoreeDimension = KevoreeDimension;
+    var KevoreeUniverse = (function (_super) {
+        __extends(KevoreeUniverse, _super);
+        function KevoreeUniverse() {
             _super.call(this);
-            this._metaModel = new org.kevoree.modeling.api.abs.AbstractMetaModel("Geometry", -1);
+            this._metaModel = new org.kevoree.modeling.api.abs.AbstractMetaModel("Kevoree", -1);
             var tempMetaClasses = new Array();
-            tempMetaClasses[1] = geometry.meta.MetaShape.getInstance();
-            tempMetaClasses[0] = geometry.meta.MetaLibrary.getInstance();
+            tempMetaClasses[1] = org.kevoree.meta.MetaComponentInstance.getInstance();
+            tempMetaClasses[13] = org.kevoree.meta.MetaMBinding.getInstance();
+            tempMetaClasses[17] = org.kevoree.meta.MetaPortType.getInstance();
+            tempMetaClasses[26] = org.kevoree.meta.MetaOperation.getInstance();
+            tempMetaClasses[2] = org.kevoree.meta.MetaPort.getInstance();
+            tempMetaClasses[31] = org.kevoree.meta.MetaNodeType.getInstance();
+            tempMetaClasses[9] = org.kevoree.meta.MetaNetworkInfo.getInstance();
+            tempMetaClasses[30] = org.kevoree.meta.MetaGroupType.getInstance();
+            tempMetaClasses[3] = org.kevoree.meta.MetaInstance.getInstance();
+            tempMetaClasses[7] = org.kevoree.meta.MetaContainerNode.getInstance();
+            tempMetaClasses[24] = org.kevoree.meta.MetaPortTypeMapping.getInstance();
+            tempMetaClasses[11] = org.kevoree.meta.MetaRepository.getInstance();
+            tempMetaClasses[19] = org.kevoree.meta.MetaValue.getInstance();
+            tempMetaClasses[28] = org.kevoree.meta.MetaMessagePortType.getInstance();
+            tempMetaClasses[15] = org.kevoree.meta.MetaDeployUnit.getInstance();
+            tempMetaClasses[12] = org.kevoree.meta.MetaChannel.getInstance();
+            tempMetaClasses[21] = org.kevoree.meta.MetaDictionaryType.getInstance();
+            tempMetaClasses[8] = org.kevoree.meta.MetaGroup.getInstance();
+            tempMetaClasses[22] = org.kevoree.meta.MetaDictionaryAttribute.getInstance();
+            tempMetaClasses[10] = org.kevoree.meta.MetaContainerRoot.getInstance();
+            tempMetaClasses[16] = org.kevoree.meta.MetaNamedElement.getInstance();
+            tempMetaClasses[18] = org.kevoree.meta.MetaDictionary.getInstance();
+            tempMetaClasses[20] = org.kevoree.meta.MetaFragmentDictionary.getInstance();
+            tempMetaClasses[14] = org.kevoree.meta.MetaPackage.getInstance();
+            tempMetaClasses[6] = org.kevoree.meta.MetaTypeDefinition.getInstance();
+            tempMetaClasses[29] = org.kevoree.meta.MetaChannelType.getInstance();
+            tempMetaClasses[25] = org.kevoree.meta.MetaServicePortType.getInstance();
+            tempMetaClasses[4] = org.kevoree.meta.MetaComponentType.getInstance();
+            tempMetaClasses[5] = org.kevoree.meta.MetaPortTypeRef.getInstance();
+            tempMetaClasses[23] = org.kevoree.meta.MetaTypedElement.getInstance();
+            tempMetaClasses[27] = org.kevoree.meta.MetaParameter.getInstance();
             this._metaModel.init(tempMetaClasses);
         }
-        GeometryUniverse.prototype.internal_create = function (key) {
-            return new geometry.GeometryDimension(this, key);
+        KevoreeUniverse.prototype.internal_create = function (key) {
+            return new org.KevoreeDimension(this, key);
         };
-        GeometryUniverse.prototype.metaModel = function () {
+        KevoreeUniverse.prototype.metaModel = function () {
             return this._metaModel;
         };
-        return GeometryUniverse;
+        return KevoreeUniverse;
     })(org.kevoree.modeling.api.abs.AbstractKUniverse);
-    geometry.GeometryUniverse = GeometryUniverse;
+    org.KevoreeUniverse = KevoreeUniverse;
     var impl;
     (function (impl) {
-        var GeometryViewImpl = (function (_super) {
-            __extends(GeometryViewImpl, _super);
-            function GeometryViewImpl(p_now, p_dimension) {
+        var KevoreeViewImpl = (function (_super) {
+            __extends(KevoreeViewImpl, _super);
+            function KevoreeViewImpl(p_now, p_dimension) {
                 _super.call(this, p_now, p_dimension);
             }
-            GeometryViewImpl.prototype.internalCreate = function (p_clazz, p_timeTree, p_key) {
+            KevoreeViewImpl.prototype.internalCreate = function (p_clazz, p_timeTree, p_key) {
                 if (p_clazz == null) {
                     return null;
                 }
                 switch (p_clazz.index()) {
                     case 1:
-                        return new geometry.impl.ShapeImpl(this, p_key, p_timeTree, p_clazz);
-                    case 0:
-                        return new geometry.impl.LibraryImpl(this, p_key, p_timeTree, p_clazz);
+                        return new org.kevoree.impl.ComponentInstanceImpl(this, p_key, p_timeTree, p_clazz);
+                    case 13:
+                        return new org.kevoree.impl.MBindingImpl(this, p_key, p_timeTree, p_clazz);
+                    case 17:
+                        return new org.kevoree.impl.PortTypeImpl(this, p_key, p_timeTree, p_clazz);
+                    case 26:
+                        return new org.kevoree.impl.OperationImpl(this, p_key, p_timeTree, p_clazz);
+                    case 2:
+                        return new org.kevoree.impl.PortImpl(this, p_key, p_timeTree, p_clazz);
+                    case 31:
+                        return new org.kevoree.impl.NodeTypeImpl(this, p_key, p_timeTree, p_clazz);
+                    case 9:
+                        return new org.kevoree.impl.NetworkInfoImpl(this, p_key, p_timeTree, p_clazz);
+                    case 30:
+                        return new org.kevoree.impl.GroupTypeImpl(this, p_key, p_timeTree, p_clazz);
+                    case 3:
+                        return new org.kevoree.impl.InstanceImpl(this, p_key, p_timeTree, p_clazz);
+                    case 7:
+                        return new org.kevoree.impl.ContainerNodeImpl(this, p_key, p_timeTree, p_clazz);
+                    case 24:
+                        return new org.kevoree.impl.PortTypeMappingImpl(this, p_key, p_timeTree, p_clazz);
+                    case 11:
+                        return new org.kevoree.impl.RepositoryImpl(this, p_key, p_timeTree, p_clazz);
+                    case 19:
+                        return new org.kevoree.impl.ValueImpl(this, p_key, p_timeTree, p_clazz);
+                    case 28:
+                        return new org.kevoree.impl.MessagePortTypeImpl(this, p_key, p_timeTree, p_clazz);
+                    case 15:
+                        return new org.kevoree.impl.DeployUnitImpl(this, p_key, p_timeTree, p_clazz);
+                    case 12:
+                        return new org.kevoree.impl.ChannelImpl(this, p_key, p_timeTree, p_clazz);
+                    case 21:
+                        return new org.kevoree.impl.DictionaryTypeImpl(this, p_key, p_timeTree, p_clazz);
+                    case 8:
+                        return new org.kevoree.impl.GroupImpl(this, p_key, p_timeTree, p_clazz);
+                    case 22:
+                        return new org.kevoree.impl.DictionaryAttributeImpl(this, p_key, p_timeTree, p_clazz);
+                    case 10:
+                        return new org.kevoree.impl.ContainerRootImpl(this, p_key, p_timeTree, p_clazz);
+                    case 16:
+                        return new org.kevoree.impl.NamedElementImpl(this, p_key, p_timeTree, p_clazz);
+                    case 18:
+                        return new org.kevoree.impl.DictionaryImpl(this, p_key, p_timeTree, p_clazz);
+                    case 20:
+                        return new org.kevoree.impl.FragmentDictionaryImpl(this, p_key, p_timeTree, p_clazz);
+                    case 14:
+                        return new org.kevoree.impl.PackageImpl(this, p_key, p_timeTree, p_clazz);
+                    case 6:
+                        return new org.kevoree.impl.TypeDefinitionImpl(this, p_key, p_timeTree, p_clazz);
+                    case 29:
+                        return new org.kevoree.impl.ChannelTypeImpl(this, p_key, p_timeTree, p_clazz);
+                    case 25:
+                        return new org.kevoree.impl.ServicePortTypeImpl(this, p_key, p_timeTree, p_clazz);
+                    case 4:
+                        return new org.kevoree.impl.ComponentTypeImpl(this, p_key, p_timeTree, p_clazz);
+                    case 5:
+                        return new org.kevoree.impl.PortTypeRefImpl(this, p_key, p_timeTree, p_clazz);
+                    case 23:
+                        return new org.kevoree.impl.TypedElementImpl(this, p_key, p_timeTree, p_clazz);
+                    case 27:
+                        return new org.kevoree.impl.ParameterImpl(this, p_key, p_timeTree, p_clazz);
                     default:
                         return new org.kevoree.modeling.api.abs.DynamicKObject(this, p_key, p_timeTree, p_clazz);
                 }
             };
-            GeometryViewImpl.prototype.createShape = function () {
-                return this.create(geometry.meta.MetaShape.getInstance());
+            KevoreeViewImpl.prototype.createComponentInstance = function () {
+                return this.create(org.kevoree.meta.MetaComponentInstance.getInstance());
             };
-            GeometryViewImpl.prototype.createLibrary = function () {
-                return this.create(geometry.meta.MetaLibrary.getInstance());
+            KevoreeViewImpl.prototype.createMBinding = function () {
+                return this.create(org.kevoree.meta.MetaMBinding.getInstance());
             };
-            GeometryViewImpl.prototype.dimension = function () {
+            KevoreeViewImpl.prototype.createPortType = function () {
+                return this.create(org.kevoree.meta.MetaPortType.getInstance());
+            };
+            KevoreeViewImpl.prototype.createOperation = function () {
+                return this.create(org.kevoree.meta.MetaOperation.getInstance());
+            };
+            KevoreeViewImpl.prototype.createPort = function () {
+                return this.create(org.kevoree.meta.MetaPort.getInstance());
+            };
+            KevoreeViewImpl.prototype.createNodeType = function () {
+                return this.create(org.kevoree.meta.MetaNodeType.getInstance());
+            };
+            KevoreeViewImpl.prototype.createNetworkInfo = function () {
+                return this.create(org.kevoree.meta.MetaNetworkInfo.getInstance());
+            };
+            KevoreeViewImpl.prototype.createGroupType = function () {
+                return this.create(org.kevoree.meta.MetaGroupType.getInstance());
+            };
+            KevoreeViewImpl.prototype.createInstance = function () {
+                return this.create(org.kevoree.meta.MetaInstance.getInstance());
+            };
+            KevoreeViewImpl.prototype.createContainerNode = function () {
+                return this.create(org.kevoree.meta.MetaContainerNode.getInstance());
+            };
+            KevoreeViewImpl.prototype.createPortTypeMapping = function () {
+                return this.create(org.kevoree.meta.MetaPortTypeMapping.getInstance());
+            };
+            KevoreeViewImpl.prototype.createRepository = function () {
+                return this.create(org.kevoree.meta.MetaRepository.getInstance());
+            };
+            KevoreeViewImpl.prototype.createValue = function () {
+                return this.create(org.kevoree.meta.MetaValue.getInstance());
+            };
+            KevoreeViewImpl.prototype.createMessagePortType = function () {
+                return this.create(org.kevoree.meta.MetaMessagePortType.getInstance());
+            };
+            KevoreeViewImpl.prototype.createDeployUnit = function () {
+                return this.create(org.kevoree.meta.MetaDeployUnit.getInstance());
+            };
+            KevoreeViewImpl.prototype.createChannel = function () {
+                return this.create(org.kevoree.meta.MetaChannel.getInstance());
+            };
+            KevoreeViewImpl.prototype.createDictionaryType = function () {
+                return this.create(org.kevoree.meta.MetaDictionaryType.getInstance());
+            };
+            KevoreeViewImpl.prototype.createGroup = function () {
+                return this.create(org.kevoree.meta.MetaGroup.getInstance());
+            };
+            KevoreeViewImpl.prototype.createDictionaryAttribute = function () {
+                return this.create(org.kevoree.meta.MetaDictionaryAttribute.getInstance());
+            };
+            KevoreeViewImpl.prototype.createContainerRoot = function () {
+                return this.create(org.kevoree.meta.MetaContainerRoot.getInstance());
+            };
+            KevoreeViewImpl.prototype.createNamedElement = function () {
+                return this.create(org.kevoree.meta.MetaNamedElement.getInstance());
+            };
+            KevoreeViewImpl.prototype.createDictionary = function () {
+                return this.create(org.kevoree.meta.MetaDictionary.getInstance());
+            };
+            KevoreeViewImpl.prototype.createFragmentDictionary = function () {
+                return this.create(org.kevoree.meta.MetaFragmentDictionary.getInstance());
+            };
+            KevoreeViewImpl.prototype.createPackage = function () {
+                return this.create(org.kevoree.meta.MetaPackage.getInstance());
+            };
+            KevoreeViewImpl.prototype.createTypeDefinition = function () {
+                return this.create(org.kevoree.meta.MetaTypeDefinition.getInstance());
+            };
+            KevoreeViewImpl.prototype.createChannelType = function () {
+                return this.create(org.kevoree.meta.MetaChannelType.getInstance());
+            };
+            KevoreeViewImpl.prototype.createServicePortType = function () {
+                return this.create(org.kevoree.meta.MetaServicePortType.getInstance());
+            };
+            KevoreeViewImpl.prototype.createComponentType = function () {
+                return this.create(org.kevoree.meta.MetaComponentType.getInstance());
+            };
+            KevoreeViewImpl.prototype.createPortTypeRef = function () {
+                return this.create(org.kevoree.meta.MetaPortTypeRef.getInstance());
+            };
+            KevoreeViewImpl.prototype.createTypedElement = function () {
+                return this.create(org.kevoree.meta.MetaTypedElement.getInstance());
+            };
+            KevoreeViewImpl.prototype.createParameter = function () {
+                return this.create(org.kevoree.meta.MetaParameter.getInstance());
+            };
+            KevoreeViewImpl.prototype.dimension = function () {
                 return _super.prototype.dimension.call(this);
             };
-            return GeometryViewImpl;
+            return KevoreeViewImpl;
         })(org.kevoree.modeling.api.abs.AbstractKView);
-        impl.GeometryViewImpl = GeometryViewImpl;
-        var LibraryImpl = (function (_super) {
-            __extends(LibraryImpl, _super);
-            function LibraryImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
-                _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+        impl.KevoreeViewImpl = KevoreeViewImpl;
+    })(impl = org.impl || (org.impl = {}));
+    var kevoree;
+    (function (kevoree) {
+        var DataType = (function () {
+            function DataType() {
             }
-            LibraryImpl.prototype.addShapes = function (p_obj) {
-                this.mutate(org.kevoree.modeling.api.KActionType.ADD, geometry.meta.MetaLibrary.REF_SHAPES, p_obj);
-                return this;
+            DataType.prototype.equals = function (other) {
+                return this == other;
             };
-            LibraryImpl.prototype.removeShapes = function (p_obj) {
-                this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, geometry.meta.MetaLibrary.REF_SHAPES, p_obj);
-                return this;
+            DataType.values = function () {
+                return DataType._DataTypeVALUES;
             };
-            LibraryImpl.prototype.eachShapes = function (p_callback) {
-                this.all(geometry.meta.MetaLibrary.REF_SHAPES, function (kObjects) {
-                    if (p_callback != null) {
-                        var casted = new Array();
-                        for (var i = 0; i < kObjects.length; i++) {
-                            casted[i] = kObjects[i];
+            DataType.BOOLEAN = new DataType();
+            DataType.BYTE = new DataType();
+            DataType.CHAR = new DataType();
+            DataType.DOUBLE = new DataType();
+            DataType.FLOAT = new DataType();
+            DataType.INT = new DataType();
+            DataType.LONG = new DataType();
+            DataType.SHORT = new DataType();
+            DataType.STRING = new DataType();
+            DataType._DataTypeVALUES = [
+                DataType.BOOLEAN,
+                DataType.BYTE,
+                DataType.CHAR,
+                DataType.DOUBLE,
+                DataType.FLOAT,
+                DataType.INT,
+                DataType.LONG,
+                DataType.SHORT,
+                DataType.STRING
+            ];
+            return DataType;
+        })();
+        kevoree.DataType = DataType;
+        var impl;
+        (function (impl) {
+            var ChannelImpl = (function (_super) {
+                __extends(ChannelImpl, _super);
+                function ChannelImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                ChannelImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaChannel.ATT_NAME);
+                };
+                ChannelImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaChannel.ATT_NAME, p_obj);
+                    return this;
+                };
+                ChannelImpl.prototype.getStarted = function () {
+                    return this.get(org.kevoree.meta.MetaChannel.ATT_STARTED);
+                };
+                ChannelImpl.prototype.setStarted = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaChannel.ATT_STARTED, p_obj);
+                    return this;
+                };
+                ChannelImpl.prototype.addMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaChannel.REF_METADATA, p_obj);
+                    return this;
+                };
+                ChannelImpl.prototype.removeMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaChannel.REF_METADATA, p_obj);
+                    return this;
+                };
+                ChannelImpl.prototype.eachMetaData = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaChannel.REF_METADATA, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
                         }
-                        p_callback(casted);
+                    });
+                };
+                ChannelImpl.prototype.sizeOfMetaData = function () {
+                    return this.size(org.kevoree.meta.MetaChannel.REF_METADATA);
+                };
+                ChannelImpl.prototype.setDictionary = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaChannel.REF_DICTIONARY, p_obj);
+                    return this;
+                };
+                ChannelImpl.prototype.getDictionary = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaChannel.REF_DICTIONARY, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                ChannelImpl.prototype.setTypeDefinition = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaChannel.REF_TYPEDEFINITION, p_obj);
+                    return this;
+                };
+                ChannelImpl.prototype.getTypeDefinition = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaChannel.REF_TYPEDEFINITION, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                ChannelImpl.prototype.addBindings = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaChannel.REF_BINDINGS, p_obj);
+                    return this;
+                };
+                ChannelImpl.prototype.removeBindings = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaChannel.REF_BINDINGS, p_obj);
+                    return this;
+                };
+                ChannelImpl.prototype.eachBindings = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaChannel.REF_BINDINGS, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ChannelImpl.prototype.sizeOfBindings = function () {
+                    return this.size(org.kevoree.meta.MetaChannel.REF_BINDINGS);
+                };
+                ChannelImpl.prototype.addFragmentDictionary = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaChannel.REF_FRAGMENTDICTIONARY, p_obj);
+                    return this;
+                };
+                ChannelImpl.prototype.removeFragmentDictionary = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaChannel.REF_FRAGMENTDICTIONARY, p_obj);
+                    return this;
+                };
+                ChannelImpl.prototype.eachFragmentDictionary = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaChannel.REF_FRAGMENTDICTIONARY, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ChannelImpl.prototype.sizeOfFragmentDictionary = function () {
+                    return this.size(org.kevoree.meta.MetaChannel.REF_FRAGMENTDICTIONARY);
+                };
+                ChannelImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return ChannelImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.ChannelImpl = ChannelImpl;
+            var ChannelTypeImpl = (function (_super) {
+                __extends(ChannelTypeImpl, _super);
+                function ChannelTypeImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                ChannelTypeImpl.prototype.getUpperFragments = function () {
+                    return this.get(org.kevoree.meta.MetaChannelType.ATT_UPPERFRAGMENTS);
+                };
+                ChannelTypeImpl.prototype.setUpperFragments = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaChannelType.ATT_UPPERFRAGMENTS, p_obj);
+                    return this;
+                };
+                ChannelTypeImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaChannelType.ATT_NAME);
+                };
+                ChannelTypeImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaChannelType.ATT_NAME, p_obj);
+                    return this;
+                };
+                ChannelTypeImpl.prototype.getAbstract = function () {
+                    return this.get(org.kevoree.meta.MetaChannelType.ATT_ABSTRACT);
+                };
+                ChannelTypeImpl.prototype.setAbstract = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaChannelType.ATT_ABSTRACT, p_obj);
+                    return this;
+                };
+                ChannelTypeImpl.prototype.getLowerBindings = function () {
+                    return this.get(org.kevoree.meta.MetaChannelType.ATT_LOWERBINDINGS);
+                };
+                ChannelTypeImpl.prototype.setLowerBindings = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaChannelType.ATT_LOWERBINDINGS, p_obj);
+                    return this;
+                };
+                ChannelTypeImpl.prototype.getLowerFragments = function () {
+                    return this.get(org.kevoree.meta.MetaChannelType.ATT_LOWERFRAGMENTS);
+                };
+                ChannelTypeImpl.prototype.setLowerFragments = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaChannelType.ATT_LOWERFRAGMENTS, p_obj);
+                    return this;
+                };
+                ChannelTypeImpl.prototype.getVersion = function () {
+                    return this.get(org.kevoree.meta.MetaChannelType.ATT_VERSION);
+                };
+                ChannelTypeImpl.prototype.setVersion = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaChannelType.ATT_VERSION, p_obj);
+                    return this;
+                };
+                ChannelTypeImpl.prototype.getUpperBindings = function () {
+                    return this.get(org.kevoree.meta.MetaChannelType.ATT_UPPERBINDINGS);
+                };
+                ChannelTypeImpl.prototype.setUpperBindings = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaChannelType.ATT_UPPERBINDINGS, p_obj);
+                    return this;
+                };
+                ChannelTypeImpl.prototype.addSuperTypes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaChannelType.REF_SUPERTYPES, p_obj);
+                    return this;
+                };
+                ChannelTypeImpl.prototype.removeSuperTypes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaChannelType.REF_SUPERTYPES, p_obj);
+                    return this;
+                };
+                ChannelTypeImpl.prototype.eachSuperTypes = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaChannelType.REF_SUPERTYPES, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ChannelTypeImpl.prototype.sizeOfSuperTypes = function () {
+                    return this.size(org.kevoree.meta.MetaChannelType.REF_SUPERTYPES);
+                };
+                ChannelTypeImpl.prototype.addMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaChannelType.REF_METADATA, p_obj);
+                    return this;
+                };
+                ChannelTypeImpl.prototype.removeMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaChannelType.REF_METADATA, p_obj);
+                    return this;
+                };
+                ChannelTypeImpl.prototype.eachMetaData = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaChannelType.REF_METADATA, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ChannelTypeImpl.prototype.sizeOfMetaData = function () {
+                    return this.size(org.kevoree.meta.MetaChannelType.REF_METADATA);
+                };
+                ChannelTypeImpl.prototype.addDeployUnits = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaChannelType.REF_DEPLOYUNITS, p_obj);
+                    return this;
+                };
+                ChannelTypeImpl.prototype.removeDeployUnits = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaChannelType.REF_DEPLOYUNITS, p_obj);
+                    return this;
+                };
+                ChannelTypeImpl.prototype.eachDeployUnits = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaChannelType.REF_DEPLOYUNITS, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ChannelTypeImpl.prototype.sizeOfDeployUnits = function () {
+                    return this.size(org.kevoree.meta.MetaChannelType.REF_DEPLOYUNITS);
+                };
+                ChannelTypeImpl.prototype.setDictionaryType = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaChannelType.REF_DICTIONARYTYPE, p_obj);
+                    return this;
+                };
+                ChannelTypeImpl.prototype.getDictionaryType = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaChannelType.REF_DICTIONARYTYPE, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                ChannelTypeImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return ChannelTypeImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.ChannelTypeImpl = ChannelTypeImpl;
+            var ComponentInstanceImpl = (function (_super) {
+                __extends(ComponentInstanceImpl, _super);
+                function ComponentInstanceImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                ComponentInstanceImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaComponentInstance.ATT_NAME);
+                };
+                ComponentInstanceImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaComponentInstance.ATT_NAME, p_obj);
+                    return this;
+                };
+                ComponentInstanceImpl.prototype.getStarted = function () {
+                    return this.get(org.kevoree.meta.MetaComponentInstance.ATT_STARTED);
+                };
+                ComponentInstanceImpl.prototype.setStarted = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaComponentInstance.ATT_STARTED, p_obj);
+                    return this;
+                };
+                ComponentInstanceImpl.prototype.addMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaComponentInstance.REF_METADATA, p_obj);
+                    return this;
+                };
+                ComponentInstanceImpl.prototype.removeMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaComponentInstance.REF_METADATA, p_obj);
+                    return this;
+                };
+                ComponentInstanceImpl.prototype.eachMetaData = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaComponentInstance.REF_METADATA, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ComponentInstanceImpl.prototype.sizeOfMetaData = function () {
+                    return this.size(org.kevoree.meta.MetaComponentInstance.REF_METADATA);
+                };
+                ComponentInstanceImpl.prototype.setDictionary = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaComponentInstance.REF_DICTIONARY, p_obj);
+                    return this;
+                };
+                ComponentInstanceImpl.prototype.getDictionary = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaComponentInstance.REF_DICTIONARY, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                ComponentInstanceImpl.prototype.setTypeDefinition = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaComponentInstance.REF_TYPEDEFINITION, p_obj);
+                    return this;
+                };
+                ComponentInstanceImpl.prototype.getTypeDefinition = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaComponentInstance.REF_TYPEDEFINITION, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                ComponentInstanceImpl.prototype.addProvided = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaComponentInstance.REF_PROVIDED, p_obj);
+                    return this;
+                };
+                ComponentInstanceImpl.prototype.removeProvided = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaComponentInstance.REF_PROVIDED, p_obj);
+                    return this;
+                };
+                ComponentInstanceImpl.prototype.eachProvided = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaComponentInstance.REF_PROVIDED, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ComponentInstanceImpl.prototype.sizeOfProvided = function () {
+                    return this.size(org.kevoree.meta.MetaComponentInstance.REF_PROVIDED);
+                };
+                ComponentInstanceImpl.prototype.addFragmentDictionary = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaComponentInstance.REF_FRAGMENTDICTIONARY, p_obj);
+                    return this;
+                };
+                ComponentInstanceImpl.prototype.removeFragmentDictionary = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaComponentInstance.REF_FRAGMENTDICTIONARY, p_obj);
+                    return this;
+                };
+                ComponentInstanceImpl.prototype.eachFragmentDictionary = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaComponentInstance.REF_FRAGMENTDICTIONARY, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ComponentInstanceImpl.prototype.sizeOfFragmentDictionary = function () {
+                    return this.size(org.kevoree.meta.MetaComponentInstance.REF_FRAGMENTDICTIONARY);
+                };
+                ComponentInstanceImpl.prototype.addRequired = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaComponentInstance.REF_REQUIRED, p_obj);
+                    return this;
+                };
+                ComponentInstanceImpl.prototype.removeRequired = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaComponentInstance.REF_REQUIRED, p_obj);
+                    return this;
+                };
+                ComponentInstanceImpl.prototype.eachRequired = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaComponentInstance.REF_REQUIRED, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ComponentInstanceImpl.prototype.sizeOfRequired = function () {
+                    return this.size(org.kevoree.meta.MetaComponentInstance.REF_REQUIRED);
+                };
+                ComponentInstanceImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return ComponentInstanceImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.ComponentInstanceImpl = ComponentInstanceImpl;
+            var ComponentTypeImpl = (function (_super) {
+                __extends(ComponentTypeImpl, _super);
+                function ComponentTypeImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                ComponentTypeImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaComponentType.ATT_NAME);
+                };
+                ComponentTypeImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaComponentType.ATT_NAME, p_obj);
+                    return this;
+                };
+                ComponentTypeImpl.prototype.getAbstract = function () {
+                    return this.get(org.kevoree.meta.MetaComponentType.ATT_ABSTRACT);
+                };
+                ComponentTypeImpl.prototype.setAbstract = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaComponentType.ATT_ABSTRACT, p_obj);
+                    return this;
+                };
+                ComponentTypeImpl.prototype.getVersion = function () {
+                    return this.get(org.kevoree.meta.MetaComponentType.ATT_VERSION);
+                };
+                ComponentTypeImpl.prototype.setVersion = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaComponentType.ATT_VERSION, p_obj);
+                    return this;
+                };
+                ComponentTypeImpl.prototype.addSuperTypes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaComponentType.REF_SUPERTYPES, p_obj);
+                    return this;
+                };
+                ComponentTypeImpl.prototype.removeSuperTypes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaComponentType.REF_SUPERTYPES, p_obj);
+                    return this;
+                };
+                ComponentTypeImpl.prototype.eachSuperTypes = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaComponentType.REF_SUPERTYPES, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ComponentTypeImpl.prototype.sizeOfSuperTypes = function () {
+                    return this.size(org.kevoree.meta.MetaComponentType.REF_SUPERTYPES);
+                };
+                ComponentTypeImpl.prototype.addMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaComponentType.REF_METADATA, p_obj);
+                    return this;
+                };
+                ComponentTypeImpl.prototype.removeMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaComponentType.REF_METADATA, p_obj);
+                    return this;
+                };
+                ComponentTypeImpl.prototype.eachMetaData = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaComponentType.REF_METADATA, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ComponentTypeImpl.prototype.sizeOfMetaData = function () {
+                    return this.size(org.kevoree.meta.MetaComponentType.REF_METADATA);
+                };
+                ComponentTypeImpl.prototype.addDeployUnits = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaComponentType.REF_DEPLOYUNITS, p_obj);
+                    return this;
+                };
+                ComponentTypeImpl.prototype.removeDeployUnits = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaComponentType.REF_DEPLOYUNITS, p_obj);
+                    return this;
+                };
+                ComponentTypeImpl.prototype.eachDeployUnits = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaComponentType.REF_DEPLOYUNITS, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ComponentTypeImpl.prototype.sizeOfDeployUnits = function () {
+                    return this.size(org.kevoree.meta.MetaComponentType.REF_DEPLOYUNITS);
+                };
+                ComponentTypeImpl.prototype.addProvided = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaComponentType.REF_PROVIDED, p_obj);
+                    return this;
+                };
+                ComponentTypeImpl.prototype.removeProvided = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaComponentType.REF_PROVIDED, p_obj);
+                    return this;
+                };
+                ComponentTypeImpl.prototype.eachProvided = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaComponentType.REF_PROVIDED, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ComponentTypeImpl.prototype.sizeOfProvided = function () {
+                    return this.size(org.kevoree.meta.MetaComponentType.REF_PROVIDED);
+                };
+                ComponentTypeImpl.prototype.setDictionaryType = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaComponentType.REF_DICTIONARYTYPE, p_obj);
+                    return this;
+                };
+                ComponentTypeImpl.prototype.getDictionaryType = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaComponentType.REF_DICTIONARYTYPE, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                ComponentTypeImpl.prototype.addRequired = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaComponentType.REF_REQUIRED, p_obj);
+                    return this;
+                };
+                ComponentTypeImpl.prototype.removeRequired = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaComponentType.REF_REQUIRED, p_obj);
+                    return this;
+                };
+                ComponentTypeImpl.prototype.eachRequired = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaComponentType.REF_REQUIRED, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ComponentTypeImpl.prototype.sizeOfRequired = function () {
+                    return this.size(org.kevoree.meta.MetaComponentType.REF_REQUIRED);
+                };
+                ComponentTypeImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return ComponentTypeImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.ComponentTypeImpl = ComponentTypeImpl;
+            var ContainerNodeImpl = (function (_super) {
+                __extends(ContainerNodeImpl, _super);
+                function ContainerNodeImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                ContainerNodeImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaContainerNode.ATT_NAME);
+                };
+                ContainerNodeImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaContainerNode.ATT_NAME, p_obj);
+                    return this;
+                };
+                ContainerNodeImpl.prototype.getStarted = function () {
+                    return this.get(org.kevoree.meta.MetaContainerNode.ATT_STARTED);
+                };
+                ContainerNodeImpl.prototype.setStarted = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaContainerNode.ATT_STARTED, p_obj);
+                    return this;
+                };
+                ContainerNodeImpl.prototype.addNetworkInformation = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaContainerNode.REF_NETWORKINFORMATION, p_obj);
+                    return this;
+                };
+                ContainerNodeImpl.prototype.removeNetworkInformation = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaContainerNode.REF_NETWORKINFORMATION, p_obj);
+                    return this;
+                };
+                ContainerNodeImpl.prototype.eachNetworkInformation = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaContainerNode.REF_NETWORKINFORMATION, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ContainerNodeImpl.prototype.sizeOfNetworkInformation = function () {
+                    return this.size(org.kevoree.meta.MetaContainerNode.REF_NETWORKINFORMATION);
+                };
+                ContainerNodeImpl.prototype.addMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaContainerNode.REF_METADATA, p_obj);
+                    return this;
+                };
+                ContainerNodeImpl.prototype.removeMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaContainerNode.REF_METADATA, p_obj);
+                    return this;
+                };
+                ContainerNodeImpl.prototype.eachMetaData = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaContainerNode.REF_METADATA, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ContainerNodeImpl.prototype.sizeOfMetaData = function () {
+                    return this.size(org.kevoree.meta.MetaContainerNode.REF_METADATA);
+                };
+                ContainerNodeImpl.prototype.addComponents = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaContainerNode.REF_COMPONENTS, p_obj);
+                    return this;
+                };
+                ContainerNodeImpl.prototype.removeComponents = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaContainerNode.REF_COMPONENTS, p_obj);
+                    return this;
+                };
+                ContainerNodeImpl.prototype.eachComponents = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaContainerNode.REF_COMPONENTS, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ContainerNodeImpl.prototype.sizeOfComponents = function () {
+                    return this.size(org.kevoree.meta.MetaContainerNode.REF_COMPONENTS);
+                };
+                ContainerNodeImpl.prototype.setDictionary = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaContainerNode.REF_DICTIONARY, p_obj);
+                    return this;
+                };
+                ContainerNodeImpl.prototype.getDictionary = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaContainerNode.REF_DICTIONARY, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                ContainerNodeImpl.prototype.addHosts = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaContainerNode.REF_HOSTS, p_obj);
+                    return this;
+                };
+                ContainerNodeImpl.prototype.removeHosts = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaContainerNode.REF_HOSTS, p_obj);
+                    return this;
+                };
+                ContainerNodeImpl.prototype.eachHosts = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaContainerNode.REF_HOSTS, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ContainerNodeImpl.prototype.sizeOfHosts = function () {
+                    return this.size(org.kevoree.meta.MetaContainerNode.REF_HOSTS);
+                };
+                ContainerNodeImpl.prototype.setTypeDefinition = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaContainerNode.REF_TYPEDEFINITION, p_obj);
+                    return this;
+                };
+                ContainerNodeImpl.prototype.getTypeDefinition = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaContainerNode.REF_TYPEDEFINITION, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                ContainerNodeImpl.prototype.setHost = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaContainerNode.REF_HOST, p_obj);
+                    return this;
+                };
+                ContainerNodeImpl.prototype.getHost = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaContainerNode.REF_HOST, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                ContainerNodeImpl.prototype.addGroups = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaContainerNode.REF_GROUPS, p_obj);
+                    return this;
+                };
+                ContainerNodeImpl.prototype.removeGroups = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaContainerNode.REF_GROUPS, p_obj);
+                    return this;
+                };
+                ContainerNodeImpl.prototype.eachGroups = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaContainerNode.REF_GROUPS, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ContainerNodeImpl.prototype.sizeOfGroups = function () {
+                    return this.size(org.kevoree.meta.MetaContainerNode.REF_GROUPS);
+                };
+                ContainerNodeImpl.prototype.addFragmentDictionary = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaContainerNode.REF_FRAGMENTDICTIONARY, p_obj);
+                    return this;
+                };
+                ContainerNodeImpl.prototype.removeFragmentDictionary = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaContainerNode.REF_FRAGMENTDICTIONARY, p_obj);
+                    return this;
+                };
+                ContainerNodeImpl.prototype.eachFragmentDictionary = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaContainerNode.REF_FRAGMENTDICTIONARY, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ContainerNodeImpl.prototype.sizeOfFragmentDictionary = function () {
+                    return this.size(org.kevoree.meta.MetaContainerNode.REF_FRAGMENTDICTIONARY);
+                };
+                ContainerNodeImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return ContainerNodeImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.ContainerNodeImpl = ContainerNodeImpl;
+            var ContainerRootImpl = (function (_super) {
+                __extends(ContainerRootImpl, _super);
+                function ContainerRootImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                ContainerRootImpl.prototype.addNodes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaContainerRoot.REF_NODES, p_obj);
+                    return this;
+                };
+                ContainerRootImpl.prototype.removeNodes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaContainerRoot.REF_NODES, p_obj);
+                    return this;
+                };
+                ContainerRootImpl.prototype.eachNodes = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaContainerRoot.REF_NODES, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ContainerRootImpl.prototype.sizeOfNodes = function () {
+                    return this.size(org.kevoree.meta.MetaContainerRoot.REF_NODES);
+                };
+                ContainerRootImpl.prototype.addRepositories = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaContainerRoot.REF_REPOSITORIES, p_obj);
+                    return this;
+                };
+                ContainerRootImpl.prototype.removeRepositories = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaContainerRoot.REF_REPOSITORIES, p_obj);
+                    return this;
+                };
+                ContainerRootImpl.prototype.eachRepositories = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaContainerRoot.REF_REPOSITORIES, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ContainerRootImpl.prototype.sizeOfRepositories = function () {
+                    return this.size(org.kevoree.meta.MetaContainerRoot.REF_REPOSITORIES);
+                };
+                ContainerRootImpl.prototype.addGroups = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaContainerRoot.REF_GROUPS, p_obj);
+                    return this;
+                };
+                ContainerRootImpl.prototype.removeGroups = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaContainerRoot.REF_GROUPS, p_obj);
+                    return this;
+                };
+                ContainerRootImpl.prototype.eachGroups = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaContainerRoot.REF_GROUPS, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ContainerRootImpl.prototype.sizeOfGroups = function () {
+                    return this.size(org.kevoree.meta.MetaContainerRoot.REF_GROUPS);
+                };
+                ContainerRootImpl.prototype.addPackages = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaContainerRoot.REF_PACKAGES, p_obj);
+                    return this;
+                };
+                ContainerRootImpl.prototype.removePackages = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaContainerRoot.REF_PACKAGES, p_obj);
+                    return this;
+                };
+                ContainerRootImpl.prototype.eachPackages = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaContainerRoot.REF_PACKAGES, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ContainerRootImpl.prototype.sizeOfPackages = function () {
+                    return this.size(org.kevoree.meta.MetaContainerRoot.REF_PACKAGES);
+                };
+                ContainerRootImpl.prototype.addMBindings = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaContainerRoot.REF_MBINDINGS, p_obj);
+                    return this;
+                };
+                ContainerRootImpl.prototype.removeMBindings = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaContainerRoot.REF_MBINDINGS, p_obj);
+                    return this;
+                };
+                ContainerRootImpl.prototype.eachMBindings = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaContainerRoot.REF_MBINDINGS, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ContainerRootImpl.prototype.sizeOfMBindings = function () {
+                    return this.size(org.kevoree.meta.MetaContainerRoot.REF_MBINDINGS);
+                };
+                ContainerRootImpl.prototype.addHubs = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaContainerRoot.REF_HUBS, p_obj);
+                    return this;
+                };
+                ContainerRootImpl.prototype.removeHubs = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaContainerRoot.REF_HUBS, p_obj);
+                    return this;
+                };
+                ContainerRootImpl.prototype.eachHubs = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaContainerRoot.REF_HUBS, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ContainerRootImpl.prototype.sizeOfHubs = function () {
+                    return this.size(org.kevoree.meta.MetaContainerRoot.REF_HUBS);
+                };
+                ContainerRootImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return ContainerRootImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.ContainerRootImpl = ContainerRootImpl;
+            var DeployUnitImpl = (function (_super) {
+                __extends(DeployUnitImpl, _super);
+                function DeployUnitImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                DeployUnitImpl.prototype.getHashcode = function () {
+                    return this.get(org.kevoree.meta.MetaDeployUnit.ATT_HASHCODE);
+                };
+                DeployUnitImpl.prototype.setHashcode = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaDeployUnit.ATT_HASHCODE, p_obj);
+                    return this;
+                };
+                DeployUnitImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaDeployUnit.ATT_NAME);
+                };
+                DeployUnitImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaDeployUnit.ATT_NAME, p_obj);
+                    return this;
+                };
+                DeployUnitImpl.prototype.getVersion = function () {
+                    return this.get(org.kevoree.meta.MetaDeployUnit.ATT_VERSION);
+                };
+                DeployUnitImpl.prototype.setVersion = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaDeployUnit.ATT_VERSION, p_obj);
+                    return this;
+                };
+                DeployUnitImpl.prototype.getUrl = function () {
+                    return this.get(org.kevoree.meta.MetaDeployUnit.ATT_URL);
+                };
+                DeployUnitImpl.prototype.setUrl = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaDeployUnit.ATT_URL, p_obj);
+                    return this;
+                };
+                DeployUnitImpl.prototype.addRequiredLibs = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaDeployUnit.REF_REQUIREDLIBS, p_obj);
+                    return this;
+                };
+                DeployUnitImpl.prototype.removeRequiredLibs = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaDeployUnit.REF_REQUIREDLIBS, p_obj);
+                    return this;
+                };
+                DeployUnitImpl.prototype.eachRequiredLibs = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaDeployUnit.REF_REQUIREDLIBS, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                DeployUnitImpl.prototype.sizeOfRequiredLibs = function () {
+                    return this.size(org.kevoree.meta.MetaDeployUnit.REF_REQUIREDLIBS);
+                };
+                DeployUnitImpl.prototype.addFilters = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaDeployUnit.REF_FILTERS, p_obj);
+                    return this;
+                };
+                DeployUnitImpl.prototype.removeFilters = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaDeployUnit.REF_FILTERS, p_obj);
+                    return this;
+                };
+                DeployUnitImpl.prototype.eachFilters = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaDeployUnit.REF_FILTERS, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                DeployUnitImpl.prototype.sizeOfFilters = function () {
+                    return this.size(org.kevoree.meta.MetaDeployUnit.REF_FILTERS);
+                };
+                DeployUnitImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return DeployUnitImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.DeployUnitImpl = DeployUnitImpl;
+            var DictionaryAttributeImpl = (function (_super) {
+                __extends(DictionaryAttributeImpl, _super);
+                function DictionaryAttributeImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                DictionaryAttributeImpl.prototype.getDatatype = function () {
+                    return this.get(org.kevoree.meta.MetaDictionaryAttribute.ATT_DATATYPE);
+                };
+                DictionaryAttributeImpl.prototype.setDatatype = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaDictionaryAttribute.ATT_DATATYPE, p_obj);
+                    return this;
+                };
+                DictionaryAttributeImpl.prototype.getDefaultValue = function () {
+                    return this.get(org.kevoree.meta.MetaDictionaryAttribute.ATT_DEFAULTVALUE);
+                };
+                DictionaryAttributeImpl.prototype.setDefaultValue = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaDictionaryAttribute.ATT_DEFAULTVALUE, p_obj);
+                    return this;
+                };
+                DictionaryAttributeImpl.prototype.getFragmentDependant = function () {
+                    return this.get(org.kevoree.meta.MetaDictionaryAttribute.ATT_FRAGMENTDEPENDANT);
+                };
+                DictionaryAttributeImpl.prototype.setFragmentDependant = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaDictionaryAttribute.ATT_FRAGMENTDEPENDANT, p_obj);
+                    return this;
+                };
+                DictionaryAttributeImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaDictionaryAttribute.ATT_NAME);
+                };
+                DictionaryAttributeImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaDictionaryAttribute.ATT_NAME, p_obj);
+                    return this;
+                };
+                DictionaryAttributeImpl.prototype.getOptional = function () {
+                    return this.get(org.kevoree.meta.MetaDictionaryAttribute.ATT_OPTIONAL);
+                };
+                DictionaryAttributeImpl.prototype.setOptional = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaDictionaryAttribute.ATT_OPTIONAL, p_obj);
+                    return this;
+                };
+                DictionaryAttributeImpl.prototype.getState = function () {
+                    return this.get(org.kevoree.meta.MetaDictionaryAttribute.ATT_STATE);
+                };
+                DictionaryAttributeImpl.prototype.setState = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaDictionaryAttribute.ATT_STATE, p_obj);
+                    return this;
+                };
+                DictionaryAttributeImpl.prototype.addGenericTypes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaDictionaryAttribute.REF_GENERICTYPES, p_obj);
+                    return this;
+                };
+                DictionaryAttributeImpl.prototype.removeGenericTypes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaDictionaryAttribute.REF_GENERICTYPES, p_obj);
+                    return this;
+                };
+                DictionaryAttributeImpl.prototype.eachGenericTypes = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaDictionaryAttribute.REF_GENERICTYPES, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                DictionaryAttributeImpl.prototype.sizeOfGenericTypes = function () {
+                    return this.size(org.kevoree.meta.MetaDictionaryAttribute.REF_GENERICTYPES);
+                };
+                DictionaryAttributeImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return DictionaryAttributeImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.DictionaryAttributeImpl = DictionaryAttributeImpl;
+            var DictionaryImpl = (function (_super) {
+                __extends(DictionaryImpl, _super);
+                function DictionaryImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                DictionaryImpl.prototype.addValues = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaDictionary.REF_VALUES, p_obj);
+                    return this;
+                };
+                DictionaryImpl.prototype.removeValues = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaDictionary.REF_VALUES, p_obj);
+                    return this;
+                };
+                DictionaryImpl.prototype.eachValues = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaDictionary.REF_VALUES, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                DictionaryImpl.prototype.sizeOfValues = function () {
+                    return this.size(org.kevoree.meta.MetaDictionary.REF_VALUES);
+                };
+                DictionaryImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return DictionaryImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.DictionaryImpl = DictionaryImpl;
+            var DictionaryTypeImpl = (function (_super) {
+                __extends(DictionaryTypeImpl, _super);
+                function DictionaryTypeImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                DictionaryTypeImpl.prototype.addAttributes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaDictionaryType.REF_ATTRIBUTES, p_obj);
+                    return this;
+                };
+                DictionaryTypeImpl.prototype.removeAttributes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaDictionaryType.REF_ATTRIBUTES, p_obj);
+                    return this;
+                };
+                DictionaryTypeImpl.prototype.eachAttributes = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaDictionaryType.REF_ATTRIBUTES, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                DictionaryTypeImpl.prototype.sizeOfAttributes = function () {
+                    return this.size(org.kevoree.meta.MetaDictionaryType.REF_ATTRIBUTES);
+                };
+                DictionaryTypeImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return DictionaryTypeImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.DictionaryTypeImpl = DictionaryTypeImpl;
+            var FragmentDictionaryImpl = (function (_super) {
+                __extends(FragmentDictionaryImpl, _super);
+                function FragmentDictionaryImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                FragmentDictionaryImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaFragmentDictionary.ATT_NAME);
+                };
+                FragmentDictionaryImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaFragmentDictionary.ATT_NAME, p_obj);
+                    return this;
+                };
+                FragmentDictionaryImpl.prototype.addValues = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaFragmentDictionary.REF_VALUES, p_obj);
+                    return this;
+                };
+                FragmentDictionaryImpl.prototype.removeValues = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaFragmentDictionary.REF_VALUES, p_obj);
+                    return this;
+                };
+                FragmentDictionaryImpl.prototype.eachValues = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaFragmentDictionary.REF_VALUES, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                FragmentDictionaryImpl.prototype.sizeOfValues = function () {
+                    return this.size(org.kevoree.meta.MetaFragmentDictionary.REF_VALUES);
+                };
+                FragmentDictionaryImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return FragmentDictionaryImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.FragmentDictionaryImpl = FragmentDictionaryImpl;
+            var GroupImpl = (function (_super) {
+                __extends(GroupImpl, _super);
+                function GroupImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                GroupImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaGroup.ATT_NAME);
+                };
+                GroupImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaGroup.ATT_NAME, p_obj);
+                    return this;
+                };
+                GroupImpl.prototype.getStarted = function () {
+                    return this.get(org.kevoree.meta.MetaGroup.ATT_STARTED);
+                };
+                GroupImpl.prototype.setStarted = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaGroup.ATT_STARTED, p_obj);
+                    return this;
+                };
+                GroupImpl.prototype.addMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaGroup.REF_METADATA, p_obj);
+                    return this;
+                };
+                GroupImpl.prototype.removeMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaGroup.REF_METADATA, p_obj);
+                    return this;
+                };
+                GroupImpl.prototype.eachMetaData = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaGroup.REF_METADATA, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                GroupImpl.prototype.sizeOfMetaData = function () {
+                    return this.size(org.kevoree.meta.MetaGroup.REF_METADATA);
+                };
+                GroupImpl.prototype.setDictionary = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaGroup.REF_DICTIONARY, p_obj);
+                    return this;
+                };
+                GroupImpl.prototype.getDictionary = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaGroup.REF_DICTIONARY, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                GroupImpl.prototype.setTypeDefinition = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaGroup.REF_TYPEDEFINITION, p_obj);
+                    return this;
+                };
+                GroupImpl.prototype.getTypeDefinition = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaGroup.REF_TYPEDEFINITION, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                GroupImpl.prototype.addFragmentDictionary = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaGroup.REF_FRAGMENTDICTIONARY, p_obj);
+                    return this;
+                };
+                GroupImpl.prototype.removeFragmentDictionary = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaGroup.REF_FRAGMENTDICTIONARY, p_obj);
+                    return this;
+                };
+                GroupImpl.prototype.eachFragmentDictionary = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaGroup.REF_FRAGMENTDICTIONARY, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                GroupImpl.prototype.sizeOfFragmentDictionary = function () {
+                    return this.size(org.kevoree.meta.MetaGroup.REF_FRAGMENTDICTIONARY);
+                };
+                GroupImpl.prototype.addSubNodes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaGroup.REF_SUBNODES, p_obj);
+                    return this;
+                };
+                GroupImpl.prototype.removeSubNodes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaGroup.REF_SUBNODES, p_obj);
+                    return this;
+                };
+                GroupImpl.prototype.eachSubNodes = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaGroup.REF_SUBNODES, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                GroupImpl.prototype.sizeOfSubNodes = function () {
+                    return this.size(org.kevoree.meta.MetaGroup.REF_SUBNODES);
+                };
+                GroupImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return GroupImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.GroupImpl = GroupImpl;
+            var GroupTypeImpl = (function (_super) {
+                __extends(GroupTypeImpl, _super);
+                function GroupTypeImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                GroupTypeImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaGroupType.ATT_NAME);
+                };
+                GroupTypeImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaGroupType.ATT_NAME, p_obj);
+                    return this;
+                };
+                GroupTypeImpl.prototype.getAbstract = function () {
+                    return this.get(org.kevoree.meta.MetaGroupType.ATT_ABSTRACT);
+                };
+                GroupTypeImpl.prototype.setAbstract = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaGroupType.ATT_ABSTRACT, p_obj);
+                    return this;
+                };
+                GroupTypeImpl.prototype.getVersion = function () {
+                    return this.get(org.kevoree.meta.MetaGroupType.ATT_VERSION);
+                };
+                GroupTypeImpl.prototype.setVersion = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaGroupType.ATT_VERSION, p_obj);
+                    return this;
+                };
+                GroupTypeImpl.prototype.addSuperTypes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaGroupType.REF_SUPERTYPES, p_obj);
+                    return this;
+                };
+                GroupTypeImpl.prototype.removeSuperTypes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaGroupType.REF_SUPERTYPES, p_obj);
+                    return this;
+                };
+                GroupTypeImpl.prototype.eachSuperTypes = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaGroupType.REF_SUPERTYPES, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                GroupTypeImpl.prototype.sizeOfSuperTypes = function () {
+                    return this.size(org.kevoree.meta.MetaGroupType.REF_SUPERTYPES);
+                };
+                GroupTypeImpl.prototype.addMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaGroupType.REF_METADATA, p_obj);
+                    return this;
+                };
+                GroupTypeImpl.prototype.removeMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaGroupType.REF_METADATA, p_obj);
+                    return this;
+                };
+                GroupTypeImpl.prototype.eachMetaData = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaGroupType.REF_METADATA, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                GroupTypeImpl.prototype.sizeOfMetaData = function () {
+                    return this.size(org.kevoree.meta.MetaGroupType.REF_METADATA);
+                };
+                GroupTypeImpl.prototype.addDeployUnits = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaGroupType.REF_DEPLOYUNITS, p_obj);
+                    return this;
+                };
+                GroupTypeImpl.prototype.removeDeployUnits = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaGroupType.REF_DEPLOYUNITS, p_obj);
+                    return this;
+                };
+                GroupTypeImpl.prototype.eachDeployUnits = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaGroupType.REF_DEPLOYUNITS, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                GroupTypeImpl.prototype.sizeOfDeployUnits = function () {
+                    return this.size(org.kevoree.meta.MetaGroupType.REF_DEPLOYUNITS);
+                };
+                GroupTypeImpl.prototype.setDictionaryType = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaGroupType.REF_DICTIONARYTYPE, p_obj);
+                    return this;
+                };
+                GroupTypeImpl.prototype.getDictionaryType = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaGroupType.REF_DICTIONARYTYPE, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                GroupTypeImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return GroupTypeImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.GroupTypeImpl = GroupTypeImpl;
+            var InstanceImpl = (function (_super) {
+                __extends(InstanceImpl, _super);
+                function InstanceImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                InstanceImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaInstance.ATT_NAME);
+                };
+                InstanceImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaInstance.ATT_NAME, p_obj);
+                    return this;
+                };
+                InstanceImpl.prototype.getStarted = function () {
+                    return this.get(org.kevoree.meta.MetaInstance.ATT_STARTED);
+                };
+                InstanceImpl.prototype.setStarted = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaInstance.ATT_STARTED, p_obj);
+                    return this;
+                };
+                InstanceImpl.prototype.addMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaInstance.REF_METADATA, p_obj);
+                    return this;
+                };
+                InstanceImpl.prototype.removeMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaInstance.REF_METADATA, p_obj);
+                    return this;
+                };
+                InstanceImpl.prototype.eachMetaData = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaInstance.REF_METADATA, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                InstanceImpl.prototype.sizeOfMetaData = function () {
+                    return this.size(org.kevoree.meta.MetaInstance.REF_METADATA);
+                };
+                InstanceImpl.prototype.setDictionary = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaInstance.REF_DICTIONARY, p_obj);
+                    return this;
+                };
+                InstanceImpl.prototype.getDictionary = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaInstance.REF_DICTIONARY, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                InstanceImpl.prototype.setTypeDefinition = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaInstance.REF_TYPEDEFINITION, p_obj);
+                    return this;
+                };
+                InstanceImpl.prototype.getTypeDefinition = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaInstance.REF_TYPEDEFINITION, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                InstanceImpl.prototype.addFragmentDictionary = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaInstance.REF_FRAGMENTDICTIONARY, p_obj);
+                    return this;
+                };
+                InstanceImpl.prototype.removeFragmentDictionary = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaInstance.REF_FRAGMENTDICTIONARY, p_obj);
+                    return this;
+                };
+                InstanceImpl.prototype.eachFragmentDictionary = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaInstance.REF_FRAGMENTDICTIONARY, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                InstanceImpl.prototype.sizeOfFragmentDictionary = function () {
+                    return this.size(org.kevoree.meta.MetaInstance.REF_FRAGMENTDICTIONARY);
+                };
+                InstanceImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return InstanceImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.InstanceImpl = InstanceImpl;
+            var MBindingImpl = (function (_super) {
+                __extends(MBindingImpl, _super);
+                function MBindingImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                MBindingImpl.prototype.setHub = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaMBinding.REF_HUB, p_obj);
+                    return this;
+                };
+                MBindingImpl.prototype.getHub = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaMBinding.REF_HUB, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                MBindingImpl.prototype.setPort = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaMBinding.REF_PORT, p_obj);
+                    return this;
+                };
+                MBindingImpl.prototype.getPort = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaMBinding.REF_PORT, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                MBindingImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return MBindingImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.MBindingImpl = MBindingImpl;
+            var MessagePortTypeImpl = (function (_super) {
+                __extends(MessagePortTypeImpl, _super);
+                function MessagePortTypeImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                MessagePortTypeImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaMessagePortType.ATT_NAME);
+                };
+                MessagePortTypeImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaMessagePortType.ATT_NAME, p_obj);
+                    return this;
+                };
+                MessagePortTypeImpl.prototype.getSynchrone = function () {
+                    return this.get(org.kevoree.meta.MetaMessagePortType.ATT_SYNCHRONE);
+                };
+                MessagePortTypeImpl.prototype.setSynchrone = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaMessagePortType.ATT_SYNCHRONE, p_obj);
+                    return this;
+                };
+                MessagePortTypeImpl.prototype.getAbstract = function () {
+                    return this.get(org.kevoree.meta.MetaMessagePortType.ATT_ABSTRACT);
+                };
+                MessagePortTypeImpl.prototype.setAbstract = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaMessagePortType.ATT_ABSTRACT, p_obj);
+                    return this;
+                };
+                MessagePortTypeImpl.prototype.getVersion = function () {
+                    return this.get(org.kevoree.meta.MetaMessagePortType.ATT_VERSION);
+                };
+                MessagePortTypeImpl.prototype.setVersion = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaMessagePortType.ATT_VERSION, p_obj);
+                    return this;
+                };
+                MessagePortTypeImpl.prototype.addSuperTypes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaMessagePortType.REF_SUPERTYPES, p_obj);
+                    return this;
+                };
+                MessagePortTypeImpl.prototype.removeSuperTypes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaMessagePortType.REF_SUPERTYPES, p_obj);
+                    return this;
+                };
+                MessagePortTypeImpl.prototype.eachSuperTypes = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaMessagePortType.REF_SUPERTYPES, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                MessagePortTypeImpl.prototype.sizeOfSuperTypes = function () {
+                    return this.size(org.kevoree.meta.MetaMessagePortType.REF_SUPERTYPES);
+                };
+                MessagePortTypeImpl.prototype.addMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaMessagePortType.REF_METADATA, p_obj);
+                    return this;
+                };
+                MessagePortTypeImpl.prototype.removeMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaMessagePortType.REF_METADATA, p_obj);
+                    return this;
+                };
+                MessagePortTypeImpl.prototype.eachMetaData = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaMessagePortType.REF_METADATA, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                MessagePortTypeImpl.prototype.sizeOfMetaData = function () {
+                    return this.size(org.kevoree.meta.MetaMessagePortType.REF_METADATA);
+                };
+                MessagePortTypeImpl.prototype.addDeployUnits = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaMessagePortType.REF_DEPLOYUNITS, p_obj);
+                    return this;
+                };
+                MessagePortTypeImpl.prototype.removeDeployUnits = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaMessagePortType.REF_DEPLOYUNITS, p_obj);
+                    return this;
+                };
+                MessagePortTypeImpl.prototype.eachDeployUnits = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaMessagePortType.REF_DEPLOYUNITS, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                MessagePortTypeImpl.prototype.sizeOfDeployUnits = function () {
+                    return this.size(org.kevoree.meta.MetaMessagePortType.REF_DEPLOYUNITS);
+                };
+                MessagePortTypeImpl.prototype.setDictionaryType = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaMessagePortType.REF_DICTIONARYTYPE, p_obj);
+                    return this;
+                };
+                MessagePortTypeImpl.prototype.getDictionaryType = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaMessagePortType.REF_DICTIONARYTYPE, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                MessagePortTypeImpl.prototype.addFilters = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaMessagePortType.REF_FILTERS, p_obj);
+                    return this;
+                };
+                MessagePortTypeImpl.prototype.removeFilters = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaMessagePortType.REF_FILTERS, p_obj);
+                    return this;
+                };
+                MessagePortTypeImpl.prototype.eachFilters = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaMessagePortType.REF_FILTERS, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                MessagePortTypeImpl.prototype.sizeOfFilters = function () {
+                    return this.size(org.kevoree.meta.MetaMessagePortType.REF_FILTERS);
+                };
+                MessagePortTypeImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return MessagePortTypeImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.MessagePortTypeImpl = MessagePortTypeImpl;
+            var NamedElementImpl = (function (_super) {
+                __extends(NamedElementImpl, _super);
+                function NamedElementImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                NamedElementImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaNamedElement.ATT_NAME);
+                };
+                NamedElementImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaNamedElement.ATT_NAME, p_obj);
+                    return this;
+                };
+                NamedElementImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return NamedElementImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.NamedElementImpl = NamedElementImpl;
+            var NetworkInfoImpl = (function (_super) {
+                __extends(NetworkInfoImpl, _super);
+                function NetworkInfoImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                NetworkInfoImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaNetworkInfo.ATT_NAME);
+                };
+                NetworkInfoImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaNetworkInfo.ATT_NAME, p_obj);
+                    return this;
+                };
+                NetworkInfoImpl.prototype.addValues = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaNetworkInfo.REF_VALUES, p_obj);
+                    return this;
+                };
+                NetworkInfoImpl.prototype.removeValues = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaNetworkInfo.REF_VALUES, p_obj);
+                    return this;
+                };
+                NetworkInfoImpl.prototype.eachValues = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaNetworkInfo.REF_VALUES, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                NetworkInfoImpl.prototype.sizeOfValues = function () {
+                    return this.size(org.kevoree.meta.MetaNetworkInfo.REF_VALUES);
+                };
+                NetworkInfoImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return NetworkInfoImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.NetworkInfoImpl = NetworkInfoImpl;
+            var NodeTypeImpl = (function (_super) {
+                __extends(NodeTypeImpl, _super);
+                function NodeTypeImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                NodeTypeImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaNodeType.ATT_NAME);
+                };
+                NodeTypeImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaNodeType.ATT_NAME, p_obj);
+                    return this;
+                };
+                NodeTypeImpl.prototype.getAbstract = function () {
+                    return this.get(org.kevoree.meta.MetaNodeType.ATT_ABSTRACT);
+                };
+                NodeTypeImpl.prototype.setAbstract = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaNodeType.ATT_ABSTRACT, p_obj);
+                    return this;
+                };
+                NodeTypeImpl.prototype.getVersion = function () {
+                    return this.get(org.kevoree.meta.MetaNodeType.ATT_VERSION);
+                };
+                NodeTypeImpl.prototype.setVersion = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaNodeType.ATT_VERSION, p_obj);
+                    return this;
+                };
+                NodeTypeImpl.prototype.addSuperTypes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaNodeType.REF_SUPERTYPES, p_obj);
+                    return this;
+                };
+                NodeTypeImpl.prototype.removeSuperTypes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaNodeType.REF_SUPERTYPES, p_obj);
+                    return this;
+                };
+                NodeTypeImpl.prototype.eachSuperTypes = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaNodeType.REF_SUPERTYPES, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                NodeTypeImpl.prototype.sizeOfSuperTypes = function () {
+                    return this.size(org.kevoree.meta.MetaNodeType.REF_SUPERTYPES);
+                };
+                NodeTypeImpl.prototype.addMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaNodeType.REF_METADATA, p_obj);
+                    return this;
+                };
+                NodeTypeImpl.prototype.removeMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaNodeType.REF_METADATA, p_obj);
+                    return this;
+                };
+                NodeTypeImpl.prototype.eachMetaData = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaNodeType.REF_METADATA, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                NodeTypeImpl.prototype.sizeOfMetaData = function () {
+                    return this.size(org.kevoree.meta.MetaNodeType.REF_METADATA);
+                };
+                NodeTypeImpl.prototype.addDeployUnits = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaNodeType.REF_DEPLOYUNITS, p_obj);
+                    return this;
+                };
+                NodeTypeImpl.prototype.removeDeployUnits = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaNodeType.REF_DEPLOYUNITS, p_obj);
+                    return this;
+                };
+                NodeTypeImpl.prototype.eachDeployUnits = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaNodeType.REF_DEPLOYUNITS, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                NodeTypeImpl.prototype.sizeOfDeployUnits = function () {
+                    return this.size(org.kevoree.meta.MetaNodeType.REF_DEPLOYUNITS);
+                };
+                NodeTypeImpl.prototype.setDictionaryType = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaNodeType.REF_DICTIONARYTYPE, p_obj);
+                    return this;
+                };
+                NodeTypeImpl.prototype.getDictionaryType = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaNodeType.REF_DICTIONARYTYPE, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                NodeTypeImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return NodeTypeImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.NodeTypeImpl = NodeTypeImpl;
+            var OperationImpl = (function (_super) {
+                __extends(OperationImpl, _super);
+                function OperationImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                OperationImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaOperation.ATT_NAME);
+                };
+                OperationImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaOperation.ATT_NAME, p_obj);
+                    return this;
+                };
+                OperationImpl.prototype.addParameters = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaOperation.REF_PARAMETERS, p_obj);
+                    return this;
+                };
+                OperationImpl.prototype.removeParameters = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaOperation.REF_PARAMETERS, p_obj);
+                    return this;
+                };
+                OperationImpl.prototype.eachParameters = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaOperation.REF_PARAMETERS, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                OperationImpl.prototype.sizeOfParameters = function () {
+                    return this.size(org.kevoree.meta.MetaOperation.REF_PARAMETERS);
+                };
+                OperationImpl.prototype.setReturnType = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaOperation.REF_RETURNTYPE, p_obj);
+                    return this;
+                };
+                OperationImpl.prototype.getReturnType = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaOperation.REF_RETURNTYPE, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                OperationImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return OperationImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.OperationImpl = OperationImpl;
+            var PackageImpl = (function (_super) {
+                __extends(PackageImpl, _super);
+                function PackageImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                PackageImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaPackage.ATT_NAME);
+                };
+                PackageImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaPackage.ATT_NAME, p_obj);
+                    return this;
+                };
+                PackageImpl.prototype.addTypeDefinitions = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaPackage.REF_TYPEDEFINITIONS, p_obj);
+                    return this;
+                };
+                PackageImpl.prototype.removeTypeDefinitions = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaPackage.REF_TYPEDEFINITIONS, p_obj);
+                    return this;
+                };
+                PackageImpl.prototype.eachTypeDefinitions = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaPackage.REF_TYPEDEFINITIONS, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                PackageImpl.prototype.sizeOfTypeDefinitions = function () {
+                    return this.size(org.kevoree.meta.MetaPackage.REF_TYPEDEFINITIONS);
+                };
+                PackageImpl.prototype.addDeployUnits = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaPackage.REF_DEPLOYUNITS, p_obj);
+                    return this;
+                };
+                PackageImpl.prototype.removeDeployUnits = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaPackage.REF_DEPLOYUNITS, p_obj);
+                    return this;
+                };
+                PackageImpl.prototype.eachDeployUnits = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaPackage.REF_DEPLOYUNITS, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                PackageImpl.prototype.sizeOfDeployUnits = function () {
+                    return this.size(org.kevoree.meta.MetaPackage.REF_DEPLOYUNITS);
+                };
+                PackageImpl.prototype.addPackages = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaPackage.REF_PACKAGES, p_obj);
+                    return this;
+                };
+                PackageImpl.prototype.removePackages = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaPackage.REF_PACKAGES, p_obj);
+                    return this;
+                };
+                PackageImpl.prototype.eachPackages = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaPackage.REF_PACKAGES, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                PackageImpl.prototype.sizeOfPackages = function () {
+                    return this.size(org.kevoree.meta.MetaPackage.REF_PACKAGES);
+                };
+                PackageImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return PackageImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.PackageImpl = PackageImpl;
+            var ParameterImpl = (function (_super) {
+                __extends(ParameterImpl, _super);
+                function ParameterImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                ParameterImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaParameter.ATT_NAME);
+                };
+                ParameterImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaParameter.ATT_NAME, p_obj);
+                    return this;
+                };
+                ParameterImpl.prototype.getOrder = function () {
+                    return this.get(org.kevoree.meta.MetaParameter.ATT_ORDER);
+                };
+                ParameterImpl.prototype.setOrder = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaParameter.ATT_ORDER, p_obj);
+                    return this;
+                };
+                ParameterImpl.prototype.setType = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaParameter.REF_TYPE, p_obj);
+                    return this;
+                };
+                ParameterImpl.prototype.getType = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaParameter.REF_TYPE, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                ParameterImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return ParameterImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.ParameterImpl = ParameterImpl;
+            var PortImpl = (function (_super) {
+                __extends(PortImpl, _super);
+                function PortImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                PortImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaPort.ATT_NAME);
+                };
+                PortImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaPort.ATT_NAME, p_obj);
+                    return this;
+                };
+                PortImpl.prototype.addBindings = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaPort.REF_BINDINGS, p_obj);
+                    return this;
+                };
+                PortImpl.prototype.removeBindings = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaPort.REF_BINDINGS, p_obj);
+                    return this;
+                };
+                PortImpl.prototype.eachBindings = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaPort.REF_BINDINGS, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                PortImpl.prototype.sizeOfBindings = function () {
+                    return this.size(org.kevoree.meta.MetaPort.REF_BINDINGS);
+                };
+                PortImpl.prototype.setPortTypeRef = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaPort.REF_PORTTYPEREF, p_obj);
+                    return this;
+                };
+                PortImpl.prototype.getPortTypeRef = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaPort.REF_PORTTYPEREF, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                PortImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return PortImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.PortImpl = PortImpl;
+            var PortTypeImpl = (function (_super) {
+                __extends(PortTypeImpl, _super);
+                function PortTypeImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                PortTypeImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaPortType.ATT_NAME);
+                };
+                PortTypeImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaPortType.ATT_NAME, p_obj);
+                    return this;
+                };
+                PortTypeImpl.prototype.getSynchrone = function () {
+                    return this.get(org.kevoree.meta.MetaPortType.ATT_SYNCHRONE);
+                };
+                PortTypeImpl.prototype.setSynchrone = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaPortType.ATT_SYNCHRONE, p_obj);
+                    return this;
+                };
+                PortTypeImpl.prototype.getAbstract = function () {
+                    return this.get(org.kevoree.meta.MetaPortType.ATT_ABSTRACT);
+                };
+                PortTypeImpl.prototype.setAbstract = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaPortType.ATT_ABSTRACT, p_obj);
+                    return this;
+                };
+                PortTypeImpl.prototype.getVersion = function () {
+                    return this.get(org.kevoree.meta.MetaPortType.ATT_VERSION);
+                };
+                PortTypeImpl.prototype.setVersion = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaPortType.ATT_VERSION, p_obj);
+                    return this;
+                };
+                PortTypeImpl.prototype.addSuperTypes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaPortType.REF_SUPERTYPES, p_obj);
+                    return this;
+                };
+                PortTypeImpl.prototype.removeSuperTypes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaPortType.REF_SUPERTYPES, p_obj);
+                    return this;
+                };
+                PortTypeImpl.prototype.eachSuperTypes = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaPortType.REF_SUPERTYPES, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                PortTypeImpl.prototype.sizeOfSuperTypes = function () {
+                    return this.size(org.kevoree.meta.MetaPortType.REF_SUPERTYPES);
+                };
+                PortTypeImpl.prototype.addMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaPortType.REF_METADATA, p_obj);
+                    return this;
+                };
+                PortTypeImpl.prototype.removeMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaPortType.REF_METADATA, p_obj);
+                    return this;
+                };
+                PortTypeImpl.prototype.eachMetaData = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaPortType.REF_METADATA, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                PortTypeImpl.prototype.sizeOfMetaData = function () {
+                    return this.size(org.kevoree.meta.MetaPortType.REF_METADATA);
+                };
+                PortTypeImpl.prototype.addDeployUnits = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaPortType.REF_DEPLOYUNITS, p_obj);
+                    return this;
+                };
+                PortTypeImpl.prototype.removeDeployUnits = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaPortType.REF_DEPLOYUNITS, p_obj);
+                    return this;
+                };
+                PortTypeImpl.prototype.eachDeployUnits = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaPortType.REF_DEPLOYUNITS, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                PortTypeImpl.prototype.sizeOfDeployUnits = function () {
+                    return this.size(org.kevoree.meta.MetaPortType.REF_DEPLOYUNITS);
+                };
+                PortTypeImpl.prototype.setDictionaryType = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaPortType.REF_DICTIONARYTYPE, p_obj);
+                    return this;
+                };
+                PortTypeImpl.prototype.getDictionaryType = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaPortType.REF_DICTIONARYTYPE, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                PortTypeImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return PortTypeImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.PortTypeImpl = PortTypeImpl;
+            var PortTypeMappingImpl = (function (_super) {
+                __extends(PortTypeMappingImpl, _super);
+                function PortTypeMappingImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                PortTypeMappingImpl.prototype.getParamTypes = function () {
+                    return this.get(org.kevoree.meta.MetaPortTypeMapping.ATT_PARAMTYPES);
+                };
+                PortTypeMappingImpl.prototype.setParamTypes = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaPortTypeMapping.ATT_PARAMTYPES, p_obj);
+                    return this;
+                };
+                PortTypeMappingImpl.prototype.getBeanMethodName = function () {
+                    return this.get(org.kevoree.meta.MetaPortTypeMapping.ATT_BEANMETHODNAME);
+                };
+                PortTypeMappingImpl.prototype.setBeanMethodName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaPortTypeMapping.ATT_BEANMETHODNAME, p_obj);
+                    return this;
+                };
+                PortTypeMappingImpl.prototype.getServiceMethodName = function () {
+                    return this.get(org.kevoree.meta.MetaPortTypeMapping.ATT_SERVICEMETHODNAME);
+                };
+                PortTypeMappingImpl.prototype.setServiceMethodName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaPortTypeMapping.ATT_SERVICEMETHODNAME, p_obj);
+                    return this;
+                };
+                PortTypeMappingImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return PortTypeMappingImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.PortTypeMappingImpl = PortTypeMappingImpl;
+            var PortTypeRefImpl = (function (_super) {
+                __extends(PortTypeRefImpl, _super);
+                function PortTypeRefImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                PortTypeRefImpl.prototype.getNoDependency = function () {
+                    return this.get(org.kevoree.meta.MetaPortTypeRef.ATT_NODEPENDENCY);
+                };
+                PortTypeRefImpl.prototype.setNoDependency = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaPortTypeRef.ATT_NODEPENDENCY, p_obj);
+                    return this;
+                };
+                PortTypeRefImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaPortTypeRef.ATT_NAME);
+                };
+                PortTypeRefImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaPortTypeRef.ATT_NAME, p_obj);
+                    return this;
+                };
+                PortTypeRefImpl.prototype.getOptional = function () {
+                    return this.get(org.kevoree.meta.MetaPortTypeRef.ATT_OPTIONAL);
+                };
+                PortTypeRefImpl.prototype.setOptional = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaPortTypeRef.ATT_OPTIONAL, p_obj);
+                    return this;
+                };
+                PortTypeRefImpl.prototype.setRef = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaPortTypeRef.REF_REF, p_obj);
+                    return this;
+                };
+                PortTypeRefImpl.prototype.getRef = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaPortTypeRef.REF_REF, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                PortTypeRefImpl.prototype.addMappings = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaPortTypeRef.REF_MAPPINGS, p_obj);
+                    return this;
+                };
+                PortTypeRefImpl.prototype.removeMappings = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaPortTypeRef.REF_MAPPINGS, p_obj);
+                    return this;
+                };
+                PortTypeRefImpl.prototype.eachMappings = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaPortTypeRef.REF_MAPPINGS, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                PortTypeRefImpl.prototype.sizeOfMappings = function () {
+                    return this.size(org.kevoree.meta.MetaPortTypeRef.REF_MAPPINGS);
+                };
+                PortTypeRefImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return PortTypeRefImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.PortTypeRefImpl = PortTypeRefImpl;
+            var RepositoryImpl = (function (_super) {
+                __extends(RepositoryImpl, _super);
+                function RepositoryImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                RepositoryImpl.prototype.getUrl = function () {
+                    return this.get(org.kevoree.meta.MetaRepository.ATT_URL);
+                };
+                RepositoryImpl.prototype.setUrl = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaRepository.ATT_URL, p_obj);
+                    return this;
+                };
+                RepositoryImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return RepositoryImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.RepositoryImpl = RepositoryImpl;
+            var ServicePortTypeImpl = (function (_super) {
+                __extends(ServicePortTypeImpl, _super);
+                function ServicePortTypeImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                ServicePortTypeImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaServicePortType.ATT_NAME);
+                };
+                ServicePortTypeImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaServicePortType.ATT_NAME, p_obj);
+                    return this;
+                };
+                ServicePortTypeImpl.prototype.getSynchrone = function () {
+                    return this.get(org.kevoree.meta.MetaServicePortType.ATT_SYNCHRONE);
+                };
+                ServicePortTypeImpl.prototype.setSynchrone = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaServicePortType.ATT_SYNCHRONE, p_obj);
+                    return this;
+                };
+                ServicePortTypeImpl.prototype.getAbstract = function () {
+                    return this.get(org.kevoree.meta.MetaServicePortType.ATT_ABSTRACT);
+                };
+                ServicePortTypeImpl.prototype.setAbstract = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaServicePortType.ATT_ABSTRACT, p_obj);
+                    return this;
+                };
+                ServicePortTypeImpl.prototype.getInterface = function () {
+                    return this.get(org.kevoree.meta.MetaServicePortType.ATT_INTERFACE);
+                };
+                ServicePortTypeImpl.prototype.setInterface = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaServicePortType.ATT_INTERFACE, p_obj);
+                    return this;
+                };
+                ServicePortTypeImpl.prototype.getVersion = function () {
+                    return this.get(org.kevoree.meta.MetaServicePortType.ATT_VERSION);
+                };
+                ServicePortTypeImpl.prototype.setVersion = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaServicePortType.ATT_VERSION, p_obj);
+                    return this;
+                };
+                ServicePortTypeImpl.prototype.addSuperTypes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaServicePortType.REF_SUPERTYPES, p_obj);
+                    return this;
+                };
+                ServicePortTypeImpl.prototype.removeSuperTypes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaServicePortType.REF_SUPERTYPES, p_obj);
+                    return this;
+                };
+                ServicePortTypeImpl.prototype.eachSuperTypes = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaServicePortType.REF_SUPERTYPES, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ServicePortTypeImpl.prototype.sizeOfSuperTypes = function () {
+                    return this.size(org.kevoree.meta.MetaServicePortType.REF_SUPERTYPES);
+                };
+                ServicePortTypeImpl.prototype.addMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaServicePortType.REF_METADATA, p_obj);
+                    return this;
+                };
+                ServicePortTypeImpl.prototype.removeMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaServicePortType.REF_METADATA, p_obj);
+                    return this;
+                };
+                ServicePortTypeImpl.prototype.eachMetaData = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaServicePortType.REF_METADATA, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ServicePortTypeImpl.prototype.sizeOfMetaData = function () {
+                    return this.size(org.kevoree.meta.MetaServicePortType.REF_METADATA);
+                };
+                ServicePortTypeImpl.prototype.addOperations = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaServicePortType.REF_OPERATIONS, p_obj);
+                    return this;
+                };
+                ServicePortTypeImpl.prototype.removeOperations = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaServicePortType.REF_OPERATIONS, p_obj);
+                    return this;
+                };
+                ServicePortTypeImpl.prototype.eachOperations = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaServicePortType.REF_OPERATIONS, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ServicePortTypeImpl.prototype.sizeOfOperations = function () {
+                    return this.size(org.kevoree.meta.MetaServicePortType.REF_OPERATIONS);
+                };
+                ServicePortTypeImpl.prototype.addDeployUnits = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaServicePortType.REF_DEPLOYUNITS, p_obj);
+                    return this;
+                };
+                ServicePortTypeImpl.prototype.removeDeployUnits = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaServicePortType.REF_DEPLOYUNITS, p_obj);
+                    return this;
+                };
+                ServicePortTypeImpl.prototype.eachDeployUnits = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaServicePortType.REF_DEPLOYUNITS, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                ServicePortTypeImpl.prototype.sizeOfDeployUnits = function () {
+                    return this.size(org.kevoree.meta.MetaServicePortType.REF_DEPLOYUNITS);
+                };
+                ServicePortTypeImpl.prototype.setDictionaryType = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaServicePortType.REF_DICTIONARYTYPE, p_obj);
+                    return this;
+                };
+                ServicePortTypeImpl.prototype.getDictionaryType = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaServicePortType.REF_DICTIONARYTYPE, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                ServicePortTypeImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return ServicePortTypeImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.ServicePortTypeImpl = ServicePortTypeImpl;
+            var TypeDefinitionImpl = (function (_super) {
+                __extends(TypeDefinitionImpl, _super);
+                function TypeDefinitionImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                TypeDefinitionImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaTypeDefinition.ATT_NAME);
+                };
+                TypeDefinitionImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaTypeDefinition.ATT_NAME, p_obj);
+                    return this;
+                };
+                TypeDefinitionImpl.prototype.getAbstract = function () {
+                    return this.get(org.kevoree.meta.MetaTypeDefinition.ATT_ABSTRACT);
+                };
+                TypeDefinitionImpl.prototype.setAbstract = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaTypeDefinition.ATT_ABSTRACT, p_obj);
+                    return this;
+                };
+                TypeDefinitionImpl.prototype.getVersion = function () {
+                    return this.get(org.kevoree.meta.MetaTypeDefinition.ATT_VERSION);
+                };
+                TypeDefinitionImpl.prototype.setVersion = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaTypeDefinition.ATT_VERSION, p_obj);
+                    return this;
+                };
+                TypeDefinitionImpl.prototype.addSuperTypes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaTypeDefinition.REF_SUPERTYPES, p_obj);
+                    return this;
+                };
+                TypeDefinitionImpl.prototype.removeSuperTypes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaTypeDefinition.REF_SUPERTYPES, p_obj);
+                    return this;
+                };
+                TypeDefinitionImpl.prototype.eachSuperTypes = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaTypeDefinition.REF_SUPERTYPES, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                TypeDefinitionImpl.prototype.sizeOfSuperTypes = function () {
+                    return this.size(org.kevoree.meta.MetaTypeDefinition.REF_SUPERTYPES);
+                };
+                TypeDefinitionImpl.prototype.addMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaTypeDefinition.REF_METADATA, p_obj);
+                    return this;
+                };
+                TypeDefinitionImpl.prototype.removeMetaData = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaTypeDefinition.REF_METADATA, p_obj);
+                    return this;
+                };
+                TypeDefinitionImpl.prototype.eachMetaData = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaTypeDefinition.REF_METADATA, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                TypeDefinitionImpl.prototype.sizeOfMetaData = function () {
+                    return this.size(org.kevoree.meta.MetaTypeDefinition.REF_METADATA);
+                };
+                TypeDefinitionImpl.prototype.addDeployUnits = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaTypeDefinition.REF_DEPLOYUNITS, p_obj);
+                    return this;
+                };
+                TypeDefinitionImpl.prototype.removeDeployUnits = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaTypeDefinition.REF_DEPLOYUNITS, p_obj);
+                    return this;
+                };
+                TypeDefinitionImpl.prototype.eachDeployUnits = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaTypeDefinition.REF_DEPLOYUNITS, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                TypeDefinitionImpl.prototype.sizeOfDeployUnits = function () {
+                    return this.size(org.kevoree.meta.MetaTypeDefinition.REF_DEPLOYUNITS);
+                };
+                TypeDefinitionImpl.prototype.setDictionaryType = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.meta.MetaTypeDefinition.REF_DICTIONARYTYPE, p_obj);
+                    return this;
+                };
+                TypeDefinitionImpl.prototype.getDictionaryType = function (p_callback) {
+                    this.single(org.kevoree.meta.MetaTypeDefinition.REF_DICTIONARYTYPE, function (kObject) {
+                        if (p_callback != null) {
+                            p_callback(kObject);
+                        }
+                    });
+                };
+                TypeDefinitionImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return TypeDefinitionImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.TypeDefinitionImpl = TypeDefinitionImpl;
+            var TypedElementImpl = (function (_super) {
+                __extends(TypedElementImpl, _super);
+                function TypedElementImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                TypedElementImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaTypedElement.ATT_NAME);
+                };
+                TypedElementImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaTypedElement.ATT_NAME, p_obj);
+                    return this;
+                };
+                TypedElementImpl.prototype.addGenericTypes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.meta.MetaTypedElement.REF_GENERICTYPES, p_obj);
+                    return this;
+                };
+                TypedElementImpl.prototype.removeGenericTypes = function (p_obj) {
+                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.meta.MetaTypedElement.REF_GENERICTYPES, p_obj);
+                    return this;
+                };
+                TypedElementImpl.prototype.eachGenericTypes = function (p_callback) {
+                    this.all(org.kevoree.meta.MetaTypedElement.REF_GENERICTYPES, function (kObjects) {
+                        if (p_callback != null) {
+                            var casted = new Array();
+                            for (var i = 0; i < kObjects.length; i++) {
+                                casted[i] = kObjects[i];
+                            }
+                            p_callback(casted);
+                        }
+                    });
+                };
+                TypedElementImpl.prototype.sizeOfGenericTypes = function () {
+                    return this.size(org.kevoree.meta.MetaTypedElement.REF_GENERICTYPES);
+                };
+                TypedElementImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return TypedElementImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.TypedElementImpl = TypedElementImpl;
+            var ValueImpl = (function (_super) {
+                __extends(ValueImpl, _super);
+                function ValueImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                    _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                }
+                ValueImpl.prototype.getName = function () {
+                    return this.get(org.kevoree.meta.MetaValue.ATT_NAME);
+                };
+                ValueImpl.prototype.setName = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaValue.ATT_NAME, p_obj);
+                    return this;
+                };
+                ValueImpl.prototype.getValue = function () {
+                    return this.get(org.kevoree.meta.MetaValue.ATT_VALUE);
+                };
+                ValueImpl.prototype.setValue = function (p_obj) {
+                    this.set(org.kevoree.meta.MetaValue.ATT_VALUE, p_obj);
+                    return this;
+                };
+                ValueImpl.prototype.view = function () {
+                    return _super.prototype.view.call(this);
+                };
+                return ValueImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKObject);
+            impl.ValueImpl = ValueImpl;
+        })(impl = kevoree.impl || (kevoree.impl = {}));
+        var meta;
+        (function (meta) {
+            var MetaChannel = (function (_super) {
+                __extends(MetaChannel, _super);
+                function MetaChannel() {
+                    _super.call(this, "org.kevoree.Channel", 12);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaChannel.ATT_NAME;
+                    temp_attributes[1] = MetaChannel.ATT_STARTED;
+                    var temp_references = new Array();
+                    temp_references[0] = MetaChannel.REF_METADATA;
+                    temp_references[1] = MetaChannel.REF_DICTIONARY;
+                    temp_references[2] = MetaChannel.REF_TYPEDEFINITION;
+                    temp_references[3] = MetaChannel.REF_BINDINGS;
+                    temp_references[4] = MetaChannel.REF_FRAGMENTDICTIONARY;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaChannel.getInstance = function () {
+                    if (MetaChannel.INSTANCE == null) {
+                        MetaChannel.INSTANCE = new org.kevoree.meta.MetaChannel();
                     }
+                    return MetaChannel.INSTANCE;
+                };
+                MetaChannel.INSTANCE = null;
+                MetaChannel.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaChannel.ATT_STARTED = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("started", 6, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.BOOL, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaChannel.REF_METADATA = new org.kevoree.modeling.api.abs.AbstractMetaReference("metaData", 7, true, false, function () {
+                    return org.kevoree.meta.MetaValue.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaChannel.getInstance();
                 });
-            };
-            LibraryImpl.prototype.sizeOfShapes = function () {
-                return this.size(geometry.meta.MetaLibrary.REF_SHAPES);
-            };
-            LibraryImpl.prototype.view = function () {
-                return _super.prototype.view.call(this);
-            };
-            return LibraryImpl;
-        })(org.kevoree.modeling.api.abs.AbstractKObject);
-        impl.LibraryImpl = LibraryImpl;
-        var ShapeImpl = (function (_super) {
-            __extends(ShapeImpl, _super);
-            function ShapeImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
-                _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
-            }
-            ShapeImpl.prototype.getColor = function () {
-                return this.get(geometry.meta.MetaShape.ATT_COLOR);
-            };
-            ShapeImpl.prototype.setColor = function (p_obj) {
-                this.set(geometry.meta.MetaShape.ATT_COLOR, p_obj);
-                return this;
-            };
-            ShapeImpl.prototype.getName = function () {
-                return this.get(geometry.meta.MetaShape.ATT_NAME);
-            };
-            ShapeImpl.prototype.setName = function (p_obj) {
-                this.set(geometry.meta.MetaShape.ATT_NAME, p_obj);
-                return this;
-            };
-            ShapeImpl.prototype.view = function () {
-                return _super.prototype.view.call(this);
-            };
-            return ShapeImpl;
-        })(org.kevoree.modeling.api.abs.AbstractKObject);
-        impl.ShapeImpl = ShapeImpl;
-    })(impl = geometry.impl || (geometry.impl = {}));
-    var meta;
-    (function (meta) {
-        var MetaLibrary = (function (_super) {
-            __extends(MetaLibrary, _super);
-            function MetaLibrary() {
-                _super.call(this, "geometry.Library", 0);
-                var temp_attributes = new Array();
-                var temp_references = new Array();
-                temp_references[0] = MetaLibrary.REF_SHAPES;
-                var temp_operations = new Array();
-                this.init(temp_attributes, temp_references, temp_operations);
-            }
-            MetaLibrary.getInstance = function () {
-                if (MetaLibrary.INSTANCE == null) {
-                    MetaLibrary.INSTANCE = new geometry.meta.MetaLibrary();
+                MetaChannel.REF_DICTIONARY = new org.kevoree.modeling.api.abs.AbstractMetaReference("dictionary", 8, true, true, function () {
+                    return org.kevoree.meta.MetaDictionary.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaChannel.getInstance();
+                });
+                MetaChannel.REF_TYPEDEFINITION = new org.kevoree.modeling.api.abs.AbstractMetaReference("typeDefinition", 9, false, true, function () {
+                    return org.kevoree.meta.MetaTypeDefinition.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaChannel.getInstance();
+                });
+                MetaChannel.REF_BINDINGS = new org.kevoree.modeling.api.abs.AbstractMetaReference("bindings", 10, false, false, function () {
+                    return org.kevoree.meta.MetaMBinding.getInstance();
+                }, function () {
+                    return org.kevoree.meta.MetaMBinding.REF_HUB;
+                }, function () {
+                    return org.kevoree.meta.MetaChannel.getInstance();
+                });
+                MetaChannel.REF_FRAGMENTDICTIONARY = new org.kevoree.modeling.api.abs.AbstractMetaReference("fragmentDictionary", 11, true, false, function () {
+                    return org.kevoree.meta.MetaFragmentDictionary.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaChannel.getInstance();
+                });
+                return MetaChannel;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaChannel = MetaChannel;
+            var MetaChannelType = (function (_super) {
+                __extends(MetaChannelType, _super);
+                function MetaChannelType() {
+                    _super.call(this, "org.kevoree.ChannelType", 29);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaChannelType.ATT_UPPERFRAGMENTS;
+                    temp_attributes[1] = MetaChannelType.ATT_NAME;
+                    temp_attributes[2] = MetaChannelType.ATT_ABSTRACT;
+                    temp_attributes[3] = MetaChannelType.ATT_LOWERBINDINGS;
+                    temp_attributes[4] = MetaChannelType.ATT_LOWERFRAGMENTS;
+                    temp_attributes[5] = MetaChannelType.ATT_VERSION;
+                    temp_attributes[6] = MetaChannelType.ATT_UPPERBINDINGS;
+                    var temp_references = new Array();
+                    temp_references[0] = MetaChannelType.REF_SUPERTYPES;
+                    temp_references[1] = MetaChannelType.REF_METADATA;
+                    temp_references[2] = MetaChannelType.REF_DEPLOYUNITS;
+                    temp_references[3] = MetaChannelType.REF_DICTIONARYTYPE;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
                 }
-                return MetaLibrary.INSTANCE;
-            };
-            MetaLibrary.INSTANCE = null;
-            MetaLibrary.REF_SHAPES = new org.kevoree.modeling.api.abs.AbstractMetaReference("shapes", 5, true, false, function () {
-                return geometry.meta.MetaShape.getInstance();
-            }, null, function () {
-                return geometry.meta.MetaLibrary.getInstance();
-            });
-            return MetaLibrary;
-        })(org.kevoree.modeling.api.abs.AbstractMetaClass);
-        meta.MetaLibrary = MetaLibrary;
-        var MetaShape = (function (_super) {
-            __extends(MetaShape, _super);
-            function MetaShape() {
-                _super.call(this, "geometry.Shape", 1);
-                var temp_attributes = new Array();
-                temp_attributes[0] = MetaShape.ATT_COLOR;
-                temp_attributes[1] = MetaShape.ATT_NAME;
-                var temp_references = new Array();
-                var temp_operations = new Array();
-                this.init(temp_attributes, temp_references, temp_operations);
-            }
-            MetaShape.getInstance = function () {
-                if (MetaShape.INSTANCE == null) {
-                    MetaShape.INSTANCE = new geometry.meta.MetaShape();
+                MetaChannelType.getInstance = function () {
+                    if (MetaChannelType.INSTANCE == null) {
+                        MetaChannelType.INSTANCE = new org.kevoree.meta.MetaChannelType();
+                    }
+                    return MetaChannelType.INSTANCE;
+                };
+                MetaChannelType.INSTANCE = null;
+                MetaChannelType.ATT_UPPERFRAGMENTS = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("upperFragments", 5, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.INT, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaChannelType.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 6, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaChannelType.ATT_ABSTRACT = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("abstract", 7, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.BOOL, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaChannelType.ATT_LOWERBINDINGS = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("lowerBindings", 8, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.INT, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaChannelType.ATT_LOWERFRAGMENTS = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("lowerFragments", 9, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.INT, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaChannelType.ATT_VERSION = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("version", 10, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaChannelType.ATT_UPPERBINDINGS = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("upperBindings", 11, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.INT, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaChannelType.REF_SUPERTYPES = new org.kevoree.modeling.api.abs.AbstractMetaReference("superTypes", 12, false, false, function () {
+                    return org.kevoree.meta.MetaTypeDefinition.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaChannelType.getInstance();
+                });
+                MetaChannelType.REF_METADATA = new org.kevoree.modeling.api.abs.AbstractMetaReference("metaData", 13, true, false, function () {
+                    return org.kevoree.meta.MetaValue.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaChannelType.getInstance();
+                });
+                MetaChannelType.REF_DEPLOYUNITS = new org.kevoree.modeling.api.abs.AbstractMetaReference("deployUnits", 14, false, false, function () {
+                    return org.kevoree.meta.MetaDeployUnit.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaChannelType.getInstance();
+                });
+                MetaChannelType.REF_DICTIONARYTYPE = new org.kevoree.modeling.api.abs.AbstractMetaReference("dictionaryType", 15, true, true, function () {
+                    return org.kevoree.meta.MetaDictionaryType.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaChannelType.getInstance();
+                });
+                return MetaChannelType;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaChannelType = MetaChannelType;
+            var MetaComponentInstance = (function (_super) {
+                __extends(MetaComponentInstance, _super);
+                function MetaComponentInstance() {
+                    _super.call(this, "org.kevoree.ComponentInstance", 1);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaComponentInstance.ATT_NAME;
+                    temp_attributes[1] = MetaComponentInstance.ATT_STARTED;
+                    var temp_references = new Array();
+                    temp_references[0] = MetaComponentInstance.REF_METADATA;
+                    temp_references[1] = MetaComponentInstance.REF_DICTIONARY;
+                    temp_references[2] = MetaComponentInstance.REF_TYPEDEFINITION;
+                    temp_references[3] = MetaComponentInstance.REF_PROVIDED;
+                    temp_references[4] = MetaComponentInstance.REF_FRAGMENTDICTIONARY;
+                    temp_references[5] = MetaComponentInstance.REF_REQUIRED;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
                 }
-                return MetaShape.INSTANCE;
-            };
-            MetaShape.INSTANCE = null;
-            MetaShape.ATT_COLOR = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("color", 5, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
-            MetaShape.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 6, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
-            return MetaShape;
-        })(org.kevoree.modeling.api.abs.AbstractMetaClass);
-        meta.MetaShape = MetaShape;
-    })(meta = geometry.meta || (geometry.meta = {}));
-})(geometry || (geometry = {}));
+                MetaComponentInstance.getInstance = function () {
+                    if (MetaComponentInstance.INSTANCE == null) {
+                        MetaComponentInstance.INSTANCE = new org.kevoree.meta.MetaComponentInstance();
+                    }
+                    return MetaComponentInstance.INSTANCE;
+                };
+                MetaComponentInstance.INSTANCE = null;
+                MetaComponentInstance.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaComponentInstance.ATT_STARTED = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("started", 6, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.BOOL, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaComponentInstance.REF_METADATA = new org.kevoree.modeling.api.abs.AbstractMetaReference("metaData", 7, true, false, function () {
+                    return org.kevoree.meta.MetaValue.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaComponentInstance.getInstance();
+                });
+                MetaComponentInstance.REF_DICTIONARY = new org.kevoree.modeling.api.abs.AbstractMetaReference("dictionary", 8, true, true, function () {
+                    return org.kevoree.meta.MetaDictionary.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaComponentInstance.getInstance();
+                });
+                MetaComponentInstance.REF_TYPEDEFINITION = new org.kevoree.modeling.api.abs.AbstractMetaReference("typeDefinition", 9, false, true, function () {
+                    return org.kevoree.meta.MetaTypeDefinition.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaComponentInstance.getInstance();
+                });
+                MetaComponentInstance.REF_PROVIDED = new org.kevoree.modeling.api.abs.AbstractMetaReference("provided", 10, true, false, function () {
+                    return org.kevoree.meta.MetaPort.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaComponentInstance.getInstance();
+                });
+                MetaComponentInstance.REF_FRAGMENTDICTIONARY = new org.kevoree.modeling.api.abs.AbstractMetaReference("fragmentDictionary", 11, true, false, function () {
+                    return org.kevoree.meta.MetaFragmentDictionary.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaComponentInstance.getInstance();
+                });
+                MetaComponentInstance.REF_REQUIRED = new org.kevoree.modeling.api.abs.AbstractMetaReference("required", 12, true, false, function () {
+                    return org.kevoree.meta.MetaPort.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaComponentInstance.getInstance();
+                });
+                return MetaComponentInstance;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaComponentInstance = MetaComponentInstance;
+            var MetaComponentType = (function (_super) {
+                __extends(MetaComponentType, _super);
+                function MetaComponentType() {
+                    _super.call(this, "org.kevoree.ComponentType", 4);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaComponentType.ATT_NAME;
+                    temp_attributes[1] = MetaComponentType.ATT_ABSTRACT;
+                    temp_attributes[2] = MetaComponentType.ATT_VERSION;
+                    var temp_references = new Array();
+                    temp_references[0] = MetaComponentType.REF_SUPERTYPES;
+                    temp_references[1] = MetaComponentType.REF_METADATA;
+                    temp_references[2] = MetaComponentType.REF_DEPLOYUNITS;
+                    temp_references[3] = MetaComponentType.REF_PROVIDED;
+                    temp_references[4] = MetaComponentType.REF_DICTIONARYTYPE;
+                    temp_references[5] = MetaComponentType.REF_REQUIRED;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaComponentType.getInstance = function () {
+                    if (MetaComponentType.INSTANCE == null) {
+                        MetaComponentType.INSTANCE = new org.kevoree.meta.MetaComponentType();
+                    }
+                    return MetaComponentType.INSTANCE;
+                };
+                MetaComponentType.INSTANCE = null;
+                MetaComponentType.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaComponentType.ATT_ABSTRACT = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("abstract", 6, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.BOOL, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaComponentType.ATT_VERSION = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("version", 7, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaComponentType.REF_SUPERTYPES = new org.kevoree.modeling.api.abs.AbstractMetaReference("superTypes", 8, false, false, function () {
+                    return org.kevoree.meta.MetaTypeDefinition.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaComponentType.getInstance();
+                });
+                MetaComponentType.REF_METADATA = new org.kevoree.modeling.api.abs.AbstractMetaReference("metaData", 9, true, false, function () {
+                    return org.kevoree.meta.MetaValue.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaComponentType.getInstance();
+                });
+                MetaComponentType.REF_DEPLOYUNITS = new org.kevoree.modeling.api.abs.AbstractMetaReference("deployUnits", 10, false, false, function () {
+                    return org.kevoree.meta.MetaDeployUnit.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaComponentType.getInstance();
+                });
+                MetaComponentType.REF_PROVIDED = new org.kevoree.modeling.api.abs.AbstractMetaReference("provided", 11, true, false, function () {
+                    return org.kevoree.meta.MetaPortTypeRef.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaComponentType.getInstance();
+                });
+                MetaComponentType.REF_DICTIONARYTYPE = new org.kevoree.modeling.api.abs.AbstractMetaReference("dictionaryType", 12, true, true, function () {
+                    return org.kevoree.meta.MetaDictionaryType.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaComponentType.getInstance();
+                });
+                MetaComponentType.REF_REQUIRED = new org.kevoree.modeling.api.abs.AbstractMetaReference("required", 13, true, false, function () {
+                    return org.kevoree.meta.MetaPortTypeRef.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaComponentType.getInstance();
+                });
+                return MetaComponentType;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaComponentType = MetaComponentType;
+            var MetaContainerNode = (function (_super) {
+                __extends(MetaContainerNode, _super);
+                function MetaContainerNode() {
+                    _super.call(this, "org.kevoree.ContainerNode", 7);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaContainerNode.ATT_NAME;
+                    temp_attributes[1] = MetaContainerNode.ATT_STARTED;
+                    var temp_references = new Array();
+                    temp_references[0] = MetaContainerNode.REF_NETWORKINFORMATION;
+                    temp_references[1] = MetaContainerNode.REF_METADATA;
+                    temp_references[2] = MetaContainerNode.REF_COMPONENTS;
+                    temp_references[3] = MetaContainerNode.REF_DICTIONARY;
+                    temp_references[4] = MetaContainerNode.REF_HOSTS;
+                    temp_references[5] = MetaContainerNode.REF_TYPEDEFINITION;
+                    temp_references[6] = MetaContainerNode.REF_HOST;
+                    temp_references[7] = MetaContainerNode.REF_GROUPS;
+                    temp_references[8] = MetaContainerNode.REF_FRAGMENTDICTIONARY;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaContainerNode.getInstance = function () {
+                    if (MetaContainerNode.INSTANCE == null) {
+                        MetaContainerNode.INSTANCE = new org.kevoree.meta.MetaContainerNode();
+                    }
+                    return MetaContainerNode.INSTANCE;
+                };
+                MetaContainerNode.INSTANCE = null;
+                MetaContainerNode.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaContainerNode.ATT_STARTED = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("started", 6, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.BOOL, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaContainerNode.REF_NETWORKINFORMATION = new org.kevoree.modeling.api.abs.AbstractMetaReference("networkInformation", 7, true, false, function () {
+                    return org.kevoree.meta.MetaNetworkInfo.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaContainerNode.getInstance();
+                });
+                MetaContainerNode.REF_METADATA = new org.kevoree.modeling.api.abs.AbstractMetaReference("metaData", 8, true, false, function () {
+                    return org.kevoree.meta.MetaValue.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaContainerNode.getInstance();
+                });
+                MetaContainerNode.REF_COMPONENTS = new org.kevoree.modeling.api.abs.AbstractMetaReference("components", 9, true, false, function () {
+                    return org.kevoree.meta.MetaComponentInstance.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaContainerNode.getInstance();
+                });
+                MetaContainerNode.REF_DICTIONARY = new org.kevoree.modeling.api.abs.AbstractMetaReference("dictionary", 10, true, true, function () {
+                    return org.kevoree.meta.MetaDictionary.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaContainerNode.getInstance();
+                });
+                MetaContainerNode.REF_HOSTS = new org.kevoree.modeling.api.abs.AbstractMetaReference("hosts", 11, false, false, function () {
+                    return org.kevoree.meta.MetaContainerNode.getInstance();
+                }, function () {
+                    return org.kevoree.meta.MetaContainerNode.REF_HOST;
+                }, function () {
+                    return org.kevoree.meta.MetaContainerNode.getInstance();
+                });
+                MetaContainerNode.REF_TYPEDEFINITION = new org.kevoree.modeling.api.abs.AbstractMetaReference("typeDefinition", 12, false, true, function () {
+                    return org.kevoree.meta.MetaTypeDefinition.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaContainerNode.getInstance();
+                });
+                MetaContainerNode.REF_HOST = new org.kevoree.modeling.api.abs.AbstractMetaReference("host", 13, false, true, function () {
+                    return org.kevoree.meta.MetaContainerNode.getInstance();
+                }, function () {
+                    return org.kevoree.meta.MetaContainerNode.REF_HOSTS;
+                }, function () {
+                    return org.kevoree.meta.MetaContainerNode.getInstance();
+                });
+                MetaContainerNode.REF_GROUPS = new org.kevoree.modeling.api.abs.AbstractMetaReference("groups", 14, false, false, function () {
+                    return org.kevoree.meta.MetaGroup.getInstance();
+                }, function () {
+                    return org.kevoree.meta.MetaGroup.REF_SUBNODES;
+                }, function () {
+                    return org.kevoree.meta.MetaContainerNode.getInstance();
+                });
+                MetaContainerNode.REF_FRAGMENTDICTIONARY = new org.kevoree.modeling.api.abs.AbstractMetaReference("fragmentDictionary", 15, true, false, function () {
+                    return org.kevoree.meta.MetaFragmentDictionary.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaContainerNode.getInstance();
+                });
+                return MetaContainerNode;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaContainerNode = MetaContainerNode;
+            var MetaContainerRoot = (function (_super) {
+                __extends(MetaContainerRoot, _super);
+                function MetaContainerRoot() {
+                    _super.call(this, "org.kevoree.ContainerRoot", 10);
+                    var temp_attributes = new Array();
+                    var temp_references = new Array();
+                    temp_references[0] = MetaContainerRoot.REF_NODES;
+                    temp_references[1] = MetaContainerRoot.REF_REPOSITORIES;
+                    temp_references[2] = MetaContainerRoot.REF_GROUPS;
+                    temp_references[3] = MetaContainerRoot.REF_PACKAGES;
+                    temp_references[4] = MetaContainerRoot.REF_MBINDINGS;
+                    temp_references[5] = MetaContainerRoot.REF_HUBS;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaContainerRoot.getInstance = function () {
+                    if (MetaContainerRoot.INSTANCE == null) {
+                        MetaContainerRoot.INSTANCE = new org.kevoree.meta.MetaContainerRoot();
+                    }
+                    return MetaContainerRoot.INSTANCE;
+                };
+                MetaContainerRoot.INSTANCE = null;
+                MetaContainerRoot.REF_NODES = new org.kevoree.modeling.api.abs.AbstractMetaReference("nodes", 5, true, false, function () {
+                    return org.kevoree.meta.MetaContainerNode.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaContainerRoot.getInstance();
+                });
+                MetaContainerRoot.REF_REPOSITORIES = new org.kevoree.modeling.api.abs.AbstractMetaReference("repositories", 6, true, false, function () {
+                    return org.kevoree.meta.MetaRepository.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaContainerRoot.getInstance();
+                });
+                MetaContainerRoot.REF_GROUPS = new org.kevoree.modeling.api.abs.AbstractMetaReference("groups", 7, true, false, function () {
+                    return org.kevoree.meta.MetaGroup.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaContainerRoot.getInstance();
+                });
+                MetaContainerRoot.REF_PACKAGES = new org.kevoree.modeling.api.abs.AbstractMetaReference("packages", 8, true, false, function () {
+                    return org.kevoree.meta.MetaPackage.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaContainerRoot.getInstance();
+                });
+                MetaContainerRoot.REF_MBINDINGS = new org.kevoree.modeling.api.abs.AbstractMetaReference("mBindings", 9, true, false, function () {
+                    return org.kevoree.meta.MetaMBinding.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaContainerRoot.getInstance();
+                });
+                MetaContainerRoot.REF_HUBS = new org.kevoree.modeling.api.abs.AbstractMetaReference("hubs", 10, true, false, function () {
+                    return org.kevoree.meta.MetaChannel.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaContainerRoot.getInstance();
+                });
+                return MetaContainerRoot;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaContainerRoot = MetaContainerRoot;
+            var MetaDataType = (function (_super) {
+                __extends(MetaDataType, _super);
+                function MetaDataType(p_name, p_isEnum) {
+                    _super.call(this, p_name, p_isEnum);
+                }
+                MetaDataType.getInstance = function () {
+                    if (MetaDataType.INSTANCE == null) {
+                        MetaDataType.INSTANCE = new org.kevoree.meta.MetaDataType("org.kevoree.DataType", true);
+                    }
+                    return MetaDataType.INSTANCE;
+                };
+                MetaDataType.prototype.load = function (s) {
+                    if (s.equals(MetaDataType._BOOLEAN)) {
+                        return org.kevoree.DataType.BOOLEAN;
+                    }
+                    if (s.equals(MetaDataType._BYTE)) {
+                        return org.kevoree.DataType.BYTE;
+                    }
+                    if (s.equals(MetaDataType._CHAR)) {
+                        return org.kevoree.DataType.CHAR;
+                    }
+                    if (s.equals(MetaDataType._DOUBLE)) {
+                        return org.kevoree.DataType.DOUBLE;
+                    }
+                    if (s.equals(MetaDataType._FLOAT)) {
+                        return org.kevoree.DataType.FLOAT;
+                    }
+                    if (s.equals(MetaDataType._INT)) {
+                        return org.kevoree.DataType.INT;
+                    }
+                    if (s.equals(MetaDataType._LONG)) {
+                        return org.kevoree.DataType.LONG;
+                    }
+                    if (s.equals(MetaDataType._SHORT)) {
+                        return org.kevoree.DataType.SHORT;
+                    }
+                    if (s.equals(MetaDataType._STRING)) {
+                        return org.kevoree.DataType.STRING;
+                    }
+                    return null;
+                };
+                MetaDataType.prototype.save = function (value) {
+                    if (value == org.kevoree.DataType.BOOLEAN) {
+                        return MetaDataType._BOOLEAN;
+                    }
+                    if (value == org.kevoree.DataType.BYTE) {
+                        return MetaDataType._BYTE;
+                    }
+                    if (value == org.kevoree.DataType.CHAR) {
+                        return MetaDataType._CHAR;
+                    }
+                    if (value == org.kevoree.DataType.DOUBLE) {
+                        return MetaDataType._DOUBLE;
+                    }
+                    if (value == org.kevoree.DataType.FLOAT) {
+                        return MetaDataType._FLOAT;
+                    }
+                    if (value == org.kevoree.DataType.INT) {
+                        return MetaDataType._INT;
+                    }
+                    if (value == org.kevoree.DataType.LONG) {
+                        return MetaDataType._LONG;
+                    }
+                    if (value == org.kevoree.DataType.SHORT) {
+                        return MetaDataType._SHORT;
+                    }
+                    if (value == org.kevoree.DataType.STRING) {
+                        return MetaDataType._STRING;
+                    }
+                    return null;
+                };
+                MetaDataType._BOOLEAN = "BOOLEAN";
+                MetaDataType._BYTE = "BYTE";
+                MetaDataType._CHAR = "CHAR";
+                MetaDataType._DOUBLE = "DOUBLE";
+                MetaDataType._FLOAT = "FLOAT";
+                MetaDataType._INT = "INT";
+                MetaDataType._LONG = "LONG";
+                MetaDataType._SHORT = "SHORT";
+                MetaDataType._STRING = "STRING";
+                return MetaDataType;
+            })(org.kevoree.modeling.api.abs.AbstractKDataType);
+            meta.MetaDataType = MetaDataType;
+            var MetaDeployUnit = (function (_super) {
+                __extends(MetaDeployUnit, _super);
+                function MetaDeployUnit() {
+                    _super.call(this, "org.kevoree.DeployUnit", 15);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaDeployUnit.ATT_HASHCODE;
+                    temp_attributes[1] = MetaDeployUnit.ATT_NAME;
+                    temp_attributes[2] = MetaDeployUnit.ATT_VERSION;
+                    temp_attributes[3] = MetaDeployUnit.ATT_URL;
+                    var temp_references = new Array();
+                    temp_references[0] = MetaDeployUnit.REF_REQUIREDLIBS;
+                    temp_references[1] = MetaDeployUnit.REF_FILTERS;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaDeployUnit.getInstance = function () {
+                    if (MetaDeployUnit.INSTANCE == null) {
+                        MetaDeployUnit.INSTANCE = new org.kevoree.meta.MetaDeployUnit();
+                    }
+                    return MetaDeployUnit.INSTANCE;
+                };
+                MetaDeployUnit.INSTANCE = null;
+                MetaDeployUnit.ATT_HASHCODE = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("hashcode", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaDeployUnit.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 6, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaDeployUnit.ATT_VERSION = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("version", 7, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaDeployUnit.ATT_URL = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("url", 8, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaDeployUnit.REF_REQUIREDLIBS = new org.kevoree.modeling.api.abs.AbstractMetaReference("requiredLibs", 9, false, false, function () {
+                    return org.kevoree.meta.MetaDeployUnit.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaDeployUnit.getInstance();
+                });
+                MetaDeployUnit.REF_FILTERS = new org.kevoree.modeling.api.abs.AbstractMetaReference("filters", 10, true, false, function () {
+                    return org.kevoree.meta.MetaValue.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaDeployUnit.getInstance();
+                });
+                return MetaDeployUnit;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaDeployUnit = MetaDeployUnit;
+            var MetaDictionary = (function (_super) {
+                __extends(MetaDictionary, _super);
+                function MetaDictionary() {
+                    _super.call(this, "org.kevoree.Dictionary", 18);
+                    var temp_attributes = new Array();
+                    var temp_references = new Array();
+                    temp_references[0] = MetaDictionary.REF_VALUES;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaDictionary.getInstance = function () {
+                    if (MetaDictionary.INSTANCE == null) {
+                        MetaDictionary.INSTANCE = new org.kevoree.meta.MetaDictionary();
+                    }
+                    return MetaDictionary.INSTANCE;
+                };
+                MetaDictionary.INSTANCE = null;
+                MetaDictionary.REF_VALUES = new org.kevoree.modeling.api.abs.AbstractMetaReference("values", 5, true, false, function () {
+                    return org.kevoree.meta.MetaValue.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaDictionary.getInstance();
+                });
+                return MetaDictionary;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaDictionary = MetaDictionary;
+            var MetaDictionaryAttribute = (function (_super) {
+                __extends(MetaDictionaryAttribute, _super);
+                function MetaDictionaryAttribute() {
+                    _super.call(this, "org.kevoree.DictionaryAttribute", 22);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaDictionaryAttribute.ATT_DATATYPE;
+                    temp_attributes[1] = MetaDictionaryAttribute.ATT_DEFAULTVALUE;
+                    temp_attributes[2] = MetaDictionaryAttribute.ATT_FRAGMENTDEPENDANT;
+                    temp_attributes[3] = MetaDictionaryAttribute.ATT_NAME;
+                    temp_attributes[4] = MetaDictionaryAttribute.ATT_OPTIONAL;
+                    temp_attributes[5] = MetaDictionaryAttribute.ATT_STATE;
+                    var temp_references = new Array();
+                    temp_references[0] = MetaDictionaryAttribute.REF_GENERICTYPES;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaDictionaryAttribute.getInstance = function () {
+                    if (MetaDictionaryAttribute.INSTANCE == null) {
+                        MetaDictionaryAttribute.INSTANCE = new org.kevoree.meta.MetaDictionaryAttribute();
+                    }
+                    return MetaDictionaryAttribute.INSTANCE;
+                };
+                MetaDictionaryAttribute.INSTANCE = null;
+                MetaDictionaryAttribute.ATT_DATATYPE = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("datatype", 5, 0, false, org.kevoree.meta.MetaDataType.getInstance(), org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaDictionaryAttribute.ATT_DEFAULTVALUE = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("defaultValue", 6, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaDictionaryAttribute.ATT_FRAGMENTDEPENDANT = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("fragmentDependant", 7, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.BOOL, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaDictionaryAttribute.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 8, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaDictionaryAttribute.ATT_OPTIONAL = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("optional", 9, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.BOOL, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaDictionaryAttribute.ATT_STATE = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("state", 10, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.BOOL, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaDictionaryAttribute.REF_GENERICTYPES = new org.kevoree.modeling.api.abs.AbstractMetaReference("genericTypes", 11, false, false, function () {
+                    return org.kevoree.meta.MetaTypedElement.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaDictionaryAttribute.getInstance();
+                });
+                return MetaDictionaryAttribute;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaDictionaryAttribute = MetaDictionaryAttribute;
+            var MetaDictionaryType = (function (_super) {
+                __extends(MetaDictionaryType, _super);
+                function MetaDictionaryType() {
+                    _super.call(this, "org.kevoree.DictionaryType", 21);
+                    var temp_attributes = new Array();
+                    var temp_references = new Array();
+                    temp_references[0] = MetaDictionaryType.REF_ATTRIBUTES;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaDictionaryType.getInstance = function () {
+                    if (MetaDictionaryType.INSTANCE == null) {
+                        MetaDictionaryType.INSTANCE = new org.kevoree.meta.MetaDictionaryType();
+                    }
+                    return MetaDictionaryType.INSTANCE;
+                };
+                MetaDictionaryType.INSTANCE = null;
+                MetaDictionaryType.REF_ATTRIBUTES = new org.kevoree.modeling.api.abs.AbstractMetaReference("attributes", 5, true, false, function () {
+                    return org.kevoree.meta.MetaDictionaryAttribute.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaDictionaryType.getInstance();
+                });
+                return MetaDictionaryType;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaDictionaryType = MetaDictionaryType;
+            var MetaFragmentDictionary = (function (_super) {
+                __extends(MetaFragmentDictionary, _super);
+                function MetaFragmentDictionary() {
+                    _super.call(this, "org.kevoree.FragmentDictionary", 20);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaFragmentDictionary.ATT_NAME;
+                    var temp_references = new Array();
+                    temp_references[0] = MetaFragmentDictionary.REF_VALUES;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaFragmentDictionary.getInstance = function () {
+                    if (MetaFragmentDictionary.INSTANCE == null) {
+                        MetaFragmentDictionary.INSTANCE = new org.kevoree.meta.MetaFragmentDictionary();
+                    }
+                    return MetaFragmentDictionary.INSTANCE;
+                };
+                MetaFragmentDictionary.INSTANCE = null;
+                MetaFragmentDictionary.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaFragmentDictionary.REF_VALUES = new org.kevoree.modeling.api.abs.AbstractMetaReference("values", 6, true, false, function () {
+                    return org.kevoree.meta.MetaValue.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaFragmentDictionary.getInstance();
+                });
+                return MetaFragmentDictionary;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaFragmentDictionary = MetaFragmentDictionary;
+            var MetaGroup = (function (_super) {
+                __extends(MetaGroup, _super);
+                function MetaGroup() {
+                    _super.call(this, "org.kevoree.Group", 8);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaGroup.ATT_NAME;
+                    temp_attributes[1] = MetaGroup.ATT_STARTED;
+                    var temp_references = new Array();
+                    temp_references[0] = MetaGroup.REF_METADATA;
+                    temp_references[1] = MetaGroup.REF_DICTIONARY;
+                    temp_references[2] = MetaGroup.REF_TYPEDEFINITION;
+                    temp_references[3] = MetaGroup.REF_FRAGMENTDICTIONARY;
+                    temp_references[4] = MetaGroup.REF_SUBNODES;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaGroup.getInstance = function () {
+                    if (MetaGroup.INSTANCE == null) {
+                        MetaGroup.INSTANCE = new org.kevoree.meta.MetaGroup();
+                    }
+                    return MetaGroup.INSTANCE;
+                };
+                MetaGroup.INSTANCE = null;
+                MetaGroup.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaGroup.ATT_STARTED = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("started", 6, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.BOOL, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaGroup.REF_METADATA = new org.kevoree.modeling.api.abs.AbstractMetaReference("metaData", 7, true, false, function () {
+                    return org.kevoree.meta.MetaValue.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaGroup.getInstance();
+                });
+                MetaGroup.REF_DICTIONARY = new org.kevoree.modeling.api.abs.AbstractMetaReference("dictionary", 8, true, true, function () {
+                    return org.kevoree.meta.MetaDictionary.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaGroup.getInstance();
+                });
+                MetaGroup.REF_TYPEDEFINITION = new org.kevoree.modeling.api.abs.AbstractMetaReference("typeDefinition", 9, false, true, function () {
+                    return org.kevoree.meta.MetaTypeDefinition.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaGroup.getInstance();
+                });
+                MetaGroup.REF_FRAGMENTDICTIONARY = new org.kevoree.modeling.api.abs.AbstractMetaReference("fragmentDictionary", 10, true, false, function () {
+                    return org.kevoree.meta.MetaFragmentDictionary.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaGroup.getInstance();
+                });
+                MetaGroup.REF_SUBNODES = new org.kevoree.modeling.api.abs.AbstractMetaReference("subNodes", 11, false, false, function () {
+                    return org.kevoree.meta.MetaContainerNode.getInstance();
+                }, function () {
+                    return org.kevoree.meta.MetaContainerNode.REF_GROUPS;
+                }, function () {
+                    return org.kevoree.meta.MetaGroup.getInstance();
+                });
+                return MetaGroup;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaGroup = MetaGroup;
+            var MetaGroupType = (function (_super) {
+                __extends(MetaGroupType, _super);
+                function MetaGroupType() {
+                    _super.call(this, "org.kevoree.GroupType", 30);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaGroupType.ATT_NAME;
+                    temp_attributes[1] = MetaGroupType.ATT_ABSTRACT;
+                    temp_attributes[2] = MetaGroupType.ATT_VERSION;
+                    var temp_references = new Array();
+                    temp_references[0] = MetaGroupType.REF_SUPERTYPES;
+                    temp_references[1] = MetaGroupType.REF_METADATA;
+                    temp_references[2] = MetaGroupType.REF_DEPLOYUNITS;
+                    temp_references[3] = MetaGroupType.REF_DICTIONARYTYPE;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaGroupType.getInstance = function () {
+                    if (MetaGroupType.INSTANCE == null) {
+                        MetaGroupType.INSTANCE = new org.kevoree.meta.MetaGroupType();
+                    }
+                    return MetaGroupType.INSTANCE;
+                };
+                MetaGroupType.INSTANCE = null;
+                MetaGroupType.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaGroupType.ATT_ABSTRACT = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("abstract", 6, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.BOOL, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaGroupType.ATT_VERSION = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("version", 7, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaGroupType.REF_SUPERTYPES = new org.kevoree.modeling.api.abs.AbstractMetaReference("superTypes", 8, false, false, function () {
+                    return org.kevoree.meta.MetaTypeDefinition.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaGroupType.getInstance();
+                });
+                MetaGroupType.REF_METADATA = new org.kevoree.modeling.api.abs.AbstractMetaReference("metaData", 9, true, false, function () {
+                    return org.kevoree.meta.MetaValue.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaGroupType.getInstance();
+                });
+                MetaGroupType.REF_DEPLOYUNITS = new org.kevoree.modeling.api.abs.AbstractMetaReference("deployUnits", 10, false, false, function () {
+                    return org.kevoree.meta.MetaDeployUnit.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaGroupType.getInstance();
+                });
+                MetaGroupType.REF_DICTIONARYTYPE = new org.kevoree.modeling.api.abs.AbstractMetaReference("dictionaryType", 11, true, true, function () {
+                    return org.kevoree.meta.MetaDictionaryType.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaGroupType.getInstance();
+                });
+                return MetaGroupType;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaGroupType = MetaGroupType;
+            var MetaInstance = (function (_super) {
+                __extends(MetaInstance, _super);
+                function MetaInstance() {
+                    _super.call(this, "org.kevoree.Instance", 3);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaInstance.ATT_NAME;
+                    temp_attributes[1] = MetaInstance.ATT_STARTED;
+                    var temp_references = new Array();
+                    temp_references[0] = MetaInstance.REF_METADATA;
+                    temp_references[1] = MetaInstance.REF_DICTIONARY;
+                    temp_references[2] = MetaInstance.REF_TYPEDEFINITION;
+                    temp_references[3] = MetaInstance.REF_FRAGMENTDICTIONARY;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaInstance.getInstance = function () {
+                    if (MetaInstance.INSTANCE == null) {
+                        MetaInstance.INSTANCE = new org.kevoree.meta.MetaInstance();
+                    }
+                    return MetaInstance.INSTANCE;
+                };
+                MetaInstance.INSTANCE = null;
+                MetaInstance.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaInstance.ATT_STARTED = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("started", 6, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.BOOL, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaInstance.REF_METADATA = new org.kevoree.modeling.api.abs.AbstractMetaReference("metaData", 7, true, false, function () {
+                    return org.kevoree.meta.MetaValue.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaInstance.getInstance();
+                });
+                MetaInstance.REF_DICTIONARY = new org.kevoree.modeling.api.abs.AbstractMetaReference("dictionary", 8, true, true, function () {
+                    return org.kevoree.meta.MetaDictionary.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaInstance.getInstance();
+                });
+                MetaInstance.REF_TYPEDEFINITION = new org.kevoree.modeling.api.abs.AbstractMetaReference("typeDefinition", 9, false, true, function () {
+                    return org.kevoree.meta.MetaTypeDefinition.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaInstance.getInstance();
+                });
+                MetaInstance.REF_FRAGMENTDICTIONARY = new org.kevoree.modeling.api.abs.AbstractMetaReference("fragmentDictionary", 10, true, false, function () {
+                    return org.kevoree.meta.MetaFragmentDictionary.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaInstance.getInstance();
+                });
+                return MetaInstance;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaInstance = MetaInstance;
+            var MetaMBinding = (function (_super) {
+                __extends(MetaMBinding, _super);
+                function MetaMBinding() {
+                    _super.call(this, "org.kevoree.MBinding", 13);
+                    var temp_attributes = new Array();
+                    var temp_references = new Array();
+                    temp_references[0] = MetaMBinding.REF_HUB;
+                    temp_references[1] = MetaMBinding.REF_PORT;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaMBinding.getInstance = function () {
+                    if (MetaMBinding.INSTANCE == null) {
+                        MetaMBinding.INSTANCE = new org.kevoree.meta.MetaMBinding();
+                    }
+                    return MetaMBinding.INSTANCE;
+                };
+                MetaMBinding.INSTANCE = null;
+                MetaMBinding.REF_HUB = new org.kevoree.modeling.api.abs.AbstractMetaReference("hub", 5, false, true, function () {
+                    return org.kevoree.meta.MetaChannel.getInstance();
+                }, function () {
+                    return org.kevoree.meta.MetaChannel.REF_BINDINGS;
+                }, function () {
+                    return org.kevoree.meta.MetaMBinding.getInstance();
+                });
+                MetaMBinding.REF_PORT = new org.kevoree.modeling.api.abs.AbstractMetaReference("port", 6, false, true, function () {
+                    return org.kevoree.meta.MetaPort.getInstance();
+                }, function () {
+                    return org.kevoree.meta.MetaPort.REF_BINDINGS;
+                }, function () {
+                    return org.kevoree.meta.MetaMBinding.getInstance();
+                });
+                return MetaMBinding;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaMBinding = MetaMBinding;
+            var MetaMessagePortType = (function (_super) {
+                __extends(MetaMessagePortType, _super);
+                function MetaMessagePortType() {
+                    _super.call(this, "org.kevoree.MessagePortType", 28);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaMessagePortType.ATT_NAME;
+                    temp_attributes[1] = MetaMessagePortType.ATT_SYNCHRONE;
+                    temp_attributes[2] = MetaMessagePortType.ATT_ABSTRACT;
+                    temp_attributes[3] = MetaMessagePortType.ATT_VERSION;
+                    var temp_references = new Array();
+                    temp_references[0] = MetaMessagePortType.REF_SUPERTYPES;
+                    temp_references[1] = MetaMessagePortType.REF_METADATA;
+                    temp_references[2] = MetaMessagePortType.REF_DEPLOYUNITS;
+                    temp_references[3] = MetaMessagePortType.REF_DICTIONARYTYPE;
+                    temp_references[4] = MetaMessagePortType.REF_FILTERS;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaMessagePortType.getInstance = function () {
+                    if (MetaMessagePortType.INSTANCE == null) {
+                        MetaMessagePortType.INSTANCE = new org.kevoree.meta.MetaMessagePortType();
+                    }
+                    return MetaMessagePortType.INSTANCE;
+                };
+                MetaMessagePortType.INSTANCE = null;
+                MetaMessagePortType.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaMessagePortType.ATT_SYNCHRONE = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("synchrone", 6, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.BOOL, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaMessagePortType.ATT_ABSTRACT = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("abstract", 7, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.BOOL, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaMessagePortType.ATT_VERSION = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("version", 8, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaMessagePortType.REF_SUPERTYPES = new org.kevoree.modeling.api.abs.AbstractMetaReference("superTypes", 9, false, false, function () {
+                    return org.kevoree.meta.MetaTypeDefinition.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaMessagePortType.getInstance();
+                });
+                MetaMessagePortType.REF_METADATA = new org.kevoree.modeling.api.abs.AbstractMetaReference("metaData", 10, true, false, function () {
+                    return org.kevoree.meta.MetaValue.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaMessagePortType.getInstance();
+                });
+                MetaMessagePortType.REF_DEPLOYUNITS = new org.kevoree.modeling.api.abs.AbstractMetaReference("deployUnits", 11, false, false, function () {
+                    return org.kevoree.meta.MetaDeployUnit.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaMessagePortType.getInstance();
+                });
+                MetaMessagePortType.REF_DICTIONARYTYPE = new org.kevoree.modeling.api.abs.AbstractMetaReference("dictionaryType", 12, true, true, function () {
+                    return org.kevoree.meta.MetaDictionaryType.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaMessagePortType.getInstance();
+                });
+                MetaMessagePortType.REF_FILTERS = new org.kevoree.modeling.api.abs.AbstractMetaReference("filters", 13, false, false, function () {
+                    return org.kevoree.meta.MetaTypedElement.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaMessagePortType.getInstance();
+                });
+                return MetaMessagePortType;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaMessagePortType = MetaMessagePortType;
+            var MetaNamedElement = (function (_super) {
+                __extends(MetaNamedElement, _super);
+                function MetaNamedElement() {
+                    _super.call(this, "org.kevoree.NamedElement", 16);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaNamedElement.ATT_NAME;
+                    var temp_references = new Array();
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaNamedElement.getInstance = function () {
+                    if (MetaNamedElement.INSTANCE == null) {
+                        MetaNamedElement.INSTANCE = new org.kevoree.meta.MetaNamedElement();
+                    }
+                    return MetaNamedElement.INSTANCE;
+                };
+                MetaNamedElement.INSTANCE = null;
+                MetaNamedElement.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                return MetaNamedElement;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaNamedElement = MetaNamedElement;
+            var MetaNetworkInfo = (function (_super) {
+                __extends(MetaNetworkInfo, _super);
+                function MetaNetworkInfo() {
+                    _super.call(this, "org.kevoree.NetworkInfo", 9);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaNetworkInfo.ATT_NAME;
+                    var temp_references = new Array();
+                    temp_references[0] = MetaNetworkInfo.REF_VALUES;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaNetworkInfo.getInstance = function () {
+                    if (MetaNetworkInfo.INSTANCE == null) {
+                        MetaNetworkInfo.INSTANCE = new org.kevoree.meta.MetaNetworkInfo();
+                    }
+                    return MetaNetworkInfo.INSTANCE;
+                };
+                MetaNetworkInfo.INSTANCE = null;
+                MetaNetworkInfo.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaNetworkInfo.REF_VALUES = new org.kevoree.modeling.api.abs.AbstractMetaReference("values", 6, true, false, function () {
+                    return org.kevoree.meta.MetaValue.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaNetworkInfo.getInstance();
+                });
+                return MetaNetworkInfo;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaNetworkInfo = MetaNetworkInfo;
+            var MetaNodeType = (function (_super) {
+                __extends(MetaNodeType, _super);
+                function MetaNodeType() {
+                    _super.call(this, "org.kevoree.NodeType", 31);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaNodeType.ATT_NAME;
+                    temp_attributes[1] = MetaNodeType.ATT_ABSTRACT;
+                    temp_attributes[2] = MetaNodeType.ATT_VERSION;
+                    var temp_references = new Array();
+                    temp_references[0] = MetaNodeType.REF_SUPERTYPES;
+                    temp_references[1] = MetaNodeType.REF_METADATA;
+                    temp_references[2] = MetaNodeType.REF_DEPLOYUNITS;
+                    temp_references[3] = MetaNodeType.REF_DICTIONARYTYPE;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaNodeType.getInstance = function () {
+                    if (MetaNodeType.INSTANCE == null) {
+                        MetaNodeType.INSTANCE = new org.kevoree.meta.MetaNodeType();
+                    }
+                    return MetaNodeType.INSTANCE;
+                };
+                MetaNodeType.INSTANCE = null;
+                MetaNodeType.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaNodeType.ATT_ABSTRACT = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("abstract", 6, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.BOOL, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaNodeType.ATT_VERSION = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("version", 7, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaNodeType.REF_SUPERTYPES = new org.kevoree.modeling.api.abs.AbstractMetaReference("superTypes", 8, false, false, function () {
+                    return org.kevoree.meta.MetaTypeDefinition.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaNodeType.getInstance();
+                });
+                MetaNodeType.REF_METADATA = new org.kevoree.modeling.api.abs.AbstractMetaReference("metaData", 9, true, false, function () {
+                    return org.kevoree.meta.MetaValue.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaNodeType.getInstance();
+                });
+                MetaNodeType.REF_DEPLOYUNITS = new org.kevoree.modeling.api.abs.AbstractMetaReference("deployUnits", 10, false, false, function () {
+                    return org.kevoree.meta.MetaDeployUnit.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaNodeType.getInstance();
+                });
+                MetaNodeType.REF_DICTIONARYTYPE = new org.kevoree.modeling.api.abs.AbstractMetaReference("dictionaryType", 11, true, true, function () {
+                    return org.kevoree.meta.MetaDictionaryType.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaNodeType.getInstance();
+                });
+                return MetaNodeType;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaNodeType = MetaNodeType;
+            var MetaOperation = (function (_super) {
+                __extends(MetaOperation, _super);
+                function MetaOperation() {
+                    _super.call(this, "org.kevoree.Operation", 26);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaOperation.ATT_NAME;
+                    var temp_references = new Array();
+                    temp_references[0] = MetaOperation.REF_PARAMETERS;
+                    temp_references[1] = MetaOperation.REF_RETURNTYPE;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaOperation.getInstance = function () {
+                    if (MetaOperation.INSTANCE == null) {
+                        MetaOperation.INSTANCE = new org.kevoree.meta.MetaOperation();
+                    }
+                    return MetaOperation.INSTANCE;
+                };
+                MetaOperation.INSTANCE = null;
+                MetaOperation.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaOperation.REF_PARAMETERS = new org.kevoree.modeling.api.abs.AbstractMetaReference("parameters", 6, true, false, function () {
+                    return org.kevoree.meta.MetaParameter.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaOperation.getInstance();
+                });
+                MetaOperation.REF_RETURNTYPE = new org.kevoree.modeling.api.abs.AbstractMetaReference("returnType", 7, false, true, function () {
+                    return org.kevoree.meta.MetaTypedElement.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaOperation.getInstance();
+                });
+                return MetaOperation;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaOperation = MetaOperation;
+            var MetaPackage = (function (_super) {
+                __extends(MetaPackage, _super);
+                function MetaPackage() {
+                    _super.call(this, "org.kevoree.Package", 14);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaPackage.ATT_NAME;
+                    var temp_references = new Array();
+                    temp_references[0] = MetaPackage.REF_TYPEDEFINITIONS;
+                    temp_references[1] = MetaPackage.REF_DEPLOYUNITS;
+                    temp_references[2] = MetaPackage.REF_PACKAGES;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaPackage.getInstance = function () {
+                    if (MetaPackage.INSTANCE == null) {
+                        MetaPackage.INSTANCE = new org.kevoree.meta.MetaPackage();
+                    }
+                    return MetaPackage.INSTANCE;
+                };
+                MetaPackage.INSTANCE = null;
+                MetaPackage.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaPackage.REF_TYPEDEFINITIONS = new org.kevoree.modeling.api.abs.AbstractMetaReference("typeDefinitions", 6, true, false, function () {
+                    return org.kevoree.meta.MetaTypeDefinition.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaPackage.getInstance();
+                });
+                MetaPackage.REF_DEPLOYUNITS = new org.kevoree.modeling.api.abs.AbstractMetaReference("deployUnits", 7, true, false, function () {
+                    return org.kevoree.meta.MetaDeployUnit.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaPackage.getInstance();
+                });
+                MetaPackage.REF_PACKAGES = new org.kevoree.modeling.api.abs.AbstractMetaReference("packages", 8, true, false, function () {
+                    return org.kevoree.meta.MetaPackage.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaPackage.getInstance();
+                });
+                return MetaPackage;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaPackage = MetaPackage;
+            var MetaParameter = (function (_super) {
+                __extends(MetaParameter, _super);
+                function MetaParameter() {
+                    _super.call(this, "org.kevoree.Parameter", 27);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaParameter.ATT_NAME;
+                    temp_attributes[1] = MetaParameter.ATT_ORDER;
+                    var temp_references = new Array();
+                    temp_references[0] = MetaParameter.REF_TYPE;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaParameter.getInstance = function () {
+                    if (MetaParameter.INSTANCE == null) {
+                        MetaParameter.INSTANCE = new org.kevoree.meta.MetaParameter();
+                    }
+                    return MetaParameter.INSTANCE;
+                };
+                MetaParameter.INSTANCE = null;
+                MetaParameter.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaParameter.ATT_ORDER = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("order", 6, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.INT, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaParameter.REF_TYPE = new org.kevoree.modeling.api.abs.AbstractMetaReference("type", 7, false, true, function () {
+                    return org.kevoree.meta.MetaTypedElement.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaParameter.getInstance();
+                });
+                return MetaParameter;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaParameter = MetaParameter;
+            var MetaPort = (function (_super) {
+                __extends(MetaPort, _super);
+                function MetaPort() {
+                    _super.call(this, "org.kevoree.Port", 2);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaPort.ATT_NAME;
+                    var temp_references = new Array();
+                    temp_references[0] = MetaPort.REF_BINDINGS;
+                    temp_references[1] = MetaPort.REF_PORTTYPEREF;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaPort.getInstance = function () {
+                    if (MetaPort.INSTANCE == null) {
+                        MetaPort.INSTANCE = new org.kevoree.meta.MetaPort();
+                    }
+                    return MetaPort.INSTANCE;
+                };
+                MetaPort.INSTANCE = null;
+                MetaPort.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaPort.REF_BINDINGS = new org.kevoree.modeling.api.abs.AbstractMetaReference("bindings", 6, false, false, function () {
+                    return org.kevoree.meta.MetaMBinding.getInstance();
+                }, function () {
+                    return org.kevoree.meta.MetaMBinding.REF_PORT;
+                }, function () {
+                    return org.kevoree.meta.MetaPort.getInstance();
+                });
+                MetaPort.REF_PORTTYPEREF = new org.kevoree.modeling.api.abs.AbstractMetaReference("portTypeRef", 7, false, true, function () {
+                    return org.kevoree.meta.MetaPortTypeRef.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaPort.getInstance();
+                });
+                return MetaPort;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaPort = MetaPort;
+            var MetaPortType = (function (_super) {
+                __extends(MetaPortType, _super);
+                function MetaPortType() {
+                    _super.call(this, "org.kevoree.PortType", 17);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaPortType.ATT_NAME;
+                    temp_attributes[1] = MetaPortType.ATT_SYNCHRONE;
+                    temp_attributes[2] = MetaPortType.ATT_ABSTRACT;
+                    temp_attributes[3] = MetaPortType.ATT_VERSION;
+                    var temp_references = new Array();
+                    temp_references[0] = MetaPortType.REF_SUPERTYPES;
+                    temp_references[1] = MetaPortType.REF_METADATA;
+                    temp_references[2] = MetaPortType.REF_DEPLOYUNITS;
+                    temp_references[3] = MetaPortType.REF_DICTIONARYTYPE;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaPortType.getInstance = function () {
+                    if (MetaPortType.INSTANCE == null) {
+                        MetaPortType.INSTANCE = new org.kevoree.meta.MetaPortType();
+                    }
+                    return MetaPortType.INSTANCE;
+                };
+                MetaPortType.INSTANCE = null;
+                MetaPortType.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaPortType.ATT_SYNCHRONE = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("synchrone", 6, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.BOOL, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaPortType.ATT_ABSTRACT = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("abstract", 7, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.BOOL, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaPortType.ATT_VERSION = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("version", 8, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaPortType.REF_SUPERTYPES = new org.kevoree.modeling.api.abs.AbstractMetaReference("superTypes", 9, false, false, function () {
+                    return org.kevoree.meta.MetaTypeDefinition.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaPortType.getInstance();
+                });
+                MetaPortType.REF_METADATA = new org.kevoree.modeling.api.abs.AbstractMetaReference("metaData", 10, true, false, function () {
+                    return org.kevoree.meta.MetaValue.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaPortType.getInstance();
+                });
+                MetaPortType.REF_DEPLOYUNITS = new org.kevoree.modeling.api.abs.AbstractMetaReference("deployUnits", 11, false, false, function () {
+                    return org.kevoree.meta.MetaDeployUnit.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaPortType.getInstance();
+                });
+                MetaPortType.REF_DICTIONARYTYPE = new org.kevoree.modeling.api.abs.AbstractMetaReference("dictionaryType", 12, true, true, function () {
+                    return org.kevoree.meta.MetaDictionaryType.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaPortType.getInstance();
+                });
+                return MetaPortType;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaPortType = MetaPortType;
+            var MetaPortTypeMapping = (function (_super) {
+                __extends(MetaPortTypeMapping, _super);
+                function MetaPortTypeMapping() {
+                    _super.call(this, "org.kevoree.PortTypeMapping", 24);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaPortTypeMapping.ATT_PARAMTYPES;
+                    temp_attributes[1] = MetaPortTypeMapping.ATT_BEANMETHODNAME;
+                    temp_attributes[2] = MetaPortTypeMapping.ATT_SERVICEMETHODNAME;
+                    var temp_references = new Array();
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaPortTypeMapping.getInstance = function () {
+                    if (MetaPortTypeMapping.INSTANCE == null) {
+                        MetaPortTypeMapping.INSTANCE = new org.kevoree.meta.MetaPortTypeMapping();
+                    }
+                    return MetaPortTypeMapping.INSTANCE;
+                };
+                MetaPortTypeMapping.INSTANCE = null;
+                MetaPortTypeMapping.ATT_PARAMTYPES = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("paramTypes", 5, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaPortTypeMapping.ATT_BEANMETHODNAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("beanMethodName", 6, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaPortTypeMapping.ATT_SERVICEMETHODNAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("serviceMethodName", 7, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                return MetaPortTypeMapping;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaPortTypeMapping = MetaPortTypeMapping;
+            var MetaPortTypeRef = (function (_super) {
+                __extends(MetaPortTypeRef, _super);
+                function MetaPortTypeRef() {
+                    _super.call(this, "org.kevoree.PortTypeRef", 5);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaPortTypeRef.ATT_NODEPENDENCY;
+                    temp_attributes[1] = MetaPortTypeRef.ATT_NAME;
+                    temp_attributes[2] = MetaPortTypeRef.ATT_OPTIONAL;
+                    var temp_references = new Array();
+                    temp_references[0] = MetaPortTypeRef.REF_REF;
+                    temp_references[1] = MetaPortTypeRef.REF_MAPPINGS;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaPortTypeRef.getInstance = function () {
+                    if (MetaPortTypeRef.INSTANCE == null) {
+                        MetaPortTypeRef.INSTANCE = new org.kevoree.meta.MetaPortTypeRef();
+                    }
+                    return MetaPortTypeRef.INSTANCE;
+                };
+                MetaPortTypeRef.INSTANCE = null;
+                MetaPortTypeRef.ATT_NODEPENDENCY = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("noDependency", 5, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.BOOL, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaPortTypeRef.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 6, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaPortTypeRef.ATT_OPTIONAL = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("optional", 7, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.BOOL, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaPortTypeRef.REF_REF = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref", 8, false, true, function () {
+                    return org.kevoree.meta.MetaPortType.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaPortTypeRef.getInstance();
+                });
+                MetaPortTypeRef.REF_MAPPINGS = new org.kevoree.modeling.api.abs.AbstractMetaReference("mappings", 9, true, false, function () {
+                    return org.kevoree.meta.MetaPortTypeMapping.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaPortTypeRef.getInstance();
+                });
+                return MetaPortTypeRef;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaPortTypeRef = MetaPortTypeRef;
+            var MetaRepository = (function (_super) {
+                __extends(MetaRepository, _super);
+                function MetaRepository() {
+                    _super.call(this, "org.kevoree.Repository", 11);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaRepository.ATT_URL;
+                    var temp_references = new Array();
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaRepository.getInstance = function () {
+                    if (MetaRepository.INSTANCE == null) {
+                        MetaRepository.INSTANCE = new org.kevoree.meta.MetaRepository();
+                    }
+                    return MetaRepository.INSTANCE;
+                };
+                MetaRepository.INSTANCE = null;
+                MetaRepository.ATT_URL = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("url", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                return MetaRepository;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaRepository = MetaRepository;
+            var MetaServicePortType = (function (_super) {
+                __extends(MetaServicePortType, _super);
+                function MetaServicePortType() {
+                    _super.call(this, "org.kevoree.ServicePortType", 25);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaServicePortType.ATT_NAME;
+                    temp_attributes[1] = MetaServicePortType.ATT_SYNCHRONE;
+                    temp_attributes[2] = MetaServicePortType.ATT_ABSTRACT;
+                    temp_attributes[3] = MetaServicePortType.ATT_INTERFACE;
+                    temp_attributes[4] = MetaServicePortType.ATT_VERSION;
+                    var temp_references = new Array();
+                    temp_references[0] = MetaServicePortType.REF_SUPERTYPES;
+                    temp_references[1] = MetaServicePortType.REF_METADATA;
+                    temp_references[2] = MetaServicePortType.REF_OPERATIONS;
+                    temp_references[3] = MetaServicePortType.REF_DEPLOYUNITS;
+                    temp_references[4] = MetaServicePortType.REF_DICTIONARYTYPE;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaServicePortType.getInstance = function () {
+                    if (MetaServicePortType.INSTANCE == null) {
+                        MetaServicePortType.INSTANCE = new org.kevoree.meta.MetaServicePortType();
+                    }
+                    return MetaServicePortType.INSTANCE;
+                };
+                MetaServicePortType.INSTANCE = null;
+                MetaServicePortType.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaServicePortType.ATT_SYNCHRONE = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("synchrone", 6, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.BOOL, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaServicePortType.ATT_ABSTRACT = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("abstract", 7, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.BOOL, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaServicePortType.ATT_INTERFACE = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("interface", 8, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaServicePortType.ATT_VERSION = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("version", 9, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaServicePortType.REF_SUPERTYPES = new org.kevoree.modeling.api.abs.AbstractMetaReference("superTypes", 10, false, false, function () {
+                    return org.kevoree.meta.MetaTypeDefinition.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaServicePortType.getInstance();
+                });
+                MetaServicePortType.REF_METADATA = new org.kevoree.modeling.api.abs.AbstractMetaReference("metaData", 11, true, false, function () {
+                    return org.kevoree.meta.MetaValue.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaServicePortType.getInstance();
+                });
+                MetaServicePortType.REF_OPERATIONS = new org.kevoree.modeling.api.abs.AbstractMetaReference("operations", 12, true, false, function () {
+                    return org.kevoree.meta.MetaOperation.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaServicePortType.getInstance();
+                });
+                MetaServicePortType.REF_DEPLOYUNITS = new org.kevoree.modeling.api.abs.AbstractMetaReference("deployUnits", 13, false, false, function () {
+                    return org.kevoree.meta.MetaDeployUnit.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaServicePortType.getInstance();
+                });
+                MetaServicePortType.REF_DICTIONARYTYPE = new org.kevoree.modeling.api.abs.AbstractMetaReference("dictionaryType", 14, true, true, function () {
+                    return org.kevoree.meta.MetaDictionaryType.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaServicePortType.getInstance();
+                });
+                return MetaServicePortType;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaServicePortType = MetaServicePortType;
+            var MetaTypeDefinition = (function (_super) {
+                __extends(MetaTypeDefinition, _super);
+                function MetaTypeDefinition() {
+                    _super.call(this, "org.kevoree.TypeDefinition", 6);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaTypeDefinition.ATT_NAME;
+                    temp_attributes[1] = MetaTypeDefinition.ATT_ABSTRACT;
+                    temp_attributes[2] = MetaTypeDefinition.ATT_VERSION;
+                    var temp_references = new Array();
+                    temp_references[0] = MetaTypeDefinition.REF_SUPERTYPES;
+                    temp_references[1] = MetaTypeDefinition.REF_METADATA;
+                    temp_references[2] = MetaTypeDefinition.REF_DEPLOYUNITS;
+                    temp_references[3] = MetaTypeDefinition.REF_DICTIONARYTYPE;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaTypeDefinition.getInstance = function () {
+                    if (MetaTypeDefinition.INSTANCE == null) {
+                        MetaTypeDefinition.INSTANCE = new org.kevoree.meta.MetaTypeDefinition();
+                    }
+                    return MetaTypeDefinition.INSTANCE;
+                };
+                MetaTypeDefinition.INSTANCE = null;
+                MetaTypeDefinition.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaTypeDefinition.ATT_ABSTRACT = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("abstract", 6, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.BOOL, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaTypeDefinition.ATT_VERSION = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("version", 7, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaTypeDefinition.REF_SUPERTYPES = new org.kevoree.modeling.api.abs.AbstractMetaReference("superTypes", 8, false, false, function () {
+                    return org.kevoree.meta.MetaTypeDefinition.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaTypeDefinition.getInstance();
+                });
+                MetaTypeDefinition.REF_METADATA = new org.kevoree.modeling.api.abs.AbstractMetaReference("metaData", 9, true, false, function () {
+                    return org.kevoree.meta.MetaValue.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaTypeDefinition.getInstance();
+                });
+                MetaTypeDefinition.REF_DEPLOYUNITS = new org.kevoree.modeling.api.abs.AbstractMetaReference("deployUnits", 10, false, false, function () {
+                    return org.kevoree.meta.MetaDeployUnit.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaTypeDefinition.getInstance();
+                });
+                MetaTypeDefinition.REF_DICTIONARYTYPE = new org.kevoree.modeling.api.abs.AbstractMetaReference("dictionaryType", 11, true, true, function () {
+                    return org.kevoree.meta.MetaDictionaryType.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaTypeDefinition.getInstance();
+                });
+                return MetaTypeDefinition;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaTypeDefinition = MetaTypeDefinition;
+            var MetaTypedElement = (function (_super) {
+                __extends(MetaTypedElement, _super);
+                function MetaTypedElement() {
+                    _super.call(this, "org.kevoree.TypedElement", 23);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaTypedElement.ATT_NAME;
+                    var temp_references = new Array();
+                    temp_references[0] = MetaTypedElement.REF_GENERICTYPES;
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaTypedElement.getInstance = function () {
+                    if (MetaTypedElement.INSTANCE == null) {
+                        MetaTypedElement.INSTANCE = new org.kevoree.meta.MetaTypedElement();
+                    }
+                    return MetaTypedElement.INSTANCE;
+                };
+                MetaTypedElement.INSTANCE = null;
+                MetaTypedElement.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaTypedElement.REF_GENERICTYPES = new org.kevoree.modeling.api.abs.AbstractMetaReference("genericTypes", 6, false, false, function () {
+                    return org.kevoree.meta.MetaTypedElement.getInstance();
+                }, null, function () {
+                    return org.kevoree.meta.MetaTypedElement.getInstance();
+                });
+                return MetaTypedElement;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaTypedElement = MetaTypedElement;
+            var MetaValue = (function (_super) {
+                __extends(MetaValue, _super);
+                function MetaValue() {
+                    _super.call(this, "org.kevoree.Value", 19);
+                    var temp_attributes = new Array();
+                    temp_attributes[0] = MetaValue.ATT_NAME;
+                    temp_attributes[1] = MetaValue.ATT_VALUE;
+                    var temp_references = new Array();
+                    var temp_operations = new Array();
+                    this.init(temp_attributes, temp_references, temp_operations);
+                }
+                MetaValue.getInstance = function () {
+                    if (MetaValue.INSTANCE == null) {
+                        MetaValue.INSTANCE = new org.kevoree.meta.MetaValue();
+                    }
+                    return MetaValue.INSTANCE;
+                };
+                MetaValue.INSTANCE = null;
+                MetaValue.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                MetaValue.ATT_VALUE = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("value", 6, 0, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                return MetaValue;
+            })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+            meta.MetaValue = MetaValue;
+        })(meta = kevoree.meta || (kevoree.meta = {}));
+    })(kevoree = org.kevoree || (org.kevoree = {}));
+})(org || (org = {}));
