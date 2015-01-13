@@ -27,23 +27,23 @@ public class JSONLoadTest {
         final CloudView time0 = dimension0.time(0l);
         time0.json().load("[\n" +
                 "{\n" +
-                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                "\t\"@uuid\" : \"2\",\n" +
-                "\t\"@root\" : \"true\",\n" +
-                "\t\"name\":\"root\",\n" +
-                "\t\"children\": [\"3\",\"4\"],\n" +
+                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\"\n" +
+                "\t,\"@uuid\" : \"1\"\n" +
+                "\t,\"@root\" : \"true\"\n" +
+                "\t,\"name\" : \"root\"\n" +
+                "\t,\"children\" : [\"2\",\"3\"]\n" +
                 "}\n" +
                 ",{\n" +
-                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                "\t\"@uuid\" : \"3\",\n" +
-                "\t\"name\":\"n1\",\n" +
+                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\"\n" +
+                "\t,\"@uuid\" : \"2\"\n" +
+                "\t,\"name\" : \"n1\"\n" +
                 "}\n" +
                 ",{\n" +
-                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                "\t\"@uuid\" : \"4\",\n" +
-                "\t\"name\":\"n2\",\n" +
+                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\"\n" +
+                "\t,\"@uuid\" : \"3\"\n" +
+                "\t,\"name\" : \"n2\"\n" +
                 "}\n" +
-                "]", new Callback<Throwable>() {
+                "]\n", new Callback<Throwable>() {
             @Override
             public void on(Throwable res) {
                 time0.lookup(1l, new Callback<KObject>() {
@@ -75,21 +75,21 @@ public class JSONLoadTest {
                     public void on(String s, Throwable error) {
                         Assert.assertEquals(s, "[\n" +
                                 "{\n" +
-                                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\"\n" +
-                                "\t,\"@uuid\" : \"1\"\n" +
-                                "\t,\"@root\" : \"true\"\n" +
-                                "\t,\"name\" : \"root\"\n" +
-                                "\t,\"children\" : [\"2\",\"3\"]\n" +
+                                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                                "\t\"@uuid\" : \"1\",\n" +
+                                "\t\"@root\" : \"true\",\n" +
+                                "\t\"name\":\"root\",\n" +
+                                "\t\"children\": [\"2\",\"3\"],\n" +
                                 "}\n" +
                                 ",{\n" +
-                                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\"\n" +
-                                "\t,\"@uuid\" : \"2\"\n" +
-                                "\t,\"name\" : \"n1\"\n" +
+                                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                                "\t\"@uuid\" : \"2\",\n" +
+                                "\t\"name\":\"n1\",\n" +
                                 "}\n" +
                                 ",{\n" +
-                                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\"\n" +
-                                "\t,\"@uuid\" : \"3\"\n" +
-                                "\t,\"name\" : \"n2\"\n" +
+                                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                                "\t\"@uuid\" : \"3\",\n" +
+                                "\t\"name\":\"n2\",\n" +
                                 "}\n" +
                                 "]\n");
                     }
