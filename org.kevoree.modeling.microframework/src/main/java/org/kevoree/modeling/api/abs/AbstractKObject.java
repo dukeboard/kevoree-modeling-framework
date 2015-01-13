@@ -179,7 +179,7 @@ public abstract class AbstractKObject implements KObject {
                         public void on(KObject[] resolved) {
                             for (int i = 0; i < resolved.length; i++) {
                                 if (resolved[i] != null) {
-                                    ((AbstractKObject) resolved[i]).internal_mutate(KActionType.REMOVE, finalRefs.get(refArr[i]), toRemove, false);
+                                    ((AbstractKObject) resolved[i]).internal_mutate(KActionType.REMOVE, finalRefs.get(refArr[i]), toRemove, false, true);
                                 }
                             }
                             if (callback != null) {
@@ -291,19 +291,23 @@ public abstract class AbstractKObject implements KObject {
 
     private HashMap<Long, MetaReference> getOrCreateInbounds(KObject obj) {
         Object[] rawWrite = view().dimension().universe().storage().raw(obj, AccessMode.WRITE);
-        if (rawWrite[Index.INBOUNDS_INDEX] != null && rawWrite[Index.INBOUNDS_INDEX] instanceof HashMap) {
-            return (HashMap<Long, MetaReference>) rawWrite[Index.INBOUNDS_INDEX];
+        if (rawWrite == null) {
+            return null;
         } else {
-            if (rawWrite[Index.INBOUNDS_INDEX] != null) {
-                try {
-                    throw new Exception("Bad cache values in KMF, " + rawWrite[Index.INBOUNDS_INDEX] + " is not an instance of Map for the inbounds reference ");
-                } catch (Exception e) {
-                    e.printStackTrace();
+            if (rawWrite[Index.INBOUNDS_INDEX] != null && rawWrite[Index.INBOUNDS_INDEX] instanceof HashMap) {
+                return (HashMap<Long, MetaReference>) rawWrite[Index.INBOUNDS_INDEX];
+            } else {
+                if (rawWrite[Index.INBOUNDS_INDEX] != null) {
+                    try {
+                        throw new Exception("Bad cache values in KMF, " + rawWrite[Index.INBOUNDS_INDEX] + " is not an instance of Map for the inbounds reference ");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
+                HashMap<Long, MetaReference> newRefs = new HashMap<Long, MetaReference>();
+                rawWrite[Index.INBOUNDS_INDEX] = newRefs;
+                return newRefs;
             }
-            HashMap<Long, MetaReference> newRefs = new HashMap<Long, MetaReference>();
-            rawWrite[Index.INBOUNDS_INDEX] = newRefs;
-            return newRefs;
         }
     }
 
@@ -312,7 +316,7 @@ public abstract class AbstractKObject implements KObject {
             view().lookup(param.parentUuid(), new Callback<KObject>() {
                 @Override
                 public void on(KObject parent) {
-                    ((AbstractKObject) parent).internal_mutate(KActionType.REMOVE, param.referenceInParent(), param, true);
+                    ((AbstractKObject) parent).internal_mutate(KActionType.REMOVE, param.referenceInParent(), param, true, false);
                 }
             });
         }
@@ -320,17 +324,17 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public void mutate(KActionType actionType, final MetaReference metaReference, KObject param) {
-        internal_mutate(actionType, metaReference, param, true);
+        internal_mutate(actionType, metaReference, param, true, false);
     }
 
-    public void internal_mutate(KActionType actionType, final MetaReference metaReferenceP, KObject param, final boolean setOpposite) {
+    public void internal_mutate(KActionType actionType, final MetaReference metaReferenceP, KObject param, final boolean setOpposite, final boolean inDelete) {
         MetaReference metaReference = internal_transpose_ref(metaReferenceP);
         if (metaReference == null) {
             throw new RuntimeException("Bad KMF usage, the attribute named " + metaReferenceP.metaName() + " is not part of " + metaClass().metaName());
         }
         if (actionType.equals(KActionType.ADD)) {
             if (metaReference.single()) {
-                internal_mutate(KActionType.SET, metaReference, param, setOpposite);
+                internal_mutate(KActionType.SET, metaReference, param, setOpposite, inDelete);
             } else {
                 Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.WRITE);
                 Set<Long> previousList;
@@ -351,7 +355,7 @@ public abstract class AbstractKObject implements KObject {
                 previousList.add(param.uuid());
                 //Opposite
                 if (metaReference.opposite() != null && setOpposite) {
-                    ((AbstractKObject) param).internal_mutate(KActionType.ADD, metaReference.opposite(), this, false);
+                    ((AbstractKObject) param).internal_mutate(KActionType.ADD, metaReference.opposite(), this, false, inDelete);
                 }
                 //Container
                 if (metaReference.contained()) {
@@ -369,16 +373,16 @@ public abstract class AbstractKObject implements KObject {
             }
         } else if (actionType.equals(KActionType.SET)) {
             if (!metaReference.single()) {
-                internal_mutate(KActionType.ADD, metaReference, param, setOpposite);
+                internal_mutate(KActionType.ADD, metaReference, param, setOpposite, inDelete);
             } else {
                 if (param == null) {
-                    internal_mutate(KActionType.REMOVE, metaReference, null, setOpposite);
+                    internal_mutate(KActionType.REMOVE, metaReference, null, setOpposite, inDelete);
                 } else {
                     //Actual add
                     Object[] payload = view().dimension().universe().storage().raw(this, AccessMode.WRITE);
                     Object previous = payload[metaReference.index()];
                     if (previous != null) {
-                        internal_mutate(KActionType.REMOVE, metaReference, null, setOpposite);
+                        internal_mutate(KActionType.REMOVE, metaReference, null, setOpposite, inDelete);
                     }
                     payload[metaReference.index()] = param.uuid();
                     //Container
@@ -396,11 +400,11 @@ public abstract class AbstractKObject implements KObject {
                             view().lookup((Long) previous, new Callback<KObject>() {
                                 @Override
                                 public void on(KObject resolved) {
-                                    ((AbstractKObject) resolved).internal_mutate(KActionType.REMOVE, metaReference.opposite(), self, false);
+                                    ((AbstractKObject) resolved).internal_mutate(KActionType.REMOVE, metaReference.opposite(), self, false, inDelete);
                                 }
                             });
                         }
-                        ((AbstractKObject) param).internal_mutate(KActionType.ADD, metaReference.opposite(), this, false);
+                        ((AbstractKObject) param).internal_mutate(KActionType.ADD, metaReference.opposite(), this, false, inDelete);
                     }
                     KEvent event = new DefaultKEvent(actionType, this, metaReference, param);
                     view().dimension().universe().storage().eventBroker().notify(event);
@@ -418,11 +422,10 @@ public abstract class AbstractKObject implements KObject {
                         public void on(KObject resolvedParam) {
                             if (resolvedParam != null) {
                                 if (metaReference.contained()) {
-                                    //removeFromContainer(resolvedParam, fireEvent);
                                     ((AbstractKObject) resolvedParam).set_parent(null, null);
                                 }
                                 if (metaReference.opposite() != null && setOpposite) {
-                                    ((AbstractKObject) resolvedParam).internal_mutate(KActionType.REMOVE, metaReference.opposite(), self, false);
+                                    ((AbstractKObject) resolvedParam).internal_mutate(KActionType.REMOVE, metaReference.opposite(), self, false, inDelete);
                                 }
                                 //Inbounds
                                 Map<Long, MetaReference> inboundRefs = getOrCreateInbounds(resolvedParam);
@@ -440,20 +443,23 @@ public abstract class AbstractKObject implements KObject {
                 if (previous != null) {
                     Set<Long> previousList = (Set<Long>) previous;
                     previousList.remove(param.uuid());
-                    if (metaReference.contained()) {
+                    if (!inDelete && metaReference.contained()) {
                         ((AbstractKObject) param).set_parent(null, null);
                     }
                     if (metaReference.opposite() != null && setOpposite) {
-                        ((AbstractKObject) param).internal_mutate(KActionType.REMOVE, metaReference.opposite(), this, false);
+                        ((AbstractKObject) param).internal_mutate(KActionType.REMOVE, metaReference.opposite(), this, false, inDelete);
                     }
                     //publish event
                     KEvent event = new DefaultKEvent(actionType, this, metaReference, param);
                     view().dimension().universe().storage().eventBroker().notify(event);
                 }
-
                 //Inbounds
-                Map<Long, MetaReference> inboundRefs = getOrCreateInbounds(param);
-                inboundRefs.remove(uuid());
+                if (!inDelete) {
+                    Map<Long, MetaReference> inboundRefs = getOrCreateInbounds(param);
+                    if (inboundRefs != null) {
+                        inboundRefs.remove(uuid());
+                    }
+                }
             }
         }
     }
@@ -783,8 +789,10 @@ public abstract class AbstractKObject implements KObject {
 
     public void set_parent(Long p_parentKID, MetaReference p_metaReference) {
         Object[] raw = _view.dimension().universe().storage().raw(this, AccessMode.WRITE);
-        raw[Index.PARENT_INDEX] = p_parentKID;
-        raw[Index.REF_IN_PARENT_INDEX] = p_metaReference;
+        if (raw != null) {
+            raw[Index.PARENT_INDEX] = p_parentKID;
+            raw[Index.REF_IN_PARENT_INDEX] = p_metaReference;
+        }
     }
 
     @Override

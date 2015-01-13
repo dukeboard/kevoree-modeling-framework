@@ -264,39 +264,44 @@ public class DefaultKStore implements KStore {
             entry.raw = null;
             return payload;
         }
-        if (!needCopy) {
-            if (accessMode.equals(AccessMode.WRITE)) {
-                payload[Index.IS_DIRTY_INDEX] = true;
-            }
-            return payload;
+        if (payload == null) {
+            throw new RuntimeException(OUT_OF_CACHE_MESSAGE);
+            //return null;
         } else {
-            //deep copy the structure
-            Object[] cloned = new Object[payload.length];
-            for (int i = 0; i < payload.length; i++) {
-                Object resolved = payload[i];
-                if (resolved != null) {
-                    if (resolved instanceof Set) {
-                        HashSet<Long> clonedSet = new HashSet<Long>();
-                        clonedSet.addAll((Set<Long>) resolved);
-                        cloned[i] = clonedSet;
-                    } else if (resolved instanceof List) {
-                        ArrayList<Long> clonedList = new ArrayList<Long>();
-                        clonedList.addAll((List<Long>) resolved);
-                        cloned[i] = clonedList;
-                    } else {
-                        cloned[i] = resolved;
+            if (!needCopy) {
+                if (accessMode.equals(AccessMode.WRITE)) {
+                    payload[Index.IS_DIRTY_INDEX] = true;
+                }
+                return payload;
+            } else {
+                //deep copy the structure
+                Object[] cloned = new Object[payload.length];
+                for (int i = 0; i < payload.length; i++) {
+                    Object resolved = payload[i];
+                    if (resolved != null) {
+                        if (resolved instanceof Set) {
+                            HashSet<Long> clonedSet = new HashSet<Long>();
+                            clonedSet.addAll((Set<Long>) resolved);
+                            cloned[i] = clonedSet;
+                        } else if (resolved instanceof List) {
+                            ArrayList<Long> clonedList = new ArrayList<Long>();
+                            clonedList.addAll((List<Long>) resolved);
+                            cloned[i] = clonedList;
+                        } else {
+                            cloned[i] = resolved;
+                        }
                     }
                 }
+                cloned[Index.IS_DIRTY_INDEX] = true;
+                CacheEntry clonedEntry = new CacheEntry();
+                clonedEntry.raw = cloned;
+                clonedEntry.metaClass = entry.metaClass;
+                clonedEntry.timeTree = entry.timeTree;
+                entry.timeTree.insert(origin.now());
+                //TODO update structure for multi dimension
+                write_cache(origin.dimension().key(), origin.now(), origin.uuid(), clonedEntry);
+                return clonedEntry.raw;
             }
-            cloned[Index.IS_DIRTY_INDEX] = true;
-            CacheEntry clonedEntry = new CacheEntry();
-            clonedEntry.raw = cloned;
-            clonedEntry.metaClass = entry.metaClass;
-            clonedEntry.timeTree = entry.timeTree;
-            entry.timeTree.insert(origin.now());
-            //TODO update structure for multi dimension
-            write_cache(origin.dimension().key(), origin.now(), origin.uuid(), clonedEntry);
-            return clonedEntry.raw;
         }
     }
 

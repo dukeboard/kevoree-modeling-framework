@@ -20,8 +20,6 @@ public class DeleteTest {
     @Test
     public void basicDeleteTest() {
 
-        //MemoryKDataBase.DEBUG = true;
-
         CloudUniverse universe = new CloudUniverse();
         universe.connect(null);
         CloudDimension dimension = universe.newDimension();
@@ -41,10 +39,8 @@ public class DeleteTest {
         factory1.select("/", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] results) {
-                // if (results != null && results.length > 0) {
                 Node n2 = (Node) results[0];
                 n2.setElement(e);
-                //}
             }
         });
         dimension.saveUnload(new Callback<Throwable>() {
@@ -59,12 +55,10 @@ public class DeleteTest {
         factory2.select("/", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] results) {
-                //if (results != null && results.length > 0) {
                 Node n2 = (Node) results[0];
                 n2.getElement(new Callback<Element>() {
                     @Override
                     public void on(Element element) {
-                        //if (element != null) {
                         element.delete(new Callback<Throwable>() {
                             @Override
                             public void on(Throwable throwable) {
@@ -73,10 +67,8 @@ public class DeleteTest {
                                 }
                             }
                         });
-                        //}
                     }
                 });
-                //}
             }
         });
         dimension.saveUnload(new Callback<Throwable>() {
@@ -91,15 +83,25 @@ public class DeleteTest {
         factory3.select("/", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] results) {
-                //if (results != null && results.length > 0) {
                 Node n2 = (Node) results[0];
                 n2.getElement(new Callback<Element>() {
                     @Override
                     public void on(Element element) {
                         Assert.assertNull(element);
+
+                        Node n42 = factory3.createNode();
+                        n42.setName("n42");
+                        n2.addChildren(n42);
+
+                      //  System.out.println("n42="+n42);
+                       // System.out.println("n2="+n2);
+
+                        n42.delete(null);
+                       // System.out.println("n2=" + n2);
+                     //   System.out.println("n42="+n42.getName());
+
                     }
                 });
-                //}
             }
         });
         CloudView factory2_2 = dimension.time(1l);
