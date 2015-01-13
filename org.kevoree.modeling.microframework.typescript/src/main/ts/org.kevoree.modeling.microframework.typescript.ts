@@ -144,6 +144,18 @@ module org {
 
                 }
 
+                export interface KMetaType {
+
+                    name(): string;
+
+                    isEnum(): boolean;
+
+                    save(src: any): string;
+
+                    load(payload: string): any;
+
+                }
+
                 export interface KObject {
 
                     dimension(): org.kevoree.modeling.api.KDimension<any, any, any>;
@@ -357,6 +369,69 @@ module org {
                 }
 
                 export module abs {
+                    export class AbstractKDataType implements org.kevoree.modeling.api.KMetaType {
+
+                        private _name: string;
+                        private _isEnum: boolean = false;
+                        constructor(p_name: string, p_isEnum: boolean) {
+                            if(p_name === undefined || p_isEnum === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
+
+                            this._name = p_name;
+                            this._isEnum = p_isEnum;
+                        }
+
+                        public name(): string {
+                            return this._name;
+                        }
+
+                        public isEnum(): boolean {
+                            return this._isEnum;
+                        }
+
+                        public save(src: any): string {
+                            if(src === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
+
+                            if (src != null) {
+                                return src.toString();
+                            }
+                            return "";
+                        }
+
+                        public load(payload: string): any {
+                            if(payload === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
+
+                            if (this == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING) {
+                                return payload;
+                            }
+                            if (this == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.LONG) {
+                                return java.lang.Long.parseLong(payload);
+                            }
+                            if (this == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.INT) {
+                                return java.lang.Integer.parseInt(payload);
+                            }
+                            if (this == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.BOOL) {
+                                return payload.equals("true");
+                            }
+                            if (this == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.SHORT) {
+                                return java.lang.Short.parseShort(payload);
+                            }
+                            if (this == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.DOUBLE) {
+                                return java.lang.Double.parseDouble(payload);
+                            }
+                            if (this == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.FLOAT) {
+                                return java.lang.Float.parseFloat(payload);
+                            }
+                            return null;
+                        }
+
+                    }
+
                     export class AbstractKDimension<A extends org.kevoree.modeling.api.KView, B extends org.kevoree.modeling.api.KDimension<any, any, any>, C extends org.kevoree.modeling.api.KUniverse<any>> implements org.kevoree.modeling.api.KDimension<any, any, any> {
 
                         private _universe: org.kevoree.modeling.api.KUniverse<any>;
@@ -1617,9 +1692,9 @@ module org {
                         private _index: number;
                         private _precision: number;
                         private _key: boolean;
-                        private _metaType: org.kevoree.modeling.api.meta.MetaType;
+                        private _metaType: org.kevoree.modeling.api.KMetaType;
                         private _extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation;
-                        public metaType(): org.kevoree.modeling.api.meta.MetaType {
+                        public metaType(): org.kevoree.modeling.api.KMetaType {
                             return this._metaType;
                         }
 
@@ -1651,7 +1726,7 @@ module org {
                             this._extrapolation = extrapolation;
                         }
 
-                        constructor(p_name: string, p_index: number, p_precision: number, p_key: boolean, p_metaType: org.kevoree.modeling.api.meta.MetaType, p_extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation) {
+                        constructor(p_name: string, p_index: number, p_precision: number, p_key: boolean, p_metaType: org.kevoree.modeling.api.KMetaType, p_extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation) {
                             if(p_name === undefined || p_index === undefined || p_precision === undefined || p_key === undefined || p_metaType === undefined || p_extrapolation === undefined) {
                                 throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
                             }
@@ -2965,7 +3040,7 @@ module org {
                             for (var i: number = 0; i < metaAttributes.length; i++) {
                                 var payload_res: any = raw[metaAttributes[i].index()];
                                 if (payload_res != null) {
-                                    var attrsPayload: string = metaAttributes[i].strategy().save(payload_res);
+                                    var attrsPayload: string = metaAttributes[i].strategy().save(payload_res, metaAttributes[i]);
                                     if (attrsPayload != null) {
                                         builder.append("\t");
                                         builder.append("\"");
@@ -3553,13 +3628,13 @@ module org {
                             }
                         }
 
-                        public save(cache: any): string {
-                            if(cache === undefined) {
+                        public save(cache: any, attribute: org.kevoree.modeling.api.meta.MetaAttribute): string {
+                            if(cache === undefined || attribute === undefined) {
                                 throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
                             }
 
                             if (cache != null) {
-                                return cache.toString();
+                                return attribute.metaType().save(cache);
                             } else {
                                 return null;
                             }
@@ -3570,51 +3645,10 @@ module org {
                                 throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
                             }
 
-                            return org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.convertRaw(attribute, payload);
-                        }
-
-                        public static convertRaw(attribute: org.kevoree.modeling.api.meta.MetaAttribute, raw: any): any {
-                            if(attribute === undefined || raw === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            if (payload != null) {
+                                return attribute.metaType().load(payload);
                             }
-
-                            try {
-                                if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.STRING)) {
-                                    return raw.toString();
-                                } else {
-                                    if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.LONG)) {
-                                        return java.lang.Long.parseLong(raw.toString());
-                                    } else {
-                                        if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.INT)) {
-                                            return java.lang.Integer.parseInt(raw.toString());
-                                        } else {
-                                            if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.BOOL)) {
-                                                return raw.toString().equals("true");
-                                            } else {
-                                                if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.SHORT)) {
-                                                    return java.lang.Short.parseShort(raw.toString());
-                                                } else {
-                                                    if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.DOUBLE)) {
-                                                        return java.lang.Double.parseDouble(raw.toString());
-                                                    } else {
-                                                        if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.FLOAT)) {
-                                                            return java.lang.Float.parseFloat(raw.toString());
-                                                        } else {
-                                                            return null;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            } catch ($ex$) {
-                                if ($ex$ instanceof java.lang.Exception) {
-                                    var e: java.lang.Exception = <java.lang.Exception>$ex$;
-                                    e.printStackTrace();
-                                    return null;
-                                }
-                             }
+                            return null;
                         }
 
                     }
@@ -3625,7 +3659,7 @@ module org {
 
                         mutate(current: org.kevoree.modeling.api.KObject, attribute: org.kevoree.modeling.api.meta.MetaAttribute, payload: any): void;
 
-                        save(cache: any): string;
+                        save(cache: any, attribute: org.kevoree.modeling.api.meta.MetaAttribute): string;
 
                         load(payload: string, attribute: org.kevoree.modeling.api.meta.MetaAttribute, now: number): any;
 
@@ -3642,19 +3676,19 @@ module org {
                             var pol: org.kevoree.modeling.api.polynomial.PolynomialModel = <org.kevoree.modeling.api.polynomial.PolynomialModel>current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ)[attribute.index()];
                             if (pol != null) {
                                 var extrapolatedValue: number = pol.extrapolate(current.now());
-                                if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.DOUBLE)) {
+                                if (attribute.metaType() == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.DOUBLE) {
                                     return extrapolatedValue;
                                 } else {
-                                    if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.LONG)) {
+                                    if (attribute.metaType() == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.LONG) {
                                         return extrapolatedValue.longValue();
                                     } else {
-                                        if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.FLOAT)) {
+                                        if (attribute.metaType() == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.FLOAT) {
                                             return extrapolatedValue.floatValue();
                                         } else {
-                                            if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.INT)) {
+                                            if (attribute.metaType() == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.INT) {
                                                 return extrapolatedValue.intValue();
                                             } else {
-                                                if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.SHORT)) {
+                                                if (attribute.metaType() == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.SHORT) {
                                                     return extrapolatedValue.shortValue();
                                                 } else {
                                                     return null;
@@ -3694,8 +3728,8 @@ module org {
                             }
                         }
 
-                        public save(cache: any): string {
-                            if(cache === undefined) {
+                        public save(cache: any, attribute: org.kevoree.modeling.api.meta.MetaAttribute): string {
+                            if(cache === undefined || attribute === undefined) {
                                 throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
                             }
 
@@ -4065,7 +4099,7 @@ module org {
                                         builder.append(",\"");
                                         builder.append(elem.metaClass().metaAttributes()[i].metaName());
                                         builder.append("\" : \"");
-                                        builder.append(payload.toString());
+                                        builder.append(elem.metaClass().metaAttributes()[i].metaType().save(payload));
                                         builder.append("\"\n");
                                     }
                                 }
@@ -4492,7 +4526,7 @@ module org {
 
                         key(): boolean;
 
-                        metaType(): org.kevoree.modeling.api.meta.MetaType;
+                        metaType(): org.kevoree.modeling.api.KMetaType;
 
                         strategy(): org.kevoree.modeling.api.extrapolation.Extrapolation;
 
@@ -4546,30 +4580,15 @@ module org {
 
                     }
 
-                    export class MetaType {
+                    export class PrimitiveMetaTypes {
 
-                        public static STRING: MetaType = new MetaType();
-                        public static LONG: MetaType = new MetaType();
-                        public static INT: MetaType = new MetaType();
-                        public static BOOL: MetaType = new MetaType();
-                        public static SHORT: MetaType = new MetaType();
-                        public static DOUBLE: MetaType = new MetaType();
-                        public static FLOAT: MetaType = new MetaType();
-                        public equals(other: any): boolean {
-                            return this == other;
-                        }
-                        public static _MetaTypeVALUES : MetaType[] = [
-                            MetaType.STRING
-                            ,MetaType.LONG
-                            ,MetaType.INT
-                            ,MetaType.BOOL
-                            ,MetaType.SHORT
-                            ,MetaType.DOUBLE
-                            ,MetaType.FLOAT
-                        ];
-                        public static values():MetaType[]{
-                            return MetaType._MetaTypeVALUES;
-                        }
+                        public static STRING: org.kevoree.modeling.api.KMetaType = new org.kevoree.modeling.api.abs.AbstractKDataType("STRING", false);
+                        public static LONG: org.kevoree.modeling.api.KMetaType = new org.kevoree.modeling.api.abs.AbstractKDataType("LONG", false);
+                        public static INT: org.kevoree.modeling.api.KMetaType = new org.kevoree.modeling.api.abs.AbstractKDataType("INT", false);
+                        public static BOOL: org.kevoree.modeling.api.KMetaType = new org.kevoree.modeling.api.abs.AbstractKDataType("BOOL", false);
+                        public static SHORT: org.kevoree.modeling.api.KMetaType = new org.kevoree.modeling.api.abs.AbstractKDataType("SHORT", false);
+                        public static DOUBLE: org.kevoree.modeling.api.KMetaType = new org.kevoree.modeling.api.abs.AbstractKDataType("DOUBLE", false);
+                        public static FLOAT: org.kevoree.modeling.api.KMetaType = new org.kevoree.modeling.api.abs.AbstractKDataType("FLOAT", false);
                     }
 
                 }

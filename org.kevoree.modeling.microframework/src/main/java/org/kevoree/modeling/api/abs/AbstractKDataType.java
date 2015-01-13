@@ -1,11 +1,12 @@
 package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.KMetaType;
+import org.kevoree.modeling.api.meta.PrimitiveMetaTypes;
 
 /**
  * Created by duke on 12/01/15.
  */
-public abstract class AbstractKDataType implements KMetaType {
+public class AbstractKDataType implements KMetaType {
 
     private String _name;
 
@@ -27,8 +28,36 @@ public abstract class AbstractKDataType implements KMetaType {
     }
 
     @Override
-    public abstract String save(Object src);
+    public String save(Object src) {
+        if (src != null) {
+            return src.toString();
+        }
+        return "";
+    }
 
     @Override
-    public abstract Object load(String payload);
+    public Object load(String payload) {
+        if (this == PrimitiveMetaTypes.STRING) {
+            return payload;
+        }
+        if (this == PrimitiveMetaTypes.LONG) {
+            return Long.parseLong(payload);
+        }
+        if (this == PrimitiveMetaTypes.INT) {
+            return Integer.parseInt(payload);
+        }
+        if (this == PrimitiveMetaTypes.BOOL) {
+            return payload.equals("true");
+        }
+        if (this == PrimitiveMetaTypes.SHORT) {
+            return Short.parseShort(payload);
+        }
+        if (this == PrimitiveMetaTypes.DOUBLE) {
+            return Double.parseDouble(payload);
+        }
+        if (this == PrimitiveMetaTypes.FLOAT) {
+            return Float.parseFloat(payload);
+        }
+        return null;
+    }
 }

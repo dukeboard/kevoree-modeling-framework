@@ -19,15 +19,15 @@ public class PolynomialExtrapolation implements Extrapolation {
         PolynomialModel pol = (PolynomialModel) current.view().dimension().universe().storage().raw(current, AccessMode.READ)[attribute.index()];
         if (pol != null) {
             Double extrapolatedValue = pol.extrapolate(current.now());
-            if (attribute.metaType().equals(PrimitiveMetaTypes.DOUBLE)) {
+            if (attribute.metaType() == PrimitiveMetaTypes.DOUBLE) {
                 return extrapolatedValue;
-            } else if (attribute.metaType().equals(PrimitiveMetaTypes.LONG)) {
+            } else if (attribute.metaType() == PrimitiveMetaTypes.LONG) {
                 return extrapolatedValue.longValue();
-            } else if (attribute.metaType().equals(PrimitiveMetaTypes.FLOAT)) {
+            } else if (attribute.metaType() == PrimitiveMetaTypes.FLOAT) {
                 return extrapolatedValue.floatValue();
-            } else if (attribute.metaType().equals(PrimitiveMetaTypes.INT)) {
+            } else if (attribute.metaType() == PrimitiveMetaTypes.INT) {
                 return extrapolatedValue.intValue();
-            } else if (attribute.metaType().equals(PrimitiveMetaTypes.SHORT)) {
+            } else if (attribute.metaType() == PrimitiveMetaTypes.SHORT) {
                 return extrapolatedValue.shortValue();
             } else {
                 return null;

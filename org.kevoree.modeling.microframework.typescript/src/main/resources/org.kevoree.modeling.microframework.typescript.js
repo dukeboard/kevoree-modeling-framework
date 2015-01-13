@@ -118,6 +118,60 @@ var org;
                 api.VisitResult = VisitResult;
                 var abs;
                 (function (abs) {
+                    var AbstractKDataType = (function () {
+                        function AbstractKDataType(p_name, p_isEnum) {
+                            this._isEnum = false;
+                            if (p_name === undefined || p_isEnum === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
+                            this._name = p_name;
+                            this._isEnum = p_isEnum;
+                        }
+                        AbstractKDataType.prototype.name = function () {
+                            return this._name;
+                        };
+                        AbstractKDataType.prototype.isEnum = function () {
+                            return this._isEnum;
+                        };
+                        AbstractKDataType.prototype.save = function (src) {
+                            if (src === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
+                            if (src != null) {
+                                return src.toString();
+                            }
+                            return "";
+                        };
+                        AbstractKDataType.prototype.load = function (payload) {
+                            if (payload === undefined) {
+                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            }
+                            if (this == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING) {
+                                return payload;
+                            }
+                            if (this == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.LONG) {
+                                return java.lang.Long.parseLong(payload);
+                            }
+                            if (this == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.INT) {
+                                return java.lang.Integer.parseInt(payload);
+                            }
+                            if (this == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.BOOL) {
+                                return payload.equals("true");
+                            }
+                            if (this == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.SHORT) {
+                                return java.lang.Short.parseShort(payload);
+                            }
+                            if (this == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.DOUBLE) {
+                                return java.lang.Double.parseDouble(payload);
+                            }
+                            if (this == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.FLOAT) {
+                                return java.lang.Float.parseFloat(payload);
+                            }
+                            return null;
+                        };
+                        return AbstractKDataType;
+                    })();
+                    abs.AbstractKDataType = AbstractKDataType;
                     var AbstractKDimension = (function () {
                         function AbstractKDimension(p_universe, p_key) {
                             if (p_universe === undefined || p_key === undefined) {
@@ -2523,7 +2577,7 @@ var org;
                             for (var i = 0; i < metaAttributes.length; i++) {
                                 var payload_res = raw[metaAttributes[i].index()];
                                 if (payload_res != null) {
-                                    var attrsPayload = metaAttributes[i].strategy().save(payload_res);
+                                    var attrsPayload = metaAttributes[i].strategy().save(payload_res, metaAttributes[i]);
                                     if (attrsPayload != null) {
                                         builder.append("\t");
                                         builder.append("\"");
@@ -2995,12 +3049,12 @@ var org;
                                 internalPayload[attribute.index()] = payload;
                             }
                         };
-                        DiscreteExtrapolation.prototype.save = function (cache) {
-                            if (cache === undefined) {
+                        DiscreteExtrapolation.prototype.save = function (cache, attribute) {
+                            if (cache === undefined || attribute === undefined) {
                                 throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
                             }
                             if (cache != null) {
-                                return cache.toString();
+                                return attribute.metaType().save(cache);
                             }
                             else {
                                 return null;
@@ -3010,57 +3064,10 @@ var org;
                             if (payload === undefined || attribute === undefined || now === undefined) {
                                 throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
                             }
-                            return org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.convertRaw(attribute, payload);
-                        };
-                        DiscreteExtrapolation.convertRaw = function (attribute, raw) {
-                            if (attribute === undefined || raw === undefined) {
-                                throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
+                            if (payload != null) {
+                                return attribute.metaType().load(payload);
                             }
-                            try {
-                                if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.STRING)) {
-                                    return raw.toString();
-                                }
-                                else {
-                                    if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.LONG)) {
-                                        return java.lang.Long.parseLong(raw.toString());
-                                    }
-                                    else {
-                                        if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.INT)) {
-                                            return java.lang.Integer.parseInt(raw.toString());
-                                        }
-                                        else {
-                                            if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.BOOL)) {
-                                                return raw.toString().equals("true");
-                                            }
-                                            else {
-                                                if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.SHORT)) {
-                                                    return java.lang.Short.parseShort(raw.toString());
-                                                }
-                                                else {
-                                                    if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.DOUBLE)) {
-                                                        return java.lang.Double.parseDouble(raw.toString());
-                                                    }
-                                                    else {
-                                                        if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.FLOAT)) {
-                                                            return java.lang.Float.parseFloat(raw.toString());
-                                                        }
-                                                        else {
-                                                            return null;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            catch ($ex$) {
-                                if ($ex$ instanceof java.lang.Exception) {
-                                    var e = $ex$;
-                                    e.printStackTrace();
-                                    return null;
-                                }
-                            }
+                            return null;
                         };
                         return DiscreteExtrapolation;
                     })();
@@ -3075,23 +3082,23 @@ var org;
                             var pol = current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ)[attribute.index()];
                             if (pol != null) {
                                 var extrapolatedValue = pol.extrapolate(current.now());
-                                if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.DOUBLE)) {
+                                if (attribute.metaType() == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.DOUBLE) {
                                     return extrapolatedValue;
                                 }
                                 else {
-                                    if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.LONG)) {
+                                    if (attribute.metaType() == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.LONG) {
                                         return extrapolatedValue.longValue();
                                     }
                                     else {
-                                        if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.FLOAT)) {
+                                        if (attribute.metaType() == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.FLOAT) {
                                             return extrapolatedValue.floatValue();
                                         }
                                         else {
-                                            if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.INT)) {
+                                            if (attribute.metaType() == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.INT) {
                                                 return extrapolatedValue.intValue();
                                             }
                                             else {
-                                                if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.SHORT)) {
+                                                if (attribute.metaType() == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.SHORT) {
                                                     return extrapolatedValue.shortValue();
                                                 }
                                                 else {
@@ -3132,8 +3139,8 @@ var org;
                                 }
                             }
                         };
-                        PolynomialExtrapolation.prototype.save = function (cache) {
-                            if (cache === undefined) {
+                        PolynomialExtrapolation.prototype.save = function (cache, attribute) {
+                            if (cache === undefined || attribute === undefined) {
                                 throw new java.lang.RuntimeException("At least one parameter is undefined. They can be null, but they are all mandatory. Please check.");
                             }
                             try {
@@ -3507,7 +3514,7 @@ var org;
                                         builder.append(",\"");
                                         builder.append(elem.metaClass().metaAttributes()[i].metaName());
                                         builder.append("\" : \"");
-                                        builder.append(payload.toString());
+                                        builder.append(elem.metaClass().metaAttributes()[i].metaType().save(payload));
                                         builder.append("\"\n");
                                     }
                                 }
@@ -3923,34 +3930,19 @@ var org;
                 })(json = api.json || (api.json = {}));
                 var meta;
                 (function (meta) {
-                    var MetaType = (function () {
-                        function MetaType() {
+                    var PrimitiveMetaTypes = (function () {
+                        function PrimitiveMetaTypes() {
                         }
-                        MetaType.prototype.equals = function (other) {
-                            return this == other;
-                        };
-                        MetaType.values = function () {
-                            return MetaType._MetaTypeVALUES;
-                        };
-                        MetaType.STRING = new MetaType();
-                        MetaType.LONG = new MetaType();
-                        MetaType.INT = new MetaType();
-                        MetaType.BOOL = new MetaType();
-                        MetaType.SHORT = new MetaType();
-                        MetaType.DOUBLE = new MetaType();
-                        MetaType.FLOAT = new MetaType();
-                        MetaType._MetaTypeVALUES = [
-                            MetaType.STRING,
-                            MetaType.LONG,
-                            MetaType.INT,
-                            MetaType.BOOL,
-                            MetaType.SHORT,
-                            MetaType.DOUBLE,
-                            MetaType.FLOAT
-                        ];
-                        return MetaType;
+                        PrimitiveMetaTypes.STRING = new org.kevoree.modeling.api.abs.AbstractKDataType("STRING", false);
+                        PrimitiveMetaTypes.LONG = new org.kevoree.modeling.api.abs.AbstractKDataType("LONG", false);
+                        PrimitiveMetaTypes.INT = new org.kevoree.modeling.api.abs.AbstractKDataType("INT", false);
+                        PrimitiveMetaTypes.BOOL = new org.kevoree.modeling.api.abs.AbstractKDataType("BOOL", false);
+                        PrimitiveMetaTypes.SHORT = new org.kevoree.modeling.api.abs.AbstractKDataType("SHORT", false);
+                        PrimitiveMetaTypes.DOUBLE = new org.kevoree.modeling.api.abs.AbstractKDataType("DOUBLE", false);
+                        PrimitiveMetaTypes.FLOAT = new org.kevoree.modeling.api.abs.AbstractKDataType("FLOAT", false);
+                        return PrimitiveMetaTypes;
                     })();
-                    meta.MetaType = MetaType;
+                    meta.PrimitiveMetaTypes = PrimitiveMetaTypes;
                 })(meta = api.meta || (api.meta = {}));
                 var operation;
                 (function (operation) {
