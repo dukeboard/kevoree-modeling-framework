@@ -42,21 +42,27 @@ public class JSONSaveTest {
         });
         String payloadResult = "[\n" +
                 "{\n" +
-                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\"\n" +
-                "\t,\"@uuid\" : \"1\"\n" +
-                "\t,\"@root\" : \"true\"\n" +
-                "\t,\"name\" : \"root\"\n" +
-                "\t,\"children\" : [\"2\",\"3\"]\n" +
+                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                "\t\"@uuid\" : \"1\",\n" +
+                "\t\"@root\" : \"true\",\n" +
+                "\t\"name\":\"root\",\n" +
+                "\t\"children\": [\"2\",\"3\"],\n" +
                 "}\n" +
                 ",{\n" +
-                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\"\n" +
-                "\t,\"@uuid\" : \"2\"\n" +
-                "\t,\"name\" : \"n1\"\n" +
+                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                "\t\"@uuid\" : \"2\",\n" +
+                "\t\"@parent\" : \"1\",\n" +
+                "\t\"@ref\" : \"org.kevoree.modeling.microframework.test.cloud.Node@children\",\n" +
+                "\t\"@inbounds\" : [\"1@org.kevoree.modeling.microframework.test.cloud.Node@children\"],\n" +
+                "\t\"name\":\"n1\",\n" +
                 "}\n" +
                 ",{\n" +
-                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\"\n" +
-                "\t,\"@uuid\" : \"3\"\n" +
-                "\t,\"name\" : \"n2\"\n" +
+                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                "\t\"@uuid\" : \"3\",\n" +
+                "\t\"@parent\" : \"1\",\n" +
+                "\t\"@ref\" : \"org.kevoree.modeling.microframework.test.cloud.Node@children\",\n" +
+                "\t\"@inbounds\" : [\"1@org.kevoree.modeling.microframework.test.cloud.Node@children\"],\n" +
+                "\t\"name\":\"n2\",\n" +
                 "}\n" +
                 "]\n";
 

@@ -6,6 +6,7 @@ import org.kevoree.modeling.api.ModelVisitor;
 import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.VisitResult;
 import org.kevoree.modeling.api.data.AccessMode;
+import org.kevoree.modeling.api.data.JsonRaw;
 
 import java.util.Set;
 
@@ -62,6 +63,12 @@ public class JsonModelSerializer {
 
     public static void printJSON(KObject elem, StringBuilder builder) {
         if (elem != null) {
+            Object[] raw = elem.view().dimension().universe().storage().raw(elem, AccessMode.READ);
+            if(raw!=null){
+                builder.append(JsonRaw.encode(raw,elem.uuid(),elem.metaClass()));
+            }
+
+            /*
             builder.append("{\n");
             builder.append("\t\"" + KEY_META + "\" : \"");
             builder.append(elem.metaClass().metaName());
@@ -120,6 +127,7 @@ public class JsonModelSerializer {
                 }
             }
             builder.append("}\n");
+            */
         }
     }
 

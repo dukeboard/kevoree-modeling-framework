@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
 import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
@@ -93,12 +94,12 @@ public class DeleteTest {
                         n42.setName("n42");
                         n2.addChildren(n42);
 
-                      //  System.out.println("n42="+n42);
-                       // System.out.println("n2="+n2);
+                        //  System.out.println("n42="+n42);
+                        // System.out.println("n2="+n2);
 
                         n42.delete(null);
-                       // System.out.println("n2=" + n2);
-                      // System.out.println("n42="+n42.getName());
+                        // System.out.println("n2=" + n2);
+                        // System.out.println("n42="+n42.getName());
 
                     }
                 });
@@ -122,5 +123,33 @@ public class DeleteTest {
 
 
     }
+
+
+    @Test
+    public void simpleDeleteTest() {
+
+        CloudUniverse universe = new CloudUniverse();
+        universe.connect(null);
+        CloudDimension dimension = universe.newDimension();
+        CloudView factory = dimension.time(0l);
+        Node n = factory.createNode();
+        n.setName("n");
+        factory.setRoot(n, null);
+
+        Node n2 = factory.createNode();
+        n2.setName("n2");
+        n.addChildren(n2);
+
+     //  n2.delete(null);
+
+        factory.json().save(n, new ThrowableCallback<String>() {
+            @Override
+            public void on(String s, Throwable error) {
+                System.err.println(s);
+            }
+        });
+
+    }
+
 
 }
