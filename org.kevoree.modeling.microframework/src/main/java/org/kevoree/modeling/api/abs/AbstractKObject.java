@@ -87,6 +87,9 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public void path(final Callback<String> callback) {
+        if (!Checker.isDefined(callback)) {
+            return;
+        }
         if (isRoot()) {
             callback.on("/");
         } else {
@@ -115,6 +118,9 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public void parent(Callback<KObject> callback) {
+        if (!Checker.isDefined(callback)) {
+            return;
+        }
         Long parentKID = parentUuid();
         if (parentKID == null) {
             callback.on(null);
@@ -145,24 +151,30 @@ public abstract class AbstractKObject implements KObject {
                                 ((AbstractKObject) resolved[i]).internal_mutate(KActionType.REMOVE, refs.get(refArr[i]), toRemove, false);
                             }
                         }
-                        callback.on(null);
+                        if (callback != null) {
+                            callback.on(null);
+                        }
                     }
                 });
             } catch (Exception e) {
                 e.printStackTrace();
-                callback.on(e);
+                if (callback != null) {
+                    callback.on(e);
+                }
             }
         } else {
-            callback.on(new Exception("Out of cache error"));
+            if (callback != null) {
+                callback.on(new Exception("Out of cache error"));
+            }
         }
     }
 
     @Override
     public void select(String query, Callback<KObject[]> callback) {
-        if (callback == null) {
+        if (!Checker.isDefined(callback)) {
             return;
         }
-        if (query == null) {
+        if (!Checker.isDefined(query)) {
             callback.on(new KObject[0]);
             return;
         }
@@ -250,7 +262,7 @@ public abstract class AbstractKObject implements KObject {
         }
     }
 
-    private HashMap<Long, MetaReference> getOrCreateInbounds(KObject obj, int payloadIndex) {
+    private HashMap<Long, MetaReference> getOrCreateInbounds(KObject obj) {
         Object[] rawWrite = view().dimension().universe().storage().raw(obj, AccessMode.WRITE);
         if (rawWrite[Index.INBOUNDS_INDEX] != null && rawWrite[Index.INBOUNDS_INDEX] instanceof HashMap) {
             return (HashMap<Long, MetaReference>) rawWrite[Index.INBOUNDS_INDEX];
@@ -320,7 +332,7 @@ public abstract class AbstractKObject implements KObject {
                     ((AbstractKObject) param).set_parent(_uuid, metaReference);
                 }
                 //Inbound
-                Map<Long, MetaReference> inboundRefs = getOrCreateInbounds(param, Index.INBOUNDS_INDEX);
+                Map<Long, MetaReference> inboundRefs = getOrCreateInbounds(param);
                 inboundRefs.put(uuid(), metaReference);
 
                 //publish event
@@ -348,7 +360,7 @@ public abstract class AbstractKObject implements KObject {
                         ((AbstractKObject) param).set_parent(_uuid, metaReference);
                     }
                     //Inbound
-                    Map<Long, MetaReference> inboundRefs = getOrCreateInbounds(param, Index.INBOUNDS_INDEX);
+                    Map<Long, MetaReference> inboundRefs = getOrCreateInbounds(param);
                     inboundRefs.put(uuid(), metaReference);
                     //Opposite
                     final KObject self = this;
@@ -386,7 +398,7 @@ public abstract class AbstractKObject implements KObject {
                                     ((AbstractKObject) resolvedParam).internal_mutate(KActionType.REMOVE, metaReference.opposite(), self, false);
                                 }
                                 //Inbounds
-                                Map<Long, MetaReference> inboundRefs = getOrCreateInbounds(resolvedParam, Index.INBOUNDS_INDEX);
+                                Map<Long, MetaReference> inboundRefs = getOrCreateInbounds(resolvedParam);
                                 inboundRefs.remove(uuid());
                             }
                         }
@@ -493,6 +505,9 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public void visitAttributes(ModelAttributeVisitor visitor) {
+        if (!Checker.isDefined(visitor)) {
+            return;
+        }
         MetaAttribute[] metaAttributes = metaClass().metaAttributes();
         for (int i = 0; i < metaAttributes.length; i++) {
             visitor.visit(metaAttributes[i], get(metaAttributes[i]));
@@ -503,12 +518,13 @@ public abstract class AbstractKObject implements KObject {
         internal_visit(visitor, end, false, false, null, null);
     }
 
-    private void internal_visit(final ModelVisitor visitor, final Callback<Throwable> end,
-                                boolean deep, boolean containedOnly, final HashSet<Long> visited, final HashSet<Long> traversed) {
+    private void internal_visit(final ModelVisitor visitor, final Callback<Throwable> end, boolean deep, boolean containedOnly, final HashSet<Long> visited, final HashSet<Long> traversed) {
+        if (!Checker.isDefined(visitor)) {
+            return;
+        }
         if (traversed != null) {
             traversed.add(uuid());
         }
-
         final Set<Long> toResolveIds = new HashSet<Long>();
         for (int i = 0; i < metaClass().metaReferences().length; i++) {
             final MetaReference reference = metaClass().metaReferences()[i];
@@ -536,7 +552,9 @@ public abstract class AbstractKObject implements KObject {
             }
         }
         if (toResolveIds.isEmpty()) {
-            end.on(null);
+            if (Checker.isDefined(end)) {
+                end.on(null);
+            }
         } else {
             final Long[] toResolveIdsArr = toResolveIds.toArray(new Long[toResolveIds.size()]);
             view().lookupAll(toResolveIdsArr, new Callback<KObject[]>() {
@@ -546,7 +564,6 @@ public abstract class AbstractKObject implements KObject {
 
                     for (int i = 0; i < resolvedArr.length; i++) {
                         final KObject resolved = resolvedArr[i];
-
                         VisitResult result = VisitResult.CONTINUE;
                         if (visitor != null && (visited == null || !visited.contains(resolved.uuid()))) {
                             result = visitor.visit(resolved);
@@ -554,10 +571,10 @@ public abstract class AbstractKObject implements KObject {
                         if (visited != null) {
                             visited.add(resolved.uuid());
                         }
-
                         if (result != null && result.equals(VisitResult.STOP)) {
-                            end.on(null);
-
+                            if (Checker.isDefined(end)) {
+                                end.on(null);
+                            }
                         } else {
                             if (deep) {
                                 if (result.equals(VisitResult.CONTINUE)) {
@@ -567,7 +584,6 @@ public abstract class AbstractKObject implements KObject {
                                 }
                             }
                         }
-
                     }
                     if (!nextDeep.isEmpty()) {
                         final int[] index = new int[1];
@@ -578,7 +594,9 @@ public abstract class AbstractKObject implements KObject {
                             public void on(Throwable throwable) {
                                 index[0] = index[0] + 1;
                                 if (index[0] == nextDeep.size()) {
-                                    end.on(null);
+                                    if (Checker.isDefined(end)) {
+                                        end.on(null);
+                                    }
                                 } else {
                                     final AbstractKObject abstractKObject = (AbstractKObject) nextDeep.get(index[0]);
                                     if (containedOnly) {
@@ -597,7 +615,9 @@ public abstract class AbstractKObject implements KObject {
                             abstractKObject.internal_visit(visitor, next.get(0), true, false, visited, traversed);
                         }
                     } else {
-                        end.on(null);
+                        if (Checker.isDefined(end)) {
+                            end.on(null);
+                        }
                     }
                 }
             });
@@ -623,6 +643,9 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public ModelTrace[] traces(TraceRequest request) {
+        if (!Checker.isDefined(request)) {
+            return null;
+        }
         List<ModelTrace> traces = new ArrayList<ModelTrace>();
         if (TraceRequest.ATTRIBUTES_ONLY.equals(request) || TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
             for (int i = 0; i < metaClass().metaAttributes().length; i++) {
