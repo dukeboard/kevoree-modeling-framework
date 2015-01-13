@@ -58,16 +58,24 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public boolean isRoot() {
-        Boolean isRoot = (Boolean) _view.dimension().universe().storage().raw(this, AccessMode.READ)[Index.IS_ROOT_INDEX];
-        if (isRoot == null) {
-            return false;
+        Object[] raw = _view.dimension().universe().storage().raw(this, AccessMode.READ);
+        if (raw != null) {
+            Boolean isRoot = (Boolean) raw[Index.IS_ROOT_INDEX];
+            if (isRoot == null) {
+                return false;
+            } else {
+                return isRoot;
+            }
         } else {
-            return isRoot;
+            return false;
         }
     }
 
     public void setRoot(boolean isRoot) {
-        _view.dimension().universe().storage().raw(this, AccessMode.READ)[Index.IS_ROOT_INDEX] = isRoot;
+        Object[] raw = _view.dimension().universe().storage().raw(this, AccessMode.WRITE);
+        if (raw != null) {
+            raw[Index.IS_ROOT_INDEX] = isRoot;
+        }
     }
 
     @Override
@@ -113,7 +121,12 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public Long parentUuid() {
-        return (Long) _view.dimension().universe().storage().raw(this, AccessMode.READ)[Index.PARENT_INDEX];
+        Object[] raw = _view.dimension().universe().storage().raw(this, AccessMode.READ);
+        if (raw == null) {
+            return null;
+        } else {
+            return (Long) raw[Index.PARENT_INDEX];
+        }
     }
 
     @Override
@@ -131,40 +144,49 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public MetaReference referenceInParent() {
-        return (MetaReference) _view.dimension().universe().storage().raw(this, AccessMode.READ)[Index.REF_IN_PARENT_INDEX];
+        Object[] raw = _view.dimension().universe().storage().raw(this, AccessMode.READ);
+        if (raw == null) {
+            return null;
+        } else {
+            return (MetaReference) raw[Index.REF_IN_PARENT_INDEX];
+        }
     }
 
     @Override
     public void delete(Callback<Throwable> callback) {
         KObject toRemove = this;
         Object[] rawPayload = _view.dimension().universe().storage().raw(this, AccessMode.DELETE);
-        Object payload = rawPayload[Index.INBOUNDS_INDEX];
-        if (payload != null) {
-            try {
-                Map<Long, MetaReference> refs = (Map<Long, MetaReference>) payload;
-                Long[] refArr = refs.keySet().toArray(new Long[refs.size()]);
-                view().lookupAll(refArr, new Callback<KObject[]>() {
-                    @Override
-                    public void on(KObject[] resolved) {
-                        for (int i = 0; i < resolved.length; i++) {
-                            if (resolved[i] != null) {
-                                ((AbstractKObject) resolved[i]).internal_mutate(KActionType.REMOVE, refs.get(refArr[i]), toRemove, false);
+        if (rawPayload == null) {
+            callback.on(null);
+        } else {
+            Object payload = rawPayload[Index.INBOUNDS_INDEX];
+            if (payload != null) {
+                try {
+                    Map<Long, MetaReference> refs = (Map<Long, MetaReference>) payload;
+                    Long[] refArr = refs.keySet().toArray(new Long[refs.size()]);
+                    view().lookupAll(refArr, new Callback<KObject[]>() {
+                        @Override
+                        public void on(KObject[] resolved) {
+                            for (int i = 0; i < resolved.length; i++) {
+                                if (resolved[i] != null) {
+                                    ((AbstractKObject) resolved[i]).internal_mutate(KActionType.REMOVE, refs.get(refArr[i]), toRemove, false);
+                                }
+                            }
+                            if (callback != null) {
+                                callback.on(null);
                             }
                         }
-                        if (callback != null) {
-                            callback.on(null);
-                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    if (callback != null) {
+                        callback.on(e);
                     }
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-                if (callback != null) {
-                    callback.on(e);
                 }
-            }
-        } else {
-            if (callback != null) {
-                callback.on(new Exception("Out of cache error"));
+            } else {
+                if (callback != null) {
+                    callback.on(new Exception("Out of cache error"));
+                }
             }
         }
     }
@@ -437,12 +459,16 @@ public abstract class AbstractKObject implements KObject {
             throw new RuntimeException("Bad KMF usage, the attribute named " + p_metaReference.metaName() + " is not part of " + metaClass().metaName());
         } else {
             Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.READ);
-            Object ref = raw[transposed.index()];
-            if (ref == null) {
-                return 0;
+            if (raw != null) {
+                Object ref = raw[transposed.index()];
+                if (ref == null) {
+                    return 0;
+                } else {
+                    Set<Object> refSet = (Set<Object>) ref;
+                    return refSet.size();
+                }
             } else {
-                Set<Object> refSet = (Set<Object>) ref;
-                return refSet.size();
+                return 0;
             }
         }
     }
@@ -452,10 +478,11 @@ public abstract class AbstractKObject implements KObject {
         if (transposed == null) {
             throw new RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + metaClass().metaName());
         } else {
-            Object o = view().dimension().universe().storage().raw(this, AccessMode.READ)[transposed.index()];
-            if (o == null) {
+            Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.READ);
+            if (raw == null || raw[transposed.index()] == null) {
                 p_callback.on(null);
             } else {
+                Object o = raw[transposed.index()];
                 try {
                     Long casted = (Long) o;
                     view().lookup(casted, new Callback<KObject>() {
@@ -480,25 +507,30 @@ public abstract class AbstractKObject implements KObject {
         if (transposed == null) {
             throw new RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + metaClass().metaName());
         } else {
-            Object o = view().dimension().universe().storage().raw(this, AccessMode.READ)[transposed.index()];
-            if (o == null) {
+            Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.READ);
+            if (raw == null) {
                 p_callback.on(new KObject[0]);
-            } else if (o instanceof Set) {
-                Set<Long> objs = (Set<Long>) o;
-                Long[] setContent = objs.toArray(new Long[objs.size()]);
-                view().lookupAll(setContent, new Callback<KObject[]>() {
-                    @Override
-                    public void on(KObject[] result) {
-                        try {
-                            p_callback.on(result);
-                        } catch (Throwable t) {
-                            t.printStackTrace();
-                            p_callback.on(null);
-                        }
-                    }
-                });
             } else {
-                p_callback.on(new KObject[0]);
+                Object o = raw[transposed.index()];
+                if (o == null) {
+                    p_callback.on(new KObject[0]);
+                } else if (o instanceof Set) {
+                    Set<Long> objs = (Set<Long>) o;
+                    Long[] setContent = objs.toArray(new Long[objs.size()]);
+                    view().lookupAll(setContent, new Callback<KObject[]>() {
+                        @Override
+                        public void on(KObject[] result) {
+                            try {
+                                p_callback.on(result);
+                            } catch (Throwable t) {
+                                t.printStackTrace();
+                                p_callback.on(null);
+                            }
+                        }
+                    });
+                } else {
+                    p_callback.on(new KObject[0]);
+                }
             }
         }
     }
@@ -633,7 +665,12 @@ public abstract class AbstractKObject implements KObject {
     }
 
     public String toJSON() {
-        return JsonRaw.encode(view().dimension().universe().storage().raw(this, AccessMode.READ), _uuid, _metaClass);
+        Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.READ);
+        if (raw != null) {
+            return JsonRaw.encode(raw, _uuid, _metaClass);
+        } else {
+            return "";
+        }
     }
 
     @Override

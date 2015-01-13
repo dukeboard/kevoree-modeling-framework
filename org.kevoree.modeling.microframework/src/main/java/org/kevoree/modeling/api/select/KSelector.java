@@ -32,17 +32,19 @@ public class KSelector {
             for (int k = 0; k < roots.length; k++) {
                 KObject root = roots[k];
                 Object[] raw = root.dimension().universe().storage().raw(root, AccessMode.READ);
-                for (int i = 0; i < root.metaClass().metaReferences().length; i++) {
-                    MetaReference reference = root.metaClass().metaReferences()[i];
-                    if (reference.metaName().matches(relationNameRegex)) {
-                        Object refPayLoad = raw[reference.index()];
-                        if (refPayLoad != null) {
-                            if (refPayLoad instanceof Set) {
-                                Set<Long> castedSet = (Set<Long>) refPayLoad;
-                                collected.addAll(castedSet);
-                            } else {
-                                Long castedLong = (Long) refPayLoad;
-                                collected.add(castedLong);
+                if (raw != null) {
+                    for (int i = 0; i < root.metaClass().metaReferences().length; i++) {
+                        MetaReference reference = root.metaClass().metaReferences()[i];
+                        if (reference.metaName().matches(relationNameRegex)) {
+                            Object refPayLoad = raw[reference.index()];
+                            if (refPayLoad != null) {
+                                if (refPayLoad instanceof Set) {
+                                    Set<Long> castedSet = (Set<Long>) refPayLoad;
+                                    collected.addAll(castedSet);
+                                } else {
+                                    Long castedLong = (Long) refPayLoad;
+                                    collected.add(castedLong);
+                                }
                             }
                         }
                     }
