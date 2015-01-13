@@ -33,6 +33,8 @@ public class DefaultKStore implements KStore {
 
     private static final String OUT_OF_CACHE_MESSAGE = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
 
+    private static final String DELETED_MESSAGE = "KMF Error: your object has been deleted. Please do not use object pointer after a call to delete method";
+
     public DefaultKStore() {
         this._db = new MemoryKDataBase();
         this._eventBroker = new DefaultKBroker();
@@ -265,7 +267,7 @@ public class DefaultKStore implements KStore {
             return payload;
         }
         if (payload == null) {
-            throw new RuntimeException(OUT_OF_CACHE_MESSAGE);
+            throw new RuntimeException(DELETED_MESSAGE);
             //return null;
         } else {
             if (!needCopy) {
