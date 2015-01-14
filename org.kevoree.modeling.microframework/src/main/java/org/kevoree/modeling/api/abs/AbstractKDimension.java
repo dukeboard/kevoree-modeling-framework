@@ -67,7 +67,7 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension, 
     }
 
     @Override
-    public synchronized A time(Long timePoint) {
+    public synchronized A time(long timePoint) {
         return internal_create(timePoint);
     }
 

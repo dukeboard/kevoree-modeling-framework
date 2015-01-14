@@ -149,7 +149,7 @@ public class WebSocketBroker extends AbstractReceiveListener implements KEventBr
         JsonObject jsonMessage = JsonObject.readFrom(messageData);
         JsonArray events = jsonMessage.get("events").asArray();
         for (int i = 0; i < events.size(); i++) {
-            KEvent event = DefaultKEvent.fromJSON(events.get(i).asString(),this._metaModel);
+            KEvent event = DefaultKEvent.fromJSON(events.get(i).asString(), this._metaModel);
             notifyOnly(event);
         }
 

@@ -222,7 +222,7 @@ declare module org {
                         private getOrCreateInbounds(obj);
                         private removeFromContainer(param);
                         mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject): void;
-                        internal_mutate(actionType: KActionType, metaReferenceP: meta.MetaReference, param: KObject, setOpposite: boolean): void;
+                        internal_mutate(actionType: KActionType, metaReferenceP: meta.MetaReference, param: KObject, setOpposite: boolean, inDelete: boolean): void;
                         size(p_metaReference: meta.MetaReference): number;
                         single(p_metaReference: meta.MetaReference, p_callback: (p: KObject) => void): void;
                         all(p_metaReference: meta.MetaReference, p_callback: (p: KObject[]) => void): void;
@@ -396,6 +396,7 @@ declare module org {
                         private _objectKeyCalculator;
                         private _dimensionKeyCalculator;
                         private static OUT_OF_CACHE_MESSAGE;
+                        private static DELETED_MESSAGE;
                         private isConnected;
                         private static UNIVERSE_NOT_CONNECTED_ERROR;
                         private static INDEX_RESOLVED_DIM;

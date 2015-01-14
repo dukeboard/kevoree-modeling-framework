@@ -11,6 +11,8 @@ public class MModel {
 
     private HashMap<String, MModelClassifier> classifiers = new HashMap<>();
 
+    private Integer currentIndex = 0;
+
     public Collection<MModelClassifier> getClassifiers() {
         return classifiers.values();
     }
@@ -20,15 +22,18 @@ public class MModel {
     }
 
     public void addClassifier(MModelClassifier classifier) {
-        classifier.setIndex(classifiers.size());
+        if (classifier instanceof MModelClass) {
+            classifier.setIndex(currentIndex);
+            currentIndex = currentIndex + 1;
+        }
         classifiers.put(classifier.getFqn(), classifier);
     }
 
     public Collection<MModelClass> getClasses() {
         ArrayList<MModelClass> classes = new ArrayList<MModelClass>();
-        for(MModelClassifier cls : classifiers.values()) {
-            if(cls instanceof MModelClass) {
-                classes.add((MModelClass)cls);
+        for (MModelClassifier cls : classifiers.values()) {
+            if (cls instanceof MModelClass) {
+                classes.add((MModelClass) cls);
             }
         }
         return classes;

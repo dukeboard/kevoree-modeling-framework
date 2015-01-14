@@ -22,7 +22,7 @@ public interface KDimension<A extends KView, B extends KDimension, C extends KUn
 
     public void discard(Callback<Throwable> callback);
 
-    public A time(Long timePoint);
+    public A time(long timePoint);
 
     public C universe();
 

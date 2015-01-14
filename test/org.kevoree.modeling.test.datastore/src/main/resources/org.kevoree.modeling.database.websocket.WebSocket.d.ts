@@ -1,5 +1,5 @@
-/// <reference path="../generated-sources/ts/java.d.ts" />
-/// <reference path="../generated-sources/ts/org.kevoree.modeling.microframework.typescript.d.ts" />
+/// <reference path="../js/java.d.ts" />
+/// <reference path="../js/org.kevoree.modeling.microframework.typescript.d.ts" />
 declare module org {
     module kevoree {
         module modeling {
