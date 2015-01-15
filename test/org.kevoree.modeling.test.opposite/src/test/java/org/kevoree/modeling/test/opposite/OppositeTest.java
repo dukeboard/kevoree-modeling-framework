@@ -2,6 +2,7 @@ package org.kevoree.modeling.test.opposite;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import kmf.opposite.test.Container;
 import kmf.opposite.test.OppositeDimension;
 import kmf.opposite.test.OppositeUniverse;
 import kmf.opposite.test.OppositeView;
@@ -455,6 +456,60 @@ public class OppositeTest {
         a2.parent((parent)-> assertEquals(b2, parent));
 
     }
+
+
+    @Test
+    public void oppositeSimpleA_oppositeSimpleB_Test() {
+
+        Container c = factory.createContainer();
+        B b = factory.createB();
+        B b2 = factory.createB();
+        A a = factory.createA();
+        A a2 = factory.createA();
+
+        c.addAees(a);
+        c.addAees(a2);
+        c.addBees(b);
+        c.addBees(b2);
+
+        assert(c.sizeOfAees() == 2);
+        assert(c.sizeOfBees() == 2);
+
+        assert(a.sizeOfOppositeSimpleA_oppositeSimpleB() == 0);
+        assert(b.sizeOfOppositeSimpleA_oppositeSimpleB() == 0);
+        assert(a2.sizeOfOppositeSimpleA_oppositeSimpleB() == 0);
+        assert(b2.sizeOfOppositeSimpleA_oppositeSimpleB() == 0);
+
+        a.addOppositeSimpleA_oppositeSimpleB(b);
+
+        assert(a.sizeOfOppositeSimpleA_oppositeSimpleB() == 1);
+        assert(b.sizeOfOppositeSimpleA_oppositeSimpleB() == 1);
+        assert(a2.sizeOfOppositeSimpleA_oppositeSimpleB() == 0);
+        assert(b2.sizeOfOppositeSimpleA_oppositeSimpleB() == 0);
+
+        a.addOppositeSimpleA_oppositeSimpleB(b2);
+
+        assert(a.sizeOfOppositeSimpleA_oppositeSimpleB() == 2);
+        assert(b.sizeOfOppositeSimpleA_oppositeSimpleB() == 1);
+        assert(a2.sizeOfOppositeSimpleA_oppositeSimpleB() == 0);
+        assert(b2.sizeOfOppositeSimpleA_oppositeSimpleB() == 1);
+
+        b.addOppositeSimpleA_oppositeSimpleB(a2);
+
+        assert(a.sizeOfOppositeSimpleA_oppositeSimpleB() == 2);
+        assert(b.sizeOfOppositeSimpleA_oppositeSimpleB() == 2);
+        TestCase.assertEquals(1, a2.sizeOfOppositeSimpleA_oppositeSimpleB());
+        assert(b2.sizeOfOppositeSimpleA_oppositeSimpleB() == 1);
+
+        b2.addOppositeSimpleA_oppositeSimpleB(a2);
+
+        assert(a.sizeOfOppositeSimpleA_oppositeSimpleB() == 2);
+        assert(b.sizeOfOppositeSimpleA_oppositeSimpleB() == 2);
+        assert(a2.sizeOfOppositeSimpleA_oppositeSimpleB() == 2);
+        assert(b2.sizeOfOppositeSimpleA_oppositeSimpleB() == 2);
+    }
+
+
 
 
     /*

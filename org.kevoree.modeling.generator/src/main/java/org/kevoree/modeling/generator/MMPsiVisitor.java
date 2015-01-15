@@ -107,7 +107,10 @@ public class MMPsiVisitor extends MetaModelVisitor {
                         }
 
                         if (relationDecl.getRelationOpposite() != null) {
-                            reference.setOpposite(getOrAddReference(relationType, relationDecl.getRelationOpposite().getIdent().getText(), thisClassDeclaration));
+                            MModelReference oppositeRef = getOrAddReference(relationType, relationDecl.getRelationOpposite().getIdent().getText(), thisClassDeclaration);
+                            reference.setOpposite(oppositeRef);
+                            oppositeRef.setOpposite(reference);
+
                         }
                     }
                 } else if (decl.getOperationDeclaration() != null) {

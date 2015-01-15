@@ -20,6 +20,7 @@ class kmf.opposite.test.A  {
     singleA_multiB : kmf.opposite.test.B oppositeOf singleA_multiB
     multiA_singleB : kmf.opposite.test.B[0,*] oppositeOf multiA_singleB
     multiA_multiB : kmf.opposite.test.B[0,*] oppositeOf multiA_multiB
+    oppositeSimpleA_oppositeSimpleB : kmf.opposite.test.B[0,*] oppositeOf oppositeSimpleA_oppositeSimpleB
 }
 
 class kmf.opposite.test.B  {
@@ -35,4 +36,6 @@ class kmf.opposite.test.B  {
     multiA_singleB : kmf.opposite.test.A oppositeOf multiA_singleB
     @contained
     multiA_multiB : kmf.opposite.test.A[0,*] oppositeOf multiA_multiB
+
+    oppositeSimpleA_oppositeSimpleB : kmf.opposite.test.A[0,*]
 }
