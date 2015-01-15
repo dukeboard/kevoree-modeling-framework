@@ -98,6 +98,7 @@ declare module org {
                     intersection(target: KObject, callback: (p: trace.TraceSequence) => void): void;
                     slice(callback: (p: trace.TraceSequence) => void): void;
                     jump<U extends KObject>(time: number, callback: (p: U) => void): void;
+                    referencesWith(o: KObject): meta.MetaReference[];
                 }
                 interface KOperation {
                     on(source: KObject, params: any[], result: (p: any) => void): void;
@@ -246,6 +247,7 @@ declare module org {
                         internal_transpose_att(p: meta.MetaAttribute): meta.MetaAttribute;
                         internal_transpose_op(p: meta.MetaOperation): meta.MetaOperation;
                         traverse(p_metaReference: meta.MetaReference): promise.KTraversalPromise;
+                        referencesWith(o: KObject): meta.MetaReference[];
                     }
                     class AbstractKObjectInfer<A> extends AbstractKObject implements KInfer<any> {
                         constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);

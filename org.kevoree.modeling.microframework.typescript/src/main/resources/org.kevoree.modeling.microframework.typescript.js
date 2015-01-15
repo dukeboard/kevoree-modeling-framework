@@ -995,10 +995,64 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.internal_transpose_op = function (p) {
-                            return this.metaClass().metaOperation(p.metaName());
+                            if (!org.kevoree.modeling.api.util.Checker.isDefined(p)) {
+                                return null;
+                            }
+                            else {
+                                return this.metaClass().metaOperation(p.metaName());
+                            }
                         };
                         AbstractKObject.prototype.traverse = function (p_metaReference) {
                             return new org.kevoree.modeling.api.promise.DefaultKTraversalPromise(this, p_metaReference);
+                        };
+                        AbstractKObject.prototype.referencesWith = function (o) {
+                            if (org.kevoree.modeling.api.util.Checker.isDefined(o)) {
+                                var raw = this._view.dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
+                                if (raw != null) {
+                                    var allReferences = this.metaClass().metaReferences();
+                                    var selected = new java.util.ArrayList();
+                                    for (var i = 0; i < allReferences.length; i++) {
+                                        var rawI = raw[allReferences[i].index()];
+                                        if (rawI instanceof java.util.Set) {
+                                            try {
+                                                var castedSet = rawI;
+                                                if (castedSet.contains(o.uuid())) {
+                                                    selected.add(allReferences[i]);
+                                                }
+                                            }
+                                            catch ($ex$) {
+                                                if ($ex$ instanceof java.lang.Exception) {
+                                                    var e = $ex$;
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        }
+                                        else {
+                                            if (rawI != null) {
+                                                try {
+                                                    var casted = rawI;
+                                                    if (casted == o.uuid()) {
+                                                        selected.add(allReferences[i]);
+                                                    }
+                                                }
+                                                catch ($ex$) {
+                                                    if ($ex$ instanceof java.lang.Exception) {
+                                                        var e = $ex$;
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    return selected.toArray(new Array());
+                                }
+                                else {
+                                    return new Array();
+                                }
+                            }
+                            else {
+                                return new Array();
+                            }
                         };
                         return AbstractKObject;
                     })();

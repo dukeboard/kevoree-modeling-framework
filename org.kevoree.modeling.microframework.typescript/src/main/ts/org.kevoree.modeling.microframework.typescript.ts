@@ -214,6 +214,8 @@ module org {
 
                     jump<U extends org.kevoree.modeling.api.KObject> (time: number, callback: (p : U) => void): void;
 
+                    referencesWith(o: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.meta.MetaReference[];
+
                 }
 
                 export interface KOperation {
@@ -1253,11 +1255,60 @@ module org {
                         }
 
                         public internal_transpose_op(p: org.kevoree.modeling.api.meta.MetaOperation): org.kevoree.modeling.api.meta.MetaOperation {
-                            return this.metaClass().metaOperation(p.metaName());
+                            if (!org.kevoree.modeling.api.util.Checker.isDefined(p)) {
+                                return null;
+                            } else {
+                                return this.metaClass().metaOperation(p.metaName());
+                            }
                         }
 
                         public traverse(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.promise.KTraversalPromise {
                             return new org.kevoree.modeling.api.promise.DefaultKTraversalPromise(this, p_metaReference);
+                        }
+
+                        public referencesWith(o: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.meta.MetaReference[] {
+                            if (org.kevoree.modeling.api.util.Checker.isDefined(o)) {
+                                var raw: any[] = this._view.dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
+                                if (raw != null) {
+                                    var allReferences: org.kevoree.modeling.api.meta.MetaReference[] = this.metaClass().metaReferences();
+                                    var selected: java.util.List<org.kevoree.modeling.api.meta.MetaReference> = new java.util.ArrayList<org.kevoree.modeling.api.meta.MetaReference>();
+                                    for (var i: number = 0; i < allReferences.length; i++) {
+                                        var rawI: any = raw[allReferences[i].index()];
+                                        if (rawI instanceof java.util.Set) {
+                                            try {
+                                                var castedSet: java.util.Set<number> = <java.util.Set<number>>rawI;
+                                                if (castedSet.contains(o.uuid())) {
+                                                    selected.add(allReferences[i]);
+                                                }
+                                            } catch ($ex$) {
+                                                if ($ex$ instanceof java.lang.Exception) {
+                                                    var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                                    e.printStackTrace();
+                                                }
+                                             }
+                                        } else {
+                                            if (rawI != null) {
+                                                try {
+                                                    var casted: number = <number>rawI;
+                                                    if (casted == o.uuid()) {
+                                                        selected.add(allReferences[i]);
+                                                    }
+                                                } catch ($ex$) {
+                                                    if ($ex$ instanceof java.lang.Exception) {
+                                                        var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                                        e.printStackTrace();
+                                                    }
+                                                 }
+                                            }
+                                        }
+                                    }
+                                    return selected.toArray(new Array());
+                                } else {
+                                    return new Array();
+                                }
+                            } else {
+                                return new Array();
+                            }
                         }
 
                     }

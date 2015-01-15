@@ -882,8 +882,8 @@ public abstract class AbstractKObject implements KObject {
                     Object rawI = raw[allReferences[i].index()];
                     if (rawI instanceof Set) {
                         try {
-                            Set<Long> casted = (Set<Long>) rawI;
-                            if (casted.contains(o.uuid())) {
+                            Set<Long> castedSet = (Set<Long>) rawI;
+                            if (castedSet.contains(o.uuid())) {
                                 selected.add(allReferences[i]);
                             }
                         } catch (Exception e) {
