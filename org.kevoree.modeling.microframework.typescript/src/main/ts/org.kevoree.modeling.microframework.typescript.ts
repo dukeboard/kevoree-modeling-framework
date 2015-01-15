@@ -376,14 +376,18 @@ module org {
 
                         public save(src: any): string {
                             if (src != null) {
-                                return src.toString();
+                                if (this == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING) {
+                                    return org.kevoree.modeling.api.json.JsonString.encode(src.toString());
+                                } else {
+                                    return src.toString();
+                                }
                             }
                             return "";
                         }
 
                         public load(payload: string): any {
                             if (this == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING) {
-                                return payload;
+                                return org.kevoree.modeling.api.json.JsonString.unescape(payload);
                             }
                             if (this == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.LONG) {
                                 return java.lang.Long.parseLong(payload);

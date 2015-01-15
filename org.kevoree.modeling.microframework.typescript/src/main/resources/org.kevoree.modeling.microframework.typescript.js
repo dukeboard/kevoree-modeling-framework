@@ -123,13 +123,18 @@ var org;
                         };
                         AbstractKDataType.prototype.save = function (src) {
                             if (src != null) {
-                                return src.toString();
+                                if (this == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING) {
+                                    return org.kevoree.modeling.api.json.JsonString.encode(src.toString());
+                                }
+                                else {
+                                    return src.toString();
+                                }
                             }
                             return "";
                         };
                         AbstractKDataType.prototype.load = function (payload) {
                             if (this == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING) {
-                                return payload;
+                                return org.kevoree.modeling.api.json.JsonString.unescape(payload);
                             }
                             if (this == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.LONG) {
                                 return java.lang.Long.parseLong(payload);
