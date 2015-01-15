@@ -10,17 +10,25 @@ public class MMPsiVisitor extends MetaModelVisitor {
 
     private GenerationContext context;
 
-    public MMPsiVisitor(GenerationContext context) {
+    private Boolean enumOnly = false;
+
+    public MMPsiVisitor(GenerationContext context, Boolean enumOnly) {
         this.context = context;
+        this.enumOnly = enumOnly;
     }
 
     @Override
     public void visitDeclaration(MetaModelDeclaration o) {
-        o.acceptChildren(enumVisitor);
-        o.acceptChildren(classVisitor);
+
+        if (enumOnly) {
+            o.acceptChildren(enumVisitor);
+        } else {
+            o.acceptChildren(classVisitor);
+        }
     }
 
-    MetaModelVisitor enumVisitor = new MetaModelVisitor(){
+
+    MetaModelVisitor enumVisitor = new MetaModelVisitor() {
 
         @Override
         public void visitDeclaration(MetaModelDeclaration o) {
@@ -34,7 +42,6 @@ public class MMPsiVisitor extends MetaModelVisitor {
             o.getEnumElemDeclarationList().forEach(enumElement -> {
                 enumClass.addLitteral(enumElement.getText());
             });
-
         }
     };
 
@@ -171,8 +178,14 @@ public class MMPsiVisitor extends MetaModelVisitor {
             resolved = new MModelClass(relationTypeName);
             resolved.setPack(relationTypePackage);
             context.getModel().addClassifier(resolved);
+            return (MModelClass) resolved;
+        } else {
+            if (resolved instanceof MModelClass) {
+                return (MModelClass) resolved;
+            } else {
+                throw new RuntimeException("Naming conflict for " + clazz + ", cannot merge an enum and a class declaration");
+            }
         }
-        return (MModelClass) resolved;
     }
 
     private MModelEnum getOrAddEnum(String clazz) {
@@ -183,8 +196,14 @@ public class MMPsiVisitor extends MetaModelVisitor {
             resolved = new MModelEnum(relationTypeName);
             resolved.setPack(relationTypePackage);
             context.getModel().addClassifier(resolved);
+            return (MModelEnum) resolved;
+        } else {
+            if (resolved instanceof MModelEnum) {
+                return (MModelEnum) resolved;
+            } else {
+                throw new RuntimeException("Naming conflict for " + clazz + ", cannot merge an enum and a class declaration");
+            }
         }
-        return (MModelEnum) resolved;
     }
 
 }

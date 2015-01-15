@@ -62,8 +62,11 @@ public class Generator {
         try {
             StandaloneParser parser = new StandaloneParser();
             PsiFile psi = parser.parser(context.getMetaModel());
-            MMPsiVisitor MMPsiVisitor = new MMPsiVisitor(context);
+            MMPsiVisitor MMPsiVisitor = new MMPsiVisitor(context,true);
             psi.acceptChildren(MMPsiVisitor);
+            MMPsiVisitor MMPsiVisitorClasses = new MMPsiVisitor(context,false);
+            psi.acceptChildren(MMPsiVisitorClasses);
+
             ProcessorHelper.getInstance().consolidate(context.getModel());
             generateUtilities();
             for (MModelClassifier classDecl : context.getModel().getClassifiers()) {
