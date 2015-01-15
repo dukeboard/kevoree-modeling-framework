@@ -90,4 +90,6 @@ public interface KObject {
 
     public <U extends KObject> void jump(Long time, final Callback<U> callback);
 
+    public MetaReference[] referencesWith(KObject o);
+
 }

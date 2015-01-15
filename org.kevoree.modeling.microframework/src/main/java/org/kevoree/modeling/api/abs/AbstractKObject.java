@@ -454,7 +454,7 @@ public abstract class AbstractKObject implements KObject {
                     view().dimension().universe().storage().eventBroker().notify(event);
                 }
                 //Inbounds
-                if(!inDelete){
+                if (!inDelete) {
                     Map<Long, MetaReference> inboundRefs = getOrCreateInbounds(param);
                     if (inboundRefs != null) {
                         inboundRefs.remove(uuid());
@@ -860,11 +860,53 @@ public abstract class AbstractKObject implements KObject {
     }
 
     public MetaOperation internal_transpose_op(MetaOperation p) {
-        return metaClass().metaOperation(p.metaName());
+        if (!Checker.isDefined(p)) {
+            return null;
+        } else {
+            return metaClass().metaOperation(p.metaName());
+        }
     }
 
     public KTraversalPromise traverse(MetaReference p_metaReference) {
         return new DefaultKTraversalPromise(this, p_metaReference);
+    }
+
+    @Override
+    public MetaReference[] referencesWith(KObject o) {
+        if (!Checker.isDefined(o)) {
+            Object[] raw = _view.dimension().universe().storage().raw(this, AccessMode.READ);
+            if (raw != null) {
+                MetaReference[] allReferences = metaClass().metaReferences();
+                List<MetaReference> selected = new ArrayList<MetaReference>();
+                for (int i = 0; i < allReferences.length; i++) {
+                    Object rawI = raw[allReferences[i].index()];
+                    if (rawI instanceof Set) {
+                        try {
+                            Set casted = (Set) rawI;
+                            if (casted.contains(o.uuid())) {
+                                selected.add(allReferences[i]);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else if (rawI != null) {
+                        try {
+                            Long casted = (Long) rawI;
+                            if (casted == o.uuid()) {
+                                selected.add(allReferences[i]);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                return selected.toArray(new MetaReference[selected.size()]);
+            } else {
+                return new MetaReference[0];
+            }
+        } else {
+            return new MetaReference[0];
+        }
     }
 
 }
