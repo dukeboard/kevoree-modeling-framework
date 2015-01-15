@@ -15,6 +15,71 @@ import org.kevoree.modeling.microframework.test.cloud.Node;
 public class JSONSaveTest {
 
     @Test
+    public void escapeJsonTest() {
+        CloudUniverse universe = new CloudUniverse();
+        universe.connect(null);
+        CloudDimension dimension0 = universe.newDimension();
+        CloudView time0 = dimension0.time(0l);
+        Node root = time0.createNode();
+        time0.setRoot(root, null);
+        root.setName("root\nhello");
+        final String[] result = new String[1];
+        time0.json().save(root, new ThrowableCallback<String>() {
+            @Override
+            public void on(String model, Throwable err) {
+                result[0] = model;
+                if (err != null) {
+                    err.printStackTrace();
+                }
+            }
+        });
+        Assert.assertEquals(result[0], "[\n" +
+                "{\n" +
+                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                "\t\"@uuid\" : \"1\",\n" +
+                "\t\"@root\" : \"true\",\n" +
+                "\t\"name\":\"root\\nhello\",\n" +
+                "}\n" +
+                "]\n");
+
+        CloudDimension dimension1 = universe.newDimension();
+        CloudView time10 = dimension1.time(0l);
+        time10.json().load("[\n" +
+                "        {\n" +
+                "            \"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                "                \"@uuid\" : \"1\",\n" +
+                "                \"@root\" : \"true\",\n" +
+                "                \"name\":\"root\\nhello\",\n" +
+                "        }\n" +
+                "        ]", new Callback<Throwable>() {
+            @Override
+            public void on(Throwable throwable) {
+                if (throwable != null) {
+                    throwable.printStackTrace();
+                }
+            }
+        });
+        time10.json().save(root, new ThrowableCallback<String>() {
+            @Override
+            public void on(String model, Throwable err) {
+                result[0] = model;
+                if (err != null) {
+                    err.printStackTrace();
+                }
+            }
+        });
+        Assert.assertEquals(result[0], "[\n" +
+                "{\n" +
+                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                "\t\"@uuid\" : \"1\",\n" +
+                "\t\"@root\" : \"true\",\n" +
+                "\t\"name\":\"root\\nhello\",\n" +
+                "}\n" +
+                "]\n");
+
+    }
+
+    @Test
     public void jsonTest() {
         CloudUniverse universe = new CloudUniverse();
         universe.connect(null);
@@ -22,7 +87,7 @@ public class JSONSaveTest {
 
         CloudView time0 = dimension0.time(0l);
         Node root = time0.createNode();
-        time0.setRoot(root,null);
+        time0.setRoot(root, null);
         root.setName("root");
         Node n1 = time0.createNode();
         n1.setName("n1");

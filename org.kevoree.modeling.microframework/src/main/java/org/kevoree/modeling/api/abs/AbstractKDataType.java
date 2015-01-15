@@ -1,6 +1,8 @@
 package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.KMetaType;
+import org.kevoree.modeling.api.json.JsonString;
+import org.kevoree.modeling.api.json.JsonToken;
 import org.kevoree.modeling.api.meta.PrimitiveMetaTypes;
 
 /**
@@ -30,7 +32,11 @@ public class AbstractKDataType implements KMetaType {
     @Override
     public String save(Object src) {
         if (src != null) {
-            return src.toString();
+            if (this == PrimitiveMetaTypes.STRING) {
+                return JsonString.encode(src.toString());
+            } else {
+                return src.toString();
+            }
         }
         return "";
     }
@@ -38,7 +44,7 @@ public class AbstractKDataType implements KMetaType {
     @Override
     public Object load(String payload) {
         if (this == PrimitiveMetaTypes.STRING) {
-            return payload;
+            return JsonString.unescape(payload);
         }
         if (this == PrimitiveMetaTypes.LONG) {
             return Long.parseLong(payload);
