@@ -873,7 +873,7 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public MetaReference[] referencesWith(KObject o) {
-        if (!Checker.isDefined(o)) {
+        if (Checker.isDefined(o)) {
             Object[] raw = _view.dimension().universe().storage().raw(this, AccessMode.READ);
             if (raw != null) {
                 MetaReference[] allReferences = metaClass().metaReferences();
