@@ -41,7 +41,7 @@ public class WebSocketDataBaseWrapper extends AbstractReceiveListener implements
 
     @Override
     public void connect(Callback<Throwable> callback) {
-        if(wrapped!= null){
+        if (wrapped != null) {
             server = Undertow.builder().addHttpListener(port, "0.0.0.0").setHandler(websocket(this)).build();
             server.start();
             wrapped.connect(callback);
@@ -52,7 +52,7 @@ public class WebSocketDataBaseWrapper extends AbstractReceiveListener implements
 
     @Override
     public void close(Callback<Throwable> callback) {
-        if(wrapped!= null){
+        if (wrapped != null) {
             wrapped.close(new Callback<Throwable>() {
                 @Override
                 public void on(Throwable throwable) {
@@ -105,31 +105,33 @@ public class WebSocketDataBaseWrapper extends AbstractReceiveListener implements
             }
             break;
             case PUT_ACTION: {
-                JsonArray payload = jsonMessage.get("value").asArray();
-                String[][] payloadList = new String[payload.size()][];
-                for (int i = 0; i < payload.size(); i++) {
-                    JsonArray keyValJson = payload.get(i).asArray();
-                    String[] keyVal = new String[2];
-                    keyVal[0] = keyValJson.get(0).asString();
-                    keyVal[1] = keyValJson.get(1).asString();
-                    payloadList[i] = keyVal;
-                }
-                wrapped.put(payloadList, new Callback<Throwable>() {
-                    @Override
-                    public void on(Throwable throwable) {
-                        JsonObject response = new JsonObject();
-                        response.add("action", jsonMessage.get("action").asString());
-                        response.add("id", jsonMessage.get("id").asInt());
-                        if (throwable != null) {
-                            response.add("status", "error");
-                            response.add("value", throwable.getMessage());
-                        } else {
-                            response.add("status", "success");
-                            response.add("value", "null");
-                        }
-                        WebSockets.sendText(response.toString(), channel, null);
+                if (jsonMessage.get("value") != null) {
+                    JsonArray payload = jsonMessage.get("value").asArray();
+                    String[][] payloadList = new String[payload.size()][];
+                    for (int i = 0; i < payload.size(); i++) {
+                        JsonArray keyValJson = payload.get(i).asArray();
+                        String[] keyVal = new String[2];
+                        keyVal[0] = keyValJson.get(0).asString();
+                        keyVal[1] = keyValJson.get(1).asString();
+                        payloadList[i] = keyVal;
                     }
-                });
+                    wrapped.put(payloadList, new Callback<Throwable>() {
+                        @Override
+                        public void on(Throwable throwable) {
+                            JsonObject response = new JsonObject();
+                            response.add("action", jsonMessage.get("action").asString());
+                            response.add("id", jsonMessage.get("id").asInt());
+                            if (throwable != null) {
+                                response.add("status", "error");
+                                response.add("value", throwable.getMessage());
+                            } else {
+                                response.add("status", "success");
+                                response.add("value", "null");
+                            }
+                            WebSockets.sendText(response.toString(), channel, null);
+                        }
+                    });
+                }
             }
             break;
             case REMOVE_ACTION: {
@@ -147,28 +149,28 @@ public class WebSocketDataBaseWrapper extends AbstractReceiveListener implements
 
     @Override
     public void get(String[] keys, ThrowableCallback<String[]> callback) {
-        if(wrapped!= null){
-            wrapped.get(keys,callback);
+        if (wrapped != null) {
+            wrapped.get(keys, callback);
         }
     }
 
     @Override
     public void put(String[][] payloads, Callback<Throwable> error) {
-        if(wrapped!= null){
+        if (wrapped != null) {
             wrapped.put(payloads, error);
         }
     }
 
     @Override
     public void remove(String[] keys, Callback<Throwable> error) {
-        if(wrapped!= null){
+        if (wrapped != null) {
             wrapped.remove(keys, error);
         }
     }
 
     @Override
     public void commit(Callback<Throwable> error) {
-        if(wrapped!= null){
+        if (wrapped != null) {
             wrapped.commit(error);
         }
     }

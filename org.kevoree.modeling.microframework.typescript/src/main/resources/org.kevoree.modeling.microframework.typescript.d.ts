@@ -368,9 +368,6 @@ declare module org {
                         contained(): boolean;
                         constructor(p_name: string, p_index: number, p_contained: boolean, p_single: boolean, p_lazyMetaType: () => meta.Meta, p_lazyMetaOpposite: () => meta.Meta, p_lazyMetaOrigin: () => meta.Meta);
                     }
-                    class DynamicKObject extends AbstractKObject {
-                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
-                    }
                     interface LazyResolver {
                         meta(): meta.Meta;
                     }
@@ -970,6 +967,45 @@ declare module org {
                     }
                 }
                 module reflexive {
+                    class DynamicKDimension extends abs.AbstractKDimension<any, any, any> {
+                        constructor(p_universe: KUniverse<any>, p_key: number);
+                        internal_create(timePoint: number): KView;
+                    }
+                    class DynamicKObject extends abs.AbstractKObject {
+                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
+                    }
+                    class DynamicKUniverse extends abs.AbstractKUniverse<any> {
+                        private _metaModel;
+                        setMetaModel(p_metaModel: meta.MetaModel): void;
+                        metaModel(): meta.MetaModel;
+                        internal_create(key: number): KDimension<any, any, any>;
+                    }
+                    class DynamicKView extends abs.AbstractKView {
+                        constructor(p_now: number, p_dimension: KDimension<any, any, any>);
+                        internalCreate(clazz: meta.MetaClass, timeTree: time.TimeTree, key: number): KObject;
+                    }
+                    class DynamicMetaClass extends abs.AbstractMetaClass {
+                        private cached_attributes;
+                        private cached_references;
+                        private cached_methods;
+                        private _globalIndex;
+                        constructor(p_name: string, p_index: number);
+                        addAttribute(p_name: string, p_type: KMetaType): DynamicMetaClass;
+                        addReference(p_name: string, p_metaClass: meta.MetaClass): DynamicMetaClass;
+                        addOperation(p_name: string): DynamicMetaClass;
+                        private internalInit();
+                    }
+                    class DynamicMetaModel implements meta.MetaModel {
+                        private _metaName;
+                        private _classes;
+                        constructor(p_metaName: string);
+                        metaClasses(): meta.MetaClass[];
+                        metaClass(name: string): meta.MetaClass;
+                        metaName(): string;
+                        index(): number;
+                        createMetaClass(name: string): DynamicMetaClass;
+                        universe(): KUniverse<any>;
+                    }
                 }
                 module select {
                     class KQuery {

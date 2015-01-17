@@ -1776,14 +1776,6 @@ module org {
 
                     }
 
-                    export class DynamicKObject extends org.kevoree.modeling.api.abs.AbstractKObject {
-
-                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_timeTree: org.kevoree.modeling.api.time.TimeTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
-                            super(p_view, p_uuid, p_timeTree, p_metaClass);
-                        }
-
-                    }
-
                     export interface LazyResolver {
 
                         meta(): org.kevoree.modeling.api.meta.Meta;
@@ -5772,6 +5764,169 @@ module org {
                     }
                 }
                 export module reflexive {
+                    export class DynamicKDimension extends org.kevoree.modeling.api.abs.AbstractKDimension<any, any, any> {
+
+                        constructor(p_universe: org.kevoree.modeling.api.KUniverse<any>, p_key: number) {
+                            super(p_universe, p_key);
+                        }
+
+                        public internal_create(timePoint: number): org.kevoree.modeling.api.KView {
+                            return new org.kevoree.modeling.api.reflexive.DynamicKView(timePoint, this);
+                        }
+
+                    }
+
+                    export class DynamicKObject extends org.kevoree.modeling.api.abs.AbstractKObject {
+
+                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_timeTree: org.kevoree.modeling.api.time.TimeTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
+                            super(p_view, p_uuid, p_timeTree, p_metaClass);
+                        }
+
+                    }
+
+                    export class DynamicKUniverse extends org.kevoree.modeling.api.abs.AbstractKUniverse<any> {
+
+                        private _metaModel: org.kevoree.modeling.api.meta.MetaModel = null;
+                        public setMetaModel(p_metaModel: org.kevoree.modeling.api.meta.MetaModel): void {
+                            this._metaModel = p_metaModel;
+                        }
+
+                        public metaModel(): org.kevoree.modeling.api.meta.MetaModel {
+                            return this._metaModel;
+                        }
+
+                        public internal_create(key: number): org.kevoree.modeling.api.KDimension<any, any, any> {
+                            return new org.kevoree.modeling.api.reflexive.DynamicKDimension(this, key);
+                        }
+
+                    }
+
+                    export class DynamicKView extends org.kevoree.modeling.api.abs.AbstractKView {
+
+                        constructor(p_now: number, p_dimension: org.kevoree.modeling.api.KDimension<any, any, any>) {
+                            super(p_now, p_dimension);
+                        }
+
+                        public internalCreate(clazz: org.kevoree.modeling.api.meta.MetaClass, timeTree: org.kevoree.modeling.api.time.TimeTree, key: number): org.kevoree.modeling.api.KObject {
+                            return new org.kevoree.modeling.api.reflexive.DynamicKObject(this, key, timeTree, clazz);
+                        }
+
+                    }
+
+                    export class DynamicMetaClass extends org.kevoree.modeling.api.abs.AbstractMetaClass {
+
+                        private cached_attributes: java.util.HashMap<string, org.kevoree.modeling.api.meta.MetaAttribute> = new java.util.HashMap<string, org.kevoree.modeling.api.meta.MetaAttribute>();
+                        private cached_references: java.util.HashMap<string, org.kevoree.modeling.api.meta.MetaReference> = new java.util.HashMap<string, org.kevoree.modeling.api.meta.MetaReference>();
+                        private cached_methods: java.util.HashMap<string, org.kevoree.modeling.api.meta.MetaOperation> = new java.util.HashMap<string, org.kevoree.modeling.api.meta.MetaOperation>();
+                        private _globalIndex: number = 0;
+                        constructor(p_name: string, p_index: number) {
+                            super(p_name, p_index);
+                        }
+
+                        public addAttribute(p_name: string, p_type: org.kevoree.modeling.api.KMetaType): org.kevoree.modeling.api.reflexive.DynamicMetaClass {
+                            var tempAttribute: org.kevoree.modeling.api.abs.AbstractMetaAttribute = new org.kevoree.modeling.api.abs.AbstractMetaAttribute(p_name, this._globalIndex, -1, false, p_type, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+                            this.cached_attributes.put(tempAttribute.metaName(), tempAttribute);
+                            this._globalIndex = this._globalIndex + 1;
+                            this.internalInit();
+                            return this;
+                        }
+
+                        public addReference(p_name: string, p_metaClass: org.kevoree.modeling.api.meta.MetaClass): org.kevoree.modeling.api.reflexive.DynamicMetaClass {
+                            var tempOrigin: org.kevoree.modeling.api.meta.MetaClass = this;
+                            var tempReference: org.kevoree.modeling.api.abs.AbstractMetaReference = new org.kevoree.modeling.api.abs.AbstractMetaReference(p_name, this._globalIndex, false, false,  () => {
+                                return p_metaClass;
+                            }, null,  () => {
+                                return tempOrigin;
+                            });
+                            this.cached_references.put(tempReference.metaName(), tempReference);
+                            this._globalIndex = this._globalIndex + 1;
+                            this.internalInit();
+                            return this;
+                        }
+
+                        public addOperation(p_name: string): org.kevoree.modeling.api.reflexive.DynamicMetaClass {
+                            var tempOrigin: org.kevoree.modeling.api.meta.MetaClass = this;
+                            var tempOperation: org.kevoree.modeling.api.abs.AbstractMetaOperation = new org.kevoree.modeling.api.abs.AbstractMetaOperation(p_name, this._globalIndex,  () => {
+                                return tempOrigin;
+                            });
+                            this.cached_methods.put(tempOperation.metaName(), tempOperation);
+                            this._globalIndex = this._globalIndex + 1;
+                            this.internalInit();
+                            return this;
+                        }
+
+                        private internalInit(): void {
+                            var tempAttributes: org.kevoree.modeling.api.meta.MetaAttribute[] = new Array();
+                            var tempReference: org.kevoree.modeling.api.meta.MetaReference[] = new Array();
+                            var tempOperation: org.kevoree.modeling.api.meta.MetaOperation[] = new Array();
+                            var keysAttributes: string[] = this.cached_attributes.keySet().toArray(new Array());
+                            for (var i: number = 0; i < keysAttributes.length; i++) {
+                                var resAtt: org.kevoree.modeling.api.meta.MetaAttribute = this.cached_attributes.get(keysAttributes[i]);
+                                tempAttributes[resAtt.index()] = resAtt;
+                            }
+                            var keysReferences: string[] = this.cached_references.keySet().toArray(new Array());
+                            for (var i: number = 0; i < keysReferences.length; i++) {
+                                var resRef: org.kevoree.modeling.api.meta.MetaReference = this.cached_references.get(keysReferences[i]);
+                                tempReference[resRef.index()] = resRef;
+                            }
+                            var keysOperations: string[] = this.cached_methods.keySet().toArray(new Array());
+                            for (var i: number = 0; i < keysOperations.length; i++) {
+                                var resOp: org.kevoree.modeling.api.meta.MetaOperation = this.cached_methods.get(keysOperations[i]);
+                                tempOperation[resOp.index()] = resOp;
+                            }
+                            this.init(tempAttributes, tempReference, tempOperation);
+                        }
+
+                    }
+
+                    export class DynamicMetaModel implements org.kevoree.modeling.api.meta.MetaModel {
+
+                        private _metaName: string = null;
+                        private _classes: java.util.HashMap<string, org.kevoree.modeling.api.meta.MetaClass> = new java.util.HashMap<string, org.kevoree.modeling.api.meta.MetaClass>();
+                        constructor(p_metaName: string) {
+                            this._metaName = p_metaName;
+                        }
+
+                        public metaClasses(): org.kevoree.modeling.api.meta.MetaClass[] {
+                            var tempResult: org.kevoree.modeling.api.meta.MetaClass[] = new Array();
+                            var keys: string[] = this._classes.keySet().toArray(new Array());
+                            for (var i: number = 0; i < keys.length; i++) {
+                                var res: org.kevoree.modeling.api.meta.MetaClass = this._classes.get(keys[i]);
+                                tempResult[res.index()] = res;
+                            }
+                            return tempResult;
+                        }
+
+                        public metaClass(name: string): org.kevoree.modeling.api.meta.MetaClass {
+                            return this._classes.get(name);
+                        }
+
+                        public metaName(): string {
+                            return this._metaName;
+                        }
+
+                        public index(): number {
+                            return -1;
+                        }
+
+                        public createMetaClass(name: string): org.kevoree.modeling.api.reflexive.DynamicMetaClass {
+                            if (this._classes.containsKey(name)) {
+                                return <org.kevoree.modeling.api.reflexive.DynamicMetaClass>this._classes.get(name);
+                            } else {
+                                var dynamicMetaClass: org.kevoree.modeling.api.reflexive.DynamicMetaClass = new org.kevoree.modeling.api.reflexive.DynamicMetaClass(name, this._classes.keySet().size());
+                                this._classes.put(name, dynamicMetaClass);
+                                return dynamicMetaClass;
+                            }
+                        }
+
+                        public universe(): org.kevoree.modeling.api.KUniverse<any> {
+                            var universe: org.kevoree.modeling.api.reflexive.DynamicKUniverse = new org.kevoree.modeling.api.reflexive.DynamicKUniverse();
+                            universe.setMetaModel(this);
+                            return universe;
+                        }
+
+                    }
+
                 }
                 export module select {
                     export class KQuery {

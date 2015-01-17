@@ -330,7 +330,11 @@ public abstract class AbstractKObject implements KObject {
     public void internal_mutate(KActionType actionType, final MetaReference metaReferenceP, KObject param, final boolean setOpposite, final boolean inDelete) {
         MetaReference metaReference = internal_transpose_ref(metaReferenceP);
         if (metaReference == null) {
-            throw new RuntimeException("Bad KMF usage, the attribute named " + metaReferenceP.metaName() + " is not part of " + metaClass().metaName());
+            if(metaReferenceP == null){
+                throw new RuntimeException("Bad KMF usage, the reference " + " is null in metaClass named " + metaClass().metaName());
+            } else {
+                throw new RuntimeException("Bad KMF usage, the reference named " + metaReferenceP.metaName() + " is not part of " + metaClass().metaName());
+            }
         }
         if (actionType.equals(KActionType.ADD)) {
             if (metaReference.single()) {

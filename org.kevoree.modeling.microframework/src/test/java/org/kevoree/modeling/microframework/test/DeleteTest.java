@@ -145,7 +145,7 @@ public class DeleteTest {
         factory.json().save(n, new ThrowableCallback<String>() {
             @Override
             public void on(String s, Throwable error) {
-                System.err.println(s);
+               // System.err.println(s);
             }
         });
 
