@@ -100,11 +100,11 @@ public class Generator {
 
     private void generateUtilities() {
 
+        Path modelFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + context.getMetaModelPackage().replace(".", File.separator) + File.separator + context.getMetaModelName() + "Model.java");
+        callVelocity(modelFilePath, "vTemplates/ModelTemplate.vm", context);
+
         Path universeFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + context.getMetaModelPackage().replace(".", File.separator) + File.separator + context.getMetaModelName() + "Universe.java");
         callVelocity(universeFilePath, "vTemplates/UniverseTemplate.vm", context);
-
-        Path dimensionFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + context.getMetaModelPackage().replace(".", File.separator) + File.separator + context.getMetaModelName() + "Dimension.java");
-        callVelocity(dimensionFilePath, "vTemplates/DimensionTemplate.vm", context);
 
         Path viewFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + context.getMetaModelPackage().replace(".", File.separator) + File.separator + context.getMetaModelName() + "View.java");
         callVelocity(viewFilePath, "vTemplates/ViewTemplate.vm", context);

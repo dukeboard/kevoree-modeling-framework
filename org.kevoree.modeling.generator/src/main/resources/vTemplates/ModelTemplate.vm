@@ -1,0 +1,28 @@
+package $context.metaModelPackage;
+
+public class ${context.metaModelName}Model extends org.kevoree.modeling.api.abs.AbstractKModel<${context.metaModelName}Universe> {
+
+    private org.kevoree.modeling.api.meta.MetaModel _metaModel;
+
+    public ${context.metaModelName}Model() {
+        super();
+        _metaModel = new org.kevoree.modeling.api.abs.AbstractMetaModel("${context.metaModelName}", -1);
+        org.kevoree.modeling.api.meta.MetaClass[] tempMetaClasses = new org.kevoree.modeling.api.meta.MetaClass[${context.model.getClasses().size()}];
+        #foreach($class in $context.model.getClasses())
+            tempMetaClasses[${class.index}] = ${class.pack}.meta.Meta${class.name}.getInstance();
+        #end
+        ((org.kevoree.modeling.api.abs.AbstractMetaModel) _metaModel).init(tempMetaClasses);
+    }
+
+    @Override
+    protected ${context.metaModelName}Universe internal_create(long key) {
+        return new ${context.metaModelName}Universe(this,key);
+    }
+
+    @Override
+    public org.kevoree.modeling.api.meta.MetaModel metaModel() {
+        return _metaModel;
+    }
+}
+    
+#* @vtlvariable name="context" type="org.kevoree.modeling.generator.GenerationContext" *#

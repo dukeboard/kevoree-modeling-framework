@@ -21,9 +21,9 @@ public class SaveXMITest {
     @Test
     public void saveXmiTest() {
 
-        FSMUniverse fsmU = new FSMUniverse();
+        FSMModel fsmU = new FSMModel();
         fsmU.connect(null);
-        FSMDimension fsmDim = fsmU.newDimension();
+        FSMUniverse fsmDim = fsmU.newUniverse();
         FSMView localView = fsmDim.time(0L);
 
         FSM fsm = localView.createFSM();
@@ -76,7 +76,7 @@ public class SaveXMITest {
         System.out.println("Model:" + model[0]);
 
         System.out.println("Loading !");
-        FSMDimension fsmDim2 = fsmU.newDimension();
+        FSMUniverse fsmDim2 = fsmU.newUniverse();
         FSMView loadView = fsmDim2.time(0L);
         loadView.xmi().load(model[0], new Callback<Throwable>() {
             @Override

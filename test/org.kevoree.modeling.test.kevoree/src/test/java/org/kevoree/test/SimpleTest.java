@@ -1,5 +1,6 @@
 package org.kevoree.test;
 
+import org.KevoreeModel;
 import org.KevoreeUniverse;
 import org.junit.Test;
 import org.kevoree.ContainerNode;
@@ -16,17 +17,17 @@ public class SimpleTest {
 
         MemoryKDataBase.DEBUG = true;
 
-        KevoreeUniverse universe = new KevoreeUniverse();
-        universe.connect(null);
-        ContainerRoot root = universe.dimension(0).time(0).createContainerRoot();
-        universe.dimension(0).time(0).setRoot(root, null);
+        KevoreeModel model = new KevoreeModel();
+        model.connect(null);
+        ContainerRoot root = model.universe(0).time(0).createContainerRoot();
+        model.universe(0).time(0).setRoot(root, null);
         System.out.println(root.timeTree().last());
 
-        ContainerNode node = universe.dimension(0).time(0).createContainerNode();
+        ContainerNode node = model.universe(0).time(0).createContainerNode();
         node.setName("node0");
         root.addNodes(node);
 
-        universe.dimension(0).save(null);
+        model.universe(0).save(null);
 
     }
 

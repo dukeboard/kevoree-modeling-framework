@@ -1,6 +1,6 @@
 package org.kevoree.cloud.test;
 
-import cloud.CloudDimension;
+import cloud.CloudModel;
 import cloud.CloudUniverse;
 import cloud.CloudView;
 import cloud.Element;
@@ -21,15 +21,15 @@ public class CloudOperationTest {
 
     @Test
     public void operationTest() {
-        CloudUniverse universe = new CloudUniverse();
-        universe.connect(null);
-        universe.setOperation(MetaElement.OP_TRIGGER, new KOperation() {
+        CloudModel model = new CloudModel();
+        model.connect(null);
+        model.setOperation(MetaElement.OP_TRIGGER, new KOperation() {
             public void on(KObject source, Object[] params, Callback<Object> result) {
-                result.on("Hey. I received Parameter:" + Arrays.toString(params) + " on element:(" + source.dimension().key() + "," + source.now() + "," + source.uuid() + ")");
+                result.on("Hey. I received Parameter:" + Arrays.toString(params) + " on element:(" + source.universe().key() + "," + source.now() + "," + source.uuid() + ")");
             }
         });
-        CloudDimension dimension = universe.newDimension();
-        CloudView view = dimension.time(0L);
+        CloudUniverse universe = model.newUniverse();
+        CloudView view = universe.time(0L);
         Element elem = view.createElement();
         elem.trigger("StringParam", 100, new Callback<String>() {
             @Override

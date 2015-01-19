@@ -8,7 +8,7 @@ public interface ${context.metaModelName}View extends org.kevoree.modeling.api.K
 #end
 
     @Override
-    public ${context.metaModelPackage}.${context.metaModelName}Dimension dimension();
+    public ${context.metaModelPackage}.${context.metaModelName}Universe universe();
 
 }
 

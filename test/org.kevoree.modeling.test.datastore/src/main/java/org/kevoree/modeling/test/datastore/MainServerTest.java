@@ -25,19 +25,19 @@ public class MainServerTest {
 
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-        GeometryUniverse geoUniverse = new GeometryUniverse();
-        WebSocketDataBaseWrapper wsDbWrapper = new WebSocketDataBaseWrapper(geoUniverse.storage().dataBase(), 23664);
-        geoUniverse.setDataBase(wsDbWrapper);
+        GeometryModel geoModel = new GeometryModel();
+        WebSocketDataBaseWrapper wsDbWrapper = new WebSocketDataBaseWrapper(geoModel.storage().dataBase(), 23664);
+        geoModel.setDataBase(wsDbWrapper);
         WebSocketBroker wsb = new WebSocketBroker("0.0.0.0", 23665);
-        geoUniverse.setEventBroker(wsb);
+        geoModel.setEventBroker(wsb);
 
-        geoUniverse.connect(new Callback<Throwable>() {
+        geoModel.connect(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
-                if(throwable != null) {
+                if (throwable != null) {
                     throwable.printStackTrace();
                 } else {
-                    GeometryDimension dimension = geoUniverse.dimension(0);
+                    GeometryUniverse dimension = geoModel.universe(0);
                     GeometryView geoFactory = dimension.time(originOfTime);
                     geoFactory.select("/", results -> {
                         if (results == null || results.length == 0) {
@@ -50,8 +50,8 @@ public class MainServerTest {
                                     }
                                 }
                             });
-                            for(int i = 0; i < 3; i++) {
-                                lib.addShapes(geoFactory.createShape().setName("ShapeO" + i).setColor(colors[i%3]));
+                            for (int i = 0; i < 3; i++) {
+                                lib.addShapes(geoFactory.createShape().setName("ShapeO" + i).setColor(colors[i % 3]));
 
                             }
 
@@ -79,8 +79,9 @@ public class MainServerTest {
 
         Runnable task = new Runnable() {
             int turn = 0, i = 0;
+
             public void run() {
-                GeometryDimension dimension = geoUniverse.dimension(0);
+                GeometryUniverse dimension = geoModel.universe(0);
                 GeometryView geoFactory = dimension.time(originOfTime);
                 geoFactory.select("/", results -> {
                     if (results == null || results.length == 0) {
@@ -88,7 +89,7 @@ public class MainServerTest {
                     } else {
                         Library root = (Library) results[0];
                         root.eachShapes((shapes) -> {
-                            if(shapes != null) {
+                            if (shapes != null) {
                                 for (Shape shape : shapes) {
                                     i++;
                                     shape.setColor(colors[(turn + i) % 3]);

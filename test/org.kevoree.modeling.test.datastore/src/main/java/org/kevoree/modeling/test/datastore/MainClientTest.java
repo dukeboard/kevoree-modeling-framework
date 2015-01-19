@@ -1,9 +1,11 @@
 package org.kevoree.modeling.test.datastore;
 
+import geometry.GeometryModel;
 import geometry.GeometryUniverse;
 import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.databases.websocket.WebSocketBroker;
+
 import java.util.concurrent.Semaphore;
 
 /**
@@ -16,10 +18,10 @@ public class MainClientTest {
 
         Semaphore s = new Semaphore(0);
 
-        GeometryUniverse geoUniverse = new GeometryUniverse();
-        geoUniverse.storage().setEventBroker(new WebSocketBroker("localhost", 23665));
+        GeometryModel geoModel = new GeometryModel();
+        geoModel.storage().setEventBroker(new WebSocketBroker("localhost", 23665));
 
-        geoUniverse.listen(new ModelListener() {
+        geoModel.listen(new ModelListener() {
             @Override
             public void on(KEvent evt) {
                 System.out.println("Event:" + evt.toJSON());

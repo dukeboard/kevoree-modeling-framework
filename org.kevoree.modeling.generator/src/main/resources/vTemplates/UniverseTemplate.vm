@@ -1,28 +1,16 @@
-package $context.metaModelPackage;
+package ${context.metaModelPackage};
 
-public class ${context.metaModelName}Universe extends org.kevoree.modeling.api.abs.AbstractKUniverse<${context.metaModelName}Dimension> {
+public class ${context.metaModelName}Universe extends org.kevoree.modeling.api.abs.AbstractKUniverse<${context.metaModelName}View, ${context.metaModelName}Universe, ${context.metaModelName}Model> {
 
-    private org.kevoree.modeling.api.meta.MetaModel _metaModel;
-
-    public ${context.metaModelName}Universe() {
-        super();
-        _metaModel = new org.kevoree.modeling.api.abs.AbstractMetaModel("${context.metaModelName}", -1);
-        org.kevoree.modeling.api.meta.MetaClass[] tempMetaClasses = new org.kevoree.modeling.api.meta.MetaClass[${context.model.getClasses().size()}];
-        #foreach($class in $context.model.getClasses())
-            tempMetaClasses[${class.index}] = ${class.pack}.meta.Meta${class.name}.getInstance();
-        #end
-        ((org.kevoree.modeling.api.abs.AbstractMetaModel) _metaModel).init(tempMetaClasses);
+    protected ${context.metaModelName}Universe(org.kevoree.modeling.api.KModel p_model, long key) {
+        super(p_model, key);
     }
 
     @Override
-    protected ${context.metaModelName}Dimension internal_create(long key) {
-        return new ${context.metaModelName}Dimension(this,key);
+    protected ${context.metaModelName}View internal_create(Long timePoint) {
+        return new ${context.metaModelPackage}.impl.${context.metaModelName}ViewImpl(timePoint,(org.kevoree.modeling.api.abs.AbstractKUniverse)this);
     }
 
-    @Override
-    public org.kevoree.modeling.api.meta.MetaModel metaModel() {
-        return _metaModel;
-    }
 }
-    
+
 #* @vtlvariable name="context" type="org.kevoree.modeling.generator.GenerationContext" *#

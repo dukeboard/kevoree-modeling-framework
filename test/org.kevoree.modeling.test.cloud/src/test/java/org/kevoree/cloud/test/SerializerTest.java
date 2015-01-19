@@ -21,9 +21,9 @@ public class SerializerTest {
         try {
             Semaphore s = new Semaphore(0);
 
-            CloudUniverse universe = new CloudUniverse();
+            CloudModel universe = new CloudModel();
             universe.connect(null);
-            CloudDimension dimension0 = universe.newDimension();
+            CloudUniverse dimension0 = universe.newUniverse();
             CloudView t0 = dimension0.time(0l);
             Node nodeT0 = t0.createNode();
             nodeT0.setName("node0");

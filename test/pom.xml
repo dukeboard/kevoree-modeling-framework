@@ -20,7 +20,7 @@
     </licenses>
 
     <properties>
-        <kmf.version>4.9.1</kmf.version>
+        <kmf.version>4.9.2-SNAPSHOT</kmf.version>
     </properties>
 
     <developers>

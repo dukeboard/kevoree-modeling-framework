@@ -106,7 +106,7 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
         ${operation.name}_params[$paramIndex] = $p.name;
 #set($paramIndex = $paramIndex + 1)
 #{end}
-        view().dimension().universe().storage().operationManager().call(this, ${classDeclaration.pack}.meta.Meta${classDeclaration.name}.OP_${operation.name.toUpperCase()}, ${operation.name}_params, new org.kevoree.modeling.api.Callback<Object>() {
+        view().universe().model().storage().operationManager().call(this, ${classDeclaration.pack}.meta.Meta${classDeclaration.name}.OP_${operation.name.toUpperCase()}, ${operation.name}_params, new org.kevoree.modeling.api.Callback<Object>() {
             public void on(Object o) {
                 if(result!=null){
                     result.on((#if(${operation.returnParam})$operation.returnParam.type#{else}Boolean#end)o);
