@@ -27,21 +27,6 @@ declare module org {
                     static _KActionTypeVALUES: KActionType[];
                     static values(): KActionType[];
                 }
-                interface KDimension<A extends KView, B extends KDimension<any, any, any>, C extends KUniverse<any>> {
-                    key(): number;
-                    parent(callback: (p: B) => void): void;
-                    children(callback: (p: B[]) => void): void;
-                    fork(callback: (p: B) => void): void;
-                    save(callback: (p: java.lang.Throwable) => void): void;
-                    saveUnload(callback: (p: java.lang.Throwable) => void): void;
-                    delete(callback: (p: java.lang.Throwable) => void): void;
-                    discard(callback: (p: java.lang.Throwable) => void): void;
-                    time(timePoint: number): A;
-                    universe(): C;
-                    equals(other: any): boolean;
-                    listen(listener: (p: KEvent) => void): void;
-                    listenAllTimes(target: KObject, listener: (p: KEvent) => void): void;
-                }
                 interface KEvent {
                     dimension(): number;
                     time(): number;
@@ -53,9 +38,9 @@ declare module org {
                     toJSON(): string;
                     toTrace(): trace.ModelTrace;
                 }
-                interface KInfer<A> extends KObject {
-                    infer(callback: (p: A) => void): void;
-                    learn(param: A, callback: (p: java.lang.Throwable) => void): void;
+                interface KInfer extends KObject {
+                    learn(inputs: any[], results: any[], callback: (p: java.lang.Throwable) => void): void;
+                    infer(inputs: any[], callback: (p: any[]) => void): void;
                 }
                 interface KMetaType {
                     name(): string;
@@ -63,8 +48,25 @@ declare module org {
                     save(src: any): string;
                     load(payload: string): any;
                 }
+                interface KModel<A extends KUniverse<any, any, any>> {
+                    connect(callback: (p: java.lang.Throwable) => void): void;
+                    close(callback: (p: java.lang.Throwable) => void): void;
+                    newDimension(): A;
+                    dimension(key: number): A;
+                    saveAll(callback: (p: boolean) => void): void;
+                    deleteAll(callback: (p: boolean) => void): void;
+                    unloadAll(callback: (p: boolean) => void): void;
+                    disable(listener: (p: KEvent) => void): void;
+                    stream(query: string, callback: (p: KObject) => void): void;
+                    storage(): data.KStore;
+                    listen(listener: (p: KEvent) => void): void;
+                    setEventBroker(eventBroker: event.KEventBroker): KModel<any>;
+                    setDataBase(dataBase: data.KDataBase): KModel<any>;
+                    setOperation(metaOperation: meta.MetaOperation, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
+                    metaModel(): meta.MetaModel;
+                }
                 interface KObject {
-                    dimension(): KDimension<any, any, any>;
+                    dimension(): KUniverse<any, any, any>;
                     isRoot(): boolean;
                     uuid(): number;
                     path(callback: (p: string) => void): void;
@@ -86,7 +88,7 @@ declare module org {
                     mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject): void;
                     all(metaReference: meta.MetaReference, callback: (p: KObject[]) => void): void;
                     single(metaReference: meta.MetaReference, callback: (p: KObject) => void): void;
-                    traverse(metaReference: meta.MetaReference): promise.KTraversalPromise;
+                    traverse(metaReference: meta.MetaReference): traversal.KTraversalPromise;
                     inbounds(callback: (p: InboundReference) => void, end: (p: java.lang.Throwable) => void): void;
                     traces(request: TraceRequest): trace.ModelTrace[];
                     get(attribute: meta.MetaAttribute): any;
@@ -103,22 +105,20 @@ declare module org {
                 interface KOperation {
                     on(source: KObject, params: any[], result: (p: any) => void): void;
                 }
-                interface KUniverse<A extends KDimension<any, any, any>> {
-                    connect(callback: (p: java.lang.Throwable) => void): void;
-                    close(callback: (p: java.lang.Throwable) => void): void;
-                    newDimension(): A;
-                    dimension(key: number): A;
-                    saveAll(callback: (p: boolean) => void): void;
-                    deleteAll(callback: (p: boolean) => void): void;
-                    unloadAll(callback: (p: boolean) => void): void;
-                    disable(listener: (p: KEvent) => void): void;
-                    stream(query: string, callback: (p: KObject) => void): void;
-                    storage(): data.KStore;
+                interface KUniverse<A extends KView, B extends KUniverse<any, any, any>, C extends KModel<any>> {
+                    key(): number;
+                    split(callback: (p: B) => void): void;
+                    origin(callback: (p: B) => void): void;
+                    descendants(callback: (p: B[]) => void): void;
+                    save(callback: (p: java.lang.Throwable) => void): void;
+                    saveUnload(callback: (p: java.lang.Throwable) => void): void;
+                    delete(callback: (p: java.lang.Throwable) => void): void;
+                    discard(callback: (p: java.lang.Throwable) => void): void;
+                    time(timePoint: number): A;
+                    model(): C;
+                    equals(other: any): boolean;
                     listen(listener: (p: KEvent) => void): void;
-                    setEventBroker(eventBroker: event.KEventBroker): KUniverse<any>;
-                    setDataBase(dataBase: data.KDataBase): KUniverse<any>;
-                    setOperation(metaOperation: meta.MetaOperation, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
-                    metaModel(): meta.MetaModel;
+                    listenAllTimes(target: KObject, listener: (p: KEvent) => void): void;
                 }
                 interface KView {
                     createFQN(metaClassName: string): KObject;
@@ -127,7 +127,7 @@ declare module org {
                     select(query: string, callback: (p: KObject[]) => void): void;
                     lookup(key: number, callback: (p: KObject) => void): void;
                     lookupAll(keys: number[], callback: (p: KObject[]) => void): void;
-                    dimension(): KDimension<any, any, any>;
+                    universe(): KUniverse<any, any, any>;
                     now(): number;
                     listen(listener: (p: KEvent) => void): void;
                     slice(elems: java.util.List<KObject>, callback: (p: trace.TraceSequence) => void): void;
@@ -177,24 +177,25 @@ declare module org {
                         save(src: any): string;
                         load(payload: string): any;
                     }
-                    class AbstractKDimension<A extends KView, B extends KDimension<any, any, any>, C extends KUniverse<any>> implements KDimension<any, any, any> {
-                        private _universe;
-                        private _key;
-                        constructor(p_universe: KUniverse<any>, p_key: number);
-                        key(): number;
-                        universe(): C;
-                        save(callback: (p: java.lang.Throwable) => void): void;
-                        saveUnload(callback: (p: java.lang.Throwable) => void): void;
-                        delete(callback: (p: java.lang.Throwable) => void): void;
-                        discard(callback: (p: java.lang.Throwable) => void): void;
-                        parent(callback: (p: B) => void): void;
-                        children(callback: (p: B[]) => void): void;
-                        fork(callback: (p: B) => void): void;
-                        time(timePoint: number): A;
+                    class AbstractKModel<A extends KUniverse<any, any, any>> implements KModel<any> {
+                        private _storage;
+                        metaModel(): meta.MetaModel;
+                        constructor();
+                        connect(callback: (p: java.lang.Throwable) => void): void;
+                        close(callback: (p: java.lang.Throwable) => void): void;
+                        storage(): data.KStore;
+                        newDimension(): A;
+                        internal_create(key: number): A;
+                        dimension(key: number): A;
+                        saveAll(callback: (p: boolean) => void): void;
+                        deleteAll(callback: (p: boolean) => void): void;
+                        unloadAll(callback: (p: boolean) => void): void;
+                        disable(listener: (p: KEvent) => void): void;
+                        stream(query: string, callback: (p: KObject) => void): void;
                         listen(listener: (p: KEvent) => void): void;
-                        listenAllTimes(target: KObject, listener: (p: KEvent) => void): void;
-                        internal_create(timePoint: number): A;
-                        equals(obj: any): boolean;
+                        setEventBroker(eventBroker: event.KEventBroker): KModel<any>;
+                        setDataBase(dataBase: data.KDataBase): KModel<any>;
+                        setOperation(metaOperation: meta.MetaOperation, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
                     }
                     class AbstractKObject implements KObject {
                         private _view;
@@ -209,7 +210,7 @@ declare module org {
                         setRoot(isRoot: boolean): void;
                         now(): number;
                         timeTree(): time.TimeTree;
-                        dimension(): KDimension<any, any, any>;
+                        dimension(): KUniverse<any, any, any>;
                         path(callback: (p: string) => void): void;
                         parentUuid(): number;
                         parent(callback: (p: KObject) => void): void;
@@ -246,40 +247,39 @@ declare module org {
                         internal_transpose_ref(p: meta.MetaReference): meta.MetaReference;
                         internal_transpose_att(p: meta.MetaAttribute): meta.MetaAttribute;
                         internal_transpose_op(p: meta.MetaOperation): meta.MetaOperation;
-                        traverse(p_metaReference: meta.MetaReference): promise.KTraversalPromise;
+                        traverse(p_metaReference: meta.MetaReference): traversal.KTraversalPromise;
                         referencesWith(o: KObject): meta.MetaReference[];
                     }
-                    class AbstractKObjectInfer<A> extends AbstractKObject implements KInfer<any> {
+                    class AbstractKObjectInfer<A> extends AbstractKObject implements KInfer {
                         constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
-                        infer(callback: (p: A) => void): void;
-                        learn(param: A, callback: (p: java.lang.Throwable) => void): void;
+                        learn(inputs: any[], results: any[], callback: (p: java.lang.Throwable) => void): void;
+                        infer(inputs: any[], callback: (p: any[]) => void): void;
                     }
-                    class AbstractKUniverse<A extends KDimension<any, any, any>> implements KUniverse<any> {
-                        private _storage;
-                        metaModel(): meta.MetaModel;
-                        constructor();
-                        connect(callback: (p: java.lang.Throwable) => void): void;
-                        close(callback: (p: java.lang.Throwable) => void): void;
-                        storage(): data.KStore;
-                        newDimension(): A;
-                        internal_create(key: number): A;
-                        dimension(key: number): A;
-                        saveAll(callback: (p: boolean) => void): void;
-                        deleteAll(callback: (p: boolean) => void): void;
-                        unloadAll(callback: (p: boolean) => void): void;
-                        disable(listener: (p: KEvent) => void): void;
-                        stream(query: string, callback: (p: KObject) => void): void;
+                    class AbstractKUniverse<A extends KView, B extends KUniverse<any, any, any>, C extends KModel<any>> implements KUniverse<any, any, any> {
+                        private _model;
+                        private _key;
+                        constructor(p_model: KModel<any>, p_key: number);
+                        key(): number;
+                        model(): C;
+                        save(callback: (p: java.lang.Throwable) => void): void;
+                        saveUnload(callback: (p: java.lang.Throwable) => void): void;
+                        delete(callback: (p: java.lang.Throwable) => void): void;
+                        discard(callback: (p: java.lang.Throwable) => void): void;
+                        time(timePoint: number): A;
                         listen(listener: (p: KEvent) => void): void;
-                        setEventBroker(eventBroker: event.KEventBroker): KUniverse<any>;
-                        setDataBase(dataBase: data.KDataBase): KUniverse<any>;
-                        setOperation(metaOperation: meta.MetaOperation, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
+                        listenAllTimes(target: KObject, listener: (p: KEvent) => void): void;
+                        internal_create(timePoint: number): A;
+                        equals(obj: any): boolean;
+                        origin(callback: (p: B) => void): void;
+                        split(callback: (p: B) => void): void;
+                        descendants(callback: (p: B[]) => void): void;
                     }
                     class AbstractKView implements KView {
                         private _now;
-                        private _dimension;
-                        constructor(p_now: number, p_dimension: KDimension<any, any, any>);
+                        private _universe;
+                        constructor(p_now: number, p_universe: KUniverse<any, any, any>);
                         now(): number;
-                        dimension(): KDimension<any, any, any>;
+                        universe(): KUniverse<any, any, any>;
                         createFQN(metaClassName: string): KObject;
                         setRoot(elem: KObject, callback: (p: java.lang.Throwable) => void): void;
                         select(query: string, callback: (p: KObject[]) => void): void;
@@ -413,13 +413,13 @@ declare module org {
                         private keyLastObjIndex(prefix);
                         nextDimensionKey(): number;
                         nextObjectKey(): number;
-                        initDimension(dimension: KDimension<any, any, any>): void;
+                        initDimension(dimension: KUniverse<any, any, any>): void;
                         initKObject(obj: KObject, originView: KView): void;
                         raw(origin: KObject, accessMode: AccessMode): any[];
-                        discard(dimension: KDimension<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
-                        delete(dimension: KDimension<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
-                        save(dimension: KDimension<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
-                        saveUnload(dimension: KDimension<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
+                        discard(dimension: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
+                        delete(dimension: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
+                        save(dimension: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
+                        saveUnload(dimension: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
                         lookup(originView: KView, key: number, callback: (p: KObject) => void): void;
                         lookupAll(originView: KView, keys: number[], callback: (p: KObject[]) => void): void;
                         getRoot(originView: KView, callback: (p: KObject) => void): void;
@@ -463,12 +463,12 @@ declare module org {
                         lookup(originView: KView, key: number, callback: (p: KObject) => void): void;
                         lookupAll(originView: KView, key: number[], callback: (p: KObject[]) => void): void;
                         raw(origin: KObject, accessMode: AccessMode): any[];
-                        save(dimension: KDimension<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
-                        saveUnload(dimension: KDimension<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
-                        discard(dimension: KDimension<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
-                        delete(dimension: KDimension<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
+                        save(dimension: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
+                        saveUnload(dimension: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
+                        discard(dimension: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
+                        delete(dimension: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
                         initKObject(obj: KObject, originView: KView): void;
-                        initDimension(dimension: KDimension<any, any, any>): void;
+                        initDimension(dimension: KUniverse<any, any, any>): void;
                         nextDimensionKey(): number;
                         nextObjectKey(): number;
                         getRoot(originView: KView, callback: (p: KObject) => void): void;
@@ -594,6 +594,22 @@ declare module org {
                         load(payload: string, attribute: meta.MetaAttribute, now: number): any;
                         static instance(): Extrapolation;
                         private createPolynomialModel(origin, precision);
+                    }
+                }
+                module infer {
+                    interface KInferClustering {
+                        classify(callback: (p: number) => void): void;
+                        learn(callback: (p: java.lang.Throwable) => void): void;
+                    }
+                    interface KInferDecision {
+                    }
+                    interface KInferExtrapolation {
+                    }
+                    interface KInferRanking {
+                        propose(callback: (p: number) => void): void;
+                        learn(callback: (p: java.lang.Throwable) => void): void;
+                        setTrainingQuery(query: string): void;
+                        setExtrapolationQuery(query: string): void;
                     }
                 }
                 module json {
@@ -901,87 +917,22 @@ declare module org {
                         }
                     }
                 }
-                module promise {
-                    class DefaultKTraversalPromise implements KTraversalPromise {
-                        private _initObjs;
-                        private _initAction;
-                        private _lastAction;
-                        private _terminated;
-                        constructor(p_root: KObject, p_ref: meta.MetaReference);
-                        traverse(p_metaReference: meta.MetaReference): KTraversalPromise;
-                        attribute(p_attribute: meta.MetaAttribute, p_expectedValue: any): KTraversalPromise;
-                        filter(p_filter: (p: KObject) => boolean): KTraversalPromise;
-                        then(callback: (p: KObject[]) => void): void;
-                        map(attribute: meta.MetaAttribute, callback: (p: any[]) => void): void;
-                    }
-                    interface KTraversalAction {
-                        chain(next: KTraversalAction): void;
-                        execute(inputs: KObject[]): void;
-                    }
-                    interface KTraversalFilter {
-                        filter(obj: KObject): boolean;
-                    }
-                    interface KTraversalPromise {
-                        traverse(metaReference: meta.MetaReference): KTraversalPromise;
-                        attribute(attribute: meta.MetaAttribute, expectedValue: any): KTraversalPromise;
-                        filter(filter: (p: KObject) => boolean): KTraversalPromise;
-                        then(callback: (p: KObject[]) => void): void;
-                        map(attribute: meta.MetaAttribute, callback: (p: any[]) => void): void;
-                    }
-                    module actions {
-                        class KFilterAction implements KTraversalAction {
-                            private _next;
-                            private _filter;
-                            constructor(p_filter: (p: KObject) => boolean);
-                            chain(p_next: KTraversalAction): void;
-                            execute(p_inputs: KObject[]): void;
-                        }
-                        class KFilterAttributeAction implements KTraversalAction {
-                            private _next;
-                            private _attribute;
-                            private _expectedValue;
-                            constructor(p_attribute: meta.MetaAttribute, p_expectedValue: any);
-                            chain(p_next: KTraversalAction): void;
-                            execute(p_inputs: KObject[]): void;
-                        }
-                        class KFinalAction implements KTraversalAction {
-                            private _finalCallback;
-                            constructor(p_callback: (p: KObject[]) => void);
-                            chain(next: KTraversalAction): void;
-                            execute(inputs: KObject[]): void;
-                        }
-                        class KMapAction implements KTraversalAction {
-                            private _finalCallback;
-                            private _attribute;
-                            constructor(p_attribute: meta.MetaAttribute, p_callback: (p: any[]) => void);
-                            chain(next: KTraversalAction): void;
-                            execute(inputs: KObject[]): void;
-                        }
-                        class KTraverseAction implements KTraversalAction {
-                            private _next;
-                            private _reference;
-                            constructor(p_reference: meta.MetaReference);
-                            chain(p_next: KTraversalAction): void;
-                            execute(p_inputs: KObject[]): void;
-                        }
-                    }
-                }
                 module reflexive {
-                    class DynamicKDimension extends abs.AbstractKDimension<any, any, any> {
-                        constructor(p_universe: KUniverse<any>, p_key: number);
-                        internal_create(timePoint: number): KView;
+                    class DynamicKModel extends abs.AbstractKModel<any> {
+                        private _metaModel;
+                        setMetaModel(p_metaModel: meta.MetaModel): void;
+                        metaModel(): meta.MetaModel;
+                        internal_create(key: number): KUniverse<any, any, any>;
                     }
                     class DynamicKObject extends abs.AbstractKObject {
                         constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
                     }
-                    class DynamicKUniverse extends abs.AbstractKUniverse<any> {
-                        private _metaModel;
-                        setMetaModel(p_metaModel: meta.MetaModel): void;
-                        metaModel(): meta.MetaModel;
-                        internal_create(key: number): KDimension<any, any, any>;
+                    class DynamicKUniverse extends abs.AbstractKUniverse<any, any, any> {
+                        constructor(p_universe: KModel<any>, p_key: number);
+                        internal_create(timePoint: number): KView;
                     }
                     class DynamicKView extends abs.AbstractKView {
-                        constructor(p_now: number, p_dimension: KDimension<any, any, any>);
+                        constructor(p_now: number, p_dimension: KUniverse<any, any, any>);
                         internalCreate(clazz: meta.MetaClass, timeTree: time.TimeTree, key: number): KObject;
                     }
                     class DynamicMetaClass extends abs.AbstractMetaClass {
@@ -991,7 +942,7 @@ declare module org {
                         private _globalIndex;
                         constructor(p_name: string, p_index: number);
                         addAttribute(p_name: string, p_type: KMetaType): DynamicMetaClass;
-                        addReference(p_name: string, p_metaClass: meta.MetaClass): DynamicMetaClass;
+                        addReference(p_name: string, p_metaClass: meta.MetaClass, contained: boolean): DynamicMetaClass;
                         addOperation(p_name: string): DynamicMetaClass;
                         private internalInit();
                     }
@@ -1004,7 +955,7 @@ declare module org {
                         metaName(): string;
                         index(): number;
                         createMetaClass(name: string): DynamicMetaClass;
-                        universe(): KUniverse<any>;
+                        universe(): KModel<any>;
                     }
                 }
                 module select {
@@ -1305,6 +1256,81 @@ declare module org {
                         applyOn(target: KObject, callback: (p: java.lang.Throwable) => void): boolean;
                         reverse(): TraceSequence;
                         size(): number;
+                    }
+                }
+                module traversal {
+                    class DefaultKTraversalPromise implements KTraversalPromise {
+                        private _initObjs;
+                        private _initAction;
+                        private _lastAction;
+                        private _terminated;
+                        constructor(p_root: KObject, p_ref: meta.MetaReference);
+                        traverse(p_metaReference: meta.MetaReference): KTraversalPromise;
+                        withAttribute(p_attribute: meta.MetaAttribute, p_expectedValue: any): KTraversalPromise;
+                        withoutAttribute(p_attribute: meta.MetaAttribute, p_expectedValue: any): KTraversalPromise;
+                        filter(p_filter: (p: KObject) => boolean): KTraversalPromise;
+                        then(callback: (p: KObject[]) => void): void;
+                        map(attribute: meta.MetaAttribute, callback: (p: any[]) => void): void;
+                    }
+                    interface KTraversalAction {
+                        chain(next: KTraversalAction): void;
+                        execute(inputs: KObject[]): void;
+                    }
+                    interface KTraversalFilter {
+                        filter(obj: KObject): boolean;
+                    }
+                    interface KTraversalPromise {
+                        traverse(metaReference: meta.MetaReference): KTraversalPromise;
+                        withAttribute(attribute: meta.MetaAttribute, expectedValue: any): KTraversalPromise;
+                        withoutAttribute(attribute: meta.MetaAttribute, expectedValue: any): KTraversalPromise;
+                        filter(filter: (p: KObject) => boolean): KTraversalPromise;
+                        then(callback: (p: KObject[]) => void): void;
+                        map(attribute: meta.MetaAttribute, callback: (p: any[]) => void): void;
+                    }
+                    module actions {
+                        class KFilterAction implements KTraversalAction {
+                            private _next;
+                            private _filter;
+                            constructor(p_filter: (p: KObject) => boolean);
+                            chain(p_next: KTraversalAction): void;
+                            execute(p_inputs: KObject[]): void;
+                        }
+                        class KFilterAttributeAction implements KTraversalAction {
+                            private _next;
+                            private _attribute;
+                            private _expectedValue;
+                            constructor(p_attribute: meta.MetaAttribute, p_expectedValue: any);
+                            chain(p_next: KTraversalAction): void;
+                            execute(p_inputs: KObject[]): void;
+                        }
+                        class KFilterNotAttributeAction implements KTraversalAction {
+                            private _next;
+                            private _attribute;
+                            private _expectedValue;
+                            constructor(p_attribute: meta.MetaAttribute, p_expectedValue: any);
+                            chain(p_next: KTraversalAction): void;
+                            execute(p_inputs: KObject[]): void;
+                        }
+                        class KFinalAction implements KTraversalAction {
+                            private _finalCallback;
+                            constructor(p_callback: (p: KObject[]) => void);
+                            chain(next: KTraversalAction): void;
+                            execute(inputs: KObject[]): void;
+                        }
+                        class KMapAction implements KTraversalAction {
+                            private _finalCallback;
+                            private _attribute;
+                            constructor(p_attribute: meta.MetaAttribute, p_callback: (p: any[]) => void);
+                            chain(next: KTraversalAction): void;
+                            execute(inputs: KObject[]): void;
+                        }
+                        class KTraverseAction implements KTraversalAction {
+                            private _next;
+                            private _reference;
+                            constructor(p_reference: meta.MetaReference);
+                            chain(p_next: KTraversalAction): void;
+                            execute(p_inputs: KObject[]): void;
+                        }
                     }
                 }
                 module util {

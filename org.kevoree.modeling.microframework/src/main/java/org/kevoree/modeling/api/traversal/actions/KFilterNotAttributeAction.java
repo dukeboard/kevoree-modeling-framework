@@ -35,7 +35,6 @@ public class KFilterNotAttributeAction implements KTraversalAction {
     public void execute(KObject[] p_inputs) {
         if (p_inputs == null || p_inputs.length == 0) {
             _next.execute(p_inputs);
-            return;
         } else {
             KView currentView = p_inputs[0].view();
             List<KObject> nextStep = new ArrayList<KObject>();
@@ -48,22 +47,26 @@ public class KFilterNotAttributeAction implements KTraversalAction {
                             if (_expectedValue == null) {
                                 nextStep.add(loopObj);
                             } else {
+                                boolean addToNext = true;
                                 for (int j = 0; j < loopObj.metaClass().metaAttributes().length; j++) {
                                     MetaAttribute ref = loopObj.metaClass().metaAttributes()[j];
                                     Object resolved = raw[ref.index()];
                                     if (resolved == null) {
                                         if (_expectedValue.toString().equals("*")) {
-                                            nextStep.add(loopObj);
+                                            addToNext = false;
                                         }
                                     } else {
                                         if (resolved.equals(_expectedValue)) {
-                                            nextStep.add(loopObj);
+                                            addToNext = false;
                                         } else {
                                             if (resolved.toString().matches(_expectedValue.toString().replace("*", ".*"))) {
-                                                nextStep.add(loopObj);
+                                                addToNext = false;
                                             }
                                         }
                                     }
+                                }
+                                if (addToNext) {
+                                    nextStep.add(loopObj);
                                 }
                             }
                         } else {
@@ -71,17 +74,19 @@ public class KFilterNotAttributeAction implements KTraversalAction {
                             if (translatedAtt != null) {
                                 Object resolved = raw[translatedAtt.index()];
                                 if (_expectedValue == null) {
-                                    nextStep.add(loopObj);
+                                    if (resolved != null) {
+                                        nextStep.add(loopObj);
+                                    }
                                 } else {
                                     if (resolved == null) {
-                                        if (_expectedValue.toString().equals("*")) {
+                                        if (!_expectedValue.toString().equals("*")) {
                                             nextStep.add(loopObj);
                                         }
                                     } else {
-                                        if (resolved == _expectedValue) {
+                                        if (!resolved.equals(_expectedValue)) {
                                             nextStep.add(loopObj);
                                         } else {
-                                            if (resolved.toString().matches(_expectedValue.toString().replace("*", ".*"))) {
+                                            if (!resolved.toString().matches(_expectedValue.toString().replace("*", ".*"))) {
                                                 nextStep.add(loopObj);
                                             }
                                         }

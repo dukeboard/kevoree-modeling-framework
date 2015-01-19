@@ -48,22 +48,26 @@ public class KFilterAttributeAction implements KTraversalAction {
                             if (_expectedValue == null) {
                                 nextStep.add(loopObj);
                             } else {
+                                boolean addToNext = false;
                                 for (int j = 0; j < loopObj.metaClass().metaAttributes().length; j++) {
                                     MetaAttribute ref = loopObj.metaClass().metaAttributes()[j];
                                     Object resolved = raw[ref.index()];
                                     if (resolved == null) {
                                         if (_expectedValue.toString().equals("*")) {
-                                            nextStep.add(loopObj);
+                                            addToNext = true;
                                         }
                                     } else {
                                         if (resolved.equals(_expectedValue)) {
-                                            nextStep.add(loopObj);
+                                            addToNext = true;
                                         } else {
                                             if (resolved.toString().matches(_expectedValue.toString().replace("*", ".*"))) {
-                                                nextStep.add(loopObj);
+                                                addToNext = true;
                                             }
                                         }
                                     }
+                                }
+                                if (addToNext) {
+                                    nextStep.add(loopObj);
                                 }
                             }
                         } else {
@@ -78,7 +82,7 @@ public class KFilterAttributeAction implements KTraversalAction {
                                             nextStep.add(loopObj);
                                         }
                                     } else {
-                                        if (resolved == _expectedValue) {
+                                        if (resolved.equals(_expectedValue)) {
                                             nextStep.add(loopObj);
                                         } else {
                                             if (resolved.toString().matches(_expectedValue.toString().replace("*", ".*"))) {

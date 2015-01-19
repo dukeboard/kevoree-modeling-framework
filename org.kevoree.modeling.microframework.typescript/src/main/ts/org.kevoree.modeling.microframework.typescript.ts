@@ -72,36 +72,6 @@ module org {
                     }
                 }
 
-                export interface KDimension<A extends org.kevoree.modeling.api.KView, B extends org.kevoree.modeling.api.KDimension<any, any, any>, C extends org.kevoree.modeling.api.KUniverse<any>> {
-
-                    key(): number;
-
-                    parent(callback: (p : B) => void): void;
-
-                    children(callback: (p : B[]) => void): void;
-
-                    fork(callback: (p : B) => void): void;
-
-                    save(callback: (p : java.lang.Throwable) => void): void;
-
-                    saveUnload(callback: (p : java.lang.Throwable) => void): void;
-
-                    delete(callback: (p : java.lang.Throwable) => void): void;
-
-                    discard(callback: (p : java.lang.Throwable) => void): void;
-
-                    time(timePoint: number): A;
-
-                    universe(): C;
-
-                    equals(other: any): boolean;
-
-                    listen(listener: (p : org.kevoree.modeling.api.KEvent) => void): void;
-
-                    listenAllTimes(target: org.kevoree.modeling.api.KObject, listener: (p : org.kevoree.modeling.api.KEvent) => void): void;
-
-                }
-
                 export interface KEvent {
 
                     dimension(): number;
@@ -124,11 +94,11 @@ module org {
 
                 }
 
-                export interface KInfer<A> extends org.kevoree.modeling.api.KObject {
+                export interface KInfer extends org.kevoree.modeling.api.KObject {
 
-                    infer(callback: (p : A) => void): void;
+                    learn(inputs: any[], results: any[], callback: (p : java.lang.Throwable) => void): void;
 
-                    learn(param: A, callback: (p : java.lang.Throwable) => void): void;
+                    infer(inputs: any[], callback: (p : any[]) => void): void;
 
                 }
 
@@ -144,9 +114,43 @@ module org {
 
                 }
 
+                export interface KModel<A extends org.kevoree.modeling.api.KUniverse<any, any, any>> {
+
+                    connect(callback: (p : java.lang.Throwable) => void): void;
+
+                    close(callback: (p : java.lang.Throwable) => void): void;
+
+                    newDimension(): A;
+
+                    dimension(key: number): A;
+
+                    saveAll(callback: (p : boolean) => void): void;
+
+                    deleteAll(callback: (p : boolean) => void): void;
+
+                    unloadAll(callback: (p : boolean) => void): void;
+
+                    disable(listener: (p : org.kevoree.modeling.api.KEvent) => void): void;
+
+                    stream(query: string, callback: (p : org.kevoree.modeling.api.KObject) => void): void;
+
+                    storage(): org.kevoree.modeling.api.data.KStore;
+
+                    listen(listener: (p : org.kevoree.modeling.api.KEvent) => void): void;
+
+                    setEventBroker(eventBroker: org.kevoree.modeling.api.event.KEventBroker): org.kevoree.modeling.api.KModel<any>;
+
+                    setDataBase(dataBase: org.kevoree.modeling.api.data.KDataBase): org.kevoree.modeling.api.KModel<any>;
+
+                    setOperation(metaOperation: org.kevoree.modeling.api.meta.MetaOperation, operation: (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void): void;
+
+                    metaModel(): org.kevoree.modeling.api.meta.MetaModel;
+
+                }
+
                 export interface KObject {
 
-                    dimension(): org.kevoree.modeling.api.KDimension<any, any, any>;
+                    dimension(): org.kevoree.modeling.api.KUniverse<any, any, any>;
 
                     isRoot(): boolean;
 
@@ -190,7 +194,7 @@ module org {
 
                     single(metaReference: org.kevoree.modeling.api.meta.MetaReference, callback: (p : org.kevoree.modeling.api.KObject) => void): void;
 
-                    traverse(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.promise.KTraversalPromise;
+                    traverse(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.traversal.KTraversalPromise;
 
                     inbounds(callback: (p : org.kevoree.modeling.api.InboundReference) => void, end: (p : java.lang.Throwable) => void): void;
 
@@ -224,37 +228,33 @@ module org {
 
                 }
 
-                export interface KUniverse<A extends org.kevoree.modeling.api.KDimension<any, any, any>> {
+                export interface KUniverse<A extends org.kevoree.modeling.api.KView, B extends org.kevoree.modeling.api.KUniverse<any, any, any>, C extends org.kevoree.modeling.api.KModel<any>> {
 
-                    connect(callback: (p : java.lang.Throwable) => void): void;
+                    key(): number;
 
-                    close(callback: (p : java.lang.Throwable) => void): void;
+                    split(callback: (p : B) => void): void;
 
-                    newDimension(): A;
+                    origin(callback: (p : B) => void): void;
 
-                    dimension(key: number): A;
+                    descendants(callback: (p : B[]) => void): void;
 
-                    saveAll(callback: (p : boolean) => void): void;
+                    save(callback: (p : java.lang.Throwable) => void): void;
 
-                    deleteAll(callback: (p : boolean) => void): void;
+                    saveUnload(callback: (p : java.lang.Throwable) => void): void;
 
-                    unloadAll(callback: (p : boolean) => void): void;
+                    delete(callback: (p : java.lang.Throwable) => void): void;
 
-                    disable(listener: (p : org.kevoree.modeling.api.KEvent) => void): void;
+                    discard(callback: (p : java.lang.Throwable) => void): void;
 
-                    stream(query: string, callback: (p : org.kevoree.modeling.api.KObject) => void): void;
+                    time(timePoint: number): A;
 
-                    storage(): org.kevoree.modeling.api.data.KStore;
+                    model(): C;
+
+                    equals(other: any): boolean;
 
                     listen(listener: (p : org.kevoree.modeling.api.KEvent) => void): void;
 
-                    setEventBroker(eventBroker: org.kevoree.modeling.api.event.KEventBroker): org.kevoree.modeling.api.KUniverse<any>;
-
-                    setDataBase(dataBase: org.kevoree.modeling.api.data.KDataBase): org.kevoree.modeling.api.KUniverse<any>;
-
-                    setOperation(metaOperation: org.kevoree.modeling.api.meta.MetaOperation, operation: (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void): void;
-
-                    metaModel(): org.kevoree.modeling.api.meta.MetaModel;
+                    listenAllTimes(target: org.kevoree.modeling.api.KObject, listener: (p : org.kevoree.modeling.api.KEvent) => void): void;
 
                 }
 
@@ -272,7 +272,7 @@ module org {
 
                     lookupAll(keys: number[], callback: (p : org.kevoree.modeling.api.KObject[]) => void): void;
 
-                    dimension(): org.kevoree.modeling.api.KDimension<any, any, any>;
+                    universe(): org.kevoree.modeling.api.KUniverse<any, any, any>;
 
                     now(): number;
 
@@ -412,71 +412,78 @@ module org {
 
                     }
 
-                    export class AbstractKDimension<A extends org.kevoree.modeling.api.KView, B extends org.kevoree.modeling.api.KDimension<any, any, any>, C extends org.kevoree.modeling.api.KUniverse<any>> implements org.kevoree.modeling.api.KDimension<any, any, any> {
+                    export class AbstractKModel<A extends org.kevoree.modeling.api.KUniverse<any, any, any>> implements org.kevoree.modeling.api.KModel<any> {
 
-                        private _universe: org.kevoree.modeling.api.KUniverse<any>;
-                        private _key: number;
-                        constructor(p_universe: org.kevoree.modeling.api.KUniverse<any>, p_key: number) {
-                            this._universe = p_universe;
-                            this._key = p_key;
-                        }
-
-                        public key(): number {
-                            return this._key;
-                        }
-
-                        public universe(): C {
-                            return <C>this._universe;
-                        }
-
-                        public save(callback: (p : java.lang.Throwable) => void): void {
-                            this.universe().storage().save(this, callback);
-                        }
-
-                        public saveUnload(callback: (p : java.lang.Throwable) => void): void {
-                            this.universe().storage().saveUnload(this, callback);
-                        }
-
-                        public delete(callback: (p : java.lang.Throwable) => void): void {
-                            this.universe().storage().delete(this, callback);
-                        }
-
-                        public discard(callback: (p : java.lang.Throwable) => void): void {
-                            this.universe().storage().discard(this, callback);
-                        }
-
-                        public parent(callback: (p : B) => void): void {
-                        }
-
-                        public children(callback: (p : B[]) => void): void {
-                        }
-
-                        public fork(callback: (p : B) => void): void {
-                        }
-
-                        public time(timePoint: number): A {
-                            return this.internal_create(timePoint);
-                        }
-
-                        public listen(listener: (p : org.kevoree.modeling.api.KEvent) => void): void {
-                            this.universe().storage().eventBroker().registerListener(this, listener, null);
-                        }
-
-                        public listenAllTimes(target: org.kevoree.modeling.api.KObject, listener: (p : org.kevoree.modeling.api.KEvent) => void): void {
-                            this.universe().storage().eventBroker().registerListener(this, listener, target);
-                        }
-
-                        public internal_create(timePoint: number): A {
+                        private _storage: org.kevoree.modeling.api.data.KStore;
+                        public metaModel(): org.kevoree.modeling.api.meta.MetaModel {
                             throw "Abstract method";
                         }
 
-                        public equals(obj: any): boolean {
-                            if (!(obj instanceof org.kevoree.modeling.api.abs.AbstractKDimension)) {
-                                return false;
-                            } else {
-                                var casted: org.kevoree.modeling.api.abs.AbstractKDimension<any, any, any> = <org.kevoree.modeling.api.abs.AbstractKDimension<any, any, any>>obj;
-                                return casted._key == this._key;
-                            }
+                        constructor() {
+                            this._storage = new org.kevoree.modeling.api.data.DefaultKStore();
+                        }
+
+                        public connect(callback: (p : java.lang.Throwable) => void): void {
+                            this._storage.connect(callback);
+                        }
+
+                        public close(callback: (p : java.lang.Throwable) => void): void {
+                            this._storage.close(callback);
+                        }
+
+                        public storage(): org.kevoree.modeling.api.data.KStore {
+                            return this._storage;
+                        }
+
+                        public newDimension(): A {
+                            var nextKey: number = this._storage.nextDimensionKey();
+                            var newDimension: A = this.internal_create(nextKey);
+                            this.storage().initDimension(newDimension);
+                            return newDimension;
+                        }
+
+                        public internal_create(key: number): A {
+                            throw "Abstract method";
+                        }
+
+                        public dimension(key: number): A {
+                            var newDimension: A = this.internal_create(key);
+                            this.storage().initDimension(newDimension);
+                            return newDimension;
+                        }
+
+                        public saveAll(callback: (p : boolean) => void): void {
+                        }
+
+                        public deleteAll(callback: (p : boolean) => void): void {
+                        }
+
+                        public unloadAll(callback: (p : boolean) => void): void {
+                        }
+
+                        public disable(listener: (p : org.kevoree.modeling.api.KEvent) => void): void {
+                        }
+
+                        public stream(query: string, callback: (p : org.kevoree.modeling.api.KObject) => void): void {
+                        }
+
+                        public listen(listener: (p : org.kevoree.modeling.api.KEvent) => void): void {
+                            this.storage().eventBroker().registerListener(this, listener, null);
+                        }
+
+                        public setEventBroker(eventBroker: org.kevoree.modeling.api.event.KEventBroker): org.kevoree.modeling.api.KModel<any> {
+                            this.storage().setEventBroker(eventBroker);
+                            eventBroker.setMetaModel(this.metaModel());
+                            return this;
+                        }
+
+                        public setDataBase(dataBase: org.kevoree.modeling.api.data.KDataBase): org.kevoree.modeling.api.KModel<any> {
+                            this.storage().setDataBase(dataBase);
+                            return this;
+                        }
+
+                        public setOperation(metaOperation: org.kevoree.modeling.api.meta.MetaOperation, operation: (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void): void {
+                            this.storage().operationManager().registerOperation(metaOperation, operation);
                         }
 
                     }
@@ -507,7 +514,7 @@ module org {
                         }
 
                         public isRoot(): boolean {
-                            var raw: any[] = this._view.dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
+                            var raw: any[] = this._view.universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
                             if (raw != null) {
                                 var isRoot: boolean = <boolean>raw[org.kevoree.modeling.api.data.Index.IS_ROOT_INDEX];
                                 if (isRoot == null) {
@@ -521,7 +528,7 @@ module org {
                         }
 
                         public setRoot(isRoot: boolean): void {
-                            var raw: any[] = this._view.dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.WRITE);
+                            var raw: any[] = this._view.universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.WRITE);
                             if (raw != null) {
                                 raw[org.kevoree.modeling.api.data.Index.IS_ROOT_INDEX] = isRoot;
                             }
@@ -535,8 +542,8 @@ module org {
                             return this._timeTree;
                         }
 
-                        public dimension(): org.kevoree.modeling.api.KDimension<any, any, any> {
-                            return this._view.dimension();
+                        public dimension(): org.kevoree.modeling.api.KUniverse<any, any, any> {
+                            return this._view.universe();
                         }
 
                         public path(callback: (p : string) => void): void {
@@ -559,7 +566,7 @@ module org {
                         }
 
                         public parentUuid(): number {
-                            var raw: any[] = this._view.dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
+                            var raw: any[] = this._view.universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
                             if (raw == null) {
                                 return null;
                             } else {
@@ -580,7 +587,7 @@ module org {
                         }
 
                         public referenceInParent(): org.kevoree.modeling.api.meta.MetaReference {
-                            var raw: any[] = this._view.dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
+                            var raw: any[] = this._view.universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
                             if (raw == null) {
                                 return null;
                             } else {
@@ -590,7 +597,7 @@ module org {
 
                         public delete(callback: (p : java.lang.Throwable) => void): void {
                             var toRemove: org.kevoree.modeling.api.KObject = this;
-                            var rawPayload: any[] = this._view.dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.DELETE);
+                            var rawPayload: any[] = this._view.universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.DELETE);
                             if (rawPayload == null) {
                                 callback(null);
                             } else {
@@ -650,7 +657,7 @@ module org {
                             } else {
                                 if (query.startsWith("/")) {
                                     var finalCleanedQuery: string = cleanedQuery;
-                                    this.dimension().universe().storage().getRoot(this.view(),  (rootObj : org.kevoree.modeling.api.KObject) => {
+                                    this.dimension().model().storage().getRoot(this.view(),  (rootObj : org.kevoree.modeling.api.KObject) => {
                                         if (rootObj == null) {
                                             callback(new Array());
                                         } else {
@@ -668,7 +675,7 @@ module org {
                         }
 
                         public listen(listener: (p : org.kevoree.modeling.api.KEvent) => void): void {
-                            this.dimension().universe().storage().eventBroker().registerListener(this, listener, null);
+                            this.dimension().model().storage().eventBroker().registerListener(this, listener, null);
                         }
 
                         public domainKey(): string {
@@ -711,12 +718,12 @@ module org {
                                 throw new java.lang.RuntimeException("Bad KMF usage, the attribute named " + p_attribute.metaName() + " is not part of " + this.metaClass().metaName());
                             } else {
                                 transposed.strategy().mutate(this, transposed, payload);
-                                this.view().dimension().universe().storage().eventBroker().notify(new org.kevoree.modeling.api.event.DefaultKEvent(org.kevoree.modeling.api.KActionType.SET, this, transposed, payload));
+                                this.view().universe().model().storage().eventBroker().notify(new org.kevoree.modeling.api.event.DefaultKEvent(org.kevoree.modeling.api.KActionType.SET, this, transposed, payload));
                             }
                         }
 
                         private getOrCreateInbounds(obj: org.kevoree.modeling.api.KObject): java.util.HashMap<number, org.kevoree.modeling.api.meta.MetaReference> {
-                            var rawWrite: any[] = this.view().dimension().universe().storage().raw(obj, org.kevoree.modeling.api.data.AccessMode.WRITE);
+                            var rawWrite: any[] = this.view().universe().model().storage().raw(obj, org.kevoree.modeling.api.data.AccessMode.WRITE);
                             if (rawWrite == null) {
                                 return null;
                             } else {
@@ -755,13 +762,17 @@ module org {
                         public internal_mutate(actionType: org.kevoree.modeling.api.KActionType, metaReferenceP: org.kevoree.modeling.api.meta.MetaReference, param: org.kevoree.modeling.api.KObject, setOpposite: boolean, inDelete: boolean): void {
                             var metaReference: org.kevoree.modeling.api.meta.MetaReference = this.internal_transpose_ref(metaReferenceP);
                             if (metaReference == null) {
-                                throw new java.lang.RuntimeException("Bad KMF usage, the attribute named " + metaReferenceP.metaName() + " is not part of " + this.metaClass().metaName());
+                                if (metaReferenceP == null) {
+                                    throw new java.lang.RuntimeException("Bad KMF usage, the reference " + " is null in metaClass named " + this.metaClass().metaName());
+                                } else {
+                                    throw new java.lang.RuntimeException("Bad KMF usage, the reference named " + metaReferenceP.metaName() + " is not part of " + this.metaClass().metaName());
+                                }
                             }
                             if (actionType.equals(org.kevoree.modeling.api.KActionType.ADD)) {
                                 if (metaReference.single()) {
                                     this.internal_mutate(org.kevoree.modeling.api.KActionType.SET, metaReference, param, setOpposite, inDelete);
                                 } else {
-                                    var raw: any[] = this.view().dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.WRITE);
+                                    var raw: any[] = this.view().universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.WRITE);
                                     var previousList: java.util.Set<number>;
                                     if (raw[metaReference.index()] != null && raw[metaReference.index()] instanceof java.util.Set) {
                                         previousList = <java.util.Set<number>>raw[metaReference.index()];
@@ -790,7 +801,7 @@ module org {
                                     var inboundRefs: java.util.Map<number, org.kevoree.modeling.api.meta.MetaReference> = this.getOrCreateInbounds(param);
                                     inboundRefs.put(this.uuid(), metaReference);
                                     var event: org.kevoree.modeling.api.KEvent = new org.kevoree.modeling.api.event.DefaultKEvent(actionType, this, metaReference, param);
-                                    this.view().dimension().universe().storage().eventBroker().notify(event);
+                                    this.view().universe().model().storage().eventBroker().notify(event);
                                 }
                             } else {
                                 if (actionType.equals(org.kevoree.modeling.api.KActionType.SET)) {
@@ -800,7 +811,7 @@ module org {
                                         if (param == null) {
                                             this.internal_mutate(org.kevoree.modeling.api.KActionType.REMOVE, metaReference, null, setOpposite, inDelete);
                                         } else {
-                                            var payload: any[] = this.view().dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.WRITE);
+                                            var payload: any[] = this.view().universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.WRITE);
                                             var previous: any = payload[metaReference.index()];
                                             if (previous != null) {
                                                 this.internal_mutate(org.kevoree.modeling.api.KActionType.REMOVE, metaReference, null, setOpposite, inDelete);
@@ -822,18 +833,18 @@ module org {
                                                 (<org.kevoree.modeling.api.abs.AbstractKObject>param).internal_mutate(org.kevoree.modeling.api.KActionType.ADD, metaReference.opposite(), this, false, inDelete);
                                             }
                                             var event: org.kevoree.modeling.api.KEvent = new org.kevoree.modeling.api.event.DefaultKEvent(actionType, this, metaReference, param);
-                                            this.view().dimension().universe().storage().eventBroker().notify(event);
+                                            this.view().universe().model().storage().eventBroker().notify(event);
                                         }
                                     }
                                 } else {
                                     if (actionType.equals(org.kevoree.modeling.api.KActionType.REMOVE)) {
                                         if (metaReference.single()) {
-                                            var raw: any[] = this.view().dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.WRITE);
+                                            var raw: any[] = this.view().universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.WRITE);
                                             var previousKid: any = raw[metaReference.index()];
                                             raw[metaReference.index()] = null;
                                             if (previousKid != null) {
                                                 var self: org.kevoree.modeling.api.KObject = this;
-                                                this._view.dimension().universe().storage().lookup(this._view, <number>previousKid,  (resolvedParam : org.kevoree.modeling.api.KObject) => {
+                                                this._view.universe().model().storage().lookup(this._view, <number>previousKid,  (resolvedParam : org.kevoree.modeling.api.KObject) => {
                                                     if (resolvedParam != null) {
                                                         if (metaReference.contained()) {
                                                             (<org.kevoree.modeling.api.abs.AbstractKObject>resolvedParam).set_parent(null, null);
@@ -846,10 +857,10 @@ module org {
                                                     }
                                                 });
                                                 var event: org.kevoree.modeling.api.KEvent = new org.kevoree.modeling.api.event.DefaultKEvent(actionType, this, metaReference, previousKid);
-                                                this.view().dimension().universe().storage().eventBroker().notify(event);
+                                                this.view().universe().model().storage().eventBroker().notify(event);
                                             }
                                         } else {
-                                            var payload: any[] = this.view().dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.WRITE);
+                                            var payload: any[] = this.view().universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.WRITE);
                                             var previous: any = payload[metaReference.index()];
                                             if (previous != null) {
                                                 var previousList: java.util.Set<number> = <java.util.Set<number>>previous;
@@ -861,7 +872,7 @@ module org {
                                                     (<org.kevoree.modeling.api.abs.AbstractKObject>param).internal_mutate(org.kevoree.modeling.api.KActionType.REMOVE, metaReference.opposite(), this, false, inDelete);
                                                 }
                                                 var event: org.kevoree.modeling.api.KEvent = new org.kevoree.modeling.api.event.DefaultKEvent(actionType, this, metaReference, param);
-                                                this.view().dimension().universe().storage().eventBroker().notify(event);
+                                                this.view().universe().model().storage().eventBroker().notify(event);
                                             }
                                             if (!inDelete) {
                                                 var inboundRefs: java.util.Map<number, org.kevoree.modeling.api.meta.MetaReference> = this.getOrCreateInbounds(param);
@@ -880,7 +891,7 @@ module org {
                             if (transposed == null) {
                                 throw new java.lang.RuntimeException("Bad KMF usage, the attribute named " + p_metaReference.metaName() + " is not part of " + this.metaClass().metaName());
                             } else {
-                                var raw: any[] = this.view().dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
+                                var raw: any[] = this.view().universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
                                 if (raw != null) {
                                     var ref: any = raw[transposed.index()];
                                     if (ref == null) {
@@ -900,7 +911,7 @@ module org {
                             if (transposed == null) {
                                 throw new java.lang.RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + this.metaClass().metaName());
                             } else {
-                                var raw: any[] = this.view().dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
+                                var raw: any[] = this.view().universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
                                 if (raw == null || raw[transposed.index()] == null) {
                                     p_callback(null);
                                 } else {
@@ -932,7 +943,7 @@ module org {
                             if (transposed == null) {
                                 throw new java.lang.RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + this.metaClass().metaName());
                             } else {
-                                var raw: any[] = this.view().dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
+                                var raw: any[] = this.view().universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
                                 if (raw == null) {
                                     p_callback(new Array());
                                 } else {
@@ -987,7 +998,7 @@ module org {
                             for (var i: number = 0; i < this.metaClass().metaReferences().length; i++) {
                                 var reference: org.kevoree.modeling.api.meta.MetaReference = this.metaClass().metaReferences()[i];
                                 if (!(containedOnly && !reference.contained())) {
-                                    var raw: any[] = this.view().dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
+                                    var raw: any[] = this.view().universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
                                     var obj: any = null;
                                     if (raw != null) {
                                         obj = raw[reference.index()];
@@ -1083,7 +1094,7 @@ module org {
                         }
 
                         public toJSON(): string {
-                            var raw: any[] = this.view().dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
+                            var raw: any[] = this.view().universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
                             if (raw != null) {
                                 return org.kevoree.modeling.api.data.JsonRaw.encode(raw, this._uuid, this._metaClass);
                             } else {
@@ -1112,7 +1123,7 @@ module org {
                             if (org.kevoree.modeling.api.TraceRequest.REFERENCES_ONLY.equals(request) || org.kevoree.modeling.api.TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
                                 for (var i: number = 0; i < this.metaClass().metaReferences().length; i++) {
                                     var ref: org.kevoree.modeling.api.meta.MetaReference = this.metaClass().metaReferences()[i];
-                                    var raw: any[] = this.view().dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
+                                    var raw: any[] = this.view().universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
                                     var o: any = null;
                                     if (raw != null) {
                                         o = raw[ref.index()];
@@ -1134,7 +1145,7 @@ module org {
                         }
 
                         public inbounds(callback: (p : org.kevoree.modeling.api.InboundReference) => void, end: (p : java.lang.Throwable) => void): void {
-                            var rawPayload: any[] = this.view().dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
+                            var rawPayload: any[] = this.view().universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
                             if (rawPayload == null) {
                                 end(new java.lang.Exception("Object not initialized."));
                             } else {
@@ -1192,7 +1203,7 @@ module org {
                         }
 
                         public set_parent(p_parentKID: number, p_metaReference: org.kevoree.modeling.api.meta.MetaReference): void {
-                            var raw: any[] = this._view.dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.WRITE);
+                            var raw: any[] = this._view.universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.WRITE);
                             if (raw != null) {
                                 raw[org.kevoree.modeling.api.data.Index.PARENT_INDEX] = p_parentKID;
                                 raw[org.kevoree.modeling.api.data.Index.REF_IN_PARENT_INDEX] = p_metaReference;
@@ -1227,7 +1238,7 @@ module org {
                         }
 
                         public jump<U extends org.kevoree.modeling.api.KObject> (time: number, callback: (p : U) => void): void {
-                            this.view().dimension().time(time).lookup(this.uuid(),  (kObject : org.kevoree.modeling.api.KObject) => {
+                            this.view().universe().time(time).lookup(this.uuid(),  (kObject : org.kevoree.modeling.api.KObject) => {
                                 if (callback != null) {
                                     try {
                                         callback(<U>kObject);
@@ -1266,13 +1277,13 @@ module org {
                             }
                         }
 
-                        public traverse(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.promise.KTraversalPromise {
-                            return new org.kevoree.modeling.api.promise.DefaultKTraversalPromise(this, p_metaReference);
+                        public traverse(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.traversal.KTraversalPromise {
+                            return new org.kevoree.modeling.api.traversal.DefaultKTraversalPromise(this, p_metaReference);
                         }
 
                         public referencesWith(o: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.meta.MetaReference[] {
                             if (org.kevoree.modeling.api.util.Checker.isDefined(o)) {
-                                var raw: any[] = this._view.dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
+                                var raw: any[] = this._view.universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
                                 if (raw != null) {
                                     var allReferences: org.kevoree.modeling.api.meta.MetaReference[] = this.metaClass().metaReferences();
                                     var selected: java.util.List<org.kevoree.modeling.api.meta.MetaReference> = new java.util.ArrayList<org.kevoree.modeling.api.meta.MetaReference>();
@@ -1317,92 +1328,85 @@ module org {
 
                     }
 
-                    export class AbstractKObjectInfer<A> extends org.kevoree.modeling.api.abs.AbstractKObject implements org.kevoree.modeling.api.KInfer<any> {
+                    export class AbstractKObjectInfer<A> extends org.kevoree.modeling.api.abs.AbstractKObject implements org.kevoree.modeling.api.KInfer {
 
                         constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_timeTree: org.kevoree.modeling.api.time.TimeTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
                             super(p_view, p_uuid, p_timeTree, p_metaClass);
                         }
 
-                        public infer(callback: (p : A) => void): void {
+                        public learn(inputs: any[], results: any[], callback: (p : java.lang.Throwable) => void): void {
                         }
 
-                        public learn(param: A, callback: (p : java.lang.Throwable) => void): void {
+                        public infer(inputs: any[], callback: (p : any[]) => void): void {
                         }
 
                     }
 
-                    export class AbstractKUniverse<A extends org.kevoree.modeling.api.KDimension<any, any, any>> implements org.kevoree.modeling.api.KUniverse<any> {
+                    export class AbstractKUniverse<A extends org.kevoree.modeling.api.KView, B extends org.kevoree.modeling.api.KUniverse<any, any, any>, C extends org.kevoree.modeling.api.KModel<any>> implements org.kevoree.modeling.api.KUniverse<any, any, any> {
 
-                        private _storage: org.kevoree.modeling.api.data.KStore;
-                        public metaModel(): org.kevoree.modeling.api.meta.MetaModel {
-                            throw "Abstract method";
+                        private _model: org.kevoree.modeling.api.KModel<any>;
+                        private _key: number;
+                        constructor(p_model: org.kevoree.modeling.api.KModel<any>, p_key: number) {
+                            this._model = p_model;
+                            this._key = p_key;
                         }
 
-                        constructor() {
-                            this._storage = new org.kevoree.modeling.api.data.DefaultKStore();
+                        public key(): number {
+                            return this._key;
                         }
 
-                        public connect(callback: (p : java.lang.Throwable) => void): void {
-                            this._storage.connect(callback);
+                        public model(): C {
+                            return <C>this._model;
                         }
 
-                        public close(callback: (p : java.lang.Throwable) => void): void {
-                            this._storage.close(callback);
+                        public save(callback: (p : java.lang.Throwable) => void): void {
+                            this.model().storage().save(this, callback);
                         }
 
-                        public storage(): org.kevoree.modeling.api.data.KStore {
-                            return this._storage;
+                        public saveUnload(callback: (p : java.lang.Throwable) => void): void {
+                            this.model().storage().saveUnload(this, callback);
                         }
 
-                        public newDimension(): A {
-                            var nextKey: number = this._storage.nextDimensionKey();
-                            var newDimension: A = this.internal_create(nextKey);
-                            this.storage().initDimension(newDimension);
-                            return newDimension;
+                        public delete(callback: (p : java.lang.Throwable) => void): void {
+                            this.model().storage().delete(this, callback);
                         }
 
-                        public internal_create(key: number): A {
-                            throw "Abstract method";
+                        public discard(callback: (p : java.lang.Throwable) => void): void {
+                            this.model().storage().discard(this, callback);
                         }
 
-                        public dimension(key: number): A {
-                            var newDimension: A = this.internal_create(key);
-                            this.storage().initDimension(newDimension);
-                            return newDimension;
-                        }
-
-                        public saveAll(callback: (p : boolean) => void): void {
-                        }
-
-                        public deleteAll(callback: (p : boolean) => void): void {
-                        }
-
-                        public unloadAll(callback: (p : boolean) => void): void {
-                        }
-
-                        public disable(listener: (p : org.kevoree.modeling.api.KEvent) => void): void {
-                        }
-
-                        public stream(query: string, callback: (p : org.kevoree.modeling.api.KObject) => void): void {
+                        public time(timePoint: number): A {
+                            return this.internal_create(timePoint);
                         }
 
                         public listen(listener: (p : org.kevoree.modeling.api.KEvent) => void): void {
-                            this.storage().eventBroker().registerListener(this, listener, null);
+                            this.model().storage().eventBroker().registerListener(this, listener, null);
                         }
 
-                        public setEventBroker(eventBroker: org.kevoree.modeling.api.event.KEventBroker): org.kevoree.modeling.api.KUniverse<any> {
-                            this.storage().setEventBroker(eventBroker);
-                            eventBroker.setMetaModel(this.metaModel());
-                            return this;
+                        public listenAllTimes(target: org.kevoree.modeling.api.KObject, listener: (p : org.kevoree.modeling.api.KEvent) => void): void {
+                            this.model().storage().eventBroker().registerListener(this, listener, target);
                         }
 
-                        public setDataBase(dataBase: org.kevoree.modeling.api.data.KDataBase): org.kevoree.modeling.api.KUniverse<any> {
-                            this.storage().setDataBase(dataBase);
-                            return this;
+                        public internal_create(timePoint: number): A {
+                            throw "Abstract method";
                         }
 
-                        public setOperation(metaOperation: org.kevoree.modeling.api.meta.MetaOperation, operation: (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void): void {
-                            this.storage().operationManager().registerOperation(metaOperation, operation);
+                        public equals(obj: any): boolean {
+                            if (!(obj instanceof org.kevoree.modeling.api.abs.AbstractKUniverse)) {
+                                return false;
+                            } else {
+                                var casted: org.kevoree.modeling.api.abs.AbstractKUniverse<any, any, any> = <org.kevoree.modeling.api.abs.AbstractKUniverse<any, any, any>>obj;
+                                return casted._key == this._key;
+                            }
+                        }
+
+                        public origin(callback: (p : B) => void): void {
+                        }
+
+                        public split(callback: (p : B) => void): void {
+                        }
+
+                        public descendants(callback: (p : B[]) => void): void {
                         }
 
                     }
@@ -1410,28 +1414,28 @@ module org {
                     export class AbstractKView implements org.kevoree.modeling.api.KView {
 
                         private _now: number;
-                        private _dimension: org.kevoree.modeling.api.KDimension<any, any, any>;
-                        constructor(p_now: number, p_dimension: org.kevoree.modeling.api.KDimension<any, any, any>) {
+                        private _universe: org.kevoree.modeling.api.KUniverse<any, any, any>;
+                        constructor(p_now: number, p_universe: org.kevoree.modeling.api.KUniverse<any, any, any>) {
                             this._now = p_now;
-                            this._dimension = p_dimension;
+                            this._universe = p_universe;
                         }
 
                         public now(): number {
                             return this._now;
                         }
 
-                        public dimension(): org.kevoree.modeling.api.KDimension<any, any, any> {
-                            return this._dimension;
+                        public universe(): org.kevoree.modeling.api.KUniverse<any, any, any> {
+                            return this._universe;
                         }
 
                         public createFQN(metaClassName: string): org.kevoree.modeling.api.KObject {
-                            return this.create(this.dimension().universe().metaModel().metaClass(metaClassName));
+                            return this.create(this.universe().model().metaModel().metaClass(metaClassName));
                         }
 
                         public setRoot(elem: org.kevoree.modeling.api.KObject, callback: (p : java.lang.Throwable) => void): void {
                             (<org.kevoree.modeling.api.abs.AbstractKObject>elem).set_parent(null, null);
                             (<org.kevoree.modeling.api.abs.AbstractKObject>elem).setRoot(true);
-                            this.dimension().universe().storage().setRoot(elem, callback);
+                            this.universe().model().storage().setRoot(elem, callback);
                         }
 
                         public select(query: string, callback: (p : org.kevoree.modeling.api.KObject[]) => void): void {
@@ -1442,7 +1446,7 @@ module org {
                                 callback(new Array());
                                 return;
                             }
-                            this.dimension().universe().storage().getRoot(this,  (rootObj : org.kevoree.modeling.api.KObject) => {
+                            this.universe().model().storage().getRoot(this,  (rootObj : org.kevoree.modeling.api.KObject) => {
                                 if (rootObj == null) {
                                     callback(new Array());
                                 } else {
@@ -1464,11 +1468,11 @@ module org {
                         }
 
                         public lookup(kid: number, callback: (p : org.kevoree.modeling.api.KObject) => void): void {
-                            this.dimension().universe().storage().lookup(this, kid, callback);
+                            this.universe().model().storage().lookup(this, kid, callback);
                         }
 
                         public lookupAll(keys: number[], callback: (p : org.kevoree.modeling.api.KObject[]) => void): void {
-                            this.dimension().universe().storage().lookupAll(this, keys, callback);
+                            this.universe().model().storage().lookupAll(this, keys, callback);
                         }
 
                         public createProxy(clazz: org.kevoree.modeling.api.meta.MetaClass, timeTree: org.kevoree.modeling.api.time.TimeTree, key: number): org.kevoree.modeling.api.KObject {
@@ -1479,16 +1483,16 @@ module org {
                             if (!org.kevoree.modeling.api.util.Checker.isDefined(clazz)) {
                                 return null;
                             }
-                            var newObj: org.kevoree.modeling.api.KObject = this.internalCreate(clazz, new org.kevoree.modeling.api.time.DefaultTimeTree().insert(this.now()), this.dimension().universe().storage().nextObjectKey());
+                            var newObj: org.kevoree.modeling.api.KObject = this.internalCreate(clazz, new org.kevoree.modeling.api.time.DefaultTimeTree().insert(this.now()), this.universe().model().storage().nextObjectKey());
                             if (newObj != null) {
-                                this.dimension().universe().storage().initKObject(newObj, this);
-                                this.dimension().universe().storage().eventBroker().notify(new org.kevoree.modeling.api.event.DefaultKEvent(org.kevoree.modeling.api.KActionType.NEW, newObj, clazz, null));
+                                this.universe().model().storage().initKObject(newObj, this);
+                                this.universe().model().storage().eventBroker().notify(new org.kevoree.modeling.api.event.DefaultKEvent(org.kevoree.modeling.api.KActionType.NEW, newObj, clazz, null));
                             }
                             return newObj;
                         }
 
                         public listen(listener: (p : org.kevoree.modeling.api.KEvent) => void): void {
-                            this.dimension().universe().storage().eventBroker().registerListener(this, listener, null);
+                            this.universe().model().storage().eventBroker().registerListener(this, listener, null);
                         }
 
                         public internalCreate(clazz: org.kevoree.modeling.api.meta.MetaClass, timeTree: org.kevoree.modeling.api.time.TimeTree, key: number): org.kevoree.modeling.api.KObject {
@@ -1515,7 +1519,7 @@ module org {
                                 return false;
                             } else {
                                 var casted: org.kevoree.modeling.api.abs.AbstractKView = <org.kevoree.modeling.api.abs.AbstractKView>obj;
-                                return (casted._now == this._now) && this._dimension.equals(casted._dimension);
+                                return (casted._now == this._now) && this._universe.equals(casted._universe);
                             }
                         }
 
@@ -1821,7 +1825,7 @@ module org {
                         private static OUT_OF_CACHE_MESSAGE: string = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
                         private static DELETED_MESSAGE: string = "KMF Error: your object has been deleted. Please do not use object pointer after a call to delete method";
                         private isConnected: boolean = false;
-                        private static UNIVERSE_NOT_CONNECTED_ERROR: string = "Please connect your universe prior to create a dimension or an object";
+                        private static UNIVERSE_NOT_CONNECTED_ERROR: string = "Please connect your model prior to create a universe or an object";
                         private static INDEX_RESOLVED_DIM: number = 0;
                         private static INDEX_RESOLVED_TIME: number = 1;
                         private static INDEX_RESOLVED_TIMETREE: number = 2;
@@ -1962,7 +1966,7 @@ module org {
                             return "" + dim + DefaultKStore.KEY_SEP + "root";
                         }
 
-                        private keyRootTree(dim: org.kevoree.modeling.api.KDimension<any, any, any>): string {
+                        private keyRootTree(dim: org.kevoree.modeling.api.KUniverse<any, any, any>): string {
                             return "" + dim.key() + DefaultKStore.KEY_SEP + "root";
                         }
 
@@ -1996,7 +2000,7 @@ module org {
                             return this._objectKeyCalculator.nextKey();
                         }
 
-                        public initDimension(dimension: org.kevoree.modeling.api.KDimension<any, any, any>): void {
+                        public initDimension(dimension: org.kevoree.modeling.api.KUniverse<any, any, any>): void {
                         }
 
                         public initKObject(obj: org.kevoree.modeling.api.KObject, originView: org.kevoree.modeling.api.KView): void {
@@ -2073,18 +2077,18 @@ module org {
                             }
                         }
 
-                        public discard(dimension: org.kevoree.modeling.api.KDimension<any, any, any>, callback: (p : java.lang.Throwable) => void): void {
+                        public discard(dimension: org.kevoree.modeling.api.KUniverse<any, any, any>, callback: (p : java.lang.Throwable) => void): void {
                             this.caches.remove(dimension.key());
                             if (callback != null) {
                                 callback(null);
                             }
                         }
 
-                        public delete(dimension: org.kevoree.modeling.api.KDimension<any, any, any>, callback: (p : java.lang.Throwable) => void): void {
+                        public delete(dimension: org.kevoree.modeling.api.KUniverse<any, any, any>, callback: (p : java.lang.Throwable) => void): void {
                             throw new java.lang.RuntimeException("Not implemented yet !");
                         }
 
-                        public save(dimension: org.kevoree.modeling.api.KDimension<any, any, any>, callback: (p : java.lang.Throwable) => void): void {
+                        public save(dimension: org.kevoree.modeling.api.KUniverse<any, any, any>, callback: (p : java.lang.Throwable) => void): void {
                             var dimensionCache: org.kevoree.modeling.api.data.cache.DimensionCache = this.caches.get(dimension.key());
                             if (dimensionCache == null) {
                                 if (callback != null) {
@@ -2148,7 +2152,7 @@ module org {
                             }
                         }
 
-                        public saveUnload(dimension: org.kevoree.modeling.api.KDimension<any, any, any>, callback: (p : java.lang.Throwable) => void): void {
+                        public saveUnload(dimension: org.kevoree.modeling.api.KUniverse<any, any, any>, callback: (p : java.lang.Throwable) => void): void {
                             this.save(dimension,  (throwable : java.lang.Throwable) => {
                                 if (throwable == null) {
                                     this.discard(dimension, callback);
@@ -2222,7 +2226,7 @@ module org {
                         }
 
                         public getRoot(originView: org.kevoree.modeling.api.KView, callback: (p : org.kevoree.modeling.api.KObject) => void): void {
-                            this.resolve_roots(originView.dimension(),  (longRBTree : org.kevoree.modeling.api.time.rbtree.LongRBTree) => {
+                            this.resolve_roots(originView.universe(),  (longRBTree : org.kevoree.modeling.api.time.rbtree.LongRBTree) => {
                                 if (longRBTree == null) {
                                     callback(null);
                                 } else {
@@ -2346,10 +2350,10 @@ module org {
 
                         private internal_resolve_dim_time(originView: org.kevoree.modeling.api.KView, uuids: number[], callback: (p : any[][]) => void): void {
                             var result: any[][] = new Array(new Array());
-                            this.resolve_timeTrees(originView.dimension(), uuids,  (timeTrees : org.kevoree.modeling.api.time.TimeTree[]) => {
+                            this.resolve_timeTrees(originView.universe(), uuids,  (timeTrees : org.kevoree.modeling.api.time.TimeTree[]) => {
                                 for (var i: number = 0; i < timeTrees.length; i++) {
                                     var resolved: any[] = new Array();
-                                    resolved[DefaultKStore.INDEX_RESOLVED_DIM] = originView.dimension().key();
+                                    resolved[DefaultKStore.INDEX_RESOLVED_DIM] = originView.universe().key();
                                     resolved[DefaultKStore.INDEX_RESOLVED_TIME] = timeTrees[i].resolve(originView.now());
                                     resolved[DefaultKStore.INDEX_RESOLVED_TIMETREE] = timeTrees[i];
                                     result[i] = resolved;
@@ -2358,7 +2362,7 @@ module org {
                             });
                         }
 
-                        private resolve_timeTrees(dimension: org.kevoree.modeling.api.KDimension<any, any, any>, keys: number[], callback: (p : org.kevoree.modeling.api.time.TimeTree[]) => void): void {
+                        private resolve_timeTrees(dimension: org.kevoree.modeling.api.KUniverse<any, any, any>, keys: number[], callback: (p : org.kevoree.modeling.api.time.TimeTree[]) => void): void {
                             var toLoad: java.util.List<number> = new java.util.ArrayList<number>();
                             var result: org.kevoree.modeling.api.time.TimeTree[] = new Array();
                             for (var i: number = 0; i < keys.length; i++) {
@@ -2407,7 +2411,7 @@ module org {
                             }
                         }
 
-                        private resolve_roots(dimension: org.kevoree.modeling.api.KDimension<any, any, any>, callback: (p : org.kevoree.modeling.api.time.rbtree.LongRBTree) => void): void {
+                        private resolve_roots(dimension: org.kevoree.modeling.api.KUniverse<any, any, any>, callback: (p : org.kevoree.modeling.api.time.rbtree.LongRBTree) => void): void {
                             var dimensionCache: org.kevoree.modeling.api.data.cache.DimensionCache = this.caches.get(dimension.key());
                             if (dimensionCache != null && dimensionCache.roots != null) {
                                 callback(dimensionCache.roots);
@@ -2495,7 +2499,7 @@ module org {
                                 return null;
                             } else {
                                 var entry: org.kevoree.modeling.api.data.CacheEntry = new org.kevoree.modeling.api.data.CacheEntry();
-                                var metaModel: org.kevoree.modeling.api.meta.MetaModel = currentView.dimension().universe().metaModel();
+                                var metaModel: org.kevoree.modeling.api.meta.MetaModel = currentView.universe().model().metaModel();
                                 entry.metaClass = metaModel.metaClass(content.get(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_META).toString());
                                 entry.raw = new Array();
                                 entry.raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX] = false;
@@ -2770,17 +2774,17 @@ module org {
 
                         raw(origin: org.kevoree.modeling.api.KObject, accessMode: org.kevoree.modeling.api.data.AccessMode): any[];
 
-                        save(dimension: org.kevoree.modeling.api.KDimension<any, any, any>, callback: (p : java.lang.Throwable) => void): void;
+                        save(dimension: org.kevoree.modeling.api.KUniverse<any, any, any>, callback: (p : java.lang.Throwable) => void): void;
 
-                        saveUnload(dimension: org.kevoree.modeling.api.KDimension<any, any, any>, callback: (p : java.lang.Throwable) => void): void;
+                        saveUnload(dimension: org.kevoree.modeling.api.KUniverse<any, any, any>, callback: (p : java.lang.Throwable) => void): void;
 
-                        discard(dimension: org.kevoree.modeling.api.KDimension<any, any, any>, callback: (p : java.lang.Throwable) => void): void;
+                        discard(dimension: org.kevoree.modeling.api.KUniverse<any, any, any>, callback: (p : java.lang.Throwable) => void): void;
 
-                        delete(dimension: org.kevoree.modeling.api.KDimension<any, any, any>, callback: (p : java.lang.Throwable) => void): void;
+                        delete(dimension: org.kevoree.modeling.api.KUniverse<any, any, any>, callback: (p : java.lang.Throwable) => void): void;
 
                         initKObject(obj: org.kevoree.modeling.api.KObject, originView: org.kevoree.modeling.api.KView): void;
 
-                        initDimension(dimension: org.kevoree.modeling.api.KDimension<any, any, any>): void;
+                        initDimension(dimension: org.kevoree.modeling.api.KUniverse<any, any, any>): void;
 
                         nextDimensionKey(): number;
 
@@ -2938,11 +2942,11 @@ module org {
 
                         public registerListener(origin: any, listener: (p : org.kevoree.modeling.api.KEvent) => void, scope: any): void {
                             var tuple: number[] = new Array();
-                            if (origin instanceof org.kevoree.modeling.api.abs.AbstractKDimension) {
-                                tuple[DefaultKBroker.DIM_INDEX] = (<org.kevoree.modeling.api.abs.AbstractKDimension<any, any, any>>origin).key();
+                            if (origin instanceof org.kevoree.modeling.api.abs.AbstractKUniverse) {
+                                tuple[DefaultKBroker.DIM_INDEX] = (<org.kevoree.modeling.api.abs.AbstractKUniverse<any, any, any>>origin).key();
                             } else {
                                 if (origin instanceof org.kevoree.modeling.api.abs.AbstractKView) {
-                                    tuple[DefaultKBroker.DIM_INDEX] = (<org.kevoree.modeling.api.abs.AbstractKView>origin).dimension().key();
+                                    tuple[DefaultKBroker.DIM_INDEX] = (<org.kevoree.modeling.api.abs.AbstractKView>origin).universe().key();
                                     tuple[DefaultKBroker.TIME_INDEX] = (<org.kevoree.modeling.api.abs.AbstractKView>origin).now();
                                 } else {
                                     if (origin instanceof org.kevoree.modeling.api.abs.AbstractKObject) {
@@ -2953,8 +2957,8 @@ module org {
                                             tuple[DefaultKBroker.UUID_INDEX] = casted.uuid();
                                         } else {
                                             tuple[DefaultKBroker.UUID_INDEX] = casted.uuid();
-                                            if (scope instanceof org.kevoree.modeling.api.abs.AbstractKDimension) {
-                                                tuple[DefaultKBroker.DIM_INDEX] = (<org.kevoree.modeling.api.abs.AbstractKDimension<any, any, any>>scope).key();
+                                            if (scope instanceof org.kevoree.modeling.api.abs.AbstractKUniverse) {
+                                                tuple[DefaultKBroker.DIM_INDEX] = (<org.kevoree.modeling.api.abs.AbstractKUniverse<any, any, any>>scope).key();
                                             }
                                         }
                                     }
@@ -3196,7 +3200,7 @@ module org {
                         }
 
                         public extrapolate(current: org.kevoree.modeling.api.KObject, attribute: org.kevoree.modeling.api.meta.MetaAttribute): any {
-                            var payload: any[] = current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ);
+                            var payload: any[] = current.view().universe().model().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ);
                             if (payload != null) {
                                 return payload[attribute.index()];
                             } else {
@@ -3205,7 +3209,7 @@ module org {
                         }
 
                         public mutate(current: org.kevoree.modeling.api.KObject, attribute: org.kevoree.modeling.api.meta.MetaAttribute, payload: any): void {
-                            var internalPayload: any[] = current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE);
+                            var internalPayload: any[] = current.view().universe().model().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE);
                             if (internalPayload != null) {
                                 internalPayload[attribute.index()] = payload;
                             }
@@ -3244,7 +3248,7 @@ module org {
 
                         private static INSTANCE: org.kevoree.modeling.api.extrapolation.PolynomialExtrapolation;
                         public extrapolate(current: org.kevoree.modeling.api.KObject, attribute: org.kevoree.modeling.api.meta.MetaAttribute): any {
-                            var pol: org.kevoree.modeling.api.polynomial.PolynomialModel = <org.kevoree.modeling.api.polynomial.PolynomialModel>current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ)[attribute.index()];
+                            var pol: org.kevoree.modeling.api.polynomial.PolynomialModel = <org.kevoree.modeling.api.polynomial.PolynomialModel>current.view().universe().model().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ)[attribute.index()];
                             if (pol != null) {
                                 var extrapolatedValue: number = pol.extrapolate(current.now());
                                 if (attribute.metaType() == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.DOUBLE) {
@@ -3274,19 +3278,19 @@ module org {
                         }
 
                         public mutate(current: org.kevoree.modeling.api.KObject, attribute: org.kevoree.modeling.api.meta.MetaAttribute, payload: any): void {
-                            var raw: any[] = current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ);
+                            var raw: any[] = current.view().universe().model().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ);
                             var previous: any = raw[attribute.index()];
                             if (previous == null) {
                                 var pol: org.kevoree.modeling.api.polynomial.PolynomialModel = this.createPolynomialModel(current.now(), attribute.precision());
                                 pol.insert(current.now(), java.lang.Double.parseDouble(payload.toString()));
-                                current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE)[attribute.index()] = pol;
+                                current.view().universe().model().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE)[attribute.index()] = pol;
                             } else {
                                 var previousPol: org.kevoree.modeling.api.polynomial.PolynomialModel = <org.kevoree.modeling.api.polynomial.PolynomialModel>previous;
                                 if (!previousPol.insert(current.now(), java.lang.Double.parseDouble(payload.toString()))) {
                                     var pol: org.kevoree.modeling.api.polynomial.PolynomialModel = this.createPolynomialModel(previousPol.lastIndex(), attribute.precision());
                                     pol.insert(previousPol.lastIndex(), previousPol.extrapolate(previousPol.lastIndex()));
                                     pol.insert(current.now(), java.lang.Double.parseDouble(payload.toString()));
-                                    current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE)[attribute.index()] = pol;
+                                    current.view().universe().model().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE)[attribute.index()] = pol;
                                 } else {
                                     if (previousPol.isDirty()) {
                                         raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX] = true;
@@ -3327,6 +3331,36 @@ module org {
                     }
 
                 }
+                export module infer {
+                    export interface KInferClustering {
+
+                        classify(callback: (p : number) => void): void;
+
+                        learn(callback: (p : java.lang.Throwable) => void): void;
+
+                    }
+
+                    export interface KInferDecision {
+
+                    }
+
+                    export interface KInferExtrapolation {
+
+                    }
+
+                    export interface KInferRanking {
+
+                        propose(callback: (p : number) => void): void;
+
+                        learn(callback: (p : java.lang.Throwable) => void): void;
+
+                        setTrainingQuery(query: string): void;
+
+                        setExtrapolationQuery(query: string): void;
+
+                    }
+
+                }
                 export module json {
                     export class JsonFormat implements org.kevoree.modeling.api.ModelFormat {
 
@@ -3359,7 +3393,7 @@ module org {
                             if (payload == null) {
                                 callback(null);
                             } else {
-                                var metaModel: org.kevoree.modeling.api.meta.MetaModel = factory.dimension().universe().metaModel();
+                                var metaModel: org.kevoree.modeling.api.meta.MetaModel = factory.universe().model().metaModel();
                                 var lexer: org.kevoree.modeling.api.json.Lexer = new org.kevoree.modeling.api.json.Lexer(payload);
                                 var currentToken: org.kevoree.modeling.api.json.JsonToken = lexer.nextToken();
                                 if (currentToken.tokenType() != org.kevoree.modeling.api.json.Type.LEFT_BRACKET) {
@@ -3409,7 +3443,7 @@ module org {
                                         try {
                                             var elem: java.util.Map<string, any> = alls.get(i);
                                             var kid: number = java.lang.Long.parseLong(elem.get(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_UUID).toString());
-                                            mappedKeys.put(kid, factory.dimension().universe().storage().nextObjectKey());
+                                            mappedKeys.put(kid, factory.universe().model().storage().nextObjectKey());
                                         } catch ($ex$) {
                                             if ($ex$ instanceof java.lang.Exception) {
                                                 var e: java.lang.Exception = <java.lang.Exception>$ex$;
@@ -3426,8 +3460,8 @@ module org {
                                             timeTree.insert(factory.now());
                                             var metaClass: org.kevoree.modeling.api.meta.MetaClass = metaModel.metaClass(meta);
                                             var current: org.kevoree.modeling.api.KObject = (<org.kevoree.modeling.api.abs.AbstractKView>factory).createProxy(metaClass, timeTree, mappedKeys.get(kid));
-                                            factory.dimension().universe().storage().initKObject(current, factory);
-                                            var raw: any[] = factory.dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE);
+                                            factory.universe().model().storage().initKObject(current, factory);
+                                            var raw: any[] = factory.universe().model().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE);
                                             var metaKeys: string[] = elem.keySet().toArray(new Array());
                                             for (var h: number = 0; h < metaKeys.length; h++) {
                                                 var metaKey: string = metaKeys[h];
@@ -3600,7 +3634,7 @@ module org {
                         public static PARENT_REF_META: string = "@ref";
                         public static INBOUNDS_META: string = "@inbounds";
                         public static TIME_META: string = "@time";
-                        public static DIM_META: string = "@dimension";
+                        public static DIM_META: string = "@universe";
                         public static serialize(model: org.kevoree.modeling.api.KObject, callback: (p : string, p1 : java.lang.Throwable) => void): void {
                             var builder: java.lang.StringBuilder = new java.lang.StringBuilder();
                             builder.append("[\n");
@@ -3625,7 +3659,7 @@ module org {
 
                         public static printJSON(elem: org.kevoree.modeling.api.KObject, builder: java.lang.StringBuilder): void {
                             if (elem != null) {
-                                var raw: any[] = elem.view().dimension().universe().storage().raw(elem, org.kevoree.modeling.api.data.AccessMode.READ);
+                                var raw: any[] = elem.view().universe().model().storage().raw(elem, org.kevoree.modeling.api.data.AccessMode.READ);
                                 if (raw != null) {
                                     builder.append(org.kevoree.modeling.api.data.JsonRaw.encode(raw, elem.uuid(), elem.metaClass()));
                                 }
@@ -4049,10 +4083,10 @@ module org {
                     export class DefaultModelCloner {
 
                         public static clone<A extends org.kevoree.modeling.api.KObject> (originalObject: A, callback: (p : A) => void): void {
-                            if (originalObject == null || originalObject.view() == null || originalObject.view().dimension() == null) {
+                            if (originalObject == null || originalObject.view() == null || originalObject.view().universe() == null) {
                                 callback(null);
                             } else {
-                                originalObject.view().dimension().fork( (o : org.kevoree.modeling.api.KDimension<any, any, any>) => {
+                                originalObject.view().universe().split( (o : org.kevoree.modeling.api.KUniverse<any, any, any>) => {
                                     o.time(originalObject.view().now()).lookup(originalObject.uuid(),  (clonedObject : org.kevoree.modeling.api.KObject) => {
                                         callback(<A>clonedObject);
                                     });
@@ -4186,13 +4220,13 @@ module org {
                             if (references) {
                                 for (var i: number = 0; i < current.metaClass().metaReferences().length; i++) {
                                     var reference: org.kevoree.modeling.api.meta.MetaReference = current.metaClass().metaReferences()[i];
-                                    var payload: any = current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ)[reference.index()];
+                                    var payload: any = current.view().universe().model().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ)[reference.index()];
                                     valuesRef.put(reference, payload);
                                 }
                                 if (sibling != null) {
                                     for (var i: number = 0; i < sibling.metaClass().metaReferences().length; i++) {
                                         var reference: org.kevoree.modeling.api.meta.MetaReference = sibling.metaClass().metaReferences()[i];
-                                        var payload2: any = sibling.view().dimension().universe().storage().raw(sibling, org.kevoree.modeling.api.data.AccessMode.READ)[reference.index()];
+                                        var payload2: any = sibling.view().universe().model().storage().raw(sibling, org.kevoree.modeling.api.data.AccessMode.READ)[reference.index()];
                                         var payload1: any = valuesRef.get(reference);
                                         if (reference.single()) {
                                             var isEquals: boolean = true;
@@ -5418,360 +5452,20 @@ module org {
 
                     }
                 }
-                export module promise {
-                    export class DefaultKTraversalPromise implements org.kevoree.modeling.api.promise.KTraversalPromise {
-
-                        private _initObjs: org.kevoree.modeling.api.KObject[];
-                        private _initAction: org.kevoree.modeling.api.promise.KTraversalAction;
-                        private _lastAction: org.kevoree.modeling.api.promise.KTraversalAction;
-                        private _terminated: boolean = false;
-                        constructor(p_root: org.kevoree.modeling.api.KObject, p_ref: org.kevoree.modeling.api.meta.MetaReference) {
-                            this._initAction = new org.kevoree.modeling.api.promise.actions.KTraverseAction(p_ref);
-                            this._initObjs = new Array();
-                            this._initObjs[0] = p_root;
-                            this._lastAction = this._initAction;
-                        }
-
-                        public traverse(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.promise.KTraversalPromise {
-                            if (this._terminated) {
-                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
-                            }
-                            var tempAction: org.kevoree.modeling.api.promise.actions.KTraverseAction = new org.kevoree.modeling.api.promise.actions.KTraverseAction(p_metaReference);
-                            this._lastAction.chain(tempAction);
-                            this._lastAction = tempAction;
-                            return this;
-                        }
-
-                        public attribute(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_expectedValue: any): org.kevoree.modeling.api.promise.KTraversalPromise {
-                            if (this._terminated) {
-                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
-                            }
-                            var tempAction: org.kevoree.modeling.api.promise.actions.KFilterAttributeAction = new org.kevoree.modeling.api.promise.actions.KFilterAttributeAction(p_attribute, p_expectedValue);
-                            this._lastAction.chain(tempAction);
-                            this._lastAction = tempAction;
-                            return this;
-                        }
-
-                        public filter(p_filter: (p : org.kevoree.modeling.api.KObject) => boolean): org.kevoree.modeling.api.promise.KTraversalPromise {
-                            if (this._terminated) {
-                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
-                            }
-                            var tempAction: org.kevoree.modeling.api.promise.actions.KFilterAction = new org.kevoree.modeling.api.promise.actions.KFilterAction(p_filter);
-                            this._lastAction.chain(tempAction);
-                            this._lastAction = tempAction;
-                            return this;
-                        }
-
-                        public then(callback: (p : org.kevoree.modeling.api.KObject[]) => void): void {
-                            this._terminated = true;
-                            this._lastAction.chain(new org.kevoree.modeling.api.promise.actions.KFinalAction(callback));
-                            this._initAction.execute(this._initObjs);
-                        }
-
-                        public map(attribute: org.kevoree.modeling.api.meta.MetaAttribute, callback: (p : any[]) => void): void {
-                            this._terminated = true;
-                            this._lastAction.chain(new org.kevoree.modeling.api.promise.actions.KMapAction(attribute, callback));
-                            this._initAction.execute(this._initObjs);
-                        }
-
-                    }
-
-                    export interface KTraversalAction {
-
-                        chain(next: org.kevoree.modeling.api.promise.KTraversalAction): void;
-
-                        execute(inputs: org.kevoree.modeling.api.KObject[]): void;
-
-                    }
-
-                    export interface KTraversalFilter {
-
-                        filter(obj: org.kevoree.modeling.api.KObject): boolean;
-
-                    }
-
-                    export interface KTraversalPromise {
-
-                        traverse(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.promise.KTraversalPromise;
-
-                        attribute(attribute: org.kevoree.modeling.api.meta.MetaAttribute, expectedValue: any): org.kevoree.modeling.api.promise.KTraversalPromise;
-
-                        filter(filter: (p : org.kevoree.modeling.api.KObject) => boolean): org.kevoree.modeling.api.promise.KTraversalPromise;
-
-                        then(callback: (p : org.kevoree.modeling.api.KObject[]) => void): void;
-
-                        map(attribute: org.kevoree.modeling.api.meta.MetaAttribute, callback: (p : any[]) => void): void;
-
-                    }
-
-                    export module actions {
-                        export class KFilterAction implements org.kevoree.modeling.api.promise.KTraversalAction {
-
-                            private _next: org.kevoree.modeling.api.promise.KTraversalAction;
-                            private _filter: (p : org.kevoree.modeling.api.KObject) => boolean;
-                            constructor(p_filter: (p : org.kevoree.modeling.api.KObject) => boolean) {
-                                this._filter = p_filter;
-                            }
-
-                            public chain(p_next: org.kevoree.modeling.api.promise.KTraversalAction): void {
-                                this._next = p_next;
-                            }
-
-                            public execute(p_inputs: org.kevoree.modeling.api.KObject[]): void {
-                                var nextStep: java.util.List<org.kevoree.modeling.api.KObject> = new java.util.ArrayList<org.kevoree.modeling.api.KObject>();
-                                for (var i: number = 0; i < p_inputs.length; i++) {
-                                    try {
-                                        if (this._filter(p_inputs[i])) {
-                                            nextStep.add(p_inputs[i]);
-                                        }
-                                    } catch ($ex$) {
-                                        if ($ex$ instanceof java.lang.Exception) {
-                                            var e: java.lang.Exception = <java.lang.Exception>$ex$;
-                                            e.printStackTrace();
-                                        }
-                                     }
-                                }
-                                this._next.execute(nextStep.toArray(new Array()));
-                            }
-
-                        }
-
-                        export class KFilterAttributeAction implements org.kevoree.modeling.api.promise.KTraversalAction {
-
-                            private _next: org.kevoree.modeling.api.promise.KTraversalAction;
-                            private _attribute: org.kevoree.modeling.api.meta.MetaAttribute;
-                            private _expectedValue: any;
-                            constructor(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_expectedValue: any) {
-                                this._attribute = p_attribute;
-                                this._expectedValue = p_expectedValue;
-                            }
-
-                            public chain(p_next: org.kevoree.modeling.api.promise.KTraversalAction): void {
-                                this._next = p_next;
-                            }
-
-                            public execute(p_inputs: org.kevoree.modeling.api.KObject[]): void {
-                                if (p_inputs == null || p_inputs.length == 0) {
-                                    this._next.execute(p_inputs);
-                                    return;
-                                } else {
-                                    var currentView: org.kevoree.modeling.api.KView = p_inputs[0].view();
-                                    var nextStep: java.util.List<org.kevoree.modeling.api.KObject> = new java.util.ArrayList<org.kevoree.modeling.api.KObject>();
-                                    for (var i: number = 0; i < p_inputs.length; i++) {
-                                        try {
-                                            var loopObj: org.kevoree.modeling.api.abs.AbstractKObject = <org.kevoree.modeling.api.abs.AbstractKObject>p_inputs[i];
-                                            var raw: any[] = currentView.dimension().universe().storage().raw(loopObj, org.kevoree.modeling.api.data.AccessMode.READ);
-                                            if (raw != null) {
-                                                if (this._attribute == null) {
-                                                    if (this._expectedValue == null) {
-                                                        nextStep.add(loopObj);
-                                                    } else {
-                                                        for (var j: number = 0; j < loopObj.metaClass().metaAttributes().length; j++) {
-                                                            var ref: org.kevoree.modeling.api.meta.MetaAttribute = loopObj.metaClass().metaAttributes()[j];
-                                                            var resolved: any = raw[ref.index()];
-                                                            if (resolved == null) {
-                                                                if (this._expectedValue.toString().equals("*")) {
-                                                                    nextStep.add(loopObj);
-                                                                } else {
-                                                                }
-                                                            } else {
-                                                                if (resolved == this._expectedValue) {
-                                                                    nextStep.add(loopObj);
-                                                                } else {
-                                                                    if (resolved.toString().matches(this._expectedValue.toString().replace("*", ".*"))) {
-                                                                        nextStep.add(loopObj);
-                                                                    } else {
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                } else {
-                                                    var translatedAtt: org.kevoree.modeling.api.meta.MetaAttribute = loopObj.internal_transpose_att(this._attribute);
-                                                    if (translatedAtt != null) {
-                                                        var resolved: any = raw[translatedAtt.index()];
-                                                        if (this._expectedValue == null) {
-                                                            nextStep.add(loopObj);
-                                                        } else {
-                                                            if (resolved == null) {
-                                                                if (this._expectedValue.toString().equals("*")) {
-                                                                    nextStep.add(loopObj);
-                                                                } else {
-                                                                }
-                                                            } else {
-                                                                if (resolved == this._expectedValue) {
-                                                                    nextStep.add(loopObj);
-                                                                } else {
-                                                                    if (resolved.toString().matches(this._expectedValue.toString().replace("*", ".*"))) {
-                                                                        nextStep.add(loopObj);
-                                                                    } else {
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            } else {
-                                                System.err.println("WARN: Empty KObject " + loopObj.uuid());
-                                            }
-                                        } catch ($ex$) {
-                                            if ($ex$ instanceof java.lang.Exception) {
-                                                var e: java.lang.Exception = <java.lang.Exception>$ex$;
-                                                e.printStackTrace();
-                                            }
-                                         }
-                                    }
-                                    this._next.execute(nextStep.toArray(new Array()));
-                                }
-                            }
-
-                        }
-
-                        export class KFinalAction implements org.kevoree.modeling.api.promise.KTraversalAction {
-
-                            private _finalCallback: (p : org.kevoree.modeling.api.KObject[]) => void;
-                            constructor(p_callback: (p : org.kevoree.modeling.api.KObject[]) => void) {
-                                this._finalCallback = p_callback;
-                            }
-
-                            public chain(next: org.kevoree.modeling.api.promise.KTraversalAction): void {
-                            }
-
-                            public execute(inputs: org.kevoree.modeling.api.KObject[]): void {
-                                this._finalCallback(inputs);
-                            }
-
-                        }
-
-                        export class KMapAction implements org.kevoree.modeling.api.promise.KTraversalAction {
-
-                            private _finalCallback: (p : any[]) => void;
-                            private _attribute: org.kevoree.modeling.api.meta.MetaAttribute;
-                            constructor(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_callback: (p : any[]) => void) {
-                                this._finalCallback = p_callback;
-                                this._attribute = p_attribute;
-                            }
-
-                            public chain(next: org.kevoree.modeling.api.promise.KTraversalAction): void {
-                            }
-
-                            public execute(inputs: org.kevoree.modeling.api.KObject[]): void {
-                                var collected: java.util.List<any> = new java.util.ArrayList<any>();
-                                for (var i: number = 0; i < inputs.length; i++) {
-                                    if (inputs[i] != null) {
-                                        var resolved: any = inputs[i].get(this._attribute);
-                                        if (resolved != null) {
-                                            collected.add(resolved);
-                                        }
-                                    }
-                                }
-                                this._finalCallback(collected.toArray(new Array()));
-                            }
-
-                        }
-
-                        export class KTraverseAction implements org.kevoree.modeling.api.promise.KTraversalAction {
-
-                            private _next: org.kevoree.modeling.api.promise.KTraversalAction;
-                            private _reference: org.kevoree.modeling.api.meta.MetaReference;
-                            constructor(p_reference: org.kevoree.modeling.api.meta.MetaReference) {
-                                this._reference = p_reference;
-                            }
-
-                            public chain(p_next: org.kevoree.modeling.api.promise.KTraversalAction): void {
-                                this._next = p_next;
-                            }
-
-                            public execute(p_inputs: org.kevoree.modeling.api.KObject[]): void {
-                                if (p_inputs == null || p_inputs.length == 0) {
-                                    this._next.execute(p_inputs);
-                                    return;
-                                } else {
-                                    var currentView: org.kevoree.modeling.api.KView = p_inputs[0].view();
-                                    var nextIds: java.util.List<number> = new java.util.ArrayList<number>();
-                                    for (var i: number = 0; i < p_inputs.length; i++) {
-                                        try {
-                                            var loopObj: org.kevoree.modeling.api.abs.AbstractKObject = <org.kevoree.modeling.api.abs.AbstractKObject>p_inputs[i];
-                                            var raw: any[] = currentView.dimension().universe().storage().raw(loopObj, org.kevoree.modeling.api.data.AccessMode.READ);
-                                            if (this._reference == null) {
-                                                for (var j: number = 0; j < loopObj.metaClass().metaReferences().length; j++) {
-                                                    var ref: org.kevoree.modeling.api.meta.MetaReference = loopObj.metaClass().metaReferences()[j];
-                                                    var resolved: any = raw[ref.index()];
-                                                    if (resolved != null) {
-                                                        if (resolved instanceof java.util.Set) {
-                                                            var resolvedCasted: java.util.Set<number> = <java.util.Set<number>>resolved;
-                                                            var resolvedArr: number[] = resolvedCasted.toArray(new Array());
-                                                            for (var k: number = 0; k < resolvedArr.length; k++) {
-                                                                var idResolved: number = resolvedArr[k];
-                                                                if (idResolved != null) {
-                                                                    nextIds.add(idResolved);
-                                                                }
-                                                            }
-                                                        } else {
-                                                            try {
-                                                                nextIds.add(<number>resolved);
-                                                            } catch ($ex$) {
-                                                                if ($ex$ instanceof java.lang.Exception) {
-                                                                    var e: java.lang.Exception = <java.lang.Exception>$ex$;
-                                                                    e.printStackTrace();
-                                                                }
-                                                             }
-                                                        }
-                                                    }
-                                                }
-                                            } else {
-                                                var translatedRef: org.kevoree.modeling.api.meta.MetaReference = loopObj.internal_transpose_ref(this._reference);
-                                                if (translatedRef != null) {
-                                                    var resolved: any = raw[translatedRef.index()];
-                                                    if (resolved != null) {
-                                                        if (resolved instanceof java.util.Set) {
-                                                            var resolvedCasted: java.util.Set<number> = <java.util.Set<number>>resolved;
-                                                            var resolvedArr: number[] = resolvedCasted.toArray(new Array());
-                                                            for (var j: number = 0; j < resolvedArr.length; j++) {
-                                                                var idResolved: number = resolvedArr[j];
-                                                                if (idResolved != null) {
-                                                                    nextIds.add(idResolved);
-                                                                }
-                                                            }
-                                                        } else {
-                                                            try {
-                                                                nextIds.add(<number>resolved);
-                                                            } catch ($ex$) {
-                                                                if ($ex$ instanceof java.lang.Exception) {
-                                                                    var e: java.lang.Exception = <java.lang.Exception>$ex$;
-                                                                    e.printStackTrace();
-                                                                }
-                                                             }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        } catch ($ex$) {
-                                            if ($ex$ instanceof java.lang.Exception) {
-                                                var e: java.lang.Exception = <java.lang.Exception>$ex$;
-                                                e.printStackTrace();
-                                            }
-                                         }
-                                    }
-                                    currentView.lookupAll(nextIds.toArray(new Array()),  (kObjects : org.kevoree.modeling.api.KObject[]) => {
-                                        this._next.execute(kObjects);
-                                    });
-                                }
-                            }
-
-                        }
-
-                    }
-                }
                 export module reflexive {
-                    export class DynamicKDimension extends org.kevoree.modeling.api.abs.AbstractKDimension<any, any, any> {
+                    export class DynamicKModel extends org.kevoree.modeling.api.abs.AbstractKModel<any> {
 
-                        constructor(p_universe: org.kevoree.modeling.api.KUniverse<any>, p_key: number) {
-                            super(p_universe, p_key);
+                        private _metaModel: org.kevoree.modeling.api.meta.MetaModel = null;
+                        public setMetaModel(p_metaModel: org.kevoree.modeling.api.meta.MetaModel): void {
+                            this._metaModel = p_metaModel;
                         }
 
-                        public internal_create(timePoint: number): org.kevoree.modeling.api.KView {
-                            return new org.kevoree.modeling.api.reflexive.DynamicKView(timePoint, this);
+                        public metaModel(): org.kevoree.modeling.api.meta.MetaModel {
+                            return this._metaModel;
+                        }
+
+                        public internal_create(key: number): org.kevoree.modeling.api.KUniverse<any, any, any> {
+                            return new org.kevoree.modeling.api.reflexive.DynamicKUniverse(this, key);
                         }
 
                     }
@@ -5784,26 +5478,21 @@ module org {
 
                     }
 
-                    export class DynamicKUniverse extends org.kevoree.modeling.api.abs.AbstractKUniverse<any> {
+                    export class DynamicKUniverse extends org.kevoree.modeling.api.abs.AbstractKUniverse<any, any, any> {
 
-                        private _metaModel: org.kevoree.modeling.api.meta.MetaModel = null;
-                        public setMetaModel(p_metaModel: org.kevoree.modeling.api.meta.MetaModel): void {
-                            this._metaModel = p_metaModel;
+                        constructor(p_universe: org.kevoree.modeling.api.KModel<any>, p_key: number) {
+                            super(p_universe, p_key);
                         }
 
-                        public metaModel(): org.kevoree.modeling.api.meta.MetaModel {
-                            return this._metaModel;
-                        }
-
-                        public internal_create(key: number): org.kevoree.modeling.api.KDimension<any, any, any> {
-                            return new org.kevoree.modeling.api.reflexive.DynamicKDimension(this, key);
+                        public internal_create(timePoint: number): org.kevoree.modeling.api.KView {
+                            return new org.kevoree.modeling.api.reflexive.DynamicKView(timePoint, this);
                         }
 
                     }
 
                     export class DynamicKView extends org.kevoree.modeling.api.abs.AbstractKView {
 
-                        constructor(p_now: number, p_dimension: org.kevoree.modeling.api.KDimension<any, any, any>) {
+                        constructor(p_now: number, p_dimension: org.kevoree.modeling.api.KUniverse<any, any, any>) {
                             super(p_now, p_dimension);
                         }
 
@@ -5818,9 +5507,10 @@ module org {
                         private cached_attributes: java.util.HashMap<string, org.kevoree.modeling.api.meta.MetaAttribute> = new java.util.HashMap<string, org.kevoree.modeling.api.meta.MetaAttribute>();
                         private cached_references: java.util.HashMap<string, org.kevoree.modeling.api.meta.MetaReference> = new java.util.HashMap<string, org.kevoree.modeling.api.meta.MetaReference>();
                         private cached_methods: java.util.HashMap<string, org.kevoree.modeling.api.meta.MetaOperation> = new java.util.HashMap<string, org.kevoree.modeling.api.meta.MetaOperation>();
-                        private _globalIndex: number = 0;
+                        private _globalIndex: number = -1;
                         constructor(p_name: string, p_index: number) {
                             super(p_name, p_index);
+                            this._globalIndex = org.kevoree.modeling.api.data.Index.RESERVED_INDEXES;
                         }
 
                         public addAttribute(p_name: string, p_type: org.kevoree.modeling.api.KMetaType): org.kevoree.modeling.api.reflexive.DynamicMetaClass {
@@ -5831,9 +5521,9 @@ module org {
                             return this;
                         }
 
-                        public addReference(p_name: string, p_metaClass: org.kevoree.modeling.api.meta.MetaClass): org.kevoree.modeling.api.reflexive.DynamicMetaClass {
+                        public addReference(p_name: string, p_metaClass: org.kevoree.modeling.api.meta.MetaClass, contained: boolean): org.kevoree.modeling.api.reflexive.DynamicMetaClass {
                             var tempOrigin: org.kevoree.modeling.api.meta.MetaClass = this;
-                            var tempReference: org.kevoree.modeling.api.abs.AbstractMetaReference = new org.kevoree.modeling.api.abs.AbstractMetaReference(p_name, this._globalIndex, false, false,  () => {
+                            var tempReference: org.kevoree.modeling.api.abs.AbstractMetaReference = new org.kevoree.modeling.api.abs.AbstractMetaReference(p_name, this._globalIndex, contained, false,  () => {
                                 return p_metaClass;
                             }, null,  () => {
                                 return tempOrigin;
@@ -5862,17 +5552,17 @@ module org {
                             var keysAttributes: string[] = this.cached_attributes.keySet().toArray(new Array());
                             for (var i: number = 0; i < keysAttributes.length; i++) {
                                 var resAtt: org.kevoree.modeling.api.meta.MetaAttribute = this.cached_attributes.get(keysAttributes[i]);
-                                tempAttributes[resAtt.index()] = resAtt;
+                                tempAttributes[i] = resAtt;
                             }
                             var keysReferences: string[] = this.cached_references.keySet().toArray(new Array());
                             for (var i: number = 0; i < keysReferences.length; i++) {
                                 var resRef: org.kevoree.modeling.api.meta.MetaReference = this.cached_references.get(keysReferences[i]);
-                                tempReference[resRef.index()] = resRef;
+                                tempReference[i] = resRef;
                             }
                             var keysOperations: string[] = this.cached_methods.keySet().toArray(new Array());
                             for (var i: number = 0; i < keysOperations.length; i++) {
                                 var resOp: org.kevoree.modeling.api.meta.MetaOperation = this.cached_methods.get(keysOperations[i]);
-                                tempOperation[resOp.index()] = resOp;
+                                tempOperation[i] = resOp;
                             }
                             this.init(tempAttributes, tempReference, tempOperation);
                         }
@@ -5919,8 +5609,8 @@ module org {
                             }
                         }
 
-                        public universe(): org.kevoree.modeling.api.KUniverse<any> {
-                            var universe: org.kevoree.modeling.api.reflexive.DynamicKUniverse = new org.kevoree.modeling.api.reflexive.DynamicKUniverse();
+                        public universe(): org.kevoree.modeling.api.KModel<any> {
+                            var universe: org.kevoree.modeling.api.reflexive.DynamicKModel = new org.kevoree.modeling.api.reflexive.DynamicKModel();
                             universe.setMetaModel(this);
                             return universe;
                         }
@@ -6113,7 +5803,7 @@ module org {
                                 var collected: java.util.Set<number> = new java.util.HashSet<number>();
                                 for (var k: number = 0; k < roots.length; k++) {
                                     var root: org.kevoree.modeling.api.KObject = roots[k];
-                                    var raw: any[] = root.dimension().universe().storage().raw(root, org.kevoree.modeling.api.data.AccessMode.READ);
+                                    var raw: any[] = root.dimension().model().storage().raw(root, org.kevoree.modeling.api.data.AccessMode.READ);
                                     if (raw != null) {
                                         for (var i: number = 0; i < root.metaClass().metaReferences().length; i++) {
                                             var reference: org.kevoree.modeling.api.meta.MetaReference = root.metaClass().metaReferences()[i];
@@ -8351,6 +8041,455 @@ module org {
                     }
 
                 }
+                export module traversal {
+                    export class DefaultKTraversalPromise implements org.kevoree.modeling.api.traversal.KTraversalPromise {
+
+                        private _initObjs: org.kevoree.modeling.api.KObject[];
+                        private _initAction: org.kevoree.modeling.api.traversal.KTraversalAction;
+                        private _lastAction: org.kevoree.modeling.api.traversal.KTraversalAction;
+                        private _terminated: boolean = false;
+                        constructor(p_root: org.kevoree.modeling.api.KObject, p_ref: org.kevoree.modeling.api.meta.MetaReference) {
+                            this._initAction = new org.kevoree.modeling.api.traversal.actions.KTraverseAction(p_ref);
+                            this._initObjs = new Array();
+                            this._initObjs[0] = p_root;
+                            this._lastAction = this._initAction;
+                        }
+
+                        public traverse(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.traversal.KTraversalPromise {
+                            if (this._terminated) {
+                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                            }
+                            var tempAction: org.kevoree.modeling.api.traversal.actions.KTraverseAction = new org.kevoree.modeling.api.traversal.actions.KTraverseAction(p_metaReference);
+                            this._lastAction.chain(tempAction);
+                            this._lastAction = tempAction;
+                            return this;
+                        }
+
+                        public withAttribute(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_expectedValue: any): org.kevoree.modeling.api.traversal.KTraversalPromise {
+                            if (this._terminated) {
+                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                            }
+                            var tempAction: org.kevoree.modeling.api.traversal.actions.KFilterAttributeAction = new org.kevoree.modeling.api.traversal.actions.KFilterAttributeAction(p_attribute, p_expectedValue);
+                            this._lastAction.chain(tempAction);
+                            this._lastAction = tempAction;
+                            return this;
+                        }
+
+                        public withoutAttribute(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_expectedValue: any): org.kevoree.modeling.api.traversal.KTraversalPromise {
+                            if (this._terminated) {
+                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                            }
+                            var tempAction: org.kevoree.modeling.api.traversal.actions.KFilterNotAttributeAction = new org.kevoree.modeling.api.traversal.actions.KFilterNotAttributeAction(p_attribute, p_expectedValue);
+                            this._lastAction.chain(tempAction);
+                            this._lastAction = tempAction;
+                            return this;
+                        }
+
+                        public filter(p_filter: (p : org.kevoree.modeling.api.KObject) => boolean): org.kevoree.modeling.api.traversal.KTraversalPromise {
+                            if (this._terminated) {
+                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                            }
+                            var tempAction: org.kevoree.modeling.api.traversal.actions.KFilterAction = new org.kevoree.modeling.api.traversal.actions.KFilterAction(p_filter);
+                            this._lastAction.chain(tempAction);
+                            this._lastAction = tempAction;
+                            return this;
+                        }
+
+                        public then(callback: (p : org.kevoree.modeling.api.KObject[]) => void): void {
+                            this._terminated = true;
+                            this._lastAction.chain(new org.kevoree.modeling.api.traversal.actions.KFinalAction(callback));
+                            this._initAction.execute(this._initObjs);
+                        }
+
+                        public map(attribute: org.kevoree.modeling.api.meta.MetaAttribute, callback: (p : any[]) => void): void {
+                            this._terminated = true;
+                            this._lastAction.chain(new org.kevoree.modeling.api.traversal.actions.KMapAction(attribute, callback));
+                            this._initAction.execute(this._initObjs);
+                        }
+
+                    }
+
+                    export interface KTraversalAction {
+
+                        chain(next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
+
+                        execute(inputs: org.kevoree.modeling.api.KObject[]): void;
+
+                    }
+
+                    export interface KTraversalFilter {
+
+                        filter(obj: org.kevoree.modeling.api.KObject): boolean;
+
+                    }
+
+                    export interface KTraversalPromise {
+
+                        traverse(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.traversal.KTraversalPromise;
+
+                        withAttribute(attribute: org.kevoree.modeling.api.meta.MetaAttribute, expectedValue: any): org.kevoree.modeling.api.traversal.KTraversalPromise;
+
+                        withoutAttribute(attribute: org.kevoree.modeling.api.meta.MetaAttribute, expectedValue: any): org.kevoree.modeling.api.traversal.KTraversalPromise;
+
+                        filter(filter: (p : org.kevoree.modeling.api.KObject) => boolean): org.kevoree.modeling.api.traversal.KTraversalPromise;
+
+                        then(callback: (p : org.kevoree.modeling.api.KObject[]) => void): void;
+
+                        map(attribute: org.kevoree.modeling.api.meta.MetaAttribute, callback: (p : any[]) => void): void;
+
+                    }
+
+                    export module actions {
+                        export class KFilterAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
+
+                            private _next: org.kevoree.modeling.api.traversal.KTraversalAction;
+                            private _filter: (p : org.kevoree.modeling.api.KObject) => boolean;
+                            constructor(p_filter: (p : org.kevoree.modeling.api.KObject) => boolean) {
+                                this._filter = p_filter;
+                            }
+
+                            public chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void {
+                                this._next = p_next;
+                            }
+
+                            public execute(p_inputs: org.kevoree.modeling.api.KObject[]): void {
+                                var nextStep: java.util.List<org.kevoree.modeling.api.KObject> = new java.util.ArrayList<org.kevoree.modeling.api.KObject>();
+                                for (var i: number = 0; i < p_inputs.length; i++) {
+                                    try {
+                                        if (this._filter(p_inputs[i])) {
+                                            nextStep.add(p_inputs[i]);
+                                        }
+                                    } catch ($ex$) {
+                                        if ($ex$ instanceof java.lang.Exception) {
+                                            var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                            e.printStackTrace();
+                                        }
+                                     }
+                                }
+                                this._next.execute(nextStep.toArray(new Array()));
+                            }
+
+                        }
+
+                        export class KFilterAttributeAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
+
+                            private _next: org.kevoree.modeling.api.traversal.KTraversalAction;
+                            private _attribute: org.kevoree.modeling.api.meta.MetaAttribute;
+                            private _expectedValue: any;
+                            constructor(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_expectedValue: any) {
+                                this._attribute = p_attribute;
+                                this._expectedValue = p_expectedValue;
+                            }
+
+                            public chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void {
+                                this._next = p_next;
+                            }
+
+                            public execute(p_inputs: org.kevoree.modeling.api.KObject[]): void {
+                                if (p_inputs == null || p_inputs.length == 0) {
+                                    this._next.execute(p_inputs);
+                                    return;
+                                } else {
+                                    var currentView: org.kevoree.modeling.api.KView = p_inputs[0].view();
+                                    var nextStep: java.util.List<org.kevoree.modeling.api.KObject> = new java.util.ArrayList<org.kevoree.modeling.api.KObject>();
+                                    for (var i: number = 0; i < p_inputs.length; i++) {
+                                        try {
+                                            var loopObj: org.kevoree.modeling.api.abs.AbstractKObject = <org.kevoree.modeling.api.abs.AbstractKObject>p_inputs[i];
+                                            var raw: any[] = currentView.universe().model().storage().raw(loopObj, org.kevoree.modeling.api.data.AccessMode.READ);
+                                            if (raw != null) {
+                                                if (this._attribute == null) {
+                                                    if (this._expectedValue == null) {
+                                                        nextStep.add(loopObj);
+                                                    } else {
+                                                        var addToNext: boolean = false;
+                                                        for (var j: number = 0; j < loopObj.metaClass().metaAttributes().length; j++) {
+                                                            var ref: org.kevoree.modeling.api.meta.MetaAttribute = loopObj.metaClass().metaAttributes()[j];
+                                                            var resolved: any = raw[ref.index()];
+                                                            if (resolved == null) {
+                                                                if (this._expectedValue.toString().equals("*")) {
+                                                                    addToNext = true;
+                                                                }
+                                                            } else {
+                                                                if (resolved.equals(this._expectedValue)) {
+                                                                    addToNext = true;
+                                                                } else {
+                                                                    if (resolved.toString().matches(this._expectedValue.toString().replace("*", ".*"))) {
+                                                                        addToNext = true;
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        if (addToNext) {
+                                                            nextStep.add(loopObj);
+                                                        }
+                                                    }
+                                                } else {
+                                                    var translatedAtt: org.kevoree.modeling.api.meta.MetaAttribute = loopObj.internal_transpose_att(this._attribute);
+                                                    if (translatedAtt != null) {
+                                                        var resolved: any = raw[translatedAtt.index()];
+                                                        if (this._expectedValue == null) {
+                                                            nextStep.add(loopObj);
+                                                        } else {
+                                                            if (resolved == null) {
+                                                                if (this._expectedValue.toString().equals("*")) {
+                                                                    nextStep.add(loopObj);
+                                                                }
+                                                            } else {
+                                                                if (resolved.equals(this._expectedValue)) {
+                                                                    nextStep.add(loopObj);
+                                                                } else {
+                                                                    if (resolved.toString().matches(this._expectedValue.toString().replace("*", ".*"))) {
+                                                                        nextStep.add(loopObj);
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            } else {
+                                                System.err.println("WARN: Empty KObject " + loopObj.uuid());
+                                            }
+                                        } catch ($ex$) {
+                                            if ($ex$ instanceof java.lang.Exception) {
+                                                var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                                e.printStackTrace();
+                                            }
+                                         }
+                                    }
+                                    this._next.execute(nextStep.toArray(new Array()));
+                                }
+                            }
+
+                        }
+
+                        export class KFilterNotAttributeAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
+
+                            private _next: org.kevoree.modeling.api.traversal.KTraversalAction;
+                            private _attribute: org.kevoree.modeling.api.meta.MetaAttribute;
+                            private _expectedValue: any;
+                            constructor(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_expectedValue: any) {
+                                this._attribute = p_attribute;
+                                this._expectedValue = p_expectedValue;
+                            }
+
+                            public chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void {
+                                this._next = p_next;
+                            }
+
+                            public execute(p_inputs: org.kevoree.modeling.api.KObject[]): void {
+                                if (p_inputs == null || p_inputs.length == 0) {
+                                    this._next.execute(p_inputs);
+                                } else {
+                                    var currentView: org.kevoree.modeling.api.KView = p_inputs[0].view();
+                                    var nextStep: java.util.List<org.kevoree.modeling.api.KObject> = new java.util.ArrayList<org.kevoree.modeling.api.KObject>();
+                                    for (var i: number = 0; i < p_inputs.length; i++) {
+                                        try {
+                                            var loopObj: org.kevoree.modeling.api.abs.AbstractKObject = <org.kevoree.modeling.api.abs.AbstractKObject>p_inputs[i];
+                                            var raw: any[] = currentView.universe().model().storage().raw(loopObj, org.kevoree.modeling.api.data.AccessMode.READ);
+                                            if (raw != null) {
+                                                if (this._attribute == null) {
+                                                    if (this._expectedValue == null) {
+                                                        nextStep.add(loopObj);
+                                                    } else {
+                                                        var addToNext: boolean = true;
+                                                        for (var j: number = 0; j < loopObj.metaClass().metaAttributes().length; j++) {
+                                                            var ref: org.kevoree.modeling.api.meta.MetaAttribute = loopObj.metaClass().metaAttributes()[j];
+                                                            var resolved: any = raw[ref.index()];
+                                                            if (resolved == null) {
+                                                                if (this._expectedValue.toString().equals("*")) {
+                                                                    addToNext = false;
+                                                                }
+                                                            } else {
+                                                                if (resolved.equals(this._expectedValue)) {
+                                                                    addToNext = false;
+                                                                } else {
+                                                                    if (resolved.toString().matches(this._expectedValue.toString().replace("*", ".*"))) {
+                                                                        addToNext = false;
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        if (addToNext) {
+                                                            nextStep.add(loopObj);
+                                                        }
+                                                    }
+                                                } else {
+                                                    var translatedAtt: org.kevoree.modeling.api.meta.MetaAttribute = loopObj.internal_transpose_att(this._attribute);
+                                                    if (translatedAtt != null) {
+                                                        var resolved: any = raw[translatedAtt.index()];
+                                                        if (this._expectedValue == null) {
+                                                            if (resolved != null) {
+                                                                nextStep.add(loopObj);
+                                                            }
+                                                        } else {
+                                                            if (resolved == null) {
+                                                                if (!this._expectedValue.toString().equals("*")) {
+                                                                    nextStep.add(loopObj);
+                                                                }
+                                                            } else {
+                                                                if (!resolved.equals(this._expectedValue)) {
+                                                                    nextStep.add(loopObj);
+                                                                } else {
+                                                                    if (!resolved.toString().matches(this._expectedValue.toString().replace("*", ".*"))) {
+                                                                        nextStep.add(loopObj);
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            } else {
+                                                System.err.println("WARN: Empty KObject " + loopObj.uuid());
+                                            }
+                                        } catch ($ex$) {
+                                            if ($ex$ instanceof java.lang.Exception) {
+                                                var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                                e.printStackTrace();
+                                            }
+                                         }
+                                    }
+                                    this._next.execute(nextStep.toArray(new Array()));
+                                }
+                            }
+
+                        }
+
+                        export class KFinalAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
+
+                            private _finalCallback: (p : org.kevoree.modeling.api.KObject[]) => void;
+                            constructor(p_callback: (p : org.kevoree.modeling.api.KObject[]) => void) {
+                                this._finalCallback = p_callback;
+                            }
+
+                            public chain(next: org.kevoree.modeling.api.traversal.KTraversalAction): void {
+                            }
+
+                            public execute(inputs: org.kevoree.modeling.api.KObject[]): void {
+                                this._finalCallback(inputs);
+                            }
+
+                        }
+
+                        export class KMapAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
+
+                            private _finalCallback: (p : any[]) => void;
+                            private _attribute: org.kevoree.modeling.api.meta.MetaAttribute;
+                            constructor(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_callback: (p : any[]) => void) {
+                                this._finalCallback = p_callback;
+                                this._attribute = p_attribute;
+                            }
+
+                            public chain(next: org.kevoree.modeling.api.traversal.KTraversalAction): void {
+                            }
+
+                            public execute(inputs: org.kevoree.modeling.api.KObject[]): void {
+                                var collected: java.util.List<any> = new java.util.ArrayList<any>();
+                                for (var i: number = 0; i < inputs.length; i++) {
+                                    if (inputs[i] != null) {
+                                        var resolved: any = inputs[i].get(this._attribute);
+                                        if (resolved != null) {
+                                            collected.add(resolved);
+                                        }
+                                    }
+                                }
+                                this._finalCallback(collected.toArray(new Array()));
+                            }
+
+                        }
+
+                        export class KTraverseAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
+
+                            private _next: org.kevoree.modeling.api.traversal.KTraversalAction;
+                            private _reference: org.kevoree.modeling.api.meta.MetaReference;
+                            constructor(p_reference: org.kevoree.modeling.api.meta.MetaReference) {
+                                this._reference = p_reference;
+                            }
+
+                            public chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void {
+                                this._next = p_next;
+                            }
+
+                            public execute(p_inputs: org.kevoree.modeling.api.KObject[]): void {
+                                if (p_inputs == null || p_inputs.length == 0) {
+                                    this._next.execute(p_inputs);
+                                    return;
+                                } else {
+                                    var currentView: org.kevoree.modeling.api.KView = p_inputs[0].view();
+                                    var nextIds: java.util.List<number> = new java.util.ArrayList<number>();
+                                    for (var i: number = 0; i < p_inputs.length; i++) {
+                                        try {
+                                            var loopObj: org.kevoree.modeling.api.abs.AbstractKObject = <org.kevoree.modeling.api.abs.AbstractKObject>p_inputs[i];
+                                            var raw: any[] = currentView.universe().model().storage().raw(loopObj, org.kevoree.modeling.api.data.AccessMode.READ);
+                                            if (this._reference == null) {
+                                                for (var j: number = 0; j < loopObj.metaClass().metaReferences().length; j++) {
+                                                    var ref: org.kevoree.modeling.api.meta.MetaReference = loopObj.metaClass().metaReferences()[j];
+                                                    var resolved: any = raw[ref.index()];
+                                                    if (resolved != null) {
+                                                        if (resolved instanceof java.util.Set) {
+                                                            var resolvedCasted: java.util.Set<number> = <java.util.Set<number>>resolved;
+                                                            var resolvedArr: number[] = resolvedCasted.toArray(new Array());
+                                                            for (var k: number = 0; k < resolvedArr.length; k++) {
+                                                                var idResolved: number = resolvedArr[k];
+                                                                if (idResolved != null) {
+                                                                    nextIds.add(idResolved);
+                                                                }
+                                                            }
+                                                        } else {
+                                                            try {
+                                                                nextIds.add(<number>resolved);
+                                                            } catch ($ex$) {
+                                                                if ($ex$ instanceof java.lang.Exception) {
+                                                                    var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                                                    e.printStackTrace();
+                                                                }
+                                                             }
+                                                        }
+                                                    }
+                                                }
+                                            } else {
+                                                var translatedRef: org.kevoree.modeling.api.meta.MetaReference = loopObj.internal_transpose_ref(this._reference);
+                                                if (translatedRef != null) {
+                                                    var resolved: any = raw[translatedRef.index()];
+                                                    if (resolved != null) {
+                                                        if (resolved instanceof java.util.Set) {
+                                                            var resolvedCasted: java.util.Set<number> = <java.util.Set<number>>resolved;
+                                                            var resolvedArr: number[] = resolvedCasted.toArray(new Array());
+                                                            for (var j: number = 0; j < resolvedArr.length; j++) {
+                                                                var idResolved: number = resolvedArr[j];
+                                                                if (idResolved != null) {
+                                                                    nextIds.add(idResolved);
+                                                                }
+                                                            }
+                                                        } else {
+                                                            try {
+                                                                nextIds.add(<number>resolved);
+                                                            } catch ($ex$) {
+                                                                if ($ex$ instanceof java.lang.Exception) {
+                                                                    var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                                                    e.printStackTrace();
+                                                                }
+                                                             }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        } catch ($ex$) {
+                                            if ($ex$ instanceof java.lang.Exception) {
+                                                var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                                e.printStackTrace();
+                                            }
+                                         }
+                                    }
+                                    currentView.lookupAll(nextIds.toArray(new Array()),  (kObjects : org.kevoree.modeling.api.KObject[]) => {
+                                        this._next.execute(kObjects);
+                                    });
+                                }
+                            }
+
+                        }
+
+                    }
+                }
                 export module util {
                     export interface CallBackChain<A> {
 
@@ -8500,7 +8639,7 @@ module org {
                                         this._syncCallback(sequence);
                                     }
                                 } else {
-                                    this._previous.dimension().universe().storage().eventBroker().unregister(this._listener);
+                                    this._previous.dimension().model().storage().eventBroker().unregister(this._listener);
                                     this._previous.merge(target,  (traceSequence : org.kevoree.modeling.api.trace.TraceSequence) => {
                                         if (this._syncCallback != null) {
                                             this._syncCallback(traceSequence);
@@ -8529,7 +8668,7 @@ module org {
 
                         public jumpDimension(targetDimension: number): void {
                             if (this._previous != null) {
-                                this._previous.dimension().universe().dimension(targetDimension).time(this._previous.now()).lookup(this._previous.uuid(),  (resolved : org.kevoree.modeling.api.KObject) => {
+                                this._previous.dimension().model().dimension(targetDimension).time(this._previous.now()).lookup(this._previous.uuid(),  (resolved : org.kevoree.modeling.api.KObject) => {
                                     this.set(resolved);
                                 });
                             }
