@@ -75,7 +75,9 @@ public class KFilterAttributeAction implements KTraversalAction {
                             if (translatedAtt != null) {
                                 Object resolved = raw[translatedAtt.index()];
                                 if (_expectedValue == null) {
-                                    nextStep.add(loopObj);
+                                    if (resolved == null) {
+                                        nextStep.add(loopObj);
+                                    }
                                 } else {
                                     if (resolved == null) {
                                         if (_expectedValue.toString().equals("*")) {

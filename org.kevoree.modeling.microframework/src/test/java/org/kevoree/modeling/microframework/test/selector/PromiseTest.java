@@ -6,6 +6,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.traversal.KTraversalFilter;
 import org.kevoree.modeling.microframework.test.cloud.*;
+import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
 
 /**
  * Created by thomas on 19/12/14.
@@ -46,6 +47,57 @@ public class PromiseTest {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(kObjects.length, 2);
+                    }
+                });
+
+                node0.traverse(node0.metaClass().metaReference("children")).withAttribute(MetaNode.ATT_NAME, "child*").map(MetaNode.ATT_NAME, new Callback<Object[]>() {
+                    @Override
+                    public void on(Object[] objects) {
+                        Assert.assertEquals(objects.length, 2);
+                    }
+                });
+
+                node0.traverse(node0.metaClass().metaReference("children")).withAttribute(MetaNode.ATT_NAME, "child1").map(MetaNode.ATT_NAME, new Callback<Object[]>() {
+                    @Override
+                    public void on(Object[] objects) {
+                        Assert.assertEquals(objects.length, 1);
+                        Assert.assertEquals(objects[0], "child1");
+                    }
+                });
+
+                node0.traverse(node0.metaClass().metaReference("children")).withoutAttribute(MetaNode.ATT_NAME, "child1").map(MetaNode.ATT_NAME, new Callback<Object[]>() {
+                    @Override
+                    public void on(Object[] objects) {
+                        Assert.assertEquals(objects.length, 1);
+                        Assert.assertEquals(objects[0], "child2");
+                    }
+                });
+
+                node0.traverse(node0.metaClass().metaReference("children")).withAttribute(MetaNode.ATT_NAME, null).map(MetaNode.ATT_NAME, new Callback<Object[]>() {
+                    @Override
+                    public void on(Object[] objects) {
+                        Assert.assertEquals(objects.length, 0);
+                    }
+                });
+
+                node0.traverse(node0.metaClass().metaReference("children")).withAttribute(MetaNode.ATT_NAME, "*").map(MetaNode.ATT_NAME, new Callback<Object[]>() {
+                    @Override
+                    public void on(Object[] objects) {
+                        Assert.assertEquals(objects.length, 2);
+                    }
+                });
+
+                node0.traverse(node0.metaClass().metaReference("children")).withoutAttribute(MetaNode.ATT_NAME, null).map(MetaNode.ATT_NAME, new Callback<Object[]>() {
+                    @Override
+                    public void on(Object[] objects) {
+                        Assert.assertEquals(objects.length, 2);
+                    }
+                });
+
+                node0.traverse(node0.metaClass().metaReference("children")).withoutAttribute(MetaNode.ATT_NAME, "*").map(MetaNode.ATT_NAME, new Callback<Object[]>() {
+                    @Override
+                    public void on(Object[] objects) {
+                        Assert.assertEquals(objects.length, 0);
                     }
                 });
 

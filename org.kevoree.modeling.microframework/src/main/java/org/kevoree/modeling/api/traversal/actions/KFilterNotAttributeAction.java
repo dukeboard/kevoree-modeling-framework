@@ -83,10 +83,13 @@ public class KFilterNotAttributeAction implements KTraversalAction {
                                             nextStep.add(loopObj);
                                         }
                                     } else {
-                                        if (!resolved.equals(_expectedValue)) {
-                                            nextStep.add(loopObj);
+
+                                        if (resolved.equals(_expectedValue)) {
+                                            //noop
                                         } else {
-                                            if (!resolved.toString().matches(_expectedValue.toString().replace("*", ".*"))) {
+                                            if (resolved.toString().matches(_expectedValue.toString().replace("*", ".*"))) {
+                                                //noop
+                                            } else {
                                                 nextStep.add(loopObj);
                                             }
                                         }
