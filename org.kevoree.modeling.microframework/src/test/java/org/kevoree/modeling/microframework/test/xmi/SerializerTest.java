@@ -19,7 +19,7 @@ public class SerializerTest {
     public void serializeTest() throws InterruptedException {
         CloudModel universe = new CloudModel();
         universe.connect(null);
-        CloudUniverse dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newUniverse();
         final CloudView t0 = dimension0.time(0l);
         Node nodeT0 = t0.createNode();
         nodeT0.setName("node0");

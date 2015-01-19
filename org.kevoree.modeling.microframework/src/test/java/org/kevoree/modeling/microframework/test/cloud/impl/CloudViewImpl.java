@@ -15,8 +15,8 @@ import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
  */
 public class CloudViewImpl extends AbstractKView implements CloudView {
 
-    public CloudViewImpl(long now, KUniverse dimension) {
-        super(now, dimension);
+    public CloudViewImpl(long now, KUniverse p_universe) {
+        super(now, p_universe);
     }
 
     @Override

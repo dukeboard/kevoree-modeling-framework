@@ -14,21 +14,21 @@ public class PolynomialSaveLoadTest {
     @Test
     public void test() {
 
-       // MemoryKDataBase.DEBUG = true;
+        // MemoryKDataBase.DEBUG = true;
 
         final int[] nbAssert = new int[1];
         nbAssert[0] = 0;
-        CloudModel universe = new CloudModel();
-        universe.connect(null);
+        CloudModel model = new CloudModel();
+        model.connect(null);
 
-        CloudUniverse dimension = universe.newDimension();
+        CloudUniverse universe = model.newUniverse();
 
         final double[] val = new double[1000];
         double[] coef = {2, 2, 3};
-        CloudView t0 = dimension.time(0l);
+        CloudView t0 = universe.time(0l);
         Node node = t0.createNode();
         node.setName("n0");
-        t0.setRoot(node,null);
+        t0.setRoot(node, null);
         final Element element = t0.createElement();
         element.setName("e0");
         node.setElement(element);
@@ -53,7 +53,7 @@ public class PolynomialSaveLoadTest {
             }
             final double vv = val[i];
             final long finalI = i;
-            dimension.time(finalI).lookup(element.uuid(), new Callback<KObject>() {
+            universe.time(finalI).lookup(element.uuid(), new Callback<KObject>() {
                 @Override
                 public void on(KObject kObject) {
                     Element casted = (Element) kObject;
@@ -62,7 +62,7 @@ public class PolynomialSaveLoadTest {
             });
         }
 
-        dimension.saveUnload(new Callback<Throwable>() {
+        universe.saveUnload(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
 
@@ -85,7 +85,7 @@ public class PolynomialSaveLoadTest {
         }
         Assert.assertEquals(element.timeTree().size(), 2);
 
-        dimension.save(new Callback<Throwable>() {
+        universe.save(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
 

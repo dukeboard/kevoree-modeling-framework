@@ -29,7 +29,7 @@ public class KSelector {
             Set<Long> collected = new HashSet<Long>();
             for (int k = 0; k < roots.length; k++) {
                 KObject root = roots[k];
-                Object[] raw = root.dimension().model().storage().raw(root, AccessMode.READ);
+                Object[] raw = root.universe().model().storage().raw(root, AccessMode.READ);
                 if (raw != null) {
                     for (int i = 0; i < root.metaClass().metaReferences().length; i++) {
                         MetaReference reference = root.metaClass().metaReferences()[i];

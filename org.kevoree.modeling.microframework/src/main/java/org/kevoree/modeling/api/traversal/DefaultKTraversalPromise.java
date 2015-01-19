@@ -71,6 +71,28 @@ public class DefaultKTraversalPromise implements KTraversalPromise {
     }
 
     @Override
+    public KTraversalPromise reverse(MetaReference p_metaReference) {
+        if (_terminated) {
+            throw new RuntimeException("Promise is terminated by the call of then method, please create another promise");
+        }
+        KReverseAction tempAction = new KReverseAction(p_metaReference);
+        _lastAction.chain(tempAction);
+        _lastAction = tempAction;
+        return this;
+    }
+
+    @Override
+    public KTraversalPromise parents() {
+        if (_terminated) {
+            throw new RuntimeException("Promise is terminated by the call of then method, please create another promise");
+        }
+        KParentsAction tempAction = new KParentsAction();
+        _lastAction.chain(tempAction);
+        _lastAction = tempAction;
+        return this;
+    }
+
+    @Override
     public void then(Callback<KObject[]> callback) {
         _terminated = true;
         //set the terminal leaf action
@@ -87,5 +109,6 @@ public class DefaultKTraversalPromise implements KTraversalPromise {
         //execute the first element of the chain of actions
         _initAction.execute(_initObjs);
     }
+
 
 }

@@ -18,7 +18,7 @@ public class JSONSaveTest {
     public void escapeJsonTest() {
         CloudModel universe = new CloudModel();
         universe.connect(null);
-        CloudUniverse dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newUniverse();
         CloudView time0 = dimension0.time(0l);
         Node root = time0.createNode();
         time0.setRoot(root, null);
@@ -42,7 +42,7 @@ public class JSONSaveTest {
                 "}\n" +
                 "]\n");
 
-        CloudUniverse dimension1 = universe.newDimension();
+        CloudUniverse dimension1 = universe.newUniverse();
         CloudView time10 = dimension1.time(0l);
         time10.json().load("[\n" +
                 "        {\n" +
@@ -83,7 +83,7 @@ public class JSONSaveTest {
     public void jsonTest() {
         CloudModel universe = new CloudModel();
         universe.connect(null);
-        CloudUniverse dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newUniverse();
 
         CloudView time0 = dimension0.time(0l);
         Node root = time0.createNode();

@@ -3,7 +3,7 @@ package org.kevoree.modeling.api.data;
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.abs.AbstractKView;
-import org.kevoree.modeling.api.data.cache.DimensionCache;
+import org.kevoree.modeling.api.data.cache.UniverseCache;
 import org.kevoree.modeling.api.data.cache.TimeCache;
 import org.kevoree.modeling.api.event.DefaultKBroker;
 import org.kevoree.modeling.api.event.KEventBroker;
@@ -24,7 +24,7 @@ public class DefaultKStore implements KStore {
     public static final char KEY_SEP = ',';
 
     private KDataBase _db;
-    private Map<Long, DimensionCache> caches = new HashMap<Long, DimensionCache>();
+    private Map<Long, UniverseCache> caches = new HashMap<Long, UniverseCache>();
     private KEventBroker _eventBroker;
     private KOperationManager _operationManager;
 
@@ -210,7 +210,7 @@ public class DefaultKStore implements KStore {
     }
 
     @Override
-    public long nextDimensionKey() {
+    public long nextUniverseKey() {
         if (_dimensionKeyCalculator == null) {
             throw new RuntimeException(UNIVERSE_NOT_CONNECTED_ERROR);
         }
@@ -228,18 +228,18 @@ public class DefaultKStore implements KStore {
     }
 
     @Override
-    public void initDimension(KUniverse dimension) {
+    public void initUniverse(KUniverse p_universe) {
         //TODO maybe initiate link to previous universe
     }
 
     public void initKObject(KObject obj, KView originView) {
-        write_tree(obj.dimension().key(), obj.uuid(), obj.timeTree());
+        write_tree(obj.universe().key(), obj.uuid(), obj.timeTree());
         CacheEntry cacheEntry = new CacheEntry();
         cacheEntry.raw = new Object[Index.RESERVED_INDEXES + obj.metaClass().metaAttributes().length + obj.metaClass().metaReferences().length];
         cacheEntry.raw[Index.IS_DIRTY_INDEX] = true;
         cacheEntry.metaClass = obj.metaClass();
         cacheEntry.timeTree = obj.timeTree();
-        write_cache(obj.dimension().key(), obj.now(), obj.uuid(), cacheEntry);
+        write_cache(obj.universe().key(), obj.now(), obj.uuid(), cacheEntry);
     }
 
     //TODO
@@ -248,11 +248,11 @@ public class DefaultKStore implements KStore {
         //TODO manage multi universe, and protect for potential null
         long resolvedTime = origin.timeTree().resolve(origin.now());
         boolean needCopy = accessMode.equals(AccessMode.WRITE) && (resolvedTime != origin.now());
-        DimensionCache dimensionCache = caches.get(origin.dimension().key());
-        if (dimensionCache == null) {
+        UniverseCache universeCache = caches.get(origin.universe().key());
+        if (universeCache == null) {
             System.err.println(OUT_OF_CACHE_MESSAGE);
         }
-        TimeCache timeCache = dimensionCache.timesCaches.get(resolvedTime);
+        TimeCache timeCache = universeCache.timesCaches.get(resolvedTime);
         if (timeCache == null) {
             System.err.println(OUT_OF_CACHE_MESSAGE);
             return null;
@@ -303,7 +303,7 @@ public class DefaultKStore implements KStore {
                 clonedEntry.timeTree = entry.timeTree;
                 entry.timeTree.insert(origin.now());
                 //TODO update structure for multi universe
-                write_cache(origin.dimension().key(), origin.now(), origin.uuid(), clonedEntry);
+                write_cache(origin.universe().key(), origin.now(), origin.uuid(), clonedEntry);
                 return clonedEntry.raw;
             }
         }
@@ -311,15 +311,15 @@ public class DefaultKStore implements KStore {
 
 
     @Override
-    public void discard(KUniverse dimension, Callback<Throwable> callback) {
-        caches.remove(dimension.key());
+    public void discard(KUniverse p_universe, Callback<Throwable> callback) {
+        caches.remove(p_universe.key());
         if (callback != null) {
             callback.on(null);
         }
     }
 
     @Override
-    public void delete(KUniverse dimension, Callback<Throwable> callback) {
+    public void delete(KUniverse p_universe, Callback<Throwable> callback) {
         throw new RuntimeException("Not implemented yet !");
     }
 
@@ -327,20 +327,20 @@ public class DefaultKStore implements KStore {
     //TODO synchronize index and so on at the same time
 
     @Override
-    public void save(KUniverse dimension, Callback<Throwable> callback) {
-        DimensionCache dimensionCache = caches.get(dimension.key());
-        if (dimensionCache == null) {
+    public void save(KUniverse p_universe, Callback<Throwable> callback) {
+        UniverseCache universeCache = caches.get(p_universe.key());
+        if (universeCache == null) {
             if (callback != null) {
                 callback.on(null);
             }
         } else {
-            Long[] times = dimensionCache.timesCaches.keySet().toArray(new Long[dimensionCache.timesCaches.keySet().size()]);
-            int sizeCache = size_dirties(dimensionCache) + 2;
+            Long[] times = universeCache.timesCaches.keySet().toArray(new Long[universeCache.timesCaches.keySet().size()]);
+            int sizeCache = size_dirties(universeCache) + 2;
             String[][] payloads = new String[sizeCache][2];
             int i = 0;
             for (int j = 0; j < times.length; j++) {
                 Long now = times[j];
-                TimeCache timeCache = dimensionCache.timesCaches.get(now);
+                TimeCache timeCache = universeCache.timesCaches.get(now);
                 Long[] keys = timeCache.payload_cache.keySet().toArray(new Long[timeCache.payload_cache.keySet().size()]);
                 for (int k = 0; k < keys.length; k++) {
                     Long idObj = keys[k];
@@ -348,7 +348,7 @@ public class DefaultKStore implements KStore {
                     Object[] cached_raw = cached_entry.raw;
                     if (cached_raw != null && cached_raw[Index.IS_DIRTY_INDEX] != null && cached_raw[Index.IS_DIRTY_INDEX].toString().equals("true")) {
                         String[] payloadA = new String[2];
-                        payloadA[0] = keyPayload(dimension.key(), now, idObj);
+                        payloadA[0] = keyPayload(p_universe.key(), now, idObj);
                         payloadA[1] = JsonRaw.encode(cached_raw, idObj, cached_entry.metaClass);
                         payloads[i] = payloadA;
                         cached_raw[Index.IS_DIRTY_INDEX] = false;
@@ -356,25 +356,25 @@ public class DefaultKStore implements KStore {
                     }
                 }
             }
-            Long[] keyArr = dimensionCache.timeTreeCache.keySet().toArray(new Long[dimensionCache.timeTreeCache.size()]);
+            Long[] keyArr = universeCache.timeTreeCache.keySet().toArray(new Long[universeCache.timeTreeCache.size()]);
             for (int l = 0; l < keyArr.length; l++) {
                 Long timeTreeKey = keyArr[l];
-                TimeTree timeTree = dimensionCache.timeTreeCache.get(timeTreeKey);
+                TimeTree timeTree = universeCache.timeTreeCache.get(timeTreeKey);
                 if (timeTree.isDirty()) {
                     String[] payloadC = new String[2];
-                    payloadC[0] = keyTree(dimension.key(), timeTreeKey);
+                    payloadC[0] = keyTree(p_universe.key(), timeTreeKey);
                     payloadC[1] = timeTree.toString();
                     payloads[i] = payloadC;
                     ((DefaultTimeTree) timeTree).setDirty(false);
                     i++;
                 }
             }
-            if (dimensionCache.roots != null && dimensionCache.roots.dirty) {
+            if (universeCache.roots != null && universeCache.roots.dirty) {
                 String[] payloadD = new String[2];
-                payloadD[0] = keyRootTree(dimension);
-                payloadD[1] = dimensionCache.roots.serialize();
+                payloadD[0] = keyRootTree(p_universe);
+                payloadD[1] = universeCache.roots.serialize();
                 payloads[i] = payloadD;
-                dimensionCache.roots.dirty = false;
+                universeCache.roots.dirty = false;
                 i++;
             }
             String[] payloadDim = new String[2];
@@ -387,17 +387,17 @@ public class DefaultKStore implements KStore {
             payloadObj[1] = "" + _objectKeyCalculator.lastComputedIndex();
             payloads[i] = payloadObj;
             _db.put(payloads, callback);
-            _eventBroker.flush(dimension.key());
+            _eventBroker.flush(p_universe.key());
         }
     }
 
     @Override
-    public void saveUnload(final KUniverse dimension, final Callback<Throwable> callback) {
-        save(dimension, new Callback<Throwable>() {
+    public void saveUnload(final KUniverse p_universe, final Callback<Throwable> callback) {
+        save(p_universe, new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable == null) {
-                    discard(dimension, callback);
+                    discard(p_universe, callback);
                 } else {
                     if (callback != null) {
                         callback.on(throwable);
@@ -502,7 +502,7 @@ public class DefaultKStore implements KStore {
 
     @Override
     public void setRoot(KObject newRoot, Callback<Throwable> callback) {
-        resolve_roots(newRoot.dimension(), new Callback<LongRBTree>() {
+        resolve_roots(newRoot.universe(), new Callback<LongRBTree>() {
             @Override
             public void on(LongRBTree longRBTree) {
                 longRBTree.insert(newRoot.now(), newRoot.uuid());
@@ -541,9 +541,9 @@ public class DefaultKStore implements KStore {
     /* Private not synchronized methods */
 
     private CacheEntry read_cache(long dimensionKey, long timeKey, long uuid) {
-        DimensionCache dimensionCache = caches.get(dimensionKey);
-        if (dimensionCache != null) {
-            TimeCache timeCache = dimensionCache.timesCaches.get(timeKey);
+        UniverseCache universeCache = caches.get(dimensionKey);
+        if (universeCache != null) {
+            TimeCache timeCache = universeCache.timesCaches.get(timeKey);
             if (timeCache == null) {
                 return null;
             } else {
@@ -555,42 +555,42 @@ public class DefaultKStore implements KStore {
     }
 
     private synchronized void write_cache(long dimensionKey, long timeKey, long uuid, CacheEntry cacheEntry) {
-        DimensionCache dimensionCache = caches.get(dimensionKey);
-        if (dimensionCache == null) {
-            dimensionCache = new DimensionCache();
-            caches.put(dimensionKey, dimensionCache);
+        UniverseCache universeCache = caches.get(dimensionKey);
+        if (universeCache == null) {
+            universeCache = new UniverseCache();
+            caches.put(dimensionKey, universeCache);
         }
-        TimeCache timeCache = dimensionCache.timesCaches.get(timeKey);
+        TimeCache timeCache = universeCache.timesCaches.get(timeKey);
         if (timeCache == null) {
             timeCache = new TimeCache();
-            dimensionCache.timesCaches.put(timeKey, timeCache);
+            universeCache.timesCaches.put(timeKey, timeCache);
         }
         timeCache.payload_cache.put(uuid, cacheEntry);
     }
 
     private synchronized void write_tree(long dimensionKey, long uuid, TimeTree timeTree) {
-        DimensionCache dimensionCache = caches.get(dimensionKey);
-        if (dimensionCache == null) {
-            dimensionCache = new DimensionCache();
-            caches.put(dimensionKey, dimensionCache);
+        UniverseCache universeCache = caches.get(dimensionKey);
+        if (universeCache == null) {
+            universeCache = new UniverseCache();
+            caches.put(dimensionKey, universeCache);
         }
-        dimensionCache.timeTreeCache.put(uuid, timeTree);
+        universeCache.timeTreeCache.put(uuid, timeTree);
     }
 
     private synchronized void write_roots(long dimensionKey, LongRBTree timeTree) {
-        DimensionCache dimensionCache = caches.get(dimensionKey);
-        if (dimensionCache == null) {
-            dimensionCache = new DimensionCache();
-            caches.put(dimensionKey, dimensionCache);
+        UniverseCache universeCache = caches.get(dimensionKey);
+        if (universeCache == null) {
+            universeCache = new UniverseCache();
+            caches.put(dimensionKey, universeCache);
         }
-        dimensionCache.roots = timeTree;
+        universeCache.roots = timeTree;
     }
 
-    private int size_dirties(DimensionCache dimensionCache) {
-        Long[] times = dimensionCache.timesCaches.keySet().toArray(new Long[dimensionCache.timesCaches.size()]);
+    private int size_dirties(UniverseCache universeCache) {
+        Long[] times = universeCache.timesCaches.keySet().toArray(new Long[universeCache.timesCaches.size()]);
         int sizeCache = 0;
         for (int i = 0; i < times.length; i++) {
-            TimeCache timeCache = dimensionCache.timesCaches.get(times[i]);
+            TimeCache timeCache = universeCache.timesCaches.get(times[i]);
             if (timeCache != null) {
                 Long[] keys = timeCache.payload_cache.keySet().toArray(new Long[timeCache.payload_cache.keySet().size()]);
                 for (int k = 0; k < keys.length; k++) {
@@ -605,14 +605,14 @@ public class DefaultKStore implements KStore {
                 }
             }
         }
-        Long[] ids = dimensionCache.timeTreeCache.keySet().toArray(new Long[dimensionCache.timeTreeCache.size()]);
+        Long[] ids = universeCache.timeTreeCache.keySet().toArray(new Long[universeCache.timeTreeCache.size()]);
         for (int k = 0; k < ids.length; k++) {
-            TimeTree timeTree = dimensionCache.timeTreeCache.get(ids[k]);
+            TimeTree timeTree = universeCache.timeTreeCache.get(ids[k]);
             if (timeTree != null && timeTree.isDirty()) {
                 sizeCache++;
             }
         }
-        if (dimensionCache.roots != null && dimensionCache.roots.dirty) {
+        if (universeCache.roots != null && universeCache.roots.dirty) {
             sizeCache++;
         }
         return sizeCache;
@@ -641,15 +641,15 @@ public class DefaultKStore implements KStore {
         });
     }
 
-    private void resolve_timeTrees(final KUniverse dimension, final Long[] keys, final Callback<TimeTree[]> callback) {
+    private void resolve_timeTrees(final KUniverse p_universe, final Long[] keys, final Callback<TimeTree[]> callback) {
         final List<Integer> toLoad = new ArrayList<Integer>();
         final TimeTree[] result = new TimeTree[keys.length];
         for (int i = 0; i < keys.length; i++) {
-            final DimensionCache dimensionCache = caches.get(dimension.key());
-            if (dimensionCache == null) {
+            final UniverseCache universeCache = caches.get(p_universe.key());
+            if (universeCache == null) {
                 toLoad.add(i);
             } else {
-                TimeTree cachedTree = dimensionCache.timeTreeCache.get(keys[i]);
+                TimeTree cachedTree = universeCache.timeTreeCache.get(keys[i]);
                 if (cachedTree != null) {
                     result[i] = cachedTree;
                 } else {
@@ -662,7 +662,7 @@ public class DefaultKStore implements KStore {
         } else {
             String[] toLoadKeys = new String[toLoad.size()];
             for (int i = 0; i < toLoad.size(); i++) {
-                toLoadKeys[i] = keyTree(dimension.key(), keys[toLoad.get(i)]);
+                toLoadKeys[i] = keyTree(p_universe.key(), keys[toLoad.get(i)]);
             }
             _db.get(toLoadKeys, new ThrowableCallback<String[]>() {
                 @Override
@@ -676,10 +676,10 @@ public class DefaultKStore implements KStore {
                             if (res[i] != null) {
                                 newTree.load(res[i]);
                             } else {
-                                newTree.insert(dimension.key());
+                                newTree.insert(p_universe.key());
                             }
                             //Write in cache the Resolved TimeTree
-                            write_tree(dimension.key(), keys[toLoad.get(i)], newTree);
+                            write_tree(p_universe.key(), keys[toLoad.get(i)], newTree);
                             result[toLoad.get(i)] = newTree;
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -691,15 +691,15 @@ public class DefaultKStore implements KStore {
         }
     }
 
-    private void resolve_roots(final KUniverse dimension, final Callback<LongRBTree> callback) {
-        DimensionCache dimensionCache = caches.get(dimension.key());
-        if (dimensionCache != null && dimensionCache.roots != null) {
+    private void resolve_roots(final KUniverse p_universe, final Callback<LongRBTree> callback) {
+        UniverseCache universeCache = caches.get(p_universe.key());
+        if (universeCache != null && universeCache.roots != null) {
             //If value is already in cache, return it
-            callback.on(dimensionCache.roots);
+            callback.on(universeCache.roots);
         } else {
             //otherwise, load it from DB
             String[] keys = new String[1];
-            keys[0] = keyRoot(dimension.key());
+            keys[0] = keyRoot(p_universe.key());
             _db.get(keys, new ThrowableCallback<String[]>() {
                 @Override
                 public void on(String[] res, Throwable error) { //TODO process error
@@ -715,7 +715,7 @@ public class DefaultKStore implements KStore {
                             }
                         }
                     }
-                    write_roots(dimension.key(), tree);
+                    write_roots(p_universe.key(), tree);
                     callback.on(tree);
                 }
             });

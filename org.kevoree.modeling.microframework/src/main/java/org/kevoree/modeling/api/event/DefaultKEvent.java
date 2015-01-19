@@ -25,7 +25,7 @@ public class DefaultKEvent implements KEvent {
     
     public DefaultKEvent(KActionType p_type, KObject p_source, Meta p_meta, Object p_newValue) {
         if (p_source != null) {
-            this._dimensionKey = p_source.dimension().key();
+            this._dimensionKey = p_source.universe().key();
             this._time = p_source.now();
             this._uuid = p_source.uuid();
             this._metaClass = p_source.metaClass();
@@ -41,7 +41,7 @@ public class DefaultKEvent implements KEvent {
         }
     }
 
-    public Long dimension() {
+    public Long universe() {
         return _dimensionKey;
     }
 

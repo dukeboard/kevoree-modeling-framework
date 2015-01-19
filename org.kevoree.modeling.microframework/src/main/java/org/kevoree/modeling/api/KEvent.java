@@ -9,7 +9,7 @@ import org.kevoree.modeling.api.trace.ModelTrace;
  */
 public interface KEvent {
 
-    public Long dimension();
+    public Long universe();
 
     public Long time();
 

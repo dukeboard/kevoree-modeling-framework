@@ -13,7 +13,7 @@ import org.kevoree.modeling.api.trace.TraceSequence;
  */
 public interface KObject {
 
-    public KUniverse dimension();
+    public KUniverse universe();
 
     public boolean isRoot();
 

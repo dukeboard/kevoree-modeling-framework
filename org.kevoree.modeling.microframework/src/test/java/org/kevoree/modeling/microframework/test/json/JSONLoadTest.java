@@ -19,7 +19,7 @@ public class JSONLoadTest {
         CloudModel universe = new CloudModel();
         universe.connect(null);
 
-        CloudUniverse dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newUniverse();
 
         final int[] passed = new int[1];
 

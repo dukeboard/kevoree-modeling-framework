@@ -49,7 +49,7 @@ public class TimeMachine {
                     _syncCallback.on(sequence);
                 }
             } else {
-                _previous.dimension().model().storage().eventBroker().unregister(_listener);
+                _previous.universe().model().storage().eventBroker().unregister(_listener);
                 _previous.merge(target, new Callback<TraceSequence>() {
                     @Override
                     public void on(TraceSequence traceSequence) {
@@ -89,7 +89,7 @@ public class TimeMachine {
 
     public void jumpDimension(long targetDimension) {
         if (_previous != null) {
-            _previous.dimension().model().dimension(targetDimension).time(_previous.now()).lookup(_previous.uuid(), new Callback<KObject>() {
+            _previous.universe().model().universe(targetDimension).time(_previous.now()).lookup(_previous.uuid(), new Callback<KObject>() {
                 @Override
                 public void on(KObject resolved) {
                     set(resolved);

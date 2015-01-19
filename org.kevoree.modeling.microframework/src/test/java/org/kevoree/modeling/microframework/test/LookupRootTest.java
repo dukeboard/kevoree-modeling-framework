@@ -20,7 +20,7 @@ public class LookupRootTest {
         universe.setDataBase(new MemoryKDataBase());
         universe.connect(null);
 
-        final CloudUniverse dimension0 = universe.newDimension();
+        final CloudUniverse dimension0 = universe.newUniverse();
         final CloudView t0 = dimension0.time(0l);
 
         // create node0 and element0 and link them
@@ -65,7 +65,7 @@ public class LookupRootTest {
         universe.setDataBase(db);
         universe.connect(null);
 
-        final CloudUniverse dimension0 = universe.newDimension();
+        final CloudUniverse dimension0 = universe.newUniverse();
         final CloudView t0 = dimension0.time(0l);
 
         // create node0 and element0 and link them
@@ -88,7 +88,7 @@ public class LookupRootTest {
         final CloudModel universe1 = new CloudModel();
         universe1.setDataBase(db);
         universe1.connect(null);
-        final CloudUniverse cloudDimension1 = universe1.dimension(dimension0.key());
+        final CloudUniverse cloudDimension1 = universe1.universe(dimension0.key());
         final CloudView cloudView1 = cloudDimension1.time(1l);
 
         cloudView1.select("/", new Callback<KObject[]>() {

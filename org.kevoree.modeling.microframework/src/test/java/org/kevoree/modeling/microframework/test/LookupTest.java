@@ -22,7 +22,7 @@ public class LookupTest {
         final CloudModel universe = new CloudModel();
         universe.connect(null);
 
-        CloudUniverse dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newUniverse();
         CloudView t0 = dimension0.time(0l);
         final Node node = t0.createNode();
         node.setName("n0");
@@ -40,7 +40,7 @@ public class LookupTest {
             public void on(Throwable e) {
                 final CloudModel universe2 = new CloudModel();
                 universe2.setDataBase(universe.storage().dataBase());
-                CloudUniverse dimension0_2 = universe2.dimension(dimension0.key());
+                CloudUniverse dimension0_2 = universe2.universe(dimension0.key());
                 final CloudView t0_2 = dimension0_2.time(0l);
                 t0_2.lookup(node.uuid(), new Callback<KObject>() {
                     @Override

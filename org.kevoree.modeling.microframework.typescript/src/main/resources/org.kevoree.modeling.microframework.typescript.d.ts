@@ -28,7 +28,7 @@ declare module org {
                     static values(): KActionType[];
                 }
                 interface KEvent {
-                    dimension(): number;
+                    universe(): number;
                     time(): number;
                     uuid(): number;
                     actionType(): KActionType;
@@ -51,8 +51,8 @@ declare module org {
                 interface KModel<A extends KUniverse<any, any, any>> {
                     connect(callback: (p: java.lang.Throwable) => void): void;
                     close(callback: (p: java.lang.Throwable) => void): void;
-                    newDimension(): A;
-                    dimension(key: number): A;
+                    newUniverse(): A;
+                    universe(key: number): A;
                     saveAll(callback: (p: boolean) => void): void;
                     deleteAll(callback: (p: boolean) => void): void;
                     unloadAll(callback: (p: boolean) => void): void;
@@ -66,7 +66,7 @@ declare module org {
                     metaModel(): meta.MetaModel;
                 }
                 interface KObject {
-                    dimension(): KUniverse<any, any, any>;
+                    universe(): KUniverse<any, any, any>;
                     isRoot(): boolean;
                     uuid(): number;
                     path(callback: (p: string) => void): void;
@@ -184,9 +184,9 @@ declare module org {
                         connect(callback: (p: java.lang.Throwable) => void): void;
                         close(callback: (p: java.lang.Throwable) => void): void;
                         storage(): data.KStore;
-                        newDimension(): A;
+                        newUniverse(): A;
                         internal_create(key: number): A;
-                        dimension(key: number): A;
+                        universe(key: number): A;
                         saveAll(callback: (p: boolean) => void): void;
                         deleteAll(callback: (p: boolean) => void): void;
                         unloadAll(callback: (p: boolean) => void): void;
@@ -210,7 +210,7 @@ declare module org {
                         setRoot(isRoot: boolean): void;
                         now(): number;
                         timeTree(): time.TimeTree;
-                        dimension(): KUniverse<any, any, any>;
+                        universe(): KUniverse<any, any, any>;
                         path(callback: (p: string) => void): void;
                         parentUuid(): number;
                         parent(callback: (p: KObject) => void): void;
@@ -411,15 +411,15 @@ declare module org {
                         private keyLastPrefix();
                         private keyLastDimIndex(prefix);
                         private keyLastObjIndex(prefix);
-                        nextDimensionKey(): number;
+                        nextUniverseKey(): number;
                         nextObjectKey(): number;
-                        initDimension(dimension: KUniverse<any, any, any>): void;
+                        initUniverse(p_universe: KUniverse<any, any, any>): void;
                         initKObject(obj: KObject, originView: KView): void;
                         raw(origin: KObject, accessMode: AccessMode): any[];
-                        discard(dimension: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
-                        delete(dimension: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
-                        save(dimension: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
-                        saveUnload(dimension: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
+                        discard(p_universe: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
+                        delete(p_universe: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
+                        save(p_universe: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
+                        saveUnload(p_universe: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
                         lookup(originView: KView, key: number, callback: (p: KObject) => void): void;
                         lookupAll(originView: KView, keys: number[], callback: (p: KObject[]) => void): void;
                         getRoot(originView: KView, callback: (p: KObject) => void): void;
@@ -433,10 +433,10 @@ declare module org {
                         private write_cache(dimensionKey, timeKey, uuid, cacheEntry);
                         private write_tree(dimensionKey, uuid, timeTree);
                         private write_roots(dimensionKey, timeTree);
-                        private size_dirties(dimensionCache);
+                        private size_dirties(universeCache);
                         private internal_resolve_dim_time(originView, uuids, callback);
-                        private resolve_timeTrees(dimension, keys, callback);
-                        private resolve_roots(dimension, callback);
+                        private resolve_timeTrees(p_universe, keys, callback);
+                        private resolve_roots(p_universe, callback);
                     }
                     class Index {
                         static PARENT_INDEX: number;
@@ -463,13 +463,13 @@ declare module org {
                         lookup(originView: KView, key: number, callback: (p: KObject) => void): void;
                         lookupAll(originView: KView, key: number[], callback: (p: KObject[]) => void): void;
                         raw(origin: KObject, accessMode: AccessMode): any[];
-                        save(dimension: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
-                        saveUnload(dimension: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
-                        discard(dimension: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
-                        delete(dimension: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
+                        save(universe: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
+                        saveUnload(universe: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
+                        discard(universe: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
+                        delete(universe: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
                         initKObject(obj: KObject, originView: KView): void;
-                        initDimension(dimension: KUniverse<any, any, any>): void;
-                        nextDimensionKey(): number;
+                        initUniverse(universe: KUniverse<any, any, any>): void;
+                        nextUniverseKey(): number;
                         nextObjectKey(): number;
                         getRoot(originView: KView, callback: (p: KObject) => void): void;
                         setRoot(newRoot: KObject, callback: (p: java.lang.Throwable) => void): void;
@@ -502,15 +502,15 @@ declare module org {
                         close(callback: (p: java.lang.Throwable) => void): void;
                     }
                     module cache {
-                        class DimensionCache {
-                            timeTreeCache: java.util.Map<number, time.TimeTree>;
-                            timesCaches: java.util.Map<number, TimeCache>;
-                            roots: time.rbtree.LongRBTree;
-                        }
                         class TimeCache {
                             payload_cache: java.util.Map<number, CacheEntry>;
                             root: KObject;
                             rootDirty: boolean;
+                        }
+                        class UniverseCache {
+                            timeTreeCache: java.util.Map<number, time.TimeTree>;
+                            timesCaches: java.util.Map<number, TimeCache>;
+                            roots: time.rbtree.LongRBTree;
                         }
                     }
                 }
@@ -548,7 +548,7 @@ declare module org {
                         private static ELEMENT_KEY;
                         private static VALUE_KEY;
                         constructor(p_type: KActionType, p_source: KObject, p_meta: meta.Meta, p_newValue: any);
-                        dimension(): number;
+                        universe(): number;
                         time(): number;
                         uuid(): number;
                         actionType(): KActionType;
@@ -1269,6 +1269,8 @@ declare module org {
                         withAttribute(p_attribute: meta.MetaAttribute, p_expectedValue: any): KTraversalPromise;
                         withoutAttribute(p_attribute: meta.MetaAttribute, p_expectedValue: any): KTraversalPromise;
                         filter(p_filter: (p: KObject) => boolean): KTraversalPromise;
+                        reverse(p_metaReference: meta.MetaReference): KTraversalPromise;
+                        parents(): KTraversalPromise;
                         then(callback: (p: KObject[]) => void): void;
                         map(attribute: meta.MetaAttribute, callback: (p: any[]) => void): void;
                     }
@@ -1284,6 +1286,8 @@ declare module org {
                         withAttribute(attribute: meta.MetaAttribute, expectedValue: any): KTraversalPromise;
                         withoutAttribute(attribute: meta.MetaAttribute, expectedValue: any): KTraversalPromise;
                         filter(filter: (p: KObject) => boolean): KTraversalPromise;
+                        reverse(metaReference: meta.MetaReference): KTraversalPromise;
+                        parents(): KTraversalPromise;
                         then(callback: (p: KObject[]) => void): void;
                         map(attribute: meta.MetaAttribute, callback: (p: any[]) => void): void;
                     }
@@ -1323,6 +1327,19 @@ declare module org {
                             constructor(p_attribute: meta.MetaAttribute, p_callback: (p: any[]) => void);
                             chain(next: KTraversalAction): void;
                             execute(inputs: KObject[]): void;
+                        }
+                        class KParentsAction implements KTraversalAction {
+                            private _next;
+                            constructor();
+                            chain(p_next: KTraversalAction): void;
+                            execute(p_inputs: KObject[]): void;
+                        }
+                        class KReverseAction implements KTraversalAction {
+                            private _next;
+                            private _reference;
+                            constructor(p_reference: meta.MetaReference);
+                            chain(p_next: KTraversalAction): void;
+                            execute(p_inputs: KObject[]): void;
                         }
                         class KTraverseAction implements KTraversalAction {
                             private _next;

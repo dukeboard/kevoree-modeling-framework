@@ -15,33 +15,35 @@ import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
 public class CloudOperationTest {
 
     public static void main(String[] args) {
-        CloudModel universe = new CloudModel();
-        universe.connect(null);
-
-        universe.setOperation(MetaNode.OP_TRIGGER, new KOperation() {
+        CloudModel model = new CloudModel();
+        model.connect(new Callback<Throwable>() {
             @Override
-            public void on(KObject source, Object[] params, Callback<Object> result) {
-                String parameters = "[";
-                for (int i = 0; i < params.length; i++) {
-                    if (i != 0) {
-                        parameters = parameters + ", ";
+            public void on(Throwable throwable) {
+                model.setOperation(MetaNode.OP_TRIGGER, new KOperation() {
+                    @Override
+                    public void on(KObject source, Object[] params, Callback<Object> result) {
+                        String parameters = "[";
+                        for (int i = 0; i < params.length; i++) {
+                            if (i != 0) {
+                                parameters = parameters + ", ";
+                            }
+                            parameters = parameters + params[i].toString();
+                        }
+                        parameters = parameters + "]";
+                        result.on("Hey. I received Parameter:" + parameters + " on element:(" + source.universe() + "," + source.now() + "," + source.uuid() + ")");
                     }
-                    parameters = parameters + params[i].toString();
-                }
-                parameters = parameters + "]";
-                result.on("Hey. I received Parameter:" + parameters + " on element:(" + source.dimension() + "," + source.now() + "," + source.uuid() + ")");
+                });
+                CloudUniverse dimension = model.newUniverse();
+                CloudView view = dimension.time(0L);
+                Node n = view.createNode();
+                n.trigger("MyParam", new Callback<String>() {
+                    @Override
+                    public void on(String s) {
+                        System.out.println("Operation execution result :  " + s);
+                    }
+                });
             }
         });
-        CloudUniverse dimension = universe.newDimension();
-        CloudView view = dimension.time(0L);
-        Node n = view.createNode();
-        n.trigger("MyParam", new Callback<String>() {
-            @Override
-            public void on(String s) {
-                System.out.println("Operation execution result :  " + s);
-            }
-        });
-
 
     }
 

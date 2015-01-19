@@ -22,7 +22,7 @@ public class ParentStorageTest {
         universe.connect(null);
         //model.connect(null);
 
-        CloudUniverse dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newUniverse();
         CloudView time0 = dimension0.time(0l);
 
         Node root = time0.createNode();
@@ -73,7 +73,7 @@ public class ParentStorageTest {
         CloudModel universe = new CloudModel();
         universe.connect(null);
 
-        CloudUniverse dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newUniverse();
         CloudView time0 = dimension0.time(0l);
 
         Node root = time0.createNode();

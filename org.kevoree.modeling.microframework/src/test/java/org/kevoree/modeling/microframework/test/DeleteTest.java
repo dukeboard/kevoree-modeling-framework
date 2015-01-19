@@ -19,13 +19,13 @@ public class DeleteTest {
     @Test
     public void basicDeleteTest() {
 
-        CloudModel universe = new CloudModel();
-        universe.connect(null);
-        CloudUniverse dimension = universe.newDimension();
-        CloudView factory = dimension.time(0l);
+        CloudModel model = new CloudModel();
+        model.connect(null);
+        CloudUniverse universe = model.newUniverse();
+        CloudView factory = universe.time(0l);
         Node n = factory.createNode();
         factory.setRoot(n, null);
-        dimension.saveUnload(new Callback<Throwable>() {
+        universe.saveUnload(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
@@ -33,7 +33,7 @@ public class DeleteTest {
                 }
             }
         });
-        CloudView factory1 = dimension.time(1l);
+        CloudView factory1 = universe.time(1l);
         Element e = factory1.createElement();
         factory1.select("/", new Callback<KObject[]>() {
             @Override
@@ -42,7 +42,7 @@ public class DeleteTest {
                 n2.setElement(e);
             }
         });
-        dimension.saveUnload(new Callback<Throwable>() {
+        universe.saveUnload(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
@@ -50,7 +50,7 @@ public class DeleteTest {
                 }
             }
         });
-        CloudView factory2 = dimension.time(2l);
+        CloudView factory2 = universe.time(2l);
         factory2.select("/", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] results) {
@@ -70,7 +70,7 @@ public class DeleteTest {
                 });
             }
         });
-        dimension.saveUnload(new Callback<Throwable>() {
+        universe.saveUnload(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
@@ -78,7 +78,7 @@ public class DeleteTest {
                 }
             }
         });
-        CloudView factory3 = dimension.time(3l);
+        CloudView factory3 = universe.time(3l);
         factory3.select("/", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] results) {
@@ -103,7 +103,7 @@ public class DeleteTest {
                 });
             }
         });
-        CloudView factory2_2 = dimension.time(1l);
+        CloudView factory2_2 = universe.time(1l);
         factory2_2.select("/", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] results) {
@@ -126,26 +126,31 @@ public class DeleteTest {
     @Test
     public void simpleDeleteTest() {
 
-        CloudModel universe = new CloudModel();
-        universe.connect(null);
-        CloudUniverse dimension = universe.newDimension();
-        CloudView factory = dimension.time(0l);
-        Node n = factory.createNode();
-        n.setName("n");
-        factory.setRoot(n, null);
-
-        Node n2 = factory.createNode();
-        n2.setName("n2");
-        n.addChildren(n2);
-
-     //  n2.delete(null);
-
-        factory.json().save(n, new ThrowableCallback<String>() {
+        CloudModel model = new CloudModel();
+        model.connect(new Callback<Throwable>() {
             @Override
-            public void on(String s, Throwable error) {
-               // System.err.println(s);
+            public void on(Throwable throwable) {
+                CloudUniverse universe = model.newUniverse();
+                CloudView factory = universe.time(0l);
+                Node n = factory.createNode();
+                n.setName("n");
+                factory.setRoot(n, null);
+
+                Node n2 = factory.createNode();
+                n2.setName("n2");
+                n.addChildren(n2);
+
+                //  n2.delete(null);
+
+                factory.json().save(n, new ThrowableCallback<String>() {
+                    @Override
+                    public void on(String s, Throwable error) {
+                        // System.err.println(s);
+                    }
+                });
             }
         });
+
 
     }
 

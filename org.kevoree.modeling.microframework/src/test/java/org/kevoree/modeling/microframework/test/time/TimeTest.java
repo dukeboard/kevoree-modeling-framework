@@ -21,7 +21,7 @@ public class TimeTest {
 
         CloudModel universe = new CloudModel();
         universe.connect(null);
-        CloudUniverse dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newUniverse();
 
         Assert.assertNotNull(dimension0);
 
@@ -40,7 +40,7 @@ public class TimeTest {
     public void simpleTimeNavigationTest() {
         CloudModel universe = new CloudModel();
         universe.connect(null);
-        CloudUniverse dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newUniverse();
 
         Assert.assertNotNull(dimension0);
 
@@ -79,7 +79,7 @@ public class TimeTest {
     public void distortedTimeNavigationTest() {
         CloudModel universe = new CloudModel();
         universe.connect(null);
-        CloudUniverse dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newUniverse();
 
         Assert.assertNotNull(dimension0);
 
@@ -147,7 +147,7 @@ public class TimeTest {
     public void objectModificationTest() {
         CloudModel universe = new CloudModel();
         universe.connect(null);
-        CloudUniverse dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newUniverse();
 
         Assert.assertNotNull(dimension0);
 
@@ -194,14 +194,14 @@ public class TimeTest {
     @Test
     public void timeUpdateWithLookupTest() {
 
-        CloudModel universe = new CloudModel();
-        universe.connect(null);
-        CloudUniverse dimension = universe.newDimension();
-        CloudView t0 = dimension.time(0L);
+        CloudModel model = new CloudModel();
+        model.connect(null);
+        CloudUniverse universe = model.newUniverse();
+        CloudView t0 = universe.time(0L);
         Node node0 = t0.createNode();
         node0.setName("Node0");
         t0.setRoot(node0, null);
-        dimension.save(new Callback<Throwable>() {
+        universe.save(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
@@ -210,7 +210,7 @@ public class TimeTest {
             }
         });
 
-        CloudView t1 = dimension.time(1L);
+        CloudView t1 = universe.time(1L);
         Element element = t1.createElement();
         element.setName("Element1");
         t1.lookup(node0.uuid(), new Callback<KObject>() {
@@ -219,7 +219,7 @@ public class TimeTest {
                 ((Node) node0Back).setElement(element);
             }
         });
-        dimension.save(new Callback<Throwable>() {
+        universe.save(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
@@ -228,7 +228,7 @@ public class TimeTest {
             }
         });
 
-        CloudView t0_2 = dimension.time(0L);
+        CloudView t0_2 = universe.time(0L);
         t0_2.select("/", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] kObjects) {
@@ -245,14 +245,14 @@ public class TimeTest {
     @Test
     public void timeUpdateWithSelectTest() {
 
-        CloudModel universe = new CloudModel();
-        universe.connect(null);
-        CloudUniverse dimension = universe.newDimension();
-        CloudView t0 = dimension.time(0L);
+        CloudModel model = new CloudModel();
+        model.connect(null);
+        CloudUniverse universe = model.newUniverse();
+        CloudView t0 = universe.time(0L);
         Node node0 = t0.createNode();
         node0.setName("Node0");
         t0.setRoot(node0, null);
-        dimension.save(new Callback<Throwable>() {
+        universe.save(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
@@ -261,7 +261,7 @@ public class TimeTest {
             }
         });
 
-        CloudView t1 = dimension.time(1L);
+        CloudView t1 = universe.time(1L);
         Element element = t1.createElement();
         element.setName("Element1");
         t1.select("/", new Callback<KObject[]>() {
@@ -274,7 +274,7 @@ public class TimeTest {
                 }
             }
         });
-        dimension.save(new Callback<Throwable>() {
+        universe.save(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
@@ -283,7 +283,7 @@ public class TimeTest {
             }
         });
 
-        CloudView t0_2 = dimension.time(0L);
+        CloudView t0_2 = universe.time(0L);
         t0_2.select("/", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] kObjects) {

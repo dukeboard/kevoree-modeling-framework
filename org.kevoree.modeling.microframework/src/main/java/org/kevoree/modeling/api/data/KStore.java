@@ -18,19 +18,19 @@ public interface KStore {
 
     Object[] raw(KObject origin, AccessMode accessMode);
 
-    public void save(KUniverse dimension, Callback<Throwable> callback);
+    public void save(KUniverse universe, Callback<Throwable> callback);
 
-    public void saveUnload(KUniverse dimension, Callback<Throwable> callback);
+    public void saveUnload(KUniverse universe, Callback<Throwable> callback);
 
-    public void discard(KUniverse dimension, Callback<Throwable> callback);
+    public void discard(KUniverse universe, Callback<Throwable> callback);
 
-    public void delete(KUniverse dimension, Callback<Throwable> callback);
+    public void delete(KUniverse universe, Callback<Throwable> callback);
 
     public void initKObject(KObject obj, KView originView);
 
-    public void initDimension(KUniverse dimension);
+    public void initUniverse(KUniverse universe);
 
-    long nextDimensionKey();
+    long nextUniverseKey();
 
     long nextObjectKey();
 

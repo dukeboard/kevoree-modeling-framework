@@ -18,6 +18,10 @@ public interface KTraversalPromise {
 
     public KTraversalPromise filter(KTraversalFilter filter);
 
+    public KTraversalPromise reverse(MetaReference metaReference);
+
+    public KTraversalPromise parents();
+
     public void then(Callback<KObject[]> callback);
 
     public void map(MetaAttribute attribute, Callback<Object[]> callback);

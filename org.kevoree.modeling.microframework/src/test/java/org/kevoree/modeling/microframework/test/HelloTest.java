@@ -34,7 +34,7 @@ public class HelloTest {
                 counter[0]++;
             }
         });
-        CloudUniverse dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newUniverse();
         dimension0.listen(new ModelListener() {
             @Override
             public void on(KEvent evt) {

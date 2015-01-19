@@ -18,7 +18,7 @@ public class PromiseTest {
     public void simpleTraversalTest() {
         final CloudModel universe = new CloudModel();
         universe.connect(null);
-        final CloudUniverse dimension0 = universe.newDimension();
+        final CloudUniverse dimension0 = universe.newUniverse();
         final CloudView t0 = dimension0.time(0l);
 
         final Node node0 = t0.createNode();
@@ -109,7 +109,7 @@ public class PromiseTest {
     public void chainedTraversalTest() {
         final CloudModel universe = new CloudModel();
         universe.connect(null);
-        final CloudUniverse dimension0 = universe.newDimension();
+        final CloudUniverse dimension0 = universe.newUniverse();
         final CloudView t0 = dimension0.time(0l);
 
         final Node node0 = t0.createNode();
@@ -151,7 +151,7 @@ public class PromiseTest {
     public void filterTest() {
         final CloudModel universe = new CloudModel();
         universe.connect(null);
-        final CloudUniverse dimension0 = universe.newDimension();
+        final CloudUniverse dimension0 = universe.newUniverse();
         final CloudView t0 = dimension0.time(0l);
 
         final Node node0 = t0.createNode();

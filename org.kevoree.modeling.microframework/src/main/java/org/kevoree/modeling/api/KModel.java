@@ -16,9 +16,9 @@ public interface KModel<A extends KUniverse> {
 
     public void close(Callback<Throwable> callback);
 
-    public A newDimension();
+    public A newUniverse();
 
-    public A dimension(long key);
+    public A universe(long key);
 
     //TODO refactor with promise
     public void saveAll(Callback<Boolean> callback);

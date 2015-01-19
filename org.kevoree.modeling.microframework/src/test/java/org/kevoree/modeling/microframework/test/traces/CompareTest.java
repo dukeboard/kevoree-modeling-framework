@@ -23,7 +23,7 @@ public class CompareTest {
     public void diffTest() {
         CloudModel universe = new CloudModel();
         universe.connect(null);
-        CloudUniverse dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newUniverse();
         Assert.assertNotNull(dimension0);
         // create time0
         final CloudView t0 = dimension0.time(0l);
@@ -74,7 +74,7 @@ public class CompareTest {
         CloudModel universe = new CloudModel();
         universe.connect(null);
 
-        CloudUniverse dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newUniverse();
 
         Assert.assertNotNull(dimension0);
 
@@ -121,7 +121,7 @@ public class CompareTest {
         CloudModel universe = new CloudModel();
         universe.connect(null);
 
-        CloudUniverse dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newUniverse();
         Assert.assertNotNull(dimension0);
 
         // create time0

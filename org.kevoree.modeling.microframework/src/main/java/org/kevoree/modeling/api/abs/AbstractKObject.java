@@ -89,7 +89,7 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public KUniverse dimension() {
+    public KUniverse universe() {
         return _view.universe();
     }
 
@@ -216,7 +216,7 @@ public abstract class AbstractKObject implements KObject {
         } else {
             if (query.startsWith("/")) {
                 final String finalCleanedQuery = cleanedQuery;
-                dimension().model().storage().getRoot(this.view(), new Callback<KObject>() {
+                universe().model().storage().getRoot(this.view(), new Callback<KObject>() {
                     @Override
                     public void on(KObject rootObj) {
                         if (rootObj == null) {
@@ -238,7 +238,7 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public void listen(ModelListener listener) {
-        dimension().model().storage().eventBroker().registerListener(this, listener, null);
+        universe().model().storage().eventBroker().registerListener(this, listener, null);
     }
 
     @Override

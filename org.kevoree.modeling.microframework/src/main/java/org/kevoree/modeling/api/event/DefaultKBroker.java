@@ -49,7 +49,7 @@ public class DefaultKBroker implements KEventBroker {
         } else if (origin instanceof AbstractKObject) {
             AbstractKObject casted = (AbstractKObject) origin;
             if (scope == null) {
-                tuple[DIM_INDEX] = casted.dimension().key();
+                tuple[DIM_INDEX] = casted.universe().key();
                 tuple[TIME_INDEX] = casted.now();
                 tuple[UUID_INDEX] = casted.uuid();
             } else {
@@ -70,7 +70,7 @@ public class DefaultKBroker implements KEventBroker {
             Object[] tuple = listeners.get(keys[i]);
             boolean match = true;
             if (tuple[DIM_INDEX] != null) {
-                if (!tuple[DIM_INDEX].equals(event.dimension())) {
+                if (!tuple[DIM_INDEX].equals(event.universe())) {
                     match = false;
                 }
             }

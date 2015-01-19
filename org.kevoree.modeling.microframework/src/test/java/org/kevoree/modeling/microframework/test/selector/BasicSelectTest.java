@@ -20,7 +20,7 @@ public class BasicSelectTest {
         CloudModel universe = new CloudModel();
         universe.connect(null);
 
-        CloudUniverse dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newUniverse();
         CloudView t0 = dimension0.time(0l);
         Node node = t0.createNode();
         node.setName("n0");
@@ -48,7 +48,7 @@ public class BasicSelectTest {
         CloudModel universe = new CloudModel();
         universe.connect(null);
 
-        CloudUniverse dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newUniverse();
         CloudView t0 = dimension0.time(0l);
         Node node = t0.createNode();
         node.setName("n0");
