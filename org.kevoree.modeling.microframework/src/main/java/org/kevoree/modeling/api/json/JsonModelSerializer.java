@@ -8,8 +8,6 @@ import org.kevoree.modeling.api.VisitResult;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.data.JsonRaw;
 
-import java.util.Set;
-
 /**
  * Created with IntelliJ IDEA.
  * User: duke
@@ -33,7 +31,7 @@ public class JsonModelSerializer {
 
     public static final String TIME_META = "@time";
 
-    public static final String DIM_META = "@dimension";
+    public static final String DIM_META = "@universe";
 
     //@Override
     public static void serialize(KObject model, final ThrowableCallback<String> callback) {
@@ -63,7 +61,7 @@ public class JsonModelSerializer {
 
     public static void printJSON(KObject elem, StringBuilder builder) {
         if (elem != null) {
-            Object[] raw = elem.view().dimension().universe().storage().raw(elem, AccessMode.READ);
+            Object[] raw = elem.view().universe().model().storage().raw(elem, AccessMode.READ);
             if(raw!=null){
                 builder.append(JsonRaw.encode(raw,elem.uuid(),elem.metaClass()));
             }
@@ -95,7 +93,7 @@ public class JsonModelSerializer {
                 }
             }
             for (int i = 0; i < metaRefLength; i++) {
-                Object[] raw = elem.view().dimension().universe().storage().raw(elem, AccessMode.READ);
+                Object[] raw = elem.view().universe().model().storage().raw(elem, AccessMode.READ);
                 Object payload = null;
                 if (raw != null) {
                     payload = raw[elem.metaClass().metaReferences()[i].index()];

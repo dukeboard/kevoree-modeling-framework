@@ -1,8 +1,8 @@
-package org.kevoree.modeling.api.promise.actions;
+package org.kevoree.modeling.api.traversal.actions;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.promise.KTraversalAction;
+import org.kevoree.modeling.api.traversal.KTraversalAction;
 
 /**
  * Created by duke on 19/12/14.

@@ -1,8 +1,6 @@
 package org.kevoree.modeling.api.reflexive;
 
-import org.kevoree.modeling.api.KDimension;
-import org.kevoree.modeling.api.KUniverse;
-import org.kevoree.modeling.api.abs.AbstractKUniverse;
+import org.kevoree.modeling.api.KModel;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaModel;
 
@@ -57,8 +55,8 @@ public class DynamicMetaModel implements MetaModel {
         }
     }
 
-    public KUniverse universe() {
-        DynamicKUniverse universe = new DynamicKUniverse();
+    public KModel universe() {
+        DynamicKModel universe = new DynamicKModel();
         universe.setMetaModel(this);
         return universe;
     }

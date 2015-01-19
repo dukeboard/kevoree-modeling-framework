@@ -3,7 +3,7 @@ package org.kevoree.modeling.api;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.promise.KTraversalPromise;
+import org.kevoree.modeling.api.traversal.KTraversalPromise;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.trace.TraceSequence;
@@ -13,7 +13,7 @@ import org.kevoree.modeling.api.trace.TraceSequence;
  */
 public interface KObject {
 
-    public KDimension dimension();
+    public KUniverse dimension();
 
     public boolean isRoot();
 

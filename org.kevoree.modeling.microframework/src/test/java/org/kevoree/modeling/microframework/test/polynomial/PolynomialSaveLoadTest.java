@@ -4,7 +4,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.data.MemoryKDataBase;
 import org.kevoree.modeling.microframework.test.cloud.*;
 
 /**
@@ -19,10 +18,10 @@ public class PolynomialSaveLoadTest {
 
         final int[] nbAssert = new int[1];
         nbAssert[0] = 0;
-        CloudUniverse universe = new CloudUniverse();
+        CloudModel universe = new CloudModel();
         universe.connect(null);
 
-        CloudDimension dimension = universe.newDimension();
+        CloudUniverse dimension = universe.newDimension();
 
         final double[] val = new double[1000];
         double[] coef = {2, 2, 3};
@@ -39,7 +38,7 @@ public class PolynomialSaveLoadTest {
             //TODO check Assaad
             /*
             if ((i % 100) == 0) {
-                dimension.save(new Callback<Throwable>() {
+                universe.save(new Callback<Throwable>() {
                     @Override
                     public void on(Throwable throwable) {
 

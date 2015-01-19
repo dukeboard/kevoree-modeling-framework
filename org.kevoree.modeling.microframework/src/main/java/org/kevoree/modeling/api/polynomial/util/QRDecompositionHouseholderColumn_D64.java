@@ -8,7 +8,7 @@ public class QRDecompositionHouseholderColumn_D64 {
     protected double dataQR[][]; // [ column][ row ]
     // used internally to store temporary data
     protected double v[];
-    // dimension of the decomposed matrices
+    // universe of the decomposed matrices
     protected int numCols; // this is 'n'
     protected int numRows; // this is 'm'
     protected int minLength;

@@ -1,13 +1,11 @@
 package org.kevoree.modeling.microframework.test.traces;
 
 import org.junit.Assert;
-import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.data.MemoryKDataBase;
 import org.kevoree.modeling.api.trace.ModelTraceApplicator;
 import org.kevoree.modeling.api.trace.TraceSequence;
-import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
+import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
 import org.kevoree.modeling.microframework.test.cloud.Element;
@@ -23,9 +21,9 @@ public class CompareTest {
      */
     //@Test
     public void diffTest() {
-        CloudUniverse universe = new CloudUniverse();
+        CloudModel universe = new CloudModel();
         universe.connect(null);
-        CloudDimension dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newDimension();
         Assert.assertNotNull(dimension0);
         // create time0
         final CloudView t0 = dimension0.time(0l);
@@ -73,10 +71,10 @@ public class CompareTest {
      */
     //@Test
     public void intersectionTest() {
-        CloudUniverse universe = new CloudUniverse();
+        CloudModel universe = new CloudModel();
         universe.connect(null);
 
-        CloudDimension dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newDimension();
 
         Assert.assertNotNull(dimension0);
 
@@ -120,10 +118,10 @@ public class CompareTest {
      */
     //@Test
     public void unionTest() {
-        CloudUniverse universe = new CloudUniverse();
+        CloudModel universe = new CloudModel();
         universe.connect(null);
 
-        CloudDimension dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newDimension();
         Assert.assertNotNull(dimension0);
 
         // create time0

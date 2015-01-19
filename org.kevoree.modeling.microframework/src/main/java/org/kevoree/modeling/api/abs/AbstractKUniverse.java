@@ -1,110 +1,95 @@
 package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KDimension;
-import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KUniverse;
-import org.kevoree.modeling.api.KOperation;
-import org.kevoree.modeling.api.data.DefaultKStore;
-import org.kevoree.modeling.api.data.KDataBase;
-import org.kevoree.modeling.api.data.KStore;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KModel;
+import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ModelListener;
-import org.kevoree.modeling.api.event.KEventBroker;
-import org.kevoree.modeling.api.meta.MetaModel;
-import org.kevoree.modeling.api.meta.MetaOperation;
 
 /**
  * Created by duke on 10/10/14.
  */
-public abstract class AbstractKUniverse<A extends KDimension> implements KUniverse<A> {
+public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C extends KModel> implements KUniverse<A, B, C> {
 
-    private final KStore _storage;
+    private KModel _model;
 
-    public abstract MetaModel metaModel();
+    private long _key;
 
-    protected AbstractKUniverse() {
-        _storage = new DefaultKStore();
-        //_storage.connect(null);
+    protected AbstractKUniverse(KModel p_model, long p_key) {
+        this._model = p_model;
+        this._key = p_key;
     }
 
     @Override
-    public void connect(Callback<Throwable> callback) {
-        _storage.connect(callback);
+    public long key() {
+        return _key;
     }
 
     @Override
-    public void close(Callback<Throwable> callback) {
-        _storage.close(callback);
+    public C model() {
+        return (C) _model;
     }
 
     @Override
-    public KStore storage() {
-        return _storage;
+    public void save(Callback<Throwable> callback) {
+        model().storage().save(this, callback);
     }
 
     @Override
-    public A newDimension() {
-        long nextKey = _storage.nextDimensionKey();
-        final A newDimension = internal_create(nextKey);
-        storage().initDimension(newDimension);
-        return newDimension;
-    }
-
-    protected abstract A internal_create(long key);
-
-    @Override
-    public A dimension(long key) {
-        A newDimension = internal_create(key);
-        storage().initDimension(newDimension);
-        return newDimension;
+    public void saveUnload(Callback<Throwable> callback) {
+        model().storage().saveUnload(this, callback);
     }
 
     @Override
-    public void saveAll(Callback<Boolean> callback) {
-
+    public void delete(Callback<Throwable> callback) {
+        model().storage().delete(this, callback);
     }
 
     @Override
-    public void deleteAll(Callback<Boolean> callback) {
-
+    public void discard(Callback<Throwable> callback) {
+        model().storage().discard(this, callback);
     }
 
     @Override
-    public void unloadAll(Callback<Boolean> callback) {
-
-    }
-
-    @Override
-    public void disable(ModelListener listener) {
-
-    }
-
-    @Override
-    public void stream(String query, Callback<KObject> callback) {
-
+    public synchronized A time(long timePoint) {
+        return internal_create(timePoint);
     }
 
     @Override
     public void listen(ModelListener listener) {
-        storage().eventBroker().registerListener(this, listener, null);
+        model().storage().eventBroker().registerListener(this, listener, null);
     }
 
     @Override
-    public KUniverse<A> setEventBroker(KEventBroker eventBroker) {
-        storage().setEventBroker(eventBroker);
-        eventBroker.setMetaModel(metaModel());
-        return this;
+    public void listenAllTimes(KObject target, ModelListener listener) {
+        model().storage().eventBroker().registerListener(this, listener, target);
+    }
+
+    protected abstract A internal_create(Long timePoint);
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof AbstractKUniverse)) {
+            return false;
+        } else {
+            AbstractKUniverse casted = (AbstractKUniverse) obj;
+            return casted._key == _key;
+        }
     }
 
     @Override
-    public KUniverse<A> setDataBase(KDataBase dataBase) {
-        storage().setDataBase(dataBase);
-        return this;
+    public void origin(Callback<B> callback) {
+        //TODO
     }
 
+    @Override
+    public void split(Callback<B> callback) {
+        //TODO
+    }
 
     @Override
-    public void setOperation(MetaOperation metaOperation, KOperation operation) {
-        storage().operationManager().registerOperation(metaOperation, operation);
+    public void descendants(Callback<B[]> callback) {
+        //TODO
     }
 }

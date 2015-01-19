@@ -4,8 +4,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
+import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
 import org.kevoree.modeling.microframework.test.cloud.Element;
@@ -19,9 +19,9 @@ public class TimeTest {
     @Test
     public void timeCreationTest() {
 
-        CloudUniverse universe = new CloudUniverse();
+        CloudModel universe = new CloudModel();
         universe.connect(null);
-        CloudDimension dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newDimension();
 
         Assert.assertNotNull(dimension0);
 
@@ -38,9 +38,9 @@ public class TimeTest {
 
     @Test
     public void simpleTimeNavigationTest() {
-        CloudUniverse universe = new CloudUniverse();
+        CloudModel universe = new CloudModel();
         universe.connect(null);
-        CloudDimension dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newDimension();
 
         Assert.assertNotNull(dimension0);
 
@@ -77,9 +77,9 @@ public class TimeTest {
 
     @Test
     public void distortedTimeNavigationTest() {
-        CloudUniverse universe = new CloudUniverse();
+        CloudModel universe = new CloudModel();
         universe.connect(null);
-        CloudDimension dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newDimension();
 
         Assert.assertNotNull(dimension0);
 
@@ -145,9 +145,9 @@ public class TimeTest {
 
     @Test
     public void objectModificationTest() {
-        CloudUniverse universe = new CloudUniverse();
+        CloudModel universe = new CloudModel();
         universe.connect(null);
-        CloudDimension dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newDimension();
 
         Assert.assertNotNull(dimension0);
 
@@ -194,9 +194,9 @@ public class TimeTest {
     @Test
     public void timeUpdateWithLookupTest() {
 
-        CloudUniverse universe = new CloudUniverse();
+        CloudModel universe = new CloudModel();
         universe.connect(null);
-        CloudDimension dimension = universe.newDimension();
+        CloudUniverse dimension = universe.newDimension();
         CloudView t0 = dimension.time(0L);
         Node node0 = t0.createNode();
         node0.setName("Node0");
@@ -245,9 +245,9 @@ public class TimeTest {
     @Test
     public void timeUpdateWithSelectTest() {
 
-        CloudUniverse universe = new CloudUniverse();
+        CloudModel universe = new CloudModel();
         universe.connect(null);
-        CloudDimension dimension = universe.newDimension();
+        CloudUniverse dimension = universe.newDimension();
         CloudView t0 = dimension.time(0L);
         Node node0 = t0.createNode();
         node0.setName("Node0");

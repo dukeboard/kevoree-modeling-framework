@@ -5,9 +5,8 @@ import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.data.MemoryKDataBase;
-import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
+import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 
 /**
@@ -17,10 +16,10 @@ public class JSONLoadTest {
 
     @Test
     public void jsonTest() {
-        CloudUniverse universe = new CloudUniverse();
+        CloudModel universe = new CloudModel();
         universe.connect(null);
 
-        CloudDimension dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newDimension();
 
         final int[] passed = new int[1];
 

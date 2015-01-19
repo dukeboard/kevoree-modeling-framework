@@ -1,10 +1,10 @@
-package org.kevoree.modeling.api.promise;
+package org.kevoree.modeling.api.traversal;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.promise.actions.*;
+import org.kevoree.modeling.api.traversal.actions.*;
 
 /**
  * Created by duke on 18/12/14.
@@ -38,11 +38,22 @@ public class DefaultKTraversalPromise implements KTraversalPromise {
     }
 
     @Override
-    public KTraversalPromise attribute(MetaAttribute p_attribute, Object p_expectedValue) {
+    public KTraversalPromise withAttribute(MetaAttribute p_attribute, Object p_expectedValue) {
         if (_terminated) {
             throw new RuntimeException("Promise is terminated by the call of then method, please create another promise");
         }
         KFilterAttributeAction tempAction = new KFilterAttributeAction(p_attribute, p_expectedValue);
+        _lastAction.chain(tempAction);
+        _lastAction = tempAction;
+        return this;
+    }
+
+    @Override
+    public KTraversalPromise withoutAttribute(MetaAttribute p_attribute, Object p_expectedValue) {
+        if (_terminated) {
+            throw new RuntimeException("Promise is terminated by the call of then method, please create another promise");
+        }
+        KFilterNotAttributeAction tempAction = new KFilterNotAttributeAction(p_attribute, p_expectedValue);
         _lastAction.chain(tempAction);
         _lastAction = tempAction;
         return this;

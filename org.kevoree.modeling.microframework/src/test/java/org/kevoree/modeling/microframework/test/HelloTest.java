@@ -9,8 +9,8 @@ import org.kevoree.modeling.api.VisitResult;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.data.AccessMode;
-import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
+import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
 import org.kevoree.modeling.microframework.test.cloud.Element;
@@ -24,7 +24,7 @@ public class HelloTest {
 
     @Test
     public void helloTest() {
-        CloudUniverse universe = new CloudUniverse();
+        CloudModel universe = new CloudModel();
         universe.connect(null);
         int[] counter = new int[1];
         counter[0]=0;
@@ -34,7 +34,7 @@ public class HelloTest {
                 counter[0]++;
             }
         });
-        CloudDimension dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newDimension();
         dimension0.listen(new ModelListener() {
             @Override
             public void on(KEvent evt) {
@@ -79,7 +79,7 @@ public class HelloTest {
 
         nodeT0.addChildren(nodeT1);
 
-        Map<Long, Integer> refs = (Map<Long, Integer>) t0.dimension().universe().storage().raw(nodeT1, AccessMode.READ)[1];
+        Map<Long, Integer> refs = (Map<Long, Integer>) t0.universe().model().storage().raw(nodeT1, AccessMode.READ)[1];
         Assert.assertTrue(refs.containsKey(nodeT0.uuid()));
 
 //        assertTrue(nodeT1.path().endsWith("/children[name=n1]"));

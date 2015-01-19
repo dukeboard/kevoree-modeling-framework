@@ -4,9 +4,8 @@ import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.data.MemoryKDataBase;
-import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
+import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
 import org.kevoree.modeling.microframework.test.cloud.Element;
@@ -18,9 +17,9 @@ public class SerializerTest {
 
     @Test
     public void serializeTest() throws InterruptedException {
-        CloudUniverse universe = new CloudUniverse();
+        CloudModel universe = new CloudModel();
         universe.connect(null);
-        CloudDimension dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newDimension();
         final CloudView t0 = dimension0.time(0l);
         Node nodeT0 = t0.createNode();
         nodeT0.setName("node0");

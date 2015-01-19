@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.promise.actions;
+package org.kevoree.modeling.api.traversal.actions;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
@@ -6,7 +6,7 @@ import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.promise.KTraversalAction;
+import org.kevoree.modeling.api.traversal.KTraversalAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +41,7 @@ public class KTraverseAction implements KTraversalAction {
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
-                    Object[] raw = currentView.dimension().universe().storage().raw(loopObj, AccessMode.READ);
+                    Object[] raw = currentView.universe().model().storage().raw(loopObj, AccessMode.READ);
                     if (_reference == null) {
                         for (int j = 0; j < loopObj.metaClass().metaReferences().length; j++) {
                             MetaReference ref = loopObj.metaClass().metaReferences()[j];

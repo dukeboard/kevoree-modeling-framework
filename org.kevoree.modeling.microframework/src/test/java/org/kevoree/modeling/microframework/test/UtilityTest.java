@@ -2,8 +2,8 @@ package org.kevoree.modeling.microframework.test;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
+import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
 
@@ -15,9 +15,9 @@ public class UtilityTest {
     @Test
     public void utilityTest() {
 
-        CloudUniverse universe = new CloudUniverse();
+        CloudModel universe = new CloudModel();
         universe.connect(null);
-        CloudDimension dimension = universe.newDimension();
+        CloudUniverse dimension = universe.newDimension();
         CloudView factory = dimension.time(0l);
         Node n = factory.createNode();
         n.setName("n");

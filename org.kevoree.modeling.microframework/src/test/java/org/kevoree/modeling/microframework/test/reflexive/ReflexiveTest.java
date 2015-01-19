@@ -28,7 +28,7 @@ public class ReflexiveTest {
                 .addAttribute("name", PrimitiveMetaTypes.STRING)
                 .addReference("sensors", sensorMetaClass, true);
 
-        KUniverse universe = dynamicMetaModel.universe();
+        KModel universe = dynamicMetaModel.universe();
         universe.connect(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {

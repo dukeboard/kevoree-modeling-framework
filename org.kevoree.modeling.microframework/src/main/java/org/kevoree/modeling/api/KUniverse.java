@@ -1,46 +1,35 @@
 package org.kevoree.modeling.api;
 
-import org.kevoree.modeling.api.data.KDataBase;
-import org.kevoree.modeling.api.data.KStore;
-import org.kevoree.modeling.api.event.KEventBroker;
-import org.kevoree.modeling.api.meta.MetaModel;
-import org.kevoree.modeling.api.meta.MetaOperation;
-
 /**
  * Created by duke on 9/30/14.
  */
 
-public interface KUniverse<A extends KDimension> {
+public interface KUniverse<A extends KView, B extends KUniverse, C extends KModel> {
 
-    public void connect(Callback<Throwable> callback);
+    public long key();
 
-    public void close(Callback<Throwable> callback);
+    public void split(Callback<B> callback);
 
-    public A newDimension();
+    public void origin(Callback<B> callback);
 
-    public A dimension(long key);
+    public void descendants(Callback<B[]> callback);
 
-    //TODO refactor with promise
-    public void saveAll(Callback<Boolean> callback);
+    public void save(Callback<Throwable> callback);
 
-    public void deleteAll(Callback<Boolean> callback);
+    public void saveUnload(Callback<Throwable> callback);
 
-    public void unloadAll(Callback<Boolean> callback);
+    public void delete(Callback<Throwable> callback);
 
-    public void disable(ModelListener listener);
+    public void discard(Callback<Throwable> callback);
 
-    public void stream(String query, Callback<KObject> callback);
+    public A time(long timePoint);
 
-    public KStore storage();
+    public C model();
+
+    public boolean equals(Object other);
 
     public void listen(ModelListener listener);
 
-    public KUniverse<A> setEventBroker(KEventBroker eventBroker);
-
-    public KUniverse<A> setDataBase(KDataBase dataBase);
-
-    public void setOperation(MetaOperation metaOperation, KOperation operation);
-
-    public MetaModel metaModel();
+    public void listenAllTimes(KObject target, ModelListener listener);
 
 }

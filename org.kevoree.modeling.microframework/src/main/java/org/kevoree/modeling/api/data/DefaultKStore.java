@@ -189,7 +189,7 @@ public class DefaultKStore implements KStore {
         return "" + dim + KEY_SEP + "root";
     }
 
-    private String keyRootTree(KDimension dim) {
+    private String keyRootTree(KUniverse dim) {
         return "" + dim.key() + KEY_SEP + "root";
     }
 
@@ -217,7 +217,7 @@ public class DefaultKStore implements KStore {
         return _dimensionKeyCalculator.nextKey();
     }
 
-    private static final String UNIVERSE_NOT_CONNECTED_ERROR = "Please connect your universe prior to create a dimension or an object";
+    private static final String UNIVERSE_NOT_CONNECTED_ERROR = "Please connect your model prior to create a universe or an object";
 
     @Override
     public long nextObjectKey() {
@@ -228,8 +228,8 @@ public class DefaultKStore implements KStore {
     }
 
     @Override
-    public void initDimension(KDimension dimension) {
-        //TODO maybe initiate link to previous dimension
+    public void initDimension(KUniverse dimension) {
+        //TODO maybe initiate link to previous universe
     }
 
     public void initKObject(KObject obj, KView originView) {
@@ -245,7 +245,7 @@ public class DefaultKStore implements KStore {
     //TODO
     @Override
     public Object[] raw(KObject origin, AccessMode accessMode) {
-        //TODO manage multi dimension, and protect for potential null
+        //TODO manage multi universe, and protect for potential null
         long resolvedTime = origin.timeTree().resolve(origin.now());
         boolean needCopy = accessMode.equals(AccessMode.WRITE) && (resolvedTime != origin.now());
         DimensionCache dimensionCache = caches.get(origin.dimension().key());
@@ -302,7 +302,7 @@ public class DefaultKStore implements KStore {
                 clonedEntry.metaClass = entry.metaClass;
                 clonedEntry.timeTree = entry.timeTree;
                 entry.timeTree.insert(origin.now());
-                //TODO update structure for multi dimension
+                //TODO update structure for multi universe
                 write_cache(origin.dimension().key(), origin.now(), origin.uuid(), clonedEntry);
                 return clonedEntry.raw;
             }
@@ -311,7 +311,7 @@ public class DefaultKStore implements KStore {
 
 
     @Override
-    public void discard(KDimension dimension, Callback<Throwable> callback) {
+    public void discard(KUniverse dimension, Callback<Throwable> callback) {
         caches.remove(dimension.key());
         if (callback != null) {
             callback.on(null);
@@ -319,7 +319,7 @@ public class DefaultKStore implements KStore {
     }
 
     @Override
-    public void delete(KDimension dimension, Callback<Throwable> callback) {
+    public void delete(KUniverse dimension, Callback<Throwable> callback) {
         throw new RuntimeException("Not implemented yet !");
     }
 
@@ -327,7 +327,7 @@ public class DefaultKStore implements KStore {
     //TODO synchronize index and so on at the same time
 
     @Override
-    public void save(KDimension dimension, Callback<Throwable> callback) {
+    public void save(KUniverse dimension, Callback<Throwable> callback) {
         DimensionCache dimensionCache = caches.get(dimension.key());
         if (dimensionCache == null) {
             if (callback != null) {
@@ -392,7 +392,7 @@ public class DefaultKStore implements KStore {
     }
 
     @Override
-    public void saveUnload(final KDimension dimension, final Callback<Throwable> callback) {
+    public void saveUnload(final KUniverse dimension, final Callback<Throwable> callback) {
         save(dimension, new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
@@ -483,7 +483,7 @@ public class DefaultKStore implements KStore {
     }
 
     public void getRoot(final KView originView, final Callback<KObject> callback) {
-        resolve_roots(originView.dimension(), new Callback<LongRBTree>() {
+        resolve_roots(originView.universe(), new Callback<LongRBTree>() {
             @Override
             public void on(LongRBTree longRBTree) {
                 if (longRBTree == null) {
@@ -626,12 +626,12 @@ public class DefaultKStore implements KStore {
 
     private void internal_resolve_dim_time(KView originView, Long[] uuids, Callback<Object[][]> callback) {
         Object[][] result = new Object[uuids.length][2];
-        resolve_timeTrees(originView.dimension(), uuids, new Callback<TimeTree[]>() {
+        resolve_timeTrees(originView.universe(), uuids, new Callback<TimeTree[]>() {
             @Override
             public void on(TimeTree[] timeTrees) {
                 for (int i = 0; i < timeTrees.length; i++) {
                     Object[] resolved = new Object[3];
-                    resolved[INDEX_RESOLVED_DIM] = originView.dimension().key(); //TODO better ...
+                    resolved[INDEX_RESOLVED_DIM] = originView.universe().key(); //TODO better ...
                     resolved[INDEX_RESOLVED_TIME] = timeTrees[i].resolve(originView.now());
                     resolved[INDEX_RESOLVED_TIMETREE] = timeTrees[i];
                     result[i] = resolved;
@@ -641,7 +641,7 @@ public class DefaultKStore implements KStore {
         });
     }
 
-    private void resolve_timeTrees(final KDimension dimension, final Long[] keys, final Callback<TimeTree[]> callback) {
+    private void resolve_timeTrees(final KUniverse dimension, final Long[] keys, final Callback<TimeTree[]> callback) {
         final List<Integer> toLoad = new ArrayList<Integer>();
         final TimeTree[] result = new TimeTree[keys.length];
         for (int i = 0; i < keys.length; i++) {
@@ -691,7 +691,7 @@ public class DefaultKStore implements KStore {
         }
     }
 
-    private void resolve_roots(final KDimension dimension, final Callback<LongRBTree> callback) {
+    private void resolve_roots(final KUniverse dimension, final Callback<LongRBTree> callback) {
         DimensionCache dimensionCache = caches.get(dimension.key());
         if (dimensionCache != null && dimensionCache.roots != null) {
             //If value is already in cache, return it

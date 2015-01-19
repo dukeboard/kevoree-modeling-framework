@@ -11,8 +11,8 @@ import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.operation.DefaultModelCompare;
 import org.kevoree.modeling.api.operation.DefaultModelSlicer;
-import org.kevoree.modeling.api.promise.DefaultKTraversalPromise;
-import org.kevoree.modeling.api.promise.KTraversalPromise;
+import org.kevoree.modeling.api.traversal.DefaultKTraversalPromise;
+import org.kevoree.modeling.api.traversal.KTraversalPromise;
 import org.kevoree.modeling.api.select.KSelector;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelAddTrace;
@@ -58,7 +58,7 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public boolean isRoot() {
-        Object[] raw = _view.dimension().universe().storage().raw(this, AccessMode.READ);
+        Object[] raw = _view.universe().model().storage().raw(this, AccessMode.READ);
         if (raw != null) {
             Boolean isRoot = (Boolean) raw[Index.IS_ROOT_INDEX];
             if (isRoot == null) {
@@ -72,7 +72,7 @@ public abstract class AbstractKObject implements KObject {
     }
 
     public void setRoot(boolean isRoot) {
-        Object[] raw = _view.dimension().universe().storage().raw(this, AccessMode.WRITE);
+        Object[] raw = _view.universe().model().storage().raw(this, AccessMode.WRITE);
         if (raw != null) {
             raw[Index.IS_ROOT_INDEX] = isRoot;
         }
@@ -89,8 +89,8 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public KDimension dimension() {
-        return _view.dimension();
+    public KUniverse dimension() {
+        return _view.universe();
     }
 
     @Override
@@ -121,7 +121,7 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public Long parentUuid() {
-        Object[] raw = _view.dimension().universe().storage().raw(this, AccessMode.READ);
+        Object[] raw = _view.universe().model().storage().raw(this, AccessMode.READ);
         if (raw == null) {
             return null;
         } else {
@@ -144,7 +144,7 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public MetaReference referenceInParent() {
-        Object[] raw = _view.dimension().universe().storage().raw(this, AccessMode.READ);
+        Object[] raw = _view.universe().model().storage().raw(this, AccessMode.READ);
         if (raw == null) {
             return null;
         } else {
@@ -155,7 +155,7 @@ public abstract class AbstractKObject implements KObject {
     @Override
     public void delete(Callback<Throwable> callback) {
         KObject toRemove = this;
-        Object[] rawPayload = _view.dimension().universe().storage().raw(this, AccessMode.DELETE);
+        Object[] rawPayload = _view.universe().model().storage().raw(this, AccessMode.DELETE);
         if (rawPayload == null) {
             callback.on(null);
         } else {
@@ -216,7 +216,7 @@ public abstract class AbstractKObject implements KObject {
         } else {
             if (query.startsWith("/")) {
                 final String finalCleanedQuery = cleanedQuery;
-                dimension().universe().storage().getRoot(this.view(), new Callback<KObject>() {
+                dimension().model().storage().getRoot(this.view(), new Callback<KObject>() {
                     @Override
                     public void on(KObject rootObj) {
                         if (rootObj == null) {
@@ -238,7 +238,7 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public void listen(ModelListener listener) {
-        dimension().universe().storage().eventBroker().registerListener(this, listener, null);
+        dimension().model().storage().eventBroker().registerListener(this, listener, null);
     }
 
     @Override
@@ -285,12 +285,12 @@ public abstract class AbstractKObject implements KObject {
             throw new RuntimeException("Bad KMF usage, the attribute named " + p_attribute.metaName() + " is not part of " + metaClass().metaName());
         } else {
             transposed.strategy().mutate(this, transposed, payload);
-            view().dimension().universe().storage().eventBroker().notify(new DefaultKEvent(KActionType.SET, this, transposed, payload));
+            view().universe().model().storage().eventBroker().notify(new DefaultKEvent(KActionType.SET, this, transposed, payload));
         }
     }
 
     private HashMap<Long, MetaReference> getOrCreateInbounds(KObject obj) {
-        Object[] rawWrite = view().dimension().universe().storage().raw(obj, AccessMode.WRITE);
+        Object[] rawWrite = view().universe().model().storage().raw(obj, AccessMode.WRITE);
         if (rawWrite == null) {
             return null;
         } else {
@@ -340,7 +340,7 @@ public abstract class AbstractKObject implements KObject {
             if (metaReference.single()) {
                 internal_mutate(KActionType.SET, metaReference, param, setOpposite, inDelete);
             } else {
-                Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.WRITE);
+                Object[] raw = view().universe().model().storage().raw(this, AccessMode.WRITE);
                 Set<Long> previousList;
                 if (raw[metaReference.index()] != null && raw[metaReference.index()] instanceof Set) {
                     previousList = (Set<Long>) raw[metaReference.index()];
@@ -372,7 +372,7 @@ public abstract class AbstractKObject implements KObject {
 
                 //publish event
                 KEvent event = new DefaultKEvent(actionType, this, metaReference, param);
-                view().dimension().universe().storage().eventBroker().notify(event);
+                view().universe().model().storage().eventBroker().notify(event);
 
             }
         } else if (actionType.equals(KActionType.SET)) {
@@ -383,7 +383,7 @@ public abstract class AbstractKObject implements KObject {
                     internal_mutate(KActionType.REMOVE, metaReference, null, setOpposite, inDelete);
                 } else {
                     //Actual add
-                    Object[] payload = view().dimension().universe().storage().raw(this, AccessMode.WRITE);
+                    Object[] payload = view().universe().model().storage().raw(this, AccessMode.WRITE);
                     Object previous = payload[metaReference.index()];
                     if (previous != null) {
                         internal_mutate(KActionType.REMOVE, metaReference, null, setOpposite, inDelete);
@@ -411,17 +411,17 @@ public abstract class AbstractKObject implements KObject {
                         ((AbstractKObject) param).internal_mutate(KActionType.ADD, metaReference.opposite(), this, false, inDelete);
                     }
                     KEvent event = new DefaultKEvent(actionType, this, metaReference, param);
-                    view().dimension().universe().storage().eventBroker().notify(event);
+                    view().universe().model().storage().eventBroker().notify(event);
                 }
             }
         } else if (actionType.equals(KActionType.REMOVE)) {
             if (metaReference.single()) {
-                Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.WRITE);
+                Object[] raw = view().universe().model().storage().raw(this, AccessMode.WRITE);
                 Object previousKid = raw[metaReference.index()];
                 raw[metaReference.index()] = null;
                 if (previousKid != null) {
                     final KObject self = this;
-                    _view.dimension().universe().storage().lookup(_view, (Long) previousKid, new Callback<KObject>() {
+                    _view.universe().model().storage().lookup(_view, (Long) previousKid, new Callback<KObject>() {
                         @Override
                         public void on(KObject resolvedParam) {
                             if (resolvedParam != null) {
@@ -439,10 +439,10 @@ public abstract class AbstractKObject implements KObject {
                     });
                     //publish event
                     KEvent event = new DefaultKEvent(actionType, this, metaReference, previousKid);
-                    view().dimension().universe().storage().eventBroker().notify(event);
+                    view().universe().model().storage().eventBroker().notify(event);
                 }
             } else {
-                Object[] payload = view().dimension().universe().storage().raw(this, AccessMode.WRITE);
+                Object[] payload = view().universe().model().storage().raw(this, AccessMode.WRITE);
                 Object previous = payload[metaReference.index()];
                 if (previous != null) {
                     Set<Long> previousList = (Set<Long>) previous;
@@ -455,7 +455,7 @@ public abstract class AbstractKObject implements KObject {
                     }
                     //publish event
                     KEvent event = new DefaultKEvent(actionType, this, metaReference, param);
-                    view().dimension().universe().storage().eventBroker().notify(event);
+                    view().universe().model().storage().eventBroker().notify(event);
                 }
                 //Inbounds
                 if (!inDelete) {
@@ -473,7 +473,7 @@ public abstract class AbstractKObject implements KObject {
         if (transposed == null) {
             throw new RuntimeException("Bad KMF usage, the attribute named " + p_metaReference.metaName() + " is not part of " + metaClass().metaName());
         } else {
-            Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.READ);
+            Object[] raw = view().universe().model().storage().raw(this, AccessMode.READ);
             if (raw != null) {
                 Object ref = raw[transposed.index()];
                 if (ref == null) {
@@ -493,7 +493,7 @@ public abstract class AbstractKObject implements KObject {
         if (transposed == null) {
             throw new RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + metaClass().metaName());
         } else {
-            Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.READ);
+            Object[] raw = view().universe().model().storage().raw(this, AccessMode.READ);
             if (raw == null || raw[transposed.index()] == null) {
                 p_callback.on(null);
             } else {
@@ -525,7 +525,7 @@ public abstract class AbstractKObject implements KObject {
         if (transposed == null) {
             throw new RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + metaClass().metaName());
         } else {
-            Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.READ);
+            Object[] raw = view().universe().model().storage().raw(this, AccessMode.READ);
             if (raw == null) {
                 p_callback.on(new KObject[0]);
             } else {
@@ -579,7 +579,7 @@ public abstract class AbstractKObject implements KObject {
         for (int i = 0; i < metaClass().metaReferences().length; i++) {
             final MetaReference reference = metaClass().metaReferences()[i];
             if (!(containedOnly && !reference.contained())) {
-                Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.READ);
+                Object[] raw = view().universe().model().storage().raw(this, AccessMode.READ);
                 Object obj = null;
                 if (raw != null) {
                     obj = raw[reference.index()];
@@ -683,7 +683,7 @@ public abstract class AbstractKObject implements KObject {
     }
 
     public String toJSON() {
-        Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.READ);
+        Object[] raw = view().universe().model().storage().raw(this, AccessMode.READ);
         if (raw != null) {
             return JsonRaw.encode(raw, _uuid, _metaClass);
         } else {
@@ -714,7 +714,7 @@ public abstract class AbstractKObject implements KObject {
         if (TraceRequest.REFERENCES_ONLY.equals(request) || TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
             for (int i = 0; i < metaClass().metaReferences().length; i++) {
                 MetaReference ref = metaClass().metaReferences()[i];
-                Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.READ);
+                Object[] raw = view().universe().model().storage().raw(this, AccessMode.READ);
                 Object o = null;
                 if (raw != null) {
                     o = raw[ref.index()];
@@ -734,7 +734,7 @@ public abstract class AbstractKObject implements KObject {
     }
 
     public void inbounds(final Callback<InboundReference> callback, final Callback<Throwable> end) {
-        Object[] rawPayload = view().dimension().universe().storage().raw(this, AccessMode.READ);
+        Object[] rawPayload = view().universe().model().storage().raw(this, AccessMode.READ);
         if (rawPayload == null) {
             end.on(new Exception("Object not initialized."));
         } else {
@@ -792,7 +792,7 @@ public abstract class AbstractKObject implements KObject {
     }
 
     public void set_parent(Long p_parentKID, MetaReference p_metaReference) {
-        Object[] raw = _view.dimension().universe().storage().raw(this, AccessMode.WRITE);
+        Object[] raw = _view.universe().model().storage().raw(this, AccessMode.WRITE);
         if (raw != null) {
             raw[Index.PARENT_INDEX] = p_parentKID;
             raw[Index.REF_IN_PARENT_INDEX] = p_metaReference;
@@ -832,7 +832,7 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public <U extends KObject> void jump(Long time, final Callback<U> callback) {
-        view().dimension().time(time).lookup(uuid(), new Callback<KObject>() {
+        view().universe().time(time).lookup(uuid(), new Callback<KObject>() {
             @Override
             public void on(KObject kObject) {
                 if (callback != null) {
@@ -878,7 +878,7 @@ public abstract class AbstractKObject implements KObject {
     @Override
     public MetaReference[] referencesWith(KObject o) {
         if (Checker.isDefined(o)) {
-            Object[] raw = _view.dimension().universe().storage().raw(this, AccessMode.READ);
+            Object[] raw = _view.universe().model().storage().raw(this, AccessMode.READ);
             if (raw != null) {
                 MetaReference[] allReferences = metaClass().metaReferences();
                 List<MetaReference> selected = new ArrayList<MetaReference>();

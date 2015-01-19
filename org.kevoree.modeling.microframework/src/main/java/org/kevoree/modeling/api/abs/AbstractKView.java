@@ -2,7 +2,7 @@ package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KActionType;
-import org.kevoree.modeling.api.KDimension;
+import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ModelListener;
@@ -28,11 +28,11 @@ public abstract class AbstractKView implements KView {
 
     private long _now;
 
-    private KDimension _dimension;
+    private KUniverse _universe;
 
-    protected AbstractKView(long p_now, KDimension p_dimension) {
+    protected AbstractKView(long p_now, KUniverse p_universe) {
         this._now = p_now;
-        this._dimension = p_dimension;
+        this._universe = p_universe;
     }
 
     @Override
@@ -41,20 +41,20 @@ public abstract class AbstractKView implements KView {
     }
 
     @Override
-    public KDimension dimension() {
-        return _dimension;
+    public KUniverse universe() {
+        return _universe;
     }
 
     @Override
     public KObject createFQN(String metaClassName) {
-        return create(dimension().universe().metaModel().metaClass(metaClassName));
+        return create(universe().model().metaModel().metaClass(metaClassName));
     }
 
     @Override
     public void setRoot(KObject elem, Callback<Throwable> callback) {
         ((AbstractKObject) elem).set_parent(null, null);
         ((AbstractKObject) elem).setRoot(true);
-        dimension().universe().storage().setRoot(elem, callback);
+        universe().model().storage().setRoot(elem, callback);
     }
 
     @Override
@@ -66,7 +66,7 @@ public abstract class AbstractKView implements KView {
             callback.on(new KObject[0]);
             return;
         }
-        dimension().universe().storage().getRoot(this, new Callback<KObject>() {
+        universe().model().storage().getRoot(this, new Callback<KObject>() {
             @Override
             public void on(KObject rootObj) {
                 if (rootObj == null) {
@@ -92,12 +92,12 @@ public abstract class AbstractKView implements KView {
 
     @Override
     public void lookup(Long kid, Callback<KObject> callback) {
-        dimension().universe().storage().lookup(this, kid, callback);
+        universe().model().storage().lookup(this, kid, callback);
     }
 
     @Override
     public void lookupAll(Long[] keys, Callback<KObject[]> callback) {
-        dimension().universe().storage().lookupAll(this, keys, callback);
+        universe().model().storage().lookupAll(this, keys, callback);
     }
 
     public KObject createProxy(MetaClass clazz, TimeTree timeTree, long key) {
@@ -110,16 +110,16 @@ public abstract class AbstractKView implements KView {
         if (!Checker.isDefined(clazz)) {
             return null;
         }
-        KObject newObj = internalCreate(clazz, new DefaultTimeTree().insert(now()), dimension().universe().storage().nextObjectKey());
+        KObject newObj = internalCreate(clazz, new DefaultTimeTree().insert(now()), universe().model().storage().nextObjectKey());
         if (newObj != null) {
-            dimension().universe().storage().initKObject(newObj, this);
-            dimension().universe().storage().eventBroker().notify(new DefaultKEvent(KActionType.NEW, newObj, clazz, null));
+            universe().model().storage().initKObject(newObj, this);
+            universe().model().storage().eventBroker().notify(new DefaultKEvent(KActionType.NEW, newObj, clazz, null));
         }
         return newObj;
     }
 
     public void listen(ModelListener listener) {
-        dimension().universe().storage().eventBroker().registerListener(this, listener, null);
+        universe().model().storage().eventBroker().registerListener(this, listener, null);
     }
 
     protected abstract KObject internalCreate(MetaClass clazz, TimeTree timeTree, long key);
@@ -147,7 +147,7 @@ public abstract class AbstractKView implements KView {
             return false;
         } else {
             AbstractKView casted = (AbstractKView) obj;
-            return (casted._now == _now) && _dimension.equals(casted._dimension);
+            return (casted._now == _now) && _universe.equals(casted._universe);
         }
     }
 

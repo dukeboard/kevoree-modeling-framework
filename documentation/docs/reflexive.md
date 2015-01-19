@@ -1,4 +1,4 @@
-### Reflexive (pure dynamic) usage of KMF
+# Reflexive (pure dynamic) usage of KMF
 
 The *reflexive* package in KMF allows to manipulate models in a pure dynamic way (i.e. without any code generation step).
 By the way, such usage are not recommended because of the untyped API and because of the risk to loose data in case of base configuration of the dynamic metaModel.
@@ -56,7 +56,7 @@ home.set(home.metaClass().metaAttribute("name"),"MainHome");
 We can follow the same procedure to create a dynamic **Sensor** for instance by using the pointer to the previously created DynamicMetaClass.
 
 ```java
-KObject sensor = universe.dimension(0).time(0).create(sensorMetaClass); 
+KObject sensor = universe.dimension(0).time(0).create(sensorMetaClass);
           sensor.set(sensor.metaClass().metaAttribute("name"),"Sensor#1");
 ```
 

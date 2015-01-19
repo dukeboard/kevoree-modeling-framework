@@ -6,8 +6,6 @@ import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.util.CallBackChain;
-import org.kevoree.modeling.api.util.Helper;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -31,7 +29,7 @@ public class KSelector {
             Set<Long> collected = new HashSet<Long>();
             for (int k = 0; k < roots.length; k++) {
                 KObject root = roots[k];
-                Object[] raw = root.dimension().universe().storage().raw(root, AccessMode.READ);
+                Object[] raw = root.dimension().model().storage().raw(root, AccessMode.READ);
                 if (raw != null) {
                     for (int i = 0; i < root.metaClass().metaReferences().length; i++) {
                         MetaReference reference = root.metaClass().metaReferences()[i];

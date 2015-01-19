@@ -1,6 +1,6 @@
 package org.kevoree.modeling.microframework.test.cloud.impl;
 
-import org.kevoree.modeling.api.KDimension;
+import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.reflexive.DynamicKObject;
@@ -15,7 +15,7 @@ import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
  */
 public class CloudViewImpl extends AbstractKView implements CloudView {
 
-    public CloudViewImpl(long now, KDimension dimension) {
+    public CloudViewImpl(long now, KUniverse dimension) {
         super(now, dimension);
     }
 
@@ -45,8 +45,8 @@ public class CloudViewImpl extends AbstractKView implements CloudView {
     }
 
     @Override
-    public CloudDimension dimension() {
-        return (CloudDimension) super.dimension();
+    public CloudUniverse universe() {
+        return (CloudUniverse) super.universe();
     }
 
 }

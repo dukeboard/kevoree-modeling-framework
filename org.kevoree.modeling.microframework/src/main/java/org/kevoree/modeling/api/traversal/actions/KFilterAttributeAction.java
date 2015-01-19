@@ -1,11 +1,11 @@
-package org.kevoree.modeling.api.promise.actions;
+package org.kevoree.modeling.api.traversal.actions;
 
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.meta.MetaAttribute;
-import org.kevoree.modeling.api.promise.KTraversalAction;
+import org.kevoree.modeling.api.traversal.KTraversalAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +42,7 @@ public class KFilterAttributeAction implements KTraversalAction {
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
-                    Object[] raw = currentView.dimension().universe().storage().raw(loopObj, AccessMode.READ);
+                    Object[] raw = currentView.universe().model().storage().raw(loopObj, AccessMode.READ);
                     if (raw != null) {
                         if (_attribute == null) {
                             if (_expectedValue == null) {
@@ -54,17 +54,13 @@ public class KFilterAttributeAction implements KTraversalAction {
                                     if (resolved == null) {
                                         if (_expectedValue.toString().equals("*")) {
                                             nextStep.add(loopObj);
-                                        } else {
-                                            //drop
                                         }
                                     } else {
-                                        if (resolved == _expectedValue) {
+                                        if (resolved.equals(_expectedValue)) {
                                             nextStep.add(loopObj);
                                         } else {
                                             if (resolved.toString().matches(_expectedValue.toString().replace("*", ".*"))) {
                                                 nextStep.add(loopObj);
-                                            } else {
-                                                //drop
                                             }
                                         }
                                     }
@@ -80,8 +76,6 @@ public class KFilterAttributeAction implements KTraversalAction {
                                     if (resolved == null) {
                                         if (_expectedValue.toString().equals("*")) {
                                             nextStep.add(loopObj);
-                                        } else {
-                                            //drop
                                         }
                                     } else {
                                         if (resolved == _expectedValue) {
@@ -89,8 +83,6 @@ public class KFilterAttributeAction implements KTraversalAction {
                                         } else {
                                             if (resolved.toString().matches(_expectedValue.toString().replace("*", ".*"))) {
                                                 nextStep.add(loopObj);
-                                            } else {
-                                                //drop
                                             }
                                         }
                                     }
@@ -98,7 +90,7 @@ public class KFilterAttributeAction implements KTraversalAction {
                             }
                         }
                     } else {
-                        System.err.println("WARN: Empty KObject "+loopObj.uuid());
+                        System.err.println("WARN: Empty KObject " + loopObj.uuid());
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

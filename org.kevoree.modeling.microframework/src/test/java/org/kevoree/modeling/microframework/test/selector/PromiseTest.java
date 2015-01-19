@@ -1,10 +1,10 @@
-package org.kevoree.modeling.microframework.test;
+package org.kevoree.modeling.microframework.test.selector;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.promise.KTraversalFilter;
+import org.kevoree.modeling.api.traversal.KTraversalFilter;
 import org.kevoree.modeling.microframework.test.cloud.*;
 
 /**
@@ -15,9 +15,9 @@ public class PromiseTest {
 
     @Test
     public void simpleTraversalTest() {
-        final CloudUniverse universe = new CloudUniverse();
+        final CloudModel universe = new CloudModel();
         universe.connect(null);
-        final CloudDimension dimension0 = universe.newDimension();
+        final CloudUniverse dimension0 = universe.newDimension();
         final CloudView t0 = dimension0.time(0l);
 
         final Node node0 = t0.createNode();
@@ -55,9 +55,9 @@ public class PromiseTest {
 
     @Test
     public void chainedTraversalTest() {
-        final CloudUniverse universe = new CloudUniverse();
+        final CloudModel universe = new CloudModel();
         universe.connect(null);
-        final CloudDimension dimension0 = universe.newDimension();
+        final CloudUniverse dimension0 = universe.newDimension();
         final CloudView t0 = dimension0.time(0l);
 
         final Node node0 = t0.createNode();
@@ -97,9 +97,9 @@ public class PromiseTest {
 
     @Test
     public void filterTest() {
-        final CloudUniverse universe = new CloudUniverse();
+        final CloudModel universe = new CloudModel();
         universe.connect(null);
-        final CloudDimension dimension0 = universe.newDimension();
+        final CloudUniverse dimension0 = universe.newDimension();
         final CloudView t0 = dimension0.time(0l);
 
         final Node node0 = t0.createNode();

@@ -12,6 +12,6 @@ public interface CloudView extends KView {
     public Element createElement();
 
     @Override
-    public CloudDimension dimension();
+    public CloudUniverse universe();
 
 }

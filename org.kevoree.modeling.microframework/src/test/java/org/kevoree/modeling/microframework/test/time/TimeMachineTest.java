@@ -5,8 +5,8 @@ import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.trace.TraceSequence;
 import org.kevoree.modeling.api.util.TimeMachine;
-import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
+import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
 
@@ -21,9 +21,9 @@ public class TimeMachineTest {
         int[] counter = new int[1];
         counter[0]=0;
 
-        CloudUniverse universe = new CloudUniverse();
+        CloudModel universe = new CloudModel();
         universe.connect(null);
-        CloudDimension dimension = universe.newDimension();
+        CloudUniverse dimension = universe.newDimension();
         CloudView v0 = dimension.time(0l);
         Node n0 = v0.createNode();
         n0.setName("n0");

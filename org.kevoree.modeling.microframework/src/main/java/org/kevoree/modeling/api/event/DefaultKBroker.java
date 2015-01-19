@@ -3,7 +3,7 @@ package org.kevoree.modeling.api.event;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.ModelListener;
-import org.kevoree.modeling.api.abs.AbstractKDimension;
+import org.kevoree.modeling.api.abs.AbstractKUniverse;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.meta.MetaModel;
@@ -41,10 +41,10 @@ public class DefaultKBroker implements KEventBroker {
 
     public void registerListener(Object origin, ModelListener listener, Object scope) {
         Long[] tuple = new Long[TUPLE_SIZE];
-        if (origin instanceof AbstractKDimension) {
-            tuple[DIM_INDEX] = ((AbstractKDimension) origin).key();
+        if (origin instanceof AbstractKUniverse) {
+            tuple[DIM_INDEX] = ((AbstractKUniverse) origin).key();
         } else if (origin instanceof AbstractKView) {
-            tuple[DIM_INDEX] = ((AbstractKView) origin).dimension().key();
+            tuple[DIM_INDEX] = ((AbstractKView) origin).universe().key();
             tuple[TIME_INDEX] = ((AbstractKView) origin).now();
         } else if (origin instanceof AbstractKObject) {
             AbstractKObject casted = (AbstractKObject) origin;
@@ -54,8 +54,8 @@ public class DefaultKBroker implements KEventBroker {
                 tuple[UUID_INDEX] = casted.uuid();
             } else {
                 tuple[UUID_INDEX] = casted.uuid();
-                if (scope instanceof AbstractKDimension) {
-                    tuple[DIM_INDEX] = ((AbstractKDimension) scope).key();
+                if (scope instanceof AbstractKUniverse) {
+                    tuple[DIM_INDEX] = ((AbstractKUniverse) scope).key();
                 }
             }
         }

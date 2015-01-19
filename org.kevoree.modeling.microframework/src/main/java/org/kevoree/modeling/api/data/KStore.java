@@ -1,7 +1,7 @@
 package org.kevoree.modeling.api.data;
 
 import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KDimension;
+import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.event.KEventBroker;
@@ -18,17 +18,17 @@ public interface KStore {
 
     Object[] raw(KObject origin, AccessMode accessMode);
 
-    public void save(KDimension dimension, Callback<Throwable> callback);
+    public void save(KUniverse dimension, Callback<Throwable> callback);
 
-    public void saveUnload(KDimension dimension, Callback<Throwable> callback);
+    public void saveUnload(KUniverse dimension, Callback<Throwable> callback);
 
-    public void discard(KDimension dimension, Callback<Throwable> callback);
+    public void discard(KUniverse dimension, Callback<Throwable> callback);
 
-    public void delete(KDimension dimension, Callback<Throwable> callback);
+    public void delete(KUniverse dimension, Callback<Throwable> callback);
 
     public void initKObject(KObject obj, KView originView);
 
-    public void initDimension(KDimension dimension);
+    public void initDimension(KUniverse dimension);
 
     long nextDimensionKey();
 

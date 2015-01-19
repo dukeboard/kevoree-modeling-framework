@@ -5,9 +5,8 @@ import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.InboundReference;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.data.MemoryKDataBase;
-import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
+import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
 import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
@@ -19,11 +18,11 @@ public class ParentStorageTest {
 
     @Test
     public void discardTest() {
-        CloudUniverse universe = new CloudUniverse();
+        CloudModel universe = new CloudModel();
         universe.connect(null);
-        //universe.connect(null);
+        //model.connect(null);
 
-        CloudDimension dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newDimension();
         CloudView time0 = dimension0.time(0l);
 
         Node root = time0.createNode();
@@ -71,10 +70,10 @@ public class ParentStorageTest {
 
         //MemoryKDataBase.DEBUG = true;
 
-        CloudUniverse universe = new CloudUniverse();
+        CloudModel universe = new CloudModel();
         universe.connect(null);
 
-        CloudDimension dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newDimension();
         CloudView time0 = dimension0.time(0l);
 
         Node root = time0.createNode();

@@ -4,9 +4,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.data.MemoryKDataBase;
-import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
+import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
 
@@ -20,10 +19,10 @@ public class LookupTest {
 
         //MemoryKDataBase.DEBUG = true;
 
-        final CloudUniverse universe = new CloudUniverse();
+        final CloudModel universe = new CloudModel();
         universe.connect(null);
 
-        CloudDimension dimension0 = universe.newDimension();
+        CloudUniverse dimension0 = universe.newDimension();
         CloudView t0 = dimension0.time(0l);
         final Node node = t0.createNode();
         node.setName("n0");
@@ -39,9 +38,9 @@ public class LookupTest {
         dimension0.save(new Callback<Throwable>() {
             @Override
             public void on(Throwable e) {
-                final CloudUniverse universe2 = new CloudUniverse();
+                final CloudModel universe2 = new CloudModel();
                 universe2.setDataBase(universe.storage().dataBase());
-                CloudDimension dimension0_2 = universe2.dimension(dimension0.key());
+                CloudUniverse dimension0_2 = universe2.dimension(dimension0.key());
                 final CloudView t0_2 = dimension0_2.time(0l);
                 t0_2.lookup(node.uuid(), new Callback<KObject>() {
                     @Override

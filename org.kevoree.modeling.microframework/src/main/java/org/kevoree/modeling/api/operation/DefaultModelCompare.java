@@ -163,13 +163,13 @@ public class DefaultModelCompare {
         if (references) {
             for (int i = 0; i < current.metaClass().metaReferences().length; i++) {
                 MetaReference reference = current.metaClass().metaReferences()[i];
-                Object payload = current.view().dimension().universe().storage().raw(current, AccessMode.READ)[reference.index()];
+                Object payload = current.view().universe().model().storage().raw(current, AccessMode.READ)[reference.index()];
                 valuesRef.put(reference, payload);
             }
             if (sibling != null) {
                 for (int i = 0; i < sibling.metaClass().metaReferences().length; i++) {
                     MetaReference reference = sibling.metaClass().metaReferences()[i];
-                    Object payload2 = sibling.view().dimension().universe().storage().raw(sibling, AccessMode.READ)[reference.index()];
+                    Object payload2 = sibling.view().universe().model().storage().raw(sibling, AccessMode.READ)[reference.index()];
                     Object payload1 = valuesRef.get(reference);
                     if (reference.single()) {
                         boolean isEquals = true;

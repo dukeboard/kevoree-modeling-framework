@@ -16,7 +16,7 @@ public class PolynomialExtrapolation implements Extrapolation {
 
     @Override
     public Object extrapolate(KObject current, MetaAttribute attribute) {
-        PolynomialModel pol = (PolynomialModel) current.view().dimension().universe().storage().raw(current, AccessMode.READ)[attribute.index()];
+        PolynomialModel pol = (PolynomialModel) current.view().universe().model().storage().raw(current, AccessMode.READ)[attribute.index()];
         if (pol != null) {
             Double extrapolatedValue = pol.extrapolate(current.now());
             if (attribute.metaType() == PrimitiveMetaTypes.DOUBLE) {
@@ -39,19 +39,19 @@ public class PolynomialExtrapolation implements Extrapolation {
 
     @Override
     public void mutate(KObject current, MetaAttribute attribute, Object payload) {
-        Object[] raw = current.view().dimension().universe().storage().raw(current, AccessMode.READ);
+        Object[] raw = current.view().universe().model().storage().raw(current, AccessMode.READ);
         Object previous = raw[attribute.index()];
         if (previous == null) {
             PolynomialModel pol = createPolynomialModel(current.now(), attribute.precision());
             pol.insert(current.now(), Double.parseDouble(payload.toString()));
-            current.view().dimension().universe().storage().raw(current, AccessMode.WRITE)[attribute.index()] = pol;
+            current.view().universe().model().storage().raw(current, AccessMode.WRITE)[attribute.index()] = pol;
         } else {
             PolynomialModel previousPol = (PolynomialModel) previous;
             if (!previousPol.insert(current.now(), Double.parseDouble(payload.toString()))) {
                 PolynomialModel pol = createPolynomialModel(previousPol.lastIndex(), attribute.precision());
                 pol.insert(previousPol.lastIndex(), previousPol.extrapolate(previousPol.lastIndex()));
                 pol.insert(current.now(), Double.parseDouble(payload.toString()));
-                current.view().dimension().universe().storage().raw(current, AccessMode.WRITE)[attribute.index()] = pol;
+                current.view().universe().model().storage().raw(current, AccessMode.WRITE)[attribute.index()] = pol;
             } else {
                 //Value fit the previous polynomial, but if degrees has changed we have to set the object to dirty for the next save batch
                 if (previousPol.isDirty()) {

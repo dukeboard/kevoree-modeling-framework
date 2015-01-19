@@ -3,13 +3,11 @@ package org.kevoree.modeling.microframework.test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KOperation;
-import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
+import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
 import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
-
-import java.util.Arrays;
 
 /**
  * Created by gregory.nain on 27/11/14.
@@ -17,7 +15,7 @@ import java.util.Arrays;
 public class CloudOperationTest {
 
     public static void main(String[] args) {
-        CloudUniverse universe = new CloudUniverse();
+        CloudModel universe = new CloudModel();
         universe.connect(null);
 
         universe.setOperation(MetaNode.OP_TRIGGER, new KOperation() {
@@ -34,7 +32,7 @@ public class CloudOperationTest {
                 result.on("Hey. I received Parameter:" + parameters + " on element:(" + source.dimension() + "," + source.now() + "," + source.uuid() + ")");
             }
         });
-        CloudDimension dimension = universe.newDimension();
+        CloudUniverse dimension = universe.newDimension();
         CloudView view = dimension.time(0L);
         Node n = view.createNode();
         n.trigger("MyParam", new Callback<String>() {

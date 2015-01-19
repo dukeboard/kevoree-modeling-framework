@@ -34,7 +34,7 @@ public class JsonModelLoader {
         if (payload == null) {
             callback.on(null);
         } else {
-            MetaModel metaModel = factory.dimension().universe().metaModel();
+            MetaModel metaModel = factory.universe().model().metaModel();
             Lexer lexer = new Lexer(payload);
             JsonToken currentToken = lexer.nextToken();
             if (currentToken.tokenType() != Type.LEFT_BRACKET) {
@@ -76,7 +76,7 @@ public class JsonModelLoader {
                     try {
                         Map<String, Object> elem = alls.get(i);
                         Long kid = Long.parseLong(elem.get(JsonModelSerializer.KEY_UUID).toString());
-                        mappedKeys.put(kid, factory.dimension().universe().storage().nextObjectKey());
+                        mappedKeys.put(kid, factory.universe().model().storage().nextObjectKey());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -90,8 +90,8 @@ public class JsonModelLoader {
                         timeTree.insert(factory.now());
                         MetaClass metaClass = metaModel.metaClass(meta);
                         KObject current = ((AbstractKView) factory).createProxy(metaClass, timeTree, mappedKeys.get(kid));
-                        factory.dimension().universe().storage().initKObject(current, factory);
-                        Object[] raw = factory.dimension().universe().storage().raw(current, AccessMode.WRITE);
+                        factory.universe().model().storage().initKObject(current, factory);
+                        Object[] raw = factory.universe().model().storage().raw(current, AccessMode.WRITE);
                         String[] metaKeys = elem.keySet().toArray(new String[elem.size()]);
                         for (int h = 0; h < metaKeys.length; h++) {
                             String metaKey = metaKeys[h];

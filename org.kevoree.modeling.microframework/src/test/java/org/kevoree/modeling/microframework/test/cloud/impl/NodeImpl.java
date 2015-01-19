@@ -88,7 +88,7 @@ public class NodeImpl extends AbstractKObject implements Node {
     public void trigger(String param, Callback<String> callback) {
         Object[] internal_params = new Object[1];
         internal_params[0] = param;
-        view().dimension().universe().storage().operationManager().call(this, MetaNode.OP_TRIGGER, internal_params, new Callback<Object>() {
+        view().universe().model().storage().operationManager().call(this, MetaNode.OP_TRIGGER, internal_params, new Callback<Object>() {
             @Override
             public void on(Object o) {
                 if (callback != null) {

@@ -9,19 +9,19 @@ import org.kevoree.modeling.api.time.TimeTree;
 /**
  * Created by duke on 09/12/14.
  */
-public class AbstractKObjectInfer<A> extends AbstractKObject implements KInfer<A> {
+public class AbstractKObjectInfer<A> extends AbstractKObject implements KInfer {
 
     public AbstractKObjectInfer(KView p_view, long p_uuid, TimeTree p_timeTree, MetaClass p_metaClass) {
         super(p_view, p_uuid, p_timeTree, p_metaClass);
     }
 
     @Override
-    public void infer(Callback<A> callback) {
-        //TODO
+    public void learn(Object[] inputs, Object[] results, Callback<Throwable> callback) {
+
     }
 
     @Override
-    public void learn(A param, Callback<Throwable> callback) {
-        //TODO
+    public void infer(Object[] inputs, Callback<Object[]> callback) {
+
     }
 }

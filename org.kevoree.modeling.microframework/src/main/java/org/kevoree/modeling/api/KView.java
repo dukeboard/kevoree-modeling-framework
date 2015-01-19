@@ -1,7 +1,6 @@
 package org.kevoree.modeling.api;
 
 import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.TraceSequence;
 
 import java.util.List;
@@ -23,7 +22,7 @@ public interface KView {
 
     public void lookupAll(Long[] keys, Callback<KObject[]> callback);
 
-    public KDimension dimension();
+    public KUniverse universe();
 
     public long now();
     

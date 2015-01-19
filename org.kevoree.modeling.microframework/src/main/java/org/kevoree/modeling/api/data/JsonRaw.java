@@ -58,7 +58,7 @@ public class JsonRaw {
             return null;
         } else {
             CacheEntry entry = new CacheEntry();
-            MetaModel metaModel = currentView.dimension().universe().metaModel();
+            MetaModel metaModel = currentView.universe().model().metaModel();
             //Init metaClass before everything
             entry.metaClass = metaModel.metaClass(content.get(JsonModelSerializer.KEY_META).toString());
             //Init the Raw storage

@@ -5,10 +5,8 @@ import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.abs.AbstractKObject;
-import org.kevoree.modeling.api.data.MemoryKDataBase;
-import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
+import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Element;
 import org.kevoree.modeling.microframework.test.cloud.Node;
@@ -21,9 +19,9 @@ public class DeleteTest {
     @Test
     public void basicDeleteTest() {
 
-        CloudUniverse universe = new CloudUniverse();
+        CloudModel universe = new CloudModel();
         universe.connect(null);
-        CloudDimension dimension = universe.newDimension();
+        CloudUniverse dimension = universe.newDimension();
         CloudView factory = dimension.time(0l);
         Node n = factory.createNode();
         factory.setRoot(n, null);
@@ -128,9 +126,9 @@ public class DeleteTest {
     @Test
     public void simpleDeleteTest() {
 
-        CloudUniverse universe = new CloudUniverse();
+        CloudModel universe = new CloudModel();
         universe.connect(null);
-        CloudDimension dimension = universe.newDimension();
+        CloudUniverse dimension = universe.newDimension();
         CloudView factory = dimension.time(0l);
         Node n = factory.createNode();
         n.setName("n");

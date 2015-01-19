@@ -1,8 +1,8 @@
-package org.kevoree.modeling.api.promise.actions;
+package org.kevoree.modeling.api.traversal.actions;
 
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.promise.KTraversalAction;
-import org.kevoree.modeling.api.promise.KTraversalFilter;
+import org.kevoree.modeling.api.traversal.KTraversalAction;
+import org.kevoree.modeling.api.traversal.KTraversalFilter;
 
 import java.util.ArrayList;
 import java.util.List;

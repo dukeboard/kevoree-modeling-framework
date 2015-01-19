@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.promise;
+package org.kevoree.modeling.api.traversal;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
@@ -12,7 +12,9 @@ public interface KTraversalPromise {
 
     public KTraversalPromise traverse(MetaReference metaReference);
 
-    public KTraversalPromise attribute(MetaAttribute attribute, Object expectedValue);
+    public KTraversalPromise withAttribute(MetaAttribute attribute, Object expectedValue);
+
+    public KTraversalPromise withoutAttribute(MetaAttribute attribute, Object expectedValue);
 
     public KTraversalPromise filter(KTraversalFilter filter);
 
