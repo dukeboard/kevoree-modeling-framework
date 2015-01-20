@@ -18,15 +18,15 @@
 
     var dataBaseConnection = new org.kevoree.modeling.database.websocket.WebSocketDataBaseClient("ws://localhost:23664");
     var broker = new org.kevoree.modeling.database.websocket.WebSocketBrokerClient("ws://localhost:23665");
-    var geometryUniverse  = new geometry.GeometryUniverse();
+    var geometryModel  = new geometry.GeometryModel();
     //broker.setMetaModel(geometryUniverse.metaModel());
-    geometryUniverse.setDataBase(dataBaseConnection);
-    geometryUniverse.setEventBroker(broker);
+    geometryModel.setDataBase(dataBaseConnection);
+    geometryModel.setEventBroker(broker);
 
-    geometryUniverse.connect(function(err){
+    geometryModel.connect(function(err){
         if(err == null) {
             console.log("Looking for the dimension");
-            var dimension = geometryUniverse.dimension(0);
+            var dimension = geometryModel.universe(0);
             var view = dimension.time(0);
             view.select("/", function(results){
                 if(results === undefined || results.length == 0) {
@@ -69,7 +69,7 @@
     $('#addNewShapeButton').on('click', addNewShape);
 
     function addNewShape() {
-        var dimension = geometryUniverse.dimension(0);
+        var dimension = geometryModel.universe(0);
         var view = dimension.time(0);
         view.select("/", function (results) {
             if (results === undefined || results.length == 0) {

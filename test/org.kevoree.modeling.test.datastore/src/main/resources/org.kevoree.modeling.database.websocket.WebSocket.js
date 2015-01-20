@@ -50,10 +50,10 @@ var org;
                         };
                         WebSocketBrokerClient.prototype.notify = function (event) {
                             this._baseBroker.notify(event);
-                            var dimEvents = this.storedEvents.get(event.dimension());
+                            var dimEvents = this.storedEvents.get(event.universe());
                             if (dimEvents == null) {
                                 dimEvents = new java.util.ArrayList();
-                                this.storedEvents.put(event.dimension(), dimEvents);
+                                this.storedEvents.put(event.universe(), dimEvents);
                             }
                             dimEvents.add(event);
                         };

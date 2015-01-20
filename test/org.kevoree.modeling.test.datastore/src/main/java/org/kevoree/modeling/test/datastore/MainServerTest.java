@@ -55,7 +55,6 @@ public class MainServerTest {
 
                             }
 
-
                             dimension.save(Utils.DefaultPrintStackTraceCallback);
 
                             System.out.println("Base model committed");
