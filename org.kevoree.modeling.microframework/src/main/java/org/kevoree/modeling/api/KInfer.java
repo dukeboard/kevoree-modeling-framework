@@ -5,8 +5,6 @@ package org.kevoree.modeling.api;
  */
 public interface KInfer extends KObject {
 
-    public void learn(Object[] inputs, Object[] results, Callback<Throwable> callback);
-
-    public void infer(Object[] inputs, Callback<Object[]> callback);
+    //TODO
     
 }

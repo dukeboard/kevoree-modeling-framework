@@ -15,13 +15,4 @@ public class AbstractKObjectInfer<A> extends AbstractKObject implements KInfer {
         super(p_view, p_uuid, p_timeTree, p_metaClass);
     }
 
-    @Override
-    public void learn(Object[] inputs, Object[] results, Callback<Throwable> callback) {
-
-    }
-
-    @Override
-    public void infer(Object[] inputs, Callback<Object[]> callback) {
-
-    }
 }
