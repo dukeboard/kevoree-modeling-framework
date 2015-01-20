@@ -429,7 +429,7 @@ public abstract class AbstractKObject implements KObject {
                                     ((AbstractKObject) resolvedParam).internal_mutate(KActionType.REMOVE, metaReference.opposite(), self, false, inDelete);
                                 }
                                 //Inbound
-                                Object[] rawParam = view().universe().model().storage().raw(param, AccessMode.WRITE);
+                                Object[] rawParam = view().universe().model().storage().raw(resolvedParam, AccessMode.WRITE);
                                 Set<Long> previousInbounds;
                                 if (rawParam[Index.INBOUNDS_INDEX] != null && rawParam[Index.INBOUNDS_INDEX] instanceof Set) {
                                     previousInbounds = (Set<Long>) rawParam[Index.INBOUNDS_INDEX];

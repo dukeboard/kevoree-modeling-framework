@@ -445,7 +445,7 @@ declare module org {
                     class JsonRaw {
                         static SEP: string;
                         static decode(payload: string, currentView: KView, now: number): CacheEntry;
-                        static encode(raw: any[], uuid: number, p_metaClass: meta.MetaClass): string;
+                        static encode(raw: any[], uuid: number, p_metaClass: meta.MetaClass, endline: boolean): string;
                     }
                     interface KDataBase {
                         get(keys: string[], callback: (p: string[], p1: java.lang.Throwable) => void): void;
