@@ -374,7 +374,7 @@ var org;
                             if (this.isRoot()) {
                                 var roots = new Array();
                                 roots[0] = this;
-                                org.kevoree.modeling.api.select.KSelector.select(this.view(), roots, cleanedQuery, callback);
+                                org.kevoree.modeling.api.traversal.KSelector.select(this.view(), roots, cleanedQuery, callback);
                             }
                             else {
                                 if (query.startsWith("/")) {
@@ -386,14 +386,14 @@ var org;
                                         else {
                                             var roots = new Array();
                                             roots[0] = rootObj;
-                                            org.kevoree.modeling.api.select.KSelector.select(rootObj.view(), roots, finalCleanedQuery, callback);
+                                            org.kevoree.modeling.api.traversal.KSelector.select(rootObj.view(), roots, finalCleanedQuery, callback);
                                         }
                                     });
                                 }
                                 else {
                                     var roots = new Array();
                                     roots[0] = this;
-                                    org.kevoree.modeling.api.select.KSelector.select(this.view(), roots, query, callback);
+                                    org.kevoree.modeling.api.traversal.KSelector.select(this.view(), roots, query, callback);
                                 }
                             }
                         };
@@ -1077,10 +1077,6 @@ var org;
                         function AbstractKObjectInfer(p_view, p_uuid, p_timeTree, p_metaClass) {
                             _super.call(this, p_view, p_uuid, p_timeTree, p_metaClass);
                         }
-                        AbstractKObjectInfer.prototype.learn = function (inputs, results, callback) {
-                        };
-                        AbstractKObjectInfer.prototype.infer = function (inputs, callback) {
-                        };
                         return AbstractKObjectInfer;
                     })(org.kevoree.modeling.api.abs.AbstractKObject);
                     abs.AbstractKObjectInfer = AbstractKObjectInfer;
@@ -1181,7 +1177,7 @@ var org;
                                         }
                                         var roots = new Array();
                                         roots[0] = rootObj;
-                                        org.kevoree.modeling.api.select.KSelector.select(rootObj.view(), roots, cleanedQuery, callback);
+                                        org.kevoree.modeling.api.traversal.KSelector.select(rootObj.view(), roots, cleanedQuery, callback);
                                     }
                                 }
                             });
@@ -5019,264 +5015,6 @@ var org;
                     })();
                     reflexive.DynamicMetaModel = DynamicMetaModel;
                 })(reflexive = api.reflexive || (api.reflexive = {}));
-                var select;
-                (function (select) {
-                    var KQuery = (function () {
-                        function KQuery(relationName, params, subQuery, oldString, previousIsDeep, previousIsRefDeep) {
-                            this.relationName = relationName;
-                            this.params = params;
-                            this.subQuery = subQuery;
-                            this.oldString = oldString;
-                            this.previousIsDeep = previousIsDeep;
-                            this.previousIsRefDeep = previousIsRefDeep;
-                        }
-                        KQuery.extractFirstQuery = function (query) {
-                            if (query == null || query.length == 0) {
-                                return null;
-                            }
-                            if (query.charAt(0) == KQuery.QUERY_SEP) {
-                                var subQuery = null;
-                                if (query.length > 1) {
-                                    subQuery = query.substring(1);
-                                }
-                                var params = new java.util.HashMap();
-                                return new org.kevoree.modeling.api.select.KQuery("", params, subQuery, "" + KQuery.QUERY_SEP, false, false);
-                            }
-                            if (query.startsWith("**/")) {
-                                if (query.length > 3) {
-                                    var next = org.kevoree.modeling.api.select.KQuery.extractFirstQuery(query.substring(3));
-                                    if (next != null) {
-                                        next.previousIsDeep = true;
-                                        next.previousIsRefDeep = false;
-                                    }
-                                    return next;
-                                }
-                                else {
-                                    return null;
-                                }
-                            }
-                            if (query.startsWith("***/")) {
-                                if (query.length > 4) {
-                                    var next = org.kevoree.modeling.api.select.KQuery.extractFirstQuery(query.substring(4));
-                                    if (next != null) {
-                                        next.previousIsDeep = true;
-                                        next.previousIsRefDeep = true;
-                                    }
-                                    return next;
-                                }
-                                else {
-                                    return null;
-                                }
-                            }
-                            var i = 0;
-                            var relationNameEnd = 0;
-                            var attsEnd = 0;
-                            var escaped = false;
-                            while (i < query.length && ((query.charAt(i) != KQuery.QUERY_SEP) || escaped)) {
-                                if (escaped) {
-                                    escaped = false;
-                                }
-                                if (query.charAt(i) == KQuery.OPEN_BRACKET) {
-                                    relationNameEnd = i;
-                                }
-                                else {
-                                    if (query.charAt(i) == KQuery.CLOSE_BRACKET) {
-                                        attsEnd = i;
-                                    }
-                                    else {
-                                        if (query.charAt(i) == '\\') {
-                                            escaped = true;
-                                        }
-                                    }
-                                }
-                                i = i + 1;
-                            }
-                            if (i > 0 && relationNameEnd > 0) {
-                                var oldString = query.substring(0, i);
-                                var subQuery = null;
-                                if (i + 1 < query.length) {
-                                    subQuery = query.substring(i + 1);
-                                }
-                                var relName = query.substring(0, relationNameEnd);
-                                var params = new java.util.HashMap();
-                                relName = relName.replace("\\", "");
-                                if (attsEnd != 0) {
-                                    var paramString = query.substring(relationNameEnd + 1, attsEnd);
-                                    var iParam = 0;
-                                    var lastStart = iParam;
-                                    escaped = false;
-                                    while (iParam < paramString.length) {
-                                        if (paramString.charAt(iParam) == ',' && !escaped) {
-                                            var p = paramString.substring(lastStart, iParam).trim();
-                                            if (p.equals("") && !p.equals("*")) {
-                                                if (p.endsWith("=")) {
-                                                    p = p + "*";
-                                                }
-                                                var pArray = p.split("=");
-                                                var pObject;
-                                                if (pArray.length > 1) {
-                                                    var paramKey = pArray[0].trim();
-                                                    var negative = paramKey.endsWith("!");
-                                                    pObject = new org.kevoree.modeling.api.select.KQueryParam(paramKey.replace("!", ""), pArray[1].trim(), negative);
-                                                    params.put(pObject.name(), pObject);
-                                                }
-                                                else {
-                                                    pObject = new org.kevoree.modeling.api.select.KQueryParam(null, p, false);
-                                                    params.put("@id", pObject);
-                                                }
-                                            }
-                                            lastStart = iParam + 1;
-                                        }
-                                        else {
-                                            if (paramString.charAt(iParam) == '\\') {
-                                                escaped = true;
-                                            }
-                                            else {
-                                                escaped = false;
-                                            }
-                                        }
-                                        iParam = iParam + 1;
-                                    }
-                                    var lastParam = paramString.substring(lastStart, iParam).trim();
-                                    if (!lastParam.equals("") && !lastParam.equals("*")) {
-                                        if (lastParam.endsWith("=")) {
-                                            lastParam = lastParam + "*";
-                                        }
-                                        var pArray = lastParam.split("=");
-                                        var pObject;
-                                        if (pArray.length > 1) {
-                                            var paramKey = pArray[0].trim();
-                                            var negative = paramKey.endsWith("!");
-                                            pObject = new org.kevoree.modeling.api.select.KQueryParam(paramKey.replace("!", ""), pArray[1].trim(), negative);
-                                            params.put(pObject.name(), pObject);
-                                        }
-                                        else {
-                                            pObject = new org.kevoree.modeling.api.select.KQueryParam(null, lastParam, false);
-                                            params.put("@id", pObject);
-                                        }
-                                    }
-                                }
-                                return new org.kevoree.modeling.api.select.KQuery(relName, params, subQuery, oldString, false, false);
-                            }
-                            return null;
-                        };
-                        KQuery.OPEN_BRACKET = '[';
-                        KQuery.CLOSE_BRACKET = ']';
-                        KQuery.QUERY_SEP = '/';
-                        return KQuery;
-                    })();
-                    select.KQuery = KQuery;
-                    var KQueryParam = (function () {
-                        function KQueryParam(p_name, p_value, p_negative) {
-                            this._name = p_name;
-                            this._value = p_value;
-                            this._negative = p_negative;
-                        }
-                        KQueryParam.prototype.name = function () {
-                            return this._name;
-                        };
-                        KQueryParam.prototype.value = function () {
-                            return this._value;
-                        };
-                        KQueryParam.prototype.isNegative = function () {
-                            return this._negative;
-                        };
-                        return KQueryParam;
-                    })();
-                    select.KQueryParam = KQueryParam;
-                    var KSelector = (function () {
-                        function KSelector() {
-                        }
-                        KSelector.select = function (view, roots, query, callback) {
-                            if (callback == null) {
-                                return;
-                            }
-                            var extractedQuery = org.kevoree.modeling.api.select.KQuery.extractFirstQuery(query);
-                            if (extractedQuery == null) {
-                                callback(new Array());
-                            }
-                            else {
-                                var relationNameRegex = extractedQuery.relationName.replace("*", ".*");
-                                var collected = new java.util.HashSet();
-                                for (var k = 0; k < roots.length; k++) {
-                                    var root = roots[k];
-                                    var raw = root.universe().model().storage().raw(root, org.kevoree.modeling.api.data.AccessMode.READ);
-                                    if (raw != null) {
-                                        for (var i = 0; i < root.metaClass().metaReferences().length; i++) {
-                                            var reference = root.metaClass().metaReferences()[i];
-                                            if (reference.metaName().matches(relationNameRegex)) {
-                                                var refPayLoad = raw[reference.index()];
-                                                if (refPayLoad != null) {
-                                                    if (refPayLoad instanceof java.util.Set) {
-                                                        var castedSet = refPayLoad;
-                                                        collected.addAll(castedSet);
-                                                    }
-                                                    else {
-                                                        var castedLong = refPayLoad;
-                                                        collected.add(castedLong);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                view.lookupAll(collected.toArray(new Array()), function (resolveds) {
-                                    var nextGeneration = new java.util.ArrayList();
-                                    if (extractedQuery.params.isEmpty()) {
-                                        for (var i = 0; i < resolveds.length; i++) {
-                                            nextGeneration.add(resolveds[i]);
-                                        }
-                                    }
-                                    else {
-                                        for (var i = 0; i < resolveds.length; i++) {
-                                            var resolved = resolveds[i];
-                                            var selectedForNext = true;
-                                            var paramKeys = extractedQuery.params.keySet().toArray(new Array());
-                                            for (var h = 0; h < paramKeys.length; h++) {
-                                                var param = extractedQuery.params.get(paramKeys[h]);
-                                                for (var j = 0; j < resolved.metaClass().metaAttributes().length; j++) {
-                                                    var metaAttribute = resolved.metaClass().metaAttributes()[j];
-                                                    if (metaAttribute.metaName().matches(param.name().replace("*", ".*"))) {
-                                                        var o_raw = resolved.get(metaAttribute);
-                                                        if (o_raw != null) {
-                                                            if (o_raw.toString().matches(param.value().replace("*", ".*"))) {
-                                                                if (param.isNegative()) {
-                                                                    selectedForNext = false;
-                                                                }
-                                                            }
-                                                            else {
-                                                                if (!param.isNegative()) {
-                                                                    selectedForNext = false;
-                                                                }
-                                                            }
-                                                        }
-                                                        else {
-                                                            if (!param.isNegative() && !param.value().equals("null")) {
-                                                                selectedForNext = false;
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            if (selectedForNext) {
-                                                nextGeneration.add(resolved);
-                                            }
-                                        }
-                                    }
-                                    var nextArr = nextGeneration.toArray(new Array());
-                                    if (extractedQuery.subQuery == null || extractedQuery.subQuery.isEmpty()) {
-                                        callback(nextArr);
-                                    }
-                                    else {
-                                        org.kevoree.modeling.api.select.KSelector.select(view, nextArr, extractedQuery.subQuery, callback);
-                                    }
-                                });
-                            }
-                        };
-                        return KSelector;
-                    })();
-                    select.KSelector = KSelector;
-                })(select = api.select || (api.select = {}));
                 var time;
                 (function (_time) {
                     var DefaultTimeTree = (function () {
@@ -7462,6 +7200,261 @@ var org;
                         return DefaultKTraversalPromise;
                     })();
                     traversal.DefaultKTraversalPromise = DefaultKTraversalPromise;
+                    var KQuery = (function () {
+                        function KQuery(relationName, params, subQuery, oldString, previousIsDeep, previousIsRefDeep) {
+                            this.relationName = relationName;
+                            this.params = params;
+                            this.subQuery = subQuery;
+                            this.oldString = oldString;
+                            this.previousIsDeep = previousIsDeep;
+                            this.previousIsRefDeep = previousIsRefDeep;
+                        }
+                        KQuery.extractFirstQuery = function (query) {
+                            if (query == null || query.length == 0) {
+                                return null;
+                            }
+                            if (query.charAt(0) == KQuery.QUERY_SEP) {
+                                var subQuery = null;
+                                if (query.length > 1) {
+                                    subQuery = query.substring(1);
+                                }
+                                var params = new java.util.HashMap();
+                                return new org.kevoree.modeling.api.traversal.KQuery("", params, subQuery, "" + KQuery.QUERY_SEP, false, false);
+                            }
+                            if (query.startsWith("**/")) {
+                                if (query.length > 3) {
+                                    var next = org.kevoree.modeling.api.traversal.KQuery.extractFirstQuery(query.substring(3));
+                                    if (next != null) {
+                                        next.previousIsDeep = true;
+                                        next.previousIsRefDeep = false;
+                                    }
+                                    return next;
+                                }
+                                else {
+                                    return null;
+                                }
+                            }
+                            if (query.startsWith("***/")) {
+                                if (query.length > 4) {
+                                    var next = org.kevoree.modeling.api.traversal.KQuery.extractFirstQuery(query.substring(4));
+                                    if (next != null) {
+                                        next.previousIsDeep = true;
+                                        next.previousIsRefDeep = true;
+                                    }
+                                    return next;
+                                }
+                                else {
+                                    return null;
+                                }
+                            }
+                            var i = 0;
+                            var relationNameEnd = 0;
+                            var attsEnd = 0;
+                            var escaped = false;
+                            while (i < query.length && ((query.charAt(i) != KQuery.QUERY_SEP) || escaped)) {
+                                if (escaped) {
+                                    escaped = false;
+                                }
+                                if (query.charAt(i) == KQuery.OPEN_BRACKET) {
+                                    relationNameEnd = i;
+                                }
+                                else {
+                                    if (query.charAt(i) == KQuery.CLOSE_BRACKET) {
+                                        attsEnd = i;
+                                    }
+                                    else {
+                                        if (query.charAt(i) == '\\') {
+                                            escaped = true;
+                                        }
+                                    }
+                                }
+                                i = i + 1;
+                            }
+                            if (i > 0 && relationNameEnd > 0) {
+                                var oldString = query.substring(0, i);
+                                var subQuery = null;
+                                if (i + 1 < query.length) {
+                                    subQuery = query.substring(i + 1);
+                                }
+                                var relName = query.substring(0, relationNameEnd);
+                                var params = new java.util.HashMap();
+                                relName = relName.replace("\\", "");
+                                if (attsEnd != 0) {
+                                    var paramString = query.substring(relationNameEnd + 1, attsEnd);
+                                    var iParam = 0;
+                                    var lastStart = iParam;
+                                    escaped = false;
+                                    while (iParam < paramString.length) {
+                                        if (paramString.charAt(iParam) == ',' && !escaped) {
+                                            var p = paramString.substring(lastStart, iParam).trim();
+                                            if (p.equals("") && !p.equals("*")) {
+                                                if (p.endsWith("=")) {
+                                                    p = p + "*";
+                                                }
+                                                var pArray = p.split("=");
+                                                var pObject;
+                                                if (pArray.length > 1) {
+                                                    var paramKey = pArray[0].trim();
+                                                    var negative = paramKey.endsWith("!");
+                                                    pObject = new org.kevoree.modeling.api.traversal.KQueryParam(paramKey.replace("!", ""), pArray[1].trim(), negative);
+                                                    params.put(pObject.name(), pObject);
+                                                }
+                                                else {
+                                                    pObject = new org.kevoree.modeling.api.traversal.KQueryParam(null, p, false);
+                                                    params.put("@id", pObject);
+                                                }
+                                            }
+                                            lastStart = iParam + 1;
+                                        }
+                                        else {
+                                            if (paramString.charAt(iParam) == '\\') {
+                                                escaped = true;
+                                            }
+                                            else {
+                                                escaped = false;
+                                            }
+                                        }
+                                        iParam = iParam + 1;
+                                    }
+                                    var lastParam = paramString.substring(lastStart, iParam).trim();
+                                    if (!lastParam.equals("") && !lastParam.equals("*")) {
+                                        if (lastParam.endsWith("=")) {
+                                            lastParam = lastParam + "*";
+                                        }
+                                        var pArray = lastParam.split("=");
+                                        var pObject;
+                                        if (pArray.length > 1) {
+                                            var paramKey = pArray[0].trim();
+                                            var negative = paramKey.endsWith("!");
+                                            pObject = new org.kevoree.modeling.api.traversal.KQueryParam(paramKey.replace("!", ""), pArray[1].trim(), negative);
+                                            params.put(pObject.name(), pObject);
+                                        }
+                                        else {
+                                            pObject = new org.kevoree.modeling.api.traversal.KQueryParam(null, lastParam, false);
+                                            params.put("@id", pObject);
+                                        }
+                                    }
+                                }
+                                return new org.kevoree.modeling.api.traversal.KQuery(relName, params, subQuery, oldString, false, false);
+                            }
+                            return null;
+                        };
+                        KQuery.OPEN_BRACKET = '[';
+                        KQuery.CLOSE_BRACKET = ']';
+                        KQuery.QUERY_SEP = '/';
+                        return KQuery;
+                    })();
+                    traversal.KQuery = KQuery;
+                    var KQueryParam = (function () {
+                        function KQueryParam(p_name, p_value, p_negative) {
+                            this._name = p_name;
+                            this._value = p_value;
+                            this._negative = p_negative;
+                        }
+                        KQueryParam.prototype.name = function () {
+                            return this._name;
+                        };
+                        KQueryParam.prototype.value = function () {
+                            return this._value;
+                        };
+                        KQueryParam.prototype.isNegative = function () {
+                            return this._negative;
+                        };
+                        return KQueryParam;
+                    })();
+                    traversal.KQueryParam = KQueryParam;
+                    var KSelector = (function () {
+                        function KSelector() {
+                        }
+                        KSelector.select = function (view, roots, query, callback) {
+                            if (callback == null) {
+                                return;
+                            }
+                            var extractedQuery = org.kevoree.modeling.api.traversal.KQuery.extractFirstQuery(query);
+                            if (extractedQuery == null) {
+                                callback(new Array());
+                            }
+                            else {
+                                var relationNameRegex = extractedQuery.relationName.replace("*", ".*");
+                                var collected = new java.util.HashSet();
+                                for (var k = 0; k < roots.length; k++) {
+                                    var root = roots[k];
+                                    var raw = root.universe().model().storage().raw(root, org.kevoree.modeling.api.data.AccessMode.READ);
+                                    if (raw != null) {
+                                        for (var i = 0; i < root.metaClass().metaReferences().length; i++) {
+                                            var reference = root.metaClass().metaReferences()[i];
+                                            if (reference.metaName().matches(relationNameRegex)) {
+                                                var refPayLoad = raw[reference.index()];
+                                                if (refPayLoad != null) {
+                                                    if (refPayLoad instanceof java.util.Set) {
+                                                        var castedSet = refPayLoad;
+                                                        collected.addAll(castedSet);
+                                                    }
+                                                    else {
+                                                        var castedLong = refPayLoad;
+                                                        collected.add(castedLong);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                view.lookupAll(collected.toArray(new Array()), function (resolveds) {
+                                    var nextGeneration = new java.util.ArrayList();
+                                    if (extractedQuery.params.isEmpty()) {
+                                        for (var i = 0; i < resolveds.length; i++) {
+                                            nextGeneration.add(resolveds[i]);
+                                        }
+                                    }
+                                    else {
+                                        for (var i = 0; i < resolveds.length; i++) {
+                                            var resolved = resolveds[i];
+                                            var selectedForNext = true;
+                                            var paramKeys = extractedQuery.params.keySet().toArray(new Array());
+                                            for (var h = 0; h < paramKeys.length; h++) {
+                                                var param = extractedQuery.params.get(paramKeys[h]);
+                                                for (var j = 0; j < resolved.metaClass().metaAttributes().length; j++) {
+                                                    var metaAttribute = resolved.metaClass().metaAttributes()[j];
+                                                    if (metaAttribute.metaName().matches(param.name().replace("*", ".*"))) {
+                                                        var o_raw = resolved.get(metaAttribute);
+                                                        if (o_raw != null) {
+                                                            if (o_raw.toString().matches(param.value().replace("*", ".*"))) {
+                                                                if (param.isNegative()) {
+                                                                    selectedForNext = false;
+                                                                }
+                                                            }
+                                                            else {
+                                                                if (!param.isNegative()) {
+                                                                    selectedForNext = false;
+                                                                }
+                                                            }
+                                                        }
+                                                        else {
+                                                            if (!param.isNegative() && !param.value().equals("null")) {
+                                                                selectedForNext = false;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            if (selectedForNext) {
+                                                nextGeneration.add(resolved);
+                                            }
+                                        }
+                                    }
+                                    var nextArr = nextGeneration.toArray(new Array());
+                                    if (extractedQuery.subQuery == null || extractedQuery.subQuery.isEmpty()) {
+                                        callback(nextArr);
+                                    }
+                                    else {
+                                        org.kevoree.modeling.api.traversal.KSelector.select(view, nextArr, extractedQuery.subQuery, callback);
+                                    }
+                                });
+                            }
+                        };
+                        return KSelector;
+                    })();
+                    traversal.KSelector = KSelector;
                     var actions;
                     (function (actions) {
                         var KFilterAction = (function () {

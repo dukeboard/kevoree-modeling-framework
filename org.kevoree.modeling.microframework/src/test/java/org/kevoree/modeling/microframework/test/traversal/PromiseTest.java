@@ -1,4 +1,4 @@
-package org.kevoree.modeling.microframework.test.selector;
+package org.kevoree.modeling.microframework.test.traversal;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -195,4 +195,49 @@ public class PromiseTest {
             }
         });
     }
+
+    @Test
+    public void parentTest() {
+        final CloudModel model = new CloudModel();
+        model.connect(new Callback<Throwable>() {
+            @Override
+            public void on(Throwable throwable) {
+                final CloudUniverse universe = model.newUniverse();
+                final CloudView t0 = universe.time(0l);
+                final Node node0 = t0.createNode();
+                final Element elem0_0 = t0.createElement();
+                node0.setElement(elem0_0);
+                t0.setRoot(node0, new Callback<Throwable>() {
+                    @Override
+                    public void on(Throwable throwable) {
+                        final Node node1 = t0.createNode();
+                        node1.setName("child1");
+                        final Element elem1_0 = t0.createElement();
+                        elem1_0.setName("child1_elem1");
+                        node1.setElement(elem1_0);
+                        final Node node2 = t0.createNode();
+                        node2.setName("child2");
+                        final Element elem2_0 = t0.createElement();
+                        elem2_0.setName("child2_elem1");
+                        node2.setElement(elem2_0);
+                        node0.addChildren(node1);
+                        node0.addChildren(node2);
+                        // chained traversal promise
+                        node0.traverse(node0.metaClass().metaReference("children")).parents().then(new Callback<KObject[]>() {
+                            @Override
+                            public void on(KObject[] kObjects) {
+                                Assert.assertEquals(kObjects.length, 1);
+                                Assert.assertEquals(kObjects[0], node0);
+                            }
+                        });
+
+                    }
+                });
+            }
+        });
+
+
+    }
+
+
 }

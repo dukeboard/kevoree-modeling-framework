@@ -39,8 +39,6 @@ declare module org {
                     toTrace(): trace.ModelTrace;
                 }
                 interface KInfer extends KObject {
-                    learn(inputs: any[], results: any[], callback: (p: java.lang.Throwable) => void): void;
-                    infer(inputs: any[], callback: (p: any[]) => void): void;
                 }
                 interface KMetaType {
                     name(): string;
@@ -252,8 +250,6 @@ declare module org {
                     }
                     class AbstractKObjectInfer<A> extends AbstractKObject implements KInfer {
                         constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
-                        learn(inputs: any[], results: any[], callback: (p: java.lang.Throwable) => void): void;
-                        infer(inputs: any[], callback: (p: any[]) => void): void;
                     }
                     class AbstractKUniverse<A extends KView, B extends KUniverse<any, any, any>, C extends KModel<any>> implements KUniverse<any, any, any> {
                         private _model;
@@ -597,6 +593,13 @@ declare module org {
                     }
                 }
                 module infer {
+                    interface KInferAlg {
+                        learn(inputs: any[], results: any[], callback: (p: java.lang.Throwable) => void): void;
+                        infer(inputs: any[], callback: (p: any[]) => void): void;
+                        save(): string;
+                        load(payload: string): void;
+                        isDirty(): boolean;
+                    }
                     interface KInferClustering {
                         classify(callback: (p: number) => void): void;
                         learn(callback: (p: java.lang.Throwable) => void): void;
@@ -958,33 +961,6 @@ declare module org {
                         universe(): KModel<any>;
                     }
                 }
-                module select {
-                    class KQuery {
-                        static OPEN_BRACKET: string;
-                        static CLOSE_BRACKET: string;
-                        static QUERY_SEP: string;
-                        relationName: string;
-                        params: java.util.Map<string, KQueryParam>;
-                        subQuery: string;
-                        oldString: string;
-                        previousIsDeep: boolean;
-                        previousIsRefDeep: boolean;
-                        constructor(relationName: string, params: java.util.Map<string, KQueryParam>, subQuery: string, oldString: string, previousIsDeep: boolean, previousIsRefDeep: boolean);
-                        static extractFirstQuery(query: string): KQuery;
-                    }
-                    class KQueryParam {
-                        private _name;
-                        private _value;
-                        private _negative;
-                        constructor(p_name: string, p_value: string, p_negative: boolean);
-                        name(): string;
-                        value(): string;
-                        isNegative(): boolean;
-                    }
-                    class KSelector {
-                        static select(view: KView, roots: KObject[], query: string, callback: (p: KObject[]) => void): void;
-                    }
-                }
                 module time {
                     class DefaultTimeTree implements TimeTree {
                         dirty: boolean;
@@ -1273,6 +1249,31 @@ declare module org {
                         parents(): KTraversalPromise;
                         then(callback: (p: KObject[]) => void): void;
                         map(attribute: meta.MetaAttribute, callback: (p: any[]) => void): void;
+                    }
+                    class KQuery {
+                        static OPEN_BRACKET: string;
+                        static CLOSE_BRACKET: string;
+                        static QUERY_SEP: string;
+                        relationName: string;
+                        params: java.util.Map<string, KQueryParam>;
+                        subQuery: string;
+                        oldString: string;
+                        previousIsDeep: boolean;
+                        previousIsRefDeep: boolean;
+                        constructor(relationName: string, params: java.util.Map<string, KQueryParam>, subQuery: string, oldString: string, previousIsDeep: boolean, previousIsRefDeep: boolean);
+                        static extractFirstQuery(query: string): KQuery;
+                    }
+                    class KQueryParam {
+                        private _name;
+                        private _value;
+                        private _negative;
+                        constructor(p_name: string, p_value: string, p_negative: boolean);
+                        name(): string;
+                        value(): string;
+                        isNegative(): boolean;
+                    }
+                    class KSelector {
+                        static select(view: KView, roots: KObject[], query: string, callback: (p: KObject[]) => void): void;
                     }
                     interface KTraversalAction {
                         chain(next: KTraversalAction): void;

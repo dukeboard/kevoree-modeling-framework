@@ -9,6 +9,7 @@ import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -37,7 +38,7 @@ public class KTraverseAction implements KTraversalAction {
             return;
         } else {
             KView currentView = p_inputs[0].view();
-            List<Long> nextIds = new ArrayList<Long>();
+            Set<Long> nextIds = new HashSet<Long>();
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];

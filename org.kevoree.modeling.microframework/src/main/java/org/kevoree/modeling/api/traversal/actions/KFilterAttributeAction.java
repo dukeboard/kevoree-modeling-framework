@@ -8,7 +8,9 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by duke on 19/12/14.
@@ -38,7 +40,7 @@ public class KFilterAttributeAction implements KTraversalAction {
             return;
         } else {
             KView currentView = p_inputs[0].view();
-            List<KObject> nextStep = new ArrayList<KObject>();
+            Set<KObject> nextStep = new HashSet<KObject>();
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];

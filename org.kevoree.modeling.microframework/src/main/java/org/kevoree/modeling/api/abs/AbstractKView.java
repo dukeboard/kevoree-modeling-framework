@@ -11,7 +11,7 @@ import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.json.JsonFormat;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.operation.DefaultModelSlicer;
-import org.kevoree.modeling.api.select.KSelector;
+import org.kevoree.modeling.api.traversal.KSelector;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.DefaultTimeTree;
 import org.kevoree.modeling.api.trace.TraceSequence;

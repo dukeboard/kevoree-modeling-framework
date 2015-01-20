@@ -1,4 +1,4 @@
-package org.kevoree.modeling.microframework.test.selector;
+package org.kevoree.modeling.microframework.test.traversal;
 
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;

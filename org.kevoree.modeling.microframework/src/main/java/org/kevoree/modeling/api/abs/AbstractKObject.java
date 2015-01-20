@@ -13,7 +13,7 @@ import org.kevoree.modeling.api.operation.DefaultModelCompare;
 import org.kevoree.modeling.api.operation.DefaultModelSlicer;
 import org.kevoree.modeling.api.traversal.DefaultKTraversalPromise;
 import org.kevoree.modeling.api.traversal.KTraversalPromise;
-import org.kevoree.modeling.api.select.KSelector;
+import org.kevoree.modeling.api.traversal.KSelector;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelAddTrace;
 import org.kevoree.modeling.api.trace.ModelSetTrace;

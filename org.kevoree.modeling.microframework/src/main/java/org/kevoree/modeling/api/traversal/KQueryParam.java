@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.select;
+package org.kevoree.modeling.api.traversal;
 
 /**
  * Created by duke on 10/24/14.
