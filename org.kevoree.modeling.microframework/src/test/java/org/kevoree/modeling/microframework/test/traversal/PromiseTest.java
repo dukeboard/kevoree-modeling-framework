@@ -230,7 +230,14 @@ public class PromiseTest {
                                 Assert.assertEquals(kObjects[0], node0);
                             }
                         });
-
+                        // reverse
+                        node0.traverse(node0.metaClass().metaReference("children")).reverse(node0.metaClass().metaReference("children")).then(new Callback<KObject[]>() {
+                            @Override
+                            public void on(KObject[] kObjects) {
+                                Assert.assertEquals(kObjects.length, 1);
+                                Assert.assertEquals(kObjects[0], node0);
+                            }
+                        });
                     }
                 });
             }

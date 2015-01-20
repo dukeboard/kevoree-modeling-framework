@@ -7,20 +7,21 @@ import org.kevoree.modeling.api.meta.MetaReference;
  */
 public class InboundReference {
 
-    private MetaReference reference;
+    private MetaReference _reference;
 
-    private KObject object;
+    private long _source;
 
-    public InboundReference(MetaReference reference, KObject object) {
-        this.reference = reference;
-        this.object = object;
+    public InboundReference(MetaReference p_reference, long p_source) {
+        this._reference = p_reference;
+        this._source = p_source;
     }
 
     public MetaReference getReference() {
-        return reference;
+        return _reference;
     }
 
-    public KObject getObject() {
-        return object;
+    public long getSource() {
+        return _source;
     }
+
 }

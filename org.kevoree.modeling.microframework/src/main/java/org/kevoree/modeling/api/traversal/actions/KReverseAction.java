@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.traversal.actions;
 
 import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.InboundReference;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObject;
@@ -43,52 +44,16 @@ public class KReverseAction implements KTraversalAction {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
                     Object[] raw = currentView.universe().model().storage().raw(loopObj, AccessMode.READ);
-
-
                     if (_reference == null) {
-                        for (int j = 0; j < loopObj.metaClass().metaReferences().length; j++) {
-                            MetaReference ref = loopObj.metaClass().metaReferences()[j];
-                            Object resolved = raw[ref.index()];
-                            if (resolved != null) {
-                                if (resolved instanceof Set) {
-                                    Set<Long> resolvedCasted = (Set<Long>) resolved;
-                                    Long[] resolvedArr = resolvedCasted.toArray(new Long[resolvedCasted.size()]);
-                                    for (int k = 0; k < resolvedArr.length; k++) {
-                                        Long idResolved = resolvedArr[k];
-                                        if (idResolved != null) {
-                                            nextIds.add(idResolved);
-                                        }
-                                    }
-                                } else {
-                                    try {
-                                        nextIds.add((Long) resolved);
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }
+                        InboundReference[] inboundReferences = loopObj.inbounds();
+                        for (int j = 0; j < inboundReferences.length; j++) {
+                            nextIds.add(inboundReferences[j].getSource());
                         }
                     } else {
-                        MetaReference translatedRef = loopObj.internal_transpose_ref(_reference);
-                        if (translatedRef != null) {
-                            Object resolved = raw[translatedRef.index()];
-                            if (resolved != null) {
-                                if (resolved instanceof Set) {
-                                    Set<Long> resolvedCasted = (Set<Long>) resolved;
-                                    Long[] resolvedArr = resolvedCasted.toArray(new Long[resolvedCasted.size()]);
-                                    for (int j = 0; j < resolvedArr.length; j++) {
-                                        Long idResolved = resolvedArr[j];
-                                        if (idResolved != null) {
-                                            nextIds.add(idResolved);
-                                        }
-                                    }
-                                } else {
-                                    try {
-                                        nextIds.add((Long) resolved);
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                }
+                        InboundReference[] inboundReferences = loopObj.inbounds();
+                        for (int j = 0; j < inboundReferences.length; j++) {
+                            if (inboundReferences[j].getReference().metaName().equals(_reference.metaName())) {
+                                nextIds.add(inboundReferences[j].getSource());
                             }
                         }
                     }

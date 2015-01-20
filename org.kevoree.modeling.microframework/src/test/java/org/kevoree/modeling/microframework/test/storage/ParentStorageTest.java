@@ -92,14 +92,9 @@ public class ParentStorageTest {
         Assert.assertEquals(n1.parentUuid(), val);
         Assert.assertEquals(n1.referenceInParent(), MetaNode.REF_CHILDREN);
 
-        final int[] i = {0};
-        n1.inbounds(new Callback<InboundReference>() {
-            @Override
-            public void on(InboundReference inboundReference) {
-                i[0]++;
-            }
-        }, null);
-        Assert.assertEquals(1, i[0]);
+
+        InboundReference[] inbounds = n1.inbounds();
+        Assert.assertEquals(1, inbounds.length);
 
         try {
             root.eachChildren(null);
@@ -123,19 +118,15 @@ public class ParentStorageTest {
             public void on(KObject r_n1) {
                 Assert.assertNotNull(r_n1.parentUuid());
                 Assert.assertNotNull(r_n1.referenceInParent());
-                r_n1.inbounds(new Callback<InboundReference>() {
-                    @Override
-                    public void on(InboundReference inboundReference) {
-                        i[0]++;
-                    }
-                }, null);
-                Assert.assertEquals(2, i[0]);
-                i[0]++;
+
+                InboundReference[] references = r_n1.inbounds();
+                Assert.assertEquals(1, references.length);
+                //i[0]++;
             }
         });
 
         //lookup test
-        Assert.assertEquals(3, i[0]);
+        //Assert.assertEquals(3, i[0]);
 
     }
 

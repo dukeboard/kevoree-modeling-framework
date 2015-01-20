@@ -64,8 +64,7 @@ public interface KObject {
 
     public KTraversalPromise traverse(MetaReference metaReference);
 
-    //TODO refactor
-    public void inbounds(Callback<InboundReference> callback, Callback<Throwable> end);
+    public InboundReference[] inbounds();
 
     /* End Reflexive API */
 

@@ -330,7 +330,7 @@ public abstract class AbstractKObject implements KObject {
     public void internal_mutate(KActionType actionType, final MetaReference metaReferenceP, KObject param, final boolean setOpposite, final boolean inDelete) {
         MetaReference metaReference = internal_transpose_ref(metaReferenceP);
         if (metaReference == null) {
-            if(metaReferenceP == null){
+            if (metaReferenceP == null) {
                 throw new RuntimeException("Bad KMF usage, the reference " + " is null in metaClass named " + metaClass().metaName());
             } else {
                 throw new RuntimeException("Bad KMF usage, the reference named " + metaReferenceP.metaName() + " is not part of " + metaClass().metaName());
@@ -733,60 +733,22 @@ public abstract class AbstractKObject implements KObject {
         return traces.toArray(new ModelTrace[traces.size()]);
     }
 
-    public void inbounds(final Callback<InboundReference> callback, final Callback<Throwable> end) {
+    public InboundReference[] inbounds() {
         Object[] rawPayload = view().universe().model().storage().raw(this, AccessMode.READ);
         if (rawPayload == null) {
-            end.on(new Exception("Object not initialized."));
+            return new InboundReference[0];
         } else {
             Object payload = rawPayload[Index.INBOUNDS_INDEX];
             if (payload != null) {
-                if (payload instanceof Map) {
-                    final Map<Long, MetaReference> refs = (Map<Long, MetaReference>) payload;
-                    Set<Long> oppositeKids = new HashSet<Long>();
-                    oppositeKids.addAll(refs.keySet());
-                    _view.lookupAll(oppositeKids.toArray(new Long[oppositeKids.size()]), new Callback<KObject[]>() {
-                        @Override
-                        public void on(KObject[] oppositeElements) {
-                            if (oppositeElements != null) {
-                                for (int k = 0; k < oppositeElements.length; k++) {
-                                    KObject opposite = oppositeElements[k];
-                                    MetaReference metaRef = refs.get(opposite.uuid());
-                                    if (metaRef != null) {
-                                        InboundReference reference = new InboundReference(metaRef, opposite);
-                                        try {
-                                            if (callback != null) {
-                                                callback.on(reference);
-                                            }
-                                        } catch (Throwable t) {
-                                            if (end != null) {
-                                                end.on(t);
-                                            }
-                                        }
-                                    } else {
-                                        if (end != null) {
-                                            end.on(new Exception("MetaReference not found with index:" + metaRef + " in refs of " + opposite.metaClass().metaName()));
-                                        }
-                                    }
-                                }
-                                if (end != null) {
-                                    end.on(null);
-                                }
-                            } else {
-                                if (end != null) {
-                                    end.on(new Exception("Could not resolve opposite objects"));
-                                }
-                            }
-                        }
-                    });
-                } else {
-                    if (end != null) {
-                        end.on(new Exception("Inbound refs payload is not a cset"));
-                    }
+                final Map<Long, MetaReference> refs = (Map<Long, MetaReference>) payload;
+                Long[] keysArr = refs.keySet().toArray(new Long[refs.keySet().size()]);
+                InboundReference[] result = new InboundReference[keysArr.length];
+                for (int i = 0; i < keysArr.length; i++) {
+                    result[i] = new InboundReference(refs.get(keysArr[i]), keysArr[i]);
                 }
+                return result;
             } else {
-                if (end != null) {
-                    end.on(null);
-                }
+                return new InboundReference[0];
             }
         }
     }
