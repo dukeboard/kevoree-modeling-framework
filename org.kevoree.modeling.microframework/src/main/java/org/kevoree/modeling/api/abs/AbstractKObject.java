@@ -380,7 +380,7 @@ public abstract class AbstractKObject implements KObject {
                     Object[] rawParam = view().universe().model().storage().raw(param, AccessMode.WRITE);
                     Set<Long> previousInbounds;
                     if (rawParam[Index.INBOUNDS_INDEX] != null && rawParam[Index.INBOUNDS_INDEX] instanceof Set) {
-                        previousInbounds = (Set<Long>) payload[Index.INBOUNDS_INDEX];
+                        previousInbounds = (Set<Long>) rawParam[Index.INBOUNDS_INDEX];
                     } else {
                         if (rawParam[Index.INBOUNDS_INDEX] != null) {
                             try {
