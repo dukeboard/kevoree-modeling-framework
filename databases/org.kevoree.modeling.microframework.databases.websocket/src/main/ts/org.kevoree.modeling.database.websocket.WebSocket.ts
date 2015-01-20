@@ -57,10 +57,10 @@ module org {
 
                         public  notify(event):void {
                             this._baseBroker.notify(event);
-                            var dimEvents:java.util.ArrayList<org.kevoree.modeling.api.KEvent> = this.storedEvents.get(event.dimension());
+                            var dimEvents:java.util.ArrayList<org.kevoree.modeling.api.KEvent> = this.storedEvents.get(event.universe());
                             if (dimEvents == null) {
                                 dimEvents = new java.util.ArrayList<org.kevoree.modeling.api.KEvent>();
-                                this.storedEvents.put(event.dimension(), dimEvents);
+                                this.storedEvents.put(event.universe(), dimEvents);
                             }
                             dimEvents.add(event);
                         }
