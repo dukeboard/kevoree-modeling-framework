@@ -698,7 +698,7 @@ public abstract class AbstractKObject implements KObject {
     public String toJSON() {
         Object[] raw = view().universe().model().storage().raw(this, AccessMode.READ);
         if (raw != null) {
-            return JsonRaw.encode(raw, _uuid, _metaClass);
+            return JsonRaw.encode(raw, _uuid, _metaClass,true);
         } else {
             return "";
         }

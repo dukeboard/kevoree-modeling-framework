@@ -33,7 +33,6 @@ public class JsonModelSerializer {
 
     public static final String DIM_META = "@universe";
 
-    //@Override
     public static void serialize(KObject model, final ThrowableCallback<String> callback) {
         final StringBuilder builder = new StringBuilder();
         builder.append("[\n");
@@ -41,7 +40,7 @@ public class JsonModelSerializer {
         model.graphVisit(new ModelVisitor() {
             @Override
             public VisitResult visit(KObject elem) {
-                builder.append(",");
+                builder.append(",\n");
                 try {
                     printJSON(elem, builder);
                 } catch (Exception e) {
@@ -53,7 +52,7 @@ public class JsonModelSerializer {
         }, new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
-                builder.append("]\n");
+                builder.append("\n]\n");
                 callback.on(builder.toString(), throwable);
             }
         });
@@ -63,7 +62,7 @@ public class JsonModelSerializer {
         if (elem != null) {
             Object[] raw = elem.view().universe().model().storage().raw(elem, AccessMode.READ);
             if (raw != null) {
-                builder.append(JsonRaw.encode(raw, elem.uuid(), elem.metaClass()));
+                builder.append(JsonRaw.encode(raw, elem.uuid(), elem.metaClass(),false));
             }
         }
     }

@@ -95,6 +95,22 @@ public class JSONSaveTest {
         n2.setName("n2");
         root.addChildren(n1);
         root.addChildren(n2);
+
+
+
+
+        time0.json().saveRoot(new ThrowableCallback<String>() {
+            @Override
+            public void on(String s, Throwable error) {
+                System.err.println(s);
+            }
+        });
+
+        if(true){
+            return;
+        }
+
+
         final String[] result = new String[1];
         time0.json().save(root, new ThrowableCallback<String>() {
             @Override
@@ -110,7 +126,7 @@ public class JSONSaveTest {
                 "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
                 "\t\"@uuid\" : \"1\",\n" +
                 "\t\"@root\" : \"true\",\n" +
-                "\t\"name\":\"root\",\n" +
+                "\t\"name\" : \"root\",\n" +
                 "\t\"children\": [\"2\",\"3\"],\n" +
                 "}\n" +
                 ",{\n" +
@@ -119,7 +135,7 @@ public class JSONSaveTest {
                 "\t\"@parent\" : \"1\",\n" +
                 "\t\"@ref\" : \"org.kevoree.modeling.microframework.test.cloud.Node@children\",\n" +
                 "\t\"@inbounds\" : [\"1\"],\n" +
-                "\t\"name\":\"n1\",\n" +
+                "\t\"name\" : \"n1\",\n" +
                 "}\n" +
                 ",{\n" +
                 "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
@@ -127,7 +143,7 @@ public class JSONSaveTest {
                 "\t\"@parent\" : \"1\",\n" +
                 "\t\"@ref\" : \"org.kevoree.modeling.microframework.test.cloud.Node@children\",\n" +
                 "\t\"@inbounds\" : [\"1\"],\n" +
-                "\t\"name\":\"n2\",\n" +
+                "\t\"name\" : \"n2\",\n" +
                 "}\n" +
                 "]\n";
 
@@ -156,6 +172,9 @@ public class JSONSaveTest {
             }
         });
         Assert.assertEquals("/", pathR[0]);
+
+
+
     }
 
 }
