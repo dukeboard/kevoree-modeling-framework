@@ -29,6 +29,24 @@ public class JsonFormat implements ModelFormat {
     }
 
     @Override
+    public void saveRoot(ThrowableCallback<String> callback) {
+        if (Checker.isDefined(callback)) {
+            _view.universe().model().storage().getRoot(_view, new Callback<KObject>() {
+                @Override
+                public void on(KObject root) {
+                    if (root == null) {
+                        callback.on("", new Exception("Root not set yet !"));
+                    } else {
+                        JsonModelSerializer.serialize(root, callback);
+                    }
+                }
+            });
+        } else {
+            throw new RuntimeException("one parameter is null");
+        }
+    }
+
+    @Override
     public void load(String payload, Callback<Throwable> callback) {
         if (Checker.isDefined(payload) && Checker.isDefined(callback)) {
             JsonModelLoader.load(_view, payload, callback);

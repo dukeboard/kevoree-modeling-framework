@@ -16,17 +16,14 @@ public class LookupTest {
 
     @Test
     public void lookupTest() throws Exception {
-
         //MemoryKDataBase.DEBUG = true;
-
         final CloudModel universe = new CloudModel();
         universe.connect(null);
-
         CloudUniverse dimension0 = universe.newUniverse();
         CloudView t0 = dimension0.time(0l);
         final Node node = t0.createNode();
         node.setName("n0");
-        t0.setRoot(node,null);
+        t0.setRoot(node, null);
         Assert.assertTrue(node.isRoot());
         universe.storage().getRoot(t0, new Callback<KObject>() {
             @Override
@@ -61,7 +58,6 @@ public class LookupTest {
                         Assert.assertTrue(resolved.isRoot());
                     }
                 });
-
             }
         });
     }

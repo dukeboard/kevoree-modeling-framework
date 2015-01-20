@@ -6,11 +6,11 @@ declare module org {
                     on(a: A): void;
                 }
                 class InboundReference {
-                    private reference;
-                    private object;
-                    constructor(reference: meta.MetaReference, object: KObject);
+                    private _reference;
+                    private _source;
+                    constructor(p_reference: meta.MetaReference, p_source: number);
                     getReference(): meta.MetaReference;
-                    getObject(): KObject;
+                    getSource(): number;
                 }
                 class KActionType {
                     static CALL: KActionType;
@@ -87,7 +87,7 @@ declare module org {
                     all(metaReference: meta.MetaReference, callback: (p: KObject[]) => void): void;
                     single(metaReference: meta.MetaReference, callback: (p: KObject) => void): void;
                     traverse(metaReference: meta.MetaReference): traversal.KTraversalPromise;
-                    inbounds(callback: (p: InboundReference) => void, end: (p: java.lang.Throwable) => void): void;
+                    inbounds(callback: (p: KObject[]) => void): void;
                     traces(request: TraceRequest): trace.ModelTrace[];
                     get(attribute: meta.MetaAttribute): any;
                     set(attribute: meta.MetaAttribute, payload: any): void;
@@ -138,6 +138,7 @@ declare module org {
                 }
                 interface ModelFormat {
                     save(model: KObject, callback: (p: string, p1: java.lang.Throwable) => void): void;
+                    saveRoot(callback: (p: string, p1: java.lang.Throwable) => void): void;
                     load(payload: string, callback: (p: java.lang.Throwable) => void): void;
                 }
                 interface ModelListener {
@@ -219,7 +220,6 @@ declare module org {
                         domainKey(): string;
                         get(p_attribute: meta.MetaAttribute): any;
                         set(p_attribute: meta.MetaAttribute, payload: any): void;
-                        private getOrCreateInbounds(obj);
                         private removeFromContainer(param);
                         mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject): void;
                         internal_mutate(actionType: KActionType, metaReferenceP: meta.MetaReference, param: KObject, setOpposite: boolean, inDelete: boolean): void;
@@ -234,7 +234,7 @@ declare module org {
                         toJSON(): string;
                         toString(): string;
                         traces(request: TraceRequest): trace.ModelTrace[];
-                        inbounds(callback: (p: InboundReference) => void, end: (p: java.lang.Throwable) => void): void;
+                        inbounds(callback: (p: KObject[]) => void): void;
                         set_parent(p_parentKID: number, p_metaReference: meta.MetaReference): void;
                         equals(obj: any): boolean;
                         diff(target: KObject, callback: (p: trace.TraceSequence) => void): void;
@@ -620,6 +620,7 @@ declare module org {
                         private _view;
                         constructor(p_view: KView);
                         save(model: KObject, callback: (p: string, p1: java.lang.Throwable) => void): void;
+                        saveRoot(callback: (p: string, p1: java.lang.Throwable) => void): void;
                         load(payload: string, callback: (p: java.lang.Throwable) => void): void;
                     }
                     class JsonModelLoader {
@@ -1447,6 +1448,7 @@ declare module org {
                         private _view;
                         constructor(p_view: KView);
                         save(model: KObject, callback: (p: string, p1: java.lang.Throwable) => void): void;
+                        saveRoot(callback: (p: string, p1: java.lang.Throwable) => void): void;
                         load(payload: string, callback: (p: java.lang.Throwable) => void): void;
                     }
                     class XmlParser {

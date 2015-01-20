@@ -28,15 +28,12 @@ public class UtilityTest {
                 Node n2 = factory.createNode();
                 n2.setName("n2");
                 n.addChildren(n2);
-
                 Node n3 = factory.createNode();
                 n3.setName("n3");
-
-                Assert.assertTrue(n.referencesWith(n2).length>0);
-                Assert.assertTrue(n2.referencesWith(n).length==0);
-
-                Assert.assertTrue(n.referencesWith(n3).length==0);
-                Assert.assertTrue(n3.referencesWith(n).length==0);
+                Assert.assertTrue(n.referencesWith(n2).length > 0);
+                Assert.assertTrue(n2.referencesWith(n).length == 0);
+                Assert.assertTrue(n.referencesWith(n3).length == 0);
+                Assert.assertTrue(n3.referencesWith(n).length == 0);
             }
         });
 

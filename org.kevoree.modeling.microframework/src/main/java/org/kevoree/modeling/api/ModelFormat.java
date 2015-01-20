@@ -11,6 +11,8 @@ public interface ModelFormat {
 
     public void save(KObject model, ThrowableCallback<String> callback);
 
+    public void saveRoot(ThrowableCallback<String> callback);
+
     public void load(String payload, Callback<Throwable> callback);
 
 }

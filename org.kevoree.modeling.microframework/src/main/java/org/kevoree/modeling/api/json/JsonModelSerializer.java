@@ -62,70 +62,9 @@ public class JsonModelSerializer {
     public static void printJSON(KObject elem, StringBuilder builder) {
         if (elem != null) {
             Object[] raw = elem.view().universe().model().storage().raw(elem, AccessMode.READ);
-            if(raw!=null){
-                builder.append(JsonRaw.encode(raw,elem.uuid(),elem.metaClass()));
+            if (raw != null) {
+                builder.append(JsonRaw.encode(raw, elem.uuid(), elem.metaClass()));
             }
-
-            /*
-            builder.append("{\n");
-            builder.append("\t\"" + KEY_META + "\" : \"");
-            builder.append(elem.metaClass().metaName());
-            builder.append("\"\n");
-            builder.append("\t,\"" + KEY_UUID + "\" : \"");
-            builder.append(elem.uuid());
-            builder.append("\"\n");
-            if (elem.isRoot()) {
-                builder.append("\t,\"" + KEY_ROOT + "\" : \"");
-                builder.append("true");
-                builder.append("\"\n");
-            }
-            int metaAttLength = elem.metaClass().metaAttributes().length;
-            int metaRefLength = elem.metaClass().metaReferences().length;
-            for (int i = 0; i < metaAttLength; i++) {
-                Object payload = elem.get(elem.metaClass().metaAttributes()[i]);
-                if (payload != null) {
-                    builder.append("\t");
-                    builder.append(",\"");
-                    builder.append(elem.metaClass().metaAttributes()[i].metaName());
-                    builder.append("\" : \"");
-                    builder.append(elem.metaClass().metaAttributes()[i].metaType().save(payload));
-                    builder.append("\"\n");
-                }
-            }
-            for (int i = 0; i < metaRefLength; i++) {
-                Object[] raw = elem.view().universe().model().storage().raw(elem, AccessMode.READ);
-                Object payload = null;
-                if (raw != null) {
-                    payload = raw[elem.metaClass().metaReferences()[i].index()];
-                }
-                if (payload != null) {
-                    builder.append("\t,\"");
-                    builder.append(elem.metaClass().metaReferences()[i].metaName());
-                    builder.append("\" :");
-                    if (elem.metaClass().metaReferences()[i].single()) {
-                        builder.append("\"");
-                        builder.append(payload.toString());
-                        builder.append("\"\n");
-                    } else {
-                        Set<Long> elems = (Set<Long>) payload;
-                        Long[] elemsArr = elems.toArray(new Long[elems.size()]);
-                        boolean isFirst = true;
-                        builder.append(" [");
-                        for (int j = 0; j < elemsArr.length; j++) {
-                            if (!isFirst) {
-                                builder.append(",");
-                            }
-                            builder.append("\"");
-                            builder.append(elemsArr[j] + "");
-                            builder.append("\"");
-                            isFirst = false;
-                        }
-                        builder.append("]\n");
-                    }
-                }
-            }
-            builder.append("}\n");
-            */
         }
     }
 

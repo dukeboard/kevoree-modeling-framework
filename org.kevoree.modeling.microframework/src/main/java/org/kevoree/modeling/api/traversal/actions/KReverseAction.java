@@ -64,7 +64,7 @@ public class KReverseAction implements KTraversalAction {
                     e.printStackTrace();
                 }
             }
-            if (toFilter.size() == 0) {
+            if (toFilter.keySet().size() == 0) {
                 currentView.lookupAll(nextIds.toArray(new Long[nextIds.size()]), new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
