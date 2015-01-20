@@ -34,24 +34,24 @@ public class JSONSaveTest {
             }
         });
         Assert.assertEquals(result[0], "[\n" +
-                "{\n" +
-                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                "\t\"@uuid\" : \"1\",\n" +
-                "\t\"@root\" : \"true\",\n" +
-                "\t\"name\":\"root\\nhello\",\n" +
-                "}\n" +
+                "\t{\n" +
+                "\t\t\"@meta\": \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                "\t\t\"@uuid\": \"1\",\n" +
+                "\t\t\"@root\": \"true\",\n" +
+                "\t\t\"name\": \"root\\nhello\"\n" +
+                "\t}\n" +
                 "]\n");
 
         CloudUniverse dimension1 = universe.newUniverse();
         CloudView time10 = dimension1.time(0l);
         time10.json().load("[\n" +
-                "        {\n" +
-                "            \"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                "                \"@uuid\" : \"1\",\n" +
-                "                \"@root\" : \"true\",\n" +
-                "                \"name\":\"root\\nhello\",\n" +
-                "        }\n" +
-                "        ]", new Callback<Throwable>() {
+                "\t{\n" +
+                "\t\t\"@meta\": \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                "\t\t\"@uuid\": \"1\",\n" +
+                "\t\t\"@root\": \"true\",\n" +
+                "\t\t\"name\": \"root\\nhello\"\n" +
+                "\t}\n" +
+                "]\n", new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
@@ -69,12 +69,12 @@ public class JSONSaveTest {
             }
         });
         Assert.assertEquals(result[0], "[\n" +
-                "{\n" +
-                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                "\t\"@uuid\" : \"1\",\n" +
-                "\t\"@root\" : \"true\",\n" +
-                "\t\"name\":\"root\\nhello\",\n" +
-                "}\n" +
+                "\t{\n" +
+                "\t\t\"@meta\": \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                "\t\t\"@uuid\": \"1\",\n" +
+                "\t\t\"@root\": \"true\",\n" +
+                "\t\t\"name\": \"root\\nhello\"\n" +
+                "\t}\n" +
                 "]\n");
 
     }

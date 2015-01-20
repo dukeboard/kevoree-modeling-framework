@@ -25,23 +25,23 @@ public class JSONLoadTest {
 
         final CloudView time0 = dimension0.time(0l);
         time0.json().load("[\n" +
-                "{\n" +
-                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\"\n" +
-                "\t,\"@uuid\" : \"1\"\n" +
-                "\t,\"@root\" : \"true\"\n" +
-                "\t,\"name\" : \"root\"\n" +
-                "\t,\"children\" : [\"2\",\"3\"]\n" +
-                "}\n" +
-                ",{\n" +
-                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\"\n" +
-                "\t,\"@uuid\" : \"2\"\n" +
-                "\t,\"name\" : \"n1\"\n" +
-                "}\n" +
-                ",{\n" +
-                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\"\n" +
-                "\t,\"@uuid\" : \"3\"\n" +
-                "\t,\"name\" : \"n2\"\n" +
-                "}\n" +
+                "\t{\n" +
+                "\t\t\"@meta\": \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                "\t\t\"@uuid\": \"1\",\n" +
+                "\t\t\"@root\": \"true\",\n" +
+                "\t\t\"name\": \"root\",\n" +
+                "\t\t\"children\": [\"2\",\"3\"]\n" +
+                "\t},\n" +
+                "\t{\n" +
+                "\t\t\"@meta\": \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                "\t\t\"@uuid\": \"2\",\n" +
+                "\t\t\"name\": \"n1\"\n" +
+                "\t},\n" +
+                "\t{\n" +
+                "\t\t\"@meta\": \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                "\t\t\"@uuid\": \"3\",\n" +
+                "\t\t\"name\": \"n2\"\n" +
+                "\t}\n" +
                 "]\n", new Callback<Throwable>() {
             @Override
             public void on(Throwable res) {
@@ -73,23 +73,23 @@ public class JSONLoadTest {
                     @Override
                     public void on(String s, Throwable error) {
                         Assert.assertEquals(s, "[\n" +
-                                "{\n" +
-                                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                                "\t\"@uuid\" : \"1\",\n" +
-                                "\t\"@root\" : \"true\",\n" +
-                                "\t\"name\":\"root\",\n" +
-                                "\t\"children\": [\"2\",\"3\"],\n" +
-                                "}\n" +
-                                ",{\n" +
-                                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                                "\t\"@uuid\" : \"2\",\n" +
-                                "\t\"name\":\"n1\",\n" +
-                                "}\n" +
-                                ",{\n" +
-                                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                                "\t\"@uuid\" : \"3\",\n" +
-                                "\t\"name\":\"n2\",\n" +
-                                "}\n" +
+                                "\t{\n" +
+                                "\t\t\"@meta\": \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                                "\t\t\"@uuid\": \"1\",\n" +
+                                "\t\t\"@root\": \"true\",\n" +
+                                "\t\t\"name\": \"root\",\n" +
+                                "\t\t\"children\": [\"2\",\"3\"]\n" +
+                                "\t},\n" +
+                                "\t{\n" +
+                                "\t\t\"@meta\": \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                                "\t\t\"@uuid\": \"2\",\n" +
+                                "\t\t\"name\": \"n1\"\n" +
+                                "\t},\n" +
+                                "\t{\n" +
+                                "\t\t\"@meta\": \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                                "\t\t\"@uuid\": \"3\",\n" +
+                                "\t\t\"name\": \"n2\"\n" +
+                                "\t}\n" +
                                 "]\n");
                     }
                 });
