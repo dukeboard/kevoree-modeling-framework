@@ -23,11 +23,44 @@ import java.util.Map;
 public class HelloTest {
 
     @Test
+    public void simpleTest() {
+        CloudModel universe = new CloudModel();
+        universe.connect(null);
+        CloudUniverse dimension0 = universe.newUniverse();
+        CloudView time0 = dimension0.time(0l);
+        Node root = time0.createNode();
+        time0.setRoot(root, null);
+        root.setName("root");
+
+        Node n1 = time0.createNode();
+        n1.setName("n1");
+        Node n2 = time0.createNode();
+        n2.setName("n2");
+        root.addChildren(n1);
+        root.addChildren(n2);
+
+        n1.inbounds(new Callback<KObject[]>() {
+            @Override
+            public void on(KObject[] kObjects) {
+                Assert.assertEquals(kObjects[0].uuid(), root.uuid());
+            }
+        });
+        n2.inbounds(new Callback<KObject[]>() {
+            @Override
+            public void on(KObject[] kObjects) {
+                Assert.assertEquals(kObjects[0].uuid(), root.uuid());
+            }
+        });
+
+    }
+
+
+    @Test
     public void helloTest() {
         CloudModel universe = new CloudModel();
         universe.connect(null);
         int[] counter = new int[1];
-        counter[0]=0;
+        counter[0] = 0;
         universe.listen(new ModelListener() {
             @Override
             public void on(KEvent evt) {
@@ -79,15 +112,13 @@ public class HelloTest {
 
         nodeT0.addChildren(nodeT1);
 
-        Map<Long, Integer> refs = (Map<Long, Integer>) t0.universe().model().storage().raw(nodeT1, AccessMode.READ)[1];
-        Assert.assertTrue(refs.containsKey(nodeT0.uuid()));
 
 //        assertTrue(nodeT1.path().endsWith("/children[name=n1]"));
         final int[] i = {0};
         nodeT0.eachChildren(new Callback<Node[]>() {
             @Override
             public void on(Node[] n) {
-                for(int k=0;k<n.length;k++){
+                for (int k = 0; k < n.length; k++) {
                     i[0]++;
                 }
             }
@@ -213,7 +244,7 @@ public class HelloTest {
 
         //System.err.println(nodeT0);
 
-        Assert.assertEquals(27,counter[0]);
+        Assert.assertEquals(27, counter[0]);
 
     }
 

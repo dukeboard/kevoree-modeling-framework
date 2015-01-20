@@ -43,7 +43,7 @@ public class ReflexiveTest {
                 universe.universe(0).time(0).json().save(home, new ThrowableCallback<String>() {
                     @Override
                     public void on(String s, Throwable error) {
-                        System.out.println(s);
+
                     }
                 });
 

@@ -6,6 +6,7 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaModel;
 import org.kevoree.modeling.api.meta.MetaReference;
+import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -68,24 +69,18 @@ public class JsonRaw {
             String[] metaKeys = content.keySet().toArray(new String[content.size()]);
             for (int i = 0; i < metaKeys.length; i++) {
                 if (metaKeys[i].equals(JsonModelSerializer.INBOUNDS_META)) {
-                    HashMap<Long, MetaReference> inbounds = new HashMap<Long, MetaReference>();
+                    Set<Long> inbounds = new HashSet<Long>();
                     entry.raw[Index.INBOUNDS_INDEX] = inbounds;
                     Object raw_payload = content.get(metaKeys[i]);
                     try {
                         HashSet<String> raw_keys = (HashSet<String>) raw_payload;
                         String[] raw_keys_p = raw_keys.toArray(new String[raw_keys.size()]);
                         for (int j = 0; j < raw_keys_p.length; j++) {
-                            String raw_elem = raw_keys_p[j];
-                            String[] tuple = raw_elem.split(SEP);
-                            if (tuple.length == 3) {
-                                Long raw_k = Long.parseLong(tuple[0]);
-                                MetaClass foundMeta = metaModel.metaClass(tuple[1].trim());
-                                if (foundMeta != null) {
-                                    MetaReference metaReference = foundMeta.metaReference(tuple[2].trim());
-                                    if (metaReference != null) {
-                                        inbounds.put(raw_k, metaReference);
-                                    }
-                                }
+                            try {
+                                Long parsed = Long.parseLong(raw_keys_p[j]);
+                                inbounds.add(parsed);
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
                         }
                     } catch (Exception e) {
@@ -201,8 +196,8 @@ public class JsonRaw {
             builder.append("\",\n");
             builder.append("\t\"" + JsonModelSerializer.INBOUNDS_META + "\" : [");
             try {
-                Map<Long, MetaReference> elemsInRaw = (Map<Long, MetaReference>) raw[Index.INBOUNDS_INDEX];
-                Long[] elemsArr = elemsInRaw.keySet().toArray(new Long[elemsInRaw.size()]);
+                Set<Long> elemsInRaw = (Set<Long>) raw[Index.INBOUNDS_INDEX];
+                Long[] elemsArr = elemsInRaw.toArray(new Long[elemsInRaw.size()]);
                 boolean isFirst = true;
                 for (int j = 0; j < elemsArr.length; j++) {
                     if (!isFirst) {
@@ -210,11 +205,6 @@ public class JsonRaw {
                     }
                     builder.append("\"");
                     builder.append(elemsArr[j]);
-                    builder.append(SEP);
-                    MetaReference ref = elemsInRaw.get(elemsArr[j]);
-                    builder.append(ref.origin().metaName());
-                    builder.append(SEP);
-                    builder.append(ref.metaName());
                     builder.append("\"");
                     isFirst = false;
                 }
@@ -228,8 +218,8 @@ public class JsonRaw {
         }
         for (int i = 0; i < metaAttributes.length; i++) {
             Object payload_res = raw[metaAttributes[i].index()];
-            if(payload_res != null) {
-                String attrsPayload = metaAttributes[i].strategy().save(payload_res,metaAttributes[i]);
+            if (payload_res != null) {
+                String attrsPayload = metaAttributes[i].strategy().save(payload_res, metaAttributes[i]);
                 if (attrsPayload != null) {
                     builder.append("\t");
                     builder.append("\"");

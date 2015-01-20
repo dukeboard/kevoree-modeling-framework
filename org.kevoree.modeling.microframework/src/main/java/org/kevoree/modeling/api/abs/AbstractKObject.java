@@ -157,41 +157,30 @@ public abstract class AbstractKObject implements KObject {
         KObject toRemove = this;
         Object[] rawPayload = _view.universe().model().storage().raw(this, AccessMode.DELETE);
         if (rawPayload == null) {
-            callback.on(null);
+            callback.on(new Exception("Out of cache Error"));
         } else {
             Object payload = rawPayload[Index.INBOUNDS_INDEX];
             if (payload != null) {
-                Map<Long, MetaReference> refs;
-                try {
-                    refs = (Map<Long, MetaReference>) payload;
-                } catch (Exception e) {
-                    refs = null;
-                    e.printStackTrace();
-                    if (callback != null) {
-                        callback.on(e);
-                    }
-                }
-                if (refs != null) {
-                    Long[] refArr = refs.keySet().toArray(new Long[refs.size()]);
-                    final Map<Long, MetaReference> finalRefs = refs;
-                    view().lookupAll(refArr, new Callback<KObject[]>() {
-                        @Override
-                        public void on(KObject[] resolved) {
-                            for (int i = 0; i < resolved.length; i++) {
-                                if (resolved[i] != null) {
-                                    ((AbstractKObject) resolved[i]).internal_mutate(KActionType.REMOVE, finalRefs.get(refArr[i]), toRemove, false, true);
+                Set<Long> inboundsKeys = (Set<Long>) payload;
+                Long[] refArr = inboundsKeys.toArray(new Long[inboundsKeys.size()]);
+                view().lookupAll(refArr, new Callback<KObject[]>() {
+                    @Override
+                    public void on(KObject[] resolved) {
+                        for (int i = 0; i < resolved.length; i++) {
+                            if (resolved[i] != null) {
+                                MetaReference[] linkedReferences = resolved[i].referencesWith(toRemove);
+                                for (int j = 0; j < linkedReferences.length; j++) {
+                                    ((AbstractKObject) resolved[i]).internal_mutate(KActionType.REMOVE, linkedReferences[j], toRemove, false, true);
                                 }
                             }
-                            if (callback != null) {
-                                callback.on(null);
-                            }
                         }
-                    });
-                }
+                        if (callback != null) {
+                            callback.on(null);
+                        }
+                    }
+                });
             } else {
-                if (callback != null) {
-                    callback.on(new Exception("Out of cache error"));
-                }
+                callback.on(new Exception("Out of cache error"));
             }
         }
     }
@@ -289,28 +278,6 @@ public abstract class AbstractKObject implements KObject {
         }
     }
 
-    private HashMap<Long, MetaReference> getOrCreateInbounds(KObject obj) {
-        Object[] rawWrite = view().universe().model().storage().raw(obj, AccessMode.WRITE);
-        if (rawWrite == null) {
-            return null;
-        } else {
-            if (rawWrite[Index.INBOUNDS_INDEX] != null && rawWrite[Index.INBOUNDS_INDEX] instanceof HashMap) {
-                return (HashMap<Long, MetaReference>) rawWrite[Index.INBOUNDS_INDEX];
-            } else {
-                if (rawWrite[Index.INBOUNDS_INDEX] != null) {
-                    try {
-                        throw new Exception("Bad cache values in KMF, " + rawWrite[Index.INBOUNDS_INDEX] + " is not an instance of Map for the inbounds reference ");
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                HashMap<Long, MetaReference> newRefs = new HashMap<Long, MetaReference>();
-                rawWrite[Index.INBOUNDS_INDEX] = newRefs;
-                return newRefs;
-            }
-        }
-    }
-
     private void removeFromContainer(final KObject param) {
         if (param != null && param.parentUuid() != null && param.parentUuid() != _uuid) {
             view().lookup(param.parentUuid(), new Callback<KObject>() {
@@ -367,8 +334,23 @@ public abstract class AbstractKObject implements KObject {
                     ((AbstractKObject) param).set_parent(_uuid, metaReference);
                 }
                 //Inbound
-                Map<Long, MetaReference> inboundRefs = getOrCreateInbounds(param);
-                inboundRefs.put(uuid(), metaReference);
+
+                Object[] rawParam = view().universe().model().storage().raw(param, AccessMode.WRITE);
+                Set<Long> previousInbounds;
+                if (rawParam[Index.INBOUNDS_INDEX] != null && rawParam[Index.INBOUNDS_INDEX] instanceof Set) {
+                    previousInbounds = (Set<Long>) rawParam[Index.INBOUNDS_INDEX];
+                } else {
+                    if (rawParam[Index.INBOUNDS_INDEX] != null) {
+                        try {
+                            throw new Exception("Bad cache values in KMF, " + rawParam[Index.INBOUNDS_INDEX] + " is not an instance of Set for the INBOUNDS storage");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    previousInbounds = new HashSet<Long>();
+                    rawParam[Index.INBOUNDS_INDEX] = previousInbounds;
+                }
+                previousInbounds.add(uuid());
 
                 //publish event
                 KEvent event = new DefaultKEvent(actionType, this, metaReference, param);
@@ -395,8 +377,23 @@ public abstract class AbstractKObject implements KObject {
                         ((AbstractKObject) param).set_parent(_uuid, metaReference);
                     }
                     //Inbound
-                    Map<Long, MetaReference> inboundRefs = getOrCreateInbounds(param);
-                    inboundRefs.put(uuid(), metaReference);
+                    Object[] rawParam = view().universe().model().storage().raw(param, AccessMode.WRITE);
+                    Set<Long> previousInbounds;
+                    if (rawParam[Index.INBOUNDS_INDEX] != null && rawParam[Index.INBOUNDS_INDEX] instanceof Set) {
+                        previousInbounds = (Set<Long>) payload[Index.INBOUNDS_INDEX];
+                    } else {
+                        if (rawParam[Index.INBOUNDS_INDEX] != null) {
+                            try {
+                                throw new Exception("Bad cache values in KMF, " + rawParam[Index.INBOUNDS_INDEX] + " is not an instance of Set for the INBOUNDS storage");
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        previousInbounds = new HashSet<Long>();
+                        rawParam[Index.INBOUNDS_INDEX] = previousInbounds;
+                    }
+                    previousInbounds.add(uuid());
+
                     //Opposite
                     final KObject self = this;
                     if (metaReference.opposite() != null && setOpposite) {
@@ -431,9 +428,23 @@ public abstract class AbstractKObject implements KObject {
                                 if (metaReference.opposite() != null && setOpposite) {
                                     ((AbstractKObject) resolvedParam).internal_mutate(KActionType.REMOVE, metaReference.opposite(), self, false, inDelete);
                                 }
-                                //Inbounds
-                                Map<Long, MetaReference> inboundRefs = getOrCreateInbounds(resolvedParam);
-                                inboundRefs.remove(uuid());
+                                //Inbound
+                                Object[] rawParam = view().universe().model().storage().raw(param, AccessMode.WRITE);
+                                Set<Long> previousInbounds;
+                                if (rawParam[Index.INBOUNDS_INDEX] != null && rawParam[Index.INBOUNDS_INDEX] instanceof Set) {
+                                    previousInbounds = (Set<Long>) rawParam[Index.INBOUNDS_INDEX];
+                                } else {
+                                    if (rawParam[Index.INBOUNDS_INDEX] != null) {
+                                        try {
+                                            throw new Exception("Bad cache values in KMF, " + rawParam[Index.INBOUNDS_INDEX] + " is not an instance of Set for the INBOUNDS storage");
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    previousInbounds = new HashSet<Long>();
+                                    rawParam[Index.INBOUNDS_INDEX] = previousInbounds;
+                                }
+                                previousInbounds.remove(_uuid);
                             }
                         }
                     });
@@ -459,9 +470,11 @@ public abstract class AbstractKObject implements KObject {
                 }
                 //Inbounds
                 if (!inDelete) {
-                    Map<Long, MetaReference> inboundRefs = getOrCreateInbounds(param);
-                    if (inboundRefs != null) {
-                        inboundRefs.remove(uuid());
+                    //Inbound
+                    Object[] rawParam = view().universe().model().storage().raw(param, AccessMode.WRITE);
+                    if (rawParam != null && rawParam[Index.INBOUNDS_INDEX] != null && rawParam[Index.INBOUNDS_INDEX] instanceof Set) {
+                        Set<Long> previousInbounds = (Set<Long>) rawParam[Index.INBOUNDS_INDEX];
+                        previousInbounds.remove(_uuid);
                     }
                 }
             }
@@ -573,7 +586,7 @@ public abstract class AbstractKObject implements KObject {
             return;
         }
         if (traversed != null) {
-            traversed.add(uuid());
+            traversed.add(_uuid);
         }
         final Set<Long> toResolveIds = new HashSet<Long>();
         for (int i = 0; i < metaClass().metaReferences().length; i++) {
@@ -733,23 +746,19 @@ public abstract class AbstractKObject implements KObject {
         return traces.toArray(new ModelTrace[traces.size()]);
     }
 
-    public InboundReference[] inbounds() {
+    public void inbounds(Callback<KObject[]> callback) {
         Object[] rawPayload = view().universe().model().storage().raw(this, AccessMode.READ);
-        if (rawPayload == null) {
-            return new InboundReference[0];
-        } else {
+        if (rawPayload != null) {
             Object payload = rawPayload[Index.INBOUNDS_INDEX];
             if (payload != null) {
-                final Map<Long, MetaReference> refs = (Map<Long, MetaReference>) payload;
-                Long[] keysArr = refs.keySet().toArray(new Long[refs.keySet().size()]);
-                InboundReference[] result = new InboundReference[keysArr.length];
-                for (int i = 0; i < keysArr.length; i++) {
-                    result[i] = new InboundReference(refs.get(keysArr[i]), keysArr[i]);
-                }
-                return result;
+                Set<Long> inboundsKeys = (Set<Long>) payload;
+                Long[] keysArr = inboundsKeys.toArray(new Long[inboundsKeys.size()]);
+                _view.lookupAll(keysArr, callback);
             } else {
-                return new InboundReference[0];
+                callback.on(new KObject[0]);
             }
+        } else {
+            callback.on(new KObject[0]);
         }
     }
 
@@ -794,7 +803,7 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public <U extends KObject> void jump(Long time, final Callback<U> callback) {
-        view().universe().time(time).lookup(uuid(), new Callback<KObject>() {
+        view().universe().time(time).lookup(_uuid, new Callback<KObject>() {
             @Override
             public void on(KObject kObject) {
                 if (callback != null) {

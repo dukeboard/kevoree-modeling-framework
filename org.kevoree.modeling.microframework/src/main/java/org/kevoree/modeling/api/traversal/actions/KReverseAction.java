@@ -6,13 +6,11 @@ import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.AccessMode;
+import org.kevoree.modeling.api.data.Index;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by duke on 18/12/14.
@@ -40,20 +38,25 @@ public class KReverseAction implements KTraversalAction {
         } else {
             KView currentView = p_inputs[0].view();
             Set<Long> nextIds = new HashSet<Long>();
+            Map<Long, KObject> toFilter = new HashMap<Long, KObject>();
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
                     Object[] raw = currentView.universe().model().storage().raw(loopObj, AccessMode.READ);
                     if (_reference == null) {
-                        InboundReference[] inboundReferences = loopObj.inbounds();
-                        for (int j = 0; j < inboundReferences.length; j++) {
-                            nextIds.add(inboundReferences[j].getSource());
+                        if (raw[Index.INBOUNDS_INDEX] != null && raw[Index.INBOUNDS_INDEX] instanceof Set) {
+                            Set<Long> casted = (Set<Long>) raw[Index.INBOUNDS_INDEX];
+                            Long[] castedArr = casted.toArray(new Long[casted.size()]);
+                            for (int j = 0; j < castedArr.length; j++) {
+                                nextIds.add(castedArr[j]);
+                            }
                         }
                     } else {
-                        InboundReference[] inboundReferences = loopObj.inbounds();
-                        for (int j = 0; j < inboundReferences.length; j++) {
-                            if (inboundReferences[j].getReference().metaName().equals(_reference.metaName())) {
-                                nextIds.add(inboundReferences[j].getSource());
+                        if (raw[Index.INBOUNDS_INDEX] != null && raw[Index.INBOUNDS_INDEX] instanceof Set) {
+                            Set<Long> casted = (Set<Long>) raw[Index.INBOUNDS_INDEX];
+                            Long[] castedArr = casted.toArray(new Long[casted.size()]);
+                            for (int j = 0; j < castedArr.length; j++) {
+                                toFilter.put(castedArr[j], p_inputs[i]);
                             }
                         }
                     }
@@ -61,13 +64,37 @@ public class KReverseAction implements KTraversalAction {
                     e.printStackTrace();
                 }
             }
-            //call
-            currentView.lookupAll(nextIds.toArray(new Long[nextIds.size()]), new Callback<KObject[]>() {
-                @Override
-                public void on(KObject[] kObjects) {
-                    _next.execute(kObjects);
-                }
-            });
+            if (toFilter.size() == 0) {
+                currentView.lookupAll(nextIds.toArray(new Long[nextIds.size()]), new Callback<KObject[]>() {
+                    @Override
+                    public void on(KObject[] kObjects) {
+                        _next.execute(kObjects);
+                    }
+                });
+            } else {
+                Long[] toFilterKeys = toFilter.keySet().toArray(new Long[toFilter.keySet().size()]);
+                currentView.lookupAll(toFilterKeys, new Callback<KObject[]>() {
+                    @Override
+                    public void on(KObject[] kObjects) {
+                        for (int i = 0; i < toFilterKeys.length; i++) {
+                            if (kObjects[i] != null) {
+                                MetaReference[] references = kObjects[i].referencesWith(toFilter.get(toFilterKeys[i]));
+                                for (int h = 0; h < references.length; h++) {
+                                    if (references[h].metaName().equals(_reference.metaName())) {
+                                        nextIds.add(kObjects[i].uuid());
+                                    }
+                                }
+                            }
+                        }
+                        currentView.lookupAll(nextIds.toArray(new Long[nextIds.size()]), new Callback<KObject[]>() {
+                            @Override
+                            public void on(KObject[] kObjects) {
+                                _next.execute(kObjects);
+                            }
+                        });
+                    }
+                });
+            }
         }
     }
 

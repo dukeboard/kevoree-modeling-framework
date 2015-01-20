@@ -97,26 +97,20 @@ public class JsonModelLoader {
                             String metaKey = metaKeys[h];
                             Object payload_content = elem.get(metaKey);
                             if (metaKey.equals(JsonModelSerializer.INBOUNDS_META)) {
-                                HashMap<Long, MetaReference> inbounds = new HashMap<Long, MetaReference>();
+                                Set<Long> inbounds = new HashSet<Long>();
                                 raw[Index.INBOUNDS_INDEX] = inbounds;
                                 try {
                                     HashSet<String> raw_keys = (HashSet<String>) payload_content;
                                     String[] raw_keys_p = raw_keys.toArray(new String[raw_keys.size()]);
                                     for (int hh = 0; hh < raw_keys_p.length; hh++) {
-                                        String raw_elem = raw_keys_p[hh];
-                                        String[] tuple = raw_elem.split(JsonRaw.SEP);
-                                        if (tuple.length == 3) {
-                                            Long raw_k = Long.parseLong(tuple[0]);
-                                            if (mappedKeys.containsKey(raw_k)) {
-                                                raw_k = mappedKeys.get(raw_k);
+                                        try {
+                                            Long converted = Long.parseLong(raw_keys_p[hh]);
+                                            if (mappedKeys.containsKey(converted)) {
+                                                converted = mappedKeys.get(converted);
                                             }
-                                            MetaClass foundMeta = metaModel.metaClass(tuple[1].trim());
-                                            if (foundMeta != null) {
-                                                MetaReference metaReference = foundMeta.metaReference(tuple[2].trim());
-                                                if (metaReference != null) {
-                                                    inbounds.put(raw_k, metaReference);
-                                                }
-                                            }
+                                            inbounds.add(converted);
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
                                         }
                                     }
                                 } catch (Exception e) {
