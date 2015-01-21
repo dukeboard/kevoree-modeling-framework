@@ -91,19 +91,21 @@ public class AbstractKTask<A> implements KTask<A> {
     }
 
     private synchronized void tryExecution() {
-        KTask[] parentTasks = _executed.keySet().toArray(new KTask[_executed.size()]);
-        boolean allTrue = true;
-        for (int i = 0; i < parentTasks.length; i++) {
-            if (!_executed.get(parentTasks[i])) {
-                allTrue = false;
-                break;
+        if (!_isDone) {
+            KTask[] parentTasks = _executed.keySet().toArray(new KTask[_executed.size()]);
+            boolean allTrue = true;
+            for (int i = 0; i < parentTasks.length; i++) {
+                if (!_executed.get(parentTasks[i])) {
+                    allTrue = false;
+                    break;
+                }
             }
-        }
-        if (allTrue) {
-            if (_core != null) {
-                _core.on(this);
-            } else {
-                setResult(null);
+            if (allTrue) {
+                if (_core != null) {
+                    _core.on(this);
+                } else {
+                    setResult(null);
+                }
             }
         }
     }
