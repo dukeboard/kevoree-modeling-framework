@@ -34,7 +34,9 @@ public class XMIModelSerializer {
         context.printer = new StringBuilder();
         //First Pass for building address table
         context.addressTable.put(model.uuid(), "/");
-        model.visit(new ModelVisitor() {
+
+
+        KTask addressCreationTask = context.model.taskVisit(new ModelVisitor() {
             @Override
             public VisitResult visit(KObject elem) {
                 String parentXmiAddress = context.addressTable.get(elem.parentUuid());
@@ -52,58 +54,57 @@ public class XMIModelSerializer {
                 }
                 return VisitResult.CONTINUE;
             }
-        }, new Callback<Throwable>() {
-            @Override
-            public void on(Throwable throwable) {
-                if (throwable != null) {
-                    context.finishCallback.on(null, throwable);
-                } else {
-                    context.printer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                    context.printer.append("<" + XMIModelSerializer.formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_"));
-                    context.printer.append(" xmlns:xsi=\"http://wwww.w3.org/2001/XMLSchema-instance\"");
-                    context.printer.append(" xmi:version=\"2.0\"");
-                    context.printer.append(" xmlns:xmi=\"http://www.omg.org/XMI\"");
+        }, VisitRequest.CONTAINED);
 
-                    int index = 0;
-                    while (index < context.packageList.size()) {
-                        context.printer.append(" xmlns:" + context.packageList.get(index).replace(".", "_") + "=\"http://" + context.packageList.get(index) + "\"");
-                        index++;
+        KTask serializationTask = context.model.universe().model().task();
+        serializationTask.wait(addressCreationTask);
+        serializationTask.setJob(new KJob() {
+            @Override
+            public void run(KCurrentTask currentTask) {
+                context.printer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+                context.printer.append("<" + XMIModelSerializer.formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_"));
+                context.printer.append(" xmlns:xsi=\"http://wwww.w3.org/2001/XMLSchema-instance\"");
+                context.printer.append(" xmi:version=\"2.0\"");
+                context.printer.append(" xmlns:xmi=\"http://www.omg.org/XMI\"");
+
+                int index = 0;
+                while (index < context.packageList.size()) {
+                    context.printer.append(" xmlns:" + context.packageList.get(index).replace(".", "_") + "=\"http://" + context.packageList.get(index) + "\"");
+                    index++;
+                }
+                context.model.visitAttributes(context.attributesVisitor);
+
+                KTask nonContainedRefsTasks = context.model.universe().model().task();
+                for (int i = 0; i < context.model.metaClass().metaReferences().length; i++) {
+                    if (!context.model.metaClass().metaReferences()[i].contained()) {
+                        nonContainedRefsTasks.wait(nonContainedReferenceTaskMaker(context.model.metaClass().metaReferences()[i], context, context.model));
                     }
-                    context.model.visitAttributes(context.attributesVisitor);
-                    Helper.forall(context.model.metaClass().metaReferences(), new CallBackChain<MetaReference>() {
-                        @Override
-                        public void on(MetaReference metaReference, Callback<Throwable> next) {
-                            nonContainedReferencesCallbackChain(metaReference, next, context, context.model);
-                        }
-                    }, new Callback<Throwable>() {
-                        @Override
-                        public void on(Throwable err) {
-                            if (err == null) {
-                                context.printer.append(">\n");
-                                Helper.forall(context.model.metaClass().metaReferences(), new CallBackChain<MetaReference>() {
-                                    @Override
-                                    public void on(MetaReference metaReference, Callback<Throwable> next) {
-                                        containedReferencesCallbackChain(metaReference, next, context, context.model);
-                                    }
-                                }, new Callback<Throwable>() {
-                                    @Override
-                                    public void on(Throwable containedRefsEnd) {
-                                        if (containedRefsEnd == null) {
-                                            context.printer.append("</" + XMIModelSerializer.formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_") + ">\n");
-                                            context.finishCallback.on(context.printer.toString(), null);
-                                        } else {
-                                            context.finishCallback.on(null, containedRefsEnd);
-                                        }
-                                    }
-                                });
-                            } else {
-                                context.finishCallback.on(null, err);
+                }
+                nonContainedRefsTasks.setJob(new KJob() {
+                    @Override
+                    public void run(KCurrentTask currentTask) {
+                        context.printer.append(">\n");
+
+                        KTask containedRefsTasks = context.model.universe().model().task();
+                        for (int i = 0; i < context.model.metaClass().metaReferences().length; i++) {
+                            if (context.model.metaClass().metaReferences()[i].contained()) {
+                                containedRefsTasks.wait(containedReferenceTaskMaker(context.model.metaClass().metaReferences()[i], context, context.model));
                             }
                         }
-                    });
-                }
+                        containedRefsTasks.setJob(new KJob() {
+                            @Override
+                            public void run(KCurrentTask currentTask) {
+                                context.printer.append("</" + XMIModelSerializer.formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_") + ">\n");
+                                context.finishCallback.on(context.printer.toString(), null);
+                            }
+                        });
+                        containedRefsTasks.ready();
+                    }
+                });
+                nonContainedRefsTasks.ready();
             }
-        }, VisitRequest.CONTAINED);
+        });
+        serializationTask.ready();
     }
 
 
@@ -139,73 +140,87 @@ public class XMIModelSerializer {
         return pack + ":" + cls;
     }
 
-    private static void nonContainedReferencesCallbackChain(final MetaReference ref, final Callback<Throwable> next, SerializationContext p_context, KObject p_currentElement) {
-        if (!ref.contained()) {
-            final String[] value = new String[1];
-            p_currentElement.all(ref, new Callback<KObject[]>() {
-                @Override
-                public void on(KObject[] objs) {
-                    for (int i = 0; i < objs.length; i++) {
-                        String adjustedAddress = p_context.addressTable.get(objs[i].uuid());
+    private static KTask nonContainedReferenceTaskMaker(final MetaReference ref, SerializationContext p_context, KObject p_currentElement) {
+        KTask allTask = p_currentElement.taskAll(ref);
+
+        KTask thisTask = p_context.model.universe().model().task();
+        thisTask.wait(allTask);
+
+        thisTask.setJob(new KJob() {
+            @Override
+            public void run(KCurrentTask currentTask) {
+                try {
+                    KObject[] objects = ((KObject[]) currentTask.results().get(allTask));
+                    for (int i = 0; i < objects.length; i++) {
+                        String adjustedAddress = p_context.addressTable.get(objects[i].uuid());
                         p_context.printer.append(" " + ref.metaName() + "=\"" + adjustedAddress + "\"");
                     }
-                    next.on(null);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            });
-        } else {
-            next.on(null);
-        }
+            }
+        });
+        thisTask.ready();
+        return thisTask;
     }
 
-    private static void containedReferencesCallbackChain(final MetaReference ref, final Callback<Throwable> nextReference, SerializationContext context, KObject currentElement) {
-        if (ref.contained()) {
-            currentElement.all(ref, new Callback<KObject[]>() {
-                @Override
-                public void on(KObject[] objs) {
-                    for (int i = 0; i < objs.length; i++) {
-                        final KObject elem = objs[i];
-                        context.printer.append("<");
-                        context.printer.append(ref.metaName());
-                        context.printer.append(" xsi:type=\"" + XMIModelSerializer.formatMetaClassName(elem.metaClass().metaName()) + "\"");
-                        elem.visitAttributes(context.attributesVisitor);
-                        Helper.forall(elem.metaClass().metaReferences(), new CallBackChain<MetaReference>() {
-                            @Override
-                            public void on(MetaReference metaReference, Callback<Throwable> next) {
-                                nonContainedReferencesCallbackChain(metaReference, next, context, elem);
-                            }
-                        }, new Callback<Throwable>() {
-                            @Override
-                            public void on(Throwable err) {
-                                if (err == null) {
-                                    context.printer.append(">\n");
-                                    Helper.forall(elem.metaClass().metaReferences(), new CallBackChain<MetaReference>() {
-                                        @Override
-                                        public void on(MetaReference metaReference, Callback<Throwable> next) {
-                                            containedReferencesCallbackChain(metaReference, next, context, elem);
-                                        }
-                                    }, new Callback<Throwable>() {
-                                        @Override
-                                        public void on(Throwable containedRefsEnd) {
-                                            if (containedRefsEnd == null) {
-                                                context.printer.append("</");
-                                                context.printer.append(ref.metaName());
-                                                context.printer.append('>');
-                                                context.printer.append("\n");
-                                            }
-                                        }
-                                    });
-                                } else {
-                                    context.finishCallback.on(null, err);
+    private static KTask containedReferenceTaskMaker(final MetaReference ref, SerializationContext context, KObject currentElement) {
+        KTask allTask = currentElement.taskAll(ref);
+
+        KTask thisTask = context.model.universe().model().task();
+        thisTask.wait(allTask);
+        thisTask.setJob(new KJob() {
+            @Override
+            public void run(KCurrentTask currentTask) {
+                try {
+                    if (currentTask.results().get(allTask) != null) {
+                        KObject[] objs =  ((KObject[]) currentTask.results().get(allTask));
+                        for (int i = 0; i < objs.length; i++) {
+                            final KObject elem = objs[i];
+                            context.printer.append("<");
+                            context.printer.append(ref.metaName());
+                            context.printer.append(" xsi:type=\"" + XMIModelSerializer.formatMetaClassName(elem.metaClass().metaName()) + "\"");
+                            elem.visitAttributes(context.attributesVisitor);
+
+                            KTask nonContainedRefsTasks = context.model.universe().model().task();
+                            for (int j = 0; j < elem.metaClass().metaReferences().length; j++) {
+                                if (!elem.metaClass().metaReferences()[i].contained()) {
+                                    nonContainedRefsTasks.wait(nonContainedReferenceTaskMaker(elem.metaClass().metaReferences()[i], context, elem));
                                 }
                             }
-                        });
-                    }
-                    nextReference.on(null);
-                }
-            });
-        } else {
-            nextReference.on(null);
-        }
-    }
+                            nonContainedRefsTasks.setJob(new KJob() {
+                                @Override
+                                public void run(KCurrentTask currentTask) {
+                                    context.printer.append(">\n");
 
+
+                                    KTask containedRefsTasks = context.model.universe().model().task();
+                                    for (int i = 0; i < elem.metaClass().metaReferences().length; i++) {
+                                        if (elem.metaClass().metaReferences()[i].contained()) {
+                                            containedRefsTasks.wait(containedReferenceTaskMaker(elem.metaClass().metaReferences()[i], context, elem));
+                                        }
+                                    }
+                                    containedRefsTasks.setJob(new KJob() {
+                                        @Override
+                                        public void run(KCurrentTask currentTask) {
+                                            context.printer.append("</");
+                                            context.printer.append(ref.metaName());
+                                            context.printer.append('>');
+                                            context.printer.append("\n");
+                                        }
+                                    });
+                                    containedRefsTasks.ready();
+                                }
+                            });
+                            nonContainedRefsTasks.ready();
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        thisTask.ready();
+        return thisTask;
+    }
 }
