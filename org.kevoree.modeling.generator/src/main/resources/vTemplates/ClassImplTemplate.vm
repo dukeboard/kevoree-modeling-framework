@@ -53,11 +53,11 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
 
     @Override
     public void get${context.generationContext.helper.toCamelCase(${ref.getName()})}(final org.kevoree.modeling.api.Callback<${ref.getType().fqn}> p_callback) {
-        this.single(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject>() {
+        this.all(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject[]>() {
             @Override
-            public void on(org.kevoree.modeling.api.KObject kObject) {
-                if(p_callback!=null){
-                    p_callback.on((${ref.getType().fqn}) kObject);
+            public void on(org.kevoree.modeling.api.KObject[] kObjects) {
+                if(p_callback!=null && kObjects[0] != null){
+                    p_callback.on((${ref.getType().fqn}) kObjects[0]);
                 }
             }
         });

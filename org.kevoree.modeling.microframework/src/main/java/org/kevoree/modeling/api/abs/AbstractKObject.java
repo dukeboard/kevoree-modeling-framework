@@ -528,7 +528,18 @@ public abstract class AbstractKObject implements KObject {
                         }
                     });
                 } else {
-                    p_callback.on(new KObject[0]);
+                    Long[] content = new Long[] {(Long) o};
+                    view().lookupAll(content, new Callback<KObject[]>() {
+                        @Override
+                        public void on(KObject[] result) {
+                            try {
+                                p_callback.on(result);
+                            } catch (Throwable t) {
+                                t.printStackTrace();
+                                p_callback.on(null);
+                            }
+                        }
+                    });
                 }
             }
         }
