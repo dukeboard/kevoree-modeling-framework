@@ -8649,7 +8649,7 @@ var org;
                             };
                             context.printer = new java.lang.StringBuilder();
                             context.addressTable.put(model.uuid(), "/");
-                            model.visit(function (elem) {
+                            var addressCreationTask = context.model.taskVisit(function (elem) {
                                 var parentXmiAddress = context.addressTable.get(elem.parentUuid());
                                 var key = parentXmiAddress + "/@" + elem.referenceInParent().metaName();
                                 var i = context.elementsCount.get(key);
@@ -8664,45 +8664,44 @@ var org;
                                     context.packageList.add(pack);
                                 }
                                 return org.kevoree.modeling.api.VisitResult.CONTINUE;
-                            }, function (throwable) {
-                                if (throwable != null) {
-                                    context.finishCallback(null, throwable);
-                                }
-                                else {
-                                    context.printer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                                    context.printer.append("<" + org.kevoree.modeling.api.xmi.XMIModelSerializer.formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_"));
-                                    context.printer.append(" xmlns:xsi=\"http://wwww.w3.org/2001/XMLSchema-instance\"");
-                                    context.printer.append(" xmi:version=\"2.0\"");
-                                    context.printer.append(" xmlns:xmi=\"http://www.omg.org/XMI\"");
-                                    var index = 0;
-                                    while (index < context.packageList.size()) {
-                                        context.printer.append(" xmlns:" + context.packageList.get(index).replace(".", "_") + "=\"http://" + context.packageList.get(index) + "\"");
-                                        index++;
-                                    }
-                                    context.model.visitAttributes(context.attributesVisitor);
-                                    org.kevoree.modeling.api.util.Helper.forall(context.model.metaClass().metaReferences(), function (metaReference, next) {
-                                        org.kevoree.modeling.api.xmi.XMIModelSerializer.nonContainedReferencesCallbackChain(metaReference, next, context, context.model);
-                                    }, function (err) {
-                                        if (err == null) {
-                                            context.printer.append(">\n");
-                                            org.kevoree.modeling.api.util.Helper.forall(context.model.metaClass().metaReferences(), function (metaReference, next) {
-                                                org.kevoree.modeling.api.xmi.XMIModelSerializer.containedReferencesCallbackChain(metaReference, next, context, context.model);
-                                            }, function (containedRefsEnd) {
-                                                if (containedRefsEnd == null) {
-                                                    context.printer.append("</" + org.kevoree.modeling.api.xmi.XMIModelSerializer.formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_") + ">\n");
-                                                    context.finishCallback(context.printer.toString(), null);
-                                                }
-                                                else {
-                                                    context.finishCallback(null, containedRefsEnd);
-                                                }
-                                            });
-                                        }
-                                        else {
-                                            context.finishCallback(null, err);
-                                        }
-                                    });
-                                }
                             }, org.kevoree.modeling.api.VisitRequest.CONTAINED);
+                            var serializationTask = context.model.universe().model().task();
+                            serializationTask.wait(addressCreationTask);
+                            serializationTask.setJob(function (currentTask) {
+                                context.printer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+                                context.printer.append("<" + org.kevoree.modeling.api.xmi.XMIModelSerializer.formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_"));
+                                context.printer.append(" xmlns:xsi=\"http://wwww.w3.org/2001/XMLSchema-instance\"");
+                                context.printer.append(" xmi:version=\"2.0\"");
+                                context.printer.append(" xmlns:xmi=\"http://www.omg.org/XMI\"");
+                                var index = 0;
+                                while (index < context.packageList.size()) {
+                                    context.printer.append(" xmlns:" + context.packageList.get(index).replace(".", "_") + "=\"http://" + context.packageList.get(index) + "\"");
+                                    index++;
+                                }
+                                context.model.visitAttributes(context.attributesVisitor);
+                                var nonContainedRefsTasks = context.model.universe().model().task();
+                                for (var i = 0; i < context.model.metaClass().metaReferences().length; i++) {
+                                    if (!context.model.metaClass().metaReferences()[i].contained()) {
+                                        nonContainedRefsTasks.wait(org.kevoree.modeling.api.xmi.XMIModelSerializer.nonContainedReferenceTaskMaker(context.model.metaClass().metaReferences()[i], context, context.model));
+                                    }
+                                }
+                                nonContainedRefsTasks.setJob(function (currentTask) {
+                                    context.printer.append(">\n");
+                                    var containedRefsTasks = context.model.universe().model().task();
+                                    for (var i = 0; i < context.model.metaClass().metaReferences().length; i++) {
+                                        if (context.model.metaClass().metaReferences()[i].contained()) {
+                                            containedRefsTasks.wait(org.kevoree.modeling.api.xmi.XMIModelSerializer.containedReferenceTaskMaker(context.model.metaClass().metaReferences()[i], context, context.model));
+                                        }
+                                    }
+                                    containedRefsTasks.setJob(function (currentTask) {
+                                        context.printer.append("</" + org.kevoree.modeling.api.xmi.XMIModelSerializer.formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_") + ">\n");
+                                        context.finishCallback(context.printer.toString(), null);
+                                    });
+                                    containedRefsTasks.ready();
+                                });
+                                nonContainedRefsTasks.ready();
+                            });
+                            serializationTask.ready();
                         };
                         XMIModelSerializer.escapeXml = function (ostream, chain) {
                             if (chain == null) {
@@ -8747,57 +8746,77 @@ var org;
                             var cls = metaClassName.substring(lastPoint + 1);
                             return pack + ":" + cls;
                         };
-                        XMIModelSerializer.nonContainedReferencesCallbackChain = function (ref, next, p_context, p_currentElement) {
-                            if (!ref.contained()) {
-                                var value = new Array();
-                                p_currentElement.all(ref, function (objs) {
-                                    for (var i = 0; i < objs.length; i++) {
-                                        var adjustedAddress = p_context.addressTable.get(objs[i].uuid());
+                        XMIModelSerializer.nonContainedReferenceTaskMaker = function (ref, p_context, p_currentElement) {
+                            var allTask = p_currentElement.taskAll(ref);
+                            var thisTask = p_context.model.universe().model().task();
+                            thisTask.wait(allTask);
+                            thisTask.setJob(function (currentTask) {
+                                try {
+                                    var objects = currentTask.results().get(allTask);
+                                    for (var i = 0; i < objects.length; i++) {
+                                        var adjustedAddress = p_context.addressTable.get(objects[i].uuid());
                                         p_context.printer.append(" " + ref.metaName() + "=\"" + adjustedAddress + "\"");
                                     }
-                                    next(null);
-                                });
-                            }
-                            else {
-                                next(null);
-                            }
-                        };
-                        XMIModelSerializer.containedReferencesCallbackChain = function (ref, nextReference, context, currentElement) {
-                            if (ref.contained()) {
-                                currentElement.all(ref, function (objs) {
-                                    for (var i = 0; i < objs.length; i++) {
-                                        var elem = objs[i];
-                                        context.printer.append("<");
-                                        context.printer.append(ref.metaName());
-                                        context.printer.append(" xsi:type=\"" + org.kevoree.modeling.api.xmi.XMIModelSerializer.formatMetaClassName(elem.metaClass().metaName()) + "\"");
-                                        elem.visitAttributes(context.attributesVisitor);
-                                        org.kevoree.modeling.api.util.Helper.forall(elem.metaClass().metaReferences(), function (metaReference, next) {
-                                            org.kevoree.modeling.api.xmi.XMIModelSerializer.nonContainedReferencesCallbackChain(metaReference, next, context, elem);
-                                        }, function (err) {
-                                            if (err == null) {
-                                                context.printer.append(">\n");
-                                                org.kevoree.modeling.api.util.Helper.forall(elem.metaClass().metaReferences(), function (metaReference, next) {
-                                                    org.kevoree.modeling.api.xmi.XMIModelSerializer.containedReferencesCallbackChain(metaReference, next, context, elem);
-                                                }, function (containedRefsEnd) {
-                                                    if (containedRefsEnd == null) {
-                                                        context.printer.append("</");
-                                                        context.printer.append(ref.metaName());
-                                                        context.printer.append('>');
-                                                        context.printer.append("\n");
-                                                    }
-                                                });
-                                            }
-                                            else {
-                                                context.finishCallback(null, err);
-                                            }
-                                        });
+                                }
+                                catch ($ex$) {
+                                    if ($ex$ instanceof java.lang.Exception) {
+                                        var e = $ex$;
+                                        e.printStackTrace();
                                     }
-                                    nextReference(null);
-                                });
-                            }
-                            else {
-                                nextReference(null);
-                            }
+                                }
+                            });
+                            thisTask.ready();
+                            return thisTask;
+                        };
+                        XMIModelSerializer.containedReferenceTaskMaker = function (ref, context, currentElement) {
+                            var allTask = currentElement.taskAll(ref);
+                            var thisTask = context.model.universe().model().task();
+                            thisTask.wait(allTask);
+                            thisTask.setJob(function (currentTask) {
+                                try {
+                                    if (currentTask.results().get(allTask) != null) {
+                                        var objs = currentTask.results().get(allTask);
+                                        for (var i = 0; i < objs.length; i++) {
+                                            var elem = objs[i];
+                                            context.printer.append("<");
+                                            context.printer.append(ref.metaName());
+                                            context.printer.append(" xsi:type=\"" + org.kevoree.modeling.api.xmi.XMIModelSerializer.formatMetaClassName(elem.metaClass().metaName()) + "\"");
+                                            elem.visitAttributes(context.attributesVisitor);
+                                            var nonContainedRefsTasks = context.model.universe().model().task();
+                                            for (var j = 0; j < elem.metaClass().metaReferences().length; j++) {
+                                                if (!elem.metaClass().metaReferences()[i].contained()) {
+                                                    nonContainedRefsTasks.wait(org.kevoree.modeling.api.xmi.XMIModelSerializer.nonContainedReferenceTaskMaker(elem.metaClass().metaReferences()[i], context, elem));
+                                                }
+                                            }
+                                            nonContainedRefsTasks.setJob(function (currentTask) {
+                                                context.printer.append(">\n");
+                                                var containedRefsTasks = context.model.universe().model().task();
+                                                for (var i = 0; i < elem.metaClass().metaReferences().length; i++) {
+                                                    if (elem.metaClass().metaReferences()[i].contained()) {
+                                                        containedRefsTasks.wait(org.kevoree.modeling.api.xmi.XMIModelSerializer.containedReferenceTaskMaker(elem.metaClass().metaReferences()[i], context, elem));
+                                                    }
+                                                }
+                                                containedRefsTasks.setJob(function (currentTask) {
+                                                    context.printer.append("</");
+                                                    context.printer.append(ref.metaName());
+                                                    context.printer.append('>');
+                                                    context.printer.append("\n");
+                                                });
+                                                containedRefsTasks.ready();
+                                            });
+                                            nonContainedRefsTasks.ready();
+                                        }
+                                    }
+                                }
+                                catch ($ex$) {
+                                    if ($ex$ instanceof java.lang.Exception) {
+                                        var e = $ex$;
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+                            thisTask.ready();
+                            return thisTask;
                         };
                         return XMIModelSerializer;
                     })();

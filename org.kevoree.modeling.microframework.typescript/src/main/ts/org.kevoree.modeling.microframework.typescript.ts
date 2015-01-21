@@ -9484,7 +9484,7 @@ module org {
                             };
                             context.printer = new java.lang.StringBuilder();
                             context.addressTable.put(model.uuid(), "/");
-                            model.visit( (elem : org.kevoree.modeling.api.KObject) => {
+                            var addressCreationTask: org.kevoree.modeling.api.KTask<any> = context.model.taskVisit( (elem : org.kevoree.modeling.api.KObject) => {
                                 var parentXmiAddress: string = context.addressTable.get(elem.parentUuid());
                                 var key: string = parentXmiAddress + "/@" + elem.referenceInParent().metaName();
                                 var i: number = context.elementsCount.get(key);
@@ -9499,42 +9499,44 @@ module org {
                                     context.packageList.add(pack);
                                 }
                                 return org.kevoree.modeling.api.VisitResult.CONTINUE;
-                            },  (throwable : java.lang.Throwable) => {
-                                if (throwable != null) {
-                                    context.finishCallback(null, throwable);
-                                } else {
-                                    context.printer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                                    context.printer.append("<" + org.kevoree.modeling.api.xmi.XMIModelSerializer.formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_"));
-                                    context.printer.append(" xmlns:xsi=\"http://wwww.w3.org/2001/XMLSchema-instance\"");
-                                    context.printer.append(" xmi:version=\"2.0\"");
-                                    context.printer.append(" xmlns:xmi=\"http://www.omg.org/XMI\"");
-                                    var index: number = 0;
-                                    while (index < context.packageList.size()){
-                                        context.printer.append(" xmlns:" + context.packageList.get(index).replace(".", "_") + "=\"http://" + context.packageList.get(index) + "\"");
-                                        index++;
-                                    }
-                                    context.model.visitAttributes(context.attributesVisitor);
-                                    org.kevoree.modeling.api.util.Helper.forall(context.model.metaClass().metaReferences(),  (metaReference : org.kevoree.modeling.api.meta.MetaReference, next : (p : java.lang.Throwable) => void) => {
-                                        org.kevoree.modeling.api.xmi.XMIModelSerializer.nonContainedReferencesCallbackChain(metaReference, next, context, context.model);
-                                    },  (err : java.lang.Throwable) => {
-                                        if (err == null) {
-                                            context.printer.append(">\n");
-                                            org.kevoree.modeling.api.util.Helper.forall(context.model.metaClass().metaReferences(),  (metaReference : org.kevoree.modeling.api.meta.MetaReference, next : (p : java.lang.Throwable) => void) => {
-                                                org.kevoree.modeling.api.xmi.XMIModelSerializer.containedReferencesCallbackChain(metaReference, next, context, context.model);
-                                            },  (containedRefsEnd : java.lang.Throwable) => {
-                                                if (containedRefsEnd == null) {
-                                                    context.printer.append("</" + org.kevoree.modeling.api.xmi.XMIModelSerializer.formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_") + ">\n");
-                                                    context.finishCallback(context.printer.toString(), null);
-                                                } else {
-                                                    context.finishCallback(null, containedRefsEnd);
-                                                }
-                                            });
-                                        } else {
-                                            context.finishCallback(null, err);
-                                        }
-                                    });
-                                }
                             }, org.kevoree.modeling.api.VisitRequest.CONTAINED);
+                            var serializationTask: org.kevoree.modeling.api.KTask<any> = context.model.universe().model().task();
+                            serializationTask.wait(addressCreationTask);
+                            serializationTask.setJob( (currentTask : org.kevoree.modeling.api.KCurrentTask<any>) => {
+                                context.printer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+                                context.printer.append("<" + org.kevoree.modeling.api.xmi.XMIModelSerializer.formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_"));
+                                context.printer.append(" xmlns:xsi=\"http://wwww.w3.org/2001/XMLSchema-instance\"");
+                                context.printer.append(" xmi:version=\"2.0\"");
+                                context.printer.append(" xmlns:xmi=\"http://www.omg.org/XMI\"");
+                                var index: number = 0;
+                                while (index < context.packageList.size()){
+                                    context.printer.append(" xmlns:" + context.packageList.get(index).replace(".", "_") + "=\"http://" + context.packageList.get(index) + "\"");
+                                    index++;
+                                }
+                                context.model.visitAttributes(context.attributesVisitor);
+                                var nonContainedRefsTasks: org.kevoree.modeling.api.KTask<any> = context.model.universe().model().task();
+                                for (var i: number = 0; i < context.model.metaClass().metaReferences().length; i++) {
+                                    if (!context.model.metaClass().metaReferences()[i].contained()) {
+                                        nonContainedRefsTasks.wait(org.kevoree.modeling.api.xmi.XMIModelSerializer.nonContainedReferenceTaskMaker(context.model.metaClass().metaReferences()[i], context, context.model));
+                                    }
+                                }
+                                nonContainedRefsTasks.setJob( (currentTask : org.kevoree.modeling.api.KCurrentTask<any>) => {
+                                    context.printer.append(">\n");
+                                    var containedRefsTasks: org.kevoree.modeling.api.KTask<any> = context.model.universe().model().task();
+                                    for (var i: number = 0; i < context.model.metaClass().metaReferences().length; i++) {
+                                        if (context.model.metaClass().metaReferences()[i].contained()) {
+                                            containedRefsTasks.wait(org.kevoree.modeling.api.xmi.XMIModelSerializer.containedReferenceTaskMaker(context.model.metaClass().metaReferences()[i], context, context.model));
+                                        }
+                                    }
+                                    containedRefsTasks.setJob( (currentTask : org.kevoree.modeling.api.KCurrentTask<any>) => {
+                                        context.printer.append("</" + org.kevoree.modeling.api.xmi.XMIModelSerializer.formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_") + ">\n");
+                                        context.finishCallback(context.printer.toString(), null);
+                                    });
+                                    containedRefsTasks.ready();
+                                });
+                                nonContainedRefsTasks.ready();
+                            });
+                            serializationTask.ready();
                         }
 
                         public static escapeXml(ostream: java.lang.StringBuilder, chain: string): void {
@@ -9577,55 +9579,76 @@ module org {
                             return pack + ":" + cls;
                         }
 
-                        private static nonContainedReferencesCallbackChain(ref: org.kevoree.modeling.api.meta.MetaReference, next: (p : java.lang.Throwable) => void, p_context: org.kevoree.modeling.api.xmi.SerializationContext, p_currentElement: org.kevoree.modeling.api.KObject): void {
-                            if (!ref.contained()) {
-                                var value: string[] = new Array();
-                                p_currentElement.all(ref,  (objs : org.kevoree.modeling.api.KObject[]) => {
-                                    for (var i: number = 0; i < objs.length; i++) {
-                                        var adjustedAddress: string = p_context.addressTable.get(objs[i].uuid());
+                        private static nonContainedReferenceTaskMaker(ref: org.kevoree.modeling.api.meta.MetaReference, p_context: org.kevoree.modeling.api.xmi.SerializationContext, p_currentElement: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any> {
+                            var allTask: org.kevoree.modeling.api.KTask<any> = p_currentElement.taskAll(ref);
+                            var thisTask: org.kevoree.modeling.api.KTask<any> = p_context.model.universe().model().task();
+                            thisTask.wait(allTask);
+                            thisTask.setJob( (currentTask : org.kevoree.modeling.api.KCurrentTask<any>) => {
+                                try {
+                                    var objects: org.kevoree.modeling.api.KObject[] = (<org.kevoree.modeling.api.KObject[]>currentTask.results().get(allTask));
+                                    for (var i: number = 0; i < objects.length; i++) {
+                                        var adjustedAddress: string = p_context.addressTable.get(objects[i].uuid());
                                         p_context.printer.append(" " + ref.metaName() + "=\"" + adjustedAddress + "\"");
                                     }
-                                    next(null);
-                                });
-                            } else {
-                                next(null);
-                            }
+                                } catch ($ex$) {
+                                    if ($ex$ instanceof java.lang.Exception) {
+                                        var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                        e.printStackTrace();
+                                    }
+                                 }
+                            });
+                            thisTask.ready();
+                            return thisTask;
                         }
 
-                        private static containedReferencesCallbackChain(ref: org.kevoree.modeling.api.meta.MetaReference, nextReference: (p : java.lang.Throwable) => void, context: org.kevoree.modeling.api.xmi.SerializationContext, currentElement: org.kevoree.modeling.api.KObject): void {
-                            if (ref.contained()) {
-                                currentElement.all(ref,  (objs : org.kevoree.modeling.api.KObject[]) => {
-                                    for (var i: number = 0; i < objs.length; i++) {
-                                        var elem: org.kevoree.modeling.api.KObject = objs[i];
-                                        context.printer.append("<");
-                                        context.printer.append(ref.metaName());
-                                        context.printer.append(" xsi:type=\"" + org.kevoree.modeling.api.xmi.XMIModelSerializer.formatMetaClassName(elem.metaClass().metaName()) + "\"");
-                                        elem.visitAttributes(context.attributesVisitor);
-                                        org.kevoree.modeling.api.util.Helper.forall(elem.metaClass().metaReferences(),  (metaReference : org.kevoree.modeling.api.meta.MetaReference, next : (p : java.lang.Throwable) => void) => {
-                                            org.kevoree.modeling.api.xmi.XMIModelSerializer.nonContainedReferencesCallbackChain(metaReference, next, context, elem);
-                                        },  (err : java.lang.Throwable) => {
-                                            if (err == null) {
-                                                context.printer.append(">\n");
-                                                org.kevoree.modeling.api.util.Helper.forall(elem.metaClass().metaReferences(),  (metaReference : org.kevoree.modeling.api.meta.MetaReference, next : (p : java.lang.Throwable) => void) => {
-                                                    org.kevoree.modeling.api.xmi.XMIModelSerializer.containedReferencesCallbackChain(metaReference, next, context, elem);
-                                                },  (containedRefsEnd : java.lang.Throwable) => {
-                                                    if (containedRefsEnd == null) {
-                                                        context.printer.append("</");
-                                                        context.printer.append(ref.metaName());
-                                                        context.printer.append('>');
-                                                        context.printer.append("\n");
-                                                    }
-                                                });
-                                            } else {
-                                                context.finishCallback(null, err);
+                        private static containedReferenceTaskMaker(ref: org.kevoree.modeling.api.meta.MetaReference, context: org.kevoree.modeling.api.xmi.SerializationContext, currentElement: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any> {
+                            var allTask: org.kevoree.modeling.api.KTask<any> = currentElement.taskAll(ref);
+                            var thisTask: org.kevoree.modeling.api.KTask<any> = context.model.universe().model().task();
+                            thisTask.wait(allTask);
+                            thisTask.setJob( (currentTask : org.kevoree.modeling.api.KCurrentTask<any>) => {
+                                try {
+                                    if (currentTask.results().get(allTask) != null) {
+                                        var objs: org.kevoree.modeling.api.KObject[] = (<org.kevoree.modeling.api.KObject[]>currentTask.results().get(allTask));
+                                        for (var i: number = 0; i < objs.length; i++) {
+                                            var elem: org.kevoree.modeling.api.KObject = objs[i];
+                                            context.printer.append("<");
+                                            context.printer.append(ref.metaName());
+                                            context.printer.append(" xsi:type=\"" + org.kevoree.modeling.api.xmi.XMIModelSerializer.formatMetaClassName(elem.metaClass().metaName()) + "\"");
+                                            elem.visitAttributes(context.attributesVisitor);
+                                            var nonContainedRefsTasks: org.kevoree.modeling.api.KTask<any> = context.model.universe().model().task();
+                                            for (var j: number = 0; j < elem.metaClass().metaReferences().length; j++) {
+                                                if (!elem.metaClass().metaReferences()[i].contained()) {
+                                                    nonContainedRefsTasks.wait(org.kevoree.modeling.api.xmi.XMIModelSerializer.nonContainedReferenceTaskMaker(elem.metaClass().metaReferences()[i], context, elem));
+                                                }
                                             }
-                                        });
+                                            nonContainedRefsTasks.setJob( (currentTask : org.kevoree.modeling.api.KCurrentTask<any>) => {
+                                                context.printer.append(">\n");
+                                                var containedRefsTasks: org.kevoree.modeling.api.KTask<any> = context.model.universe().model().task();
+                                                for (var i: number = 0; i < elem.metaClass().metaReferences().length; i++) {
+                                                    if (elem.metaClass().metaReferences()[i].contained()) {
+                                                        containedRefsTasks.wait(org.kevoree.modeling.api.xmi.XMIModelSerializer.containedReferenceTaskMaker(elem.metaClass().metaReferences()[i], context, elem));
+                                                    }
+                                                }
+                                                containedRefsTasks.setJob( (currentTask : org.kevoree.modeling.api.KCurrentTask<any>) => {
+                                                    context.printer.append("</");
+                                                    context.printer.append(ref.metaName());
+                                                    context.printer.append('>');
+                                                    context.printer.append("\n");
+                                                });
+                                                containedRefsTasks.ready();
+                                            });
+                                            nonContainedRefsTasks.ready();
+                                        }
                                     }
-                                    nextReference(null);
-                                });
-                            } else {
-                                nextReference(null);
-                            }
+                                } catch ($ex$) {
+                                    if ($ex$ instanceof java.lang.Exception) {
+                                        var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                        e.printStackTrace();
+                                    }
+                                 }
+                            });
+                            thisTask.ready();
+                            return thisTask;
                         }
 
                     }

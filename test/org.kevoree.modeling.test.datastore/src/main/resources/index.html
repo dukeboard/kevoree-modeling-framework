@@ -33,7 +33,7 @@
                     console.error("No root found.", results)
                 } else {
                     var lib = results[0];
-                    lib.eachShapes(function(shapes){
+                    lib.getShapes(function(shapes){
                         if(shapes != null) {
                             for(var i in shapes) {
                                 addShapeToDisplay(shapes[i]);

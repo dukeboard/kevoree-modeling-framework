@@ -87,7 +87,7 @@ public class MainServerTest {
                         System.err.println("Root not found");
                     } else {
                         Library root = (Library) results[0];
-                        root.eachShapes((shapes) -> {
+                        root.getShapes((shapes) -> {
                             if (shapes != null) {
                                 for (Shape shape : shapes) {
                                     i++;
@@ -95,7 +95,7 @@ public class MainServerTest {
                                 }
                             }
                         });
-                        dimension.saveUnload(Utils.DefaultPrintStackTraceCallback);
+                        dimension.unload(Utils.DefaultPrintStackTraceCallback);
                     }
                 });
                 turn++;

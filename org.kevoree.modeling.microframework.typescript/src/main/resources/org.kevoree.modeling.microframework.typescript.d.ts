@@ -1538,8 +1538,8 @@ declare module org {
                         static save(model: KObject, callback: (p: string, p1: java.lang.Throwable) => void): void;
                         static escapeXml(ostream: java.lang.StringBuilder, chain: string): void;
                         static formatMetaClassName(metaClassName: string): string;
-                        private static nonContainedReferencesCallbackChain(ref, next, p_context, p_currentElement);
-                        private static containedReferencesCallbackChain(ref, nextReference, context, currentElement);
+                        private static nonContainedReferenceTaskMaker(ref, p_context, p_currentElement);
+                        private static containedReferenceTaskMaker(ref, context, currentElement);
                     }
                     class XMIResolveCommand {
                         private context;

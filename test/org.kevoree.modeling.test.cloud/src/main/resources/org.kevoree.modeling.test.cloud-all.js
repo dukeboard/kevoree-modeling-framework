@@ -580,6 +580,26 @@ var org;
                     return TraceRequest;
                 })();
                 api.TraceRequest = TraceRequest;
+                var VisitRequest = (function () {
+                    function VisitRequest() {
+                    }
+                    VisitRequest.prototype.equals = function (other) {
+                        return this == other;
+                    };
+                    VisitRequest.values = function () {
+                        return VisitRequest._VisitRequestVALUES;
+                    };
+                    VisitRequest.CHILDREN = new VisitRequest();
+                    VisitRequest.CONTAINED = new VisitRequest();
+                    VisitRequest.ALL = new VisitRequest();
+                    VisitRequest._VisitRequestVALUES = [
+                        VisitRequest.CHILDREN,
+                        VisitRequest.CONTAINED,
+                        VisitRequest.ALL
+                    ];
+                    return VisitRequest;
+                })();
+                api.VisitRequest = VisitRequest;
                 var VisitResult = (function () {
                     function VisitResult() {
                     }
@@ -682,15 +702,13 @@ var org;
                             this.storage().initUniverse(newDimension);
                             return newDimension;
                         };
-                        AbstractKModel.prototype.saveAll = function (callback) {
+                        AbstractKModel.prototype.save = function (callback) {
                         };
-                        AbstractKModel.prototype.deleteAll = function (callback) {
+                        AbstractKModel.prototype.discard = function (callback) {
                         };
-                        AbstractKModel.prototype.unloadAll = function (callback) {
+                        AbstractKModel.prototype.unload = function (callback) {
                         };
                         AbstractKModel.prototype.disable = function (listener) {
-                        };
-                        AbstractKModel.prototype.stream = function (query, callback) {
                         };
                         AbstractKModel.prototype.listen = function (listener) {
                             this.storage().eventBroker().registerListener(this, listener, null);
@@ -706,6 +724,34 @@ var org;
                         };
                         AbstractKModel.prototype.setOperation = function (metaOperation, operation) {
                             this.storage().operationManager().registerOperation(metaOperation, operation);
+                        };
+                        AbstractKModel.prototype.task = function () {
+                            return new org.kevoree.modeling.api.abs.AbstractKTask();
+                        };
+                        AbstractKModel.prototype.taskSave = function () {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.save(task.initCallback());
+                            return task;
+                        };
+                        AbstractKModel.prototype.taskDiscard = function () {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.discard(task.initCallback());
+                            return task;
+                        };
+                        AbstractKModel.prototype.taskUnload = function () {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.unload(task.initCallback());
+                            return task;
+                        };
+                        AbstractKModel.prototype.taskConnect = function () {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.connect(task.initCallback());
+                            return task;
+                        };
+                        AbstractKModel.prototype.taskClose = function () {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.close(task.initCallback());
+                            return task;
                         };
                         return AbstractKModel;
                     })();
@@ -1072,7 +1118,7 @@ var org;
                                                         if (metaReference.opposite() != null && setOpposite) {
                                                             resolvedParam.internal_mutate(org.kevoree.modeling.api.KActionType.REMOVE, metaReference.opposite(), self, false, inDelete);
                                                         }
-                                                        var rawParam = _this.view().universe().model().storage().raw(param, org.kevoree.modeling.api.data.AccessMode.WRITE);
+                                                        var rawParam = _this.view().universe().model().storage().raw(resolvedParam, org.kevoree.modeling.api.data.AccessMode.WRITE);
                                                         var previousInbounds;
                                                         if (rawParam[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] != null && rawParam[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] instanceof java.util.Set) {
                                                             previousInbounds = rawParam[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX];
@@ -1148,37 +1194,6 @@ var org;
                                 }
                             }
                         };
-                        AbstractKObject.prototype.single = function (p_metaReference, p_callback) {
-                            var transposed = this.internal_transpose_ref(p_metaReference);
-                            if (transposed == null) {
-                                throw new java.lang.RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + this.metaClass().metaName());
-                            }
-                            else {
-                                var raw = this.view().universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
-                                if (raw == null || raw[transposed.index()] == null) {
-                                    p_callback(null);
-                                }
-                                else {
-                                    var o = raw[transposed.index()];
-                                    var casted = null;
-                                    try {
-                                        casted = o;
-                                    }
-                                    catch ($ex$) {
-                                        if ($ex$ instanceof java.lang.Exception) {
-                                            var e = $ex$;
-                                            e.printStackTrace();
-                                            p_callback(null);
-                                        }
-                                    }
-                                    if (casted != null) {
-                                        this.view().lookup(casted, function (resolved) {
-                                            p_callback(resolved);
-                                        });
-                                    }
-                                }
-                            }
-                        };
                         AbstractKObject.prototype.all = function (p_metaReference, p_callback) {
                             if (!org.kevoree.modeling.api.util.Checker.isDefined(p_callback)) {
                                 return;
@@ -1215,7 +1230,19 @@ var org;
                                             });
                                         }
                                         else {
-                                            p_callback(new Array());
+                                            var content = [o];
+                                            this.view().lookupAll(content, function (result) {
+                                                try {
+                                                    p_callback(result);
+                                                }
+                                                catch ($ex$) {
+                                                    if ($ex$ instanceof java.lang.Throwable) {
+                                                        var t = $ex$;
+                                                        t.printStackTrace();
+                                                        p_callback(null);
+                                                    }
+                                                }
+                                            });
                                         }
                                     }
                                 }
@@ -1230,8 +1257,20 @@ var org;
                                 visitor(metaAttributes[i], this.get(metaAttributes[i]));
                             }
                         };
-                        AbstractKObject.prototype.visit = function (visitor, end) {
-                            this.internal_visit(visitor, end, false, false, null, null);
+                        AbstractKObject.prototype.visit = function (p_visitor, p_end, p_request) {
+                            if (p_request.equals(org.kevoree.modeling.api.VisitRequest.CHILDREN)) {
+                                this.internal_visit(p_visitor, p_end, false, false, null, null);
+                            }
+                            else {
+                                if (p_request.equals(org.kevoree.modeling.api.VisitRequest.ALL)) {
+                                    this.internal_visit(p_visitor, p_end, true, false, new java.util.HashSet(), new java.util.HashSet());
+                                }
+                                else {
+                                    if (p_request.equals(org.kevoree.modeling.api.VisitRequest.CONTAINED)) {
+                                        this.internal_visit(p_visitor, p_end, true, true, null, null);
+                                    }
+                                }
+                            }
                         };
                         AbstractKObject.prototype.internal_visit = function (visitor, end, deep, containedOnly, visited, traversed) {
                             if (!org.kevoree.modeling.api.util.Checker.isDefined(visitor)) {
@@ -1336,12 +1375,6 @@ var org;
                                     }
                                 });
                             }
-                        };
-                        AbstractKObject.prototype.graphVisit = function (visitor, end) {
-                            this.internal_visit(visitor, end, true, false, new java.util.HashSet(), new java.util.HashSet());
-                        };
-                        AbstractKObject.prototype.treeVisit = function (visitor, end) {
-                            this.internal_visit(visitor, end, true, true, null, null);
                         };
                         AbstractKObject.prototype.toJSON = function () {
                             var raw = this.view().universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
@@ -1481,7 +1514,7 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.traverse = function (p_metaReference) {
-                            return new org.kevoree.modeling.api.traversal.DefaultKTraversalPromise(this, p_metaReference);
+                            return new org.kevoree.modeling.api.traversal.DefaultKTraversal(this, p_metaReference);
                         };
                         AbstractKObject.prototype.referencesWith = function (o) {
                             if (org.kevoree.modeling.api.util.Checker.isDefined(o)) {
@@ -1532,6 +1565,66 @@ var org;
                                 return new Array();
                             }
                         };
+                        AbstractKObject.prototype.taskVisit = function (p_visitor, p_request) {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.visit(p_visitor, task.initCallback(), p_request);
+                            return task;
+                        };
+                        AbstractKObject.prototype.taskDelete = function () {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.delete(task.initCallback());
+                            return task;
+                        };
+                        AbstractKObject.prototype.taskParent = function () {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.parent(task.initCallback());
+                            return task;
+                        };
+                        AbstractKObject.prototype.taskSelect = function (p_query) {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.select(p_query, task.initCallback());
+                            return task;
+                        };
+                        AbstractKObject.prototype.taskAll = function (p_metaReference) {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.all(p_metaReference, task.initCallback());
+                            return task;
+                        };
+                        AbstractKObject.prototype.taskInbounds = function () {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.inbounds(task.initCallback());
+                            return task;
+                        };
+                        AbstractKObject.prototype.taskDiff = function (p_target) {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.diff(p_target, task.initCallback());
+                            return task;
+                        };
+                        AbstractKObject.prototype.taskMerge = function (p_target) {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.merge(p_target, task.initCallback());
+                            return task;
+                        };
+                        AbstractKObject.prototype.taskIntersection = function (p_target) {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.intersection(p_target, task.initCallback());
+                            return task;
+                        };
+                        AbstractKObject.prototype.taskSlice = function () {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.slice(task.initCallback());
+                            return task;
+                        };
+                        AbstractKObject.prototype.taskJump = function (p_time) {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.jump(p_time, task.initCallback());
+                            return task;
+                        };
+                        AbstractKObject.prototype.taskPath = function () {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.path(task.initCallback());
+                            return task;
+                        };
                         return AbstractKObject;
                     })();
                     abs.AbstractKObject = AbstractKObject;
@@ -1543,6 +1636,124 @@ var org;
                         return AbstractKObjectInfer;
                     })(org.kevoree.modeling.api.abs.AbstractKObject);
                     abs.AbstractKObjectInfer = AbstractKObjectInfer;
+                    var AbstractKTask = (function () {
+                        function AbstractKTask() {
+                            this._isDone = false;
+                            this._isReady = false;
+                            this._nbRecResult = 0;
+                            this._nbExpectedResult = 0;
+                            this._results = new java.util.HashMap();
+                            this._previousTasks = new java.util.HashSet();
+                            this._nextTasks = new java.util.HashSet();
+                            this._result = null;
+                        }
+                        AbstractKTask.prototype.setDoneOrRegister = function (next) {
+                            if (next != null) {
+                                this._nextTasks.add(next);
+                                return this._isDone;
+                            }
+                            else {
+                                this._isDone = true;
+                                var childrenTasks = this._nextTasks.toArray(new Array());
+                                for (var i = 0; i < childrenTasks.length; i++) {
+                                    childrenTasks[i].informParentEnd(this);
+                                }
+                                return this._isDone;
+                            }
+                        };
+                        AbstractKTask.prototype.informParentEnd = function (end) {
+                            if (end == null) {
+                                this._nbRecResult = this._nbRecResult + this._nbExpectedResult;
+                            }
+                            else {
+                                if (end != this) {
+                                    var castedEnd = end;
+                                    var keys = castedEnd._results.keySet().toArray(new Array());
+                                    for (var i = 0; i < keys.length; i++) {
+                                        this._results.put(keys[i], castedEnd._results.get(keys[i]));
+                                    }
+                                    this._results.put(end, castedEnd._result);
+                                    this._nbRecResult--;
+                                }
+                            }
+                            if (this._nbRecResult == 0 && this._isReady) {
+                                if (this._job != null) {
+                                    this._job(this);
+                                }
+                                this.setDoneOrRegister(null);
+                            }
+                        };
+                        AbstractKTask.prototype.wait = function (p_previous) {
+                            if (p_previous != this) {
+                                this._previousTasks.add(p_previous);
+                                if (!p_previous.setDoneOrRegister(this)) {
+                                    this._nbExpectedResult++;
+                                }
+                                else {
+                                    var castedEnd = p_previous;
+                                    var keys = castedEnd._results.keySet().toArray(new Array());
+                                    for (var i = 0; i < keys.length; i++) {
+                                        this._results.put(keys[i], castedEnd._results.get(keys[i]));
+                                    }
+                                    this._results.put(p_previous, castedEnd._result);
+                                }
+                            }
+                        };
+                        AbstractKTask.prototype.ready = function () {
+                            if (!this._isReady) {
+                                this._isReady = true;
+                                this.informParentEnd(null);
+                            }
+                        };
+                        AbstractKTask.prototype.results = function () {
+                            return this._results;
+                        };
+                        AbstractKTask.prototype.setResult = function (p_result) {
+                            this._result = p_result;
+                        };
+                        AbstractKTask.prototype.getResult = function () {
+                            if (this._isDone) {
+                                return this._result;
+                            }
+                            else {
+                                throw new java.lang.Exception("Task is not executed yet !");
+                            }
+                        };
+                        AbstractKTask.prototype.isDone = function () {
+                            return this._isDone;
+                        };
+                        AbstractKTask.prototype.setJob = function (p_kjob) {
+                            this._job = p_kjob;
+                        };
+                        return AbstractKTask;
+                    })();
+                    abs.AbstractKTask = AbstractKTask;
+                    var AbstractKTaskWrapper = (function (_super) {
+                        __extends(AbstractKTaskWrapper, _super);
+                        function AbstractKTaskWrapper() {
+                            _super.call(this);
+                            this._callback = null;
+                            var selfPointer = this;
+                            this._callback = function (a) {
+                                selfPointer._isReady = true;
+                                selfPointer.setResult(a);
+                                selfPointer.setDoneOrRegister(null);
+                            };
+                        }
+                        AbstractKTaskWrapper.prototype.initCallback = function () {
+                            return this._callback;
+                        };
+                        AbstractKTaskWrapper.prototype.wait = function (previous) {
+                            throw new java.lang.RuntimeException("Wait action is forbidden on wrapped tasks, please create a sub task");
+                        };
+                        AbstractKTaskWrapper.prototype.setJob = function (p_kjob) {
+                            throw new java.lang.RuntimeException("setJob action is forbidden on wrapped tasks, please create a sub task");
+                        };
+                        AbstractKTaskWrapper.prototype.ready = function () {
+                        };
+                        return AbstractKTaskWrapper;
+                    })(org.kevoree.modeling.api.abs.AbstractKTask);
+                    abs.AbstractKTaskWrapper = AbstractKTaskWrapper;
                     var AbstractKUniverse = (function () {
                         function AbstractKUniverse(p_model, p_key) {
                             this._model = p_model;
@@ -1557,7 +1768,7 @@ var org;
                         AbstractKUniverse.prototype.save = function (callback) {
                             this.model().storage().save(this, callback);
                         };
-                        AbstractKUniverse.prototype.saveUnload = function (callback) {
+                        AbstractKUniverse.prototype.unload = function (callback) {
                             this.model().storage().saveUnload(this, callback);
                         };
                         AbstractKUniverse.prototype.delete = function (callback) {
@@ -1592,6 +1803,41 @@ var org;
                         AbstractKUniverse.prototype.split = function (callback) {
                         };
                         AbstractKUniverse.prototype.descendants = function (callback) {
+                        };
+                        AbstractKUniverse.prototype.taskSplit = function () {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.split(task.initCallback());
+                            return task;
+                        };
+                        AbstractKUniverse.prototype.taskOrigin = function () {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.origin(task.initCallback());
+                            return task;
+                        };
+                        AbstractKUniverse.prototype.taskDescendants = function () {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.descendants(task.initCallback());
+                            return task;
+                        };
+                        AbstractKUniverse.prototype.taskSave = function () {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.save(task.initCallback());
+                            return task;
+                        };
+                        AbstractKUniverse.prototype.taskUnload = function () {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.unload(task.initCallback());
+                            return task;
+                        };
+                        AbstractKUniverse.prototype.taskDelete = function () {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.delete(task.initCallback());
+                            return task;
+                        };
+                        AbstractKUniverse.prototype.taskDiscard = function () {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.discard(task.initCallback());
+                            return task;
                         };
                         return AbstractKUniverse;
                     })();
@@ -1691,6 +1937,31 @@ var org;
                                 var casted = obj;
                                 return (casted._now == this._now) && this._universe.equals(casted._universe);
                             }
+                        };
+                        AbstractKView.prototype.taskLookup = function (key) {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.lookup(key, task.initCallback());
+                            return task;
+                        };
+                        AbstractKView.prototype.taskLookupAll = function (keys) {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.lookupAll(keys, task.initCallback());
+                            return task;
+                        };
+                        AbstractKView.prototype.taskSelect = function (query) {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.select(query, task.initCallback());
+                            return task;
+                        };
+                        AbstractKView.prototype.taskSetRoot = function (elem) {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.setRoot(elem, task.initCallback());
+                            return task;
+                        };
+                        AbstractKView.prototype.taskSlice = function (elems) {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.slice(elems, task.initCallback());
+                            return task;
                         };
                         return AbstractKView;
                     })();
@@ -3685,7 +3956,7 @@ var org;
                             var builder = new java.lang.StringBuilder();
                             builder.append("[\n");
                             org.kevoree.modeling.api.json.JsonModelSerializer.printJSON(model, builder);
-                            model.graphVisit(function (elem) {
+                            model.visit(function (elem) {
                                 builder.append(",\n");
                                 try {
                                     org.kevoree.modeling.api.json.JsonModelSerializer.printJSON(elem, builder);
@@ -3701,7 +3972,7 @@ var org;
                             }, function (throwable) {
                                 builder.append("\n]\n");
                                 callback(builder.toString(), throwable);
-                            });
+                            }, org.kevoree.modeling.api.VisitRequest.ALL);
                         };
                         JsonModelSerializer.printJSON = function (elem, builder) {
                             if (elem != null) {
@@ -4109,7 +4380,7 @@ var org;
                             var objectsMap = new java.util.HashMap();
                             traces.addAll(org.kevoree.modeling.api.operation.DefaultModelCompare.internal_createTraces(origin, target, inter, merge, false, true));
                             tracesRef.addAll(org.kevoree.modeling.api.operation.DefaultModelCompare.internal_createTraces(origin, target, inter, merge, true, false));
-                            origin.treeVisit(function (elem) {
+                            origin.visit(function (elem) {
                                 objectsMap.put(elem.uuid(), elem);
                                 return org.kevoree.modeling.api.VisitResult.CONTINUE;
                             }, function (throwable) {
@@ -4118,7 +4389,7 @@ var org;
                                     callback(null);
                                 }
                                 else {
-                                    target.treeVisit(function (elem) {
+                                    target.visit(function (elem) {
                                         var childUUID = elem.uuid();
                                         if (objectsMap.containsKey(childUUID)) {
                                             if (inter) {
@@ -4156,9 +4427,9 @@ var org;
                                             }
                                             callback(new org.kevoree.modeling.api.trace.TraceSequence().populate(traces));
                                         }
-                                    });
+                                    }, org.kevoree.modeling.api.VisitRequest.CONTAINED);
                                 }
-                            });
+                            }, org.kevoree.modeling.api.VisitRequest.CONTAINED);
                         };
                         DefaultModelCompare.internal_createTraces = function (current, sibling, inter, merge, references, attributes) {
                             var traces = new java.util.ArrayList();
@@ -4352,7 +4623,7 @@ var org;
                                         }
                                     }
                                     cache.put(elem.uuid(), elem);
-                                    elem.graphVisit(function (elem) {
+                                    elem.visit(function (elem) {
                                         if (cache.get(elem.uuid()) == null) {
                                             org.kevoree.modeling.api.operation.DefaultModelSlicer.internal_prune(elem, traces, cache, parentMap, function (throwable) {
                                             });
@@ -4360,7 +4631,7 @@ var org;
                                         return org.kevoree.modeling.api.VisitResult.CONTINUE;
                                     }, function (throwable) {
                                         callback(null);
-                                    });
+                                    }, org.kevoree.modeling.api.VisitRequest.ALL);
                                 }
                             });
                             traces.add(new org.kevoree.modeling.api.trace.ModelNewTrace(elem.uuid(), elem.metaClass()));
@@ -5494,7 +5765,7 @@ var org;
                                 return dynamicMetaClass;
                             }
                         };
-                        DynamicMetaModel.prototype.universe = function () {
+                        DynamicMetaModel.prototype.model = function () {
                             var universe = new org.kevoree.modeling.api.reflexive.DynamicKModel();
                             universe.setMetaModel(this);
                             return universe;
@@ -7613,15 +7884,15 @@ var org;
                 })(trace = api.trace || (api.trace = {}));
                 var traversal;
                 (function (traversal) {
-                    var DefaultKTraversalPromise = (function () {
-                        function DefaultKTraversalPromise(p_root, p_ref) {
+                    var DefaultKTraversal = (function () {
+                        function DefaultKTraversal(p_root, p_ref) {
                             this._terminated = false;
                             this._initAction = new org.kevoree.modeling.api.traversal.actions.KTraverseAction(p_ref);
                             this._initObjs = new Array();
                             this._initObjs[0] = p_root;
                             this._lastAction = this._initAction;
                         }
-                        DefaultKTraversalPromise.prototype.traverse = function (p_metaReference) {
+                        DefaultKTraversal.prototype.traverse = function (p_metaReference) {
                             if (this._terminated) {
                                 throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
                             }
@@ -7630,7 +7901,7 @@ var org;
                             this._lastAction = tempAction;
                             return this;
                         };
-                        DefaultKTraversalPromise.prototype.withAttribute = function (p_attribute, p_expectedValue) {
+                        DefaultKTraversal.prototype.withAttribute = function (p_attribute, p_expectedValue) {
                             if (this._terminated) {
                                 throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
                             }
@@ -7639,7 +7910,7 @@ var org;
                             this._lastAction = tempAction;
                             return this;
                         };
-                        DefaultKTraversalPromise.prototype.withoutAttribute = function (p_attribute, p_expectedValue) {
+                        DefaultKTraversal.prototype.withoutAttribute = function (p_attribute, p_expectedValue) {
                             if (this._terminated) {
                                 throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
                             }
@@ -7648,7 +7919,7 @@ var org;
                             this._lastAction = tempAction;
                             return this;
                         };
-                        DefaultKTraversalPromise.prototype.filter = function (p_filter) {
+                        DefaultKTraversal.prototype.filter = function (p_filter) {
                             if (this._terminated) {
                                 throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
                             }
@@ -7657,7 +7928,7 @@ var org;
                             this._lastAction = tempAction;
                             return this;
                         };
-                        DefaultKTraversalPromise.prototype.reverse = function (p_metaReference) {
+                        DefaultKTraversal.prototype.reverse = function (p_metaReference) {
                             if (this._terminated) {
                                 throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
                             }
@@ -7666,7 +7937,7 @@ var org;
                             this._lastAction = tempAction;
                             return this;
                         };
-                        DefaultKTraversalPromise.prototype.parents = function () {
+                        DefaultKTraversal.prototype.parents = function () {
                             if (this._terminated) {
                                 throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
                             }
@@ -7675,19 +7946,29 @@ var org;
                             this._lastAction = tempAction;
                             return this;
                         };
-                        DefaultKTraversalPromise.prototype.then = function (callback) {
+                        DefaultKTraversal.prototype.then = function (callback) {
                             this._terminated = true;
                             this._lastAction.chain(new org.kevoree.modeling.api.traversal.actions.KFinalAction(callback));
                             this._initAction.execute(this._initObjs);
                         };
-                        DefaultKTraversalPromise.prototype.map = function (attribute, callback) {
+                        DefaultKTraversal.prototype.map = function (attribute, callback) {
                             this._terminated = true;
                             this._lastAction.chain(new org.kevoree.modeling.api.traversal.actions.KMapAction(attribute, callback));
                             this._initAction.execute(this._initObjs);
                         };
-                        return DefaultKTraversalPromise;
+                        DefaultKTraversal.prototype.taskThen = function () {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.then(task.initCallback());
+                            return task;
+                        };
+                        DefaultKTraversal.prototype.taskMap = function (attribute) {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.map(attribute, task.initCallback());
+                            return task;
+                        };
+                        return DefaultKTraversal;
                     })();
-                    traversal.DefaultKTraversalPromise = DefaultKTraversalPromise;
+                    traversal.DefaultKTraversal = DefaultKTraversal;
                     var KQuery = (function () {
                         function KQuery(relationName, params, subQuery, oldString, previousIsDeep, previousIsRefDeep) {
                             this.relationName = relationName;
@@ -8861,7 +9142,7 @@ var org;
                             };
                             context.printer = new java.lang.StringBuilder();
                             context.addressTable.put(model.uuid(), "/");
-                            model.treeVisit(function (elem) {
+                            var addressCreationTask = context.model.taskVisit(function (elem) {
                                 var parentXmiAddress = context.addressTable.get(elem.parentUuid());
                                 var key = parentXmiAddress + "/@" + elem.referenceInParent().metaName();
                                 var i = context.elementsCount.get(key);
@@ -8876,45 +9157,44 @@ var org;
                                     context.packageList.add(pack);
                                 }
                                 return org.kevoree.modeling.api.VisitResult.CONTINUE;
-                            }, function (throwable) {
-                                if (throwable != null) {
-                                    context.finishCallback(null, throwable);
+                            }, org.kevoree.modeling.api.VisitRequest.CONTAINED);
+                            var serializationTask = context.model.universe().model().task();
+                            serializationTask.wait(addressCreationTask);
+                            serializationTask.setJob(function (currentTask) {
+                                context.printer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+                                context.printer.append("<" + org.kevoree.modeling.api.xmi.XMIModelSerializer.formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_"));
+                                context.printer.append(" xmlns:xsi=\"http://wwww.w3.org/2001/XMLSchema-instance\"");
+                                context.printer.append(" xmi:version=\"2.0\"");
+                                context.printer.append(" xmlns:xmi=\"http://www.omg.org/XMI\"");
+                                var index = 0;
+                                while (index < context.packageList.size()) {
+                                    context.printer.append(" xmlns:" + context.packageList.get(index).replace(".", "_") + "=\"http://" + context.packageList.get(index) + "\"");
+                                    index++;
                                 }
-                                else {
-                                    context.printer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                                    context.printer.append("<" + org.kevoree.modeling.api.xmi.XMIModelSerializer.formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_"));
-                                    context.printer.append(" xmlns:xsi=\"http://wwww.w3.org/2001/XMLSchema-instance\"");
-                                    context.printer.append(" xmi:version=\"2.0\"");
-                                    context.printer.append(" xmlns:xmi=\"http://www.omg.org/XMI\"");
-                                    var index = 0;
-                                    while (index < context.packageList.size()) {
-                                        context.printer.append(" xmlns:" + context.packageList.get(index).replace(".", "_") + "=\"http://" + context.packageList.get(index) + "\"");
-                                        index++;
+                                context.model.visitAttributes(context.attributesVisitor);
+                                var nonContainedRefsTasks = context.model.universe().model().task();
+                                for (var i = 0; i < context.model.metaClass().metaReferences().length; i++) {
+                                    if (!context.model.metaClass().metaReferences()[i].contained()) {
+                                        nonContainedRefsTasks.wait(org.kevoree.modeling.api.xmi.XMIModelSerializer.nonContainedReferenceTaskMaker(context.model.metaClass().metaReferences()[i], context, context.model));
                                     }
-                                    context.model.visitAttributes(context.attributesVisitor);
-                                    org.kevoree.modeling.api.util.Helper.forall(context.model.metaClass().metaReferences(), function (metaReference, next) {
-                                        org.kevoree.modeling.api.xmi.XMIModelSerializer.nonContainedReferencesCallbackChain(metaReference, next, context, context.model);
-                                    }, function (err) {
-                                        if (err == null) {
-                                            context.printer.append(">\n");
-                                            org.kevoree.modeling.api.util.Helper.forall(context.model.metaClass().metaReferences(), function (metaReference, next) {
-                                                org.kevoree.modeling.api.xmi.XMIModelSerializer.containedReferencesCallbackChain(metaReference, next, context, context.model);
-                                            }, function (containedRefsEnd) {
-                                                if (containedRefsEnd == null) {
-                                                    context.printer.append("</" + org.kevoree.modeling.api.xmi.XMIModelSerializer.formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_") + ">\n");
-                                                    context.finishCallback(context.printer.toString(), null);
-                                                }
-                                                else {
-                                                    context.finishCallback(null, containedRefsEnd);
-                                                }
-                                            });
-                                        }
-                                        else {
-                                            context.finishCallback(null, err);
-                                        }
-                                    });
                                 }
+                                nonContainedRefsTasks.setJob(function (currentTask) {
+                                    context.printer.append(">\n");
+                                    var containedRefsTasks = context.model.universe().model().task();
+                                    for (var i = 0; i < context.model.metaClass().metaReferences().length; i++) {
+                                        if (context.model.metaClass().metaReferences()[i].contained()) {
+                                            containedRefsTasks.wait(org.kevoree.modeling.api.xmi.XMIModelSerializer.containedReferenceTaskMaker(context.model.metaClass().metaReferences()[i], context, context.model));
+                                        }
+                                    }
+                                    containedRefsTasks.setJob(function (currentTask) {
+                                        context.printer.append("</" + org.kevoree.modeling.api.xmi.XMIModelSerializer.formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_") + ">\n");
+                                        context.finishCallback(context.printer.toString(), null);
+                                    });
+                                    containedRefsTasks.ready();
+                                });
+                                nonContainedRefsTasks.ready();
                             });
+                            serializationTask.ready();
                         };
                         XMIModelSerializer.escapeXml = function (ostream, chain) {
                             if (chain == null) {
@@ -8959,57 +9239,77 @@ var org;
                             var cls = metaClassName.substring(lastPoint + 1);
                             return pack + ":" + cls;
                         };
-                        XMIModelSerializer.nonContainedReferencesCallbackChain = function (ref, next, p_context, p_currentElement) {
-                            if (!ref.contained()) {
-                                var value = new Array();
-                                p_currentElement.all(ref, function (objs) {
-                                    for (var i = 0; i < objs.length; i++) {
-                                        var adjustedAddress = p_context.addressTable.get(objs[i].uuid());
+                        XMIModelSerializer.nonContainedReferenceTaskMaker = function (ref, p_context, p_currentElement) {
+                            var allTask = p_currentElement.taskAll(ref);
+                            var thisTask = p_context.model.universe().model().task();
+                            thisTask.wait(allTask);
+                            thisTask.setJob(function (currentTask) {
+                                try {
+                                    var objects = currentTask.results().get(allTask);
+                                    for (var i = 0; i < objects.length; i++) {
+                                        var adjustedAddress = p_context.addressTable.get(objects[i].uuid());
                                         p_context.printer.append(" " + ref.metaName() + "=\"" + adjustedAddress + "\"");
                                     }
-                                    next(null);
-                                });
-                            }
-                            else {
-                                next(null);
-                            }
-                        };
-                        XMIModelSerializer.containedReferencesCallbackChain = function (ref, nextReference, context, currentElement) {
-                            if (ref.contained()) {
-                                currentElement.all(ref, function (objs) {
-                                    for (var i = 0; i < objs.length; i++) {
-                                        var elem = objs[i];
-                                        context.printer.append("<");
-                                        context.printer.append(ref.metaName());
-                                        context.printer.append(" xsi:type=\"" + org.kevoree.modeling.api.xmi.XMIModelSerializer.formatMetaClassName(elem.metaClass().metaName()) + "\"");
-                                        elem.visitAttributes(context.attributesVisitor);
-                                        org.kevoree.modeling.api.util.Helper.forall(elem.metaClass().metaReferences(), function (metaReference, next) {
-                                            org.kevoree.modeling.api.xmi.XMIModelSerializer.nonContainedReferencesCallbackChain(metaReference, next, context, elem);
-                                        }, function (err) {
-                                            if (err == null) {
-                                                context.printer.append(">\n");
-                                                org.kevoree.modeling.api.util.Helper.forall(elem.metaClass().metaReferences(), function (metaReference, next) {
-                                                    org.kevoree.modeling.api.xmi.XMIModelSerializer.containedReferencesCallbackChain(metaReference, next, context, elem);
-                                                }, function (containedRefsEnd) {
-                                                    if (containedRefsEnd == null) {
-                                                        context.printer.append("</");
-                                                        context.printer.append(ref.metaName());
-                                                        context.printer.append('>');
-                                                        context.printer.append("\n");
-                                                    }
-                                                });
-                                            }
-                                            else {
-                                                context.finishCallback(null, err);
-                                            }
-                                        });
+                                }
+                                catch ($ex$) {
+                                    if ($ex$ instanceof java.lang.Exception) {
+                                        var e = $ex$;
+                                        e.printStackTrace();
                                     }
-                                    nextReference(null);
-                                });
-                            }
-                            else {
-                                nextReference(null);
-                            }
+                                }
+                            });
+                            thisTask.ready();
+                            return thisTask;
+                        };
+                        XMIModelSerializer.containedReferenceTaskMaker = function (ref, context, currentElement) {
+                            var allTask = currentElement.taskAll(ref);
+                            var thisTask = context.model.universe().model().task();
+                            thisTask.wait(allTask);
+                            thisTask.setJob(function (currentTask) {
+                                try {
+                                    if (currentTask.results().get(allTask) != null) {
+                                        var objs = currentTask.results().get(allTask);
+                                        for (var i = 0; i < objs.length; i++) {
+                                            var elem = objs[i];
+                                            context.printer.append("<");
+                                            context.printer.append(ref.metaName());
+                                            context.printer.append(" xsi:type=\"" + org.kevoree.modeling.api.xmi.XMIModelSerializer.formatMetaClassName(elem.metaClass().metaName()) + "\"");
+                                            elem.visitAttributes(context.attributesVisitor);
+                                            var nonContainedRefsTasks = context.model.universe().model().task();
+                                            for (var j = 0; j < elem.metaClass().metaReferences().length; j++) {
+                                                if (!elem.metaClass().metaReferences()[i].contained()) {
+                                                    nonContainedRefsTasks.wait(org.kevoree.modeling.api.xmi.XMIModelSerializer.nonContainedReferenceTaskMaker(elem.metaClass().metaReferences()[i], context, elem));
+                                                }
+                                            }
+                                            nonContainedRefsTasks.setJob(function (currentTask) {
+                                                context.printer.append(">\n");
+                                                var containedRefsTasks = context.model.universe().model().task();
+                                                for (var i = 0; i < elem.metaClass().metaReferences().length; i++) {
+                                                    if (elem.metaClass().metaReferences()[i].contained()) {
+                                                        containedRefsTasks.wait(org.kevoree.modeling.api.xmi.XMIModelSerializer.containedReferenceTaskMaker(elem.metaClass().metaReferences()[i], context, elem));
+                                                    }
+                                                }
+                                                containedRefsTasks.setJob(function (currentTask) {
+                                                    context.printer.append("</");
+                                                    context.printer.append(ref.metaName());
+                                                    context.printer.append('>');
+                                                    context.printer.append("\n");
+                                                });
+                                                containedRefsTasks.ready();
+                                            });
+                                            nonContainedRefsTasks.ready();
+                                        }
+                                    }
+                                }
+                                catch ($ex$) {
+                                    if ($ex$ instanceof java.lang.Exception) {
+                                        var e = $ex$;
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+                            thisTask.ready();
+                            return thisTask;
                         };
                         return XMIModelSerializer;
                     })();
@@ -9401,7 +9701,7 @@ var cloud;
                 this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, cloud.meta.MetaNode.REF_CHILDREN, p_obj);
                 return this;
             };
-            NodeImpl.prototype.eachChildren = function (p_callback) {
+            NodeImpl.prototype.getChildren = function (p_callback) {
                 this.all(cloud.meta.MetaNode.REF_CHILDREN, function (kObjects) {
                     if (p_callback != null) {
                         var casted = new Array();
@@ -9412,6 +9712,11 @@ var cloud;
                     }
                 });
             };
+            NodeImpl.prototype.taskGetChildren = function () {
+                var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                this.getChildren(task.initCallback());
+                return task;
+            };
             NodeImpl.prototype.sizeOfChildren = function () {
                 return this.size(cloud.meta.MetaNode.REF_CHILDREN);
             };
@@ -9420,11 +9725,21 @@ var cloud;
                 return this;
             };
             NodeImpl.prototype.getElement = function (p_callback) {
-                this.single(cloud.meta.MetaNode.REF_ELEMENT, function (kObject) {
+                this.all(cloud.meta.MetaNode.REF_ELEMENT, function (kObjects) {
                     if (p_callback != null) {
-                        p_callback(kObject);
+                        if (kObjects.length > 0) {
+                            p_callback(kObjects[0]);
+                        }
+                        else {
+                            p_callback(null);
+                        }
                     }
                 });
+            };
+            NodeImpl.prototype.taskGetElement = function () {
+                var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                this.getElement(task.initCallback());
+                return task;
             };
             NodeImpl.prototype.view = function () {
                 return _super.prototype.view.call(this);

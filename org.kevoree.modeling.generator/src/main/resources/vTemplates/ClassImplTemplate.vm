@@ -56,12 +56,23 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
         this.all(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject[]>() {
             @Override
             public void on(org.kevoree.modeling.api.KObject[] kObjects) {
-                if(p_callback!=null && kObjects[0] != null){
-                    p_callback.on((${ref.getType().fqn}) kObjects[0]);
+                if(p_callback!=null){
+                    if(kObjects.length >0){
+                        p_callback.on((${ref.getType().fqn}) kObjects[0]);
+                    } else {
+                        p_callback.on(null);
+                    }
                 }
             }
         });
     }
+
+    public org.kevoree.modeling.api.KTask<${ref.getType().fqn}> taskGet${context.generationContext.helper.toCamelCase(${ref.getName()})}() {
+        org.kevoree.modeling.api.abs.AbstractKTaskWrapper<${ref.getType().fqn}> task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<${ref.getType().fqn}>();
+        get${context.generationContext.helper.toCamelCase(${ref.getName()})}(task.initCallback());
+        return task;
+    }
+
     #{else}
 
     @Override
@@ -77,7 +88,7 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
     }
 
     @Override
-    public void each${context.generationContext.helper.toCamelCase(${ref.getName()})}(final org.kevoree.modeling.api.Callback<${ref.getType().fqn}[]> p_callback) {
+    public void get${context.generationContext.helper.toCamelCase(${ref.getName()})}(final org.kevoree.modeling.api.Callback<${ref.getType().fqn}[]> p_callback) {
        this.all(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject[]>() {
             @Override
             public void on(org.kevoree.modeling.api.KObject[] kObjects) {
@@ -90,6 +101,12 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
                 }
             }
         });
+    }
+
+    public org.kevoree.modeling.api.KTask<${ref.getType().fqn}[]> taskGet${context.generationContext.helper.toCamelCase(${ref.getName()})}() {
+        org.kevoree.modeling.api.abs.AbstractKTaskWrapper<${ref.getType().fqn}[]> task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<${ref.getType().fqn}[]>();
+        get${context.generationContext.helper.toCamelCase(${ref.getName()})}(task.initCallback());
+        return task;
     }
 
     public int sizeOf${context.generationContext.helper.toCamelCase($ref.getName())}() {
