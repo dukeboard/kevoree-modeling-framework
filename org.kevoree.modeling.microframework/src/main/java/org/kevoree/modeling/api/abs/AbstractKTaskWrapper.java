@@ -12,6 +12,7 @@ public class AbstractKTaskWrapper<A> extends AbstractKTask<A> {
     private Callback<A> _callback = null;
 
     public AbstractKTaskWrapper() {
+        super();
         final AbstractKTaskWrapper<A> selfPointer = this;
         _callback = new Callback<A>() {
             @Override

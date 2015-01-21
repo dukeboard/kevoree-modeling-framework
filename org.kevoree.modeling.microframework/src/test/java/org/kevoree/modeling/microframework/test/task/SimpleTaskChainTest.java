@@ -2,7 +2,11 @@ package org.kevoree.modeling.microframework.test.task;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.KCurrentTask;
+import org.kevoree.modeling.api.KJob;
+import org.kevoree.modeling.api.KModel;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KTask;
 import org.kevoree.modeling.api.meta.PrimitiveMetaTypes;
 import org.kevoree.modeling.api.reflexive.DynamicKModel;
 import org.kevoree.modeling.api.reflexive.DynamicMetaModel;
@@ -119,7 +123,7 @@ public class SimpleTaskChainTest {
         rootTask.setJob(new KJob() {
             @Override
             public void run(KCurrentTask currentTask) {
-                res[0] = currentTask.results().size();
+                res[0] = currentTask.results().keySet().size();
                 res2[0] = currentTask.results().get(previousSelect);
                 res2[1] = currentTask.results().get(previousSelect2);
             }
@@ -131,6 +135,7 @@ public class SimpleTaskChainTest {
         Assert.assertTrue(res2[1] != null);
 
         Assert.assertTrue(((KObject[])res2[0]).length == 1);
+        Assert.assertTrue(((KObject[])res2[1]).length == 0);
 
 
     }

@@ -27,6 +27,10 @@ declare module org {
                     static _KActionTypeVALUES: KActionType[];
                     static values(): KActionType[];
                 }
+                interface KCurrentTask<A> extends KTask<any> {
+                    results(): java.util.Map<KTask<any>, any>;
+                    setResult(result: A): void;
+                }
                 interface KEvent {
                     universe(): number;
                     time(): number;
@@ -39,6 +43,9 @@ declare module org {
                     toTrace(): trace.ModelTrace;
                 }
                 interface KInfer extends KObject {
+                }
+                interface KJob {
+                    run(currentTask: KCurrentTask<any>): void;
                 }
                 interface KMetaType {
                     name(): string;
@@ -119,13 +126,10 @@ declare module org {
                 }
                 interface KTask<A> {
                     wait(previous: KTask<any>): void;
-                    next(previous: KTask<any>): void;
-                    done(callback: (p: A) => void): void;
-                    setResult(result: A): void;
                     getResult(): A;
                     isDone(): boolean;
-                    previousResults(): java.util.Map<KTask<any>, any>;
-                    execute(core: (p: KTask<any>) => void): void;
+                    setJob(kjob: (p: KCurrentTask<any>) => void): void;
+                    ready(): void;
                 }
                 interface KUniverse<A extends KView, B extends KUniverse<any, any, any>, C extends KModel<any>> {
                     key(): number;
@@ -300,8 +304,8 @@ declare module org {
                         taskAll(p_metaReference: meta.MetaReference): KTask<any>;
                         taskInbounds(): KTask<any>;
                         taskDiff(p_target: KObject): KTask<any>;
-                        taskMerge(target: KObject): KTask<any>;
-                        taskIntersection(target: KObject): KTask<any>;
+                        taskMerge(p_target: KObject): KTask<any>;
+                        taskIntersection(p_target: KObject): KTask<any>;
                         taskSlice(): KTask<any>;
                         taskJump<U extends KObject>(p_time: number): KTask<any>;
                         taskPath(): KTask<any>;
@@ -309,22 +313,33 @@ declare module org {
                     class AbstractKObjectInfer<A> extends AbstractKObject implements KInfer {
                         constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
                     }
-                    class AbstractKTask<A> implements KTask<any> {
-                        private _results;
-                        private _executed;
+                    class AbstractKTask<A> implements KCurrentTask<any> {
                         private _isDone;
-                        private _core;
+                        _isReady: boolean;
+                        private _nbRecResult;
+                        private _nbExpectedResult;
+                        private _results;
+                        private _previousTasks;
                         private _nextTasks;
-                        wait(previous: KTask<any>): void;
-                        next(previous: KTask<any>): void;
-                        done(callback: (p: A) => void): void;
-                        setResult(result: A): void;
+                        private _job;
+                        private _result;
+                        setDoneOrRegister(next: KTask<any>): boolean;
+                        private informParentEnd(end);
+                        wait(p_previous: KTask<any>): void;
+                        ready(): void;
+                        results(): java.util.Map<KTask<any>, any>;
+                        setResult(p_result: A): void;
                         getResult(): A;
                         isDone(): boolean;
-                        previousResults(): java.util.Map<KTask<any>, any>;
-                        execute(p_core: (p: KTask<any>) => void): void;
-                        private propagateResult(parent, result);
-                        private tryExecution();
+                        setJob(p_kjob: (p: KCurrentTask<any>) => void): void;
+                    }
+                    class AbstractKTaskWrapper<A> extends AbstractKTask<any> {
+                        private _callback;
+                        constructor();
+                        initCallback(): (p: A) => void;
+                        wait(previous: KTask<any>): void;
+                        setJob(p_kjob: (p: KCurrentTask<any>) => void): void;
+                        ready(): void;
                     }
                     class AbstractKUniverse<A extends KView, B extends KUniverse<any, any, any>, C extends KModel<any>> implements KUniverse<any, any, any> {
                         private _model;

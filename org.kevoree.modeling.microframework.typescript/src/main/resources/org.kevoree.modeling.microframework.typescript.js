@@ -236,38 +236,28 @@ var org;
                             return new org.kevoree.modeling.api.abs.AbstractKTask();
                         };
                         AbstractKModel.prototype.taskSave = function () {
-                            var task = this.task();
-                            this.save(function (res) {
-                                task.setResult(res);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.save(task.initCallback());
                             return task;
                         };
                         AbstractKModel.prototype.taskDiscard = function () {
-                            var task = this.task();
-                            this.discard(function (res) {
-                                task.setResult(res);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.discard(task.initCallback());
                             return task;
                         };
                         AbstractKModel.prototype.taskUnload = function () {
-                            var task = this.task();
-                            this.unload(function (res) {
-                                task.setResult(res);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.unload(task.initCallback());
                             return task;
                         };
                         AbstractKModel.prototype.taskConnect = function () {
-                            var task = this.task();
-                            this.connect(function (res) {
-                                task.setResult(res);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.connect(task.initCallback());
                             return task;
                         };
                         AbstractKModel.prototype.taskClose = function () {
-                            var task = this.task();
-                            this.close(function (res) {
-                                task.setResult(res);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.close(task.initCallback());
                             return task;
                         };
                         return AbstractKModel;
@@ -747,7 +737,19 @@ var org;
                                             });
                                         }
                                         else {
-                                            p_callback(new Array());
+                                            var content = [o];
+                                            this.view().lookupAll(content, function (result) {
+                                                try {
+                                                    p_callback(result);
+                                                }
+                                                catch ($ex$) {
+                                                    if ($ex$ instanceof java.lang.Throwable) {
+                                                        var t = $ex$;
+                                                        t.printStackTrace();
+                                                        p_callback(null);
+                                                    }
+                                                }
+                                            });
                                         }
                                     }
                                 }
@@ -1071,87 +1073,63 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.taskVisit = function (p_visitor, p_request) {
-                            var task = this._view.universe().model().task();
-                            this.visit(p_visitor, function (res) {
-                                task.setResult(res);
-                            }, p_request);
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.visit(p_visitor, task.initCallback(), p_request);
                             return task;
                         };
                         AbstractKObject.prototype.taskDelete = function () {
-                            var task = this._view.universe().model().task();
-                            this.delete(function (res) {
-                                task.setResult(res);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.delete(task.initCallback());
                             return task;
                         };
                         AbstractKObject.prototype.taskParent = function () {
-                            var task = this._view.universe().model().task();
-                            this.parent(function (res) {
-                                task.setResult(res);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.parent(task.initCallback());
                             return task;
                         };
                         AbstractKObject.prototype.taskSelect = function (p_query) {
-                            var task = this._view.universe().model().task();
-                            this.select(p_query, function (res) {
-                                task.setResult(res);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.select(p_query, task.initCallback());
                             return task;
                         };
                         AbstractKObject.prototype.taskAll = function (p_metaReference) {
-                            var task = this._view.universe().model().task();
-                            this.all(p_metaReference, function (res) {
-                                task.setResult(res);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.all(p_metaReference, task.initCallback());
                             return task;
                         };
                         AbstractKObject.prototype.taskInbounds = function () {
-                            var task = this._view.universe().model().task();
-                            this.inbounds(function (res) {
-                                task.setResult(res);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.inbounds(task.initCallback());
                             return task;
                         };
                         AbstractKObject.prototype.taskDiff = function (p_target) {
-                            var task = this._view.universe().model().task();
-                            this.diff(p_target, function (res) {
-                                task.setResult(res);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.diff(p_target, task.initCallback());
                             return task;
                         };
-                        AbstractKObject.prototype.taskMerge = function (target) {
-                            var task = this._view.universe().model().task();
-                            this.merge(target, function (res) {
-                                task.setResult(res);
-                            });
+                        AbstractKObject.prototype.taskMerge = function (p_target) {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.merge(p_target, task.initCallback());
                             return task;
                         };
-                        AbstractKObject.prototype.taskIntersection = function (target) {
-                            var task = this._view.universe().model().task();
-                            this.intersection(target, function (res) {
-                                task.setResult(res);
-                            });
+                        AbstractKObject.prototype.taskIntersection = function (p_target) {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.intersection(p_target, task.initCallback());
                             return task;
                         };
                         AbstractKObject.prototype.taskSlice = function () {
-                            var task = this._view.universe().model().task();
-                            this.slice(function (res) {
-                                task.setResult(res);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.slice(task.initCallback());
                             return task;
                         };
                         AbstractKObject.prototype.taskJump = function (p_time) {
-                            var task = this._view.universe().model().task();
-                            this.jump(p_time, function (res) {
-                                task.setResult(res);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.jump(p_time, task.initCallback());
                             return task;
                         };
                         AbstractKObject.prototype.taskPath = function () {
-                            var task = this._view.universe().model().task();
-                            this.path(function (res) {
-                                task.setResult(res);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.path(task.initCallback());
                             return task;
                         };
                         return AbstractKObject;
@@ -1167,84 +1145,122 @@ var org;
                     abs.AbstractKObjectInfer = AbstractKObjectInfer;
                     var AbstractKTask = (function () {
                         function AbstractKTask() {
-                            this._results = new java.util.HashMap();
-                            this._executed = new java.util.HashMap();
                             this._isDone = false;
+                            this._isReady = false;
+                            this._nbRecResult = 0;
+                            this._nbExpectedResult = 0;
+                            this._results = new java.util.HashMap();
+                            this._previousTasks = new java.util.HashSet();
                             this._nextTasks = new java.util.HashSet();
+                            this._result = null;
                         }
-                        AbstractKTask.prototype.wait = function (previous) {
-                            previous._nextTasks.add(this);
-                            this._executed.put(previous, previous.isDone());
-                        };
-                        AbstractKTask.prototype.next = function (previous) {
-                            this._nextTasks.add(previous);
-                            if (this._isDone) {
-                                previous.propagateResult(this, true);
+                        AbstractKTask.prototype.setDoneOrRegister = function (next) {
+                            if (next != null) {
+                                this._nextTasks.add(next);
+                                return this._isDone;
                             }
                             else {
-                                previous._executed.put(this, false);
+                                this._isDone = true;
+                                var childrenTasks = this._nextTasks.toArray(new Array());
+                                for (var i = 0; i < childrenTasks.length; i++) {
+                                    childrenTasks[i].informParentEnd(this);
+                                }
+                                return this._isDone;
                             }
                         };
-                        AbstractKTask.prototype.done = function (callback) {
-                            var leafTask = new org.kevoree.modeling.api.abs.AbstractKTask();
-                            leafTask._core = function (kTask) {
-                                callback(kTask.getResult());
-                            };
-                            this.next(leafTask);
-                            this.tryExecution();
-                        };
-                        AbstractKTask.prototype.setResult = function (result) {
-                            if (!this._isDone) {
-                                this._isDone = true;
-                                this._results.put(this, result);
-                                var subTasks = this._nextTasks.toArray(new Array());
-                                for (var i = 0; i < subTasks.length; i++) {
-                                    subTasks[i].propagateResult(this, result);
+                        AbstractKTask.prototype.informParentEnd = function (end) {
+                            if (end == null) {
+                                this._nbRecResult = this._nbRecResult + this._nbExpectedResult;
+                            }
+                            else {
+                                if (end != this) {
+                                    var castedEnd = end;
+                                    var keys = castedEnd._results.keySet().toArray(new Array());
+                                    for (var i = 0; i < keys.length; i++) {
+                                        this._results.put(keys[i], castedEnd._results.get(keys[i]));
+                                    }
+                                    this._results.put(end, castedEnd._result);
+                                    this._nbRecResult--;
                                 }
                             }
-                            else {
-                                throw new java.lang.RuntimeException("Task has been already setted to done state");
+                            if (this._nbRecResult == 0 && this._isReady) {
+                                if (this._job != null) {
+                                    this._job(this);
+                                }
+                                this.setDoneOrRegister(null);
                             }
                         };
+                        AbstractKTask.prototype.wait = function (p_previous) {
+                            if (p_previous != this) {
+                                this._previousTasks.add(p_previous);
+                                if (!p_previous.setDoneOrRegister(this)) {
+                                    this._nbExpectedResult++;
+                                }
+                                else {
+                                    var castedEnd = p_previous;
+                                    var keys = castedEnd._results.keySet().toArray(new Array());
+                                    for (var i = 0; i < keys.length; i++) {
+                                        this._results.put(keys[i], castedEnd._results.get(keys[i]));
+                                    }
+                                    this._results.put(p_previous, castedEnd._result);
+                                }
+                            }
+                        };
+                        AbstractKTask.prototype.ready = function () {
+                            if (!this._isReady) {
+                                this._isReady = true;
+                                this.informParentEnd(null);
+                            }
+                        };
+                        AbstractKTask.prototype.results = function () {
+                            return this._results;
+                        };
+                        AbstractKTask.prototype.setResult = function (p_result) {
+                            this._result = p_result;
+                        };
                         AbstractKTask.prototype.getResult = function () {
-                            return this._results.get(this);
+                            if (this._isDone) {
+                                return this._result;
+                            }
+                            else {
+                                throw new java.lang.Exception("Task is not executed yet !");
+                            }
                         };
                         AbstractKTask.prototype.isDone = function () {
                             return this._isDone;
                         };
-                        AbstractKTask.prototype.previousResults = function () {
-                            return this._results;
-                        };
-                        AbstractKTask.prototype.execute = function (p_core) {
-                            this._core = p_core;
-                            this.tryExecution();
-                        };
-                        AbstractKTask.prototype.propagateResult = function (parent, result) {
-                            this._results.put(parent, result);
-                            this._executed.put(parent, true);
-                            this.tryExecution();
-                        };
-                        AbstractKTask.prototype.tryExecution = function () {
-                            var parentTasks = this._executed.keySet().toArray(new Array());
-                            var allTrue = true;
-                            for (var i = 0; i < parentTasks.length; i++) {
-                                if (!this._executed.get(parentTasks[i])) {
-                                    allTrue = false;
-                                    break;
-                                }
-                            }
-                            if (allTrue) {
-                                if (this._core != null) {
-                                    this._core(this);
-                                }
-                                else {
-                                    this.setResult(null);
-                                }
-                            }
+                        AbstractKTask.prototype.setJob = function (p_kjob) {
+                            this._job = p_kjob;
                         };
                         return AbstractKTask;
                     })();
                     abs.AbstractKTask = AbstractKTask;
+                    var AbstractKTaskWrapper = (function (_super) {
+                        __extends(AbstractKTaskWrapper, _super);
+                        function AbstractKTaskWrapper() {
+                            _super.call(this);
+                            this._callback = null;
+                            var selfPointer = this;
+                            this._callback = function (a) {
+                                selfPointer._isReady = true;
+                                selfPointer.setResult(a);
+                                selfPointer.setDoneOrRegister(null);
+                            };
+                        }
+                        AbstractKTaskWrapper.prototype.initCallback = function () {
+                            return this._callback;
+                        };
+                        AbstractKTaskWrapper.prototype.wait = function (previous) {
+                            throw new java.lang.RuntimeException("Wait action is forbidden on wrapped tasks, please create a sub task");
+                        };
+                        AbstractKTaskWrapper.prototype.setJob = function (p_kjob) {
+                            throw new java.lang.RuntimeException("setJob action is forbidden on wrapped tasks, please create a sub task");
+                        };
+                        AbstractKTaskWrapper.prototype.ready = function () {
+                        };
+                        return AbstractKTaskWrapper;
+                    })(org.kevoree.modeling.api.abs.AbstractKTask);
+                    abs.AbstractKTaskWrapper = AbstractKTaskWrapper;
                     var AbstractKUniverse = (function () {
                         function AbstractKUniverse(p_model, p_key) {
                             this._model = p_model;
@@ -1296,52 +1312,38 @@ var org;
                         AbstractKUniverse.prototype.descendants = function (callback) {
                         };
                         AbstractKUniverse.prototype.taskSplit = function () {
-                            var task = this._model.task();
-                            this.split(function (res) {
-                                task.setResult(res);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.split(task.initCallback());
                             return task;
                         };
                         AbstractKUniverse.prototype.taskOrigin = function () {
-                            var task = this._model.task();
-                            this.origin(function (res) {
-                                task.setResult(res);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.origin(task.initCallback());
                             return task;
                         };
                         AbstractKUniverse.prototype.taskDescendants = function () {
-                            var task = this._model.task();
-                            this.descendants(function (res) {
-                                task.setResult(res);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.descendants(task.initCallback());
                             return task;
                         };
                         AbstractKUniverse.prototype.taskSave = function () {
-                            var task = this._model.task();
-                            this.save(function (res) {
-                                task.setResult(res);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.save(task.initCallback());
                             return task;
                         };
                         AbstractKUniverse.prototype.taskUnload = function () {
-                            var task = this._model.task();
-                            this.unload(function (res) {
-                                task.setResult(res);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.unload(task.initCallback());
                             return task;
                         };
                         AbstractKUniverse.prototype.taskDelete = function () {
-                            var task = this._model.task();
-                            this.delete(function (res) {
-                                task.setResult(res);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.delete(task.initCallback());
                             return task;
                         };
                         AbstractKUniverse.prototype.taskDiscard = function () {
-                            var task = this._model.task();
-                            this.discard(function (res) {
-                                task.setResult(res);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.discard(task.initCallback());
                             return task;
                         };
                         return AbstractKUniverse;
@@ -1444,38 +1446,28 @@ var org;
                             }
                         };
                         AbstractKView.prototype.taskLookup = function (key) {
-                            var task = this._universe.model().task();
-                            this.lookup(key, function (kObject) {
-                                task.setResult(kObject);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.lookup(key, task.initCallback());
                             return task;
                         };
                         AbstractKView.prototype.taskLookupAll = function (keys) {
-                            var task = this._universe.model().task();
-                            this.lookupAll(keys, function (kObjects) {
-                                task.setResult(kObjects);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.lookupAll(keys, task.initCallback());
                             return task;
                         };
                         AbstractKView.prototype.taskSelect = function (query) {
-                            var task = this._universe.model().task();
-                            this.select(query, function (kObjects) {
-                                task.setResult(kObjects);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.select(query, task.initCallback());
                             return task;
                         };
                         AbstractKView.prototype.taskSetRoot = function (elem) {
-                            var task = this._universe.model().task();
-                            this.setRoot(elem, function (error) {
-                                task.setResult(error);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.setRoot(elem, task.initCallback());
                             return task;
                         };
                         AbstractKView.prototype.taskSlice = function (elems) {
-                            var task = this._universe.model().task();
-                            this.slice(elems, function (res) {
-                                task.setResult(res);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.slice(elems, task.initCallback());
                             return task;
                         };
                         return AbstractKView;
@@ -7472,17 +7464,13 @@ var org;
                             this._initAction.execute(this._initObjs);
                         };
                         DefaultKTraversal.prototype.taskThen = function () {
-                            var task = this._initObjs[0].universe().model().task();
-                            this.then(function (kObjects) {
-                                task.setResult(kObjects);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.then(task.initCallback());
                             return task;
                         };
                         DefaultKTraversal.prototype.taskMap = function (attribute) {
-                            var task = this._initObjs[0].universe().model().task();
-                            this.map(attribute, function (objects) {
-                                task.setResult(objects);
-                            });
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.map(attribute, task.initCallback());
                             return task;
                         };
                         return DefaultKTraversal;

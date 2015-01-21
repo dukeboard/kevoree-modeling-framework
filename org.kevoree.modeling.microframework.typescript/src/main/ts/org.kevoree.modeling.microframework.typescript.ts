@@ -72,6 +72,14 @@ module org {
                     }
                 }
 
+                export interface KCurrentTask<A> extends org.kevoree.modeling.api.KTask<any> {
+
+                    results(): java.util.Map<org.kevoree.modeling.api.KTask<any>, any>;
+
+                    setResult(result: A): void;
+
+                }
+
                 export interface KEvent {
 
                     universe(): number;
@@ -95,6 +103,12 @@ module org {
                 }
 
                 export interface KInfer extends org.kevoree.modeling.api.KObject {
+
+                }
+
+                export interface KJob {
+
+                    run(currentTask: org.kevoree.modeling.api.KCurrentTask<any>): void;
 
                 }
 
@@ -256,19 +270,13 @@ module org {
 
                     wait(previous: org.kevoree.modeling.api.KTask<any>): void;
 
-                    next(previous: org.kevoree.modeling.api.KTask<any>): void;
-
-                    done(callback: (p : A) => void): void;
-
-                    setResult(result: A): void;
-
                     getResult(): A;
 
                     isDone(): boolean;
 
-                    previousResults(): java.util.Map<org.kevoree.modeling.api.KTask<any>, any>;
+                    setJob(kjob: (p : org.kevoree.modeling.api.KCurrentTask<any>) => void): void;
 
-                    execute(core: (p : org.kevoree.modeling.api.KTask<any>) => void): void;
+                    ready(): void;
 
                 }
 
@@ -576,42 +584,32 @@ module org {
                         }
 
                         public taskSave(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this.task();
-                            this.save( (res : boolean) => {
-                                task.setResult(res);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.save(task.initCallback());
                             return task;
                         }
 
                         public taskDiscard(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this.task();
-                            this.discard( (res : boolean) => {
-                                task.setResult(res);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.discard(task.initCallback());
                             return task;
                         }
 
                         public taskUnload(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this.task();
-                            this.unload( (res : boolean) => {
-                                task.setResult(res);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.unload(task.initCallback());
                             return task;
                         }
 
                         public taskConnect(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this.task();
-                            this.connect( (res : java.lang.Throwable) => {
-                                task.setResult(res);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.connect(task.initCallback());
                             return task;
                         }
 
                         public taskClose(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this.task();
-                            this.close( (res : java.lang.Throwable) => {
-                                task.setResult(res);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.close(task.initCallback());
                             return task;
                         }
 
@@ -1079,7 +1077,18 @@ module org {
                                                  }
                                             });
                                         } else {
-                                            p_callback(new Array());
+                                            var content: number[] = [<number>o];
+                                            this.view().lookupAll(content,  (result : org.kevoree.modeling.api.KObject[]) => {
+                                                try {
+                                                    p_callback(result);
+                                                } catch ($ex$) {
+                                                    if ($ex$ instanceof java.lang.Throwable) {
+                                                        var t: java.lang.Throwable = <java.lang.Throwable>$ex$;
+                                                        t.printStackTrace();
+                                                        p_callback(null);
+                                                    }
+                                                 }
+                                            });
                                         }
                                     }
                                 }
@@ -1400,98 +1409,74 @@ module org {
                         }
 
                         public taskVisit(p_visitor: (p : org.kevoree.modeling.api.KObject) => org.kevoree.modeling.api.VisitResult, p_request: org.kevoree.modeling.api.VisitRequest): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._view.universe().model().task();
-                            this.visit(p_visitor,  (res : java.lang.Throwable) => {
-                                task.setResult(res);
-                            }, p_request);
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.visit(p_visitor, task.initCallback(), p_request);
                             return task;
                         }
 
                         public taskDelete(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._view.universe().model().task();
-                            this.delete( (res : java.lang.Throwable) => {
-                                task.setResult(res);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.delete(task.initCallback());
                             return task;
                         }
 
                         public taskParent(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._view.universe().model().task();
-                            this.parent( (res : org.kevoree.modeling.api.KObject) => {
-                                task.setResult(res);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.parent(task.initCallback());
                             return task;
                         }
 
                         public taskSelect(p_query: string): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._view.universe().model().task();
-                            this.select(p_query,  (res : org.kevoree.modeling.api.KObject[]) => {
-                                task.setResult(res);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.select(p_query, task.initCallback());
                             return task;
                         }
 
                         public taskAll(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._view.universe().model().task();
-                            this.all(p_metaReference,  (res : org.kevoree.modeling.api.KObject[]) => {
-                                task.setResult(res);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.all(p_metaReference, task.initCallback());
                             return task;
                         }
 
                         public taskInbounds(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._view.universe().model().task();
-                            this.inbounds( (res : org.kevoree.modeling.api.KObject[]) => {
-                                task.setResult(res);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.inbounds(task.initCallback());
                             return task;
                         }
 
                         public taskDiff(p_target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._view.universe().model().task();
-                            this.diff(p_target,  (res : org.kevoree.modeling.api.trace.TraceSequence) => {
-                                task.setResult(res);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.diff(p_target, task.initCallback());
                             return task;
                         }
 
-                        public taskMerge(target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._view.universe().model().task();
-                            this.merge(target,  (res : org.kevoree.modeling.api.trace.TraceSequence) => {
-                                task.setResult(res);
-                            });
+                        public taskMerge(p_target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.merge(p_target, task.initCallback());
                             return task;
                         }
 
-                        public taskIntersection(target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._view.universe().model().task();
-                            this.intersection(target,  (res : org.kevoree.modeling.api.trace.TraceSequence) => {
-                                task.setResult(res);
-                            });
+                        public taskIntersection(p_target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.intersection(p_target, task.initCallback());
                             return task;
                         }
 
                         public taskSlice(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._view.universe().model().task();
-                            this.slice( (res : org.kevoree.modeling.api.trace.TraceSequence) => {
-                                task.setResult(res);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.slice(task.initCallback());
                             return task;
                         }
 
                         public taskJump<U extends org.kevoree.modeling.api.KObject> (p_time: number): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._view.universe().model().task();
-                            this.jump(p_time,  (res : U) => {
-                                task.setResult(res);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.jump(p_time, task.initCallback());
                             return task;
                         }
 
                         public taskPath(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._view.universe().model().task();
-                            this.path( (res : string) => {
-                                task.setResult(res);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.path(task.initCallback());
                             return task;
                         }
 
@@ -1505,88 +1490,128 @@ module org {
 
                     }
 
-                    export class AbstractKTask<A> implements org.kevoree.modeling.api.KTask<any> {
+                    export class AbstractKTask<A> implements org.kevoree.modeling.api.KCurrentTask<any> {
 
-                        private _results: java.util.Map<org.kevoree.modeling.api.KTask<any>, any> = new java.util.HashMap<org.kevoree.modeling.api.KTask<any>, any>();
-                        private _executed: java.util.Map<org.kevoree.modeling.api.KTask<any>, boolean> = new java.util.HashMap<org.kevoree.modeling.api.KTask<any>, boolean>();
                         private _isDone: boolean = false;
-                        private _core: (p : org.kevoree.modeling.api.KTask<any>) => void;
+                        public _isReady: boolean = false;
+                        private _nbRecResult: number = 0;
+                        private _nbExpectedResult: number = 0;
+                        private _results: java.util.Map<org.kevoree.modeling.api.KTask<any>, any> = new java.util.HashMap<org.kevoree.modeling.api.KTask<any>, any>();
+                        private _previousTasks: java.util.Set<org.kevoree.modeling.api.KTask<any>> = new java.util.HashSet<org.kevoree.modeling.api.KTask<any>>();
                         private _nextTasks: java.util.Set<org.kevoree.modeling.api.KTask<any>> = new java.util.HashSet<org.kevoree.modeling.api.KTask<any>>();
-                        public wait(previous: org.kevoree.modeling.api.KTask<any>): void {
-                            (<org.kevoree.modeling.api.abs.AbstractKTask<any>>previous)._nextTasks.add(this);
-                            this._executed.put(previous, previous.isDone());
-                        }
-
-                        public next(previous: org.kevoree.modeling.api.KTask<any>): void {
-                            this._nextTasks.add(previous);
-                            if (this._isDone) {
-                                (<org.kevoree.modeling.api.abs.AbstractKTask<any>>previous).propagateResult(this, true);
+                        private _job: (p : org.kevoree.modeling.api.KCurrentTask<any>) => void;
+                        private _result: A = null;
+                        public setDoneOrRegister(next: org.kevoree.modeling.api.KTask<any>): boolean {
+                            if (next != null) {
+                                this._nextTasks.add(next);
+                                return this._isDone;
                             } else {
-                                (<org.kevoree.modeling.api.abs.AbstractKTask<any>>previous)._executed.put(this, false);
-                            }
-                        }
-
-                        public done(callback: (p : A) => void): void {
-                            var leafTask: org.kevoree.modeling.api.abs.AbstractKTask<any> = new org.kevoree.modeling.api.abs.AbstractKTask<any>();
-                            leafTask._core =  (kTask : org.kevoree.modeling.api.KTask<any>) => {
-                                callback(<A>kTask.getResult());
-                            };
-                            this.next(leafTask);
-                            this.tryExecution();
-                        }
-
-                        public setResult(result: A): void {
-                            if (!this._isDone) {
                                 this._isDone = true;
-                                this._results.put(this, result);
-                                var subTasks: org.kevoree.modeling.api.KTask<any>[] = this._nextTasks.toArray(new Array());
-                                for (var i: number = 0; i < subTasks.length; i++) {
-                                    (<org.kevoree.modeling.api.abs.AbstractKTask<any>>subTasks[i]).propagateResult(this, result);
+                                var childrenTasks: org.kevoree.modeling.api.KTask<any>[] = this._nextTasks.toArray(new Array());
+                                for (var i: number = 0; i < childrenTasks.length; i++) {
+                                    (<org.kevoree.modeling.api.abs.AbstractKTask<any>>childrenTasks[i]).informParentEnd(this);
                                 }
-                            } else {
-                                throw new java.lang.RuntimeException("Task has been already setted to done state");
+                                return this._isDone;
                             }
+                        }
+
+                        private informParentEnd(end: org.kevoree.modeling.api.KTask<any>): void {
+                            if (end == null) {
+                                this._nbRecResult = this._nbRecResult + this._nbExpectedResult;
+                            } else {
+                                if (end != this) {
+                                    var castedEnd: org.kevoree.modeling.api.abs.AbstractKTask<any> = <org.kevoree.modeling.api.abs.AbstractKTask<any>>end;
+                                    var keys: org.kevoree.modeling.api.KTask<any>[] = <org.kevoree.modeling.api.KTask<any>[]>castedEnd._results.keySet().toArray(new Array());
+                                    for (var i: number = 0; i < keys.length; i++) {
+                                        this._results.put(keys[i], castedEnd._results.get(keys[i]));
+                                    }
+                                    this._results.put(end, castedEnd._result);
+                                    this._nbRecResult--;
+                                }
+                            }
+                            if (this._nbRecResult == 0 && this._isReady) {
+                                if (this._job != null) {
+                                    this._job(this);
+                                }
+                                this.setDoneOrRegister(null);
+                            }
+                        }
+
+                        public wait(p_previous: org.kevoree.modeling.api.KTask<any>): void {
+                            if (p_previous != this) {
+                                this._previousTasks.add(p_previous);
+                                if (!(<org.kevoree.modeling.api.abs.AbstractKTask<any>>p_previous).setDoneOrRegister(this)) {
+                                    this._nbExpectedResult++;
+                                } else {
+                                    var castedEnd: org.kevoree.modeling.api.abs.AbstractKTask<any> = <org.kevoree.modeling.api.abs.AbstractKTask<any>>p_previous;
+                                    var keys: org.kevoree.modeling.api.KTask<any>[] = <org.kevoree.modeling.api.KTask<any>[]>castedEnd._results.keySet().toArray(new Array());
+                                    for (var i: number = 0; i < keys.length; i++) {
+                                        this._results.put(keys[i], castedEnd._results.get(keys[i]));
+                                    }
+                                    this._results.put(p_previous, castedEnd._result);
+                                }
+                            }
+                        }
+
+                        public ready(): void {
+                            if (!this._isReady) {
+                                this._isReady = true;
+                                this.informParentEnd(null);
+                            }
+                        }
+
+                        public results(): java.util.Map<org.kevoree.modeling.api.KTask<any>, any> {
+                            return this._results;
+                        }
+
+                        public setResult(p_result: A): void {
+                            this._result = p_result;
                         }
 
                         public getResult(): A {
-                            return <A>this._results.get(this);
+                            if (this._isDone) {
+                                return this._result;
+                            } else {
+                                throw new java.lang.Exception("Task is not executed yet !");
+                            }
                         }
 
                         public isDone(): boolean {
                             return this._isDone;
                         }
 
-                        public previousResults(): java.util.Map<org.kevoree.modeling.api.KTask<any>, any> {
-                            return this._results;
+                        public setJob(p_kjob: (p : org.kevoree.modeling.api.KCurrentTask<any>) => void): void {
+                            this._job = p_kjob;
                         }
 
-                        public execute(p_core: (p : org.kevoree.modeling.api.KTask<any>) => void): void {
-                            this._core = p_core;
-                            this.tryExecution();
+                    }
+
+                    export class AbstractKTaskWrapper<A> extends org.kevoree.modeling.api.abs.AbstractKTask<any> {
+
+                        private _callback: (p : A) => void = null;
+                        constructor() {
+                            super();
+                            var selfPointer: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = this;
+                            this._callback =  (a : A) => {
+                                selfPointer._isReady = true;
+                                selfPointer.setResult(a);
+                                selfPointer.setDoneOrRegister(null);
+                            };
                         }
 
-                        private propagateResult(parent: org.kevoree.modeling.api.KTask<any>, result: any): void {
-                            this._results.put(parent, result);
-                            this._executed.put(parent, true);
-                            this.tryExecution();
+                        public initCallback(): (p : A) => void {
+                            return this._callback;
                         }
 
-                        private tryExecution(): void {
-                            var parentTasks: org.kevoree.modeling.api.KTask<any>[] = this._executed.keySet().toArray(new Array());
-                            var allTrue: boolean = true;
-                            for (var i: number = 0; i < parentTasks.length; i++) {
-                                if (!this._executed.get(parentTasks[i])) {
-                                    allTrue = false;
-                                    break;
-                                }
-                            }
-                            if (allTrue) {
-                                if (this._core != null) {
-                                    this._core(this);
-                                } else {
-                                    this.setResult(null);
-                                }
-                            }
+                        public wait(previous: org.kevoree.modeling.api.KTask<any>): void {
+                            throw new java.lang.RuntimeException("Wait action is forbidden on wrapped tasks, please create a sub task");
+                        }
+
+                        public setJob(p_kjob: (p : org.kevoree.modeling.api.KCurrentTask<any>) => void): void {
+                            throw new java.lang.RuntimeException("setJob action is forbidden on wrapped tasks, please create a sub task");
+                        }
+
+                        public ready(): void {
                         }
 
                     }
@@ -1659,58 +1684,44 @@ module org {
                         }
 
                         public taskSplit(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._model.task();
-                            this.split( (res : B) => {
-                                task.setResult(res);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.split(task.initCallback());
                             return task;
                         }
 
                         public taskOrigin(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._model.task();
-                            this.origin( (res : B) => {
-                                task.setResult(res);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.origin(task.initCallback());
                             return task;
                         }
 
                         public taskDescendants(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._model.task();
-                            this.descendants( (res : B[]) => {
-                                task.setResult(res);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.descendants(task.initCallback());
                             return task;
                         }
 
                         public taskSave(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._model.task();
-                            this.save( (res : java.lang.Throwable) => {
-                                task.setResult(res);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.save(task.initCallback());
                             return task;
                         }
 
                         public taskUnload(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._model.task();
-                            this.unload( (res : java.lang.Throwable) => {
-                                task.setResult(res);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.unload(task.initCallback());
                             return task;
                         }
 
                         public taskDelete(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._model.task();
-                            this.delete( (res : java.lang.Throwable) => {
-                                task.setResult(res);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.delete(task.initCallback());
                             return task;
                         }
 
                         public taskDiscard(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._model.task();
-                            this.discard( (res : java.lang.Throwable) => {
-                                task.setResult(res);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.discard(task.initCallback());
                             return task;
                         }
 
@@ -1829,42 +1840,32 @@ module org {
                         }
 
                         public taskLookup(key: number): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._universe.model().task();
-                            this.lookup(key,  (kObject : org.kevoree.modeling.api.KObject) => {
-                                task.setResult(kObject);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.lookup(key, task.initCallback());
                             return task;
                         }
 
                         public taskLookupAll(keys: number[]): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._universe.model().task();
-                            this.lookupAll(keys,  (kObjects : org.kevoree.modeling.api.KObject[]) => {
-                                task.setResult(kObjects);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.lookupAll(keys, task.initCallback());
                             return task;
                         }
 
                         public taskSelect(query: string): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._universe.model().task();
-                            this.select(query,  (kObjects : org.kevoree.modeling.api.KObject[]) => {
-                                task.setResult(kObjects);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.select(query, task.initCallback());
                             return task;
                         }
 
                         public taskSetRoot(elem: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._universe.model().task();
-                            this.setRoot(elem,  (error : java.lang.Throwable) => {
-                                task.setResult(error);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.setRoot(elem, task.initCallback());
                             return task;
                         }
 
                         public taskSlice(elems: java.util.List<org.kevoree.modeling.api.KObject>): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._universe.model().task();
-                            this.slice(elems,  (res : org.kevoree.modeling.api.trace.TraceSequence) => {
-                                task.setResult(res);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.slice(elems, task.initCallback());
                             return task;
                         }
 
@@ -8251,18 +8252,14 @@ module org {
                         }
 
                         public taskThen(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._initObjs[0].universe().model().task();
-                            this.then( (kObjects : org.kevoree.modeling.api.KObject[]) => {
-                                task.setResult(kObjects);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.then(task.initCallback());
                             return task;
                         }
 
                         public taskMap(attribute: org.kevoree.modeling.api.meta.MetaAttribute): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.KTask<any> = this._initObjs[0].universe().model().task();
-                            this.map(attribute,  (objects : any[]) => {
-                                task.setResult(objects);
-                            });
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.map(attribute, task.initCallback());
                             return task;
                         }
 
