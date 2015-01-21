@@ -47,21 +47,26 @@ declare module org {
                     load(payload: string): any;
                 }
                 interface KModel<A extends KUniverse<any, any, any>> {
-                    connect(callback: (p: java.lang.Throwable) => void): void;
-                    close(callback: (p: java.lang.Throwable) => void): void;
                     newUniverse(): A;
                     universe(key: number): A;
-                    saveAll(callback: (p: boolean) => void): void;
-                    deleteAll(callback: (p: boolean) => void): void;
-                    unloadAll(callback: (p: boolean) => void): void;
                     disable(listener: (p: KEvent) => void): void;
-                    stream(query: string, callback: (p: KObject) => void): void;
                     storage(): data.KStore;
                     listen(listener: (p: KEvent) => void): void;
                     setEventBroker(eventBroker: event.KEventBroker): KModel<any>;
                     setDataBase(dataBase: data.KDataBase): KModel<any>;
                     setOperation(metaOperation: meta.MetaOperation, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
                     metaModel(): meta.MetaModel;
+                    task(): KTask<any>;
+                    save(callback: (p: boolean) => void): void;
+                    discard(callback: (p: boolean) => void): void;
+                    unload(callback: (p: boolean) => void): void;
+                    connect(callback: (p: java.lang.Throwable) => void): void;
+                    close(callback: (p: java.lang.Throwable) => void): void;
+                    taskSave(): KTask<any>;
+                    taskDiscard(): KTask<any>;
+                    taskUnload(): KTask<any>;
+                    taskConnect(): KTask<any>;
+                    taskClose(): KTask<any>;
                 }
                 interface KObject {
                     universe(): KUniverse<any, any, any>;
@@ -75,9 +80,7 @@ declare module org {
                     select(query: string, callback: (p: KObject[]) => void): void;
                     listen(listener: (p: KEvent) => void): void;
                     visitAttributes(visitor: (p: meta.MetaAttribute, p1: any) => void): void;
-                    visit(visitor: (p: KObject) => VisitResult, end: (p: java.lang.Throwable) => void): void;
-                    graphVisit(visitor: (p: KObject) => VisitResult, end: (p: java.lang.Throwable) => void): void;
-                    treeVisit(visitor: (p: KObject) => VisitResult, end: (p: java.lang.Throwable) => void): void;
+                    visit(visitor: (p: KObject) => VisitResult, end: (p: java.lang.Throwable) => void, request: VisitRequest): void;
                     now(): number;
                     timeTree(): time.TimeTree;
                     referenceInParent(): meta.MetaReference;
@@ -85,8 +88,7 @@ declare module org {
                     metaClass(): meta.MetaClass;
                     mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject): void;
                     all(metaReference: meta.MetaReference, callback: (p: KObject[]) => void): void;
-                    single(metaReference: meta.MetaReference, callback: (p: KObject) => void): void;
-                    traverse(metaReference: meta.MetaReference): traversal.KTraversalPromise;
+                    traverse(metaReference: meta.MetaReference): traversal.KTraversal;
                     inbounds(callback: (p: KObject[]) => void): void;
                     traces(request: TraceRequest): trace.ModelTrace[];
                     get(attribute: meta.MetaAttribute): any;
@@ -99,29 +101,57 @@ declare module org {
                     slice(callback: (p: trace.TraceSequence) => void): void;
                     jump<U extends KObject>(time: number, callback: (p: U) => void): void;
                     referencesWith(o: KObject): meta.MetaReference[];
+                    taskPath(): KTask<any>;
+                    taskDelete(): KTask<any>;
+                    taskParent(): KTask<any>;
+                    taskSelect(query: string): KTask<any>;
+                    taskAll(metaReference: meta.MetaReference): KTask<any>;
+                    taskInbounds(): KTask<any>;
+                    taskDiff(target: KObject): KTask<any>;
+                    taskMerge(target: KObject): KTask<any>;
+                    taskIntersection(target: KObject): KTask<any>;
+                    taskSlice(): KTask<any>;
+                    taskJump<U extends KObject>(time: number): KTask<any>;
+                    taskVisit(visitor: (p: KObject) => VisitResult, request: VisitRequest): KTask<any>;
                 }
                 interface KOperation {
                     on(source: KObject, params: any[], result: (p: any) => void): void;
                 }
+                interface KTask<A> {
+                    wait(previous: KTask<any>): void;
+                    next(previous: KTask<any>): void;
+                    done(callback: (p: A) => void): void;
+                    setResult(result: A): void;
+                    getResult(): A;
+                    isDone(): boolean;
+                    previousResults(): java.util.Map<KTask<any>, any>;
+                    execute(core: (p: KTask<any>) => void): void;
+                }
                 interface KUniverse<A extends KView, B extends KUniverse<any, any, any>, C extends KModel<any>> {
                     key(): number;
-                    split(callback: (p: B) => void): void;
-                    origin(callback: (p: B) => void): void;
-                    descendants(callback: (p: B[]) => void): void;
-                    save(callback: (p: java.lang.Throwable) => void): void;
-                    saveUnload(callback: (p: java.lang.Throwable) => void): void;
-                    delete(callback: (p: java.lang.Throwable) => void): void;
-                    discard(callback: (p: java.lang.Throwable) => void): void;
                     time(timePoint: number): A;
                     model(): C;
                     equals(other: any): boolean;
                     listen(listener: (p: KEvent) => void): void;
                     listenAllTimes(target: KObject, listener: (p: KEvent) => void): void;
+                    split(callback: (p: B) => void): void;
+                    origin(callback: (p: B) => void): void;
+                    descendants(callback: (p: B[]) => void): void;
+                    save(callback: (p: java.lang.Throwable) => void): void;
+                    unload(callback: (p: java.lang.Throwable) => void): void;
+                    delete(callback: (p: java.lang.Throwable) => void): void;
+                    discard(callback: (p: java.lang.Throwable) => void): void;
+                    taskSplit(): KTask<any>;
+                    taskOrigin(): KTask<any>;
+                    taskDescendants(): KTask<any>;
+                    taskSave(): KTask<any>;
+                    taskUnload(): KTask<any>;
+                    taskDelete(): KTask<any>;
+                    taskDiscard(): KTask<any>;
                 }
                 interface KView {
                     createFQN(metaClassName: string): KObject;
                     create(clazz: meta.MetaClass): KObject;
-                    setRoot(elem: KObject, callback: (p: java.lang.Throwable) => void): void;
                     select(query: string, callback: (p: KObject[]) => void): void;
                     lookup(key: number, callback: (p: KObject) => void): void;
                     lookupAll(keys: number[], callback: (p: KObject[]) => void): void;
@@ -132,6 +162,12 @@ declare module org {
                     json(): ModelFormat;
                     xmi(): ModelFormat;
                     equals(other: any): boolean;
+                    setRoot(elem: KObject, callback: (p: java.lang.Throwable) => void): void;
+                    taskLookup(key: number): KTask<any>;
+                    taskLookupAll(keys: number[]): KTask<any>;
+                    taskSelect(query: string): KTask<any>;
+                    taskSetRoot(elem: KObject): KTask<any>;
+                    taskSlice(elems: java.util.List<KObject>): KTask<any>;
                 }
                 interface ModelAttributeVisitor {
                     visit(metaAttribute: meta.MetaAttribute, value: any): void;
@@ -157,6 +193,14 @@ declare module org {
                     equals(other: any): boolean;
                     static _TraceRequestVALUES: TraceRequest[];
                     static values(): TraceRequest[];
+                }
+                class VisitRequest {
+                    static CHILDREN: VisitRequest;
+                    static CONTAINED: VisitRequest;
+                    static ALL: VisitRequest;
+                    equals(other: any): boolean;
+                    static _VisitRequestVALUES: VisitRequest[];
+                    static values(): VisitRequest[];
                 }
                 class VisitResult {
                     static CONTINUE: VisitResult;
@@ -186,15 +230,20 @@ declare module org {
                         newUniverse(): A;
                         internal_create(key: number): A;
                         universe(key: number): A;
-                        saveAll(callback: (p: boolean) => void): void;
-                        deleteAll(callback: (p: boolean) => void): void;
-                        unloadAll(callback: (p: boolean) => void): void;
+                        save(callback: (p: boolean) => void): void;
+                        discard(callback: (p: boolean) => void): void;
+                        unload(callback: (p: boolean) => void): void;
                         disable(listener: (p: KEvent) => void): void;
-                        stream(query: string, callback: (p: KObject) => void): void;
                         listen(listener: (p: KEvent) => void): void;
                         setEventBroker(eventBroker: event.KEventBroker): KModel<any>;
                         setDataBase(dataBase: data.KDataBase): KModel<any>;
                         setOperation(metaOperation: meta.MetaOperation, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
+                        task(): KTask<any>;
+                        taskSave(): KTask<any>;
+                        taskDiscard(): KTask<any>;
+                        taskUnload(): KTask<any>;
+                        taskConnect(): KTask<any>;
+                        taskClose(): KTask<any>;
                     }
                     class AbstractKObject implements KObject {
                         private _view;
@@ -224,13 +273,10 @@ declare module org {
                         mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject): void;
                         internal_mutate(actionType: KActionType, metaReferenceP: meta.MetaReference, param: KObject, setOpposite: boolean, inDelete: boolean): void;
                         size(p_metaReference: meta.MetaReference): number;
-                        single(p_metaReference: meta.MetaReference, p_callback: (p: KObject) => void): void;
                         all(p_metaReference: meta.MetaReference, p_callback: (p: KObject[]) => void): void;
                         visitAttributes(visitor: (p: meta.MetaAttribute, p1: any) => void): void;
-                        visit(visitor: (p: KObject) => VisitResult, end: (p: java.lang.Throwable) => void): void;
+                        visit(p_visitor: (p: KObject) => VisitResult, p_end: (p: java.lang.Throwable) => void, p_request: VisitRequest): void;
                         private internal_visit(visitor, end, deep, containedOnly, visited, traversed);
-                        graphVisit(visitor: (p: KObject) => VisitResult, end: (p: java.lang.Throwable) => void): void;
-                        treeVisit(visitor: (p: KObject) => VisitResult, end: (p: java.lang.Throwable) => void): void;
                         toJSON(): string;
                         toString(): string;
                         traces(request: TraceRequest): trace.ModelTrace[];
@@ -245,11 +291,40 @@ declare module org {
                         internal_transpose_ref(p: meta.MetaReference): meta.MetaReference;
                         internal_transpose_att(p: meta.MetaAttribute): meta.MetaAttribute;
                         internal_transpose_op(p: meta.MetaOperation): meta.MetaOperation;
-                        traverse(p_metaReference: meta.MetaReference): traversal.KTraversalPromise;
+                        traverse(p_metaReference: meta.MetaReference): traversal.KTraversal;
                         referencesWith(o: KObject): meta.MetaReference[];
+                        taskVisit(p_visitor: (p: KObject) => VisitResult, p_request: VisitRequest): KTask<any>;
+                        taskDelete(): KTask<any>;
+                        taskParent(): KTask<any>;
+                        taskSelect(p_query: string): KTask<any>;
+                        taskAll(p_metaReference: meta.MetaReference): KTask<any>;
+                        taskInbounds(): KTask<any>;
+                        taskDiff(p_target: KObject): KTask<any>;
+                        taskMerge(target: KObject): KTask<any>;
+                        taskIntersection(target: KObject): KTask<any>;
+                        taskSlice(): KTask<any>;
+                        taskJump<U extends KObject>(p_time: number): KTask<any>;
+                        taskPath(): KTask<any>;
                     }
                     class AbstractKObjectInfer<A> extends AbstractKObject implements KInfer {
                         constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
+                    }
+                    class AbstractKTask<A> implements KTask<any> {
+                        private _results;
+                        private _executed;
+                        private _isDone;
+                        private _core;
+                        private _nextTasks;
+                        wait(previous: KTask<any>): void;
+                        next(previous: KTask<any>): void;
+                        done(callback: (p: A) => void): void;
+                        setResult(result: A): void;
+                        getResult(): A;
+                        isDone(): boolean;
+                        previousResults(): java.util.Map<KTask<any>, any>;
+                        execute(p_core: (p: KTask<any>) => void): void;
+                        private propagateResult(parent, result);
+                        private tryExecution();
                     }
                     class AbstractKUniverse<A extends KView, B extends KUniverse<any, any, any>, C extends KModel<any>> implements KUniverse<any, any, any> {
                         private _model;
@@ -258,7 +333,7 @@ declare module org {
                         key(): number;
                         model(): C;
                         save(callback: (p: java.lang.Throwable) => void): void;
-                        saveUnload(callback: (p: java.lang.Throwable) => void): void;
+                        unload(callback: (p: java.lang.Throwable) => void): void;
                         delete(callback: (p: java.lang.Throwable) => void): void;
                         discard(callback: (p: java.lang.Throwable) => void): void;
                         time(timePoint: number): A;
@@ -269,6 +344,13 @@ declare module org {
                         origin(callback: (p: B) => void): void;
                         split(callback: (p: B) => void): void;
                         descendants(callback: (p: B[]) => void): void;
+                        taskSplit(): KTask<any>;
+                        taskOrigin(): KTask<any>;
+                        taskDescendants(): KTask<any>;
+                        taskSave(): KTask<any>;
+                        taskUnload(): KTask<any>;
+                        taskDelete(): KTask<any>;
+                        taskDiscard(): KTask<any>;
                     }
                     class AbstractKView implements KView {
                         private _now;
@@ -289,6 +371,11 @@ declare module org {
                         json(): ModelFormat;
                         xmi(): ModelFormat;
                         equals(obj: any): boolean;
+                        taskLookup(key: number): KTask<any>;
+                        taskLookupAll(keys: number[]): KTask<any>;
+                        taskSelect(query: string): KTask<any>;
+                        taskSetRoot(elem: KObject): KTask<any>;
+                        taskSlice(elems: java.util.List<KObject>): KTask<any>;
                     }
                     class AbstractMetaAttribute implements meta.MetaAttribute {
                         private _name;
@@ -959,7 +1046,7 @@ declare module org {
                         metaName(): string;
                         index(): number;
                         createMetaClass(name: string): DynamicMetaClass;
-                        universe(): KModel<any>;
+                        model(): KModel<any>;
                     }
                 }
                 module time {
@@ -1236,20 +1323,22 @@ declare module org {
                     }
                 }
                 module traversal {
-                    class DefaultKTraversalPromise implements KTraversalPromise {
+                    class DefaultKTraversal implements KTraversal {
                         private _initObjs;
                         private _initAction;
                         private _lastAction;
                         private _terminated;
                         constructor(p_root: KObject, p_ref: meta.MetaReference);
-                        traverse(p_metaReference: meta.MetaReference): KTraversalPromise;
-                        withAttribute(p_attribute: meta.MetaAttribute, p_expectedValue: any): KTraversalPromise;
-                        withoutAttribute(p_attribute: meta.MetaAttribute, p_expectedValue: any): KTraversalPromise;
-                        filter(p_filter: (p: KObject) => boolean): KTraversalPromise;
-                        reverse(p_metaReference: meta.MetaReference): KTraversalPromise;
-                        parents(): KTraversalPromise;
+                        traverse(p_metaReference: meta.MetaReference): KTraversal;
+                        withAttribute(p_attribute: meta.MetaAttribute, p_expectedValue: any): KTraversal;
+                        withoutAttribute(p_attribute: meta.MetaAttribute, p_expectedValue: any): KTraversal;
+                        filter(p_filter: (p: KObject) => boolean): KTraversal;
+                        reverse(p_metaReference: meta.MetaReference): KTraversal;
+                        parents(): KTraversal;
                         then(callback: (p: KObject[]) => void): void;
                         map(attribute: meta.MetaAttribute, callback: (p: any[]) => void): void;
+                        taskThen(): KTask<any>;
+                        taskMap(attribute: meta.MetaAttribute): KTask<any>;
                     }
                     class KQuery {
                         static OPEN_BRACKET: string;
@@ -1276,22 +1365,24 @@ declare module org {
                     class KSelector {
                         static select(view: KView, roots: KObject[], query: string, callback: (p: KObject[]) => void): void;
                     }
+                    interface KTraversal {
+                        traverse(metaReference: meta.MetaReference): KTraversal;
+                        withAttribute(attribute: meta.MetaAttribute, expectedValue: any): KTraversal;
+                        withoutAttribute(attribute: meta.MetaAttribute, expectedValue: any): KTraversal;
+                        filter(filter: (p: KObject) => boolean): KTraversal;
+                        reverse(metaReference: meta.MetaReference): KTraversal;
+                        parents(): KTraversal;
+                        then(callback: (p: KObject[]) => void): void;
+                        map(attribute: meta.MetaAttribute, callback: (p: any[]) => void): void;
+                        taskThen(): KTask<any>;
+                        taskMap(attribute: meta.MetaAttribute): KTask<any>;
+                    }
                     interface KTraversalAction {
                         chain(next: KTraversalAction): void;
                         execute(inputs: KObject[]): void;
                     }
                     interface KTraversalFilter {
                         filter(obj: KObject): boolean;
-                    }
-                    interface KTraversalPromise {
-                        traverse(metaReference: meta.MetaReference): KTraversalPromise;
-                        withAttribute(attribute: meta.MetaAttribute, expectedValue: any): KTraversalPromise;
-                        withoutAttribute(attribute: meta.MetaAttribute, expectedValue: any): KTraversalPromise;
-                        filter(filter: (p: KObject) => boolean): KTraversalPromise;
-                        reverse(metaReference: meta.MetaReference): KTraversalPromise;
-                        parents(): KTraversalPromise;
-                        then(callback: (p: KObject[]) => void): void;
-                        map(attribute: meta.MetaAttribute, callback: (p: any[]) => void): void;
                     }
                     module actions {
                         class KFilterAction implements KTraversalAction {

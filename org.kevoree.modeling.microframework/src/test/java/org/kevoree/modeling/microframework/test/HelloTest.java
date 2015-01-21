@@ -2,12 +2,7 @@ package org.kevoree.modeling.microframework.test;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KEvent;
-import org.kevoree.modeling.api.ModelVisitor;
-import org.kevoree.modeling.api.VisitResult;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ModelListener;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudModel;
@@ -152,7 +147,7 @@ public class HelloTest {
             public void on(Throwable t) {
                 j[0]++;
             }
-        });
+        }, VisitRequest.CHILDREN);
         Assert.assertEquals(1, i[0]);
         Assert.assertEquals(1, j[0]);
 
@@ -169,7 +164,7 @@ public class HelloTest {
             public void on(Throwable t) {
                 j[0]++;
             }
-        });
+        }, VisitRequest.CHILDREN);
         Assert.assertEquals(1, i[0]);
         Assert.assertEquals(1, j[0]);
 
@@ -186,13 +181,13 @@ public class HelloTest {
             public void on(Throwable t) {
                 j[0]++;
             }
-        });
+        }, VisitRequest.CHILDREN);
         Assert.assertEquals(0, i[0]);
         Assert.assertEquals(1, j[0]);
 
         i[0] = 0;
         j[0] = 0;
-        nodeT0.treeVisit(new ModelVisitor() {
+        nodeT0.visit(new ModelVisitor() {
             @Override
             public VisitResult visit(KObject elem) {
                 i[0]++;
@@ -203,13 +198,13 @@ public class HelloTest {
             public void on(Throwable t) {
                 j[0]++;
             }
-        });
+        }, VisitRequest.CONTAINED);
         Assert.assertEquals(2, i[0]);
         Assert.assertEquals(1, j[0]);
 
         i[0] = 0;
         j[0] = 0;
-        nodeT0.graphVisit(new ModelVisitor() {
+        nodeT0.visit(new ModelVisitor() {
             @Override
             public VisitResult visit(KObject elem) {
                 i[0]++;
@@ -220,14 +215,14 @@ public class HelloTest {
             public void on(Throwable t) {
                 j[0]++;
             }
-        });
+        }, VisitRequest.ALL);
         Assert.assertEquals(2, i[0]);
         Assert.assertEquals(1, j[0]);
 
 
         i[0] = 0;
         j[0] = 0;
-        nodeT0.graphVisit(new ModelVisitor() {
+        nodeT0.visit(new ModelVisitor() {
             @Override
             public VisitResult visit(KObject elem) {
                 i[0]++;
@@ -238,7 +233,7 @@ public class HelloTest {
             public void on(Throwable t) {
                 j[0]++;
             }
-        });
+        }, VisitRequest.ALL);
         Assert.assertEquals(2, i[0]);
         Assert.assertEquals(1, j[0]);
 

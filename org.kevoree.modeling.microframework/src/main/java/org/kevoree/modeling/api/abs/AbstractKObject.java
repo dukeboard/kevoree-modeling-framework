@@ -11,8 +11,8 @@ import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.operation.DefaultModelCompare;
 import org.kevoree.modeling.api.operation.DefaultModelSlicer;
-import org.kevoree.modeling.api.traversal.DefaultKTraversalPromise;
-import org.kevoree.modeling.api.traversal.KTraversalPromise;
+import org.kevoree.modeling.api.traversal.DefaultKTraversal;
+import org.kevoree.modeling.api.traversal.KTraversal;
 import org.kevoree.modeling.api.traversal.KSelector;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelAddTrace;
@@ -334,7 +334,6 @@ public abstract class AbstractKObject implements KObject {
                     ((AbstractKObject) param).set_parent(_uuid, metaReference);
                 }
                 //Inbound
-
                 Object[] rawParam = view().universe().model().storage().raw(param, AccessMode.WRITE);
                 Set<Long> previousInbounds;
                 if (rawParam[Index.INBOUNDS_INDEX] != null && rawParam[Index.INBOUNDS_INDEX] instanceof Set) {
@@ -351,7 +350,6 @@ public abstract class AbstractKObject implements KObject {
                     rawParam[Index.INBOUNDS_INDEX] = previousInbounds;
                 }
                 previousInbounds.add(uuid());
-
                 //publish event
                 KEvent event = new DefaultKEvent(actionType, this, metaReference, param);
                 view().universe().model().storage().eventBroker().notify(event);
@@ -393,7 +391,6 @@ public abstract class AbstractKObject implements KObject {
                         rawParam[Index.INBOUNDS_INDEX] = previousInbounds;
                     }
                     previousInbounds.add(uuid());
-
                     //Opposite
                     final KObject self = this;
                     if (metaReference.opposite() != null && setOpposite) {
@@ -501,35 +498,6 @@ public abstract class AbstractKObject implements KObject {
         }
     }
 
-    public void single(MetaReference p_metaReference, Callback<KObject> p_callback) {
-        MetaReference transposed = internal_transpose_ref(p_metaReference);
-        if (transposed == null) {
-            throw new RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + metaClass().metaName());
-        } else {
-            Object[] raw = view().universe().model().storage().raw(this, AccessMode.READ);
-            if (raw == null || raw[transposed.index()] == null) {
-                p_callback.on(null);
-            } else {
-                Object o = raw[transposed.index()];
-                Long casted = null;
-                try {
-                    casted = (Long) o;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    p_callback.on(null);
-                }
-                if (casted != null) {
-                    view().lookup(casted, new Callback<KObject>() {
-                        @Override
-                        public void on(KObject resolved) {
-                            p_callback.on(resolved);
-                        }
-                    });
-                }
-            }
-        }
-    }
-
     public void all(MetaReference p_metaReference, final Callback<KObject[]> p_callback) {
         if (!Checker.isDefined(p_callback)) {
             return;
@@ -577,8 +545,14 @@ public abstract class AbstractKObject implements KObject {
         }
     }
 
-    public void visit(ModelVisitor visitor, Callback<Throwable> end) {
-        internal_visit(visitor, end, false, false, null, null);
+    public void visit(ModelVisitor p_visitor, Callback<Throwable> p_end, VisitRequest p_request) {
+        if (p_request.equals(VisitRequest.CHILDREN)) {
+            internal_visit(p_visitor, p_end, false, false, null, null);
+        } else if (p_request.equals(VisitRequest.ALL)) {
+            internal_visit(p_visitor, p_end, true, false, new HashSet<Long>(), new HashSet<Long>());
+        } else if (p_request.equals(VisitRequest.CONTAINED)) {
+            internal_visit(p_visitor, p_end, true, true, null, null);
+        }
     }
 
     private void internal_visit(final ModelVisitor visitor, final Callback<Throwable> end, boolean deep, boolean containedOnly, final HashSet<Long> visited, final HashSet<Long> traversed) {
@@ -687,18 +661,10 @@ public abstract class AbstractKObject implements KObject {
         }
     }
 
-    public void graphVisit(ModelVisitor visitor, Callback<Throwable> end) {
-        internal_visit(visitor, end, true, false, new HashSet<Long>(), new HashSet<Long>());
-    }
-
-    public void treeVisit(ModelVisitor visitor, Callback<Throwable> end) {
-        internal_visit(visitor, end, true, true, null, null);
-    }
-
     public String toJSON() {
         Object[] raw = view().universe().model().storage().raw(this, AccessMode.READ);
         if (raw != null) {
-            return JsonRaw.encode(raw, _uuid, _metaClass,true);
+            return JsonRaw.encode(raw, _uuid, _metaClass, true);
         } else {
             return "";
         }
@@ -802,7 +768,7 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public <U extends KObject> void jump(Long time, final Callback<U> callback) {
+    public <U extends KObject> void jump(long time, final Callback<U> callback) {
         view().universe().time(time).lookup(_uuid, new Callback<KObject>() {
             @Override
             public void on(KObject kObject) {
@@ -842,8 +808,8 @@ public abstract class AbstractKObject implements KObject {
         }
     }
 
-    public KTraversalPromise traverse(MetaReference p_metaReference) {
-        return new DefaultKTraversalPromise(this, p_metaReference);
+    public KTraversal traverse(MetaReference p_metaReference) {
+        return new DefaultKTraversal(this, p_metaReference);
     }
 
     @Override
@@ -884,4 +850,147 @@ public abstract class AbstractKObject implements KObject {
         }
     }
 
+    @Override
+    public KTask<Throwable> taskVisit(ModelVisitor p_visitor, VisitRequest p_request) {
+        KTask<Throwable> task = _view.universe().model().task();
+        visit(p_visitor, new Callback<Throwable>() {
+            @Override
+            public void on(Throwable res) {
+                task.setResult(res);
+            }
+        }, p_request);
+        return task;
+    }
+
+    @Override
+    public KTask<Throwable> taskDelete() {
+        KTask<Throwable> task = _view.universe().model().task();
+        delete(new Callback<Throwable>() {
+            @Override
+            public void on(Throwable res) {
+                task.setResult(res);
+            }
+        });
+        return task;
+    }
+
+    @Override
+    public KTask<KObject> taskParent() {
+        KTask<KObject> task = _view.universe().model().task();
+        parent(new Callback<KObject>() {
+            @Override
+            public void on(KObject res) {
+                task.setResult(res);
+            }
+        });
+        return task;
+    }
+
+    @Override
+    public KTask<KObject[]> taskSelect(String p_query) {
+        KTask<KObject[]> task = _view.universe().model().task();
+        select(p_query, new Callback<KObject[]>() {
+            @Override
+            public void on(KObject[] res) {
+                task.setResult(res);
+            }
+        });
+        return task;
+    }
+
+    @Override
+    public KTask<KObject[]> taskAll(MetaReference p_metaReference) {
+        KTask<KObject[]> task = _view.universe().model().task();
+        all(p_metaReference, new Callback<KObject[]>() {
+            @Override
+            public void on(KObject[] res) {
+                task.setResult(res);
+            }
+        });
+        return task;
+    }
+
+    @Override
+    public KTask<KObject[]> taskInbounds() {
+        KTask<KObject[]> task = _view.universe().model().task();
+        inbounds(new Callback<KObject[]>() {
+            @Override
+            public void on(KObject[] res) {
+                task.setResult(res);
+            }
+        });
+        return task;
+    }
+
+    @Override
+    public KTask<TraceSequence> taskDiff(KObject p_target) {
+        KTask<TraceSequence> task = _view.universe().model().task();
+        diff(p_target, new Callback<TraceSequence>() {
+            @Override
+            public void on(TraceSequence res) {
+                task.setResult(res);
+            }
+        });
+        return task;
+    }
+
+    @Override
+    public KTask<TraceSequence> taskMerge(KObject target) {
+        KTask<TraceSequence> task = _view.universe().model().task();
+        merge(target, new Callback<TraceSequence>() {
+            @Override
+            public void on(TraceSequence res) {
+                task.setResult(res);
+            }
+        });
+        return task;
+    }
+
+    @Override
+    public KTask<TraceSequence> taskIntersection(KObject target) {
+        KTask<TraceSequence> task = _view.universe().model().task();
+        intersection(target, new Callback<TraceSequence>() {
+            @Override
+            public void on(TraceSequence res) {
+                task.setResult(res);
+            }
+        });
+        return task;
+    }
+
+    @Override
+    public KTask<TraceSequence> taskSlice() {
+        KTask<TraceSequence> task = _view.universe().model().task();
+        slice(new Callback<TraceSequence>() {
+            @Override
+            public void on(TraceSequence res) {
+                task.setResult(res);
+            }
+        });
+        return task;
+    }
+
+    @Override
+    public <U extends KObject> KTask<U> taskJump(long p_time) {
+        KTask<U> task = _view.universe().model().task();
+        jump(p_time, new Callback<U>() {
+            @Override
+            public void on(U res) {
+                task.setResult(res);
+            }
+        });
+        return task;
+    }
+
+    @Override
+    public KTask<String> taskPath() {
+        KTask<String> task = _view.universe().model().task();
+        path(new Callback<String>() {
+            @Override
+            public void on(String res) {
+                task.setResult(res);
+            }
+        });
+        return task;
+    }
 }

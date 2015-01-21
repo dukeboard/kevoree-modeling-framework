@@ -12,24 +12,11 @@ import org.kevoree.modeling.api.meta.MetaOperation;
 
 public interface KModel<A extends KUniverse> {
 
-    public void connect(Callback<Throwable> callback);
-
-    public void close(Callback<Throwable> callback);
-
     public A newUniverse();
 
     public A universe(long key);
 
-    //TODO refactor with promise
-    public void saveAll(Callback<Boolean> callback);
-
-    public void deleteAll(Callback<Boolean> callback);
-
-    public void unloadAll(Callback<Boolean> callback);
-
     public void disable(ModelListener listener);
-
-    public void stream(String query, Callback<KObject> callback);
 
     public KStore storage();
 
@@ -42,5 +29,27 @@ public interface KModel<A extends KUniverse> {
     public void setOperation(MetaOperation metaOperation, KOperation operation);
 
     public MetaModel metaModel();
+
+    public KTask task();
+
+    public void save(Callback<Boolean> callback);
+
+    public void discard(Callback<Boolean> callback);
+
+    public void unload(Callback<Boolean> callback);
+
+    public void connect(Callback<Throwable> callback);
+
+    public void close(Callback<Throwable> callback);
+
+    public KTask<Boolean> taskSave();
+
+    public KTask<Boolean> taskDiscard();
+
+    public KTask<Boolean> taskUnload();
+
+    public KTask<Throwable> taskConnect();
+
+    public KTask<Throwable> taskClose();
 
 }

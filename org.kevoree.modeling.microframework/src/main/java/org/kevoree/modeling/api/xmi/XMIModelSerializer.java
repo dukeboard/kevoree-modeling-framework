@@ -34,7 +34,7 @@ public class XMIModelSerializer {
         context.printer = new StringBuilder();
         //First Pass for building address table
         context.addressTable.put(model.uuid(), "/");
-        model.treeVisit(new ModelVisitor() {
+        model.visit(new ModelVisitor() {
             @Override
             public VisitResult visit(KObject elem) {
                 String parentXmiAddress = context.addressTable.get(elem.parentUuid());
@@ -103,7 +103,7 @@ public class XMIModelSerializer {
                     });
                 }
             }
-        });
+        }, VisitRequest.CONTAINED);
     }
 
 

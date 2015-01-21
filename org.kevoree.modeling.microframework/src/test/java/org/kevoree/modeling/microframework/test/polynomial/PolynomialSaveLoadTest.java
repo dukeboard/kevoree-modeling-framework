@@ -62,7 +62,7 @@ public class PolynomialSaveLoadTest {
             });
         }
 
-        universe.saveUnload(new Callback<Throwable>() {
+        universe.unload(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
 

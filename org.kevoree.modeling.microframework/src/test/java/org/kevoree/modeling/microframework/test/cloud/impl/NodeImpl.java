@@ -74,11 +74,11 @@ public class NodeImpl extends AbstractKObject implements Node {
 
     @Override
     public void getElement(Callback<Element> p_callback) {
-        this.single(MetaNode.REF_ELEMENT, new Callback<KObject>() {
+        this.all(MetaNode.REF_ELEMENT, new Callback<KObject[]>() {
             @Override
-            public void on(KObject kObject) {
-                if (p_callback != null) {
-                    p_callback.on((Element) kObject);
+            public void on(KObject[] kObject) {
+                if (p_callback != null && kObject.length > 0) {
+                    p_callback.on((Element) kObject[0]);
                 }
             }
         });

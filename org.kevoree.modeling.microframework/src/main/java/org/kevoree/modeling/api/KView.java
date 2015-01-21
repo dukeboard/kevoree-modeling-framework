@@ -14,8 +14,6 @@ public interface KView {
 
     public KObject create(MetaClass clazz);
 
-    public void setRoot(KObject elem, Callback<Throwable> callback);
-
     public void select(String query, Callback<KObject[]> callback);
 
     public void lookup(Long key, Callback<KObject> callback);
@@ -25,7 +23,7 @@ public interface KView {
     public KUniverse universe();
 
     public long now();
-    
+
     public void listen(ModelListener listener);
 
     public void slice(List<KObject> elems, Callback<TraceSequence> callback);
@@ -35,4 +33,17 @@ public interface KView {
     public ModelFormat xmi();
 
     public boolean equals(Object other);
+
+    public void setRoot(KObject elem, Callback<Throwable> callback);
+
+    public KTask<KObject> taskLookup(Long key);
+
+    public KTask<KObject[]> taskLookupAll(Long[] keys);
+
+    public KTask<KObject[]> taskSelect(String query);
+
+    public KTask<Throwable> taskSetRoot(KObject elem);
+
+    public KTask<TraceSequence> taskSlice(List<KObject> elems);
+
 }

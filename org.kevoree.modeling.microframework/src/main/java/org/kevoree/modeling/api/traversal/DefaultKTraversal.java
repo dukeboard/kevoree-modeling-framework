@@ -2,6 +2,7 @@ package org.kevoree.modeling.api.traversal;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KTask;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.traversal.actions.*;
@@ -9,7 +10,7 @@ import org.kevoree.modeling.api.traversal.actions.*;
 /**
  * Created by duke on 18/12/14.
  */
-public class DefaultKTraversalPromise implements KTraversalPromise {
+public class DefaultKTraversal implements KTraversal {
 
     private KObject[] _initObjs;
 
@@ -19,7 +20,7 @@ public class DefaultKTraversalPromise implements KTraversalPromise {
 
     private boolean _terminated = false;
 
-    public DefaultKTraversalPromise(KObject p_root, MetaReference p_ref) {
+    public DefaultKTraversal(KObject p_root, MetaReference p_ref) {
         _initAction = new KTraverseAction(p_ref);
         _initObjs = new KObject[1];
         _initObjs[0] = p_root;
@@ -27,7 +28,7 @@ public class DefaultKTraversalPromise implements KTraversalPromise {
     }
 
     @Override
-    public KTraversalPromise traverse(MetaReference p_metaReference) {
+    public KTraversal traverse(MetaReference p_metaReference) {
         if (_terminated) {
             throw new RuntimeException("Promise is terminated by the call of then method, please create another promise");
         }
@@ -38,7 +39,7 @@ public class DefaultKTraversalPromise implements KTraversalPromise {
     }
 
     @Override
-    public KTraversalPromise withAttribute(MetaAttribute p_attribute, Object p_expectedValue) {
+    public KTraversal withAttribute(MetaAttribute p_attribute, Object p_expectedValue) {
         if (_terminated) {
             throw new RuntimeException("Promise is terminated by the call of then method, please create another promise");
         }
@@ -49,7 +50,7 @@ public class DefaultKTraversalPromise implements KTraversalPromise {
     }
 
     @Override
-    public KTraversalPromise withoutAttribute(MetaAttribute p_attribute, Object p_expectedValue) {
+    public KTraversal withoutAttribute(MetaAttribute p_attribute, Object p_expectedValue) {
         if (_terminated) {
             throw new RuntimeException("Promise is terminated by the call of then method, please create another promise");
         }
@@ -60,7 +61,7 @@ public class DefaultKTraversalPromise implements KTraversalPromise {
     }
 
     @Override
-    public KTraversalPromise filter(KTraversalFilter p_filter) {
+    public KTraversal filter(KTraversalFilter p_filter) {
         if (_terminated) {
             throw new RuntimeException("Promise is terminated by the call of then method, please create another promise");
         }
@@ -71,7 +72,7 @@ public class DefaultKTraversalPromise implements KTraversalPromise {
     }
 
     @Override
-    public KTraversalPromise reverse(MetaReference p_metaReference) {
+    public KTraversal reverse(MetaReference p_metaReference) {
         if (_terminated) {
             throw new RuntimeException("Promise is terminated by the call of then method, please create another promise");
         }
@@ -82,7 +83,7 @@ public class DefaultKTraversalPromise implements KTraversalPromise {
     }
 
     @Override
-    public KTraversalPromise parents() {
+    public KTraversal parents() {
         if (_terminated) {
             throw new RuntimeException("Promise is terminated by the call of then method, please create another promise");
         }
@@ -108,6 +109,30 @@ public class DefaultKTraversalPromise implements KTraversalPromise {
         _lastAction.chain(new KMapAction(attribute, callback));
         //execute the first element of the chain of actions
         _initAction.execute(_initObjs);
+    }
+
+    @Override
+    public KTask<KObject[]> taskThen() {
+        final KTask<KObject[]> task = _initObjs[0].universe().model().task();
+        then(new Callback<KObject[]>() {
+            @Override
+            public void on(KObject[] kObjects) {
+                task.setResult(kObjects);
+            }
+        });
+        return task;
+    }
+
+    @Override
+    public KTask<Object[]> taskMap(MetaAttribute attribute) {
+        final KTask<Object[]> task = _initObjs[0].universe().model().task();
+        map(attribute, new Callback<Object[]>() {
+            @Override
+            public void on(Object[] objects) {
+                task.setResult(objects);
+            }
+        });
+        return task;
     }
 
 

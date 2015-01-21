@@ -1,10 +1,6 @@
 package org.kevoree.modeling.api.json;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ModelVisitor;
-import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.VisitResult;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.data.JsonRaw;
 
@@ -37,7 +33,7 @@ public class JsonModelSerializer {
         final StringBuilder builder = new StringBuilder();
         builder.append("[\n");
         printJSON(model, builder);
-        model.graphVisit(new ModelVisitor() {
+        model.visit(new ModelVisitor() {
             @Override
             public VisitResult visit(KObject elem) {
                 builder.append(",\n");
@@ -55,14 +51,14 @@ public class JsonModelSerializer {
                 builder.append("\n]\n");
                 callback.on(builder.toString(), throwable);
             }
-        });
+        }, VisitRequest.ALL);
     }
 
     public static void printJSON(KObject elem, StringBuilder builder) {
         if (elem != null) {
             Object[] raw = elem.view().universe().model().storage().raw(elem, AccessMode.READ);
             if (raw != null) {
-                builder.append(JsonRaw.encode(raw, elem.uuid(), elem.metaClass(),false));
+                builder.append(JsonRaw.encode(raw, elem.uuid(), elem.metaClass(), false));
             }
         }
     }

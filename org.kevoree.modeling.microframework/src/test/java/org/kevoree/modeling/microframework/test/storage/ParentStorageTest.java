@@ -106,7 +106,7 @@ public class ParentStorageTest {
             Assert.assertNull(e);
         }
         //We clear the cache
-        dimension0.saveUnload(null);
+        dimension0.unload(null);
 
         /*
         try {

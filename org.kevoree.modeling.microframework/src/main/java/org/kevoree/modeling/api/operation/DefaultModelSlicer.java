@@ -1,10 +1,6 @@
 package org.kevoree.modeling.api.operation;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ModelVisitor;
-import org.kevoree.modeling.api.TraceRequest;
-import org.kevoree.modeling.api.VisitResult;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.trace.ModelAddTrace;
 import org.kevoree.modeling.api.trace.ModelNewTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
@@ -63,7 +59,7 @@ public class DefaultModelSlicer {
                     //We register this element as reachable
                     cache.put(elem.uuid(), elem);
                     //We continue to all reachable elements, potentially here we can exclude references
-                    elem.graphVisit(new ModelVisitor() {
+                    elem.visit(new ModelVisitor() {
                         @Override
                         public VisitResult visit(KObject elem) {
                             if (cache.get(elem.uuid()) == null) {
@@ -82,7 +78,7 @@ public class DefaultModelSlicer {
                         public void on(Throwable throwable) {
                             callback.on(null);
                         }
-                    });
+                    }, VisitRequest.ALL);
                 }
             }
         });

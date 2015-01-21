@@ -1,10 +1,6 @@
 package org.kevoree.modeling.api.operation;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ModelAttributeVisitor;
-import org.kevoree.modeling.api.ModelVisitor;
-import org.kevoree.modeling.api.VisitResult;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
@@ -33,14 +29,14 @@ public class DefaultModelCompare {
     public static void intersection(KObject origin, KObject target, Callback<TraceSequence> callback) {
         internal_diff(origin, target, true, false, callback);
     }
-    
+
     private static void internal_diff(KObject origin, final KObject target, final boolean inter, final boolean merge, final Callback<TraceSequence> callback) {
         final List<ModelTrace> traces = new ArrayList<ModelTrace>();
         final List<ModelTrace> tracesRef = new ArrayList<ModelTrace>();
         final Map<Long, KObject> objectsMap = new HashMap<Long, KObject>();
         traces.addAll(internal_createTraces(origin, target, inter, merge, false, true));
         tracesRef.addAll(internal_createTraces(origin, target, inter, merge, true, false));
-        origin.treeVisit(new ModelVisitor() {
+        origin.visit(new ModelVisitor() {
             @Override
             public VisitResult visit(KObject elem) {
                 objectsMap.put(elem.uuid(), elem);
@@ -53,7 +49,7 @@ public class DefaultModelCompare {
                     throwable.printStackTrace();
                     callback.on(null);
                 } else {
-                    target.treeVisit(new ModelVisitor() {
+                    target.visit(new ModelVisitor() {
                         @Override
                         public VisitResult visit(KObject elem) {
                             Long childUUID = elem.uuid();
@@ -96,10 +92,10 @@ public class DefaultModelCompare {
                                 callback.on(new TraceSequence().populate(traces));
                             }
                         }
-                    });
+                    }, VisitRequest.CONTAINED);
                 }
             }
-        });
+        }, VisitRequest.CONTAINED);
     }
 
     private static List<ModelTrace> internal_createTraces(final KObject current, KObject sibling, final boolean inter, boolean merge, boolean references, boolean attributes) {

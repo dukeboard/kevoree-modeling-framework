@@ -25,7 +25,7 @@ public class DeleteTest {
         CloudView factory = universe.time(0l);
         Node n = factory.createNode();
         factory.setRoot(n, null);
-        universe.saveUnload(new Callback<Throwable>() {
+        universe.unload(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
@@ -42,7 +42,7 @@ public class DeleteTest {
                 n2.setElement(e);
             }
         });
-        universe.saveUnload(new Callback<Throwable>() {
+        universe.unload(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
@@ -70,7 +70,7 @@ public class DeleteTest {
                 });
             }
         });
-        universe.saveUnload(new Callback<Throwable>() {
+        universe.unload(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {

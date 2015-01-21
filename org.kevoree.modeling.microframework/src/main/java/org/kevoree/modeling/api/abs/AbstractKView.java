@@ -1,12 +1,6 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KActionType;
-import org.kevoree.modeling.api.KUniverse;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.ModelListener;
-import org.kevoree.modeling.api.ModelFormat;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.json.JsonFormat;
 import org.kevoree.modeling.api.meta.MetaClass;
@@ -19,7 +13,6 @@ import org.kevoree.modeling.api.util.Checker;
 import org.kevoree.modeling.api.xmi.XmiFormat;
 
 import java.util.List;
-
 
 /**
  * Created by duke on 10/10/14.
@@ -150,5 +143,66 @@ public abstract class AbstractKView implements KView {
             return (casted._now == _now) && _universe.equals(casted._universe);
         }
     }
+
+    @Override
+    public KTask<KObject> taskLookup(Long key) {
+        KTask<KObject> task = _universe.model().task();
+        lookup(key, new Callback<KObject>() {
+            @Override
+            public void on(KObject kObject) {
+                task.setResult(kObject);
+            }
+        });
+        return task;
+    }
+
+    @Override
+    public KTask<KObject[]> taskLookupAll(Long[] keys) {
+        KTask<KObject[]> task = _universe.model().task();
+        lookupAll(keys, new Callback<KObject[]>() {
+            @Override
+            public void on(KObject[] kObjects) {
+                task.setResult(kObjects);
+            }
+        });
+        return task;
+    }
+
+    @Override
+    public KTask<KObject[]> taskSelect(String query) {
+        KTask<KObject[]> task = _universe.model().task();
+        select(query, new Callback<KObject[]>() {
+            @Override
+            public void on(KObject[] kObjects) {
+                task.setResult(kObjects);
+            }
+        });
+        return task;
+    }
+
+    @Override
+    public KTask<Throwable> taskSetRoot(KObject elem) {
+        KTask<Throwable> task = _universe.model().task();
+        setRoot(elem, new Callback<Throwable>() {
+            @Override
+            public void on(Throwable error) {
+                task.setResult(error);
+            }
+        });
+        return task;
+    }
+
+    @Override
+    public KTask<TraceSequence> taskSlice(List<KObject> elems) {
+        KTask<TraceSequence> task = _universe.model().task();
+        slice(elems, new Callback<TraceSequence>() {
+            @Override
+            public void on(TraceSequence res) {
+                task.setResult(res);
+            }
+        });
+        return task;
+    }
+
 
 }

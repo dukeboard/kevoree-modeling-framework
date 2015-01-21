@@ -55,7 +55,7 @@ public class DynamicMetaModel implements MetaModel {
         }
     }
 
-    public KModel universe() {
+    public KModel model() {
         DynamicKModel universe = new DynamicKModel();
         universe.setMetaModel(this);
         return universe;

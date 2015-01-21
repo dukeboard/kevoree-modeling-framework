@@ -1,14 +1,9 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KUniverse;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KModel;
-import org.kevoree.modeling.api.KOperation;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.DefaultKStore;
 import org.kevoree.modeling.api.data.KDataBase;
 import org.kevoree.modeling.api.data.KStore;
-import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.event.KEventBroker;
 import org.kevoree.modeling.api.meta.MetaModel;
 import org.kevoree.modeling.api.meta.MetaOperation;
@@ -60,27 +55,22 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
     }
 
     @Override
-    public void saveAll(Callback<Boolean> callback) {
+    public void save(Callback<Boolean> callback) {
 
     }
 
     @Override
-    public void deleteAll(Callback<Boolean> callback) {
+    public void discard(Callback<Boolean> callback) {
 
     }
 
     @Override
-    public void unloadAll(Callback<Boolean> callback) {
+    public void unload(Callback<Boolean> callback) {
 
     }
 
     @Override
     public void disable(ModelListener listener) {
-
-    }
-
-    @Override
-    public void stream(String query, Callback<KObject> callback) {
 
     }
 
@@ -106,5 +96,70 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
     @Override
     public void setOperation(MetaOperation metaOperation, KOperation operation) {
         storage().operationManager().registerOperation(metaOperation, operation);
+    }
+
+    @Override
+    public KTask task() {
+        return new AbstractKTask();
+    }
+
+    @Override
+    public KTask<Boolean> taskSave() {
+        KTask<Boolean> task = this.task();
+        save(new Callback<Boolean>() {
+            @Override
+            public void on(Boolean res) {
+                task.setResult(res);
+            }
+        });
+        return task;
+    }
+
+    @Override
+    public KTask<Boolean> taskDiscard() {
+        KTask<Boolean> task = this.task();
+        discard(new Callback<Boolean>() {
+            @Override
+            public void on(Boolean res) {
+                task.setResult(res);
+            }
+        });
+        return task;
+    }
+
+    @Override
+    public KTask<Boolean> taskUnload() {
+        KTask<Boolean> task = this.task();
+        unload(new Callback<Boolean>() {
+            @Override
+            public void on(Boolean res) {
+                task.setResult(res);
+            }
+        });
+        return task;
+    }
+
+    @Override
+    public KTask<Throwable> taskConnect() {
+        KTask<Throwable> task = this.task();
+        connect(new Callback<Throwable>() {
+            @Override
+            public void on(Throwable res) {
+                task.setResult(res);
+            }
+        });
+        return task;
+    }
+
+    @Override
+    public KTask<Throwable> taskClose() {
+        KTask<Throwable> task = this.task();
+        close(new Callback<Throwable>() {
+            @Override
+            public void on(Throwable res) {
+                task.setResult(res);
+            }
+        });
+        return task;
     }
 }
