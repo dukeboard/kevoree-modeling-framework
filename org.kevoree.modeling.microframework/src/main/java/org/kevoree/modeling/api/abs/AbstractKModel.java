@@ -105,61 +105,36 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
 
     @Override
     public KTask<Boolean> taskSave() {
-        KTask<Boolean> task = this.task();
-        save(new Callback<Boolean>() {
-            @Override
-            public void on(Boolean res) {
-                task.setResult(res);
-            }
-        });
+        AbstractKTaskWrapper<Boolean> task = new AbstractKTaskWrapper<Boolean>();
+        save(task.initCallback());
         return task;
     }
 
     @Override
     public KTask<Boolean> taskDiscard() {
-        KTask<Boolean> task = this.task();
-        discard(new Callback<Boolean>() {
-            @Override
-            public void on(Boolean res) {
-                task.setResult(res);
-            }
-        });
+        AbstractKTaskWrapper<Boolean> task = new AbstractKTaskWrapper<Boolean>();
+        discard(task.initCallback());
         return task;
     }
 
     @Override
     public KTask<Boolean> taskUnload() {
-        KTask<Boolean> task = this.task();
-        unload(new Callback<Boolean>() {
-            @Override
-            public void on(Boolean res) {
-                task.setResult(res);
-            }
-        });
+        AbstractKTaskWrapper<Boolean> task = new AbstractKTaskWrapper<Boolean>();
+        unload(task.initCallback());
         return task;
     }
 
     @Override
     public KTask<Throwable> taskConnect() {
-        KTask<Throwable> task = this.task();
-        connect(new Callback<Throwable>() {
-            @Override
-            public void on(Throwable res) {
-                task.setResult(res);
-            }
-        });
+        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
+        connect(task.initCallback());
         return task;
     }
 
     @Override
     public KTask<Throwable> taskClose() {
-        KTask<Throwable> task = this.task();
-        close(new Callback<Throwable>() {
-            @Override
-            public void on(Throwable res) {
-                task.setResult(res);
-            }
-        });
+        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
+        close(task.initCallback());
         return task;
     }
 }

@@ -2,10 +2,7 @@ package org.kevoree.modeling.microframework.test.task;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KModel;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KTask;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.meta.PrimitiveMetaTypes;
 import org.kevoree.modeling.api.reflexive.DynamicKModel;
 import org.kevoree.modeling.api.reflexive.DynamicMetaModel;
@@ -20,46 +17,86 @@ public class SimpleTaskChainTest {
         DynamicKModel dynamicKModel = new DynamicKModel();
         KTask rootTask = dynamicKModel.task();
         KTask fakePromise1 = dynamicKModel.task();
-        KTask fakePromise2 = dynamicKModel.task();
-        rootTask.wait(fakePromise1);
-        rootTask.wait(fakePromise2);
-        rootTask.done(new Callback() {
+
+        fakePromise1.setJob(new KJob() {
             @Override
-            public void on(Object o) {
-                Assert.assertEquals(rootTask.previousResults().get(fakePromise1), "Sample1");
-                Assert.assertEquals(rootTask.previousResults().get(fakePromise2), "Sample2");
+            public void run(KCurrentTask currentTask) {
+                currentTask.setResult("Sample1");
             }
         });
-        fakePromise1.setResult("Sample1");
-        fakePromise2.setResult("Sample2");
+        KTask fakePromise2 = dynamicKModel.task();
+        fakePromise2.setJob(new KJob() {
+            @Override
+            public void run(KCurrentTask currentTask) {
+                currentTask.setResult("Sample2");
+            }
+        });
+
+        rootTask.wait(fakePromise1);
+        rootTask.wait(fakePromise2);
+
+        final int[] calls = new int[1];
+
+        rootTask.setJob(new KJob() {
+            @Override
+            public void run(KCurrentTask currentTask) {
+                Assert.assertEquals(currentTask.results().get(fakePromise1), "Sample1");
+                Assert.assertEquals(currentTask.results().get(fakePromise2), "Sample2");
+                calls[0] = 1;
+            }
+        });
+        //mimic select behavior
+        fakePromise1.ready();
+        fakePromise2.ready();
+
+        rootTask.ready();
+
+        Assert.assertEquals(calls[0], 1);
+
     }
 
     @Test
-    public void injectedTest() {
-        DynamicMetaModel metaModel = new DynamicMetaModel("DynamicMM");
-        metaModel.createMetaClass("Sensor").addAttribute("name", PrimitiveMetaTypes.STRING);
-        KModel dynamicKModel = metaModel.model();
-        dynamicKModel.connect(null);
-        KObject root = dynamicKModel.universe(0).time(0).create(metaModel.metaClass("Sensor"));
-        root.set(root.metaClass().metaAttribute("name"), "MyRoot");
-        dynamicKModel.universe(0).time(0).setRoot(root, null);
-
+    public void chain2Test() {
+        DynamicKModel dynamicKModel = new DynamicKModel();
         KTask rootTask = dynamicKModel.task();
-        KTask fakeSelectPromise = dynamicKModel.task();
-        rootTask.wait(fakeSelectPromise);
-        rootTask.done(new Callback() {
+        KTask fakePromise1 = dynamicKModel.task();
+
+        fakePromise1.setJob(new KJob() {
             @Override
-            public void on(Object o) {
-                //System.err.println(rootTask.previousResults().get(fakeSelectPromise));
-                // Assert.assertEquals(rootTask.previousResults().get(fakeSelectPromise), "Sample1");
+            public void run(KCurrentTask currentTask) {
+                currentTask.setResult("Sample1");
             }
         });
-        dynamicKModel.universe(0).time(0).select("/", new Callback<KObject[]>() {
+        KTask fakePromise2 = dynamicKModel.task();
+        fakePromise2.setJob(new KJob() {
             @Override
-            public void on(KObject[] kObjects) {
-                fakeSelectPromise.setResult(kObjects);
+            public void run(KCurrentTask currentTask) {
+                currentTask.setResult("Sample2");
             }
         });
+
+        rootTask.wait(fakePromise1);
+        rootTask.wait(fakePromise2);
+
+        final int[] calls = new int[1];
+
+        rootTask.setJob(new KJob() {
+            @Override
+            public void run(KCurrentTask currentTask) {
+                Assert.assertEquals(currentTask.results().get(fakePromise1), "Sample1");
+                Assert.assertEquals(currentTask.results().get(fakePromise2), "Sample2");
+                calls[0] = 1;
+            }
+        });
+
+        rootTask.ready();
+
+        //mimic select behavior
+        fakePromise1.ready();
+        fakePromise2.ready();
+
+        Assert.assertEquals(calls[0], 1);
+
     }
 
     @Test
@@ -73,16 +110,28 @@ public class SimpleTaskChainTest {
         dynamicKModel.universe(0).time(0).setRoot(root, null);
 
         KTask rootTask = dynamicKModel.task();
-        rootTask.wait(dynamicKModel.universe(0).time(0).taskSelect("/"));
-        rootTask.wait(dynamicKModel.universe(0).time(0).taskSelect("/titi"));
-        rootTask.done(new Callback() {
+        KTask previousSelect = dynamicKModel.universe(0).time(0).taskSelect("/");
+        rootTask.wait(previousSelect);
+        KTask previousSelect2 = dynamicKModel.universe(0).time(0).taskSelect("/titi");
+        rootTask.wait(previousSelect2);
+        final int[] res = new int[1];
+        final Object[] res2 = new Object[2];
+        rootTask.setJob(new KJob() {
             @Override
-            public void on(Object o) {
-
-                //System.err.println(rootTask.previousResults().get(fakeSelectPromise));
-                // Assert.assertEquals(rootTask.previousResults().get(fakeSelectPromise), "Sample1");
+            public void run(KCurrentTask currentTask) {
+                res[0] = currentTask.results().size();
+                res2[0] = currentTask.results().get(previousSelect);
+                res2[1] = currentTask.results().get(previousSelect2);
             }
         });
+        rootTask.ready();
+
+        Assert.assertEquals(res[0], 2);
+        Assert.assertTrue(res2[0] != null);
+        Assert.assertTrue(res2[1] != null);
+
+        Assert.assertTrue(((KObject[])res2[0]).length == 1);
+
 
     }
 

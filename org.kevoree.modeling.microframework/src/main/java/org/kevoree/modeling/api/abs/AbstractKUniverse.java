@@ -91,85 +91,50 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
 
     @Override
     public KTask<B> taskSplit() {
-        KTask<B> task = _model.task();
-        split(new Callback<B>() {
-            @Override
-            public void on(B res) {
-                task.setResult(res);
-            }
-        });
+        AbstractKTaskWrapper<B> task = new AbstractKTaskWrapper<B>();
+        split(task.initCallback());
         return task;
     }
 
     @Override
     public KTask<B> taskOrigin() {
-        KTask<B> task = _model.task();
-        origin(new Callback<B>() {
-            @Override
-            public void on(B res) {
-                task.setResult(res);
-            }
-        });
+        AbstractKTaskWrapper<B> task = new AbstractKTaskWrapper<B>();
+        origin(task.initCallback());
         return task;
     }
 
     @Override
     public KTask<B[]> taskDescendants() {
-        KTask<B[]> task = _model.task();
-        descendants(new Callback<B[]>() {
-            @Override
-            public void on(B[] res) {
-                task.setResult(res);
-            }
-        });
+        AbstractKTaskWrapper<B[]> task = new AbstractKTaskWrapper<B[]>();
+        descendants(task.initCallback());
         return task;
     }
 
     @Override
     public KTask<Throwable> taskSave() {
-        KTask<Throwable> task = _model.task();
-        save(new Callback<Throwable>() {
-            @Override
-            public void on(Throwable res) {
-                task.setResult(res);
-            }
-        });
+        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
+        save(task.initCallback());
         return task;
     }
 
     @Override
     public KTask<Throwable> taskUnload() {
-        KTask<Throwable> task = _model.task();
-        unload(new Callback<Throwable>() {
-            @Override
-            public void on(Throwable res) {
-                task.setResult(res);
-            }
-        });
+        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
+        unload(task.initCallback());
         return task;
     }
 
     @Override
     public KTask<Throwable> taskDelete() {
-        KTask<Throwable> task = _model.task();
-        delete(new Callback<Throwable>() {
-            @Override
-            public void on(Throwable res) {
-                task.setResult(res);
-            }
-        });
+        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
+        delete(task.initCallback());
         return task;
     }
 
     @Override
     public KTask<Throwable> taskDiscard() {
-        KTask<Throwable> task = _model.task();
-        discard(new Callback<Throwable>() {
-            @Override
-            public void on(Throwable res) {
-                task.setResult(res);
-            }
-        });
+        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
+        discard(task.initCallback());
         return task;
     }
 }

@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KCurrentTask;
+import org.kevoree.modeling.api.KJob;
 import org.kevoree.modeling.api.KTask;
 
 import java.util.HashMap;
@@ -11,60 +12,100 @@ import java.util.Set;
 /**
  * Created by duke on 20/01/15.
  */
-public class AbstractKTask<A> implements KTask<A> {
+public class AbstractKTask<A> implements KCurrentTask<A> {
 
-    private Map<KTask, Object> _results = new HashMap<KTask, Object>();
-    private Map<KTask, Boolean> _executed = new HashMap<KTask, Boolean>();
     private boolean _isDone = false;
-    private Callback<KTask<A>> _core;
+    protected boolean _isReady = false;
+    private int _nbRecResult = 0;
+    private int _nbExpectedResult = 0;
+    private Map<KTask, Object> _results = new HashMap<KTask, Object>();
+    private Set<KTask> _previousTasks = new HashSet<KTask>();
     private Set<KTask> _nextTasks = new HashSet<KTask>();
+    private KJob _job;
+    private A _result = null;
 
-    @Override
-    public void wait(KTask previous) {
-        ((AbstractKTask) previous)._nextTasks.add(this);
-        _executed.put(previous, previous.isDone());
-    }
-
-    @Override
-    public void next(KTask previous) {
-        _nextTasks.add(previous);
-        if (_isDone) {
-            ((AbstractKTask) previous).propagateResult(this, true);
+    protected synchronized boolean setDoneOrRegister(KTask next) {
+        if (next != null) {
+            _nextTasks.add(next);
+            return _isDone;
         } else {
-            ((AbstractKTask) previous)._executed.put(this, false);
-        }
-    }
-
-    @Override
-    public void done(Callback<A> callback) {
-        AbstractKTask leafTask = new AbstractKTask();
-        leafTask._core = new Callback<KTask>() {
-            @Override
-            public void on(KTask kTask) {
-                callback.on((A) kTask.getResult());
-            }
-        };
-        next(leafTask);
-        tryExecution();
-    }
-
-    @Override
-    public synchronized void setResult(A result) {
-        if (!_isDone) {
             _isDone = true;
-            _results.put(this, result);
-            KTask[] subTasks = _nextTasks.toArray(new KTask[_nextTasks.size()]);
-            for (int i = 0; i < subTasks.length; i++) {
-                ((AbstractKTask) subTasks[i]).propagateResult(this, result);
+            //inform child to decrease
+            KTask[] childrenTasks = _nextTasks.toArray(new KTask[_nextTasks.size()]);
+            for (int i = 0; i < childrenTasks.length; i++) {
+                ((AbstractKTask) childrenTasks[i]).informParentEnd(this);
             }
+            return _isDone;
+        }
+    }
+
+    private synchronized void informParentEnd(KTask end) {
+        if (end == null) {
+            //initCase
+            _nbRecResult = _nbRecResult + _nbExpectedResult;
         } else {
-            throw new RuntimeException("Task has been already setted to done state");
+            if (end != this) {
+                AbstractKTask castedEnd = (AbstractKTask) end;
+                KTask[] keys = (KTask[]) castedEnd._results.keySet().toArray(new KTask[castedEnd._results.size()]);
+                for (int i = 0; i < keys.length; i++) {
+                    _results.put(keys[i], castedEnd._results.get(keys[i]));
+                }
+                _results.put(end, castedEnd._result);
+                _nbRecResult--;
+            }
+        }
+        if (_nbRecResult == 0 && _isReady) {
+            //real execution
+            if (_job != null) {
+                _job.run(this);
+            }
+            setDoneOrRegister(null);
         }
     }
 
     @Override
-    public A getResult() {
-        return (A) _results.get(this);
+    public synchronized void wait(KTask p_previous) {
+        if (p_previous != this) {
+            _previousTasks.add(p_previous);
+            if (!((AbstractKTask) p_previous).setDoneOrRegister(this)) {
+                _nbExpectedResult++;
+            } else {
+                //previous is already finished, no need to count, copy the result
+                AbstractKTask castedEnd = (AbstractKTask) p_previous;
+                KTask[] keys = (KTask[]) castedEnd._results.keySet().toArray(new KTask[castedEnd._results.size()]);
+                for (int i = 0; i < keys.length; i++) {
+                    _results.put(keys[i], castedEnd._results.get(keys[i]));
+                }
+                _results.put(p_previous, castedEnd._result);
+            }
+        }
+    }
+
+    @Override
+    public synchronized void ready() {
+        if (!_isReady) {
+            _isReady = true;
+            informParentEnd(null);
+        }
+    }
+
+    @Override
+    public Map<KTask, Object> results() {
+        return _results;
+    }
+
+    @Override
+    public void setResult(A p_result) {
+        _result = p_result;
+    }
+
+    @Override
+    public A getResult() throws Exception {
+        if (_isDone) {
+            return _result;
+        } else {
+            throw new Exception("Task is not executed yet !");
+        }
     }
 
     @Override
@@ -73,41 +114,8 @@ public class AbstractKTask<A> implements KTask<A> {
     }
 
     @Override
-    public Map<KTask, Object> previousResults() {
-        return _results;
-    }
-
-    @Override
-    public void execute(Callback<KTask<A>> p_core) {
-        this._core = p_core;
-        tryExecution();
-    }
-
-    private synchronized void propagateResult(KTask parent, Object result) {
-        _results.put(parent, result);
-        _executed.put(parent, true);
-        //check if every parent has been executed
-        tryExecution();
-    }
-
-    private synchronized void tryExecution() {
-        if (!_isDone) {
-            KTask[] parentTasks = _executed.keySet().toArray(new KTask[_executed.size()]);
-            boolean allTrue = true;
-            for (int i = 0; i < parentTasks.length; i++) {
-                if (!_executed.get(parentTasks[i])) {
-                    allTrue = false;
-                    break;
-                }
-            }
-            if (allTrue) {
-                if (_core != null) {
-                    _core.on(this);
-                } else {
-                    setResult(null);
-                }
-            }
-        }
+    public void setJob(KJob p_kjob) {
+        this._job = p_kjob;
     }
 
 }

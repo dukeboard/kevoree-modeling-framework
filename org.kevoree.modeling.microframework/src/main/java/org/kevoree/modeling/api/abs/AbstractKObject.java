@@ -528,7 +528,7 @@ public abstract class AbstractKObject implements KObject {
                         }
                     });
                 } else {
-                    Long[] content = new Long[] {(Long) o};
+                    Long[] content = new Long[]{(Long) o};
                     view().lookupAll(content, new Callback<KObject[]>() {
                         @Override
                         public void on(KObject[] result) {
@@ -863,145 +863,85 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public KTask<Throwable> taskVisit(ModelVisitor p_visitor, VisitRequest p_request) {
-        KTask<Throwable> task = _view.universe().model().task();
-        visit(p_visitor, new Callback<Throwable>() {
-            @Override
-            public void on(Throwable res) {
-                task.setResult(res);
-            }
-        }, p_request);
+        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
+        visit(p_visitor, task.initCallback(), p_request);
         return task;
     }
 
     @Override
     public KTask<Throwable> taskDelete() {
-        KTask<Throwable> task = _view.universe().model().task();
-        delete(new Callback<Throwable>() {
-            @Override
-            public void on(Throwable res) {
-                task.setResult(res);
-            }
-        });
+        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
+        delete(task.initCallback());
         return task;
     }
 
     @Override
     public KTask<KObject> taskParent() {
-        KTask<KObject> task = _view.universe().model().task();
-        parent(new Callback<KObject>() {
-            @Override
-            public void on(KObject res) {
-                task.setResult(res);
-            }
-        });
+        AbstractKTaskWrapper<KObject> task = new AbstractKTaskWrapper<KObject>();
+        parent(task.initCallback());
         return task;
     }
 
     @Override
     public KTask<KObject[]> taskSelect(String p_query) {
-        KTask<KObject[]> task = _view.universe().model().task();
-        select(p_query, new Callback<KObject[]>() {
-            @Override
-            public void on(KObject[] res) {
-                task.setResult(res);
-            }
-        });
+        AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
+        select(p_query, task.initCallback());
         return task;
     }
 
     @Override
     public KTask<KObject[]> taskAll(MetaReference p_metaReference) {
-        KTask<KObject[]> task = _view.universe().model().task();
-        all(p_metaReference, new Callback<KObject[]>() {
-            @Override
-            public void on(KObject[] res) {
-                task.setResult(res);
-            }
-        });
+        AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
+        all(p_metaReference, task.initCallback());
         return task;
     }
 
     @Override
     public KTask<KObject[]> taskInbounds() {
-        KTask<KObject[]> task = _view.universe().model().task();
-        inbounds(new Callback<KObject[]>() {
-            @Override
-            public void on(KObject[] res) {
-                task.setResult(res);
-            }
-        });
+        AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
+        inbounds(task.initCallback());
         return task;
     }
 
     @Override
     public KTask<TraceSequence> taskDiff(KObject p_target) {
-        KTask<TraceSequence> task = _view.universe().model().task();
-        diff(p_target, new Callback<TraceSequence>() {
-            @Override
-            public void on(TraceSequence res) {
-                task.setResult(res);
-            }
-        });
+        AbstractKTaskWrapper<TraceSequence> task = new AbstractKTaskWrapper<TraceSequence>();
+        diff(p_target, task.initCallback());
         return task;
     }
 
     @Override
-    public KTask<TraceSequence> taskMerge(KObject target) {
-        KTask<TraceSequence> task = _view.universe().model().task();
-        merge(target, new Callback<TraceSequence>() {
-            @Override
-            public void on(TraceSequence res) {
-                task.setResult(res);
-            }
-        });
+    public KTask<TraceSequence> taskMerge(KObject p_target) {
+        AbstractKTaskWrapper<TraceSequence> task = new AbstractKTaskWrapper<TraceSequence>();
+        merge(p_target, task.initCallback());
         return task;
     }
 
     @Override
-    public KTask<TraceSequence> taskIntersection(KObject target) {
-        KTask<TraceSequence> task = _view.universe().model().task();
-        intersection(target, new Callback<TraceSequence>() {
-            @Override
-            public void on(TraceSequence res) {
-                task.setResult(res);
-            }
-        });
+    public KTask<TraceSequence> taskIntersection(KObject p_target) {
+        AbstractKTaskWrapper<TraceSequence> task = new AbstractKTaskWrapper<TraceSequence>();
+        intersection(p_target, task.initCallback());
         return task;
     }
 
     @Override
     public KTask<TraceSequence> taskSlice() {
-        KTask<TraceSequence> task = _view.universe().model().task();
-        slice(new Callback<TraceSequence>() {
-            @Override
-            public void on(TraceSequence res) {
-                task.setResult(res);
-            }
-        });
+        AbstractKTaskWrapper<TraceSequence> task = new AbstractKTaskWrapper<TraceSequence>();
+        slice(task.initCallback());
         return task;
     }
 
     @Override
     public <U extends KObject> KTask<U> taskJump(long p_time) {
-        KTask<U> task = _view.universe().model().task();
-        jump(p_time, new Callback<U>() {
-            @Override
-            public void on(U res) {
-                task.setResult(res);
-            }
-        });
+        AbstractKTaskWrapper<U> task = new AbstractKTaskWrapper<U>();
+        jump(p_time, task.initCallback());
         return task;
     }
 
     @Override
     public KTask<String> taskPath() {
-        KTask<String> task = _view.universe().model().task();
-        path(new Callback<String>() {
-            @Override
-            public void on(String res) {
-                task.setResult(res);
-            }
-        });
+        AbstractKTaskWrapper<String> task = new AbstractKTaskWrapper<String>();
+        path(task.initCallback());
         return task;
     }
 }

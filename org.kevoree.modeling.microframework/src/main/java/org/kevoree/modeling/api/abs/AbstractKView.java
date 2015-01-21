@@ -146,61 +146,36 @@ public abstract class AbstractKView implements KView {
 
     @Override
     public KTask<KObject> taskLookup(Long key) {
-        KTask<KObject> task = _universe.model().task();
-        lookup(key, new Callback<KObject>() {
-            @Override
-            public void on(KObject kObject) {
-                task.setResult(kObject);
-            }
-        });
+        AbstractKTaskWrapper<KObject> task = new AbstractKTaskWrapper<KObject>();
+        lookup(key, task.initCallback());
         return task;
     }
 
     @Override
     public KTask<KObject[]> taskLookupAll(Long[] keys) {
-        KTask<KObject[]> task = _universe.model().task();
-        lookupAll(keys, new Callback<KObject[]>() {
-            @Override
-            public void on(KObject[] kObjects) {
-                task.setResult(kObjects);
-            }
-        });
+        AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
+        lookupAll(keys, task.initCallback());
         return task;
     }
 
     @Override
     public KTask<KObject[]> taskSelect(String query) {
-        KTask<KObject[]> task = _universe.model().task();
-        select(query, new Callback<KObject[]>() {
-            @Override
-            public void on(KObject[] kObjects) {
-                task.setResult(kObjects);
-            }
-        });
+        AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
+        select(query, task.initCallback());
         return task;
     }
 
     @Override
     public KTask<Throwable> taskSetRoot(KObject elem) {
-        KTask<Throwable> task = _universe.model().task();
-        setRoot(elem, new Callback<Throwable>() {
-            @Override
-            public void on(Throwable error) {
-                task.setResult(error);
-            }
-        });
+        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
+        setRoot(elem, task.initCallback());
         return task;
     }
 
     @Override
     public KTask<TraceSequence> taskSlice(List<KObject> elems) {
-        KTask<TraceSequence> task = _universe.model().task();
-        slice(elems, new Callback<TraceSequence>() {
-            @Override
-            public void on(TraceSequence res) {
-                task.setResult(res);
-            }
-        });
+        AbstractKTaskWrapper<TraceSequence> task = new AbstractKTaskWrapper<TraceSequence>();
+        slice(elems, task.initCallback());
         return task;
     }
 

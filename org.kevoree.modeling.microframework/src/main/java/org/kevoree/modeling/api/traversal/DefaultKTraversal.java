@@ -3,8 +3,10 @@ package org.kevoree.modeling.api.traversal;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KTask;
+import org.kevoree.modeling.api.abs.AbstractKTaskWrapper;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
+import org.kevoree.modeling.api.trace.TraceSequence;
 import org.kevoree.modeling.api.traversal.actions.*;
 
 /**
@@ -113,25 +115,15 @@ public class DefaultKTraversal implements KTraversal {
 
     @Override
     public KTask<KObject[]> taskThen() {
-        final KTask<KObject[]> task = _initObjs[0].universe().model().task();
-        then(new Callback<KObject[]>() {
-            @Override
-            public void on(KObject[] kObjects) {
-                task.setResult(kObjects);
-            }
-        });
+        AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
+        then(task.initCallback());
         return task;
     }
 
     @Override
     public KTask<Object[]> taskMap(MetaAttribute attribute) {
-        final KTask<Object[]> task = _initObjs[0].universe().model().task();
-        map(attribute, new Callback<Object[]>() {
-            @Override
-            public void on(Object[] objects) {
-                task.setResult(objects);
-            }
-        });
+        AbstractKTaskWrapper<Object[]> task = new AbstractKTaskWrapper<Object[]>();
+        map(attribute, task.initCallback());
         return task;
     }
 
