@@ -210,7 +210,7 @@ public class DefaultKStore implements KStore {
     }
 
     @Override
-    public long nextUniverseKey() {
+    public synchronized long nextUniverseKey() {
         if (_dimensionKeyCalculator == null) {
             throw new RuntimeException(UNIVERSE_NOT_CONNECTED_ERROR);
         }
@@ -220,7 +220,7 @@ public class DefaultKStore implements KStore {
     private static final String UNIVERSE_NOT_CONNECTED_ERROR = "Please connect your model prior to create a universe or an object";
 
     @Override
-    public long nextObjectKey() {
+    public synchronized long nextObjectKey() {
         if (_objectKeyCalculator == null) {
             throw new RuntimeException(UNIVERSE_NOT_CONNECTED_ERROR);
         }
