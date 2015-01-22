@@ -349,7 +349,7 @@ public class DefaultKStore implements KStore {
                     if (cached_raw != null && cached_raw[Index.IS_DIRTY_INDEX] != null && cached_raw[Index.IS_DIRTY_INDEX].toString().equals("true")) {
                         String[] payloadA = new String[2];
                         payloadA[0] = keyPayload(p_universe.key(), now, idObj);
-                        payloadA[1] = JsonRaw.encode(cached_raw, idObj, cached_entry.metaClass,true);
+                        payloadA[1] = JsonRaw.encode(cached_raw, idObj, cached_entry.metaClass, true);
                         payloads[i] = payloadA;
                         cached_raw[Index.IS_DIRTY_INDEX] = false;
                         i++;
