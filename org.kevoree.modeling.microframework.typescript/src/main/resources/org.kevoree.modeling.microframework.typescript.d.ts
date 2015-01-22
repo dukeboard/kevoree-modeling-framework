@@ -105,7 +105,6 @@ declare module org {
                     diff(target: KObject, callback: (p: trace.TraceSequence) => void): void;
                     merge(target: KObject, callback: (p: trace.TraceSequence) => void): void;
                     intersection(target: KObject, callback: (p: trace.TraceSequence) => void): void;
-                    slice(callback: (p: trace.TraceSequence) => void): void;
                     jump<U extends KObject>(time: number, callback: (p: U) => void): void;
                     referencesWith(o: KObject): meta.MetaReference[];
                     taskPath(): KTask<any>;
@@ -117,7 +116,6 @@ declare module org {
                     taskDiff(target: KObject): KTask<any>;
                     taskMerge(target: KObject): KTask<any>;
                     taskIntersection(target: KObject): KTask<any>;
-                    taskSlice(): KTask<any>;
                     taskJump<U extends KObject>(time: number): KTask<any>;
                     taskVisit(visitor: (p: KObject) => VisitResult, request: VisitRequest): KTask<any>;
                 }
@@ -162,7 +160,6 @@ declare module org {
                     universe(): KUniverse<any, any, any>;
                     now(): number;
                     listen(listener: (p: KEvent) => void): void;
-                    slice(elems: java.util.List<KObject>, callback: (p: trace.TraceSequence) => void): void;
                     json(): ModelFormat;
                     xmi(): ModelFormat;
                     equals(other: any): boolean;
@@ -171,7 +168,6 @@ declare module org {
                     taskLookupAll(keys: number[]): KTask<any>;
                     taskSelect(query: string): KTask<any>;
                     taskSetRoot(elem: KObject): KTask<any>;
-                    taskSlice(elems: java.util.List<KObject>): KTask<any>;
                 }
                 interface ModelAttributeVisitor {
                     visit(metaAttribute: meta.MetaAttribute, value: any): void;
@@ -290,7 +286,6 @@ declare module org {
                         diff(target: KObject, callback: (p: trace.TraceSequence) => void): void;
                         merge(target: KObject, callback: (p: trace.TraceSequence) => void): void;
                         intersection(target: KObject, callback: (p: trace.TraceSequence) => void): void;
-                        slice(callback: (p: trace.TraceSequence) => void): void;
                         jump<U extends KObject>(time: number, callback: (p: U) => void): void;
                         internal_transpose_ref(p: meta.MetaReference): meta.MetaReference;
                         internal_transpose_att(p: meta.MetaAttribute): meta.MetaAttribute;
@@ -306,7 +301,6 @@ declare module org {
                         taskDiff(p_target: KObject): KTask<any>;
                         taskMerge(p_target: KObject): KTask<any>;
                         taskIntersection(p_target: KObject): KTask<any>;
-                        taskSlice(): KTask<any>;
                         taskJump<U extends KObject>(p_time: number): KTask<any>;
                         taskPath(): KTask<any>;
                     }
@@ -382,7 +376,6 @@ declare module org {
                         create(clazz: meta.MetaClass): KObject;
                         listen(listener: (p: KEvent) => void): void;
                         internalCreate(clazz: meta.MetaClass, timeTree: time.TimeTree, key: number): KObject;
-                        slice(elems: java.util.List<KObject>, callback: (p: trace.TraceSequence) => void): void;
                         json(): ModelFormat;
                         xmi(): ModelFormat;
                         equals(obj: any): boolean;
@@ -390,7 +383,6 @@ declare module org {
                         taskLookupAll(keys: number[]): KTask<any>;
                         taskSelect(query: string): KTask<any>;
                         taskSetRoot(elem: KObject): KTask<any>;
-                        taskSlice(elems: java.util.List<KObject>): KTask<any>;
                     }
                     class AbstractMetaAttribute implements meta.MetaAttribute {
                         private _name;
@@ -841,10 +833,6 @@ declare module org {
                         static intersection(origin: KObject, target: KObject, callback: (p: trace.TraceSequence) => void): void;
                         private static internal_diff(origin, target, inter, merge, callback);
                         private static internal_createTraces(current, sibling, inter, merge, references, attributes);
-                    }
-                    class DefaultModelSlicer {
-                        private static internal_prune(elem, traces, cache, parentMap, callback);
-                        static slice(elems: java.util.List<KObject>, callback: (p: trace.TraceSequence) => void): void;
                     }
                 }
                 module polynomial {
@@ -1459,9 +1447,6 @@ declare module org {
                     }
                 }
                 module util {
-                    interface CallBackChain<A> {
-                        on(a: A, next: (p: java.lang.Throwable) => void): void;
-                    }
                     class Checker {
                         static isDefined(param: any): boolean;
                     }
@@ -1472,21 +1457,18 @@ declare module org {
                         registerOperation(operation: meta.MetaOperation, callback: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
                         call(source: KObject, operation: meta.MetaOperation, param: any[], callback: (p: any) => void): void;
                     }
-                    class Helper {
+                    interface KOperationManager {
+                        registerOperation(operation: meta.MetaOperation, callback: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
+                        call(source: KObject, operation: meta.MetaOperation, param: any[], callback: (p: any) => void): void;
+                    }
+                    class PathHelper {
                         static pathSep: string;
                         private static pathIDOpen;
                         private static pathIDClose;
                         private static rootPath;
-                        static forall<A>(inputs: A[], each: (p: A, p1: (p: java.lang.Throwable) => void) => void, end: (p: java.lang.Throwable) => void): void;
-                        private static process<A>(arr, index, each, end);
                         static parentPath(currentPath: string): string;
-                        static attachedToRoot(path: string): boolean;
                         static isRoot(path: string): boolean;
                         static path(parent: string, reference: meta.MetaReference, target: KObject): string;
-                    }
-                    interface KOperationManager {
-                        registerOperation(operation: meta.MetaOperation, callback: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
-                        call(source: KObject, operation: meta.MetaOperation, param: any[], callback: (p: any) => void): void;
                     }
                     class TimeMachine {
                         private _previous;

@@ -228,8 +228,6 @@ module org {
 
                     intersection(target: org.kevoree.modeling.api.KObject, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void;
 
-                    slice(callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void;
-
                     jump<U extends org.kevoree.modeling.api.KObject> (time: number, callback: (p : U) => void): void;
 
                     referencesWith(o: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.meta.MetaReference[];
@@ -251,8 +249,6 @@ module org {
                     taskMerge(target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any>;
 
                     taskIntersection(target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any>;
-
-                    taskSlice(): org.kevoree.modeling.api.KTask<any>;
 
                     taskJump<U extends org.kevoree.modeling.api.KObject> (time: number): org.kevoree.modeling.api.KTask<any>;
 
@@ -342,8 +338,6 @@ module org {
 
                     listen(listener: (p : org.kevoree.modeling.api.KEvent) => void): void;
 
-                    slice(elems: java.util.List<org.kevoree.modeling.api.KObject>, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void;
-
                     json(): org.kevoree.modeling.api.ModelFormat;
 
                     xmi(): org.kevoree.modeling.api.ModelFormat;
@@ -359,8 +353,6 @@ module org {
                     taskSelect(query: string): org.kevoree.modeling.api.KTask<any>;
 
                     taskSetRoot(elem: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any>;
-
-                    taskSlice(elems: java.util.List<org.kevoree.modeling.api.KObject>): org.kevoree.modeling.api.KTask<any>;
 
                 }
 
@@ -685,7 +677,7 @@ module org {
                                         callback(null);
                                     } else {
                                         parent.path( (parentPath : string) => {
-                                            callback(org.kevoree.modeling.api.util.Helper.path(parentPath, this.referenceInParent(), this));
+                                            callback(org.kevoree.modeling.api.util.PathHelper.path(parentPath, this.referenceInParent(), this));
                                         });
                                     }
                                 });
@@ -1313,12 +1305,6 @@ module org {
                             org.kevoree.modeling.api.operation.DefaultModelCompare.intersection(this, target, callback);
                         }
 
-                        public slice(callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void {
-                            var params: java.util.ArrayList<org.kevoree.modeling.api.KObject> = new java.util.ArrayList<org.kevoree.modeling.api.KObject>();
-                            params.add(this);
-                            org.kevoree.modeling.api.operation.DefaultModelSlicer.slice(params, callback);
-                        }
-
                         public jump<U extends org.kevoree.modeling.api.KObject> (time: number, callback: (p : U) => void): void {
                             this.view().universe().time(time).lookup(this._uuid,  (kObject : org.kevoree.modeling.api.KObject) => {
                                 if (callback != null) {
@@ -1459,12 +1445,6 @@ module org {
                         public taskIntersection(p_target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any> {
                             var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
                             this.intersection(p_target, task.initCallback());
-                            return task;
-                        }
-
-                        public taskSlice(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
-                            this.slice(task.initCallback());
                             return task;
                         }
 
@@ -1815,10 +1795,6 @@ module org {
                             throw "Abstract method";
                         }
 
-                        public slice(elems: java.util.List<org.kevoree.modeling.api.KObject>, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void {
-                            org.kevoree.modeling.api.operation.DefaultModelSlicer.slice(elems, callback);
-                        }
-
                         public json(): org.kevoree.modeling.api.ModelFormat {
                             return new org.kevoree.modeling.api.json.JsonFormat(this);
                         }
@@ -1860,12 +1836,6 @@ module org {
                         public taskSetRoot(elem: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any> {
                             var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
                             this.setRoot(elem, task.initCallback());
-                            return task;
-                        }
-
-                        public taskSlice(elems: java.util.List<org.kevoree.modeling.api.KObject>): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
-                            this.slice(elems, task.initCallback());
                             return task;
                         }
 
@@ -4686,79 +4656,6 @@ module org {
                                 }
                             }
                             return traces;
-                        }
-
-                    }
-
-                    export class DefaultModelSlicer {
-
-                        private static internal_prune(elem: org.kevoree.modeling.api.KObject, traces: java.util.List<org.kevoree.modeling.api.trace.ModelTrace>, cache: java.util.Map<number, org.kevoree.modeling.api.KObject>, parentMap: java.util.Map<number, org.kevoree.modeling.api.KObject>, callback: (p : java.lang.Throwable) => void): void {
-                            var parents: java.util.List<org.kevoree.modeling.api.KObject> = new java.util.ArrayList<org.kevoree.modeling.api.KObject>();
-                            var parentExplorer: java.util.List<(p : org.kevoree.modeling.api.KObject) => void> = new java.util.ArrayList<(p : org.kevoree.modeling.api.KObject) => void>();
-                            parentExplorer.add( (currentParent : org.kevoree.modeling.api.KObject) => {
-                                if (currentParent != null && parentMap.get(currentParent.uuid()) == null && cache.get(currentParent.uuid()) == null) {
-                                    parents.add(currentParent);
-                                    currentParent.parent(parentExplorer.get(0));
-                                    callback(null);
-                                } else {
-                                    java.util.Collections.reverse(parents);
-                                    var parentsArr: org.kevoree.modeling.api.KObject[] = parents.toArray(new Array());
-                                    for (var k: number = 0; k < parentsArr.length; k++) {
-                                        var parent: org.kevoree.modeling.api.KObject = parentsArr[k];
-                                        if (parent.parentUuid() != null) {
-                                            traces.add(new org.kevoree.modeling.api.trace.ModelNewTrace(parent.uuid(), parent.metaClass()));
-                                            traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(parent.parentUuid(), parent.referenceInParent(), parent.uuid()));
-                                        }
-                                        var toAdd: org.kevoree.modeling.api.trace.ModelTrace[] = elem.traces(org.kevoree.modeling.api.TraceRequest.ATTRIBUTES_ONLY);
-                                        for (var i: number = 0; i < toAdd.length; i++) {
-                                            traces.add(toAdd[i]);
-                                        }
-                                        parentMap.put(parent.uuid(), parent);
-                                    }
-                                    if (cache.get(elem.uuid()) == null && parentMap.get(elem.uuid()) == null) {
-                                        if (elem.parentUuid() != null) {
-                                            traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(elem.parentUuid(), elem.referenceInParent(), elem.uuid()));
-                                        }
-                                        var toAdd: org.kevoree.modeling.api.trace.ModelTrace[] = elem.traces(org.kevoree.modeling.api.TraceRequest.ATTRIBUTES_ONLY);
-                                        for (var i: number = 0; i < toAdd.length; i++) {
-                                            traces.add(toAdd[i]);
-                                        }
-                                    }
-                                    cache.put(elem.uuid(), elem);
-                                    elem.visit( (elem : org.kevoree.modeling.api.KObject) => {
-                                        if (cache.get(elem.uuid()) == null) {
-                                            org.kevoree.modeling.api.operation.DefaultModelSlicer.internal_prune(elem, traces, cache, parentMap,  (throwable : java.lang.Throwable) => {
-                                            });
-                                        }
-                                        return org.kevoree.modeling.api.VisitResult.CONTINUE;
-                                    },  (throwable : java.lang.Throwable) => {
-                                        callback(null);
-                                    }, org.kevoree.modeling.api.VisitRequest.ALL);
-                                }
-                            });
-                            traces.add(new org.kevoree.modeling.api.trace.ModelNewTrace(elem.uuid(), elem.metaClass()));
-                            traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(elem.uuid(), null, elem.uuid()));
-                            elem.parent(parentExplorer.get(0));
-                        }
-
-                        public static slice(elems: java.util.List<org.kevoree.modeling.api.KObject>, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void {
-                            var traces: java.util.List<org.kevoree.modeling.api.trace.ModelTrace> = new java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>();
-                            var tempMap: java.util.Map<number, org.kevoree.modeling.api.KObject> = new java.util.HashMap<number, org.kevoree.modeling.api.KObject>();
-                            var parentMap: java.util.Map<number, org.kevoree.modeling.api.KObject> = new java.util.HashMap<number, org.kevoree.modeling.api.KObject>();
-                            var elemsArr: org.kevoree.modeling.api.KObject[] = elems.toArray(new Array());
-                            org.kevoree.modeling.api.util.Helper.forall(elemsArr,  (obj : org.kevoree.modeling.api.KObject, next : (p : java.lang.Throwable) => void) => {
-                                org.kevoree.modeling.api.operation.DefaultModelSlicer.internal_prune(obj, traces, tempMap, parentMap, next);
-                            },  (throwable : java.lang.Throwable) => {
-                                var toLinkKeysArr: number[] = tempMap.keySet().toArray(new Array());
-                                for (var k: number = 0; k < toLinkKeysArr.length; k++) {
-                                    var toLink: org.kevoree.modeling.api.KObject = tempMap.get(toLinkKeysArr[k]);
-                                    var toAdd: org.kevoree.modeling.api.trace.ModelTrace[] = toLink.traces(org.kevoree.modeling.api.TraceRequest.REFERENCES_ONLY);
-                                    for (var i: number = 0; i < toAdd.length; i++) {
-                                        traces.add(toAdd[i]);
-                                    }
-                                }
-                                callback(new org.kevoree.modeling.api.trace.TraceSequence().populate(traces));
-                            });
                         }
 
                     }
@@ -9034,12 +8931,6 @@ module org {
                     }
                 }
                 export module util {
-                    export interface CallBackChain<A> {
-
-                        on(a: A, next: (p : java.lang.Throwable) => void): void;
-
-                    }
-
                     export class Checker {
 
                         public static isDefined(param: any): boolean {
@@ -9079,38 +8970,20 @@ module org {
 
                     }
 
-                    export class Helper {
+                    export interface KOperationManager {
+
+                        registerOperation(operation: org.kevoree.modeling.api.meta.MetaOperation, callback: (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void): void;
+
+                        call(source: org.kevoree.modeling.api.KObject, operation: org.kevoree.modeling.api.meta.MetaOperation, param: any[], callback: (p : any) => void): void;
+
+                    }
+
+                    export class PathHelper {
 
                         public static pathSep: string = '/';
                         private static pathIDOpen: string = '[';
                         private static pathIDClose: string = ']';
                         private static rootPath: string = "/";
-                        public static forall<A> (inputs: A[], each: (p : A, p1 : (p : java.lang.Throwable) => void) => void, end: (p : java.lang.Throwable) => void): void {
-                            if (inputs == null) {
-                                return;
-                            }
-                            org.kevoree.modeling.api.util.Helper.process(inputs, 0, each, end);
-                        }
-
-                        private static process<A> (arr: A[], index: number, each: (p : A, p1 : (p : java.lang.Throwable) => void) => void, end: (p : java.lang.Throwable) => void): void {
-                            if (index >= arr.length) {
-                                if (end != null) {
-                                    end(null);
-                                }
-                            } else {
-                                var obj: A = arr[index];
-                                each(obj,  (err : java.lang.Throwable) => {
-                                    if (err != null) {
-                                        if (end != null) {
-                                            end(err);
-                                        }
-                                    } else {
-                                        org.kevoree.modeling.api.util.Helper.process(arr, index + 1, each, end);
-                                    }
-                                });
-                            }
-                        }
-
                         public static parentPath(currentPath: string): string {
                             if (currentPath == null || currentPath.length == 0) {
                                 return null;
@@ -9118,10 +8991,10 @@ module org {
                             if (currentPath.length == 1) {
                                 return null;
                             }
-                            var lastIndex: number = currentPath.lastIndexOf(Helper.pathSep);
+                            var lastIndex: number = currentPath.lastIndexOf(PathHelper.pathSep);
                             if (lastIndex != -1) {
                                 if (lastIndex == 0) {
-                                    return Helper.rootPath;
+                                    return PathHelper.rootPath;
                                 } else {
                                     return currentPath.substring(0, lastIndex);
                                 }
@@ -9130,29 +9003,17 @@ module org {
                             }
                         }
 
-                        public static attachedToRoot(path: string): boolean {
-                            return path.length > 0 && path.charAt(0) == Helper.pathSep;
-                        }
-
                         public static isRoot(path: string): boolean {
-                            return path.length == 1 && path.charAt(0) == org.kevoree.modeling.api.util.Helper.pathSep;
+                            return path.length == 1 && path.charAt(0) == org.kevoree.modeling.api.util.PathHelper.pathSep;
                         }
 
                         public static path(parent: string, reference: org.kevoree.modeling.api.meta.MetaReference, target: org.kevoree.modeling.api.KObject): string {
-                            if (org.kevoree.modeling.api.util.Helper.isRoot(parent)) {
-                                return Helper.pathSep + reference.metaName() + Helper.pathIDOpen + target.domainKey() + Helper.pathIDClose;
+                            if (org.kevoree.modeling.api.util.PathHelper.isRoot(parent)) {
+                                return PathHelper.pathSep + reference.metaName() + PathHelper.pathIDOpen + target.domainKey() + PathHelper.pathIDClose;
                             } else {
-                                return parent + Helper.pathSep + reference.metaName() + Helper.pathIDOpen + target.domainKey() + Helper.pathIDClose;
+                                return parent + PathHelper.pathSep + reference.metaName() + PathHelper.pathIDOpen + target.domainKey() + PathHelper.pathIDClose;
                             }
                         }
-
-                    }
-
-                    export interface KOperationManager {
-
-                        registerOperation(operation: org.kevoree.modeling.api.meta.MetaOperation, callback: (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void): void;
-
-                        call(source: org.kevoree.modeling.api.KObject, operation: org.kevoree.modeling.api.meta.MetaOperation, param: any[], callback: (p : any) => void): void;
 
                     }
 
