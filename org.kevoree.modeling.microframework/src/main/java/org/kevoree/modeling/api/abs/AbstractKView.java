@@ -1,18 +1,21 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KActionType;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KTask;
+import org.kevoree.modeling.api.KUniverse;
+import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.ModelFormat;
+import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.json.JsonFormat;
 import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.operation.DefaultModelSlicer;
 import org.kevoree.modeling.api.traversal.KSelector;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.DefaultTimeTree;
-import org.kevoree.modeling.api.trace.TraceSequence;
 import org.kevoree.modeling.api.util.Checker;
 import org.kevoree.modeling.api.xmi.XmiFormat;
-
-import java.util.List;
 
 /**
  * Created by duke on 10/10/14.
@@ -118,11 +121,6 @@ public abstract class AbstractKView implements KView {
     protected abstract KObject internalCreate(MetaClass clazz, TimeTree timeTree, long key);
 
     @Override
-    public void slice(List<KObject> elems, Callback<TraceSequence> callback) {
-        DefaultModelSlicer.slice(elems, callback);
-    }
-
-    @Override
     public ModelFormat json() {
         return new JsonFormat(this);
     }
@@ -171,13 +169,5 @@ public abstract class AbstractKView implements KView {
         setRoot(elem, task.initCallback());
         return task;
     }
-
-    @Override
-    public KTask<TraceSequence> taskSlice(List<KObject> elems) {
-        AbstractKTaskWrapper<TraceSequence> task = new AbstractKTaskWrapper<TraceSequence>();
-        slice(elems, task.initCallback());
-        return task;
-    }
-
 
 }

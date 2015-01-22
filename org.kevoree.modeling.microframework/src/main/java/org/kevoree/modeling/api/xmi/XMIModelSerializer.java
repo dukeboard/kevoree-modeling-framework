@@ -1,10 +1,16 @@
 package org.kevoree.modeling.api.xmi;
 
-import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.KCurrentTask;
+import org.kevoree.modeling.api.KJob;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KTask;
+import org.kevoree.modeling.api.ModelAttributeVisitor;
+import org.kevoree.modeling.api.ModelVisitor;
+import org.kevoree.modeling.api.ThrowableCallback;
+import org.kevoree.modeling.api.VisitRequest;
+import org.kevoree.modeling.api.VisitResult;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.util.CallBackChain;
-import org.kevoree.modeling.api.util.Helper;
 
 /*
 * Author : Gregory Nain

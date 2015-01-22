@@ -79,8 +79,6 @@ public interface KObject {
 
     public void intersection(KObject target, Callback<TraceSequence> callback);
 
-    public void slice(Callback<TraceSequence> callback);
-
     public <U extends KObject> void jump(long time, final Callback<U> callback);
 
     public MetaReference[] referencesWith(KObject o);
@@ -102,8 +100,6 @@ public interface KObject {
     public KTask<TraceSequence> taskMerge(KObject target);
 
     public KTask<TraceSequence> taskIntersection(KObject target);
-
-    public KTask<TraceSequence> taskSlice();
 
     public <U extends KObject> KTask<U> taskJump(long time);
 

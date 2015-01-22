@@ -10,7 +10,6 @@ import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.operation.DefaultModelCompare;
-import org.kevoree.modeling.api.operation.DefaultModelSlicer;
 import org.kevoree.modeling.api.traversal.DefaultKTraversal;
 import org.kevoree.modeling.api.traversal.KTraversal;
 import org.kevoree.modeling.api.traversal.KSelector;
@@ -20,7 +19,7 @@ import org.kevoree.modeling.api.trace.ModelSetTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.trace.TraceSequence;
 import org.kevoree.modeling.api.util.Checker;
-import org.kevoree.modeling.api.util.Helper;
+import org.kevoree.modeling.api.util.PathHelper;
 
 import java.util.*;
 
@@ -110,7 +109,7 @@ public abstract class AbstractKObject implements KObject {
                         parent.path(new Callback<String>() {
                             @Override
                             public void on(String parentPath) {
-                                callback.on(Helper.path(parentPath, referenceInParent(), AbstractKObject.this));
+                                callback.on(PathHelper.path(parentPath, referenceInParent(), AbstractKObject.this));
                             }
                         });
                     }
@@ -772,12 +771,6 @@ public abstract class AbstractKObject implements KObject {
         DefaultModelCompare.intersection(this, target, callback);
     }
 
-    public void slice(Callback<TraceSequence> callback) {
-        ArrayList<KObject> params = new ArrayList<KObject>();
-        params.add(this);
-        DefaultModelSlicer.slice(params, callback);
-    }
-
     @Override
     public <U extends KObject> void jump(long time, final Callback<U> callback) {
         view().universe().time(time).lookup(_uuid, new Callback<KObject>() {
@@ -921,13 +914,6 @@ public abstract class AbstractKObject implements KObject {
     public KTask<TraceSequence> taskIntersection(KObject p_target) {
         AbstractKTaskWrapper<TraceSequence> task = new AbstractKTaskWrapper<TraceSequence>();
         intersection(p_target, task.initCallback());
-        return task;
-    }
-
-    @Override
-    public KTask<TraceSequence> taskSlice() {
-        AbstractKTaskWrapper<TraceSequence> task = new AbstractKTaskWrapper<TraceSequence>();
-        slice(task.initCallback());
         return task;
     }
 

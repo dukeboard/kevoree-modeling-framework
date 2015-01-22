@@ -26,8 +26,6 @@ public interface KView {
 
     public void listen(ModelListener listener);
 
-    public void slice(List<KObject> elems, Callback<TraceSequence> callback);
-
     public ModelFormat json();
 
     public ModelFormat xmi();
@@ -43,7 +41,5 @@ public interface KView {
     public KTask<KObject[]> taskSelect(String query);
 
     public KTask<Throwable> taskSetRoot(KObject elem);
-
-    public KTask<TraceSequence> taskSlice(List<KObject> elems);
 
 }
