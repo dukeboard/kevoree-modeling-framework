@@ -62,6 +62,9 @@ declare module java {
         }
         class IndexOutOfBoundsException extends Exception {
         }
+        interface Runnable {
+            run(): void;
+        }
         class StringBuilder {
             buffer: string;
             length: number;

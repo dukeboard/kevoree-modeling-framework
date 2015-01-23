@@ -220,13 +220,17 @@ var org;
                         AbstractKModel.prototype.listen = function (listener) {
                             this.storage().eventBroker().registerListener(this, listener, null);
                         };
-                        AbstractKModel.prototype.setEventBroker = function (eventBroker) {
-                            this.storage().setEventBroker(eventBroker);
-                            eventBroker.setMetaModel(this.metaModel());
+                        AbstractKModel.prototype.setEventBroker = function (p_eventBroker) {
+                            this.storage().setEventBroker(p_eventBroker);
+                            p_eventBroker.setMetaModel(this.metaModel());
                             return this;
                         };
-                        AbstractKModel.prototype.setDataBase = function (dataBase) {
-                            this.storage().setDataBase(dataBase);
+                        AbstractKModel.prototype.setDataBase = function (p_dataBase) {
+                            this.storage().setDataBase(p_dataBase);
+                            return this;
+                        };
+                        AbstractKModel.prototype.setScheduler = function (p_scheduler) {
+                            this.storage().setScheduler(p_scheduler);
                             return this;
                         };
                         AbstractKModel.prototype.setOperation = function (metaOperation, operation) {
@@ -1693,6 +1697,7 @@ var org;
                             this._db = new org.kevoree.modeling.api.data.MemoryKDataBase();
                             this._eventBroker = new org.kevoree.modeling.api.event.DefaultKBroker();
                             this._operationManager = new org.kevoree.modeling.api.util.DefaultOperationManager(this);
+                            this._scheduler = new org.kevoree.modeling.api.scheduler.DirectScheduler();
                         }
                         DefaultKStore.prototype.connect = function (callback) {
                             var _this = this;
@@ -2042,52 +2047,54 @@ var org;
                             });
                         };
                         DefaultKStore.prototype.lookupAll = function (originView, keys, callback) {
-                            var _this = this;
-                            this.internal_resolve_dim_time(originView, keys, function (objects) {
-                                var resolved = new Array();
-                                var toLoadIndexes = new java.util.ArrayList();
-                                for (var i = 0; i < objects.length; i++) {
-                                    if (objects[i][DefaultKStore.INDEX_RESOLVED_TIME] != null) {
-                                        var entry = _this.read_cache(objects[i][DefaultKStore.INDEX_RESOLVED_DIM], objects[i][DefaultKStore.INDEX_RESOLVED_TIME], keys[i]);
-                                        if (entry == null) {
-                                            toLoadIndexes.add(i);
-                                        }
-                                        else {
-                                            resolved[i] = originView.createProxy(entry.metaClass, entry.timeTree, keys[i]);
+                            this._scheduler.dispatch({ run: function () {
+                                var _this = this;
+                                this.internal_resolve_dim_time(originView, keys, function (objects) {
+                                    var resolved = new Array();
+                                    var toLoadIndexes = new java.util.ArrayList();
+                                    for (var i = 0; i < objects.length; i++) {
+                                        if (objects[i][DefaultKStore.INDEX_RESOLVED_TIME] != null) {
+                                            var entry = _this.read_cache(objects[i][DefaultKStore.INDEX_RESOLVED_DIM], objects[i][DefaultKStore.INDEX_RESOLVED_TIME], keys[i]);
+                                            if (entry == null) {
+                                                toLoadIndexes.add(i);
+                                            }
+                                            else {
+                                                resolved[i] = originView.createProxy(entry.metaClass, entry.timeTree, keys[i]);
+                                            }
                                         }
                                     }
-                                }
-                                if (toLoadIndexes.isEmpty()) {
-                                    callback(resolved);
-                                }
-                                else {
-                                    var toLoadKeys = new Array();
-                                    for (var i = 0; i < toLoadIndexes.size(); i++) {
-                                        var toLoadIndex = toLoadIndexes.get(i);
-                                        toLoadKeys[i] = _this.keyPayload(objects[toLoadIndex][DefaultKStore.INDEX_RESOLVED_DIM], objects[toLoadIndex][DefaultKStore.INDEX_RESOLVED_TIME], keys[i]);
+                                    if (toLoadIndexes.isEmpty()) {
+                                        callback(resolved);
                                     }
-                                    _this._db.get(toLoadKeys, function (strings, error) {
-                                        if (error != null) {
-                                            error.printStackTrace();
-                                            callback(null);
+                                    else {
+                                        var toLoadKeys = new Array();
+                                        for (var i = 0; i < toLoadIndexes.size(); i++) {
+                                            var toLoadIndex = toLoadIndexes.get(i);
+                                            toLoadKeys[i] = _this.keyPayload(objects[toLoadIndex][DefaultKStore.INDEX_RESOLVED_DIM], objects[toLoadIndex][DefaultKStore.INDEX_RESOLVED_TIME], keys[i]);
                                         }
-                                        else {
-                                            for (var i = 0; i < strings.length; i++) {
-                                                if (strings[i] != null) {
-                                                    var index = toLoadIndexes.get(i);
-                                                    var entry = org.kevoree.modeling.api.data.JsonRaw.decode(strings[i], originView, objects[i][DefaultKStore.INDEX_RESOLVED_TIME]);
-                                                    if (entry != null) {
-                                                        entry.timeTree = objects[i][DefaultKStore.INDEX_RESOLVED_TIMETREE];
-                                                        resolved[index] = originView.createProxy(entry.metaClass, entry.timeTree, keys[i]);
-                                                        _this.write_cache(objects[i][DefaultKStore.INDEX_RESOLVED_DIM], objects[i][DefaultKStore.INDEX_RESOLVED_TIME], keys[i], entry);
+                                        _this._db.get(toLoadKeys, function (strings, error) {
+                                            if (error != null) {
+                                                error.printStackTrace();
+                                                callback(null);
+                                            }
+                                            else {
+                                                for (var i = 0; i < strings.length; i++) {
+                                                    if (strings[i] != null) {
+                                                        var index = toLoadIndexes.get(i);
+                                                        var entry = org.kevoree.modeling.api.data.JsonRaw.decode(strings[i], originView, objects[i][DefaultKStore.INDEX_RESOLVED_TIME]);
+                                                        if (entry != null) {
+                                                            entry.timeTree = objects[i][DefaultKStore.INDEX_RESOLVED_TIMETREE];
+                                                            resolved[index] = originView.createProxy(entry.metaClass, entry.timeTree, keys[i]);
+                                                            _this.write_cache(objects[i][DefaultKStore.INDEX_RESOLVED_DIM], objects[i][DefaultKStore.INDEX_RESOLVED_TIME], keys[i], entry);
+                                                        }
                                                     }
                                                 }
+                                                callback(resolved);
                                             }
-                                            callback(resolved);
-                                        }
-                                    });
-                                }
-                            });
+                                        });
+                                    }
+                                });
+                            } });
                         };
                         DefaultKStore.prototype.getRoot = function (originView, callback) {
                             var _this = this;
@@ -2126,6 +2133,11 @@ var org;
                         };
                         DefaultKStore.prototype.setDataBase = function (p_dataBase) {
                             this._db = p_dataBase;
+                        };
+                        DefaultKStore.prototype.setScheduler = function (p_scheduler) {
+                            if (p_scheduler != null) {
+                                this._scheduler = p_scheduler;
+                            }
                         };
                         DefaultKStore.prototype.operationManager = function () {
                             return this._operationManager;
@@ -5189,6 +5201,31 @@ var org;
                     })();
                     reflexive.DynamicMetaModel = DynamicMetaModel;
                 })(reflexive = api.reflexive || (api.reflexive = {}));
+                var scheduler;
+                (function (scheduler) {
+                    var DirectScheduler = (function () {
+                        function DirectScheduler() {
+                        }
+                        DirectScheduler.prototype.dispatch = function (runnable) {
+                            runnable.run();
+                        };
+                        DirectScheduler.prototype.stop = function () {
+                        };
+                        return DirectScheduler;
+                    })();
+                    scheduler.DirectScheduler = DirectScheduler;
+                    var ExecutorServiceScheduler = (function () {
+                        function ExecutorServiceScheduler() {
+                        }
+                        ExecutorServiceScheduler.prototype.dispatch = function (p_runnable) {
+                            p_runnable.run();
+                        };
+                        ExecutorServiceScheduler.prototype.stop = function () {
+                        };
+                        return ExecutorServiceScheduler;
+                    })();
+                    scheduler.ExecutorServiceScheduler = ExecutorServiceScheduler;
+                })(scheduler = api.scheduler || (api.scheduler = {}));
                 var time;
                 (function (_time) {
                     var DefaultTimeTree = (function () {

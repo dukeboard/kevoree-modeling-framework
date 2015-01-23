@@ -1,9 +1,6 @@
 package org.kevoree.modeling.api.data;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KUniverse;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.event.KEventBroker;
 import org.kevoree.modeling.api.util.KOperationManager;
 
@@ -45,6 +42,8 @@ public interface KStore {
     public KDataBase dataBase();
 
     public void setDataBase(KDataBase dataBase);
+
+    public void setScheduler(KScheduler scheduler);
 
     public KOperationManager operationManager();
 

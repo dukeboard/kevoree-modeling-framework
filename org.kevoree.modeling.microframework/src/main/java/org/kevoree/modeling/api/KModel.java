@@ -26,6 +26,8 @@ public interface KModel<A extends KUniverse> {
 
     public KModel<A> setDataBase(KDataBase dataBase);
 
+    public KModel<A> setScheduler(KScheduler scheduler);
+
     public void setOperation(MetaOperation metaOperation, KOperation operation);
 
     public MetaModel metaModel();

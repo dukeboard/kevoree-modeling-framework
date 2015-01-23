@@ -7,6 +7,7 @@ import org.kevoree.modeling.api.data.cache.UniverseCache;
 import org.kevoree.modeling.api.data.cache.TimeCache;
 import org.kevoree.modeling.api.event.DefaultKBroker;
 import org.kevoree.modeling.api.event.KEventBroker;
+import org.kevoree.modeling.api.scheduler.DirectScheduler;
 import org.kevoree.modeling.api.time.DefaultTimeTree;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.rbtree.LongRBTree;
@@ -27,6 +28,7 @@ public class DefaultKStore implements KStore {
     private Map<Long, UniverseCache> caches = new HashMap<Long, UniverseCache>();
     private KEventBroker _eventBroker;
     private KOperationManager _operationManager;
+    private KScheduler _scheduler;
 
     private KeyCalculator _objectKeyCalculator = null;
     private KeyCalculator _dimensionKeyCalculator = null;
@@ -39,6 +41,7 @@ public class DefaultKStore implements KStore {
         this._db = new MemoryKDataBase();
         this._eventBroker = new DefaultKBroker();
         this._operationManager = new DefaultOperationManager(this);
+        this._scheduler = new DirectScheduler();
     }
 
     private boolean isConnected = false;
@@ -429,55 +432,60 @@ public class DefaultKStore implements KStore {
 
     @Override
     public void lookupAll(final KView originView, Long[] keys, final Callback<KObject[]> callback) {
-        internal_resolve_dim_time(originView, keys, new Callback<Object[][]>() {
+        this._scheduler.dispatch(new Runnable() {
             @Override
-            public void on(Object[][] objects) {
-                KObject[] resolved = new KObject[keys.length];
-                List<Integer> toLoadIndexes = new ArrayList<Integer>();
-                for (int i = 0; i < objects.length; i++) {
-                    if (objects[i][INDEX_RESOLVED_TIME] != null) {
-                        CacheEntry entry = read_cache((Long) objects[i][INDEX_RESOLVED_DIM], (Long) objects[i][INDEX_RESOLVED_TIME], keys[i]);
-                        if (entry == null) {
-                            toLoadIndexes.add(i);
-                        } else {
-                            resolved[i] = ((AbstractKView) originView).createProxy(entry.metaClass, entry.timeTree, keys[i]);
-                        }
-                    }
-                }
-                if (toLoadIndexes.isEmpty()) {
-                    callback.on(resolved);
-                } else {
-                    String[] toLoadKeys = new String[toLoadIndexes.size()];
-                    for (int i = 0; i < toLoadIndexes.size(); i++) {
-                        int toLoadIndex = toLoadIndexes.get(i);
-                        toLoadKeys[i] = keyPayload((Long) objects[toLoadIndex][INDEX_RESOLVED_DIM], (Long) objects[toLoadIndex][INDEX_RESOLVED_TIME], keys[i]);
-                    }
-                    _db.get(toLoadKeys, new ThrowableCallback<String[]>() {
-                        @Override
-                        public void on(String[] strings, Throwable error) {
-                            if (error != null) {
-                                error.printStackTrace();
-                                callback.on(null);
-                            } else {
-                                for (int i = 0; i < strings.length; i++) {
-                                    if (strings[i] != null) {
-                                        int index = toLoadIndexes.get(i);
-                                        //Create the raw CacheEntry
-                                        CacheEntry entry = JsonRaw.decode(strings[i], originView, (Long) objects[i][INDEX_RESOLVED_TIME]);
-                                        if (entry != null) {
-                                            entry.timeTree = (TimeTree) objects[i][INDEX_RESOLVED_TIMETREE];
-                                            //Create and Add the proxy
-                                            resolved[index] = ((AbstractKView) originView).createProxy(entry.metaClass, entry.timeTree, keys[i]);
-                                            //Save the cache value
-                                            write_cache((Long) objects[i][INDEX_RESOLVED_DIM], (Long) objects[i][INDEX_RESOLVED_TIME], keys[i], entry);
-                                        }
-                                    }
+            public void run() {
+                internal_resolve_dim_time(originView, keys, new Callback<Object[][]>() {
+                    @Override
+                    public void on(Object[][] objects) {
+                        KObject[] resolved = new KObject[keys.length];
+                        List<Integer> toLoadIndexes = new ArrayList<Integer>();
+                        for (int i = 0; i < objects.length; i++) {
+                            if (objects[i][INDEX_RESOLVED_TIME] != null) {
+                                CacheEntry entry = read_cache((Long) objects[i][INDEX_RESOLVED_DIM], (Long) objects[i][INDEX_RESOLVED_TIME], keys[i]);
+                                if (entry == null) {
+                                    toLoadIndexes.add(i);
+                                } else {
+                                    resolved[i] = ((AbstractKView) originView).createProxy(entry.metaClass, entry.timeTree, keys[i]);
                                 }
-                                callback.on(resolved);
                             }
                         }
-                    });
-                }
+                        if (toLoadIndexes.isEmpty()) {
+                            callback.on(resolved);
+                        } else {
+                            String[] toLoadKeys = new String[toLoadIndexes.size()];
+                            for (int i = 0; i < toLoadIndexes.size(); i++) {
+                                int toLoadIndex = toLoadIndexes.get(i);
+                                toLoadKeys[i] = keyPayload((Long) objects[toLoadIndex][INDEX_RESOLVED_DIM], (Long) objects[toLoadIndex][INDEX_RESOLVED_TIME], keys[i]);
+                            }
+                            _db.get(toLoadKeys, new ThrowableCallback<String[]>() {
+                                @Override
+                                public void on(String[] strings, Throwable error) {
+                                    if (error != null) {
+                                        error.printStackTrace();
+                                        callback.on(null);
+                                    } else {
+                                        for (int i = 0; i < strings.length; i++) {
+                                            if (strings[i] != null) {
+                                                int index = toLoadIndexes.get(i);
+                                                //Create the raw CacheEntry
+                                                CacheEntry entry = JsonRaw.decode(strings[i], originView, (Long) objects[i][INDEX_RESOLVED_TIME]);
+                                                if (entry != null) {
+                                                    entry.timeTree = (TimeTree) objects[i][INDEX_RESOLVED_TIMETREE];
+                                                    //Create and Add the proxy
+                                                    resolved[index] = ((AbstractKView) originView).createProxy(entry.metaClass, entry.timeTree, keys[i]);
+                                                    //Save the cache value
+                                                    write_cache((Long) objects[i][INDEX_RESOLVED_DIM], (Long) objects[i][INDEX_RESOLVED_TIME], keys[i], entry);
+                                                }
+                                            }
+                                        }
+                                        callback.on(resolved);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
             }
         });
     }
@@ -532,6 +540,13 @@ public class DefaultKStore implements KStore {
     @Override
     public void setDataBase(KDataBase p_dataBase) {
         this._db = p_dataBase;
+    }
+
+    @Override
+    public void setScheduler(KScheduler p_scheduler) {
+        if (p_scheduler != null) {
+            this._scheduler = p_scheduler;
+        }
     }
 
     public KOperationManager operationManager() {

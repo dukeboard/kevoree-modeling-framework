@@ -140,6 +140,8 @@ module org {
 
                     setDataBase(dataBase: org.kevoree.modeling.api.data.KDataBase): org.kevoree.modeling.api.KModel<any>;
 
+                    setScheduler(scheduler: org.kevoree.modeling.api.KScheduler): org.kevoree.modeling.api.KModel<any>;
+
                     setOperation(metaOperation: org.kevoree.modeling.api.meta.MetaOperation, operation: (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void): void;
 
                     metaModel(): org.kevoree.modeling.api.meta.MetaModel;
@@ -259,6 +261,14 @@ module org {
                 export interface KOperation {
 
                     on(source: org.kevoree.modeling.api.KObject, params: any[], result: (p : any) => void): void;
+
+                }
+
+                export interface KScheduler {
+
+                    dispatch(runnable: java.lang.Runnable): void;
+
+                    stop(): void;
 
                 }
 
@@ -556,14 +566,19 @@ module org {
                             this.storage().eventBroker().registerListener(this, listener, null);
                         }
 
-                        public setEventBroker(eventBroker: org.kevoree.modeling.api.event.KEventBroker): org.kevoree.modeling.api.KModel<any> {
-                            this.storage().setEventBroker(eventBroker);
-                            eventBroker.setMetaModel(this.metaModel());
+                        public setEventBroker(p_eventBroker: org.kevoree.modeling.api.event.KEventBroker): org.kevoree.modeling.api.KModel<any> {
+                            this.storage().setEventBroker(p_eventBroker);
+                            p_eventBroker.setMetaModel(this.metaModel());
                             return this;
                         }
 
-                        public setDataBase(dataBase: org.kevoree.modeling.api.data.KDataBase): org.kevoree.modeling.api.KModel<any> {
-                            this.storage().setDataBase(dataBase);
+                        public setDataBase(p_dataBase: org.kevoree.modeling.api.data.KDataBase): org.kevoree.modeling.api.KModel<any> {
+                            this.storage().setDataBase(p_dataBase);
+                            return this;
+                        }
+
+                        public setScheduler(p_scheduler: org.kevoree.modeling.api.KScheduler): org.kevoree.modeling.api.KModel<any> {
+                            this.storage().setScheduler(p_scheduler);
                             return this;
                         }
 
@@ -2136,6 +2151,7 @@ module org {
                         private caches: java.util.Map<number, org.kevoree.modeling.api.data.cache.UniverseCache> = new java.util.HashMap<number, org.kevoree.modeling.api.data.cache.UniverseCache>();
                         private _eventBroker: org.kevoree.modeling.api.event.KEventBroker;
                         private _operationManager: org.kevoree.modeling.api.util.KOperationManager;
+                        private _scheduler: org.kevoree.modeling.api.KScheduler;
                         private _objectKeyCalculator: org.kevoree.modeling.api.data.KeyCalculator = null;
                         private _dimensionKeyCalculator: org.kevoree.modeling.api.data.KeyCalculator = null;
                         private static OUT_OF_CACHE_MESSAGE: string = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
@@ -2149,6 +2165,7 @@ module org {
                             this._db = new org.kevoree.modeling.api.data.MemoryKDataBase();
                             this._eventBroker = new org.kevoree.modeling.api.event.DefaultKBroker();
                             this._operationManager = new org.kevoree.modeling.api.util.DefaultOperationManager(this);
+                            this._scheduler = new org.kevoree.modeling.api.scheduler.DirectScheduler();
                         }
 
                         public connect(callback: (p : java.lang.Throwable) => void): void {
@@ -2497,48 +2514,50 @@ module org {
                         }
 
                         public lookupAll(originView: org.kevoree.modeling.api.KView, keys: number[], callback: (p : org.kevoree.modeling.api.KObject[]) => void): void {
-                            this.internal_resolve_dim_time(originView, keys,  (objects : any[][]) => {
-                                var resolved: org.kevoree.modeling.api.KObject[] = new Array();
-                                var toLoadIndexes: java.util.List<number> = new java.util.ArrayList<number>();
-                                for (var i: number = 0; i < objects.length; i++) {
-                                    if (objects[i][DefaultKStore.INDEX_RESOLVED_TIME] != null) {
-                                        var entry: org.kevoree.modeling.api.data.CacheEntry = this.read_cache(<number>objects[i][DefaultKStore.INDEX_RESOLVED_DIM], <number>objects[i][DefaultKStore.INDEX_RESOLVED_TIME], keys[i]);
-                                        if (entry == null) {
-                                            toLoadIndexes.add(i);
-                                        } else {
-                                            resolved[i] = (<org.kevoree.modeling.api.abs.AbstractKView>originView).createProxy(entry.metaClass, entry.timeTree, keys[i]);
+                            this._scheduler.dispatch({run:function(){
+                                this.internal_resolve_dim_time(originView, keys,  (objects : any[][]) => {
+                                    var resolved: org.kevoree.modeling.api.KObject[] = new Array();
+                                    var toLoadIndexes: java.util.List<number> = new java.util.ArrayList<number>();
+                                    for (var i: number = 0; i < objects.length; i++) {
+                                        if (objects[i][DefaultKStore.INDEX_RESOLVED_TIME] != null) {
+                                            var entry: org.kevoree.modeling.api.data.CacheEntry = this.read_cache(<number>objects[i][DefaultKStore.INDEX_RESOLVED_DIM], <number>objects[i][DefaultKStore.INDEX_RESOLVED_TIME], keys[i]);
+                                            if (entry == null) {
+                                                toLoadIndexes.add(i);
+                                            } else {
+                                                resolved[i] = (<org.kevoree.modeling.api.abs.AbstractKView>originView).createProxy(entry.metaClass, entry.timeTree, keys[i]);
+                                            }
                                         }
                                     }
-                                }
-                                if (toLoadIndexes.isEmpty()) {
-                                    callback(resolved);
-                                } else {
-                                    var toLoadKeys: string[] = new Array();
-                                    for (var i: number = 0; i < toLoadIndexes.size(); i++) {
-                                        var toLoadIndex: number = toLoadIndexes.get(i);
-                                        toLoadKeys[i] = this.keyPayload(<number>objects[toLoadIndex][DefaultKStore.INDEX_RESOLVED_DIM], <number>objects[toLoadIndex][DefaultKStore.INDEX_RESOLVED_TIME], keys[i]);
-                                    }
-                                    this._db.get(toLoadKeys,  (strings : string[], error : java.lang.Throwable) => {
-                                        if (error != null) {
-                                            error.printStackTrace();
-                                            callback(null);
-                                        } else {
-                                            for (var i: number = 0; i < strings.length; i++) {
-                                                if (strings[i] != null) {
-                                                    var index: number = toLoadIndexes.get(i);
-                                                    var entry: org.kevoree.modeling.api.data.CacheEntry = org.kevoree.modeling.api.data.JsonRaw.decode(strings[i], originView, <number>objects[i][DefaultKStore.INDEX_RESOLVED_TIME]);
-                                                    if (entry != null) {
-                                                        entry.timeTree = <org.kevoree.modeling.api.time.TimeTree>objects[i][DefaultKStore.INDEX_RESOLVED_TIMETREE];
-                                                        resolved[index] = (<org.kevoree.modeling.api.abs.AbstractKView>originView).createProxy(entry.metaClass, entry.timeTree, keys[i]);
-                                                        this.write_cache(<number>objects[i][DefaultKStore.INDEX_RESOLVED_DIM], <number>objects[i][DefaultKStore.INDEX_RESOLVED_TIME], keys[i], entry);
+                                    if (toLoadIndexes.isEmpty()) {
+                                        callback(resolved);
+                                    } else {
+                                        var toLoadKeys: string[] = new Array();
+                                        for (var i: number = 0; i < toLoadIndexes.size(); i++) {
+                                            var toLoadIndex: number = toLoadIndexes.get(i);
+                                            toLoadKeys[i] = this.keyPayload(<number>objects[toLoadIndex][DefaultKStore.INDEX_RESOLVED_DIM], <number>objects[toLoadIndex][DefaultKStore.INDEX_RESOLVED_TIME], keys[i]);
+                                        }
+                                        this._db.get(toLoadKeys,  (strings : string[], error : java.lang.Throwable) => {
+                                            if (error != null) {
+                                                error.printStackTrace();
+                                                callback(null);
+                                            } else {
+                                                for (var i: number = 0; i < strings.length; i++) {
+                                                    if (strings[i] != null) {
+                                                        var index: number = toLoadIndexes.get(i);
+                                                        var entry: org.kevoree.modeling.api.data.CacheEntry = org.kevoree.modeling.api.data.JsonRaw.decode(strings[i], originView, <number>objects[i][DefaultKStore.INDEX_RESOLVED_TIME]);
+                                                        if (entry != null) {
+                                                            entry.timeTree = <org.kevoree.modeling.api.time.TimeTree>objects[i][DefaultKStore.INDEX_RESOLVED_TIMETREE];
+                                                            resolved[index] = (<org.kevoree.modeling.api.abs.AbstractKView>originView).createProxy(entry.metaClass, entry.timeTree, keys[i]);
+                                                            this.write_cache(<number>objects[i][DefaultKStore.INDEX_RESOLVED_DIM], <number>objects[i][DefaultKStore.INDEX_RESOLVED_TIME], keys[i], entry);
+                                                        }
                                                     }
                                                 }
+                                                callback(resolved);
                                             }
-                                            callback(resolved);
-                                        }
-                                    });
-                                }
-                            });
+                                        });
+                                    }
+                                });
+}                            });
                         }
 
                         public getRoot(originView: org.kevoree.modeling.api.KView, callback: (p : org.kevoree.modeling.api.KObject) => void): void {
@@ -2580,6 +2599,12 @@ module org {
 
                         public setDataBase(p_dataBase: org.kevoree.modeling.api.data.KDataBase): void {
                             this._db = p_dataBase;
+                        }
+
+                        public setScheduler(p_scheduler: org.kevoree.modeling.api.KScheduler): void {
+                            if (p_scheduler != null) {
+                                this._scheduler = p_scheduler;
+                            }
                         }
 
                         public operationManager(): org.kevoree.modeling.api.util.KOperationManager {
@@ -3127,6 +3152,8 @@ module org {
                         dataBase(): org.kevoree.modeling.api.data.KDataBase;
 
                         setDataBase(dataBase: org.kevoree.modeling.api.data.KDataBase): void;
+
+                        setScheduler(scheduler: org.kevoree.modeling.api.KScheduler): void;
 
                         operationManager(): org.kevoree.modeling.api.util.KOperationManager;
 
@@ -5891,6 +5918,30 @@ module org {
                             var universe: org.kevoree.modeling.api.reflexive.DynamicKModel = new org.kevoree.modeling.api.reflexive.DynamicKModel();
                             universe.setMetaModel(this);
                             return universe;
+                        }
+
+                    }
+
+                }
+                export module scheduler {
+                    export class DirectScheduler implements org.kevoree.modeling.api.KScheduler {
+
+                        public dispatch(runnable: java.lang.Runnable): void {
+                            runnable.run();
+                        }
+
+                        public stop(): void {
+                        }
+
+                    }
+
+                    export class ExecutorServiceScheduler implements org.kevoree.modeling.api.KScheduler {
+
+                        public dispatch(p_runnable: java.lang.Runnable): void {
+                            p_runnable.run() ;
+                        }
+
+                        public stop(): void {
                         }
 
                     }

@@ -61,6 +61,7 @@ declare module org {
                     listen(listener: (p: KEvent) => void): void;
                     setEventBroker(eventBroker: event.KEventBroker): KModel<any>;
                     setDataBase(dataBase: data.KDataBase): KModel<any>;
+                    setScheduler(scheduler: KScheduler): KModel<any>;
                     setOperation(metaOperation: meta.MetaOperation, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
                     metaModel(): meta.MetaModel;
                     task(): KTask<any>;
@@ -121,6 +122,10 @@ declare module org {
                 }
                 interface KOperation {
                     on(source: KObject, params: any[], result: (p: any) => void): void;
+                }
+                interface KScheduler {
+                    dispatch(runnable: java.lang.Runnable): void;
+                    stop(): void;
                 }
                 interface KTask<A> {
                     wait(previous: KTask<any>): void;
@@ -235,8 +240,9 @@ declare module org {
                         unload(callback: (p: boolean) => void): void;
                         disable(listener: (p: KEvent) => void): void;
                         listen(listener: (p: KEvent) => void): void;
-                        setEventBroker(eventBroker: event.KEventBroker): KModel<any>;
-                        setDataBase(dataBase: data.KDataBase): KModel<any>;
+                        setEventBroker(p_eventBroker: event.KEventBroker): KModel<any>;
+                        setDataBase(p_dataBase: data.KDataBase): KModel<any>;
+                        setScheduler(p_scheduler: KScheduler): KModel<any>;
                         setOperation(metaOperation: meta.MetaOperation, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
                         task(): KTask<any>;
                         taskSave(): KTask<any>;
@@ -482,6 +488,7 @@ declare module org {
                         private caches;
                         private _eventBroker;
                         private _operationManager;
+                        private _scheduler;
                         private _objectKeyCalculator;
                         private _dimensionKeyCalculator;
                         private static OUT_OF_CACHE_MESSAGE;
@@ -518,6 +525,7 @@ declare module org {
                         setEventBroker(p_eventBroker: event.KEventBroker): void;
                         dataBase(): KDataBase;
                         setDataBase(p_dataBase: KDataBase): void;
+                        setScheduler(p_scheduler: KScheduler): void;
                         operationManager(): util.KOperationManager;
                         private read_cache(dimensionKey, timeKey, uuid);
                         private write_cache(dimensionKey, timeKey, uuid, cacheEntry);
@@ -567,6 +575,7 @@ declare module org {
                         setEventBroker(broker: event.KEventBroker): void;
                         dataBase(): KDataBase;
                         setDataBase(dataBase: KDataBase): void;
+                        setScheduler(scheduler: KScheduler): void;
                         operationManager(): util.KOperationManager;
                         connect(callback: (p: java.lang.Throwable) => void): void;
                         close(callback: (p: java.lang.Throwable) => void): void;
@@ -1050,6 +1059,16 @@ declare module org {
                         index(): number;
                         createMetaClass(name: string): DynamicMetaClass;
                         model(): KModel<any>;
+                    }
+                }
+                module scheduler {
+                    class DirectScheduler implements KScheduler {
+                        dispatch(runnable: java.lang.Runnable): void;
+                        stop(): void;
+                    }
+                    class ExecutorServiceScheduler implements KScheduler {
+                        dispatch(p_runnable: java.lang.Runnable): void;
+                        stop(): void;
                     }
                 }
                 module time {

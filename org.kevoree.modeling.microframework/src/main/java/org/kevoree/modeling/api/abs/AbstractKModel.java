@@ -80,18 +80,23 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
     }
 
     @Override
-    public KModel<A> setEventBroker(KEventBroker eventBroker) {
-        storage().setEventBroker(eventBroker);
-        eventBroker.setMetaModel(metaModel());
+    public KModel<A> setEventBroker(KEventBroker p_eventBroker) {
+        storage().setEventBroker(p_eventBroker);
+        p_eventBroker.setMetaModel(metaModel());
         return this;
     }
 
     @Override
-    public KModel<A> setDataBase(KDataBase dataBase) {
-        storage().setDataBase(dataBase);
+    public KModel<A> setDataBase(KDataBase p_dataBase) {
+        storage().setDataBase(p_dataBase);
         return this;
     }
 
+    @Override
+    public KModel<A> setScheduler(KScheduler p_scheduler) {
+        storage().setScheduler(p_scheduler);
+        return this;
+    }
 
     @Override
     public void setOperation(MetaOperation metaOperation, KOperation operation) {
