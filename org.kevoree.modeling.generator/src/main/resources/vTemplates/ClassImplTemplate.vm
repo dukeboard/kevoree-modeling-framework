@@ -138,6 +138,34 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
         return (${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}View) super.view();
     }
 
+#if($classDeclaration.hasIdAttributes())
+    /**
+    * @native:ts
+    * {@code
+    * if (!(typeof(obj) == typeof(this))) {
+    * return false;
+    * } else {
+    * var casted: ${classDeclaration.pack}.${classDeclaration.name} = <${classDeclaration.pack}.${classDeclaration.name}>obj;
+    * return casted.domainKey().equals(this.domainKey());
+    * }
+    * }
+    */
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof ${classDeclaration.pack}.${classDeclaration.name})) {
+           return false;
+        } else {
+            ${classDeclaration.pack}.${classDeclaration.name} casted = (${classDeclaration.pack}.${classDeclaration.name}) obj;
+            return casted.domainKey().equals(domainKey());
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return domainKey().hashCode();
+    }
+#end
+
 }
 #* @vtlvariable name="context" type="org.kevoree.modeling.generator.ClassGenerationContext" *#
 #* @vtlvariable name="classDeclaration" type="org.kevoree.modeling.ast.MModelClass" *#
