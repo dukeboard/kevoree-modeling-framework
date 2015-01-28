@@ -757,6 +757,11 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
+    public int hashCode() {
+        return domainKey().hashCode();
+    }
+
+    @Override
     public void diff(KObject target, Callback<TraceSequence> callback) {
         DefaultModelCompare.diff(this, target, callback);
     }
