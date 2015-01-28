@@ -32,16 +32,6 @@ public class MModelClass extends MModelClassifier {
         return attributes.values();
     }
 
-
-    public boolean hasIdAttributes() {
-        for(MModelAttribute att : getAttributes()) {
-            if(att.isId()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private void deep_collect_atts(HashMap<String, MModelAttribute> collector, HashMap<String, MModelClass> passed) {
         if (passed.containsKey(this.getName())) {
             return;

@@ -72,7 +72,7 @@
 
     <properties>
         <kmf.plugin.version>15</kmf.plugin.version>
-        <java2typescript.plugin.version>19</java2typescript.plugin.version>
+        <java2typescript.plugin.version>18</java2typescript.plugin.version>
     </properties>
 
     <modules>
