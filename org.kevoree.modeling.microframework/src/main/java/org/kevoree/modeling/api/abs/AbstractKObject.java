@@ -758,7 +758,8 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public int hashCode() {
-        return domainKey().hashCode();
+        String hashString = uuid() + "-" + view().now() + "-" + view().universe().key();
+        return hashString.hashCode();
     }
 
     @Override
