@@ -35,7 +35,8 @@ public class MongoDbDataBase implements KDataBase {
             searchQuery.put(KMF_KEY, keys[i]);
             DBCursor cursor = table.find(searchQuery);
             if (cursor.count() == 1) {
-                result[i] = cursor.next().toString();
+                DBObject objectResult = cursor.next();
+                result[i] = objectResult.get(KMF_VAL).toString();
             }
         }
         if (callback != null) {
@@ -49,11 +50,12 @@ public class MongoDbDataBase implements KDataBase {
         List<DBObject> objs = new ArrayList<DBObject>();
         for (int i = 0; i < payloads.length; i++) {
             BasicDBObject obj = new BasicDBObject();
-            obj.put(KMF_KEY, payloads[i][0]);
-            obj.put(KMF_VAL, payloads[i][1]);
-            objs.add(obj);
+            obj.append(KMF_KEY, payloads[i][0]);
+            obj.append(KMF_VAL, payloads[i][1]);
+            table.insert(obj);
+            //objs.add(obj);
         }
-        table.aggregate(objs);
+        //table.insert(objs);
         if (error != null) {
             error.on(null);
         }
