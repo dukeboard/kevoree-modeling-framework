@@ -47,15 +47,18 @@ public class MongoDbDataBase implements KDataBase {
     @Override
     public void put(String[][] payloads, Callback<Throwable> error) {
         DBCollection table = db.getCollection(KMF_COL);
-        List<DBObject> objs = new ArrayList<DBObject>();
+
         for (int i = 0; i < payloads.length; i++) {
-            BasicDBObject obj = new BasicDBObject();
-            obj.append(KMF_KEY, payloads[i][0]);
-            obj.append(KMF_VAL, payloads[i][1]);
-            table.insert(obj);
-            //objs.add(obj);
+
+            BasicDBObject originalObjectQuery = new BasicDBObject();
+            originalObjectQuery.put(KMF_KEY, payloads[i][0]);
+
+            BasicDBObject newValue = new BasicDBObject();
+            newValue.append(KMF_KEY, payloads[i][0]);
+            newValue.append(KMF_VAL, payloads[i][1]);
+            
+            table.update(originalObjectQuery, newValue, true, false);
         }
-        //table.insert(objs);
         if (error != null) {
             error.on(null);
         }
