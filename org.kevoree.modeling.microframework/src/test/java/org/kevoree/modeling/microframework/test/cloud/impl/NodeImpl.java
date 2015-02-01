@@ -51,7 +51,7 @@ public class NodeImpl extends AbstractKObject implements Node {
     }
 
     @Override
-    public void eachChildren(Callback<Node[]> p_callback) {
+    public void getChildren(Callback<Node[]> p_callback) {
         this.all(MetaNode.REF_CHILDREN, new Callback<KObject[]>() {
             @Override
             public void on(KObject[] kObjects) {

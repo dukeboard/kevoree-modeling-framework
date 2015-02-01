@@ -1,7 +1,10 @@
 package org.kevoree.modeling.api.abs;
 
+import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KInfer;
+import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.time.TimeTree;
 
@@ -14,4 +17,28 @@ public class AbstractKObjectInfer<A> extends AbstractKObject implements KInfer {
         super(p_view, p_uuid, p_timeTree, p_metaClass);
     }
 
+    @Override
+    public Meta type() {
+        return null;
+    }
+
+    @Override
+    public KObject[] trainingSet() {
+        return new KObject[0];
+    }
+
+    @Override
+    public void train(KObject[] trainingSet, Callback<Throwable> callback) {
+
+    }
+
+    @Override
+    public void learn() {
+
+    }
+
+    @Override
+    public Object infer(KObject origin) {
+        return null;
+    }
 }

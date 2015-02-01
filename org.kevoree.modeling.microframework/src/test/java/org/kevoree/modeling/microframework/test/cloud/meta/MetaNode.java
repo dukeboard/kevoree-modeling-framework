@@ -18,11 +18,11 @@ public class MetaNode extends AbstractMetaClass {
         return INSTANCE;
     }
 
-    public static final MetaAttribute ATT_NAME = new AbstractMetaAttribute("name", 5, 5, true, PrimitiveMetaTypes.STRING, DiscreteExtrapolation.instance());
+    public static final MetaAttribute ATT_NAME = new AbstractMetaAttribute("name", 6, 5, true, PrimitiveMetaTypes.STRING, DiscreteExtrapolation.instance());
 
-    public static final MetaAttribute ATT_VALUE = new AbstractMetaAttribute("value", 6, 5, false, PrimitiveMetaTypes.STRING, DiscreteExtrapolation.instance());
+    public static final MetaAttribute ATT_VALUE = new AbstractMetaAttribute("value", 7, 5, false, PrimitiveMetaTypes.STRING, DiscreteExtrapolation.instance());
 
-    public static final MetaReference REF_CHILDREN = new AbstractMetaReference("children", 7, true, false, new LazyResolver() {
+    public static final MetaReference REF_CHILDREN = new AbstractMetaReference("children", 8, true, false, new LazyResolver() {
         @Override
         public Meta meta() {
             return MetaNode.getInstance();
@@ -34,14 +34,14 @@ public class MetaNode extends AbstractMetaClass {
         }
     });
 
-    public static final MetaReference REF_ELEMENT = new AbstractMetaReference("element", 8, true, true, null, null, new LazyResolver() {
+    public static final MetaReference REF_ELEMENT = new AbstractMetaReference("element", 9, true, true, null, null, new LazyResolver() {
         @Override
         public Meta meta() {
             return MetaNode.getInstance();
         }
     });
 
-    public static final MetaOperation OP_TRIGGER = new AbstractMetaOperation("trigger", 9, new LazyResolver() {
+    public static final MetaOperation OP_TRIGGER = new AbstractMetaOperation("trigger", 10, new LazyResolver() {
         @Override
         public Meta meta() {
             return MetaNode.getInstance();

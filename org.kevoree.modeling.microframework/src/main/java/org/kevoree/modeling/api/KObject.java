@@ -58,6 +58,8 @@ public interface KObject {
 
     public KTraversal traverse(MetaReference metaReference);
 
+    public KTraversal traverseQuery(String metaReferenceQuery);
+
     public void inbounds(Callback<KObject[]> callback);
 
     /* End Reflexive API */
@@ -104,5 +106,10 @@ public interface KObject {
     public <U extends KObject> KTask<U> taskJump(long time);
 
     public KTask<Throwable> taskVisit(ModelVisitor visitor, VisitRequest request);
+
+    /* Inference Objects Manegement */
+    public void inferChildren(Callback<KInfer[]> callback);
+
+    public KTask<KInfer[]> taskInferChildren();
 
 }

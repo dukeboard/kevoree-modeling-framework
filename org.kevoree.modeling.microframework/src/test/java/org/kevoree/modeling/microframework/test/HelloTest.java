@@ -110,7 +110,7 @@ public class HelloTest {
 
 //        assertTrue(nodeT1.path().endsWith("/children[name=n1]"));
         final int[] i = {0};
-        nodeT0.eachChildren(new Callback<Node[]>() {
+        nodeT0.getChildren(new Callback<Node[]>() {
             @Override
             public void on(Node[] n) {
                 for (int k = 0; k < n.length; k++) {

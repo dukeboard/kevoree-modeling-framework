@@ -22,8 +22,12 @@ public class DefaultKTraversal implements KTraversal {
 
     private boolean _terminated = false;
 
-    public DefaultKTraversal(KObject p_root, MetaReference p_ref) {
-        _initAction = new KTraverseAction(p_ref);
+    public DefaultKTraversal(KObject p_root, MetaReference p_ref, String p_ref_query) {
+        if (p_ref_query != null) {
+            _initAction = new KTraverseQueryAction(p_ref_query);
+        } else {
+            _initAction = new KTraverseAction(p_ref);
+        }
         _initObjs = new KObject[1];
         _initObjs[0] = p_root;
         _lastAction = _initAction;
@@ -35,6 +39,17 @@ public class DefaultKTraversal implements KTraversal {
             throw new RuntimeException("Promise is terminated by the call of then method, please create another promise");
         }
         KTraverseAction tempAction = new KTraverseAction(p_metaReference);
+        _lastAction.chain(tempAction);
+        _lastAction = tempAction;
+        return this;
+    }
+
+    @Override
+    public KTraversal traverseQuery(String p_metaReferenceQuery) {
+        if (_terminated) {
+            throw new RuntimeException("Promise is terminated by the call of then method, please create another promise");
+        }
+        KTraverseQueryAction tempAction = new KTraverseQueryAction(p_metaReferenceQuery);
         _lastAction.chain(tempAction);
         _lastAction = tempAction;
         return this;

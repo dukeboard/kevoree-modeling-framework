@@ -104,6 +104,16 @@ module org {
 
                 export interface KInfer extends org.kevoree.modeling.api.KObject {
 
+                    type(): org.kevoree.modeling.api.meta.Meta;
+
+                    trainingSet(): org.kevoree.modeling.api.KObject[];
+
+                    train(trainingSet: org.kevoree.modeling.api.KObject[], callback: (p : java.lang.Throwable) => void): void;
+
+                    learn(): void;
+
+                    infer(origin: org.kevoree.modeling.api.KObject): any;
+
                 }
 
                 export interface KJob {
@@ -212,6 +222,8 @@ module org {
 
                     traverse(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.traversal.KTraversal;
 
+                    traverseQuery(metaReferenceQuery: string): org.kevoree.modeling.api.traversal.KTraversal;
+
                     inbounds(callback: (p : org.kevoree.modeling.api.KObject[]) => void): void;
 
                     traces(request: org.kevoree.modeling.api.TraceRequest): org.kevoree.modeling.api.trace.ModelTrace[];
@@ -255,6 +267,10 @@ module org {
                     taskJump<U extends org.kevoree.modeling.api.KObject> (time: number): org.kevoree.modeling.api.KTask<any>;
 
                     taskVisit(visitor: (p : org.kevoree.modeling.api.KObject) => org.kevoree.modeling.api.VisitResult, request: org.kevoree.modeling.api.VisitRequest): org.kevoree.modeling.api.KTask<any>;
+
+                    inferChildren(callback: (p : org.kevoree.modeling.api.KInfer[]) => void): void;
+
+                    taskInferChildren(): org.kevoree.modeling.api.KTask<any>;
 
                 }
 
@@ -773,7 +789,7 @@ module org {
                             if (this.isRoot()) {
                                 var roots: org.kevoree.modeling.api.KObject[] = new Array();
                                 roots[0] = this;
-                                org.kevoree.modeling.api.traversal.KSelector.select(this.view(), roots, cleanedQuery, callback);
+                                org.kevoree.modeling.api.traversal.selector.KSelector.select(this.view(), roots, cleanedQuery, callback);
                             } else {
                                 if (query.startsWith("/")) {
                                     var finalCleanedQuery: string = cleanedQuery;
@@ -783,13 +799,13 @@ module org {
                                         } else {
                                             var roots: org.kevoree.modeling.api.KObject[] = new Array();
                                             roots[0] = rootObj;
-                                            org.kevoree.modeling.api.traversal.KSelector.select(rootObj.view(), roots, finalCleanedQuery, callback);
+                                            org.kevoree.modeling.api.traversal.selector.KSelector.select(rootObj.view(), roots, finalCleanedQuery, callback);
                                         }
                                     });
                                 } else {
                                     var roots: org.kevoree.modeling.api.KObject[] = new Array();
                                     roots[0] = this;
-                                    org.kevoree.modeling.api.traversal.KSelector.select(this.view(), roots, query, callback);
+                                    org.kevoree.modeling.api.traversal.selector.KSelector.select(this.view(), roots, query, callback);
                                 }
                             }
                         }
@@ -1308,6 +1324,11 @@ module org {
                             }
                         }
 
+                        public hashCode(): number {
+                            var hashString: string = this.uuid() + "-" + this.view().now() + "-" + this.view().universe().key();
+                            return hashString.hashCode();
+                        }
+
                         public diff(target: org.kevoree.modeling.api.KObject, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void {
                             org.kevoree.modeling.api.operation.DefaultModelCompare.diff(this, target, callback);
                         }
@@ -1361,7 +1382,11 @@ module org {
                         }
 
                         public traverse(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.traversal.KTraversal {
-                            return new org.kevoree.modeling.api.traversal.DefaultKTraversal(this, p_metaReference);
+                            return new org.kevoree.modeling.api.traversal.DefaultKTraversal(this, p_metaReference, null);
+                        }
+
+                        public traverseQuery(metaReferenceQuery: string): org.kevoree.modeling.api.traversal.KTraversal {
+                            return new org.kevoree.modeling.api.traversal.DefaultKTraversal(this, null, metaReferenceQuery);
                         }
 
                         public referencesWith(o: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.meta.MetaReference[] {
@@ -1475,12 +1500,39 @@ module org {
                             return task;
                         }
 
+                        public taskInferChildren(): org.kevoree.modeling.api.KTask<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.inferChildren(task.initCallback());
+                            return task;
+                        }
+
+                        public inferChildren(p_callback: (p : org.kevoree.modeling.api.KInfer[]) => void): void {
+                        }
+
                     }
 
                     export class AbstractKObjectInfer<A> extends org.kevoree.modeling.api.abs.AbstractKObject implements org.kevoree.modeling.api.KInfer {
 
                         constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_timeTree: org.kevoree.modeling.api.time.TimeTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
                             super(p_view, p_uuid, p_timeTree, p_metaClass);
+                        }
+
+                        public type(): org.kevoree.modeling.api.meta.Meta {
+                            return null;
+                        }
+
+                        public trainingSet(): org.kevoree.modeling.api.KObject[] {
+                            return new Array();
+                        }
+
+                        public train(trainingSet: org.kevoree.modeling.api.KObject[], callback: (p : java.lang.Throwable) => void): void {
+                        }
+
+                        public learn(): void {
+                        }
+
+                        public infer(origin: org.kevoree.modeling.api.KObject): any {
+                            return null;
                         }
 
                     }
@@ -1772,7 +1824,7 @@ module org {
                                         }
                                         var roots: org.kevoree.modeling.api.KObject[] = new Array();
                                         roots[0] = rootObj;
-                                        org.kevoree.modeling.api.traversal.KSelector.select(rootObj.view(), roots, cleanedQuery, callback);
+                                        org.kevoree.modeling.api.traversal.selector.KSelector.select(rootObj.view(), roots, cleanedQuery, callback);
                                     }
                                 }
                             });
@@ -2790,7 +2842,8 @@ module org {
                         public static IS_DIRTY_INDEX: number = 2;
                         public static IS_ROOT_INDEX: number = 3;
                         public static REF_IN_PARENT_INDEX: number = 4;
-                        public static RESERVED_INDEXES: number = 5;
+                        public static INFER_CHILDREN: number = 5;
+                        public static RESERVED_INDEXES: number = 6;
                     }
 
                     export class JsonRaw {
@@ -8120,8 +8173,12 @@ module org {
                         private _initAction: org.kevoree.modeling.api.traversal.KTraversalAction;
                         private _lastAction: org.kevoree.modeling.api.traversal.KTraversalAction;
                         private _terminated: boolean = false;
-                        constructor(p_root: org.kevoree.modeling.api.KObject, p_ref: org.kevoree.modeling.api.meta.MetaReference) {
-                            this._initAction = new org.kevoree.modeling.api.traversal.actions.KTraverseAction(p_ref);
+                        constructor(p_root: org.kevoree.modeling.api.KObject, p_ref: org.kevoree.modeling.api.meta.MetaReference, p_ref_query: string) {
+                            if (p_ref_query != null) {
+                                this._initAction = new org.kevoree.modeling.api.traversal.actions.KTraverseQueryAction(p_ref_query);
+                            } else {
+                                this._initAction = new org.kevoree.modeling.api.traversal.actions.KTraverseAction(p_ref);
+                            }
                             this._initObjs = new Array();
                             this._initObjs[0] = p_root;
                             this._lastAction = this._initAction;
@@ -8132,6 +8189,16 @@ module org {
                                 throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
                             }
                             var tempAction: org.kevoree.modeling.api.traversal.actions.KTraverseAction = new org.kevoree.modeling.api.traversal.actions.KTraverseAction(p_metaReference);
+                            this._lastAction.chain(tempAction);
+                            this._lastAction = tempAction;
+                            return this;
+                        }
+
+                        public traverseQuery(p_metaReferenceQuery: string): org.kevoree.modeling.api.traversal.KTraversal {
+                            if (this._terminated) {
+                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                            }
+                            var tempAction: org.kevoree.modeling.api.traversal.actions.KTraverseQueryAction = new org.kevoree.modeling.api.traversal.actions.KTraverseQueryAction(p_metaReferenceQuery);
                             this._lastAction.chain(tempAction);
                             this._lastAction = tempAction;
                             return this;
@@ -8213,264 +8280,11 @@ module org {
 
                     }
 
-                    export class KQuery {
-
-                        public static OPEN_BRACKET: string = '[';
-                        public static CLOSE_BRACKET: string = ']';
-                        public static QUERY_SEP: string = '/';
-                        public relationName: string;
-                        public params: java.util.Map<string, org.kevoree.modeling.api.traversal.KQueryParam>;
-                        public subQuery: string;
-                        public oldString: string;
-                        public previousIsDeep: boolean;
-                        public previousIsRefDeep: boolean;
-                        constructor(relationName: string, params: java.util.Map<string, org.kevoree.modeling.api.traversal.KQueryParam>, subQuery: string, oldString: string, previousIsDeep: boolean, previousIsRefDeep: boolean) {
-                            this.relationName = relationName;
-                            this.params = params;
-                            this.subQuery = subQuery;
-                            this.oldString = oldString;
-                            this.previousIsDeep = previousIsDeep;
-                            this.previousIsRefDeep = previousIsRefDeep;
-                        }
-
-                        public static extractFirstQuery(query: string): org.kevoree.modeling.api.traversal.KQuery {
-                            if (query == null || query.length == 0) {
-                                return null;
-                            }
-                            if (query.charAt(0) == KQuery.QUERY_SEP) {
-                                var subQuery: string = null;
-                                if (query.length > 1) {
-                                    subQuery = query.substring(1);
-                                }
-                                var params: java.util.Map<string, org.kevoree.modeling.api.traversal.KQueryParam> = new java.util.HashMap<string, org.kevoree.modeling.api.traversal.KQueryParam>();
-                                return new org.kevoree.modeling.api.traversal.KQuery("", params, subQuery, "" + KQuery.QUERY_SEP, false, false);
-                            }
-                            if (query.startsWith("**/")) {
-                                if (query.length > 3) {
-                                    var next: org.kevoree.modeling.api.traversal.KQuery = org.kevoree.modeling.api.traversal.KQuery.extractFirstQuery(query.substring(3));
-                                    if (next != null) {
-                                        next.previousIsDeep = true;
-                                        next.previousIsRefDeep = false;
-                                    }
-                                    return next;
-                                } else {
-                                    return null;
-                                }
-                            }
-                            if (query.startsWith("***/")) {
-                                if (query.length > 4) {
-                                    var next: org.kevoree.modeling.api.traversal.KQuery = org.kevoree.modeling.api.traversal.KQuery.extractFirstQuery(query.substring(4));
-                                    if (next != null) {
-                                        next.previousIsDeep = true;
-                                        next.previousIsRefDeep = true;
-                                    }
-                                    return next;
-                                } else {
-                                    return null;
-                                }
-                            }
-                            var i: number = 0;
-                            var relationNameEnd: number = 0;
-                            var attsEnd: number = 0;
-                            var escaped: boolean = false;
-                            while (i < query.length && ((query.charAt(i) != KQuery.QUERY_SEP) || escaped)){
-                                if (escaped) {
-                                    escaped = false;
-                                }
-                                if (query.charAt(i) == KQuery.OPEN_BRACKET) {
-                                    relationNameEnd = i;
-                                } else {
-                                    if (query.charAt(i) == KQuery.CLOSE_BRACKET) {
-                                        attsEnd = i;
-                                    } else {
-                                        if (query.charAt(i) == '\\') {
-                                            escaped = true;
-                                        }
-                                    }
-                                }
-                                i = i + 1;
-                            }
-                            if (i > 0 && relationNameEnd > 0) {
-                                var oldString: string = query.substring(0, i);
-                                var subQuery: string = null;
-                                if (i + 1 < query.length) {
-                                    subQuery = query.substring(i + 1);
-                                }
-                                var relName: string = query.substring(0, relationNameEnd);
-                                var params: java.util.Map<string, org.kevoree.modeling.api.traversal.KQueryParam> = new java.util.HashMap<string, org.kevoree.modeling.api.traversal.KQueryParam>();
-                                relName = relName.replace("\\", "");
-                                if (attsEnd != 0) {
-                                    var paramString: string = query.substring(relationNameEnd + 1, attsEnd);
-                                    var iParam: number = 0;
-                                    var lastStart: number = iParam;
-                                    escaped = false;
-                                    while (iParam < paramString.length){
-                                        if (paramString.charAt(iParam) == ',' && !escaped) {
-                                            var p: string = paramString.substring(lastStart, iParam).trim();
-                                            if (p.equals("") && !p.equals("*")) {
-                                                if (p.endsWith("=")) {
-                                                    p = p + "*";
-                                                }
-                                                var pArray: string[] = p.split("=");
-                                                var pObject: org.kevoree.modeling.api.traversal.KQueryParam;
-                                                if (pArray.length > 1) {
-                                                    var paramKey: string = pArray[0].trim();
-                                                    var negative: boolean = paramKey.endsWith("!");
-                                                    pObject = new org.kevoree.modeling.api.traversal.KQueryParam(paramKey.replace("!", ""), pArray[1].trim(), negative);
-                                                    params.put(pObject.name(), pObject);
-                                                } else {
-                                                    pObject = new org.kevoree.modeling.api.traversal.KQueryParam(null, p, false);
-                                                    params.put("@id", pObject);
-                                                }
-                                            }
-                                            lastStart = iParam + 1;
-                                        } else {
-                                            if (paramString.charAt(iParam) == '\\') {
-                                                escaped = true;
-                                            } else {
-                                                escaped = false;
-                                            }
-                                        }
-                                        iParam = iParam + 1;
-                                    }
-                                    var lastParam: string = paramString.substring(lastStart, iParam).trim();
-                                    if (!lastParam.equals("") && !lastParam.equals("*")) {
-                                        if (lastParam.endsWith("=")) {
-                                            lastParam = lastParam + "*";
-                                        }
-                                        var pArray: string[] = lastParam.split("=");
-                                        var pObject: org.kevoree.modeling.api.traversal.KQueryParam;
-                                        if (pArray.length > 1) {
-                                            var paramKey: string = pArray[0].trim();
-                                            var negative: boolean = paramKey.endsWith("!");
-                                            pObject = new org.kevoree.modeling.api.traversal.KQueryParam(paramKey.replace("!", ""), pArray[1].trim(), negative);
-                                            params.put(pObject.name(), pObject);
-                                        } else {
-                                            pObject = new org.kevoree.modeling.api.traversal.KQueryParam(null, lastParam, false);
-                                            params.put("@id", pObject);
-                                        }
-                                    }
-                                }
-                                return new org.kevoree.modeling.api.traversal.KQuery(relName, params, subQuery, oldString, false, false);
-                            }
-                            return null;
-                        }
-
-                    }
-
-                    export class KQueryParam {
-
-                        private _name: string;
-                        private _value: string;
-                        private _negative: boolean;
-                        constructor(p_name: string, p_value: string, p_negative: boolean) {
-                            this._name = p_name;
-                            this._value = p_value;
-                            this._negative = p_negative;
-                        }
-
-                        public name(): string {
-                            return this._name;
-                        }
-
-                        public value(): string {
-                            return this._value;
-                        }
-
-                        public isNegative(): boolean {
-                            return this._negative;
-                        }
-
-                    }
-
-                    export class KSelector {
-
-                        public static select(view: org.kevoree.modeling.api.KView, roots: org.kevoree.modeling.api.KObject[], query: string, callback: (p : org.kevoree.modeling.api.KObject[]) => void): void {
-                            if (callback == null) {
-                                return;
-                            }
-                            var extractedQuery: org.kevoree.modeling.api.traversal.KQuery = org.kevoree.modeling.api.traversal.KQuery.extractFirstQuery(query);
-                            if (extractedQuery == null) {
-                                callback(new Array());
-                            } else {
-                                var relationNameRegex: string = extractedQuery.relationName.replace("*", ".*");
-                                var collected: java.util.Set<number> = new java.util.HashSet<number>();
-                                for (var k: number = 0; k < roots.length; k++) {
-                                    var root: org.kevoree.modeling.api.KObject = roots[k];
-                                    var raw: any[] = root.universe().model().storage().raw(root, org.kevoree.modeling.api.data.AccessMode.READ);
-                                    if (raw != null) {
-                                        for (var i: number = 0; i < root.metaClass().metaReferences().length; i++) {
-                                            var reference: org.kevoree.modeling.api.meta.MetaReference = root.metaClass().metaReferences()[i];
-                                            if (reference.metaName().matches(relationNameRegex)) {
-                                                var refPayLoad: any = raw[reference.index()];
-                                                if (refPayLoad != null) {
-                                                    if (refPayLoad instanceof java.util.Set) {
-                                                        var castedSet: java.util.Set<number> = <java.util.Set<number>>refPayLoad;
-                                                        collected.addAll(castedSet);
-                                                    } else {
-                                                        var castedLong: number = <number>refPayLoad;
-                                                        collected.add(castedLong);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                view.lookupAll(collected.toArray(new Array()),  (resolveds : org.kevoree.modeling.api.KObject[]) => {
-                                    var nextGeneration: java.util.List<org.kevoree.modeling.api.KObject> = new java.util.ArrayList<org.kevoree.modeling.api.KObject>();
-                                    if (extractedQuery.params.isEmpty()) {
-                                        for (var i: number = 0; i < resolveds.length; i++) {
-                                            nextGeneration.add(resolveds[i]);
-                                        }
-                                    } else {
-                                        for (var i: number = 0; i < resolveds.length; i++) {
-                                            var resolved: org.kevoree.modeling.api.KObject = resolveds[i];
-                                            var selectedForNext: boolean = true;
-                                            var paramKeys: string[] = extractedQuery.params.keySet().toArray(new Array());
-                                            for (var h: number = 0; h < paramKeys.length; h++) {
-                                                var param: org.kevoree.modeling.api.traversal.KQueryParam = extractedQuery.params.get(paramKeys[h]);
-                                                for (var j: number = 0; j < resolved.metaClass().metaAttributes().length; j++) {
-                                                    var metaAttribute: org.kevoree.modeling.api.meta.MetaAttribute = resolved.metaClass().metaAttributes()[j];
-                                                    if (metaAttribute.metaName().matches(param.name().replace("*", ".*"))) {
-                                                        var o_raw: any = resolved.get(metaAttribute);
-                                                        if (o_raw != null) {
-                                                            if (o_raw.toString().matches(param.value().replace("*", ".*"))) {
-                                                                if (param.isNegative()) {
-                                                                    selectedForNext = false;
-                                                                }
-                                                            } else {
-                                                                if (!param.isNegative()) {
-                                                                    selectedForNext = false;
-                                                                }
-                                                            }
-                                                        } else {
-                                                            if (!param.isNegative() && !param.value().equals("null")) {
-                                                                selectedForNext = false;
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            if (selectedForNext) {
-                                                nextGeneration.add(resolved);
-                                            }
-                                        }
-                                    }
-                                    var nextArr: org.kevoree.modeling.api.KObject[] = nextGeneration.toArray(new Array());
-                                    if (extractedQuery.subQuery == null || extractedQuery.subQuery.isEmpty()) {
-                                        callback(nextArr);
-                                    } else {
-                                        org.kevoree.modeling.api.traversal.KSelector.select(view, nextArr, extractedQuery.subQuery, callback);
-                                    }
-                                });
-                            }
-                        }
-
-                    }
-
                     export interface KTraversal {
 
                         traverse(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.traversal.KTraversal;
+
+                        traverseQuery(p_metaReferenceQuery: string): org.kevoree.modeling.api.traversal.KTraversal;
 
                         withAttribute(attribute: org.kevoree.modeling.api.meta.MetaAttribute, expectedValue: any): org.kevoree.modeling.api.traversal.KTraversal;
 
@@ -8973,6 +8787,369 @@ module org {
                                     }
                                     currentView.lookupAll(nextIds.toArray(new Array()),  (kObjects : org.kevoree.modeling.api.KObject[]) => {
                                         this._next.execute(kObjects);
+                                    });
+                                }
+                            }
+
+                        }
+
+                        export class KTraverseQueryAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
+
+                            private SEP: string = ",";
+                            private _next: org.kevoree.modeling.api.traversal.KTraversalAction;
+                            private _referenceQuery: string;
+                            constructor(p_referenceQuery: string) {
+                                this._referenceQuery = p_referenceQuery;
+                            }
+
+                            public chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void {
+                                this._next = p_next;
+                            }
+
+                            public execute(p_inputs: org.kevoree.modeling.api.KObject[]): void {
+                                if (p_inputs == null || p_inputs.length == 0) {
+                                    this._next.execute(p_inputs);
+                                    return;
+                                } else {
+                                    var currentView: org.kevoree.modeling.api.KView = p_inputs[0].view();
+                                    var nextIds: java.util.Set<number> = new java.util.HashSet<number>();
+                                    for (var i: number = 0; i < p_inputs.length; i++) {
+                                        try {
+                                            var loopObj: org.kevoree.modeling.api.abs.AbstractKObject = <org.kevoree.modeling.api.abs.AbstractKObject>p_inputs[i];
+                                            var raw: any[] = currentView.universe().model().storage().raw(loopObj, org.kevoree.modeling.api.data.AccessMode.READ);
+                                            if (this._referenceQuery == null) {
+                                                for (var j: number = 0; j < loopObj.metaClass().metaReferences().length; j++) {
+                                                    var ref: org.kevoree.modeling.api.meta.MetaReference = loopObj.metaClass().metaReferences()[j];
+                                                    var resolved: any = raw[ref.index()];
+                                                    if (resolved != null) {
+                                                        if (resolved instanceof java.util.Set) {
+                                                            var resolvedCasted: java.util.Set<number> = <java.util.Set<number>>resolved;
+                                                            var resolvedArr: number[] = resolvedCasted.toArray(new Array());
+                                                            for (var k: number = 0; k < resolvedArr.length; k++) {
+                                                                var idResolved: number = resolvedArr[k];
+                                                                if (idResolved != null) {
+                                                                    nextIds.add(idResolved);
+                                                                }
+                                                            }
+                                                        } else {
+                                                            try {
+                                                                nextIds.add(<number>resolved);
+                                                            } catch ($ex$) {
+                                                                if ($ex$ instanceof java.lang.Exception) {
+                                                                    var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                                                    e.printStackTrace();
+                                                                }
+                                                             }
+                                                        }
+                                                    }
+                                                }
+                                            } else {
+                                                var queries: string[] = this._referenceQuery.split(this.SEP);
+                                                for (var k: number = 0; k < queries.length; k++) {
+                                                    queries[k] = queries[k].replace("*", ".*");
+                                                }
+                                                var loopRefs: org.kevoree.modeling.api.meta.MetaReference[] = loopObj.metaClass().metaReferences();
+                                                for (var h: number = 0; h < loopRefs.length; h++) {
+                                                    var ref: org.kevoree.modeling.api.meta.MetaReference = loopRefs[h];
+                                                    var selected: boolean = false;
+                                                    for (var k: number = 0; k < queries.length; k++) {
+                                                        if (ref.metaName().matches(queries[k])) {
+                                                            selected = true;
+                                                            break;
+                                                        }
+                                                    }
+                                                    if (selected) {
+                                                        var resolved: any = raw[ref.index()];
+                                                        if (resolved != null) {
+                                                            if (resolved instanceof java.util.Set) {
+                                                                var resolvedCasted: java.util.Set<number> = <java.util.Set<number>>resolved;
+                                                                var resolvedArr: number[] = resolvedCasted.toArray(new Array());
+                                                                for (var j: number = 0; j < resolvedArr.length; j++) {
+                                                                    var idResolved: number = resolvedArr[j];
+                                                                    if (idResolved != null) {
+                                                                        nextIds.add(idResolved);
+                                                                    }
+                                                                }
+                                                            } else {
+                                                                try {
+                                                                    nextIds.add(<number>resolved);
+                                                                } catch ($ex$) {
+                                                                    if ($ex$ instanceof java.lang.Exception) {
+                                                                        var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                                                        e.printStackTrace();
+                                                                    }
+                                                                 }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        } catch ($ex$) {
+                                            if ($ex$ instanceof java.lang.Exception) {
+                                                var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                                e.printStackTrace();
+                                            }
+                                         }
+                                    }
+                                    currentView.lookupAll(nextIds.toArray(new Array()),  (kObjects : org.kevoree.modeling.api.KObject[]) => {
+                                        this._next.execute(kObjects);
+                                    });
+                                }
+                            }
+
+                        }
+
+                    }
+                    export module selector {
+                        export class KQuery {
+
+                            public static OPEN_BRACKET: string = '[';
+                            public static CLOSE_BRACKET: string = ']';
+                            public static QUERY_SEP: string = '/';
+                            public relationName: string;
+                            public params: java.util.Map<string, org.kevoree.modeling.api.traversal.selector.KQueryParam>;
+                            public subQuery: string;
+                            public oldString: string;
+                            public previousIsDeep: boolean;
+                            public previousIsRefDeep: boolean;
+                            constructor(relationName: string, params: java.util.Map<string, org.kevoree.modeling.api.traversal.selector.KQueryParam>, subQuery: string, oldString: string, previousIsDeep: boolean, previousIsRefDeep: boolean) {
+                                this.relationName = relationName;
+                                this.params = params;
+                                this.subQuery = subQuery;
+                                this.oldString = oldString;
+                                this.previousIsDeep = previousIsDeep;
+                                this.previousIsRefDeep = previousIsRefDeep;
+                            }
+
+                            public static extractFirstQuery(query: string): org.kevoree.modeling.api.traversal.selector.KQuery {
+                                if (query == null || query.length == 0) {
+                                    return null;
+                                }
+                                if (query.charAt(0) == KQuery.QUERY_SEP) {
+                                    var subQuery: string = null;
+                                    if (query.length > 1) {
+                                        subQuery = query.substring(1);
+                                    }
+                                    var params: java.util.Map<string, org.kevoree.modeling.api.traversal.selector.KQueryParam> = new java.util.HashMap<string, org.kevoree.modeling.api.traversal.selector.KQueryParam>();
+                                    return new org.kevoree.modeling.api.traversal.selector.KQuery("", params, subQuery, "" + KQuery.QUERY_SEP, false, false);
+                                }
+                                if (query.startsWith("**/")) {
+                                    if (query.length > 3) {
+                                        var next: org.kevoree.modeling.api.traversal.selector.KQuery = org.kevoree.modeling.api.traversal.selector.KQuery.extractFirstQuery(query.substring(3));
+                                        if (next != null) {
+                                            next.previousIsDeep = true;
+                                            next.previousIsRefDeep = false;
+                                        }
+                                        return next;
+                                    } else {
+                                        return null;
+                                    }
+                                }
+                                if (query.startsWith("***/")) {
+                                    if (query.length > 4) {
+                                        var next: org.kevoree.modeling.api.traversal.selector.KQuery = org.kevoree.modeling.api.traversal.selector.KQuery.extractFirstQuery(query.substring(4));
+                                        if (next != null) {
+                                            next.previousIsDeep = true;
+                                            next.previousIsRefDeep = true;
+                                        }
+                                        return next;
+                                    } else {
+                                        return null;
+                                    }
+                                }
+                                var i: number = 0;
+                                var relationNameEnd: number = 0;
+                                var attsEnd: number = 0;
+                                var escaped: boolean = false;
+                                while (i < query.length && ((query.charAt(i) != KQuery.QUERY_SEP) || escaped)){
+                                    if (escaped) {
+                                        escaped = false;
+                                    }
+                                    if (query.charAt(i) == KQuery.OPEN_BRACKET) {
+                                        relationNameEnd = i;
+                                    } else {
+                                        if (query.charAt(i) == KQuery.CLOSE_BRACKET) {
+                                            attsEnd = i;
+                                        } else {
+                                            if (query.charAt(i) == '\\') {
+                                                escaped = true;
+                                            }
+                                        }
+                                    }
+                                    i = i + 1;
+                                }
+                                if (i > 0 && relationNameEnd > 0) {
+                                    var oldString: string = query.substring(0, i);
+                                    var subQuery: string = null;
+                                    if (i + 1 < query.length) {
+                                        subQuery = query.substring(i + 1);
+                                    }
+                                    var relName: string = query.substring(0, relationNameEnd);
+                                    var params: java.util.Map<string, org.kevoree.modeling.api.traversal.selector.KQueryParam> = new java.util.HashMap<string, org.kevoree.modeling.api.traversal.selector.KQueryParam>();
+                                    relName = relName.replace("\\", "");
+                                    if (attsEnd != 0) {
+                                        var paramString: string = query.substring(relationNameEnd + 1, attsEnd);
+                                        var iParam: number = 0;
+                                        var lastStart: number = iParam;
+                                        escaped = false;
+                                        while (iParam < paramString.length){
+                                            if (paramString.charAt(iParam) == ',' && !escaped) {
+                                                var p: string = paramString.substring(lastStart, iParam).trim();
+                                                if (p.equals("") && !p.equals("*")) {
+                                                    if (p.endsWith("=")) {
+                                                        p = p + "*";
+                                                    }
+                                                    var pArray: string[] = p.split("=");
+                                                    var pObject: org.kevoree.modeling.api.traversal.selector.KQueryParam;
+                                                    if (pArray.length > 1) {
+                                                        var paramKey: string = pArray[0].trim();
+                                                        var negative: boolean = paramKey.endsWith("!");
+                                                        pObject = new org.kevoree.modeling.api.traversal.selector.KQueryParam(paramKey.replace("!", ""), pArray[1].trim(), negative);
+                                                        params.put(pObject.name(), pObject);
+                                                    } else {
+                                                        pObject = new org.kevoree.modeling.api.traversal.selector.KQueryParam(null, p, false);
+                                                        params.put("@id", pObject);
+                                                    }
+                                                }
+                                                lastStart = iParam + 1;
+                                            } else {
+                                                if (paramString.charAt(iParam) == '\\') {
+                                                    escaped = true;
+                                                } else {
+                                                    escaped = false;
+                                                }
+                                            }
+                                            iParam = iParam + 1;
+                                        }
+                                        var lastParam: string = paramString.substring(lastStart, iParam).trim();
+                                        if (!lastParam.equals("") && !lastParam.equals("*")) {
+                                            if (lastParam.endsWith("=")) {
+                                                lastParam = lastParam + "*";
+                                            }
+                                            var pArray: string[] = lastParam.split("=");
+                                            var pObject: org.kevoree.modeling.api.traversal.selector.KQueryParam;
+                                            if (pArray.length > 1) {
+                                                var paramKey: string = pArray[0].trim();
+                                                var negative: boolean = paramKey.endsWith("!");
+                                                pObject = new org.kevoree.modeling.api.traversal.selector.KQueryParam(paramKey.replace("!", ""), pArray[1].trim(), negative);
+                                                params.put(pObject.name(), pObject);
+                                            } else {
+                                                pObject = new org.kevoree.modeling.api.traversal.selector.KQueryParam(null, lastParam, false);
+                                                params.put("@id", pObject);
+                                            }
+                                        }
+                                    }
+                                    return new org.kevoree.modeling.api.traversal.selector.KQuery(relName, params, subQuery, oldString, false, false);
+                                }
+                                return null;
+                            }
+
+                        }
+
+                        export class KQueryParam {
+
+                            private _name: string;
+                            private _value: string;
+                            private _negative: boolean;
+                            constructor(p_name: string, p_value: string, p_negative: boolean) {
+                                this._name = p_name;
+                                this._value = p_value;
+                                this._negative = p_negative;
+                            }
+
+                            public name(): string {
+                                return this._name;
+                            }
+
+                            public value(): string {
+                                return this._value;
+                            }
+
+                            public isNegative(): boolean {
+                                return this._negative;
+                            }
+
+                        }
+
+                        export class KSelector {
+
+                            public static select(view: org.kevoree.modeling.api.KView, roots: org.kevoree.modeling.api.KObject[], query: string, callback: (p : org.kevoree.modeling.api.KObject[]) => void): void {
+                                if (callback == null) {
+                                    return;
+                                }
+                                var extractedQuery: org.kevoree.modeling.api.traversal.selector.KQuery = org.kevoree.modeling.api.traversal.selector.KQuery.extractFirstQuery(query);
+                                if (extractedQuery == null) {
+                                    callback(new Array());
+                                } else {
+                                    var relationNameRegex: string = extractedQuery.relationName.replace("*", ".*");
+                                    var collected: java.util.Set<number> = new java.util.HashSet<number>();
+                                    for (var k: number = 0; k < roots.length; k++) {
+                                        var root: org.kevoree.modeling.api.KObject = roots[k];
+                                        var raw: any[] = root.universe().model().storage().raw(root, org.kevoree.modeling.api.data.AccessMode.READ);
+                                        if (raw != null) {
+                                            for (var i: number = 0; i < root.metaClass().metaReferences().length; i++) {
+                                                var reference: org.kevoree.modeling.api.meta.MetaReference = root.metaClass().metaReferences()[i];
+                                                if (reference.metaName().matches(relationNameRegex)) {
+                                                    var refPayLoad: any = raw[reference.index()];
+                                                    if (refPayLoad != null) {
+                                                        if (refPayLoad instanceof java.util.Set) {
+                                                            var castedSet: java.util.Set<number> = <java.util.Set<number>>refPayLoad;
+                                                            collected.addAll(castedSet);
+                                                        } else {
+                                                            var castedLong: number = <number>refPayLoad;
+                                                            collected.add(castedLong);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    view.lookupAll(collected.toArray(new Array()),  (resolveds : org.kevoree.modeling.api.KObject[]) => {
+                                        var nextGeneration: java.util.List<org.kevoree.modeling.api.KObject> = new java.util.ArrayList<org.kevoree.modeling.api.KObject>();
+                                        if (extractedQuery.params.isEmpty()) {
+                                            for (var i: number = 0; i < resolveds.length; i++) {
+                                                nextGeneration.add(resolveds[i]);
+                                            }
+                                        } else {
+                                            for (var i: number = 0; i < resolveds.length; i++) {
+                                                var resolved: org.kevoree.modeling.api.KObject = resolveds[i];
+                                                var selectedForNext: boolean = true;
+                                                var paramKeys: string[] = extractedQuery.params.keySet().toArray(new Array());
+                                                for (var h: number = 0; h < paramKeys.length; h++) {
+                                                    var param: org.kevoree.modeling.api.traversal.selector.KQueryParam = extractedQuery.params.get(paramKeys[h]);
+                                                    for (var j: number = 0; j < resolved.metaClass().metaAttributes().length; j++) {
+                                                        var metaAttribute: org.kevoree.modeling.api.meta.MetaAttribute = resolved.metaClass().metaAttributes()[j];
+                                                        if (metaAttribute.metaName().matches(param.name().replace("*", ".*"))) {
+                                                            var o_raw: any = resolved.get(metaAttribute);
+                                                            if (o_raw != null) {
+                                                                if (o_raw.toString().matches(param.value().replace("*", ".*"))) {
+                                                                    if (param.isNegative()) {
+                                                                        selectedForNext = false;
+                                                                    }
+                                                                } else {
+                                                                    if (!param.isNegative()) {
+                                                                        selectedForNext = false;
+                                                                    }
+                                                                }
+                                                            } else {
+                                                                if (!param.isNegative() && !param.value().equals("null")) {
+                                                                    selectedForNext = false;
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                if (selectedForNext) {
+                                                    nextGeneration.add(resolved);
+                                                }
+                                            }
+                                        }
+                                        var nextArr: org.kevoree.modeling.api.KObject[] = nextGeneration.toArray(new Array());
+                                        if (extractedQuery.subQuery == null || extractedQuery.subQuery.isEmpty()) {
+                                            callback(nextArr);
+                                        } else {
+                                            org.kevoree.modeling.api.traversal.selector.KSelector.select(view, nextArr, extractedQuery.subQuery, callback);
+                                        }
                                     });
                                 }
                             }

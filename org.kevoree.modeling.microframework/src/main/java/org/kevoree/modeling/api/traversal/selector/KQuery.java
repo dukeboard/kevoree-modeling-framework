@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.traversal;
+package org.kevoree.modeling.api.traversal.selector;
 
 import java.util.HashMap;
 import java.util.Map;

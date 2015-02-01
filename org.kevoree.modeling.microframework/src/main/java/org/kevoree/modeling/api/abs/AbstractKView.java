@@ -11,7 +11,7 @@ import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.json.JsonFormat;
 import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.traversal.KSelector;
+import org.kevoree.modeling.api.traversal.selector.KSelector;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.DefaultTimeTree;
 import org.kevoree.modeling.api.util.Checker;

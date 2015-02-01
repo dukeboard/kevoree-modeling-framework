@@ -24,6 +24,7 @@ interface String {
     endsWith: (other: String) => boolean;
     matches: (regEx: String) => boolean;
     isEmpty: () => boolean;
+    hashCode: () => number;
 }
 declare class StringUtils {
     static copyValueOf(data: string[], offset: number, count: number): string;

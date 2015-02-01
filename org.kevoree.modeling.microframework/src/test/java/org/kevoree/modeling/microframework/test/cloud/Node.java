@@ -21,7 +21,7 @@ public interface Node extends KObject {
 
     public Node removeChildren(Node obj);
 
-    public void eachChildren(Callback<Node[]> callback);
+    public void getChildren(Callback<Node[]> callback);
 
     public Node setElement(Element obj);
 

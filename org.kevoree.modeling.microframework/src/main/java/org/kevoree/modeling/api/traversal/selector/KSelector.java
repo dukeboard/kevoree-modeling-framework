@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.traversal;
+package org.kevoree.modeling.api.traversal.selector;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;

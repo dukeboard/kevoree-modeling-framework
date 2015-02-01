@@ -12,7 +12,7 @@ import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.operation.DefaultModelCompare;
 import org.kevoree.modeling.api.traversal.DefaultKTraversal;
 import org.kevoree.modeling.api.traversal.KTraversal;
-import org.kevoree.modeling.api.traversal.KSelector;
+import org.kevoree.modeling.api.traversal.selector.KSelector;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelAddTrace;
 import org.kevoree.modeling.api.trace.ModelSetTrace;
@@ -819,7 +819,11 @@ public abstract class AbstractKObject implements KObject {
     }
 
     public KTraversal traverse(MetaReference p_metaReference) {
-        return new DefaultKTraversal(this, p_metaReference);
+        return new DefaultKTraversal(this, p_metaReference, null);
+    }
+
+    public KTraversal traverseQuery(String metaReferenceQuery) {
+        return new DefaultKTraversal(this, null, metaReferenceQuery);
     }
 
     @Override
@@ -936,4 +940,18 @@ public abstract class AbstractKObject implements KObject {
         path(task.initCallback());
         return task;
     }
+
+    @Override
+    public KTask<KInfer[]> taskInferChildren() {
+        AbstractKTaskWrapper<KInfer[]> task = new AbstractKTaskWrapper<KInfer[]>();
+        inferChildren(task.initCallback());
+        return task;
+    }
+
+    @Override
+    public void inferChildren(Callback<KInfer[]> p_callback) {
+        //TODO
+    }
+
+
 }

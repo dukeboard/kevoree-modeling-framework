@@ -43,6 +43,11 @@ declare module org {
                     toTrace(): trace.ModelTrace;
                 }
                 interface KInfer extends KObject {
+                    type(): meta.Meta;
+                    trainingSet(): KObject[];
+                    train(trainingSet: KObject[], callback: (p: java.lang.Throwable) => void): void;
+                    learn(): void;
+                    infer(origin: KObject): any;
                 }
                 interface KJob {
                     run(currentTask: KCurrentTask<any>): void;
@@ -97,6 +102,7 @@ declare module org {
                     mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject): void;
                     all(metaReference: meta.MetaReference, callback: (p: KObject[]) => void): void;
                     traverse(metaReference: meta.MetaReference): traversal.KTraversal;
+                    traverseQuery(metaReferenceQuery: string): traversal.KTraversal;
                     inbounds(callback: (p: KObject[]) => void): void;
                     traces(request: TraceRequest): trace.ModelTrace[];
                     get(attribute: meta.MetaAttribute): any;
@@ -119,6 +125,8 @@ declare module org {
                     taskIntersection(target: KObject): KTask<any>;
                     taskJump<U extends KObject>(time: number): KTask<any>;
                     taskVisit(visitor: (p: KObject) => VisitResult, request: VisitRequest): KTask<any>;
+                    inferChildren(callback: (p: KInfer[]) => void): void;
+                    taskInferChildren(): KTask<any>;
                 }
                 interface KOperation {
                     on(source: KObject, params: any[], result: (p: any) => void): void;
@@ -289,6 +297,7 @@ declare module org {
                         inbounds(callback: (p: KObject[]) => void): void;
                         set_parent(p_parentKID: number, p_metaReference: meta.MetaReference): void;
                         equals(obj: any): boolean;
+                        hashCode(): number;
                         diff(target: KObject, callback: (p: trace.TraceSequence) => void): void;
                         merge(target: KObject, callback: (p: trace.TraceSequence) => void): void;
                         intersection(target: KObject, callback: (p: trace.TraceSequence) => void): void;
@@ -297,6 +306,7 @@ declare module org {
                         internal_transpose_att(p: meta.MetaAttribute): meta.MetaAttribute;
                         internal_transpose_op(p: meta.MetaOperation): meta.MetaOperation;
                         traverse(p_metaReference: meta.MetaReference): traversal.KTraversal;
+                        traverseQuery(metaReferenceQuery: string): traversal.KTraversal;
                         referencesWith(o: KObject): meta.MetaReference[];
                         taskVisit(p_visitor: (p: KObject) => VisitResult, p_request: VisitRequest): KTask<any>;
                         taskDelete(): KTask<any>;
@@ -309,9 +319,16 @@ declare module org {
                         taskIntersection(p_target: KObject): KTask<any>;
                         taskJump<U extends KObject>(p_time: number): KTask<any>;
                         taskPath(): KTask<any>;
+                        taskInferChildren(): KTask<any>;
+                        inferChildren(p_callback: (p: KInfer[]) => void): void;
                     }
                     class AbstractKObjectInfer<A> extends AbstractKObject implements KInfer {
                         constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
+                        type(): meta.Meta;
+                        trainingSet(): KObject[];
+                        train(trainingSet: KObject[], callback: (p: java.lang.Throwable) => void): void;
+                        learn(): void;
+                        infer(origin: KObject): any;
                     }
                     class AbstractKTask<A> implements KCurrentTask<any> {
                         private _isDone;
@@ -542,6 +559,7 @@ declare module org {
                         static IS_DIRTY_INDEX: number;
                         static IS_ROOT_INDEX: number;
                         static REF_IN_PARENT_INDEX: number;
+                        static INFER_CHILDREN: number;
                         static RESERVED_INDEXES: number;
                     }
                     class JsonRaw {
@@ -1350,8 +1368,9 @@ declare module org {
                         private _initAction;
                         private _lastAction;
                         private _terminated;
-                        constructor(p_root: KObject, p_ref: meta.MetaReference);
+                        constructor(p_root: KObject, p_ref: meta.MetaReference, p_ref_query: string);
                         traverse(p_metaReference: meta.MetaReference): KTraversal;
+                        traverseQuery(p_metaReferenceQuery: string): KTraversal;
                         withAttribute(p_attribute: meta.MetaAttribute, p_expectedValue: any): KTraversal;
                         withoutAttribute(p_attribute: meta.MetaAttribute, p_expectedValue: any): KTraversal;
                         filter(p_filter: (p: KObject) => boolean): KTraversal;
@@ -1362,33 +1381,9 @@ declare module org {
                         taskThen(): KTask<any>;
                         taskMap(attribute: meta.MetaAttribute): KTask<any>;
                     }
-                    class KQuery {
-                        static OPEN_BRACKET: string;
-                        static CLOSE_BRACKET: string;
-                        static QUERY_SEP: string;
-                        relationName: string;
-                        params: java.util.Map<string, KQueryParam>;
-                        subQuery: string;
-                        oldString: string;
-                        previousIsDeep: boolean;
-                        previousIsRefDeep: boolean;
-                        constructor(relationName: string, params: java.util.Map<string, KQueryParam>, subQuery: string, oldString: string, previousIsDeep: boolean, previousIsRefDeep: boolean);
-                        static extractFirstQuery(query: string): KQuery;
-                    }
-                    class KQueryParam {
-                        private _name;
-                        private _value;
-                        private _negative;
-                        constructor(p_name: string, p_value: string, p_negative: boolean);
-                        name(): string;
-                        value(): string;
-                        isNegative(): boolean;
-                    }
-                    class KSelector {
-                        static select(view: KView, roots: KObject[], query: string, callback: (p: KObject[]) => void): void;
-                    }
                     interface KTraversal {
                         traverse(metaReference: meta.MetaReference): KTraversal;
+                        traverseQuery(p_metaReferenceQuery: string): KTraversal;
                         withAttribute(attribute: meta.MetaAttribute, expectedValue: any): KTraversal;
                         withoutAttribute(attribute: meta.MetaAttribute, expectedValue: any): KTraversal;
                         filter(filter: (p: KObject) => boolean): KTraversal;
@@ -1462,6 +1457,41 @@ declare module org {
                             constructor(p_reference: meta.MetaReference);
                             chain(p_next: KTraversalAction): void;
                             execute(p_inputs: KObject[]): void;
+                        }
+                        class KTraverseQueryAction implements KTraversalAction {
+                            private SEP;
+                            private _next;
+                            private _referenceQuery;
+                            constructor(p_referenceQuery: string);
+                            chain(p_next: KTraversalAction): void;
+                            execute(p_inputs: KObject[]): void;
+                        }
+                    }
+                    module selector {
+                        class KQuery {
+                            static OPEN_BRACKET: string;
+                            static CLOSE_BRACKET: string;
+                            static QUERY_SEP: string;
+                            relationName: string;
+                            params: java.util.Map<string, KQueryParam>;
+                            subQuery: string;
+                            oldString: string;
+                            previousIsDeep: boolean;
+                            previousIsRefDeep: boolean;
+                            constructor(relationName: string, params: java.util.Map<string, KQueryParam>, subQuery: string, oldString: string, previousIsDeep: boolean, previousIsRefDeep: boolean);
+                            static extractFirstQuery(query: string): KQuery;
+                        }
+                        class KQueryParam {
+                            private _name;
+                            private _value;
+                            private _negative;
+                            constructor(p_name: string, p_value: string, p_negative: boolean);
+                            name(): string;
+                            value(): string;
+                            isNegative(): boolean;
+                        }
+                        class KSelector {
+                            static select(view: KView, roots: KObject[], query: string, callback: (p: KObject[]) => void): void;
                         }
                     }
                 }

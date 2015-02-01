@@ -223,6 +223,9 @@ public class JsonRaw {
                 nbElemToPrint++;
             }
         }
+
+
+
         int nbElemPrinted = 0;
         for (int i = 0; i < metaAttributes.length; i++) {
             Object payload_res = raw[metaAttributes[i].index()];

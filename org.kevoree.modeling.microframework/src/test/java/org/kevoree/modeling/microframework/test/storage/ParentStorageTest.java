@@ -42,7 +42,7 @@ public class ParentStorageTest {
 
         Assert.assertEquals(n1.parentUuid(), val);
         try {
-            root.eachChildren(null);
+            root.getChildren(null);
         } catch (Exception e) {
             Assert.assertNull(e);
         }
@@ -101,7 +101,7 @@ public class ParentStorageTest {
         });
 
         try {
-            root.eachChildren(null);
+            root.getChildren(null);
         } catch (Exception e) {
             Assert.assertNull(e);
         }
