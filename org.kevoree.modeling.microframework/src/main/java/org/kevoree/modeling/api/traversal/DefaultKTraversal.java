@@ -78,6 +78,17 @@ public class DefaultKTraversal implements KTraversal {
     }
 
     @Override
+    public KTraversal attributeQuery(String p_attributeQuery) {
+        if (_terminated) {
+            throw new RuntimeException("Promise is terminated by the call of then method, please create another promise");
+        }
+        KFilterAttributeQueryAction tempAction = new KFilterAttributeQueryAction(p_attributeQuery);
+        _lastAction.chain(tempAction);
+        _lastAction = tempAction;
+        return this;
+    }
+
+    @Override
     public KTraversal filter(KTraversalFilter p_filter) {
         if (_terminated) {
             throw new RuntimeException("Promise is terminated by the call of then method, please create another promise");

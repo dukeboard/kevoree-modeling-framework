@@ -1373,6 +1373,7 @@ declare module org {
                         traverseQuery(p_metaReferenceQuery: string): KTraversal;
                         withAttribute(p_attribute: meta.MetaAttribute, p_expectedValue: any): KTraversal;
                         withoutAttribute(p_attribute: meta.MetaAttribute, p_expectedValue: any): KTraversal;
+                        attributeQuery(p_attributeQuery: string): KTraversal;
                         filter(p_filter: (p: KObject) => boolean): KTraversal;
                         reverse(p_metaReference: meta.MetaReference): KTraversal;
                         parents(): KTraversal;
@@ -1383,7 +1384,8 @@ declare module org {
                     }
                     interface KTraversal {
                         traverse(metaReference: meta.MetaReference): KTraversal;
-                        traverseQuery(p_metaReferenceQuery: string): KTraversal;
+                        traverseQuery(metaReferenceQuery: string): KTraversal;
+                        attributeQuery(attributeQuery: string): KTraversal;
                         withAttribute(attribute: meta.MetaAttribute, expectedValue: any): KTraversal;
                         withoutAttribute(attribute: meta.MetaAttribute, expectedValue: any): KTraversal;
                         filter(filter: (p: KObject) => boolean): KTraversal;
@@ -1416,6 +1418,14 @@ declare module org {
                             constructor(p_attribute: meta.MetaAttribute, p_expectedValue: any);
                             chain(p_next: KTraversalAction): void;
                             execute(p_inputs: KObject[]): void;
+                        }
+                        class KFilterAttributeQueryAction implements KTraversalAction {
+                            private _next;
+                            private _attributeQuery;
+                            constructor(p_attributeQuery: string);
+                            chain(p_next: KTraversalAction): void;
+                            execute(p_inputs: KObject[]): void;
+                            private buildParams(p_paramString);
                         }
                         class KFilterNotAttributeAction implements KTraversalAction {
                             private _next;

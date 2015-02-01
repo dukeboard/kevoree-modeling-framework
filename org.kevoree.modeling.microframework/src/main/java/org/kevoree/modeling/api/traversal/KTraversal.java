@@ -13,7 +13,9 @@ public interface KTraversal {
 
     public KTraversal traverse(MetaReference metaReference);
 
-    public KTraversal traverseQuery(String p_metaReferenceQuery);
+    public KTraversal traverseQuery(String metaReferenceQuery);
+
+    public KTraversal attributeQuery(String attributeQuery);
 
     public KTraversal withAttribute(MetaAttribute attribute, Object expectedValue);
 

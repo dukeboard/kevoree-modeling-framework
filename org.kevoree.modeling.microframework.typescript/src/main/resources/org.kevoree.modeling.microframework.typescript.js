@@ -7413,6 +7413,15 @@ var org;
                             this._lastAction = tempAction;
                             return this;
                         };
+                        DefaultKTraversal.prototype.attributeQuery = function (p_attributeQuery) {
+                            if (this._terminated) {
+                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                            }
+                            var tempAction = new org.kevoree.modeling.api.traversal.actions.KFilterAttributeQueryAction(p_attributeQuery);
+                            this._lastAction.chain(tempAction);
+                            this._lastAction = tempAction;
+                            return this;
+                        };
                         DefaultKTraversal.prototype.filter = function (p_filter) {
                             if (this._terminated) {
                                 throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
@@ -7589,6 +7598,130 @@ var org;
                             return KFilterAttributeAction;
                         })();
                         actions.KFilterAttributeAction = KFilterAttributeAction;
+                        var KFilterAttributeQueryAction = (function () {
+                            function KFilterAttributeQueryAction(p_attributeQuery) {
+                                this._attributeQuery = p_attributeQuery;
+                            }
+                            KFilterAttributeQueryAction.prototype.chain = function (p_next) {
+                                this._next = p_next;
+                            };
+                            KFilterAttributeQueryAction.prototype.execute = function (p_inputs) {
+                                if (p_inputs == null || p_inputs.length == 0) {
+                                    this._next.execute(p_inputs);
+                                    return;
+                                }
+                                else {
+                                    var currentView = p_inputs[0].view();
+                                    var nextStep = new java.util.HashSet();
+                                    for (var i = 0; i < p_inputs.length; i++) {
+                                        try {
+                                            var loopObj = p_inputs[i];
+                                            var raw = currentView.universe().model().storage().raw(loopObj, org.kevoree.modeling.api.data.AccessMode.READ);
+                                            if (raw != null) {
+                                                if (this._attributeQuery == null) {
+                                                    nextStep.add(loopObj);
+                                                }
+                                                else {
+                                                    var params = this.buildParams(this._attributeQuery);
+                                                    var selectedForNext = true;
+                                                    var paramKeys = params.keySet().toArray(new Array());
+                                                    for (var h = 0; h < paramKeys.length; h++) {
+                                                        var param = params.get(paramKeys[h]);
+                                                        for (var j = 0; j < loopObj.metaClass().metaAttributes().length; j++) {
+                                                            var metaAttribute = loopObj.metaClass().metaAttributes()[j];
+                                                            if (metaAttribute.metaName().matches(param.name())) {
+                                                                var o_raw = loopObj.get(metaAttribute);
+                                                                if (o_raw != null) {
+                                                                    if (param.value().equals("null")) {
+                                                                        if (!param.isNegative()) {
+                                                                            selectedForNext = false;
+                                                                        }
+                                                                    }
+                                                                    else {
+                                                                        if (o_raw.toString().matches(param.value())) {
+                                                                            if (param.isNegative()) {
+                                                                                selectedForNext = false;
+                                                                            }
+                                                                        }
+                                                                        else {
+                                                                            if (!param.isNegative()) {
+                                                                                selectedForNext = false;
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                                else {
+                                                                    if (param.value().equals("null") || param.value().equals("*")) {
+                                                                        if (param.isNegative()) {
+                                                                            selectedForNext = false;
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    if (selectedForNext) {
+                                                        nextStep.add(loopObj);
+                                                    }
+                                                }
+                                            }
+                                            else {
+                                                System.err.println("WARN: Empty KObject " + loopObj.uuid());
+                                            }
+                                        }
+                                        catch ($ex$) {
+                                            if ($ex$ instanceof java.lang.Exception) {
+                                                var e = $ex$;
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    }
+                                    this._next.execute(nextStep.toArray(new Array()));
+                                }
+                            };
+                            KFilterAttributeQueryAction.prototype.buildParams = function (p_paramString) {
+                                var params = new java.util.HashMap();
+                                var iParam = 0;
+                                var lastStart = iParam;
+                                while (iParam < p_paramString.length) {
+                                    if (p_paramString.charAt(iParam) == ',') {
+                                        var p = p_paramString.substring(lastStart, iParam).trim();
+                                        if (p.equals("") && !p.equals("*")) {
+                                            if (p.endsWith("=")) {
+                                                p = p + "*";
+                                            }
+                                            var pArray = p.split("=");
+                                            var pObject;
+                                            if (pArray.length > 1) {
+                                                var paramKey = pArray[0].trim();
+                                                var negative = paramKey.endsWith("!");
+                                                pObject = new org.kevoree.modeling.api.traversal.selector.KQueryParam(paramKey.replace("!", "").replace("*", ".*"), pArray[1].trim().replace("*", ".*"), negative);
+                                                params.put(pObject.name(), pObject);
+                                            }
+                                        }
+                                        lastStart = iParam + 1;
+                                    }
+                                    iParam = iParam + 1;
+                                }
+                                var lastParam = p_paramString.substring(lastStart, iParam).trim();
+                                if (!lastParam.equals("") && !lastParam.equals("*")) {
+                                    if (lastParam.endsWith("=")) {
+                                        lastParam = lastParam + "*";
+                                    }
+                                    var pArray = lastParam.split("=");
+                                    var pObject;
+                                    if (pArray.length > 1) {
+                                        var paramKey = pArray[0].trim();
+                                        var negative = paramKey.endsWith("!");
+                                        pObject = new org.kevoree.modeling.api.traversal.selector.KQueryParam(paramKey.replace("!", "").replace("*", ".*"), pArray[1].trim().replace("*", ".*"), negative);
+                                        params.put(pObject.name(), pObject);
+                                    }
+                                }
+                                return params;
+                            };
+                            return KFilterAttributeQueryAction;
+                        })();
+                        actions.KFilterAttributeQueryAction = KFilterAttributeQueryAction;
                         var KFilterNotAttributeAction = (function () {
                             function KFilterNotAttributeAction(p_attribute, p_expectedValue) {
                                 this._attribute = p_attribute;
