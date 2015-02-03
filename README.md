@@ -1,3 +1,5 @@
+#WARNING, THIS DOCUMENTATION IS NOT UPDATED WITH THE KMF version 4, new documentation aligned with the new asyncronous semantic coming soon... 
+
 Kevoree Modeling
 =======
 
