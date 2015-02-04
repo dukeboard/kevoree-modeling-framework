@@ -1,7 +1,9 @@
 package org.kevoree.modeling.api.traversal.selector;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.kevoree.modeling.api.util.Checker;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by duke on 10/24/14.
@@ -13,19 +15,33 @@ public class KQuery {
     public static char QUERY_SEP = '/';
 
     String relationName;
-    Map<String, KQueryParam> params;
+    String params;
     String subQuery;
     String oldString;
     boolean previousIsDeep;
     boolean previousIsRefDeep;
 
-    private KQuery(String relationName, Map<String, KQueryParam> params, String subQuery, String oldString, boolean previousIsDeep, boolean previousIsRefDeep) {
+    private KQuery(String relationName, String params, String subQuery, String oldString, boolean previousIsDeep, boolean previousIsRefDeep) {
         this.relationName = relationName;
         this.params = params;
         this.subQuery = subQuery;
         this.oldString = oldString;
         this.previousIsDeep = previousIsDeep;
         this.previousIsRefDeep = previousIsRefDeep;
+    }
+
+    public static List<KQuery> buildChain(String query) {
+        List<KQuery> result = new ArrayList<KQuery>();
+        KQuery current = extractFirstQuery(query);
+        if (current != null) {
+            result.add(current);
+            while (current != null && !"".equals(current.subQuery) && Checker.isDefined(current.subQuery)) {
+                KQuery next = extractFirstQuery(current.subQuery);
+                result.add(next);
+                current = next;
+            }
+        }
+        return result;
     }
 
     public static KQuery extractFirstQuery(String query) {
@@ -37,8 +53,7 @@ public class KQuery {
             if (query.length() > 1) {
                 subQuery = query.substring(1);
             }
-            Map<String, KQueryParam> params = new HashMap<String, KQueryParam>();
-            return new KQuery("", params, subQuery, "" + QUERY_SEP, false, false);
+            return new KQuery("", null, subQuery, "" + QUERY_SEP, false, false);
         }
         if (query.startsWith("**/")) {
             if (query.length() > 3) {
@@ -85,7 +100,6 @@ public class KQuery {
             }
             i = i + 1;
         }
-
         if (i > 0 && relationNameEnd > 0) {
             String oldString = query.substring(0, i);
             String subQuery = null;
@@ -93,62 +107,13 @@ public class KQuery {
                 subQuery = query.substring(i + 1);
             }
             String relName = query.substring(0, relationNameEnd);
-            Map<String, KQueryParam> params = new HashMap<String, KQueryParam>();
             relName = relName.replace("\\", "");
             //parse param
             if (attsEnd != 0) {
-                String paramString = query.substring(relationNameEnd + 1, attsEnd);
-                int iParam = 0;
-                int lastStart = iParam;
-                escaped = false;
-                while (iParam < paramString.length()) {
-                    if (paramString.charAt(iParam) == ',' && !escaped) {
-                        String p = paramString.substring(lastStart, iParam).trim();
-                        if (p.equals("") && !p.equals("*")) {
-                            if (p.endsWith("=")) {
-                                p = p + "*";
-                            }
-                            String[] pArray = p.split("=");
-                            KQueryParam pObject;
-                            if (pArray.length > 1) {
-                                String paramKey = pArray[0].trim();
-                                boolean negative = paramKey.endsWith("!");
-                                pObject = new KQueryParam(paramKey.replace("!", ""), pArray[1].trim(), negative);
-                                params.put(pObject.name(), pObject);
-                            } else {
-                                pObject = new KQueryParam(null, p, false);
-                                params.put("@id", pObject);
-                            }
-                        }
-                        lastStart = iParam + 1;
-                    } else {
-                        if (paramString.charAt(iParam) == '\\') {
-                            escaped = true;
-                        } else {
-                            escaped = false;
-                        }
-                    }
-                    iParam = iParam + 1;
-                }
-                String lastParam = paramString.substring(lastStart, iParam).trim();
-                if (!lastParam.equals("") && !lastParam.equals("*")) {
-                    if (lastParam.endsWith("=")) {
-                        lastParam = lastParam + "*";
-                    }
-                    String[] pArray = lastParam.split("=");
-                    KQueryParam pObject;
-                    if (pArray.length > 1) {
-                        String paramKey = pArray[0].trim();
-                        boolean negative = paramKey.endsWith("!");
-                        pObject = new KQueryParam(paramKey.replace("!", ""), pArray[1].trim(), negative);
-                        params.put(pObject.name(), pObject);
-                    } else {
-                        pObject = new KQueryParam(null, lastParam, false);
-                        params.put("@id", pObject);
-                    }
-                }
+                return new KQuery(relName, query.substring(relationNameEnd + 1, attsEnd), subQuery, oldString, false, false);
+            } else {
+                return new KQuery(relName, null, subQuery, oldString, false, false);
             }
-            return new KQuery(relName, params, subQuery, oldString, false, false);
         }
         return null;
     }

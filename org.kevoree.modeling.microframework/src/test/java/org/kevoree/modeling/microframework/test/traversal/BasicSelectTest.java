@@ -35,8 +35,8 @@ public class BasicSelectTest {
         t1.select("/", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] kObjects) {
-                Assert.assertEquals(node.uuid(),kObjects[0].uuid());
-                Assert.assertEquals(t1.now(),kObjects[0].now());
+                Assert.assertEquals(node.uuid(), kObjects[0].uuid());
+                Assert.assertEquals(t1.now(), kObjects[0].now());
             }
         });
 

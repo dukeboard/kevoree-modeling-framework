@@ -1483,12 +1483,13 @@ declare module org {
                             static CLOSE_BRACKET: string;
                             static QUERY_SEP: string;
                             relationName: string;
-                            params: java.util.Map<string, KQueryParam>;
+                            params: string;
                             subQuery: string;
                             oldString: string;
                             previousIsDeep: boolean;
                             previousIsRefDeep: boolean;
-                            constructor(relationName: string, params: java.util.Map<string, KQueryParam>, subQuery: string, oldString: string, previousIsDeep: boolean, previousIsRefDeep: boolean);
+                            constructor(relationName: string, params: string, subQuery: string, oldString: string, previousIsDeep: boolean, previousIsRefDeep: boolean);
+                            static buildChain(query: string): java.util.List<KQuery>;
                             static extractFirstQuery(query: string): KQuery;
                         }
                         class KQueryParam {
@@ -1501,7 +1502,7 @@ declare module org {
                             isNegative(): boolean;
                         }
                         class KSelector {
-                            static select(view: KView, roots: KObject[], query: string, callback: (p: KObject[]) => void): void;
+                            static select(root: KObject, query: string, callback: (p: KObject[]) => void): void;
                         }
                     }
                 }

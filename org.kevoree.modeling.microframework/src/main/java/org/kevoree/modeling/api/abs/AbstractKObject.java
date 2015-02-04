@@ -198,9 +198,7 @@ public abstract class AbstractKObject implements KObject {
             cleanedQuery = cleanedQuery.substring(1);
         }
         if (isRoot()) {
-            KObject[] roots = new KObject[1];
-            roots[0] = this;
-            KSelector.select(this.view(), roots, cleanedQuery, callback);
+            KSelector.select(this, cleanedQuery, callback);
         } else {
             if (query.startsWith("/")) {
                 final String finalCleanedQuery = cleanedQuery;
@@ -210,16 +208,12 @@ public abstract class AbstractKObject implements KObject {
                         if (rootObj == null) {
                             callback.on(new KObject[0]);
                         } else {
-                            KObject[] roots = new KObject[1];
-                            roots[0] = rootObj;
-                            KSelector.select(rootObj.view(), roots, finalCleanedQuery, callback);
+                            KSelector.select(rootObj, finalCleanedQuery, callback);
                         }
                     }
                 });
             } else {
-                KObject[] roots = new KObject[1];
-                roots[0] = this;
-                KSelector.select(this.view(), roots, query, callback);
+                KSelector.select(this, query, callback);
             }
         }
     }
