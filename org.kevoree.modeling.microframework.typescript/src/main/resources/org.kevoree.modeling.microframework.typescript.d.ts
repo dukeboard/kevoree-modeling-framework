@@ -103,6 +103,8 @@ declare module org {
                     all(metaReference: meta.MetaReference, callback: (p: KObject[]) => void): void;
                     traverse(metaReference: meta.MetaReference): traversal.KTraversal;
                     traverseQuery(metaReferenceQuery: string): traversal.KTraversal;
+                    traverseInbounds(metaReferenceQuery: string): traversal.KTraversal;
+                    traverseParent(): traversal.KTraversal;
                     inbounds(callback: (p: KObject[]) => void): void;
                     traces(request: TraceRequest): trace.ModelTrace[];
                     get(attribute: meta.MetaAttribute): any;
@@ -307,6 +309,8 @@ declare module org {
                         internal_transpose_op(p: meta.MetaOperation): meta.MetaOperation;
                         traverse(p_metaReference: meta.MetaReference): traversal.KTraversal;
                         traverseQuery(metaReferenceQuery: string): traversal.KTraversal;
+                        traverseInbounds(metaReferenceQuery: string): traversal.KTraversal;
+                        traverseParent(): traversal.KTraversal;
                         referencesWith(o: KObject): meta.MetaReference[];
                         taskVisit(p_visitor: (p: KObject) => VisitResult, p_request: VisitRequest): KTask<any>;
                         taskDelete(): KTask<any>;
@@ -1368,7 +1372,7 @@ declare module org {
                         private _initAction;
                         private _lastAction;
                         private _terminated;
-                        constructor(p_root: KObject, p_ref: meta.MetaReference, p_ref_query: string);
+                        constructor(p_root: KObject, p_initAction: KTraversalAction);
                         traverse(p_metaReference: meta.MetaReference): KTraversal;
                         traverseQuery(p_metaReferenceQuery: string): KTraversal;
                         withAttribute(p_attribute: meta.MetaAttribute, p_expectedValue: any): KTraversal;
@@ -1376,6 +1380,7 @@ declare module org {
                         attributeQuery(p_attributeQuery: string): KTraversal;
                         filter(p_filter: (p: KObject) => boolean): KTraversal;
                         reverse(p_metaReference: meta.MetaReference): KTraversal;
+                        reverseQuery(p_metaReferenceQuery: string): KTraversal;
                         parents(): KTraversal;
                         then(callback: (p: KObject[]) => void): void;
                         map(attribute: meta.MetaAttribute, callback: (p: any[]) => void): void;
@@ -1390,6 +1395,7 @@ declare module org {
                         withoutAttribute(attribute: meta.MetaAttribute, expectedValue: any): KTraversal;
                         filter(filter: (p: KObject) => boolean): KTraversal;
                         reverse(metaReference: meta.MetaReference): KTraversal;
+                        reverseQuery(metaReferenceQuery: string): KTraversal;
                         parents(): KTraversal;
                         then(callback: (p: KObject[]) => void): void;
                         map(attribute: meta.MetaAttribute, callback: (p: any[]) => void): void;
@@ -1461,6 +1467,13 @@ declare module org {
                             chain(p_next: KTraversalAction): void;
                             execute(p_inputs: KObject[]): void;
                         }
+                        class KReverseQueryAction implements KTraversalAction {
+                            private _next;
+                            private _referenceQuery;
+                            constructor(p_referenceQuery: string);
+                            chain(p_next: KTraversalAction): void;
+                            execute(p_inputs: KObject[]): void;
+                        }
                         class KTraverseAction implements KTraversalAction {
                             private _next;
                             private _reference;
@@ -1484,13 +1497,9 @@ declare module org {
                             static QUERY_SEP: string;
                             relationName: string;
                             params: string;
-                            subQuery: string;
-                            oldString: string;
-                            previousIsDeep: boolean;
-                            previousIsRefDeep: boolean;
-                            constructor(relationName: string, params: string, subQuery: string, oldString: string, previousIsDeep: boolean, previousIsRefDeep: boolean);
+                            constructor(relationName: string, params: string);
+                            toString(): string;
                             static buildChain(query: string): java.util.List<KQuery>;
-                            static extractFirstQuery(query: string): KQuery;
                         }
                         class KQueryParam {
                             private _name;

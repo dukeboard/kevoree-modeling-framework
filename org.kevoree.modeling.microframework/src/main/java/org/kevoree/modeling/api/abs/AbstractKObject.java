@@ -12,6 +12,10 @@ import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.operation.DefaultModelCompare;
 import org.kevoree.modeling.api.traversal.DefaultKTraversal;
 import org.kevoree.modeling.api.traversal.KTraversal;
+import org.kevoree.modeling.api.traversal.actions.KParentsAction;
+import org.kevoree.modeling.api.traversal.actions.KReverseQueryAction;
+import org.kevoree.modeling.api.traversal.actions.KTraverseAction;
+import org.kevoree.modeling.api.traversal.actions.KTraverseQueryAction;
 import org.kevoree.modeling.api.traversal.selector.KSelector;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelAddTrace;
@@ -813,12 +817,21 @@ public abstract class AbstractKObject implements KObject {
     }
 
     public KTraversal traverse(MetaReference p_metaReference) {
-        return new DefaultKTraversal(this, p_metaReference, null);
+        return new DefaultKTraversal(this, new KTraverseAction(p_metaReference));
     }
 
     public KTraversal traverseQuery(String metaReferenceQuery) {
-        return new DefaultKTraversal(this, null, metaReferenceQuery);
+        return new DefaultKTraversal(this, new KTraverseQueryAction(metaReferenceQuery));
     }
+
+    public KTraversal traverseInbounds(String metaReferenceQuery) {
+        return new DefaultKTraversal(this, new KReverseQueryAction(metaReferenceQuery));
+    }
+
+    public KTraversal traverseParent() {
+        return new DefaultKTraversal(this, new KParentsAction());
+    }
+
 
     @Override
     public MetaReference[] referencesWith(KObject o) {

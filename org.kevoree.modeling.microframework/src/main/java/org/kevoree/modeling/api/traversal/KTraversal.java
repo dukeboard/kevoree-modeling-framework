@@ -25,6 +25,8 @@ public interface KTraversal {
 
     public KTraversal reverse(MetaReference metaReference);
 
+    public KTraversal reverseQuery(String metaReferenceQuery);
+
     public KTraversal parents();
 
     public void then(Callback<KObject[]> callback);

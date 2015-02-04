@@ -1,7 +1,5 @@
 package org.kevoree.modeling.api.traversal.selector;
 
-import org.kevoree.modeling.api.util.Checker;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,108 +12,83 @@ public class KQuery {
     public static char CLOSE_BRACKET = ']';
     public static char QUERY_SEP = '/';
 
-    String relationName;
-    String params;
-    String subQuery;
-    String oldString;
-    boolean previousIsDeep;
-    boolean previousIsRefDeep;
+    public String relationName;
+    public String params;
 
-    private KQuery(String relationName, String params, String subQuery, String oldString, boolean previousIsDeep, boolean previousIsRefDeep) {
+    private KQuery(String relationName, String params) {
         this.relationName = relationName;
         this.params = params;
-        this.subQuery = subQuery;
-        this.oldString = oldString;
-        this.previousIsDeep = previousIsDeep;
-        this.previousIsRefDeep = previousIsRefDeep;
+    }
+
+    @Override
+    public String toString() {
+        return "KQuery{" +
+                "relationName='" + relationName + '\'' +
+                ", params='" + params + '\'' +
+                '}';
     }
 
     public static List<KQuery> buildChain(String query) {
         List<KQuery> result = new ArrayList<KQuery>();
-        KQuery current = extractFirstQuery(query);
-        if (current != null) {
-            result.add(current);
-            while (current != null && !"".equals(current.subQuery) && Checker.isDefined(current.subQuery)) {
-                KQuery next = extractFirstQuery(current.subQuery);
-                result.add(next);
-                current = next;
-            }
-        }
-        return result;
-    }
-
-    public static KQuery extractFirstQuery(String query) {
         if (query == null || query.length() == 0) {
             return null;
         }
-        if (query.charAt(0) == QUERY_SEP) {
-            String subQuery = null;
-            if (query.length() > 1) {
-                subQuery = query.substring(1);
-            }
-            return new KQuery("", null, subQuery, "" + QUERY_SEP, false, false);
-        }
-        if (query.startsWith("**/")) {
-            if (query.length() > 3) {
-                KQuery next = extractFirstQuery(query.substring(3));
-                if (next != null) {
-                    next.previousIsDeep = true;
-                    next.previousIsRefDeep = false;
-                }
-                return next;
-            } else {
-                return null;
-            }
-        }
-        if (query.startsWith("***/")) {
-            if (query.length() > 4) {
-                KQuery next = extractFirstQuery(query.substring(4));
-                if (next != null) {
-                    next.previousIsDeep = true;
-                    next.previousIsRefDeep = true;
-                }
-                return next;
-            } else {
-                return null;
-            }
-        }
         int i = 0;
-        int relationNameEnd = 0;
-        int attsEnd = 0;
         boolean escaped = false;
-        while (i < query.length() && ((query.charAt(i) != QUERY_SEP) || escaped)) {
-            if (escaped) {
+        int previousKQueryStart = 0;
+        int previousKQueryNameEnd = -1;
+        int previousKQueryAttributesEnd = -1;
+        int previousKQueryAttributesStart = 0;
+        while (i < query.length()) {
+            boolean notLastElem = (i + 1) != query.length();
+            if (escaped && notLastElem) {
                 escaped = false;
-            }
-            if (query.charAt(i) == OPEN_BRACKET) {
-                relationNameEnd = i;
             } else {
-                if (query.charAt(i) == CLOSE_BRACKET) {
-                    attsEnd = i;
-                } else {
-                    if (query.charAt(i) == '\\') {
-                        escaped = true;
+                char currentChar = query.charAt(i);
+                if (currentChar == CLOSE_BRACKET && notLastElem) {
+                    previousKQueryAttributesEnd = i;
+                } else if (currentChar == '\\' && notLastElem) {
+                    escaped = true;
+                } else if (currentChar == OPEN_BRACKET && notLastElem) {
+                    previousKQueryNameEnd = i;
+                    previousKQueryAttributesStart = i + 1;
+                } else if (currentChar == QUERY_SEP || !notLastElem) {
+                    String relationName;
+                    String atts = null;
+                    if (previousKQueryNameEnd == -1) {
+                        if (notLastElem) {
+                            previousKQueryNameEnd = i;
+                        } else {
+                            previousKQueryNameEnd = i + 1;
+                        }
+                    } else {
+                        if (previousKQueryAttributesStart != -1) {
+                            if (previousKQueryAttributesEnd == -1) {
+                                if (notLastElem || currentChar == QUERY_SEP || currentChar == CLOSE_BRACKET) {
+                                    previousKQueryAttributesEnd = i;
+                                } else {
+                                    previousKQueryAttributesEnd = i + 1;
+                                }
+                            }
+                            atts = query.substring(previousKQueryAttributesStart, previousKQueryAttributesEnd);
+                            if (atts.length() == 0) {
+                                atts = null;
+                            }
+                        }
                     }
+                    relationName = query.substring(previousKQueryStart, previousKQueryNameEnd);
+                    KQuery additionalQuery = new KQuery(relationName, atts);
+                    result.add(additionalQuery);
+                    //ReInit
+                    previousKQueryStart = i + 1;
+                    previousKQueryNameEnd = -1;
+                    previousKQueryAttributesEnd = -1;
+                    previousKQueryAttributesStart = -1;
                 }
             }
             i = i + 1;
         }
-        if (i > 0 && relationNameEnd > 0) {
-            String oldString = query.substring(0, i);
-            String subQuery = null;
-            if (i + 1 < query.length()) {
-                subQuery = query.substring(i + 1);
-            }
-            String relName = query.substring(0, relationNameEnd);
-            relName = relName.replace("\\", "");
-            //parse param
-            if (attsEnd != 0) {
-                return new KQuery(relName, query.substring(relationNameEnd + 1, attsEnd), subQuery, oldString, false, false);
-            } else {
-                return new KQuery(relName, null, subQuery, oldString, false, false);
-            }
-        }
-        return null;
+        return result;
     }
 
 }

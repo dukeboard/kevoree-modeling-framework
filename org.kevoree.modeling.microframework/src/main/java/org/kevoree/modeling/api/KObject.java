@@ -29,7 +29,7 @@ public interface KObject {
 
     public Long parentUuid();
 
-    public void select(String query, Callback<Object[]> callback);
+    public void select(String query, Callback<KObject[]> callback);
 
     public void listen(ModelListener listener);
 
@@ -59,6 +59,10 @@ public interface KObject {
     public KTraversal traverse(MetaReference metaReference);
 
     public KTraversal traverseQuery(String metaReferenceQuery);
+
+    public KTraversal traverseInbounds(String metaReferenceQuery);
+
+    public KTraversal traverseParent();
 
     public void inbounds(Callback<KObject[]> callback);
 
@@ -91,7 +95,7 @@ public interface KObject {
 
     public KTask<KObject> taskParent();
 
-    public KTask<Object[]> taskSelect(String query);
+    public KTask<KObject[]> taskSelect(String query);
 
     public KTask<KObject[]> taskAll(MetaReference metaReference);
 

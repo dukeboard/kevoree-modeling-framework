@@ -27,9 +27,25 @@ public class KSelector {
         List<KQuery> extracted = KQuery.buildChain(query);
         for (int i = 0; i < extracted.size(); i++) {
             if (current == null) {
-                current = root.traverseQuery(extracted.get(i).relationName);
+                if (extracted.get(i).relationName.equals("..")) {
+                    current = root.traverseInbounds("*");
+                } else if (extracted.get(i).relationName.startsWith("..")) {
+                    current = root.traverseInbounds(extracted.get(i).relationName.substring(2));
+                } else if (extracted.get(i).relationName.equals("@parent")) {
+                    current = root.traverseParent();
+                } else {
+                    current = root.traverseQuery(extracted.get(i).relationName);
+                }
             } else {
-                current = current.traverseQuery(extracted.get(i).relationName);
+                if (extracted.get(i).relationName.equals("..")) {
+                    current = current.reverseQuery("*");
+                } else if (extracted.get(i).relationName.startsWith("..")) {
+                    current = current.reverseQuery(extracted.get(i).relationName.substring(2));
+                } else if (extracted.get(i).relationName.equals("@parent")) {
+                    current = current.parents();
+                } else {
+                    current = current.traverseQuery(extracted.get(i).relationName);
+                }
             }
             current = current.attributeQuery(extracted.get(i).params);
         }
