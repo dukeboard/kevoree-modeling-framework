@@ -196,7 +196,7 @@ public class DefaultKStore implements KStore {
         return "" + dim.key() + KEY_SEP + "root";
     }
 
-    private String keyPayload(long dim, long time, long key) {
+    String keyPayload(long dim, long time, long key) {
         return "" + dim + KEY_SEP + time + KEY_SEP + key;
     }
 
@@ -432,62 +432,7 @@ public class DefaultKStore implements KStore {
 
     @Override
     public void lookupAll(final KView originView, Long[] keys, final Callback<KObject[]> callback) {
-        this._scheduler.dispatch(new Runnable() {
-            @Override
-            public void run() {
-                internal_resolve_dim_time(originView, keys, new Callback<Object[][]>() {
-                    @Override
-                    public void on(Object[][] objects) {
-                        KObject[] resolved = new KObject[keys.length];
-                        List<Integer> toLoadIndexes = new ArrayList<Integer>();
-                        for (int i = 0; i < objects.length; i++) {
-                            if (objects[i][INDEX_RESOLVED_TIME] != null) {
-                                CacheEntry entry = read_cache((Long) objects[i][INDEX_RESOLVED_DIM], (Long) objects[i][INDEX_RESOLVED_TIME], keys[i]);
-                                if (entry == null) {
-                                    toLoadIndexes.add(i);
-                                } else {
-                                    resolved[i] = ((AbstractKView) originView).createProxy(entry.metaClass, entry.timeTree, keys[i]);
-                                }
-                            }
-                        }
-                        if (toLoadIndexes.isEmpty()) {
-                            callback.on(resolved);
-                        } else {
-                            String[] toLoadKeys = new String[toLoadIndexes.size()];
-                            for (int i = 0; i < toLoadIndexes.size(); i++) {
-                                int toLoadIndex = toLoadIndexes.get(i);
-                                toLoadKeys[i] = keyPayload((Long) objects[toLoadIndex][INDEX_RESOLVED_DIM], (Long) objects[toLoadIndex][INDEX_RESOLVED_TIME], keys[i]);
-                            }
-                            _db.get(toLoadKeys, new ThrowableCallback<String[]>() {
-                                @Override
-                                public void on(String[] strings, Throwable error) {
-                                    if (error != null) {
-                                        error.printStackTrace();
-                                        callback.on(null);
-                                    } else {
-                                        for (int i = 0; i < strings.length; i++) {
-                                            if (strings[i] != null) {
-                                                int index = toLoadIndexes.get(i);
-                                                //Create the raw CacheEntry
-                                                CacheEntry entry = JsonRaw.decode(strings[i], originView, (Long) objects[i][INDEX_RESOLVED_TIME]);
-                                                if (entry != null) {
-                                                    entry.timeTree = (TimeTree) objects[i][INDEX_RESOLVED_TIMETREE];
-                                                    //Create and Add the proxy
-                                                    resolved[index] = ((AbstractKView) originView).createProxy(entry.metaClass, entry.timeTree, keys[i]);
-                                                    //Save the cache value
-                                                    write_cache((Long) objects[i][INDEX_RESOLVED_DIM], (Long) objects[i][INDEX_RESOLVED_TIME], keys[i], entry);
-                                                }
-                                            }
-                                        }
-                                        callback.on(resolved);
-                                    }
-                                }
-                            });
-                        }
-                    }
-                });
-            }
-        });
+        this._scheduler.dispatch(new LookupAllRunnable(originView, keys, callback, this));
     }
 
     public void getRoot(final KView originView, final Callback<KObject> callback) {
@@ -555,7 +500,7 @@ public class DefaultKStore implements KStore {
 
     /* Private not synchronized methods */
 
-    private CacheEntry read_cache(long dimensionKey, long timeKey, long uuid) {
+    CacheEntry read_cache(long dimensionKey, long timeKey, long uuid) {
         UniverseCache universeCache = caches.get(dimensionKey);
         if (universeCache != null) {
             TimeCache timeCache = universeCache.timesCaches.get(timeKey);
@@ -569,7 +514,7 @@ public class DefaultKStore implements KStore {
         }
     }
 
-    private synchronized void write_cache(long dimensionKey, long timeKey, long uuid, CacheEntry cacheEntry) {
+    synchronized void write_cache(long dimensionKey, long timeKey, long uuid, CacheEntry cacheEntry) {
         UniverseCache universeCache = caches.get(dimensionKey);
         if (universeCache == null) {
             universeCache = new UniverseCache();
@@ -633,13 +578,13 @@ public class DefaultKStore implements KStore {
         return sizeCache;
     }
 
-    private static final int INDEX_RESOLVED_DIM = 0;
+    public static final int INDEX_RESOLVED_DIM = 0;
 
-    private static final int INDEX_RESOLVED_TIME = 1;
+    public static final int INDEX_RESOLVED_TIME = 1;
 
-    private static final int INDEX_RESOLVED_TIMETREE = 2;
+    public static final int INDEX_RESOLVED_TIMETREE = 2;
 
-    private void internal_resolve_dim_time(KView originView, Long[] uuids, Callback<Object[][]> callback) {
+    void internal_resolve_dim_time(KView originView, Long[] uuids, Callback<Object[][]> callback) {
         Object[][] result = new Object[uuids.length][2];
         resolve_timeTrees(originView.universe(), uuids, new Callback<TimeTree[]>() {
             @Override

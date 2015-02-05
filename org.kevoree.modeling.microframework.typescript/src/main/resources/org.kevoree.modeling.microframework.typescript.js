@@ -2072,54 +2072,7 @@ var org;
                             });
                         };
                         DefaultKStore.prototype.lookupAll = function (originView, keys, callback) {
-                            this._scheduler.dispatch({ run: function () {
-                                var _this = this;
-                                this.internal_resolve_dim_time(originView, keys, function (objects) {
-                                    var resolved = new Array();
-                                    var toLoadIndexes = new java.util.ArrayList();
-                                    for (var i = 0; i < objects.length; i++) {
-                                        if (objects[i][DefaultKStore.INDEX_RESOLVED_TIME] != null) {
-                                            var entry = _this.read_cache(objects[i][DefaultKStore.INDEX_RESOLVED_DIM], objects[i][DefaultKStore.INDEX_RESOLVED_TIME], keys[i]);
-                                            if (entry == null) {
-                                                toLoadIndexes.add(i);
-                                            }
-                                            else {
-                                                resolved[i] = originView.createProxy(entry.metaClass, entry.timeTree, keys[i]);
-                                            }
-                                        }
-                                    }
-                                    if (toLoadIndexes.isEmpty()) {
-                                        callback(resolved);
-                                    }
-                                    else {
-                                        var toLoadKeys = new Array();
-                                        for (var i = 0; i < toLoadIndexes.size(); i++) {
-                                            var toLoadIndex = toLoadIndexes.get(i);
-                                            toLoadKeys[i] = _this.keyPayload(objects[toLoadIndex][DefaultKStore.INDEX_RESOLVED_DIM], objects[toLoadIndex][DefaultKStore.INDEX_RESOLVED_TIME], keys[i]);
-                                        }
-                                        _this._db.get(toLoadKeys, function (strings, error) {
-                                            if (error != null) {
-                                                error.printStackTrace();
-                                                callback(null);
-                                            }
-                                            else {
-                                                for (var i = 0; i < strings.length; i++) {
-                                                    if (strings[i] != null) {
-                                                        var index = toLoadIndexes.get(i);
-                                                        var entry = org.kevoree.modeling.api.data.JsonRaw.decode(strings[i], originView, objects[i][DefaultKStore.INDEX_RESOLVED_TIME]);
-                                                        if (entry != null) {
-                                                            entry.timeTree = objects[i][DefaultKStore.INDEX_RESOLVED_TIMETREE];
-                                                            resolved[index] = originView.createProxy(entry.metaClass, entry.timeTree, keys[i]);
-                                                            _this.write_cache(objects[i][DefaultKStore.INDEX_RESOLVED_DIM], objects[i][DefaultKStore.INDEX_RESOLVED_TIME], keys[i], entry);
-                                                        }
-                                                    }
-                                                }
-                                                callback(resolved);
-                                            }
-                                        });
-                                    }
-                                });
-                            } });
+                            this._scheduler.dispatch(new org.kevoree.modeling.api.data.LookupAllRunnable(originView, keys, callback, this));
                         };
                         DefaultKStore.prototype.getRoot = function (originView, callback) {
                             var _this = this;
@@ -2728,6 +2681,64 @@ var org;
                         return KeyCalculator;
                     })();
                     data.KeyCalculator = KeyCalculator;
+                    var LookupAllRunnable = (function () {
+                        function LookupAllRunnable(p_originView, p_keys, p_callback, p_store) {
+                            this._originView = p_originView;
+                            this._keys = p_keys;
+                            this._callback = p_callback;
+                            this._store = p_store;
+                        }
+                        LookupAllRunnable.prototype.run = function () {
+                            var _this = this;
+                            this._store.internal_resolve_dim_time(this._originView, this._keys, function (objects) {
+                                var resolved = new Array();
+                                var toLoadIndexes = new java.util.ArrayList();
+                                for (var i = 0; i < objects.length; i++) {
+                                    if (objects[i][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_TIME] != null) {
+                                        var entry = _this._store.read_cache(objects[i][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_DIM], objects[i][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_TIME], _this._keys[i]);
+                                        if (entry == null) {
+                                            toLoadIndexes.add(i);
+                                        }
+                                        else {
+                                            resolved[i] = _this._originView.createProxy(entry.metaClass, entry.timeTree, _this._keys[i]);
+                                        }
+                                    }
+                                }
+                                if (toLoadIndexes.isEmpty()) {
+                                    _this._callback(resolved);
+                                }
+                                else {
+                                    var toLoadKeys = new Array();
+                                    for (var i = 0; i < toLoadIndexes.size(); i++) {
+                                        var toLoadIndex = toLoadIndexes.get(i);
+                                        toLoadKeys[i] = _this._store.keyPayload(objects[toLoadIndex][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_DIM], objects[toLoadIndex][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_TIME], _this._keys[i]);
+                                    }
+                                    _this._store.dataBase().get(toLoadKeys, function (strings, error) {
+                                        if (error != null) {
+                                            error.printStackTrace();
+                                            _this._callback(null);
+                                        }
+                                        else {
+                                            for (var i = 0; i < strings.length; i++) {
+                                                if (strings[i] != null) {
+                                                    var index = toLoadIndexes.get(i);
+                                                    var entry = org.kevoree.modeling.api.data.JsonRaw.decode(strings[i], _this._originView, objects[i][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_TIME]);
+                                                    if (entry != null) {
+                                                        entry.timeTree = objects[i][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_TIMETREE];
+                                                        resolved[index] = _this._originView.createProxy(entry.metaClass, entry.timeTree, _this._keys[i]);
+                                                        _this._store.write_cache(objects[i][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_DIM], objects[i][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_TIME], _this._keys[i], entry);
+                                                    }
+                                                }
+                                            }
+                                            _this._callback(resolved);
+                                        }
+                                    });
+                                }
+                            });
+                        };
+                        return LookupAllRunnable;
+                    })();
+                    data.LookupAllRunnable = LookupAllRunnable;
                     var MemoryKDataBase = (function () {
                         function MemoryKDataBase() {
                             this.backend = new java.util.HashMap();

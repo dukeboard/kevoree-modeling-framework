@@ -516,16 +516,16 @@ declare module org {
                         private static DELETED_MESSAGE;
                         private isConnected;
                         private static UNIVERSE_NOT_CONNECTED_ERROR;
-                        private static INDEX_RESOLVED_DIM;
-                        private static INDEX_RESOLVED_TIME;
-                        private static INDEX_RESOLVED_TIMETREE;
+                        static INDEX_RESOLVED_DIM: number;
+                        static INDEX_RESOLVED_TIME: number;
+                        static INDEX_RESOLVED_TIMETREE: number;
                         constructor();
                         connect(callback: (p: java.lang.Throwable) => void): void;
                         close(callback: (p: java.lang.Throwable) => void): void;
                         private keyTree(dim, key);
                         private keyRoot(dim);
                         private keyRootTree(dim);
-                        private keyPayload(dim, time, key);
+                        keyPayload(dim: number, time: number, key: number): string;
                         private keyLastPrefix();
                         private keyLastDimIndex(prefix);
                         private keyLastObjIndex(prefix);
@@ -548,12 +548,12 @@ declare module org {
                         setDataBase(p_dataBase: KDataBase): void;
                         setScheduler(p_scheduler: KScheduler): void;
                         operationManager(): util.KOperationManager;
-                        private read_cache(dimensionKey, timeKey, uuid);
-                        private write_cache(dimensionKey, timeKey, uuid, cacheEntry);
+                        read_cache(dimensionKey: number, timeKey: number, uuid: number): CacheEntry;
+                        write_cache(dimensionKey: number, timeKey: number, uuid: number, cacheEntry: CacheEntry): void;
                         private write_tree(dimensionKey, uuid, timeTree);
                         private write_roots(dimensionKey, timeTree);
                         private size_dirties(universeCache);
-                        private internal_resolve_dim_time(originView, uuids, callback);
+                        internal_resolve_dim_time(originView: KView, uuids: number[], callback: (p: any[][]) => void): void;
                         private resolve_timeTrees(p_universe, keys, callback);
                         private resolve_roots(p_universe, callback);
                     }
@@ -611,6 +611,14 @@ declare module org {
                         nextKey(): number;
                         lastComputedIndex(): number;
                         prefix(): number;
+                    }
+                    class LookupAllRunnable implements java.lang.Runnable {
+                        private _originView;
+                        private _keys;
+                        private _callback;
+                        private _store;
+                        constructor(p_originView: KView, p_keys: number[], p_callback: (p: KObject[]) => void, p_store: DefaultKStore);
+                        run(): void;
                     }
                     class MemoryKDataBase implements KDataBase {
                         private backend;
