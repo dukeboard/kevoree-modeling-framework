@@ -2,12 +2,15 @@ package org.kevoree.modeling.databases.websocket;
 
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
+import io.undertow.websockets.core.WebSockets;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft_17;
 import org.java_websocket.handshake.ServerHandshake;
 import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.ModelListener;
+import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.event.DefaultKBroker;
 import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.event.KEventBroker;
@@ -31,11 +34,30 @@ public class WebSocketBrokerClient implements KEventBroker {
     private Map<Long, ArrayList<KEvent>> storedEvents = new HashMap<Long, ArrayList<KEvent>>();
 
     private MetaModel _metaModel;
+    private KStore _store;
 
     public WebSocketBrokerClient(String ip, int port) {
         this._baseBroker = new DefaultKBroker();
         this._ip = ip;
         this._port = port;
+    }
+
+    @Override
+    public void setKStore(KStore store) {
+        this._store = store;
+    }
+
+    @Override
+    public void sendOperationEvent(KEvent operationEvent) {
+        JsonArray serializedEventList = new JsonArray();
+        serializedEventList.add(operationEvent.toJSON());
+
+        JsonObject jsonMessage = new JsonObject();
+        jsonMessage.add("events", serializedEventList);
+        String message = jsonMessage.toString();
+        if (client != null) {
+            client.send(message);
+        }
     }
 
     public void notifyOnly(KEvent event) {
@@ -58,7 +80,12 @@ public class WebSocketBrokerClient implements KEventBroker {
                     for (int i = 0; i < events.size(); i++) {
                         System.out.println(events.get(i).asString());
                         KEvent kEvent = DefaultKEvent.fromJSON(events.get(i).asString(), _metaModel);
-                        notifyOnly(kEvent);
+                        if(kEvent.actionType() == KActionType.CALL
+                            || kEvent.actionType() == KActionType.CALL_RESPONSE) {
+                            _store.operationManager().operationEventReceived(kEvent);
+                        } else {
+                            notifyOnly(kEvent);
+                        }
                     }
                 }
 

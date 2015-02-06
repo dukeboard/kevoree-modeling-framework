@@ -13,11 +13,16 @@ module org {
                         private storedEvents = new java.util.HashMap<java.lang.Long, java.util.ArrayList<org.kevoree.modeling.api.KEvent>>();
                         private _connectionUri:string;
                         private clientConnection:WebSocket;
-                        private _metaModel : org.kevoree.modeling.api.meta.MetaModel;
+                        private _metaModel:org.kevoree.modeling.api.meta.MetaModel;
+                        private _store:org.kevoree.modeling.api.data.KStore;
 
                         constructor(connectionUri:string) {
                             this._baseBroker = new org.kevoree.modeling.api.event.DefaultKBroker();
                             this._connectionUri = connectionUri;
+                        }
+
+                        public setKStore(st:org.kevoree.modeling.api.data.KStore) {
+                            this._store = st;
                         }
 
                         public connect(callback:(p:java.lang.Throwable) => void):void {
@@ -26,7 +31,13 @@ module org {
                                 var json = JSON.parse(message.data);
                                 for (var i = 0; i < json.events.length; i++) {
                                     var kEvent = org.kevoree.modeling.api.event.DefaultKEvent.fromJSON(json.events[i], this._metaModel);
-                                    this.notifyOnly(kEvent);
+
+                                    if (kEvent.actionType() == org.kevoree.modeling.api.KActionType.CALL
+                                        || kEvent.actionType() == org.kevoree.modeling.api.KActionType.CALL_RESPONSE) {
+                                        this._store.operationManager().operationEventReceived(kEvent);
+                                    } else {
+                                        this.notifyOnly(kEvent);
+                                    }
                                 }
                             };
                             if (callback != null) {
@@ -55,7 +66,7 @@ module org {
                             this._baseBroker.unregister(listener);
                         }
 
-                        public  notify(event):void {
+                        public  notify(event:org.kevoree.modeling.api.KEvent):void {
                             this._baseBroker.notify(event);
                             var dimEvents:java.util.ArrayList<org.kevoree.modeling.api.KEvent> = this.storedEvents.get(event.universe());
                             if (dimEvents == null) {
@@ -65,7 +76,7 @@ module org {
                             dimEvents.add(event);
                         }
 
-                        public notifyOnly(event) {
+                        public notifyOnly(event:org.kevoree.modeling.api.KEvent) {
                             this._baseBroker.notify(event);
                         }
 
@@ -79,6 +90,15 @@ module org {
                                 var jsonMessage = {"dimKey": dimensionKey, "events": serializedEventList};
                                 this.clientConnection.send(JSON.stringify(jsonMessage));
                             }
+                        }
+
+                        public sendOperationEvent(operationEvent:org.kevoree.modeling.api.KEvent) {
+                            var serializedEventList = [];
+                            serializedEventList.push(operationEvent.toJSON());
+
+                            var jsonMessage = {"events": serializedEventList};
+                            this.clientConnection.send(JSON.stringify(jsonMessage));
+
                         }
                     }
 
@@ -102,7 +122,7 @@ module org {
                                 var json = JSON.parse(message.data);
                                 if (json.action == "get") {
                                     var getCallback = this.getCallbacks.get(json.id);
-                                    if(getCallback !== undefined && getCallback != null) {
+                                    if (getCallback !== undefined && getCallback != null) {
                                         if (json.status == "success") {
                                             getCallback(json.value, null);
                                         } else if (json.status == "error") {
@@ -115,7 +135,7 @@ module org {
                                     }
                                 } else if (json.action == "put") {
                                     var putCallback = this.putCallbacks.get(json.id);
-                                    if(putCallback !== undefined && putCallback != null) {
+                                    if (putCallback !== undefined && putCallback != null) {
                                         if (json.status == "success") {
                                             putCallback(null);
                                         } else if (json.status == "error") {
@@ -136,7 +156,7 @@ module org {
                             this.clientConnection.onclose = function (error) {
                                 console.error(error);
                             };
-                            this.clientConnection.onopen = function() {
+                            this.clientConnection.onopen = function () {
                                 if (callback != null) {
                                     callback(null);
                                 }
@@ -150,8 +170,8 @@ module org {
                             }
                         }
 
-                        private getCallbackId() : number {
-                            if(this.callbackId == 1000) {
+                        private getCallbackId():number {
+                            if (this.callbackId == 1000) {
                                 this.callbackId = 0;
                             } else {
                                 this.callbackId = this.callbackId + 1;
@@ -164,7 +184,7 @@ module org {
                             for (var i = 0; i < keys.length; i++) {
                                 value.push(keys[i]);
                             }
-                            var jsonMessage = {"action": "get", "value": value, "id" : this.getCallbackId()};
+                            var jsonMessage = {"action": "get", "value": value, "id": this.getCallbackId()};
                             this.getCallbacks.put(jsonMessage.id, callback);
                             var stringified = JSON.stringify(jsonMessage);
                             this.clientConnection.send(stringified);
@@ -178,7 +198,7 @@ module org {
                                 keyValue[1] = payloads[i][1];
                                 payloadList.push(keyValue);
                             }
-                            var jsonMessage = {"action": "put", "value": payloadList, "id" : this.getCallbackId()};
+                            var jsonMessage = {"action": "put", "value": payloadList, "id": this.getCallbackId()};
                             this.putCallbacks.put(jsonMessage.id, error);
                             var stringified = JSON.stringify(jsonMessage);
                             this.clientConnection.send(stringified);

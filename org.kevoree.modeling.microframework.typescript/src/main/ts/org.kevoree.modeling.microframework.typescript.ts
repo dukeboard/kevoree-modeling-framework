@@ -30,6 +30,7 @@ module org {
                 export class KActionType {
 
                     public static CALL: KActionType = new KActionType("CALL");
+                    public static CALL_RESPONSE: KActionType = new KActionType("CALL_RESPONSE");
                     public static SET: KActionType = new KActionType("SET");
                     public static ADD: KActionType = new KActionType("ADD");
                     public static REMOVE: KActionType = new KActionType("DEL");
@@ -62,6 +63,7 @@ module org {
                     }
                     public static _KActionTypeVALUES : KActionType[] = [
                         KActionType.CALL
+                        ,KActionType.CALL_RESPONSE
                         ,KActionType.SET
                         ,KActionType.ADD
                         ,KActionType.REMOVE
@@ -538,7 +540,7 @@ module org {
                         }
 
                         constructor() {
-                            this._storage = new org.kevoree.modeling.api.data.DefaultKStore();
+                            this._storage = new org.kevoree.modeling.api.data.DefaultKStore(this);
                         }
 
                         public connect(callback: (p : java.lang.Throwable) => void): void {
@@ -2208,6 +2210,7 @@ module org {
                         private _eventBroker: org.kevoree.modeling.api.event.KEventBroker;
                         private _operationManager: org.kevoree.modeling.api.util.KOperationManager;
                         private _scheduler: org.kevoree.modeling.api.KScheduler;
+                        private _model: org.kevoree.modeling.api.KModel<any>;
                         private _objectKeyCalculator: org.kevoree.modeling.api.data.KeyCalculator = null;
                         private _dimensionKeyCalculator: org.kevoree.modeling.api.data.KeyCalculator = null;
                         private static OUT_OF_CACHE_MESSAGE: string = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
@@ -2217,11 +2220,13 @@ module org {
                         public static INDEX_RESOLVED_DIM: number = 0;
                         public static INDEX_RESOLVED_TIME: number = 1;
                         public static INDEX_RESOLVED_TIMETREE: number = 2;
-                        constructor() {
+                        constructor(model: org.kevoree.modeling.api.KModel<any>) {
                             this._db = new org.kevoree.modeling.api.data.MemoryKDataBase();
                             this._eventBroker = new org.kevoree.modeling.api.event.DefaultKBroker();
+                            this._eventBroker.setKStore(this);
                             this._operationManager = new org.kevoree.modeling.api.util.DefaultOperationManager(this);
                             this._scheduler = new org.kevoree.modeling.api.scheduler.DirectScheduler();
+                            this._model = model;
                         }
 
                         public connect(callback: (p : java.lang.Throwable) => void): void {
@@ -2604,6 +2609,7 @@ module org {
 
                         public setEventBroker(p_eventBroker: org.kevoree.modeling.api.event.KEventBroker): void {
                             this._eventBroker = p_eventBroker;
+                            this._eventBroker.setKStore(this);
                         }
 
                         public dataBase(): org.kevoree.modeling.api.data.KDataBase {
@@ -2792,6 +2798,10 @@ module org {
                                     callback(tree);
                                 });
                             }
+                        }
+
+                        public getModel(): org.kevoree.modeling.api.KModel<any> {
+                            return this._model;
                         }
 
                     }
@@ -3175,6 +3185,8 @@ module org {
 
                         close(callback: (p : java.lang.Throwable) => void): void;
 
+                        getModel(): org.kevoree.modeling.api.KModel<any>;
+
                     }
 
                     export class KeyCalculator {
@@ -3354,6 +3366,7 @@ module org {
                         private static TUPLE_SIZE: number = 3;
                         private listeners: java.util.HashMap<(p : org.kevoree.modeling.api.KEvent) => void, number[]> = new java.util.HashMap<(p : org.kevoree.modeling.api.KEvent) => void, number[]>();
                         private _metaModel: org.kevoree.modeling.api.meta.MetaModel;
+                        private _store: org.kevoree.modeling.api.data.KStore;
                         public connect(callback: (p : java.lang.Throwable) => void): void {
                             if (callback != null) {
                                 callback(null);
@@ -3420,7 +3433,14 @@ module org {
                             }
                         }
 
+                        public sendOperationEvent(eventk: org.kevoree.modeling.api.KEvent): void {
+                        }
+
                         public flush(dimensionKey: number): void {
+                        }
+
+                        public setKStore(store: org.kevoree.modeling.api.data.KStore): void {
+                            this._store = store;
                         }
 
                         public setMetaModel(p_metaModel: org.kevoree.modeling.api.meta.MetaModel): void {
@@ -3564,6 +3584,9 @@ module org {
                                                         if (event._metaElement == null) {
                                                             event._metaElement = event._metaClass.metaReference(value);
                                                         }
+                                                        if (event._metaElement == null) {
+                                                            event._metaElement = event._metaClass.metaOperation(value);
+                                                        }
                                                     }
                                                 } else {
                                                     if (currentAttributeName.equals(DefaultKEvent.VALUE_KEY)) {
@@ -3610,7 +3633,11 @@ module org {
 
                         flush(dimensionKey: number): void;
 
+                        setKStore(store: org.kevoree.modeling.api.data.KStore): void;
+
                         setMetaModel(metaModel: org.kevoree.modeling.api.meta.MetaModel): void;
+
+                        sendOperationEvent(operationEvent: org.kevoree.modeling.api.KEvent): void;
 
                     }
 
@@ -9317,6 +9344,12 @@ module org {
 
                         private operationCallbacks: java.util.Map<number, java.util.Map<number, (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void>> = new java.util.HashMap<number, java.util.Map<number, (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void>>();
                         private _store: org.kevoree.modeling.api.data.KStore;
+                        private static DIM_INDEX: number = 0;
+                        private static TIME_INDEX: number = 1;
+                        private static UUID_INDEX: number = 2;
+                        private static OPERATION_INDEX: number = 3;
+                        private static TUPLE_SIZE: number = 4;
+                        private remoteCallCallbacks: java.util.HashMap<number[], (p : any) => void> = new java.util.HashMap<number[], (p : any) => void>();
                         constructor(store: org.kevoree.modeling.api.data.KStore) {
                             this._store = store;
                         }
@@ -9334,11 +9367,119 @@ module org {
                             var clazzOperations: java.util.Map<number, (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void> = this.operationCallbacks.get(source.metaClass().index());
                             if (clazzOperations != null) {
                                 var operationCore: (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void = clazzOperations.get(operation.index());
-                                if (callback != null) {
+                                if (operationCore != null) {
                                     operationCore(source, param, callback);
                                 } else {
+                                    this.sendToRemote(source, operation, param, callback);
                                 }
                             } else {
+                                this.sendToRemote(source, operation, param, callback);
+                            }
+                        }
+
+                        private sendToRemote(source: org.kevoree.modeling.api.KObject, operation: org.kevoree.modeling.api.meta.MetaOperation, param: any[], callback: (p : any) => void): void {
+                            var tuple: number[] = new Array();
+                            tuple[DefaultOperationManager.DIM_INDEX] = source.universe().key();
+                            tuple[DefaultOperationManager.TIME_INDEX] = source.now();
+                            tuple[DefaultOperationManager.UUID_INDEX] = source.uuid();
+                            tuple[DefaultOperationManager.OPERATION_INDEX] = <number>operation.index();
+                            this.remoteCallCallbacks.put(tuple, callback);
+                            var sb: java.lang.StringBuilder = new java.lang.StringBuilder();
+                            sb.append("[");
+                            if (param.length > 0) {
+                                sb.append("\"").append(this.protectString(param[0].toString())).append("\"");
+                                for (var i: number = 1; i < param.length; i++) {
+                                    sb.append(",").append("\"").append(this.protectString(param[i].toString())).append("\"");
+                                }
+                            }
+                            sb.append("]");
+                            var operationCallEvent: org.kevoree.modeling.api.event.DefaultKEvent = new org.kevoree.modeling.api.event.DefaultKEvent(org.kevoree.modeling.api.KActionType.CALL, source, operation, sb.toString());
+                            this._store.eventBroker().sendOperationEvent(operationCallEvent);
+                        }
+
+                        private protectString(input: string): string {
+                            var sb: java.lang.StringBuilder = new java.lang.StringBuilder();
+                            for (var i: number = 0; i < input.length; i++) {
+                                var c: string = input.charAt(i);
+                                if (c == '{' || c == '}' || c == '[' || c == ']' || c == ',' || c == '\\' || c == '"') {
+                                    sb.append('\\');
+                                }
+                                sb.append(c);
+                            }
+                            return sb.toString();
+                        }
+
+                        private parseParams(inParams: string): any[] {
+                            var params: java.util.ArrayList<any> = new java.util.ArrayList<any>();
+                            var sb: java.lang.StringBuilder = new java.lang.StringBuilder();
+                            if (inParams.length > 2) {
+                                if (inParams.charAt(0) == '[') {
+                                    var i: number = 1;
+                                    var c: string = inParams.charAt(i);
+                                    var inParam: boolean = false;
+                                    while (i < inParams.length && c != ']'){
+                                        if (c == '\\') {
+                                            i++;
+                                            sb.append(inParams.charAt(i));
+                                        } else {
+                                            if (c == '"') {
+                                                if (inParam) {
+                                                    params.add(sb.toString());
+                                                    sb = new java.lang.StringBuilder();
+                                                }
+                                                inParam = !inParam;
+                                            } else {
+                                                if (inParam) {
+                                                    sb.append(c);
+                                                }
+                                            }
+                                        }
+                                        i++;
+                                        c = inParams.charAt(i);
+                                    }
+                                }
+                            }
+                            return params.toArray(new Array());
+                        }
+
+                        public operationEventReceived(operationEvent: org.kevoree.modeling.api.KEvent): void {
+                            if (operationEvent.actionType() == org.kevoree.modeling.api.KActionType.CALL_RESPONSE) {
+                                var keys: number[][] = this.remoteCallCallbacks.keySet().toArray(new Array());
+                                for (var i: number = 0; i < keys.length; i++) {
+                                    var tuple: number[] = keys[i];
+                                    if (tuple[DefaultOperationManager.DIM_INDEX].equals(operationEvent.universe())) {
+                                        if (tuple[DefaultOperationManager.TIME_INDEX].equals(operationEvent.time())) {
+                                            if (tuple[DefaultOperationManager.UUID_INDEX].equals(operationEvent.uuid())) {
+                                                if (tuple[DefaultOperationManager.OPERATION_INDEX].equals(<number>operationEvent.metaElement().index())) {
+                                                    var returnParam: any[] = this.parseParams(<string>operationEvent.value());
+                                                    var cb: (p : any) => void = this.remoteCallCallbacks.get(tuple);
+                                                    this.remoteCallCallbacks.remove(tuple);
+                                                    cb(returnParam);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                if (operationEvent.actionType() == org.kevoree.modeling.api.KActionType.CALL) {
+                                    var clazzOperations: java.util.Map<number, (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void> = this.operationCallbacks.get(operationEvent.metaClass().index());
+                                    if (clazzOperations != null) {
+                                        var operationCore: (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void = clazzOperations.get(operationEvent.metaElement().index());
+                                        if (operationCore != null) {
+                                            var view: org.kevoree.modeling.api.KView = this._store.getModel().universe(operationEvent.universe()).time(operationEvent.time());
+                                            view.lookup(operationEvent.uuid(),  (kObject : org.kevoree.modeling.api.KObject) => {
+                                                if (kObject != null) {
+                                                    var params: any[] = this.parseParams(<string>operationEvent.value());
+                                                    operationCore(kObject, params,  (o : any) => {
+                                                        var operationCallResponseEvent: org.kevoree.modeling.api.event.DefaultKEvent = new org.kevoree.modeling.api.event.DefaultKEvent(org.kevoree.modeling.api.KActionType.CALL_RESPONSE, kObject, operationEvent.metaElement(), "[\"" + this.protectString(o.toString()) + "\"]");
+                                                        this._store.eventBroker().sendOperationEvent(operationCallResponseEvent);
+                                                    });
+                                                }
+                                            });
+                                        }
+                                    }
+                                } else {
+                                }
                             }
                         }
 
@@ -9349,6 +9490,8 @@ module org {
                         registerOperation(operation: org.kevoree.modeling.api.meta.MetaOperation, callback: (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void): void;
 
                         call(source: org.kevoree.modeling.api.KObject, operation: org.kevoree.modeling.api.meta.MetaOperation, param: any[], callback: (p : any) => void): void;
+
+                        operationEventReceived(operationEvent: org.kevoree.modeling.api.KEvent): void;
 
                     }
 

@@ -18,7 +18,7 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
     public abstract MetaModel metaModel();
 
     protected AbstractKModel() {
-        _storage = new DefaultKStore();
+        _storage = new DefaultKStore(this);
         //_storage.connect(null);
     }
 

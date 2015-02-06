@@ -11,8 +11,10 @@ import io.undertow.websockets.core.WebSocketChannel;
 import io.undertow.websockets.core.WebSockets;
 import io.undertow.websockets.spi.WebSocketHttpExchange;
 import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.ModelListener;
+import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.event.DefaultKBroker;
 import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.event.KEventBroker;
@@ -34,8 +36,10 @@ public class WebSocketBroker extends AbstractReceiveListener implements KEventBr
     private Undertow server;
     private ArrayList<WebSocketChannel> webSocketClients = new ArrayList<>();
     private Map<Long, ArrayList<KEvent>> storedEvents = new HashMap<Long, ArrayList<KEvent>>();
+    private Map<Long, Map<Integer, Callback>> operationCallbacks = new HashMap<>();
 
     private MetaModel _metaModel;
+    private KStore _store;
 
     private String _ip;
     private int _port;
@@ -44,6 +48,11 @@ public class WebSocketBroker extends AbstractReceiveListener implements KEventBr
         this._baseBroker = new DefaultKBroker();
         this._ip = ip;
         this._port = port;
+    }
+
+    @Override
+    public void setKStore(KStore store) {
+        this._store = store;
     }
 
     @Override
@@ -122,6 +131,21 @@ public class WebSocketBroker extends AbstractReceiveListener implements KEventBr
     }
 
     @Override
+    public void sendOperationEvent(KEvent operationEvent) {
+        JsonArray serializedEventList = new JsonArray();
+        serializedEventList.add(operationEvent.toJSON());
+
+        JsonObject jsonMessage = new JsonObject();
+        jsonMessage.add("events", serializedEventList);
+        String message = jsonMessage.toString();
+        if (server != null) {
+            for (int j = 0; j < webSocketClients.size(); j++) {
+                WebSockets.sendText(message, webSocketClients.get(j), null);
+            }
+        }
+    }
+
+    @Override
     public void unregister(ModelListener listener) {
         _baseBroker.unregister(listener);
     }
@@ -150,7 +174,12 @@ public class WebSocketBroker extends AbstractReceiveListener implements KEventBr
         JsonArray events = jsonMessage.get("events").asArray();
         for (int i = 0; i < events.size(); i++) {
             KEvent event = DefaultKEvent.fromJSON(events.get(i).asString(), this._metaModel);
-            notifyOnly(event);
+            if(event.actionType() == KActionType.CALL
+                || event.actionType() == KActionType.CALL_RESPONSE) {
+                _store.operationManager().operationEventReceived(event);
+            } else {
+                notifyOnly(event);
+            }
         }
 
     }

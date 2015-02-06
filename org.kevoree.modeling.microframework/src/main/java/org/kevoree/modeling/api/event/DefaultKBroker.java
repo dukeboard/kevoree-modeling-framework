@@ -6,6 +6,7 @@ import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.abs.AbstractKUniverse;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.abs.AbstractKView;
+import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.meta.MetaModel;
 
 import java.util.HashMap;
@@ -23,6 +24,8 @@ public class DefaultKBroker implements KEventBroker {
     private HashMap<ModelListener, Long[]> listeners = new HashMap<ModelListener, Long[]>();
 
     private MetaModel _metaModel;
+
+    private KStore _store;
 
     @Override
     public void connect(Callback<Throwable> callback) {
@@ -90,9 +93,18 @@ public class DefaultKBroker implements KEventBroker {
         }
     }
 
+    public void sendOperationEvent(KEvent eventk) {
+        //NOOP DefaultBroker is local. Should have been found in DefaultOperationManager CallbackTable
+    }
+
     @Override
     public void flush(Long dimensionKey) {
         //Noop
+    }
+
+    @Override
+    public void setKStore(KStore store) {
+        this._store = store;
     }
 
 

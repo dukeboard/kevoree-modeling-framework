@@ -6,6 +6,7 @@ package org.kevoree.modeling.api;
 public enum KActionType {
 
     CALL("CALL"),
+    CALL_RESPONSE("CALL_RESPONSE"),
     SET("SET"),
     ADD("ADD"),
     REMOVE("DEL"),

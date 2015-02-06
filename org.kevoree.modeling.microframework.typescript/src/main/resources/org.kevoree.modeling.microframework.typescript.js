@@ -53,12 +53,14 @@ var org;
                         return KActionType._KActionTypeVALUES;
                     };
                     KActionType.CALL = new KActionType("CALL");
+                    KActionType.CALL_RESPONSE = new KActionType("CALL_RESPONSE");
                     KActionType.SET = new KActionType("SET");
                     KActionType.ADD = new KActionType("ADD");
                     KActionType.REMOVE = new KActionType("DEL");
                     KActionType.NEW = new KActionType("NEW");
                     KActionType._KActionTypeVALUES = [
                         KActionType.CALL,
+                        KActionType.CALL_RESPONSE,
                         KActionType.SET,
                         KActionType.ADD,
                         KActionType.REMOVE,
@@ -181,7 +183,7 @@ var org;
                     abs.AbstractKDataType = AbstractKDataType;
                     var AbstractKModel = (function () {
                         function AbstractKModel() {
-                            this._storage = new org.kevoree.modeling.api.data.DefaultKStore();
+                            this._storage = new org.kevoree.modeling.api.data.DefaultKStore(this);
                         }
                         AbstractKModel.prototype.metaModel = function () {
                             throw "Abstract method";
@@ -1714,15 +1716,17 @@ var org;
                     })();
                     data.CacheEntry = CacheEntry;
                     var DefaultKStore = (function () {
-                        function DefaultKStore() {
+                        function DefaultKStore(model) {
                             this.caches = new java.util.HashMap();
                             this._objectKeyCalculator = null;
                             this._dimensionKeyCalculator = null;
                             this.isConnected = false;
                             this._db = new org.kevoree.modeling.api.data.MemoryKDataBase();
                             this._eventBroker = new org.kevoree.modeling.api.event.DefaultKBroker();
+                            this._eventBroker.setKStore(this);
                             this._operationManager = new org.kevoree.modeling.api.util.DefaultOperationManager(this);
                             this._scheduler = new org.kevoree.modeling.api.scheduler.DirectScheduler();
+                            this._model = model;
                         }
                         DefaultKStore.prototype.connect = function (callback) {
                             var _this = this;
@@ -2105,6 +2109,7 @@ var org;
                         };
                         DefaultKStore.prototype.setEventBroker = function (p_eventBroker) {
                             this._eventBroker = p_eventBroker;
+                            this._eventBroker.setKStore(this);
                         };
                         DefaultKStore.prototype.dataBase = function () {
                             return this._db;
@@ -2293,6 +2298,9 @@ var org;
                                     callback(tree);
                                 });
                             }
+                        };
+                        DefaultKStore.prototype.getModel = function () {
+                            return this._model;
                         };
                         DefaultKStore.KEY_SEP = ',';
                         DefaultKStore.OUT_OF_CACHE_MESSAGE = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
@@ -2884,7 +2892,12 @@ var org;
                                 }
                             }
                         };
+                        DefaultKBroker.prototype.sendOperationEvent = function (eventk) {
+                        };
                         DefaultKBroker.prototype.flush = function (dimensionKey) {
+                        };
+                        DefaultKBroker.prototype.setKStore = function (store) {
+                            this._store = store;
                         };
                         DefaultKBroker.prototype.setMetaModel = function (p_metaModel) {
                             this._metaModel = p_metaModel;
@@ -3007,6 +3020,9 @@ var org;
                                                         event._metaElement = event._metaClass.metaAttribute(value);
                                                         if (event._metaElement == null) {
                                                             event._metaElement = event._metaClass.metaReference(value);
+                                                        }
+                                                        if (event._metaElement == null) {
+                                                            event._metaElement = event._metaClass.metaOperation(value);
                                                         }
                                                     }
                                                 }
@@ -8451,6 +8467,7 @@ var org;
                     var DefaultOperationManager = (function () {
                         function DefaultOperationManager(store) {
                             this.operationCallbacks = new java.util.HashMap();
+                            this.remoteCallCallbacks = new java.util.HashMap();
                             this._store = store;
                         }
                         DefaultOperationManager.prototype.registerOperation = function (operation, callback) {
@@ -8465,15 +8482,129 @@ var org;
                             var clazzOperations = this.operationCallbacks.get(source.metaClass().index());
                             if (clazzOperations != null) {
                                 var operationCore = clazzOperations.get(operation.index());
-                                if (callback != null) {
+                                if (operationCore != null) {
                                     operationCore(source, param, callback);
+                                }
+                                else {
+                                    this.sendToRemote(source, operation, param, callback);
+                                }
+                            }
+                            else {
+                                this.sendToRemote(source, operation, param, callback);
+                            }
+                        };
+                        DefaultOperationManager.prototype.sendToRemote = function (source, operation, param, callback) {
+                            var tuple = new Array();
+                            tuple[DefaultOperationManager.DIM_INDEX] = source.universe().key();
+                            tuple[DefaultOperationManager.TIME_INDEX] = source.now();
+                            tuple[DefaultOperationManager.UUID_INDEX] = source.uuid();
+                            tuple[DefaultOperationManager.OPERATION_INDEX] = operation.index();
+                            this.remoteCallCallbacks.put(tuple, callback);
+                            var sb = new java.lang.StringBuilder();
+                            sb.append("[");
+                            if (param.length > 0) {
+                                sb.append("\"").append(this.protectString(param[0].toString())).append("\"");
+                                for (var i = 1; i < param.length; i++) {
+                                    sb.append(",").append("\"").append(this.protectString(param[i].toString())).append("\"");
+                                }
+                            }
+                            sb.append("]");
+                            var operationCallEvent = new org.kevoree.modeling.api.event.DefaultKEvent(org.kevoree.modeling.api.KActionType.CALL, source, operation, sb.toString());
+                            this._store.eventBroker().sendOperationEvent(operationCallEvent);
+                        };
+                        DefaultOperationManager.prototype.protectString = function (input) {
+                            var sb = new java.lang.StringBuilder();
+                            for (var i = 0; i < input.length; i++) {
+                                var c = input.charAt(i);
+                                if (c == '{' || c == '}' || c == '[' || c == ']' || c == ',' || c == '\\' || c == '"') {
+                                    sb.append('\\');
+                                }
+                                sb.append(c);
+                            }
+                            return sb.toString();
+                        };
+                        DefaultOperationManager.prototype.parseParams = function (inParams) {
+                            var params = new java.util.ArrayList();
+                            var sb = new java.lang.StringBuilder();
+                            if (inParams.length > 2) {
+                                if (inParams.charAt(0) == '[') {
+                                    var i = 1;
+                                    var c = inParams.charAt(i);
+                                    var inParam = false;
+                                    while (i < inParams.length && c != ']') {
+                                        if (c == '\\') {
+                                            i++;
+                                            sb.append(inParams.charAt(i));
+                                        }
+                                        else {
+                                            if (c == '"') {
+                                                if (inParam) {
+                                                    params.add(sb.toString());
+                                                    sb = new java.lang.StringBuilder();
+                                                }
+                                                inParam = !inParam;
+                                            }
+                                            else {
+                                                if (inParam) {
+                                                    sb.append(c);
+                                                }
+                                            }
+                                        }
+                                        i++;
+                                        c = inParams.charAt(i);
+                                    }
+                                }
+                            }
+                            return params.toArray(new Array());
+                        };
+                        DefaultOperationManager.prototype.operationEventReceived = function (operationEvent) {
+                            var _this = this;
+                            if (operationEvent.actionType() == org.kevoree.modeling.api.KActionType.CALL_RESPONSE) {
+                                var keys = this.remoteCallCallbacks.keySet().toArray(new Array());
+                                for (var i = 0; i < keys.length; i++) {
+                                    var tuple = keys[i];
+                                    if (tuple[DefaultOperationManager.DIM_INDEX].equals(operationEvent.universe())) {
+                                        if (tuple[DefaultOperationManager.TIME_INDEX].equals(operationEvent.time())) {
+                                            if (tuple[DefaultOperationManager.UUID_INDEX].equals(operationEvent.uuid())) {
+                                                if (tuple[DefaultOperationManager.OPERATION_INDEX].equals(operationEvent.metaElement().index())) {
+                                                    var returnParam = this.parseParams(operationEvent.value());
+                                                    var cb = this.remoteCallCallbacks.get(tuple);
+                                                    this.remoteCallCallbacks.remove(tuple);
+                                                    cb(returnParam);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            else {
+                                if (operationEvent.actionType() == org.kevoree.modeling.api.KActionType.CALL) {
+                                    var clazzOperations = this.operationCallbacks.get(operationEvent.metaClass().index());
+                                    if (clazzOperations != null) {
+                                        var operationCore = clazzOperations.get(operationEvent.metaElement().index());
+                                        if (operationCore != null) {
+                                            var view = this._store.getModel().universe(operationEvent.universe()).time(operationEvent.time());
+                                            view.lookup(operationEvent.uuid(), function (kObject) {
+                                                if (kObject != null) {
+                                                    var params = _this.parseParams(operationEvent.value());
+                                                    operationCore(kObject, params, function (o) {
+                                                        var operationCallResponseEvent = new org.kevoree.modeling.api.event.DefaultKEvent(org.kevoree.modeling.api.KActionType.CALL_RESPONSE, kObject, operationEvent.metaElement(), "[\"" + _this.protectString(o.toString()) + "\"]");
+                                                        _this._store.eventBroker().sendOperationEvent(operationCallResponseEvent);
+                                                    });
+                                                }
+                                            });
+                                        }
+                                    }
                                 }
                                 else {
                                 }
                             }
-                            else {
-                            }
                         };
+                        DefaultOperationManager.DIM_INDEX = 0;
+                        DefaultOperationManager.TIME_INDEX = 1;
+                        DefaultOperationManager.UUID_INDEX = 2;
+                        DefaultOperationManager.OPERATION_INDEX = 3;
+                        DefaultOperationManager.TUPLE_SIZE = 4;
                         return DefaultOperationManager;
                     })();
                     util.DefaultOperationManager = DefaultOperationManager;

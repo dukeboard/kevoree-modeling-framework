@@ -136,6 +136,9 @@ public class DefaultKEvent implements KEvent {
                 if (event._metaElement == null) {
                     event._metaElement = event._metaClass.metaReference(value);
                 }
+                if (event._metaElement == null) {
+                    event._metaElement = event._metaClass.metaOperation(value);
+                }
             }
         } else if (currentAttributeName.equals(VALUE_KEY)) {
             event._value = JsonString.unescape(value);

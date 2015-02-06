@@ -51,4 +51,6 @@ public interface KStore {
 
     public void close(Callback<Throwable> callback);
 
+    public KModel getModel();
+
 }

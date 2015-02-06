@@ -29,6 +29,7 @@ public class DefaultKStore implements KStore {
     private KEventBroker _eventBroker;
     private KOperationManager _operationManager;
     private KScheduler _scheduler;
+    private KModel _model;
 
     private KeyCalculator _objectKeyCalculator = null;
     private KeyCalculator _dimensionKeyCalculator = null;
@@ -37,11 +38,13 @@ public class DefaultKStore implements KStore {
 
     private static final String DELETED_MESSAGE = "KMF Error: your object has been deleted. Please do not use object pointer after a call to delete method";
 
-    public DefaultKStore() {
+    public DefaultKStore(KModel model) {
         this._db = new MemoryKDataBase();
         this._eventBroker = new DefaultKBroker();
+        this._eventBroker.setKStore(this);
         this._operationManager = new DefaultOperationManager(this);
         this._scheduler = new DirectScheduler();
+        this._model = model;
     }
 
     private boolean isConnected = false;
@@ -475,6 +478,7 @@ public class DefaultKStore implements KStore {
     @Override
     public void setEventBroker(KEventBroker p_eventBroker) {
         this._eventBroker = p_eventBroker;
+        this._eventBroker.setKStore(this);
     }
 
     @Override
@@ -682,4 +686,7 @@ public class DefaultKStore implements KStore {
         }
     }
 
+    public KModel getModel() {
+        return _model;
+    }
 }

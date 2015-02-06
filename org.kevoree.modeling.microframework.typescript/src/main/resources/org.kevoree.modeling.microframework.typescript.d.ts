@@ -14,6 +14,7 @@ declare module org {
                 }
                 class KActionType {
                     static CALL: KActionType;
+                    static CALL_RESPONSE: KActionType;
                     static SET: KActionType;
                     static ADD: KActionType;
                     static REMOVE: KActionType;
@@ -510,6 +511,7 @@ declare module org {
                         private _eventBroker;
                         private _operationManager;
                         private _scheduler;
+                        private _model;
                         private _objectKeyCalculator;
                         private _dimensionKeyCalculator;
                         private static OUT_OF_CACHE_MESSAGE;
@@ -519,7 +521,7 @@ declare module org {
                         static INDEX_RESOLVED_DIM: number;
                         static INDEX_RESOLVED_TIME: number;
                         static INDEX_RESOLVED_TIMETREE: number;
-                        constructor();
+                        constructor(model: KModel<any>);
                         connect(callback: (p: java.lang.Throwable) => void): void;
                         close(callback: (p: java.lang.Throwable) => void): void;
                         private keyTree(dim, key);
@@ -556,6 +558,7 @@ declare module org {
                         internal_resolve_dim_time(originView: KView, uuids: number[], callback: (p: any[][]) => void): void;
                         private resolve_timeTrees(p_universe, keys, callback);
                         private resolve_roots(p_universe, callback);
+                        getModel(): KModel<any>;
                     }
                     class Index {
                         static PARENT_INDEX: number;
@@ -601,6 +604,7 @@ declare module org {
                         operationManager(): util.KOperationManager;
                         connect(callback: (p: java.lang.Throwable) => void): void;
                         close(callback: (p: java.lang.Throwable) => void): void;
+                        getModel(): KModel<any>;
                     }
                     class KeyCalculator {
                         static LONG_LIMIT_JS: number;
@@ -651,11 +655,14 @@ declare module org {
                         private static TUPLE_SIZE;
                         private listeners;
                         private _metaModel;
+                        private _store;
                         connect(callback: (p: java.lang.Throwable) => void): void;
                         close(callback: (p: java.lang.Throwable) => void): void;
                         registerListener(origin: any, listener: (p: KEvent) => void, scope: any): void;
                         notify(event: KEvent): void;
+                        sendOperationEvent(eventk: KEvent): void;
                         flush(dimensionKey: number): void;
+                        setKStore(store: data.KStore): void;
                         setMetaModel(p_metaModel: meta.MetaModel): void;
                         unregister(listener: (p: KEvent) => void): void;
                     }
@@ -697,7 +704,9 @@ declare module org {
                         unregister(listener: (p: KEvent) => void): void;
                         notify(event: KEvent): void;
                         flush(dimensionKey: number): void;
+                        setKStore(store: data.KStore): void;
                         setMetaModel(metaModel: meta.MetaModel): void;
+                        sendOperationEvent(operationEvent: KEvent): void;
                     }
                 }
                 module extrapolation {
@@ -1530,13 +1539,24 @@ declare module org {
                     class DefaultOperationManager implements KOperationManager {
                         private operationCallbacks;
                         private _store;
+                        private static DIM_INDEX;
+                        private static TIME_INDEX;
+                        private static UUID_INDEX;
+                        private static OPERATION_INDEX;
+                        private static TUPLE_SIZE;
+                        private remoteCallCallbacks;
                         constructor(store: data.KStore);
                         registerOperation(operation: meta.MetaOperation, callback: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
                         call(source: KObject, operation: meta.MetaOperation, param: any[], callback: (p: any) => void): void;
+                        private sendToRemote(source, operation, param, callback);
+                        private protectString(input);
+                        private parseParams(inParams);
+                        operationEventReceived(operationEvent: KEvent): void;
                     }
                     interface KOperationManager {
                         registerOperation(operation: meta.MetaOperation, callback: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
                         call(source: KObject, operation: meta.MetaOperation, param: any[], callback: (p: any) => void): void;
+                        operationEventReceived(operationEvent: KEvent): void;
                     }
                     class PathHelper {
                         static pathSep: string;
