@@ -238,7 +238,7 @@ var org;
                         AbstractKModel.prototype.setOperation = function (metaOperation, operation) {
                             this.storage().operationManager().registerOperation(metaOperation, operation, null);
                         };
-                        AbstractKModel.prototype.setInstanceOperation = function (metaOperation, operation, target) {
+                        AbstractKModel.prototype.setInstanceOperation = function (metaOperation, target, operation) {
                             this.storage().operationManager().registerOperation(metaOperation, operation, target);
                         };
                         AbstractKModel.prototype.task = function () {
@@ -8489,22 +8489,22 @@ var org;
                                     objectOperations = new java.util.HashMap();
                                     this.instanceOperations.put(target.uuid(), objectOperations);
                                 }
-                                objectOperations.put(operation.origin().index(), callback);
+                                objectOperations.put(operation.index(), callback);
                             }
                         };
-                        DefaultOperationManager.prototype.searchOperation = function (source, operation) {
+                        DefaultOperationManager.prototype.searchOperation = function (source, clazz, operation) {
                             var objectOperations = this.instanceOperations.get(source);
                             if (objectOperations != null) {
                                 return objectOperations.get(operation);
                             }
-                            var clazzOperations = this.staticOperations.get(operation);
+                            var clazzOperations = this.staticOperations.get(clazz);
                             if (clazzOperations != null) {
                                 return clazzOperations.get(operation);
                             }
                             return null;
                         };
                         DefaultOperationManager.prototype.call = function (source, operation, param, callback) {
-                            var operationCore = this.searchOperation(source.uuid(), operation.origin().index());
+                            var operationCore = this.searchOperation(source.uuid(), operation.origin().index(), operation.index());
                             if (operationCore != null) {
                                 operationCore(source, param, callback);
                             }
@@ -8598,7 +8598,7 @@ var org;
                             }
                             else {
                                 if (operationEvent.actionType() == org.kevoree.modeling.api.KActionType.CALL) {
-                                    var operationCore = this.searchOperation(operationEvent.uuid(), operationEvent.metaElement().index());
+                                    var operationCore = this.searchOperation(operationEvent.uuid(), operationEvent.metaClass().index(), operationEvent.metaElement().index());
                                     if (operationCore != null) {
                                         var view = this._store.getModel().universe(operationEvent.universe()).time(operationEvent.time());
                                         view.lookup(operationEvent.uuid(), function (kObject) {

@@ -156,7 +156,7 @@ module org {
 
                     setOperation(metaOperation: org.kevoree.modeling.api.meta.MetaOperation, operation: (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void): void;
 
-                    setInstanceOperation(metaOperation: org.kevoree.modeling.api.meta.MetaOperation, operation: (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void, target: org.kevoree.modeling.api.KObject): void;
+                    setInstanceOperation(metaOperation: org.kevoree.modeling.api.meta.MetaOperation, target: org.kevoree.modeling.api.KObject, operation: (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void): void;
 
                     metaModel(): org.kevoree.modeling.api.meta.MetaModel;
 
@@ -610,7 +610,7 @@ module org {
                             this.storage().operationManager().registerOperation(metaOperation, operation, null);
                         }
 
-                        public setInstanceOperation(metaOperation: org.kevoree.modeling.api.meta.MetaOperation, operation: (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void, target: org.kevoree.modeling.api.KObject): void {
+                        public setInstanceOperation(metaOperation: org.kevoree.modeling.api.meta.MetaOperation, target: org.kevoree.modeling.api.KObject, operation: (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void): void {
                             this.storage().operationManager().registerOperation(metaOperation, operation, target);
                         }
 
@@ -9375,16 +9375,16 @@ module org {
                                     objectOperations = new java.util.HashMap<number, (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void>();
                                     this.instanceOperations.put(target.uuid(), objectOperations);
                                 }
-                                objectOperations.put(operation.origin().index(), callback);
+                                objectOperations.put(operation.index(), callback);
                             }
                         }
 
-                        private searchOperation(source: number, operation: number): (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void {
+                        private searchOperation(source: number, clazz: number, operation: number): (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void {
                             var objectOperations: java.util.Map<number, (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void> = this.instanceOperations.get(source);
                             if (objectOperations != null) {
                                 return objectOperations.get(operation);
                             }
-                            var clazzOperations: java.util.Map<number, (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void> = this.staticOperations.get(operation);
+                            var clazzOperations: java.util.Map<number, (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void> = this.staticOperations.get(clazz);
                             if (clazzOperations != null) {
                                 return clazzOperations.get(operation);
                             }
@@ -9392,7 +9392,7 @@ module org {
                         }
 
                         public call(source: org.kevoree.modeling.api.KObject, operation: org.kevoree.modeling.api.meta.MetaOperation, param: any[], callback: (p : any) => void): void {
-                            var operationCore: (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void = this.searchOperation(source.uuid(), operation.origin().index());
+                            var operationCore: (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void = this.searchOperation(source.uuid(), operation.origin().index(), operation.index());
                             if (operationCore != null) {
                                 operationCore(source, param, callback);
                             } else {
@@ -9485,7 +9485,7 @@ module org {
                                 }
                             } else {
                                 if (operationEvent.actionType() == org.kevoree.modeling.api.KActionType.CALL) {
-                                    var operationCore: (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void = this.searchOperation(operationEvent.uuid(), operationEvent.metaElement().index());
+                                    var operationCore: (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void = this.searchOperation(operationEvent.uuid(), operationEvent.metaClass().index(), operationEvent.metaElement().index());
                                     if (operationCore != null) {
                                         var view: org.kevoree.modeling.api.KView = this._store.getModel().universe(operationEvent.universe()).time(operationEvent.time());
                                         view.lookup(operationEvent.uuid(),  (kObject : org.kevoree.modeling.api.KObject) => {

@@ -69,7 +69,7 @@ declare module org {
                     setDataBase(dataBase: data.KDataBase): KModel<any>;
                     setScheduler(scheduler: KScheduler): KModel<any>;
                     setOperation(metaOperation: meta.MetaOperation, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
-                    setInstanceOperation(metaOperation: meta.MetaOperation, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void, target: KObject): void;
+                    setInstanceOperation(metaOperation: meta.MetaOperation, target: KObject, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
                     metaModel(): meta.MetaModel;
                     task(): KTask<any>;
                     save(callback: (p: boolean) => void): void;
@@ -256,7 +256,7 @@ declare module org {
                         setDataBase(p_dataBase: data.KDataBase): KModel<any>;
                         setScheduler(p_scheduler: KScheduler): KModel<any>;
                         setOperation(metaOperation: meta.MetaOperation, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
-                        setInstanceOperation(metaOperation: meta.MetaOperation, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void, target: KObject): void;
+                        setInstanceOperation(metaOperation: meta.MetaOperation, target: KObject, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
                         task(): KTask<any>;
                         taskSave(): KTask<any>;
                         taskDiscard(): KTask<any>;
@@ -1550,7 +1550,7 @@ declare module org {
                         private remoteCallCallbacks;
                         constructor(store: data.KStore);
                         registerOperation(operation: meta.MetaOperation, callback: (p: KObject, p1: any[], p2: (p: any) => void) => void, target: KObject): void;
-                        private searchOperation(source, operation);
+                        private searchOperation(source, clazz, operation);
                         call(source: KObject, operation: meta.MetaOperation, param: any[], callback: (p: any) => void): void;
                         private sendToRemote(source, operation, param, callback);
                         private protectString(input);
