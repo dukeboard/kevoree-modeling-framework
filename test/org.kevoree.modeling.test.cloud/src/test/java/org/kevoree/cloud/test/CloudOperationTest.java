@@ -23,13 +23,14 @@ public class CloudOperationTest {
     public void operationTest() {
         CloudModel model = new CloudModel();
         model.connect(null);
+        CloudUniverse universe = model.newUniverse();
+        CloudView view = universe.time(0L);
         model.setOperation(MetaElement.OP_TRIGGER, new KOperation() {
             public void on(KObject source, Object[] params, Callback<Object> result) {
                 result.on("Hey. I received Parameter:" + Arrays.toString(params) + " on element:(" + source.universe().key() + "," + source.now() + "," + source.uuid() + ")");
             }
         });
-        CloudUniverse universe = model.newUniverse();
-        CloudView view = universe.time(0L);
+
         Element elem = view.createElement();
         elem.trigger("StringParam", 100, new Callback<String>() {
             @Override

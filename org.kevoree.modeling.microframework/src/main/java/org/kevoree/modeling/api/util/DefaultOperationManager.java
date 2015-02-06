@@ -6,13 +6,8 @@ import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KOperation;
 import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.event.DefaultKEvent;
-import org.kevoree.modeling.api.json.JsonString;
-import org.kevoree.modeling.api.json.JsonToken;
-import org.kevoree.modeling.api.json.Lexer;
-import org.kevoree.modeling.api.json.Type;
 import org.kevoree.modeling.api.meta.MetaOperation;
 
 import java.util.ArrayList;
@@ -24,7 +19,8 @@ import java.util.Map;
  */
 public class DefaultOperationManager implements KOperationManager{
 
-    private Map<Integer, Map<Integer, KOperation>> operationCallbacks = new HashMap<Integer, Map<Integer, KOperation>>();
+    private Map<Integer, Map<Integer, KOperation>> staticOperations = new HashMap<Integer, Map<Integer, KOperation>>();
+    private Map<Long, Map<Integer, KOperation>> instanceOperations = new HashMap<Long, Map<Integer, KOperation>>();
     private KStore _store;
 
     private static int DIM_INDEX = 0;
@@ -41,25 +37,41 @@ public class DefaultOperationManager implements KOperationManager{
     }
 
     @Override
-    public void registerOperation(MetaOperation operation, KOperation callback) {
-        Map<Integer, KOperation> clazzOperations = operationCallbacks.get(operation.origin().index());
-        if (clazzOperations == null) {
-            clazzOperations = new HashMap<Integer, KOperation>();
-            operationCallbacks.put(operation.origin().index(), clazzOperations);
+    public void registerOperation(MetaOperation operation, KOperation callback, KObject target) {
+        if( target == null) {
+            Map<Integer, KOperation> clazzOperations = staticOperations.get(operation.origin().index());
+            if (clazzOperations == null) {
+                clazzOperations = new HashMap<Integer, KOperation>();
+                staticOperations.put(operation.origin().index(), clazzOperations);
+            }
+            clazzOperations.put(operation.index(), callback);
+        } else {
+            Map<Integer, KOperation> objectOperations = instanceOperations.get(target.uuid());
+            if( objectOperations == null) {
+                objectOperations = new HashMap<Integer, KOperation>();
+                instanceOperations.put(target.uuid(), objectOperations);
+            }
+            objectOperations.put(operation.index(), callback);
         }
-        clazzOperations.put(operation.index(), callback);
+    }
+
+    private KOperation searchOperation(Long source, int clazz, int operation) {
+        Map<Integer, KOperation> objectOperations = instanceOperations.get(source);
+        if( objectOperations != null) {
+            return objectOperations.get(operation);
+        }
+        Map<Integer, KOperation> clazzOperations = staticOperations.get(clazz);
+        if (clazzOperations != null) {
+            return clazzOperations.get(operation);
+        }
+        return null;
     }
 
     @Override
     public void call(KObject source, MetaOperation operation, Object[] param, Callback<Object> callback) {
-        Map<Integer, KOperation> clazzOperations = operationCallbacks.get(source.metaClass().index());
-        if (clazzOperations != null) {
-            KOperation operationCore = clazzOperations.get(operation.index());
-            if (operationCore != null){
-                operationCore.on(source, param, callback);
-            } else {
-                sendToRemote(source, operation, param, callback);
-            }
+        KOperation operationCore = searchOperation(source.uuid(), operation.origin().index(), operation.index());
+        if (operationCore != null){
+            operationCore.on(source, param, callback);
         } else {
             sendToRemote(source, operation, param, callback);
         }
@@ -152,26 +164,23 @@ public class DefaultOperationManager implements KOperationManager{
                 }
             }
         } else if(operationEvent.actionType() == KActionType.CALL) {
-            Map<Integer, KOperation> clazzOperations = operationCallbacks.get(operationEvent.metaClass().index());
-            if (clazzOperations != null) {
-                KOperation operationCore = clazzOperations.get(operationEvent.metaElement().index());
-                if (operationCore != null){
-                    KView view = _store.getModel().universe(operationEvent.universe()).time(operationEvent.time());
-                    view.lookup(operationEvent.uuid(), new Callback<KObject>() {
-                        public void on(KObject kObject) {
-                            if(kObject != null) {
-                                Object[] params = parseParams((String)operationEvent.value());
-                                operationCore.on(kObject, params, new Callback<Object>() {
-                                    public void on(Object o) {
-                                        DefaultKEvent operationCallResponseEvent = new DefaultKEvent(KActionType.CALL_RESPONSE,kObject, operationEvent.metaElement(), "[\""+protectString(o.toString())+"\"]");
-                                        _store.eventBroker().sendOperationEvent(operationCallResponseEvent);
-                                    }
-                                });
-                            }
-
+            KOperation operationCore = searchOperation(operationEvent.uuid(), operationEvent.metaClass().index(), operationEvent.metaElement().index());
+            if (operationCore != null){
+                KView view = _store.getModel().universe(operationEvent.universe()).time(operationEvent.time());
+                view.lookup(operationEvent.uuid(), new Callback<KObject>() {
+                    public void on(KObject kObject) {
+                        if(kObject != null) {
+                            Object[] params = parseParams((String)operationEvent.value());
+                            operationCore.on(kObject, params, new Callback<Object>() {
+                                public void on(Object o) {
+                                    DefaultKEvent operationCallResponseEvent = new DefaultKEvent(KActionType.CALL_RESPONSE,kObject, operationEvent.metaElement(), "[\""+protectString(o.toString())+"\"]");
+                                    _store.eventBroker().sendOperationEvent(operationCallResponseEvent);
+                                }
+                            });
                         }
-                    });
-                }
+
+                    }
+                });
             }
         } else {
             //Wrong routing.

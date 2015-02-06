@@ -69,6 +69,7 @@ declare module org {
                     setDataBase(dataBase: data.KDataBase): KModel<any>;
                     setScheduler(scheduler: KScheduler): KModel<any>;
                     setOperation(metaOperation: meta.MetaOperation, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
+                    setInstanceOperation(metaOperation: meta.MetaOperation, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void, target: KObject): void;
                     metaModel(): meta.MetaModel;
                     task(): KTask<any>;
                     save(callback: (p: boolean) => void): void;
@@ -255,6 +256,7 @@ declare module org {
                         setDataBase(p_dataBase: data.KDataBase): KModel<any>;
                         setScheduler(p_scheduler: KScheduler): KModel<any>;
                         setOperation(metaOperation: meta.MetaOperation, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
+                        setInstanceOperation(metaOperation: meta.MetaOperation, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void, target: KObject): void;
                         task(): KTask<any>;
                         taskSave(): KTask<any>;
                         taskDiscard(): KTask<any>;
@@ -1537,7 +1539,8 @@ declare module org {
                         static isDefined(param: any): boolean;
                     }
                     class DefaultOperationManager implements KOperationManager {
-                        private operationCallbacks;
+                        private staticOperations;
+                        private instanceOperations;
                         private _store;
                         private static DIM_INDEX;
                         private static TIME_INDEX;
@@ -1546,7 +1549,8 @@ declare module org {
                         private static TUPLE_SIZE;
                         private remoteCallCallbacks;
                         constructor(store: data.KStore);
-                        registerOperation(operation: meta.MetaOperation, callback: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
+                        registerOperation(operation: meta.MetaOperation, callback: (p: KObject, p1: any[], p2: (p: any) => void) => void, target: KObject): void;
+                        private searchOperation(source, operation);
                         call(source: KObject, operation: meta.MetaOperation, param: any[], callback: (p: any) => void): void;
                         private sendToRemote(source, operation, param, callback);
                         private protectString(input);
@@ -1554,7 +1558,7 @@ declare module org {
                         operationEventReceived(operationEvent: KEvent): void;
                     }
                     interface KOperationManager {
-                        registerOperation(operation: meta.MetaOperation, callback: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
+                        registerOperation(operation: meta.MetaOperation, callback: (p: KObject, p1: any[], p2: (p: any) => void) => void, target: KObject): void;
                         call(source: KObject, operation: meta.MetaOperation, param: any[], callback: (p: any) => void): void;
                         operationEventReceived(operationEvent: KEvent): void;
                     }

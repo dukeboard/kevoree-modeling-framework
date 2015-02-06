@@ -100,7 +100,12 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
 
     @Override
     public void setOperation(MetaOperation metaOperation, KOperation operation) {
-        storage().operationManager().registerOperation(metaOperation, operation);
+        storage().operationManager().registerOperation(metaOperation, operation, null);
+    }
+
+    @Override
+    public void setInstanceOperation(MetaOperation metaOperation, KObject target, KOperation operation) {
+        storage().operationManager().registerOperation(metaOperation, operation, target);
     }
 
     @Override

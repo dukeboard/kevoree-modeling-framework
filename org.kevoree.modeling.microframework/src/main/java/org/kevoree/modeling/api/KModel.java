@@ -30,6 +30,8 @@ public interface KModel<A extends KUniverse> {
 
     public void setOperation(MetaOperation metaOperation, KOperation operation);
 
+    public void setInstanceOperation(MetaOperation metaOperation, KObject target, KOperation operation);
+
     public MetaModel metaModel();
 
     public KTask task();

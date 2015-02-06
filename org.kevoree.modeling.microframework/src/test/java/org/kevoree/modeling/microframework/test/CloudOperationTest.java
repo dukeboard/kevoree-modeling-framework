@@ -19,6 +19,10 @@ public class CloudOperationTest {
         model.connect(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
+                CloudUniverse dimension = model.newUniverse();
+                CloudView view = dimension.time(0L);
+                Node n = view.createNode();
+
                 model.setOperation(MetaNode.OP_TRIGGER, new KOperation() {
                     @Override
                     public void on(KObject source, Object[] params, Callback<Object> result) {
@@ -33,9 +37,7 @@ public class CloudOperationTest {
                         result.on("Hey. I received Parameter:" + parameters + " on element:(" + source.universe() + "," + source.now() + "," + source.uuid() + ")");
                     }
                 });
-                CloudUniverse dimension = model.newUniverse();
-                CloudView view = dimension.time(0L);
-                Node n = view.createNode();
+
                 n.trigger("MyParam", new Callback<String>() {
                     @Override
                     public void on(String s) {
