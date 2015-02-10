@@ -5,7 +5,7 @@ import org.kevoree.modeling.api.KInferState;
 /**
  * Created by assaad on 10/02/15.
  */
-public class DoubleArrayKInferState implements KInferState {
+public class DoubleArrayKInferState extends KInferState {
     private boolean _isDirty = false;
 
     private double[] weights;
