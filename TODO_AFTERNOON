@@ -3,3 +3,4 @@ ADD REFLEXIVE CALL for OPERATION and INFER CALL for OPERATION
 LATER - PUT TASK BY default
 CHECK all the call to RAW
 Think about changing the storage using the MM versionning ... from JSON to BSON (using ID), will make everything faster !!
+CHECK the clone object on polynomial and so on

@@ -3,14 +3,14 @@ package org.kevoree.modeling.api;
 /**
  * Created by duke on 10/02/15.
  */
-public interface KInferState {
+public abstract class KInferState {
 
-    public String save();
+    public abstract String save();
 
-    public void load(String payload);
+    public abstract void load(String payload);
 
-    public boolean isDirty();
+    public abstract boolean isDirty();
 
-    public KInferState cloneState();
+    public abstract KInferState cloneState();
 
 }

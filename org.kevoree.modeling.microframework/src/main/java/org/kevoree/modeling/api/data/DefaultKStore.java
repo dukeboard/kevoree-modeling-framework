@@ -297,6 +297,8 @@ public class DefaultKStore implements KStore {
                             ArrayList<Long> clonedList = new ArrayList<Long>();
                             clonedList.addAll((List<Long>) resolved);
                             cloned[i] = clonedList;
+                        } else if (resolved instanceof KInferState) {
+                            cloned[i] = ((KInferState) resolved).cloneState();
                         } else {
                             cloned[i] = resolved;
                         }
