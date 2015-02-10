@@ -3337,63 +3337,205 @@ var org;
                             currentState.setNb(0);
                         };
                         AverageKInfer.prototype.createEmptyState = function () {
-                            return new org.kevoree.modeling.api.infer.AverageKInferState();
+                            return new org.kevoree.modeling.api.infer.states.AverageKInferState();
                         };
                         return AverageKInfer;
                     })(org.kevoree.modeling.api.abs.AbstractKObjectInfer);
                     infer.AverageKInfer = AverageKInfer;
-                    var AverageKInferState = (function (_super) {
-                        __extends(AverageKInferState, _super);
-                        function AverageKInferState() {
-                            _super.apply(this, arguments);
-                            this._isDirty = false;
-                            this.sum = 0;
-                            this.nb = 0;
+                    var LinearRegressionKInfer = (function (_super) {
+                        __extends(LinearRegressionKInfer, _super);
+                        function LinearRegressionKInfer(p_view, p_uuid, p_timeTree, p_metaClass) {
+                            _super.call(this, p_view, p_uuid, p_timeTree, p_metaClass);
+                            this.alpha = 0.0001;
+                            this.iterations = 100;
                         }
-                        AverageKInferState.prototype.getNb = function () {
-                            return this.nb;
+                        LinearRegressionKInfer.prototype.getAlpha = function () {
+                            return this.alpha;
                         };
-                        AverageKInferState.prototype.setNb = function (nb) {
-                            this._isDirty = true;
-                            this.nb = nb;
+                        LinearRegressionKInfer.prototype.setAlpha = function (alpha) {
+                            this.alpha = alpha;
                         };
-                        AverageKInferState.prototype.getSum = function () {
-                            return this.sum;
+                        LinearRegressionKInfer.prototype.getIterations = function () {
+                            return this.iterations;
                         };
-                        AverageKInferState.prototype.setSum = function (sum) {
-                            this._isDirty = true;
-                            this.sum = sum;
+                        LinearRegressionKInfer.prototype.setIterations = function (iterations) {
+                            this.iterations = iterations;
                         };
-                        AverageKInferState.prototype.save = function () {
-                            return this.sum + "/" + this.nb;
-                        };
-                        AverageKInferState.prototype.load = function (payload) {
-                            try {
-                                var previousState = payload.split("/");
-                                this.sum = java.lang.Double.parseDouble(previousState[0]);
-                                this.nb = java.lang.Integer.parseInt(previousState[1]);
+                        LinearRegressionKInfer.prototype.calculate = function (weights, features) {
+                            var result = 0;
+                            for (var i = 0; i < features.length; i++) {
+                                result += weights[i] * features[i];
                             }
-                            catch ($ex$) {
-                                if ($ex$ instanceof java.lang.Exception) {
-                                    var e = $ex$;
-                                    this.sum = 0;
-                                    this.nb = 0;
+                            result += weights[features.length];
+                            return result;
+                        };
+                        LinearRegressionKInfer.prototype.train = function (trainingSet, expectedResultSet, callback) {
+                            var currentState = this.modifyState();
+                            var weights = currentState.getWeights();
+                            var size = trainingSet[0].length;
+                            if (weights == null) {
+                                weights = new Array();
+                                var random = new java.util.Random();
+                                for (var i = 0; i < size + 1; i++) {
                                 }
                             }
-                            this._isDirty = false;
+                            var features = new Array();
+                            var results = new Array();
+                            for (var i = 0; i < trainingSet.length; i++) {
+                                features[i] = new Array();
+                                for (var j = 0; j < size; j++) {
+                                    features[i][j] = trainingSet[i][j];
+                                }
+                                results[i] = expectedResultSet[i];
+                            }
+                            for (var j = 0; j < this.iterations; j++) {
+                                for (var i = 0; i < trainingSet.length; i++) {
+                                    var h = this.calculate(weights, features[i]);
+                                    var err = -this.alpha * (h - results[i]);
+                                    for (var k = 0; k < size; k++) {
+                                        weights[k] = weights[k] + err * features[i][k];
+                                    }
+                                    weights[size] = weights[size] + err;
+                                }
+                            }
+                            currentState.setWeights(weights);
                         };
-                        AverageKInferState.prototype.isDirty = function () {
-                            return this._isDirty;
+                        LinearRegressionKInfer.prototype.infer = function (features) {
+                            var currentState = this.readOnlyState();
+                            var weights = currentState.getWeights();
+                            var ft = new Array();
+                            for (var i = 0; i < features.length; i++) {
+                                ft[i] = features[i];
+                            }
+                            return this.calculate(weights, ft);
                         };
-                        AverageKInferState.prototype.cloneState = function () {
-                            var cloned = new org.kevoree.modeling.api.infer.AverageKInferState();
-                            cloned.setNb(this.getNb());
-                            cloned.setSum(this.getSum());
-                            return cloned;
+                        LinearRegressionKInfer.prototype.accuracy = function (testSet, expectedResultSet) {
+                            return null;
                         };
-                        return AverageKInferState;
-                    })(org.kevoree.modeling.api.KInferState);
-                    infer.AverageKInferState = AverageKInferState;
+                        LinearRegressionKInfer.prototype.clear = function () {
+                            var currentState = this.modifyState();
+                            currentState.setWeights(null);
+                        };
+                        LinearRegressionKInfer.prototype.createEmptyState = function () {
+                            return new org.kevoree.modeling.api.infer.states.DoubleArrayKInferState();
+                        };
+                        return LinearRegressionKInfer;
+                    })(org.kevoree.modeling.api.abs.AbstractKObjectInfer);
+                    infer.LinearRegressionKInfer = LinearRegressionKInfer;
+                    var states;
+                    (function (states) {
+                        var AverageKInferState = (function (_super) {
+                            __extends(AverageKInferState, _super);
+                            function AverageKInferState() {
+                                _super.apply(this, arguments);
+                                this._isDirty = false;
+                                this.sum = 0;
+                                this.nb = 0;
+                            }
+                            AverageKInferState.prototype.getNb = function () {
+                                return this.nb;
+                            };
+                            AverageKInferState.prototype.setNb = function (nb) {
+                                this._isDirty = true;
+                                this.nb = nb;
+                            };
+                            AverageKInferState.prototype.getSum = function () {
+                                return this.sum;
+                            };
+                            AverageKInferState.prototype.setSum = function (sum) {
+                                this._isDirty = true;
+                                this.sum = sum;
+                            };
+                            AverageKInferState.prototype.save = function () {
+                                return this.sum + "/" + this.nb;
+                            };
+                            AverageKInferState.prototype.load = function (payload) {
+                                try {
+                                    var previousState = payload.split("/");
+                                    this.sum = java.lang.Double.parseDouble(previousState[0]);
+                                    this.nb = java.lang.Integer.parseInt(previousState[1]);
+                                }
+                                catch ($ex$) {
+                                    if ($ex$ instanceof java.lang.Exception) {
+                                        var e = $ex$;
+                                        this.sum = 0;
+                                        this.nb = 0;
+                                    }
+                                }
+                                this._isDirty = false;
+                            };
+                            AverageKInferState.prototype.isDirty = function () {
+                                return this._isDirty;
+                            };
+                            AverageKInferState.prototype.cloneState = function () {
+                                var cloned = new org.kevoree.modeling.api.infer.states.AverageKInferState();
+                                cloned.setNb(this.getNb());
+                                cloned.setSum(this.getSum());
+                                return cloned;
+                            };
+                            return AverageKInferState;
+                        })(org.kevoree.modeling.api.KInferState);
+                        states.AverageKInferState = AverageKInferState;
+                        var DoubleArrayKInferState = (function (_super) {
+                            __extends(DoubleArrayKInferState, _super);
+                            function DoubleArrayKInferState() {
+                                _super.apply(this, arguments);
+                                this._isDirty = false;
+                            }
+                            DoubleArrayKInferState.prototype.save = function () {
+                                var s = "";
+                                var sb = new java.lang.StringBuilder();
+                                if (this.weights != null) {
+                                    for (var i = 0; i < this.weights.length; i++) {
+                                        sb.append(this.weights[i] + "/");
+                                    }
+                                    s = sb.toString();
+                                }
+                                return s;
+                            };
+                            DoubleArrayKInferState.prototype.load = function (payload) {
+                                try {
+                                    var previousState = payload.split("/");
+                                    if (previousState.length > 0) {
+                                        this.weights = new Array();
+                                        for (var i = 0; i < previousState.length; i++) {
+                                            this.weights[i] = java.lang.Double.parseDouble(previousState[i]);
+                                        }
+                                    }
+                                }
+                                catch ($ex$) {
+                                    if ($ex$ instanceof java.lang.Exception) {
+                                        var e = $ex$;
+                                    }
+                                }
+                                this._isDirty = false;
+                            };
+                            DoubleArrayKInferState.prototype.isDirty = function () {
+                                return this._isDirty;
+                            };
+                            DoubleArrayKInferState.prototype.set_isDirty = function (value) {
+                                this._isDirty = value;
+                            };
+                            DoubleArrayKInferState.prototype.cloneState = function () {
+                                var cloned = new org.kevoree.modeling.api.infer.states.DoubleArrayKInferState();
+                                var clonearray = new Array();
+                                for (var i = 0; i < this.weights.length; i++) {
+                                    clonearray[i] = this.weights[i];
+                                }
+                                cloned.setWeights(clonearray);
+                                return cloned;
+                            };
+                            DoubleArrayKInferState.prototype.getWeights = function () {
+                                return this.weights;
+                            };
+                            DoubleArrayKInferState.prototype.setWeights = function (weights) {
+                                this.weights = weights;
+                                this._isDirty = true;
+                            };
+                            return DoubleArrayKInferState;
+                        })(org.kevoree.modeling.api.KInferState);
+                        states.DoubleArrayKInferState = DoubleArrayKInferState;
+                    })(states = infer.states || (infer.states = {}));
                 })(infer = api.infer || (api.infer = {}));
                 var json;
                 (function (json) {

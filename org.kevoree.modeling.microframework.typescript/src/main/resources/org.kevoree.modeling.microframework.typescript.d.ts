@@ -768,18 +768,46 @@ declare module org {
                         clear(): void;
                         createEmptyState(): KInferState;
                     }
-                    class AverageKInferState extends KInferState {
-                        private _isDirty;
-                        private sum;
-                        private nb;
-                        getNb(): number;
-                        setNb(nb: number): void;
-                        getSum(): number;
-                        setSum(sum: number): void;
-                        save(): string;
-                        load(payload: string): void;
-                        isDirty(): boolean;
-                        cloneState(): KInferState;
+                    class LinearRegressionKInfer extends abs.AbstractKObjectInfer {
+                        private alpha;
+                        private iterations;
+                        getAlpha(): number;
+                        setAlpha(alpha: number): void;
+                        getIterations(): number;
+                        setIterations(iterations: number): void;
+                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
+                        private calculate(weights, features);
+                        train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
+                        infer(features: any[]): any;
+                        accuracy(testSet: any[][], expectedResultSet: any[]): any;
+                        clear(): void;
+                        createEmptyState(): KInferState;
+                    }
+                    module states {
+                        class AverageKInferState extends KInferState {
+                            private _isDirty;
+                            private sum;
+                            private nb;
+                            getNb(): number;
+                            setNb(nb: number): void;
+                            getSum(): number;
+                            setSum(sum: number): void;
+                            save(): string;
+                            load(payload: string): void;
+                            isDirty(): boolean;
+                            cloneState(): KInferState;
+                        }
+                        class DoubleArrayKInferState extends KInferState {
+                            private _isDirty;
+                            private weights;
+                            save(): string;
+                            load(payload: string): void;
+                            isDirty(): boolean;
+                            set_isDirty(value: boolean): void;
+                            cloneState(): KInferState;
+                            getWeights(): number[];
+                            setWeights(weights: number[]): void;
+                        }
                     }
                 }
                 module json {
