@@ -5,7 +5,7 @@ import org.kevoree.modeling.api.KInferState;
 /**
  * Created by duke on 10/02/15.
  */
-public class AverageKInferState implements KInferState {
+public class AverageKInferState extends KInferState {
 
     private boolean _isDirty = false;
 

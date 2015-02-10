@@ -49,7 +49,7 @@ declare module org {
                     accuracy(testSet: any[][], expectedResultSet: any[]): any;
                     clear(): void;
                 }
-                interface KInferState {
+                class KInferState {
                     save(): string;
                     load(payload: string): void;
                     isDirty(): boolean;
@@ -763,7 +763,7 @@ declare module org {
                         clear(): void;
                         createEmptyState(): KInferState;
                     }
-                    class AverageKInferState implements KInferState {
+                    class AverageKInferState extends KInferState {
                         private _isDirty;
                         private sum;
                         private nb;

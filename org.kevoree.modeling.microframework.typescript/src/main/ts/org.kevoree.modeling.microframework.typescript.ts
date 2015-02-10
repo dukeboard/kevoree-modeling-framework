@@ -116,15 +116,23 @@ module org {
 
                 }
 
-                export interface KInferState {
+                export class KInferState {
 
-                    save(): string;
+                    public save(): string {
+                        throw "Abstract method";
+                    }
 
-                    load(payload: string): void;
+                    public load(payload: string): void {
+                        throw "Abstract method";
+                    }
 
-                    isDirty(): boolean;
+                    public isDirty(): boolean {
+                        throw "Abstract method";
+                    }
 
-                    cloneState(): org.kevoree.modeling.api.KInferState;
+                    public cloneState(): org.kevoree.modeling.api.KInferState {
+                        throw "Abstract method";
+                    }
 
                 }
 
@@ -517,7 +525,7 @@ module org {
                         }
 
                         public save(src: any): string {
-                            if (src != null) {
+                            if (src != null && this != org.kevoree.modeling.api.meta.PrimitiveMetaTypes.TRANSIENT) {
                                 if (this == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING) {
                                     return org.kevoree.modeling.api.json.JsonString.encode(src.toString());
                                 } else {
@@ -528,6 +536,9 @@ module org {
                         }
 
                         public load(payload: string): any {
+                            if (this == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.TRANSIENT) {
+                                return null;
+                            }
                             if (this == org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING) {
                                 return org.kevoree.modeling.api.json.JsonString.unescape(payload);
                             }
@@ -2534,7 +2545,11 @@ module org {
                                                     clonedList.addAll(<java.util.List<number>>resolved);
                                                     cloned[i] = clonedList;
                                                 } else {
-                                                    cloned[i] = resolved;
+                                                    if (resolved instanceof org.kevoree.modeling.api.KInferState) {
+                                                        cloned[i] = (<org.kevoree.modeling.api.KInferState>resolved).cloneState();
+                                                    } else {
+                                                        cloned[i] = resolved;
+                                                    }
                                                 }
                                             }
                                         }
@@ -3147,19 +3162,21 @@ module org {
                             for (var i: number = 0; i < metaAttributes.length; i++) {
                                 var payload_res: any = raw[metaAttributes[i].index()];
                                 if (payload_res != null) {
-                                    var attrsPayload: string = metaAttributes[i].strategy().save(payload_res, metaAttributes[i]);
-                                    if (attrsPayload != null) {
-                                        builder.append("\t\t");
-                                        builder.append("\"");
-                                        builder.append(metaAttributes[i].metaName());
-                                        builder.append("\": \"");
-                                        builder.append(attrsPayload);
-                                        builder.append("\"");
-                                        nbElemPrinted++;
-                                        if (nbElemPrinted < nbElemToPrint) {
-                                            builder.append(",");
+                                    if (metaAttributes[i].metaType() != org.kevoree.modeling.api.meta.PrimitiveMetaTypes.TRANSIENT) {
+                                        var attrsPayload: string = metaAttributes[i].strategy().save(payload_res, metaAttributes[i]);
+                                        if (attrsPayload != null) {
+                                            builder.append("\t\t");
+                                            builder.append("\"");
+                                            builder.append(metaAttributes[i].metaName());
+                                            builder.append("\": \"");
+                                            builder.append(attrsPayload);
+                                            builder.append("\"");
+                                            nbElemPrinted++;
+                                            if (nbElemPrinted < nbElemToPrint) {
+                                                builder.append(",");
+                                            }
+                                            builder.append("\n");
                                         }
-                                        builder.append("\n");
                                     }
                                 }
                             }
@@ -3905,7 +3922,7 @@ module org {
 
                     }
 
-                    export class AverageKInferState implements org.kevoree.modeling.api.KInferState {
+                    export class AverageKInferState extends org.kevoree.modeling.api.KInferState {
 
                         private _isDirty: boolean = false;
                         private sum: number = 0;

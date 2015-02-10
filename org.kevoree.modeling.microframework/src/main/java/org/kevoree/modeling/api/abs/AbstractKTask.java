@@ -64,7 +64,7 @@ public class AbstractKTask<A> implements KCurrentTask<A> {
     }
 
     @Override
-    public synchronized void wait(KTask p_previous) {
+    public synchronized KTask<A> wait(KTask p_previous) {
         if (p_previous != this) {
             _previousTasks.add(p_previous);
             if (!((AbstractKTask) p_previous).setDoneOrRegister(this)) {
@@ -79,6 +79,7 @@ public class AbstractKTask<A> implements KCurrentTask<A> {
                 _results.put(p_previous, castedEnd._result);
             }
         }
+        return this;
     }
 
     @Override

@@ -5,7 +5,7 @@ package org.kevoree.modeling.api;
  */
 public interface KTask<A> {
 
-    public void wait(KTask previous);
+    public KTask<A> wait(KTask previous);
 
     public A getResult() throws Exception;
 
