@@ -91,6 +91,10 @@
         <module>databases/org.kevoree.modeling.microframework.databases.mongodb</module>
         <module>databases/org.kevoree.modeling.microframework.databases.websocket</module>
         <module>databases/org.kevoree.modeling.microframework.databases.chronicle</module>
+        <module>databases/org.kevoree.modeling.microframework.databases.voldemort</module>
+        <module>databases/org.kevoree.modeling.microframework.databases.dht.openChord</module>
+        <module>databases/org.kevoree.modeling.microframework.databases.dht.freepastry</module>
+        <module>databases/org.kevoree.modeling.microframework.databases.dht.hyperbolic</module>
         <!-- End DataStores -->
 
     </modules>
