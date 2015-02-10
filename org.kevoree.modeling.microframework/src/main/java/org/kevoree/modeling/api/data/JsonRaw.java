@@ -2,10 +2,7 @@ package org.kevoree.modeling.api.data;
 
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.json.*;
-import org.kevoree.modeling.api.meta.MetaAttribute;
-import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.meta.MetaModel;
-import org.kevoree.modeling.api.meta.MetaReference;
+import org.kevoree.modeling.api.meta.*;
 import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 
 import java.util.HashMap;
@@ -218,31 +215,32 @@ public class JsonRaw {
         }
 
         int nbElemToPrint = 0;
-        for(int i=Index.RESERVED_INDEXES;i<raw.length;i++){
-            if(raw[i]!=null){
+        for (int i = Index.RESERVED_INDEXES; i < raw.length; i++) {
+            if (raw[i] != null) {
                 nbElemToPrint++;
             }
         }
-
 
 
         int nbElemPrinted = 0;
         for (int i = 0; i < metaAttributes.length; i++) {
             Object payload_res = raw[metaAttributes[i].index()];
             if (payload_res != null) {
-                String attrsPayload = metaAttributes[i].strategy().save(payload_res, metaAttributes[i]);
-                if (attrsPayload != null) {
-                    builder.append("\t\t");
-                    builder.append("\"");
-                    builder.append(metaAttributes[i].metaName());
-                    builder.append("\": \"");
-                    builder.append(attrsPayload);
-                    builder.append("\"");
-                    nbElemPrinted++;
-                    if(nbElemPrinted<nbElemToPrint){
-                        builder.append(",");
+                if(metaAttributes[i].metaType() != PrimitiveMetaTypes.TRANSIENT){
+                    String attrsPayload = metaAttributes[i].strategy().save(payload_res, metaAttributes[i]);
+                    if (attrsPayload != null) {
+                        builder.append("\t\t");
+                        builder.append("\"");
+                        builder.append(metaAttributes[i].metaName());
+                        builder.append("\": \"");
+                        builder.append(attrsPayload);
+                        builder.append("\"");
+                        nbElemPrinted++;
+                        if (nbElemPrinted < nbElemToPrint) {
+                            builder.append(",");
+                        }
+                        builder.append("\n");
                     }
-                    builder.append("\n");
                 }
             }
         }
@@ -265,20 +263,20 @@ public class JsonRaw {
                         builder.append("\"");
                         builder.append(elemsArr[j]);
                         builder.append("\"");
-                        if(j != elemsArr.length-1){
+                        if (j != elemsArr.length - 1) {
                             builder.append(",");
                         }
                     }
                     builder.append("]");
                 }
                 nbElemPrinted++;
-                if(nbElemPrinted<nbElemToPrint){
+                if (nbElemPrinted < nbElemToPrint) {
                     builder.append(",");
                 }
                 builder.append("\n");
             }
         }
-        if(endline){
+        if (endline) {
             builder.append("\t}\n");
         } else {
             builder.append("\t}");
