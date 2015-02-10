@@ -704,7 +704,7 @@ var org;
                                 }
                             }
                         };
-                        AbstractKObject.prototype.all = function (p_metaReference, p_callback) {
+                        AbstractKObject.prototype.ref = function (p_metaReference, p_callback) {
                             if (!org.kevoree.modeling.api.util.Checker.isDefined(p_callback)) {
                                 return;
                             }
@@ -757,6 +757,8 @@ var org;
                                     }
                                 }
                             }
+                        };
+                        AbstractKObject.prototype.inferRef = function (p_metaReference, p_callback) {
                         };
                         AbstractKObject.prototype.visitAttributes = function (visitor) {
                             if (!org.kevoree.modeling.api.util.Checker.isDefined(visitor)) {
@@ -1103,9 +1105,9 @@ var org;
                             this.select(p_query, task.initCallback());
                             return task;
                         };
-                        AbstractKObject.prototype.taskAll = function (p_metaReference) {
+                        AbstractKObject.prototype.taskRef = function (p_metaReference) {
                             var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
-                            this.all(p_metaReference, task.initCallback());
+                            this.ref(p_metaReference, task.initCallback());
                             return task;
                         };
                         AbstractKObject.prototype.taskInbounds = function () {
@@ -1138,12 +1140,25 @@ var org;
                             this.path(task.initCallback());
                             return task;
                         };
-                        AbstractKObject.prototype.taskInferChildren = function () {
+                        AbstractKObject.prototype.taskInferObjects = function () {
                             var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
-                            this.inferChildren(task.initCallback());
+                            this.inferObjects(task.initCallback());
                             return task;
                         };
-                        AbstractKObject.prototype.inferChildren = function (p_callback) {
+                        AbstractKObject.prototype.inferObjects = function (p_callback) {
+                        };
+                        AbstractKObject.prototype.call = function (p_operation, p_params, p_callback) {
+                            this.view().universe().model().storage().operationManager().call(this, p_operation, p_params, p_callback);
+                        };
+                        AbstractKObject.prototype.taskCall = function (p_operation, p_params) {
+                            var temp_task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.call(p_operation, p_params, temp_task.initCallback());
+                            return temp_task;
+                        };
+                        AbstractKObject.prototype.inferAttribute = function (attribute) {
+                            return null;
+                        };
+                        AbstractKObject.prototype.inferCall = function (operation, params, callback) {
                         };
                         return AbstractKObject;
                     })();
@@ -1153,18 +1168,51 @@ var org;
                         function AbstractKObjectInfer(p_view, p_uuid, p_timeTree, p_metaClass) {
                             _super.call(this, p_view, p_uuid, p_timeTree, p_metaClass);
                         }
-                        AbstractKObjectInfer.prototype.type = function () {
-                            return null;
+                        AbstractKObjectInfer.prototype.readOnlyState = function () {
+                            var raw = this.view().universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
+                            if (raw != null) {
+                                if (raw[org.kevoree.modeling.api.meta.MetaInferClass.getInstance().getCache().index()] == null) {
+                                    this.internal_load(raw);
+                                }
+                                return raw[org.kevoree.modeling.api.meta.MetaInferClass.getInstance().getCache().index()];
+                            }
+                            else {
+                                return null;
+                            }
                         };
-                        AbstractKObjectInfer.prototype.trainingSet = function () {
-                            return new Array();
+                        AbstractKObjectInfer.prototype.modifyState = function () {
+                            var raw = this.view().universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.WRITE);
+                            if (raw != null) {
+                                if (raw[org.kevoree.modeling.api.meta.MetaInferClass.getInstance().getCache().index()] == null) {
+                                    this.internal_load(raw);
+                                }
+                                return raw[org.kevoree.modeling.api.meta.MetaInferClass.getInstance().getCache().index()];
+                            }
+                            else {
+                                return null;
+                            }
                         };
-                        AbstractKObjectInfer.prototype.train = function (trainingSet, callback) {
+                        AbstractKObjectInfer.prototype.internal_load = function (raw) {
+                            if (raw[org.kevoree.modeling.api.meta.MetaInferClass.getInstance().getCache().index()] == null) {
+                                var currentState = this.createEmptyState();
+                                currentState.load(raw[org.kevoree.modeling.api.meta.MetaInferClass.getInstance().getRaw().index()].toString());
+                                raw[org.kevoree.modeling.api.meta.MetaInferClass.getInstance().getCache().index()] = currentState;
+                            }
                         };
-                        AbstractKObjectInfer.prototype.learn = function () {
+                        AbstractKObjectInfer.prototype.train = function (trainingSet, expectedResultSet, callback) {
+                            throw "Abstract method";
                         };
-                        AbstractKObjectInfer.prototype.infer = function (origin) {
-                            return null;
+                        AbstractKObjectInfer.prototype.infer = function (features) {
+                            throw "Abstract method";
+                        };
+                        AbstractKObjectInfer.prototype.accuracy = function (testSet, expectedResultSet) {
+                            throw "Abstract method";
+                        };
+                        AbstractKObjectInfer.prototype.clear = function () {
+                            throw "Abstract method";
+                        };
+                        AbstractKObjectInfer.prototype.createEmptyState = function () {
+                            throw "Abstract method";
                         };
                         return AbstractKObjectInfer;
                     })(org.kevoree.modeling.api.abs.AbstractKObject);
@@ -3204,6 +3252,94 @@ var org;
                     })();
                     extrapolation.PolynomialExtrapolation = PolynomialExtrapolation;
                 })(extrapolation = api.extrapolation || (api.extrapolation = {}));
+                var infer;
+                (function (infer) {
+                    var AverageKInfer = (function (_super) {
+                        __extends(AverageKInfer, _super);
+                        function AverageKInfer(p_view, p_uuid, p_timeTree) {
+                            _super.call(this, p_view, p_uuid, p_timeTree, null);
+                        }
+                        AverageKInfer.prototype.train = function (trainingSet, expectedResultSet, callback) {
+                            var currentState = this.modifyState();
+                            for (var i = 0; i < expectedResultSet.length; i++) {
+                                currentState.setSum(currentState.getSum() + java.lang.Double.parseDouble(expectedResultSet[i].toString()));
+                                currentState.setNb(currentState.getNb() + 1);
+                            }
+                        };
+                        AverageKInfer.prototype.infer = function (features) {
+                            var currentState = this.readOnlyState();
+                            if (currentState.getNb() != 0) {
+                                return currentState.getSum() / currentState.getNb();
+                            }
+                            else {
+                                return null;
+                            }
+                        };
+                        AverageKInfer.prototype.accuracy = function (testSet, expectedResultSet) {
+                            return null;
+                        };
+                        AverageKInfer.prototype.clear = function () {
+                            var currentState = this.modifyState();
+                            currentState.setSum(0);
+                            currentState.setNb(0);
+                        };
+                        AverageKInfer.prototype.createEmptyState = function () {
+                            return new org.kevoree.modeling.api.infer.AverageKInferState();
+                        };
+                        return AverageKInfer;
+                    })(org.kevoree.modeling.api.abs.AbstractKObjectInfer);
+                    infer.AverageKInfer = AverageKInfer;
+                    var AverageKInferState = (function () {
+                        function AverageKInferState() {
+                            this._isDirty = false;
+                            this.sum = 0;
+                            this.nb = 0;
+                        }
+                        AverageKInferState.prototype.getNb = function () {
+                            return this.nb;
+                        };
+                        AverageKInferState.prototype.setNb = function (nb) {
+                            this._isDirty = true;
+                            this.nb = nb;
+                        };
+                        AverageKInferState.prototype.getSum = function () {
+                            return this.sum;
+                        };
+                        AverageKInferState.prototype.setSum = function (sum) {
+                            this._isDirty = true;
+                            this.sum = sum;
+                        };
+                        AverageKInferState.prototype.save = function () {
+                            return this.sum + "/" + this.nb;
+                        };
+                        AverageKInferState.prototype.load = function (payload) {
+                            try {
+                                var previousState = payload.split("/");
+                                this.sum = java.lang.Double.parseDouble(previousState[0]);
+                                this.nb = java.lang.Integer.parseInt(previousState[1]);
+                            }
+                            catch ($ex$) {
+                                if ($ex$ instanceof java.lang.Exception) {
+                                    var e = $ex$;
+                                    this.sum = 0;
+                                    this.nb = 0;
+                                }
+                            }
+                            this._isDirty = false;
+                        };
+                        AverageKInferState.prototype.isDirty = function () {
+                            return this._isDirty;
+                        };
+                        AverageKInferState.prototype.cloneState = function () {
+                            var cloned = new org.kevoree.modeling.api.infer.AverageKInferState();
+                            cloned.setNb(this.getNb());
+                            cloned.setSum(this.getSum());
+                            return cloned;
+                        };
+                        return AverageKInferState;
+                    })();
+                    infer.AverageKInferState = AverageKInferState;
+                })(infer = api.infer || (api.infer = {}));
                 var json;
                 (function (json) {
                     var JsonFormat = (function () {
@@ -3885,6 +4021,55 @@ var org;
                 })(json = api.json || (api.json = {}));
                 var meta;
                 (function (meta) {
+                    var MetaInferClass = (function () {
+                        function MetaInferClass() {
+                            this._attributes = null;
+                            this._references = new Array();
+                            this._operations = new Array();
+                            this._attributes = new Array();
+                            this._attributes[0] = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("RAW", org.kevoree.modeling.api.data.Index.RESERVED_INDEXES, -1, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, new org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation());
+                            this._attributes[1] = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("CACHE", org.kevoree.modeling.api.data.Index.RESERVED_INDEXES + 1, -1, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.TRANSIENT, new org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation());
+                        }
+                        MetaInferClass.getInstance = function () {
+                            if (MetaInferClass._INSTANCE == null) {
+                                MetaInferClass._INSTANCE = new org.kevoree.modeling.api.meta.MetaInferClass();
+                            }
+                            return MetaInferClass._INSTANCE;
+                        };
+                        MetaInferClass.prototype.getRaw = function () {
+                            return this._attributes[0];
+                        };
+                        MetaInferClass.prototype.getCache = function () {
+                            return this._attributes[1];
+                        };
+                        MetaInferClass.prototype.metaAttributes = function () {
+                            return this._attributes;
+                        };
+                        MetaInferClass.prototype.metaReferences = function () {
+                            return this._references;
+                        };
+                        MetaInferClass.prototype.metaOperations = function () {
+                            return this._operations;
+                        };
+                        MetaInferClass.prototype.metaAttribute = function (name) {
+                            return null;
+                        };
+                        MetaInferClass.prototype.metaReference = function (name) {
+                            return null;
+                        };
+                        MetaInferClass.prototype.metaOperation = function (name) {
+                            return null;
+                        };
+                        MetaInferClass.prototype.metaName = function () {
+                            return "KInfer";
+                        };
+                        MetaInferClass.prototype.index = function () {
+                            return -1;
+                        };
+                        MetaInferClass._INSTANCE = null;
+                        return MetaInferClass;
+                    })();
+                    meta.MetaInferClass = MetaInferClass;
                     var PrimitiveMetaTypes = (function () {
                         function PrimitiveMetaTypes() {
                         }
@@ -3895,6 +4080,7 @@ var org;
                         PrimitiveMetaTypes.SHORT = new org.kevoree.modeling.api.abs.AbstractKDataType("SHORT", false);
                         PrimitiveMetaTypes.DOUBLE = new org.kevoree.modeling.api.abs.AbstractKDataType("DOUBLE", false);
                         PrimitiveMetaTypes.FLOAT = new org.kevoree.modeling.api.abs.AbstractKDataType("FLOAT", false);
+                        PrimitiveMetaTypes.TRANSIENT = new org.kevoree.modeling.api.abs.AbstractKDataType("TRANSIENT", false);
                         return PrimitiveMetaTypes;
                     })();
                     meta.PrimitiveMetaTypes = PrimitiveMetaTypes;
@@ -9096,7 +9282,7 @@ var org;
                             return pack + ":" + cls;
                         };
                         XMIModelSerializer.nonContainedReferenceTaskMaker = function (ref, p_context, p_currentElement) {
-                            var allTask = p_currentElement.taskAll(ref);
+                            var allTask = p_currentElement.taskRef(ref);
                             var thisTask = p_context.model.universe().model().task();
                             thisTask.wait(allTask);
                             thisTask.setJob(function (currentTask) {
@@ -9118,7 +9304,7 @@ var org;
                             return thisTask;
                         };
                         XMIModelSerializer.containedReferenceTaskMaker = function (ref, context, currentElement) {
-                            var allTask = currentElement.taskAll(ref);
+                            var allTask = currentElement.taskRef(ref);
                             var thisTask = context.model.universe().model().task();
                             thisTask.wait(allTask);
                             thisTask.setJob(function (currentTask) {

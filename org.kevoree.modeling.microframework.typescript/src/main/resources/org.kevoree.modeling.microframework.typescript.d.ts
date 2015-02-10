@@ -44,11 +44,16 @@ declare module org {
                     toTrace(): trace.ModelTrace;
                 }
                 interface KInfer extends KObject {
-                    type(): meta.Meta;
-                    trainingSet(): KObject[];
-                    train(trainingSet: KObject[], callback: (p: java.lang.Throwable) => void): void;
-                    learn(): void;
-                    infer(origin: KObject): any;
+                    train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
+                    infer(features: any[]): any;
+                    accuracy(testSet: any[][], expectedResultSet: any[]): any;
+                    clear(): void;
+                }
+                interface KInferState {
+                    save(): string;
+                    load(payload: string): void;
+                    isDirty(): boolean;
+                    cloneState(): KInferState;
                 }
                 interface KJob {
                     run(currentTask: KCurrentTask<any>): void;
@@ -102,7 +107,8 @@ declare module org {
                     domainKey(): string;
                     metaClass(): meta.MetaClass;
                     mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject): void;
-                    all(metaReference: meta.MetaReference, callback: (p: KObject[]) => void): void;
+                    ref(metaReference: meta.MetaReference, callback: (p: KObject[]) => void): void;
+                    inferRef(metaReference: meta.MetaReference, callback: (p: KObject[]) => void): void;
                     traverse(metaReference: meta.MetaReference): traversal.KTraversal;
                     traverseQuery(metaReferenceQuery: string): traversal.KTraversal;
                     traverseInbounds(metaReferenceQuery: string): traversal.KTraversal;
@@ -122,15 +128,19 @@ declare module org {
                     taskDelete(): KTask<any>;
                     taskParent(): KTask<any>;
                     taskSelect(query: string): KTask<any>;
-                    taskAll(metaReference: meta.MetaReference): KTask<any>;
+                    taskRef(metaReference: meta.MetaReference): KTask<any>;
                     taskInbounds(): KTask<any>;
                     taskDiff(target: KObject): KTask<any>;
                     taskMerge(target: KObject): KTask<any>;
                     taskIntersection(target: KObject): KTask<any>;
                     taskJump<U extends KObject>(time: number): KTask<any>;
                     taskVisit(visitor: (p: KObject) => VisitResult, request: VisitRequest): KTask<any>;
-                    inferChildren(callback: (p: KInfer[]) => void): void;
-                    taskInferChildren(): KTask<any>;
+                    inferObjects(callback: (p: KInfer[]) => void): void;
+                    taskInferObjects(): KTask<any>;
+                    inferAttribute(attribute: meta.MetaAttribute): any;
+                    call(operation: meta.MetaOperation, params: any[], callback: (p: any) => void): void;
+                    taskCall(operation: meta.MetaOperation, params: any[]): KTask<any>;
+                    inferCall(operation: meta.MetaOperation, params: any[], callback: (p: any) => void): void;
                 }
                 interface KOperation {
                     on(source: KObject, params: any[], result: (p: any) => void): void;
@@ -292,7 +302,8 @@ declare module org {
                         mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject): void;
                         internal_mutate(actionType: KActionType, metaReferenceP: meta.MetaReference, param: KObject, setOpposite: boolean, inDelete: boolean): void;
                         size(p_metaReference: meta.MetaReference): number;
-                        all(p_metaReference: meta.MetaReference, p_callback: (p: KObject[]) => void): void;
+                        ref(p_metaReference: meta.MetaReference, p_callback: (p: KObject[]) => void): void;
+                        inferRef(p_metaReference: meta.MetaReference, p_callback: (p: KObject[]) => void): void;
                         visitAttributes(visitor: (p: meta.MetaAttribute, p1: any) => void): void;
                         visit(p_visitor: (p: KObject) => VisitResult, p_end: (p: java.lang.Throwable) => void, p_request: VisitRequest): void;
                         private internal_visit(visitor, end, deep, containedOnly, visited, traversed);
@@ -319,23 +330,30 @@ declare module org {
                         taskDelete(): KTask<any>;
                         taskParent(): KTask<any>;
                         taskSelect(p_query: string): KTask<any>;
-                        taskAll(p_metaReference: meta.MetaReference): KTask<any>;
+                        taskRef(p_metaReference: meta.MetaReference): KTask<any>;
                         taskInbounds(): KTask<any>;
                         taskDiff(p_target: KObject): KTask<any>;
                         taskMerge(p_target: KObject): KTask<any>;
                         taskIntersection(p_target: KObject): KTask<any>;
                         taskJump<U extends KObject>(p_time: number): KTask<any>;
                         taskPath(): KTask<any>;
-                        taskInferChildren(): KTask<any>;
-                        inferChildren(p_callback: (p: KInfer[]) => void): void;
+                        taskInferObjects(): KTask<any>;
+                        inferObjects(p_callback: (p: KInfer[]) => void): void;
+                        call(p_operation: meta.MetaOperation, p_params: any[], p_callback: (p: any) => void): void;
+                        taskCall(p_operation: meta.MetaOperation, p_params: any[]): KTask<any>;
+                        inferAttribute(attribute: meta.MetaAttribute): any;
+                        inferCall(operation: meta.MetaOperation, params: any[], callback: (p: any) => void): void;
                     }
-                    class AbstractKObjectInfer<A> extends AbstractKObject implements KInfer {
+                    class AbstractKObjectInfer extends AbstractKObject implements KInfer {
                         constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
-                        type(): meta.Meta;
-                        trainingSet(): KObject[];
-                        train(trainingSet: KObject[], callback: (p: java.lang.Throwable) => void): void;
-                        learn(): void;
-                        infer(origin: KObject): any;
+                        readOnlyState(): KInferState;
+                        modifyState(): KInferState;
+                        private internal_load(raw);
+                        train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
+                        infer(features: any[]): any;
+                        accuracy(testSet: any[][], expectedResultSet: any[]): any;
+                        clear(): void;
+                        createEmptyState(): KInferState;
                     }
                     class AbstractKTask<A> implements KCurrentTask<any> {
                         private _isDone;
@@ -737,26 +755,26 @@ declare module org {
                     }
                 }
                 module infer {
-                    interface KInferAlg {
-                        learn(inputs: any[], results: any[], callback: (p: java.lang.Throwable) => void): void;
-                        infer(inputs: any[], callback: (p: any[]) => void): void;
+                    class AverageKInfer extends abs.AbstractKObjectInfer {
+                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree);
+                        train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
+                        infer(features: any[]): any;
+                        accuracy(testSet: any[][], expectedResultSet: any[]): any;
+                        clear(): void;
+                        createEmptyState(): KInferState;
+                    }
+                    class AverageKInferState implements KInferState {
+                        private _isDirty;
+                        private sum;
+                        private nb;
+                        getNb(): number;
+                        setNb(nb: number): void;
+                        getSum(): number;
+                        setSum(sum: number): void;
                         save(): string;
                         load(payload: string): void;
                         isDirty(): boolean;
-                    }
-                    interface KInferClustering {
-                        classify(callback: (p: number) => void): void;
-                        learn(callback: (p: java.lang.Throwable) => void): void;
-                    }
-                    interface KInferDecision {
-                    }
-                    interface KInferExtrapolation {
-                    }
-                    interface KInferRanking {
-                        propose(callback: (p: number) => void): void;
-                        learn(callback: (p: java.lang.Throwable) => void): void;
-                        setTrainingQuery(query: string): void;
-                        setExtrapolationQuery(query: string): void;
+                        cloneState(): KInferState;
                     }
                 }
                 module json {
@@ -849,6 +867,24 @@ declare module org {
                         metaReference(name: string): MetaReference;
                         metaOperation(name: string): MetaOperation;
                     }
+                    class MetaInferClass implements MetaClass {
+                        private static _INSTANCE;
+                        private _attributes;
+                        private _references;
+                        private _operations;
+                        static getInstance(): MetaInferClass;
+                        getRaw(): MetaAttribute;
+                        getCache(): MetaAttribute;
+                        constructor();
+                        metaAttributes(): MetaAttribute[];
+                        metaReferences(): MetaReference[];
+                        metaOperations(): MetaOperation[];
+                        metaAttribute(name: string): MetaAttribute;
+                        metaReference(name: string): MetaReference;
+                        metaOperation(name: string): MetaOperation;
+                        metaName(): string;
+                        index(): number;
+                    }
                     interface MetaModel extends Meta {
                         metaClasses(): MetaClass[];
                         metaClass(name: string): MetaClass;
@@ -871,6 +907,7 @@ declare module org {
                         static SHORT: KMetaType;
                         static DOUBLE: KMetaType;
                         static FLOAT: KMetaType;
+                        static TRANSIENT: KMetaType;
                     }
                 }
                 module operation {

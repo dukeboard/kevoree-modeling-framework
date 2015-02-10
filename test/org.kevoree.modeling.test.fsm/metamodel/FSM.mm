@@ -32,4 +32,5 @@ class fsmsample.Transition  {
 class fsmsample.Action  {
     @id
     name : String
+
 }

@@ -1,20 +1,21 @@
 package org.kevoree.modeling.api;
 
-import org.kevoree.modeling.api.meta.Meta;
-
 /**
  * Created by duke on 09/12/14.
+ * TODO consider some strategy to avoid the boxing
  */
 public interface KInfer extends KObject {
 
-    public Meta type();
+    /**
+     * @param expectedResultSet can be null in case of unsuperviseLearning
+     * @param trainingSet       represent the training set, the first array represent the samples, the second array represent the features
+     */
+    public void train(Object[][] trainingSet, Object[] expectedResultSet, Callback<Throwable> callback);
 
-    public KObject[] trainingSet();
+    public Object infer(Object[] features);
 
-    public void train(KObject[] trainingSet, Callback<Throwable> callback);
+    public Object accuracy(Object[][] testSet, Object[] expectedResultSet);
 
-    public void learn();
-
-    public Object infer(KObject origin);
+    public void clear();
 
 }

@@ -35,7 +35,7 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
     }
 
     @Override
-    public void each${context.generationContext.helper.toCamelCase(${attribute.getName()})}(org.kevoree.modeling.api.Callback<${context.generationContext.getHelper().convertToJavaType(${attribute.getType()})}[]> p_callback, org.kevoree.modeling.api.Callback<Throwable> p_end) {
+    public void get${context.generationContext.helper.toCamelCase(${attribute.getName()})}(org.kevoree.modeling.api.Callback<${context.generationContext.getHelper().convertToJavaType(${attribute.getType()})}[]> p_callback, org.kevoree.modeling.api.Callback<Throwable> p_end) {
         each(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.ATT_${attribute.getName().toUpperCase()}, p_callback, p_end);
     }
     #end
@@ -53,7 +53,7 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
 
     @Override
     public void get${context.generationContext.helper.toCamelCase(${ref.getName()})}(final org.kevoree.modeling.api.Callback<${ref.getType().fqn}> p_callback) {
-        this.all(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject[]>() {
+        this.ref(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject[]>() {
             @Override
             public void on(org.kevoree.modeling.api.KObject[] kObjects) {
                 if(p_callback!=null){
@@ -89,7 +89,7 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
 
     @Override
     public void get${context.generationContext.helper.toCamelCase(${ref.getName()})}(final org.kevoree.modeling.api.Callback<${ref.getType().fqn}[]> p_callback) {
-       this.all(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject[]>() {
+       this.ref(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject[]>() {
             @Override
             public void on(org.kevoree.modeling.api.KObject[] kObjects) {
                 if(p_callback != null){
@@ -116,18 +116,16 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
 #end
 
 #foreach($operation in $classDeclaration.operations)
-    public void ${operation.name}(#foreach($p in $operation.inputParams)$p.type $p.name, #{end}org.kevoree.modeling.api.Callback<#if(${operation.returnParam})$operation.returnParam.type#{else}Boolean#end> result){
+    public void ${operation.name}(#foreach($p in $operation.inputParams)$p.type p_$p.name, #{end}org.kevoree.modeling.api.Callback<#if(${operation.returnParam})$operation.returnParam.type#{else}Boolean#end> p_result){
         Object[] ${operation.name}_params = new Object[$operation.inputParams.size()];
     #set($paramIndex = 0)
 #foreach($p in $operation.inputParams)
-        ${operation.name}_params[$paramIndex] = $p.name;
+        ${operation.name}_params[$paramIndex] = p_$p.name;
 #set($paramIndex = $paramIndex + 1)
 #{end}
         view().universe().model().storage().operationManager().call(this, ${classDeclaration.pack}.meta.Meta${classDeclaration.name}.OP_${operation.name.toUpperCase()}, ${operation.name}_params, new org.kevoree.modeling.api.Callback<Object>() {
             public void on(Object o) {
-                if(result!=null){
-                    result.on((#if(${operation.returnParam})$operation.returnParam.type#{else}Boolean#end)o);
-                }
+                p_result.on((#if(${operation.returnParam})$operation.returnParam.type#{else}Boolean#end)o);
             }
         });
     }

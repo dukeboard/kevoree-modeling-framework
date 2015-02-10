@@ -25,7 +25,10 @@ import org.kevoree.modeling.api.trace.TraceSequence;
 import org.kevoree.modeling.api.util.Checker;
 import org.kevoree.modeling.api.util.PathHelper;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by duke on 10/9/14.
@@ -495,7 +498,7 @@ public abstract class AbstractKObject implements KObject {
         }
     }
 
-    public void all(MetaReference p_metaReference, final Callback<KObject[]> p_callback) {
+    public void ref(MetaReference p_metaReference, final Callback<KObject[]> p_callback) {
         if (!Checker.isDefined(p_callback)) {
             return;
         }
@@ -540,6 +543,11 @@ public abstract class AbstractKObject implements KObject {
                 }
             }
         }
+    }
+
+    @Override
+    public void inferRef(MetaReference p_metaReference, Callback<KObject[]> p_callback) {
+        //TODO
     }
 
     @Override
@@ -900,9 +908,9 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public KTask<KObject[]> taskAll(MetaReference p_metaReference) {
+    public KTask<KObject[]> taskRef(MetaReference p_metaReference) {
         AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
-        all(p_metaReference, task.initCallback());
+        ref(p_metaReference, task.initCallback());
         return task;
     }
 
@@ -949,16 +957,37 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public KTask<KInfer[]> taskInferChildren() {
+    public KTask<KInfer[]> taskInferObjects() {
         AbstractKTaskWrapper<KInfer[]> task = new AbstractKTaskWrapper<KInfer[]>();
-        inferChildren(task.initCallback());
+        inferObjects(task.initCallback());
         return task;
     }
 
     @Override
-    public void inferChildren(Callback<KInfer[]> p_callback) {
+    public void inferObjects(Callback<KInfer[]> p_callback) {
         //TODO
     }
 
+    public void call(MetaOperation p_operation, Object[] p_params, Callback<Object> p_callback) {
+        view().universe().model().storage().operationManager().call(this, p_operation, p_params, p_callback);
+    }
+
+    @Override
+    public KTask<Object> taskCall(MetaOperation p_operation, Object[] p_params) {
+        AbstractKTaskWrapper<Object> temp_task = new AbstractKTaskWrapper<Object>();
+        call(p_operation, p_params, temp_task.initCallback());
+        return temp_task;
+    }
+
+    @Override
+    public Object inferAttribute(MetaAttribute attribute) {
+        //TODO
+        return null;
+    }
+
+    @Override
+    public void inferCall(MetaOperation operation, Object[] params, Callback<Object> callback) {
+        //TODO
+    }
 
 }

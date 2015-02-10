@@ -12,4 +12,5 @@ public class PrimitiveMetaTypes {
     public static final KMetaType SHORT = new AbstractKDataType("SHORT", false);
     public static final KMetaType DOUBLE = new AbstractKDataType("DOUBLE", false);
     public static final KMetaType FLOAT = new AbstractKDataType("FLOAT", false);
+    public static final KMetaType TRANSIENT = new AbstractKDataType("TRANSIENT", false);
 }

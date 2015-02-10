@@ -17,6 +17,6 @@ class cloud.Element {
     @precision(2.2)
     load : Double
 
-    func trigger (param:String, loop : Int) : String
+    func trigger(param : String, loop : Int) : String
 }
 

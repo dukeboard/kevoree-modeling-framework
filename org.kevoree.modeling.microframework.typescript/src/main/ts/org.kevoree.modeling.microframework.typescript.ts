@@ -106,15 +106,25 @@ module org {
 
                 export interface KInfer extends org.kevoree.modeling.api.KObject {
 
-                    type(): org.kevoree.modeling.api.meta.Meta;
+                    train(trainingSet: any[][], expectedResultSet: any[], callback: (p : java.lang.Throwable) => void): void;
 
-                    trainingSet(): org.kevoree.modeling.api.KObject[];
+                    infer(features: any[]): any;
 
-                    train(trainingSet: org.kevoree.modeling.api.KObject[], callback: (p : java.lang.Throwable) => void): void;
+                    accuracy(testSet: any[][], expectedResultSet: any[]): any;
 
-                    learn(): void;
+                    clear(): void;
 
-                    infer(origin: org.kevoree.modeling.api.KObject): any;
+                }
+
+                export interface KInferState {
+
+                    save(): string;
+
+                    load(payload: string): void;
+
+                    isDirty(): boolean;
+
+                    cloneState(): org.kevoree.modeling.api.KInferState;
 
                 }
 
@@ -222,7 +232,9 @@ module org {
 
                     mutate(actionType: org.kevoree.modeling.api.KActionType, metaReference: org.kevoree.modeling.api.meta.MetaReference, param: org.kevoree.modeling.api.KObject): void;
 
-                    all(metaReference: org.kevoree.modeling.api.meta.MetaReference, callback: (p : org.kevoree.modeling.api.KObject[]) => void): void;
+                    ref(metaReference: org.kevoree.modeling.api.meta.MetaReference, callback: (p : org.kevoree.modeling.api.KObject[]) => void): void;
+
+                    inferRef(metaReference: org.kevoree.modeling.api.meta.MetaReference, callback: (p : org.kevoree.modeling.api.KObject[]) => void): void;
 
                     traverse(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.traversal.KTraversal;
 
@@ -262,7 +274,7 @@ module org {
 
                     taskSelect(query: string): org.kevoree.modeling.api.KTask<any>;
 
-                    taskAll(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KTask<any>;
+                    taskRef(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KTask<any>;
 
                     taskInbounds(): org.kevoree.modeling.api.KTask<any>;
 
@@ -276,9 +288,17 @@ module org {
 
                     taskVisit(visitor: (p : org.kevoree.modeling.api.KObject) => org.kevoree.modeling.api.VisitResult, request: org.kevoree.modeling.api.VisitRequest): org.kevoree.modeling.api.KTask<any>;
 
-                    inferChildren(callback: (p : org.kevoree.modeling.api.KInfer[]) => void): void;
+                    inferObjects(callback: (p : org.kevoree.modeling.api.KInfer[]) => void): void;
 
-                    taskInferChildren(): org.kevoree.modeling.api.KTask<any>;
+                    taskInferObjects(): org.kevoree.modeling.api.KTask<any>;
+
+                    inferAttribute(attribute: org.kevoree.modeling.api.meta.MetaAttribute): any;
+
+                    call(operation: org.kevoree.modeling.api.meta.MetaOperation, params: any[], callback: (p : any) => void): void;
+
+                    taskCall(operation: org.kevoree.modeling.api.meta.MetaOperation, params: any[]): org.kevoree.modeling.api.KTask<any>;
+
+                    inferCall(operation: org.kevoree.modeling.api.meta.MetaOperation, params: any[], callback: (p : any) => void): void;
 
                 }
 
@@ -1075,7 +1095,7 @@ module org {
                             }
                         }
 
-                        public all(p_metaReference: org.kevoree.modeling.api.meta.MetaReference, p_callback: (p : org.kevoree.modeling.api.KObject[]) => void): void {
+                        public ref(p_metaReference: org.kevoree.modeling.api.meta.MetaReference, p_callback: (p : org.kevoree.modeling.api.KObject[]) => void): void {
                             if (!org.kevoree.modeling.api.util.Checker.isDefined(p_callback)) {
                                 return;
                             }
@@ -1122,6 +1142,9 @@ module org {
                                     }
                                 }
                             }
+                        }
+
+                        public inferRef(p_metaReference: org.kevoree.modeling.api.meta.MetaReference, p_callback: (p : org.kevoree.modeling.api.KObject[]) => void): void {
                         }
 
                         public visitAttributes(visitor: (p : org.kevoree.modeling.api.meta.MetaAttribute, p1 : any) => void): void {
@@ -1472,9 +1495,9 @@ module org {
                             return task;
                         }
 
-                        public taskAll(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KTask<any> {
+                        public taskRef(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KTask<any> {
                             var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
-                            this.all(p_metaReference, task.initCallback());
+                            this.ref(p_metaReference, task.initCallback());
                             return task;
                         }
 
@@ -1514,39 +1537,90 @@ module org {
                             return task;
                         }
 
-                        public taskInferChildren(): org.kevoree.modeling.api.KTask<any> {
+                        public taskInferObjects(): org.kevoree.modeling.api.KTask<any> {
                             var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
-                            this.inferChildren(task.initCallback());
+                            this.inferObjects(task.initCallback());
                             return task;
                         }
 
-                        public inferChildren(p_callback: (p : org.kevoree.modeling.api.KInfer[]) => void): void {
+                        public inferObjects(p_callback: (p : org.kevoree.modeling.api.KInfer[]) => void): void {
+                        }
+
+                        public call(p_operation: org.kevoree.modeling.api.meta.MetaOperation, p_params: any[], p_callback: (p : any) => void): void {
+                            this.view().universe().model().storage().operationManager().call(this, p_operation, p_params, p_callback);
+                        }
+
+                        public taskCall(p_operation: org.kevoree.modeling.api.meta.MetaOperation, p_params: any[]): org.kevoree.modeling.api.KTask<any> {
+                            var temp_task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.call(p_operation, p_params, temp_task.initCallback());
+                            return temp_task;
+                        }
+
+                        public inferAttribute(attribute: org.kevoree.modeling.api.meta.MetaAttribute): any {
+                            return null;
+                        }
+
+                        public inferCall(operation: org.kevoree.modeling.api.meta.MetaOperation, params: any[], callback: (p : any) => void): void {
                         }
 
                     }
 
-                    export class AbstractKObjectInfer<A> extends org.kevoree.modeling.api.abs.AbstractKObject implements org.kevoree.modeling.api.KInfer {
+                    export class AbstractKObjectInfer extends org.kevoree.modeling.api.abs.AbstractKObject implements org.kevoree.modeling.api.KInfer {
 
                         constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_timeTree: org.kevoree.modeling.api.time.TimeTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
                             super(p_view, p_uuid, p_timeTree, p_metaClass);
                         }
 
-                        public type(): org.kevoree.modeling.api.meta.Meta {
-                            return null;
+                        public readOnlyState(): org.kevoree.modeling.api.KInferState {
+                            var raw: any[] = this.view().universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
+                            if (raw != null) {
+                                if (raw[org.kevoree.modeling.api.meta.MetaInferClass.getInstance().getCache().index()] == null) {
+                                    this.internal_load(raw);
+                                }
+                                return <org.kevoree.modeling.api.KInferState>raw[org.kevoree.modeling.api.meta.MetaInferClass.getInstance().getCache().index()];
+                            } else {
+                                return null;
+                            }
                         }
 
-                        public trainingSet(): org.kevoree.modeling.api.KObject[] {
-                            return new Array();
+                        public modifyState(): org.kevoree.modeling.api.KInferState {
+                            var raw: any[] = this.view().universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.WRITE);
+                            if (raw != null) {
+                                if (raw[org.kevoree.modeling.api.meta.MetaInferClass.getInstance().getCache().index()] == null) {
+                                    this.internal_load(raw);
+                                }
+                                return <org.kevoree.modeling.api.KInferState>raw[org.kevoree.modeling.api.meta.MetaInferClass.getInstance().getCache().index()];
+                            } else {
+                                return null;
+                            }
                         }
 
-                        public train(trainingSet: org.kevoree.modeling.api.KObject[], callback: (p : java.lang.Throwable) => void): void {
+                        private internal_load(raw: any[]): void {
+                            if (raw[org.kevoree.modeling.api.meta.MetaInferClass.getInstance().getCache().index()] == null) {
+                                var currentState: org.kevoree.modeling.api.KInferState = this.createEmptyState();
+                                currentState.load(raw[org.kevoree.modeling.api.meta.MetaInferClass.getInstance().getRaw().index()].toString());
+                                raw[org.kevoree.modeling.api.meta.MetaInferClass.getInstance().getCache().index()] = currentState;
+                            }
                         }
 
-                        public learn(): void {
+                        public train(trainingSet: any[][], expectedResultSet: any[], callback: (p : java.lang.Throwable) => void): void {
+                            throw "Abstract method";
                         }
 
-                        public infer(origin: org.kevoree.modeling.api.KObject): any {
-                            return null;
+                        public infer(features: any[]): any {
+                            throw "Abstract method";
+                        }
+
+                        public accuracy(testSet: any[][], expectedResultSet: any[]): any {
+                            throw "Abstract method";
+                        }
+
+                        public clear(): void {
+                            throw "Abstract method";
+                        }
+
+                        public createEmptyState(): org.kevoree.modeling.api.KInferState {
+                            throw "Abstract method";
                         }
 
                     }
@@ -3792,45 +3866,97 @@ module org {
 
                 }
                 export module infer {
-                    export interface KInferAlg {
+                    export class AverageKInfer extends org.kevoree.modeling.api.abs.AbstractKObjectInfer {
 
-                        learn(inputs: any[], results: any[], callback: (p : java.lang.Throwable) => void): void;
+                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_timeTree: org.kevoree.modeling.api.time.TimeTree) {
+                            super(p_view, p_uuid, p_timeTree, null);
+                        }
 
-                        infer(inputs: any[], callback: (p : any[]) => void): void;
+                        public train(trainingSet: any[][], expectedResultSet: any[], callback: (p : java.lang.Throwable) => void): void {
+                            var currentState: org.kevoree.modeling.api.infer.AverageKInferState = <org.kevoree.modeling.api.infer.AverageKInferState>this.modifyState();
+                            for (var i: number = 0; i < expectedResultSet.length; i++) {
+                                currentState.setSum(currentState.getSum() + java.lang.Double.parseDouble(expectedResultSet[i].toString()));
+                                currentState.setNb(currentState.getNb() + 1);
+                            }
+                        }
 
-                        save(): string;
+                        public infer(features: any[]): any {
+                            var currentState: org.kevoree.modeling.api.infer.AverageKInferState = <org.kevoree.modeling.api.infer.AverageKInferState>this.readOnlyState();
+                            if (currentState.getNb() != 0) {
+                                return currentState.getSum() / currentState.getNb();
+                            } else {
+                                return null;
+                            }
+                        }
 
-                        load(payload: string): void;
+                        public accuracy(testSet: any[][], expectedResultSet: any[]): any {
+                            return null;
+                        }
 
-                        isDirty(): boolean;
+                        public clear(): void {
+                            var currentState: org.kevoree.modeling.api.infer.AverageKInferState = <org.kevoree.modeling.api.infer.AverageKInferState>this.modifyState();
+                            currentState.setSum(0);
+                            currentState.setNb(0);
+                        }
+
+                        public createEmptyState(): org.kevoree.modeling.api.KInferState {
+                            return new org.kevoree.modeling.api.infer.AverageKInferState();
+                        }
 
                     }
 
-                    export interface KInferClustering {
+                    export class AverageKInferState implements org.kevoree.modeling.api.KInferState {
 
-                        classify(callback: (p : number) => void): void;
+                        private _isDirty: boolean = false;
+                        private sum: number = 0;
+                        private nb: number = 0;
+                        public getNb(): number {
+                            return this.nb;
+                        }
 
-                        learn(callback: (p : java.lang.Throwable) => void): void;
+                        public setNb(nb: number): void {
+                            this._isDirty = true;
+                            this.nb = nb;
+                        }
 
-                    }
+                        public getSum(): number {
+                            return this.sum;
+                        }
 
-                    export interface KInferDecision {
+                        public setSum(sum: number): void {
+                            this._isDirty = true;
+                            this.sum = sum;
+                        }
 
-                    }
+                        public save(): string {
+                            return this.sum + "/" + this.nb;
+                        }
 
-                    export interface KInferExtrapolation {
+                        public load(payload: string): void {
+                            try {
+                                var previousState: string[] = payload.split("/");
+                                this.sum = java.lang.Double.parseDouble(previousState[0]);
+                                this.nb = java.lang.Integer.parseInt(previousState[1]);
+                            } catch ($ex$) {
+                                if ($ex$ instanceof java.lang.Exception) {
+                                    var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                    this.sum = 0;
+                                    this.nb = 0;
+                                }
+                             }
+                            this._isDirty = false;
+                        }
 
-                    }
+                        public isDirty(): boolean {
+                            return this._isDirty;
+                        }
 
-                    export interface KInferRanking {
-
-                        propose(callback: (p : number) => void): void;
-
-                        learn(callback: (p : java.lang.Throwable) => void): void;
-
-                        setTrainingQuery(query: string): void;
-
-                        setExtrapolationQuery(query: string): void;
+                        public cloneState(): org.kevoree.modeling.api.KInferState {
+                            var cloned: org.kevoree.modeling.api.infer.AverageKInferState = new org.kevoree.modeling.api.infer.AverageKInferState();
+                            cloned.setNb(this.getNb());
+                            cloned.setSum(this.getSum());
+                            return cloned;
+                        }
 
                     }
 
@@ -4524,6 +4650,67 @@ module org {
 
                     }
 
+                    export class MetaInferClass implements org.kevoree.modeling.api.meta.MetaClass {
+
+                        private static _INSTANCE: org.kevoree.modeling.api.meta.MetaInferClass = null;
+                        private _attributes: org.kevoree.modeling.api.meta.MetaAttribute[] = null;
+                        private _references: org.kevoree.modeling.api.meta.MetaReference[] = new Array();
+                        private _operations: org.kevoree.modeling.api.meta.MetaOperation[] = new Array();
+                        public static getInstance(): org.kevoree.modeling.api.meta.MetaInferClass {
+                            if (MetaInferClass._INSTANCE == null) {
+                                MetaInferClass._INSTANCE = new org.kevoree.modeling.api.meta.MetaInferClass();
+                            }
+                            return MetaInferClass._INSTANCE;
+                        }
+
+                        public getRaw(): org.kevoree.modeling.api.meta.MetaAttribute {
+                            return this._attributes[0];
+                        }
+
+                        public getCache(): org.kevoree.modeling.api.meta.MetaAttribute {
+                            return this._attributes[1];
+                        }
+
+                        constructor() {
+                            this._attributes = new Array();
+                            this._attributes[0] = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("RAW", org.kevoree.modeling.api.data.Index.RESERVED_INDEXES, -1, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.STRING, new org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation());
+                            this._attributes[1] = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("CACHE", org.kevoree.modeling.api.data.Index.RESERVED_INDEXES + 1, -1, false, org.kevoree.modeling.api.meta.PrimitiveMetaTypes.TRANSIENT, new org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation());
+                        }
+
+                        public metaAttributes(): org.kevoree.modeling.api.meta.MetaAttribute[] {
+                            return this._attributes;
+                        }
+
+                        public metaReferences(): org.kevoree.modeling.api.meta.MetaReference[] {
+                            return this._references;
+                        }
+
+                        public metaOperations(): org.kevoree.modeling.api.meta.MetaOperation[] {
+                            return this._operations;
+                        }
+
+                        public metaAttribute(name: string): org.kevoree.modeling.api.meta.MetaAttribute {
+                            return null;
+                        }
+
+                        public metaReference(name: string): org.kevoree.modeling.api.meta.MetaReference {
+                            return null;
+                        }
+
+                        public metaOperation(name: string): org.kevoree.modeling.api.meta.MetaOperation {
+                            return null;
+                        }
+
+                        public metaName(): string {
+                            return "KInfer";
+                        }
+
+                        public index(): number {
+                            return -1;
+                        }
+
+                    }
+
                     export interface MetaModel extends org.kevoree.modeling.api.meta.Meta {
 
                         metaClasses(): org.kevoree.modeling.api.meta.MetaClass[];
@@ -4561,6 +4748,7 @@ module org {
                         public static SHORT: org.kevoree.modeling.api.KMetaType = new org.kevoree.modeling.api.abs.AbstractKDataType("SHORT", false);
                         public static DOUBLE: org.kevoree.modeling.api.KMetaType = new org.kevoree.modeling.api.abs.AbstractKDataType("DOUBLE", false);
                         public static FLOAT: org.kevoree.modeling.api.KMetaType = new org.kevoree.modeling.api.abs.AbstractKDataType("FLOAT", false);
+                        public static TRANSIENT: org.kevoree.modeling.api.KMetaType = new org.kevoree.modeling.api.abs.AbstractKDataType("TRANSIENT", false);
                     }
 
                 }
@@ -9978,7 +10166,7 @@ module org {
                         }
 
                         private static nonContainedReferenceTaskMaker(ref: org.kevoree.modeling.api.meta.MetaReference, p_context: org.kevoree.modeling.api.xmi.SerializationContext, p_currentElement: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any> {
-                            var allTask: org.kevoree.modeling.api.KTask<any> = p_currentElement.taskAll(ref);
+                            var allTask: org.kevoree.modeling.api.KTask<any> = p_currentElement.taskRef(ref);
                             var thisTask: org.kevoree.modeling.api.KTask<any> = p_context.model.universe().model().task();
                             thisTask.wait(allTask);
                             thisTask.setJob( (currentTask : org.kevoree.modeling.api.KCurrentTask<any>) => {
@@ -10000,7 +10188,7 @@ module org {
                         }
 
                         private static containedReferenceTaskMaker(ref: org.kevoree.modeling.api.meta.MetaReference, context: org.kevoree.modeling.api.xmi.SerializationContext, currentElement: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any> {
-                            var allTask: org.kevoree.modeling.api.KTask<any> = currentElement.taskAll(ref);
+                            var allTask: org.kevoree.modeling.api.KTask<any> = currentElement.taskRef(ref);
                             var thisTask: org.kevoree.modeling.api.KTask<any> = context.model.universe().model().task();
                             thisTask.wait(allTask);
                             thisTask.setJob( (currentTask : org.kevoree.modeling.api.KCurrentTask<any>) => {

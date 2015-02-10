@@ -18,7 +18,7 @@ public class DynamicMetaClass extends AbstractMetaClass {
     private HashMap<String, MetaOperation> cached_methods = new HashMap<String, MetaOperation>();
     private int _globalIndex = -1;
 
-    protected DynamicMetaClass(String p_name, int p_index) {
+    public DynamicMetaClass(String p_name, int p_index) {
         super(p_name, p_index);
         _globalIndex = Index.RESERVED_INDEXES;
     }

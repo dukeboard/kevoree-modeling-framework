@@ -2,6 +2,7 @@ package org.kevoree.modeling.api;
 
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.traversal.KTraversal;
 import org.kevoree.modeling.api.time.TimeTree;
@@ -54,7 +55,9 @@ public interface KObject {
 
     public void mutate(KActionType actionType, MetaReference metaReference, KObject param);
 
-    public void all(MetaReference metaReference, Callback<KObject[]> callback);
+    public void ref(MetaReference metaReference, Callback<KObject[]> callback);
+
+    public void inferRef(MetaReference metaReference, Callback<KObject[]> callback);
 
     public KTraversal traverse(MetaReference metaReference);
 
@@ -97,7 +100,7 @@ public interface KObject {
 
     public KTask<KObject[]> taskSelect(String query);
 
-    public KTask<KObject[]> taskAll(MetaReference metaReference);
+    public KTask<KObject[]> taskRef(MetaReference metaReference);
 
     public KTask<KObject[]> taskInbounds();
 
@@ -112,8 +115,16 @@ public interface KObject {
     public KTask<Throwable> taskVisit(ModelVisitor visitor, VisitRequest request);
 
     /* Inference Objects Manegement */
-    public void inferChildren(Callback<KInfer[]> callback);
+    public void inferObjects(Callback<KInfer[]> callback);
 
-    public KTask<KInfer[]> taskInferChildren();
+    public KTask<KInfer[]> taskInferObjects();
+
+    public Object inferAttribute(MetaAttribute attribute);
+
+    public void call(MetaOperation operation, Object[] params, Callback<Object> callback);
+
+    public KTask<Object> taskCall(MetaOperation operation, Object[] params);
+
+    public void inferCall(MetaOperation operation, Object[] params, Callback<Object> callback);
 
 }

@@ -20,7 +20,7 @@
     </licenses>
 
     <properties>
-        <kmf.version>4.11.0-SNAPSHOT</kmf.version>
+        <kmf.version>4.11.1-SNAPSHOT</kmf.version>
     </properties>
 
     <developers>
@@ -61,7 +61,7 @@
         <module>org.kevoree.modeling.test.opposite</module>
         <module>org.kevoree.modeling.test.datastore</module>
         <module>org.kevoree.modeling.test.diamond</module>
-		<module>org.kevoree.modeling.test.kevoree</module>
+        <module>org.kevoree.modeling.test.kevoree</module>
     </modules>
 
     <dependencies>

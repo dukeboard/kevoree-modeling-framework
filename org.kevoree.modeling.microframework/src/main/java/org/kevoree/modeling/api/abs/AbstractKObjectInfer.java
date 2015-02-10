@@ -2,43 +2,62 @@ package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KInfer;
-import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.meta.Meta;
+import org.kevoree.modeling.api.data.AccessMode;
+import org.kevoree.modeling.api.KInferState;
 import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaInferClass;
 import org.kevoree.modeling.api.time.TimeTree;
 
 /**
  * Created by duke on 09/12/14.
  */
-public class AbstractKObjectInfer<A> extends AbstractKObject implements KInfer {
+public abstract class AbstractKObjectInfer extends AbstractKObject implements KInfer {
 
     public AbstractKObjectInfer(KView p_view, long p_uuid, TimeTree p_timeTree, MetaClass p_metaClass) {
         super(p_view, p_uuid, p_timeTree, p_metaClass);
     }
 
-    @Override
-    public Meta type() {
-        return null;
+    public KInferState readOnlyState() {
+        Object[] raw = view().universe().model().storage().raw(this, AccessMode.READ);
+        if (raw != null) {
+            if (raw[MetaInferClass.getInstance().getCache().index()] == null) {
+                internal_load(raw);
+            }
+            return (KInferState) raw[MetaInferClass.getInstance().getCache().index()];
+        } else {
+            return null;
+        }
     }
 
-    @Override
-    public KObject[] trainingSet() {
-        return new KObject[0];
+    public KInferState modifyState() {
+        Object[] raw = view().universe().model().storage().raw(this, AccessMode.WRITE);
+        if (raw != null) {
+            if (raw[MetaInferClass.getInstance().getCache().index()] == null) {
+                internal_load(raw);
+            }
+            return (KInferState) raw[MetaInferClass.getInstance().getCache().index()];
+        } else {
+            return null;
+        }
     }
 
-    @Override
-    public void train(KObject[] trainingSet, Callback<Throwable> callback) {
-
+    private synchronized void internal_load(Object[] raw) {
+        if (raw[MetaInferClass.getInstance().getCache().index()] == null) {
+            KInferState currentState = createEmptyState();
+            currentState.load(raw[MetaInferClass.getInstance().getRaw().index()].toString());
+            raw[MetaInferClass.getInstance().getCache().index()] = currentState;
+        }
     }
 
-    @Override
-    public void learn() {
+    abstract public void train(Object[][] trainingSet, Object[] expectedResultSet, Callback<Throwable> callback);
 
-    }
+    abstract public Object infer(Object[] features);
 
-    @Override
-    public Object infer(KObject origin) {
-        return null;
-    }
+    abstract public Object accuracy(Object[][] testSet, Object[] expectedResultSet);
+
+    abstract public void clear();
+
+    abstract public KInferState createEmptyState();
+
 }

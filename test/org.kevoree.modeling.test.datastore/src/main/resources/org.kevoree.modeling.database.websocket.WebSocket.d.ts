@@ -11,15 +11,18 @@ declare module org {
                         private _connectionUri;
                         private clientConnection;
                         private _metaModel;
+                        private _store;
                         constructor(connectionUri: string);
+                        setKStore(st: api.data.KStore): void;
                         connect(callback: (p: java.lang.Throwable) => void): void;
                         close(callback: (p: java.lang.Throwable) => void): void;
                         setMetaModel(metaModel: api.meta.MetaModel): void;
                         registerListener(origin: any, listener: (p: api.KEvent) => void, scope: any): void;
                         unregister(listener: (p: api.KEvent) => void): void;
-                        notify(event: any): void;
-                        notifyOnly(event: any): void;
+                        notify(event: api.KEvent): void;
+                        notifyOnly(event: api.KEvent): void;
                         flush(dimensionKey: any): void;
+                        sendOperationEvent(operationEvent: api.KEvent): void;
                     }
                     class WebSocketDataBaseClient implements api.data.KDataBase {
                         private callbackId;

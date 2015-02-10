@@ -147,7 +147,7 @@ public class XMIModelSerializer {
     }
 
     private static KTask nonContainedReferenceTaskMaker(final MetaReference ref, SerializationContext p_context, KObject p_currentElement) {
-        KTask allTask = p_currentElement.taskAll(ref);
+        KTask allTask = p_currentElement.taskRef(ref);
 
         KTask thisTask = p_context.model.universe().model().task();
         thisTask.wait(allTask);
@@ -171,8 +171,7 @@ public class XMIModelSerializer {
     }
 
     private static KTask containedReferenceTaskMaker(final MetaReference ref, SerializationContext context, KObject currentElement) {
-        KTask allTask = currentElement.taskAll(ref);
-
+        KTask allTask = currentElement.taskRef(ref);
         KTask thisTask = context.model.universe().model().task();
         thisTask.wait(allTask);
         thisTask.setJob(new KJob() {
@@ -180,14 +179,13 @@ public class XMIModelSerializer {
             public void run(KCurrentTask currentTask) {
                 try {
                     if (currentTask.results().get(allTask) != null) {
-                        KObject[] objs =  ((KObject[]) currentTask.results().get(allTask));
+                        KObject[] objs = ((KObject[]) currentTask.results().get(allTask));
                         for (int i = 0; i < objs.length; i++) {
                             final KObject elem = objs[i];
                             context.printer.append("<");
                             context.printer.append(ref.metaName());
                             context.printer.append(" xsi:type=\"" + XMIModelSerializer.formatMetaClassName(elem.metaClass().metaName()) + "\"");
                             elem.visitAttributes(context.attributesVisitor);
-
                             KTask nonContainedRefsTasks = context.model.universe().model().task();
                             for (int j = 0; j < elem.metaClass().metaReferences().length; j++) {
                                 if (!elem.metaClass().metaReferences()[i].contained()) {
@@ -198,8 +196,6 @@ public class XMIModelSerializer {
                                 @Override
                                 public void run(KCurrentTask currentTask) {
                                     context.printer.append(">\n");
-
-
                                     KTask containedRefsTasks = context.model.universe().model().task();
                                     for (int i = 0; i < elem.metaClass().metaReferences().length; i++) {
                                         if (elem.metaClass().metaReferences()[i].contained()) {
