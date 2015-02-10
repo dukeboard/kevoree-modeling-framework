@@ -31,7 +31,7 @@ public class AbstractKDataType implements KMetaType {
 
     @Override
     public String save(Object src) {
-        if (src != null) {
+        if (src != null && this != PrimitiveMetaTypes.TRANSIENT) {
             if (this == PrimitiveMetaTypes.STRING) {
                 return JsonString.encode(src.toString());
             } else {
@@ -43,6 +43,9 @@ public class AbstractKDataType implements KMetaType {
 
     @Override
     public Object load(String payload) {
+        if (this == PrimitiveMetaTypes.TRANSIENT) {
+            return null;
+        }
         if (this == PrimitiveMetaTypes.STRING) {
             return JsonString.unescape(payload);
         }
