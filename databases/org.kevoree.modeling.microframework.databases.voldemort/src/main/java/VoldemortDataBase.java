@@ -9,6 +9,8 @@ import voldemort.server.VoldemortConfig;
 import voldemort.server.VoldemortServer;
 import voldemort.versioning.Versioned;
 
+import java.io.File;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -25,12 +27,18 @@ private StoreClientFactory factory = null;
             System.err.println("==                            Voldemort                          ==");
             System.err.println("===================================================================");
 
-            VoldemortConfig config = VoldemortConfig.loadFromVoldemortHome(this.getClass().getClassLoader().getResource("./").getPath());
+            File folder_config = null;
+            try {
+                folder_config = new File( this.getClass().getClassLoader().getResource("config/../").toURI() );
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
+            VoldemortConfig config = VoldemortConfig.loadFromVoldemortHome( folder_config.getAbsolutePath() );
             VoldemortServer server = new VoldemortServer(config);
             server.start();
+
             // In real life this stuff would get wired in
             factory = new SocketStoreClientFactory(new ClientConfig().setBootstrapUrls(bootstrapUrl));
-
             client = factory.getStoreClient(storeName);
         }
 
