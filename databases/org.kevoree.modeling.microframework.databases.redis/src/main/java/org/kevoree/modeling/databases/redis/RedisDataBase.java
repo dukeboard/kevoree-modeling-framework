@@ -43,7 +43,7 @@ public class RedisDataBase implements KDataBase {
 
     @Override
     public void remove(String[] keys, Callback<Throwable> error) {
-
+        //jedis.del( keys );
     }
 
     @Override
