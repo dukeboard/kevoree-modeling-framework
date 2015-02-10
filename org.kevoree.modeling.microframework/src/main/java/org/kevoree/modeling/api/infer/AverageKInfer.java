@@ -4,6 +4,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KInferState;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObjectInfer;
+import org.kevoree.modeling.api.infer.states.AverageKInferState;
 import org.kevoree.modeling.api.time.TimeTree;
 
 /**

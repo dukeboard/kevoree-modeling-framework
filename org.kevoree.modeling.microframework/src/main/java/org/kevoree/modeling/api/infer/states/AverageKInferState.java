@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.infer;
+package org.kevoree.modeling.api.infer.states;
 
 import org.kevoree.modeling.api.KInferState;
 
