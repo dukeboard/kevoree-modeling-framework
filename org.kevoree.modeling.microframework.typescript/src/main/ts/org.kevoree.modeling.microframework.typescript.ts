@@ -80,6 +80,8 @@ module org {
 
                     setResult(result: A): void;
 
+                    clearResults(): void;
+
                 }
 
                 export interface KEvent {
@@ -326,15 +328,19 @@ module org {
 
                 export interface KTask<A> {
 
-                    wait(previous: org.kevoree.modeling.api.KTask<any>): void;
+                    wait(previous: org.kevoree.modeling.api.KTask<any>): org.kevoree.modeling.api.KTask<any>;
 
                     getResult(): A;
 
                     isDone(): boolean;
 
-                    setJob(kjob: (p : org.kevoree.modeling.api.KCurrentTask<any>) => void): void;
+                    setJob(kjob: (p : org.kevoree.modeling.api.KCurrentTask<any>) => void): org.kevoree.modeling.api.KTask<any>;
 
-                    ready(): void;
+                    ready(): org.kevoree.modeling.api.KTask<any>;
+
+                    next(): org.kevoree.modeling.api.KTask<any>;
+
+                    then(callback: (p : A) => void): void;
 
                 }
 
@@ -1643,7 +1649,6 @@ module org {
                         private _nbRecResult: number = 0;
                         private _nbExpectedResult: number = 0;
                         private _results: java.util.Map<org.kevoree.modeling.api.KTask<any>, any> = new java.util.HashMap<org.kevoree.modeling.api.KTask<any>, any>();
-                        private _previousTasks: java.util.Set<org.kevoree.modeling.api.KTask<any>> = new java.util.HashSet<org.kevoree.modeling.api.KTask<any>>();
                         private _nextTasks: java.util.Set<org.kevoree.modeling.api.KTask<any>> = new java.util.HashSet<org.kevoree.modeling.api.KTask<any>>();
                         private _job: (p : org.kevoree.modeling.api.KCurrentTask<any>) => void;
                         private _result: A = null;
@@ -1683,9 +1688,8 @@ module org {
                             }
                         }
 
-                        public wait(p_previous: org.kevoree.modeling.api.KTask<any>): void {
+                        public wait(p_previous: org.kevoree.modeling.api.KTask<any>): org.kevoree.modeling.api.KTask<any> {
                             if (p_previous != this) {
-                                this._previousTasks.add(p_previous);
                                 if (!(<org.kevoree.modeling.api.abs.AbstractKTask<any>>p_previous).setDoneOrRegister(this)) {
                                     this._nbExpectedResult++;
                                 } else {
@@ -1697,13 +1701,35 @@ module org {
                                     this._results.put(p_previous, castedEnd._result);
                                 }
                             }
+                            return this;
                         }
 
-                        public ready(): void {
+                        public ready(): org.kevoree.modeling.api.KTask<any> {
                             if (!this._isReady) {
                                 this._isReady = true;
                                 this.informParentEnd(null);
                             }
+                            return this;
+                        }
+
+                        public next(): org.kevoree.modeling.api.KTask<any> {
+                            var nextTask: org.kevoree.modeling.api.abs.AbstractKTask<any> = new org.kevoree.modeling.api.abs.AbstractKTask<any>();
+                            nextTask.wait(this);
+                            return nextTask;
+                        }
+
+                        public then(p_callback: (p : A) => void): void {
+                            this.next().setJob( (currentTask : org.kevoree.modeling.api.KCurrentTask<any>) => {
+                                try {
+                                    p_callback(this.getResult());
+                                } catch ($ex$) {
+                                    if ($ex$ instanceof java.lang.Exception) {
+                                        var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                        e.printStackTrace();
+                                        p_callback(null);
+                                    }
+                                 }
+                            }).ready();
                         }
 
                         public results(): java.util.Map<org.kevoree.modeling.api.KTask<any>, any> {
@@ -1712,6 +1738,10 @@ module org {
 
                         public setResult(p_result: A): void {
                             this._result = p_result;
+                        }
+
+                        public clearResults(): void {
+                            this._results.clear();
                         }
 
                         public getResult(): A {
@@ -1726,8 +1756,9 @@ module org {
                             return this._isDone;
                         }
 
-                        public setJob(p_kjob: (p : org.kevoree.modeling.api.KCurrentTask<any>) => void): void {
+                        public setJob(p_kjob: (p : org.kevoree.modeling.api.KCurrentTask<any>) => void): org.kevoree.modeling.api.KTask<any> {
                             this._job = p_kjob;
+                            return this;
                         }
 
                     }
@@ -1749,15 +1780,16 @@ module org {
                             return this._callback;
                         }
 
-                        public wait(previous: org.kevoree.modeling.api.KTask<any>): void {
+                        public wait(previous: org.kevoree.modeling.api.KTask<any>): org.kevoree.modeling.api.KTask<any> {
                             throw new java.lang.RuntimeException("Wait action is forbidden on wrapped tasks, please create a sub task");
                         }
 
-                        public setJob(p_kjob: (p : org.kevoree.modeling.api.KCurrentTask<any>) => void): void {
+                        public setJob(p_kjob: (p : org.kevoree.modeling.api.KCurrentTask<any>) => void): org.kevoree.modeling.api.KTask<any> {
                             throw new java.lang.RuntimeException("setJob action is forbidden on wrapped tasks, please create a sub task");
                         }
 
-                        public ready(): void {
+                        public ready(): org.kevoree.modeling.api.KTask<any> {
+                            return this;
                         }
 
                     }

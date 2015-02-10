@@ -1,5 +1,6 @@
 package org.kevoree.modeling.api.abs;
 
+import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KCurrentTask;
 import org.kevoree.modeling.api.KJob;
 import org.kevoree.modeling.api.KTask;
@@ -19,7 +20,6 @@ public class AbstractKTask<A> implements KCurrentTask<A> {
     private int _nbRecResult = 0;
     private int _nbExpectedResult = 0;
     private Map<KTask, Object> _results = new HashMap<KTask, Object>();
-    private Set<KTask> _previousTasks = new HashSet<KTask>();
     private Set<KTask> _nextTasks = new HashSet<KTask>();
     private KJob _job;
     private A _result = null;
@@ -66,7 +66,6 @@ public class AbstractKTask<A> implements KCurrentTask<A> {
     @Override
     public synchronized KTask<A> wait(KTask p_previous) {
         if (p_previous != this) {
-            _previousTasks.add(p_previous);
             if (!((AbstractKTask) p_previous).setDoneOrRegister(this)) {
                 _nbExpectedResult++;
             } else {
@@ -83,11 +82,34 @@ public class AbstractKTask<A> implements KCurrentTask<A> {
     }
 
     @Override
-    public synchronized void ready() {
+    public synchronized KTask<A> ready() {
         if (!_isReady) {
             _isReady = true;
             informParentEnd(null);
         }
+        return this;
+    }
+
+    @Override
+    public KTask<Object> next() {
+        AbstractKTask<Object> nextTask = new AbstractKTask<Object>();
+        nextTask.wait(this);
+        return nextTask;
+    }
+
+    @Override
+    public void then(Callback<A> p_callback) {
+        next().setJob(new KJob() {
+            @Override
+            public void run(KCurrentTask currentTask) {
+                try {
+                    p_callback.on(getResult());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    p_callback.on(null);
+                }
+            }
+        }).ready();
     }
 
     @Override
@@ -98,6 +120,11 @@ public class AbstractKTask<A> implements KCurrentTask<A> {
     @Override
     public void setResult(A p_result) {
         _result = p_result;
+    }
+
+    @Override
+    public void clearResults() {
+        _results.clear();
     }
 
     @Override
@@ -115,8 +142,9 @@ public class AbstractKTask<A> implements KCurrentTask<A> {
     }
 
     @Override
-    public void setJob(KJob p_kjob) {
+    public KTask<A> setJob(KJob p_kjob) {
         this._job = p_kjob;
+        return this;
     }
 
 }

@@ -31,6 +31,7 @@ declare module org {
                 interface KCurrentTask<A> extends KTask<any> {
                     results(): java.util.Map<KTask<any>, any>;
                     setResult(result: A): void;
+                    clearResults(): void;
                 }
                 interface KEvent {
                     universe(): number;
@@ -150,11 +151,13 @@ declare module org {
                     stop(): void;
                 }
                 interface KTask<A> {
-                    wait(previous: KTask<any>): void;
+                    wait(previous: KTask<any>): KTask<any>;
                     getResult(): A;
                     isDone(): boolean;
-                    setJob(kjob: (p: KCurrentTask<any>) => void): void;
-                    ready(): void;
+                    setJob(kjob: (p: KCurrentTask<any>) => void): KTask<any>;
+                    ready(): KTask<any>;
+                    next(): KTask<any>;
+                    then(callback: (p: A) => void): void;
                 }
                 interface KUniverse<A extends KView, B extends KUniverse<any, any, any>, C extends KModel<any>> {
                     key(): number;
@@ -361,27 +364,29 @@ declare module org {
                         private _nbRecResult;
                         private _nbExpectedResult;
                         private _results;
-                        private _previousTasks;
                         private _nextTasks;
                         private _job;
                         private _result;
                         setDoneOrRegister(next: KTask<any>): boolean;
                         private informParentEnd(end);
-                        wait(p_previous: KTask<any>): void;
-                        ready(): void;
+                        wait(p_previous: KTask<any>): KTask<any>;
+                        ready(): KTask<any>;
+                        next(): KTask<any>;
+                        then(p_callback: (p: A) => void): void;
                         results(): java.util.Map<KTask<any>, any>;
                         setResult(p_result: A): void;
+                        clearResults(): void;
                         getResult(): A;
                         isDone(): boolean;
-                        setJob(p_kjob: (p: KCurrentTask<any>) => void): void;
+                        setJob(p_kjob: (p: KCurrentTask<any>) => void): KTask<any>;
                     }
                     class AbstractKTaskWrapper<A> extends AbstractKTask<any> {
                         private _callback;
                         constructor();
                         initCallback(): (p: A) => void;
-                        wait(previous: KTask<any>): void;
-                        setJob(p_kjob: (p: KCurrentTask<any>) => void): void;
-                        ready(): void;
+                        wait(previous: KTask<any>): KTask<any>;
+                        setJob(p_kjob: (p: KCurrentTask<any>) => void): KTask<any>;
+                        ready(): KTask<any>;
                     }
                     class AbstractKUniverse<A extends KView, B extends KUniverse<any, any, any>, C extends KModel<any>> implements KUniverse<any, any, any> {
                         private _model;

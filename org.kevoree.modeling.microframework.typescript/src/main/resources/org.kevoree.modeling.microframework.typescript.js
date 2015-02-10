@@ -1245,7 +1245,6 @@ var org;
                             this._nbRecResult = 0;
                             this._nbExpectedResult = 0;
                             this._results = new java.util.HashMap();
-                            this._previousTasks = new java.util.HashSet();
                             this._nextTasks = new java.util.HashSet();
                             this._result = null;
                         }
@@ -1287,7 +1286,6 @@ var org;
                         };
                         AbstractKTask.prototype.wait = function (p_previous) {
                             if (p_previous != this) {
-                                this._previousTasks.add(p_previous);
                                 if (!p_previous.setDoneOrRegister(this)) {
                                     this._nbExpectedResult++;
                                 }
@@ -1300,18 +1298,43 @@ var org;
                                     this._results.put(p_previous, castedEnd._result);
                                 }
                             }
+                            return this;
                         };
                         AbstractKTask.prototype.ready = function () {
                             if (!this._isReady) {
                                 this._isReady = true;
                                 this.informParentEnd(null);
                             }
+                            return this;
+                        };
+                        AbstractKTask.prototype.next = function () {
+                            var nextTask = new org.kevoree.modeling.api.abs.AbstractKTask();
+                            nextTask.wait(this);
+                            return nextTask;
+                        };
+                        AbstractKTask.prototype.then = function (p_callback) {
+                            var _this = this;
+                            this.next().setJob(function (currentTask) {
+                                try {
+                                    p_callback(_this.getResult());
+                                }
+                                catch ($ex$) {
+                                    if ($ex$ instanceof java.lang.Exception) {
+                                        var e = $ex$;
+                                        e.printStackTrace();
+                                        p_callback(null);
+                                    }
+                                }
+                            }).ready();
                         };
                         AbstractKTask.prototype.results = function () {
                             return this._results;
                         };
                         AbstractKTask.prototype.setResult = function (p_result) {
                             this._result = p_result;
+                        };
+                        AbstractKTask.prototype.clearResults = function () {
+                            this._results.clear();
                         };
                         AbstractKTask.prototype.getResult = function () {
                             if (this._isDone) {
@@ -1326,6 +1349,7 @@ var org;
                         };
                         AbstractKTask.prototype.setJob = function (p_kjob) {
                             this._job = p_kjob;
+                            return this;
                         };
                         return AbstractKTask;
                     })();
@@ -1352,6 +1376,7 @@ var org;
                             throw new java.lang.RuntimeException("setJob action is forbidden on wrapped tasks, please create a sub task");
                         };
                         AbstractKTaskWrapper.prototype.ready = function () {
+                            return this;
                         };
                         return AbstractKTaskWrapper;
                     })(org.kevoree.modeling.api.abs.AbstractKTask);

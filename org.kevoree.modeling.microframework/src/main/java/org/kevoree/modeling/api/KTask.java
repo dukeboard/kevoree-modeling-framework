@@ -11,8 +11,12 @@ public interface KTask<A> {
 
     public boolean isDone();
 
-    public void setJob(KJob kjob);
+    public KTask<A> setJob(KJob kjob);
 
-    public void ready();
+    public KTask<A> ready();
+
+    public KTask<Object> next();
+
+    public void then(Callback<A> callback);
 
 }

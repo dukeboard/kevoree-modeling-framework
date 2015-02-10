@@ -29,17 +29,18 @@ public class AbstractKTaskWrapper<A> extends AbstractKTask<A> {
     }
 
     @Override
-    public void wait(KTask previous) {
+    public KTask<A> wait(KTask previous) {
         throw new RuntimeException("Wait action is forbidden on wrapped tasks, please create a sub task");
     }
 
     @Override
-    public void setJob(KJob p_kjob) {
+    public KTask<A> setJob(KJob p_kjob) {
         throw new RuntimeException("setJob action is forbidden on wrapped tasks, please create a sub task");
     }
 
     @Override
-    public void ready() {
+    public KTask<A> ready() {
+        return this;
     }
 
 }

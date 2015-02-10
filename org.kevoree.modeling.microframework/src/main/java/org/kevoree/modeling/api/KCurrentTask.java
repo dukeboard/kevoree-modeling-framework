@@ -11,4 +11,6 @@ public interface KCurrentTask<A> extends KTask<A> {
 
     public void setResult(A result);
 
+    public void clearResults();
+
 }
