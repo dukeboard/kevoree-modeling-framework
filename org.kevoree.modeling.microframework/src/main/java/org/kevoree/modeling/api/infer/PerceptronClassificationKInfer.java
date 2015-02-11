@@ -13,7 +13,6 @@ import org.kevoree.modeling.api.time.TimeTree;
  * The learning hypothesis is that the result y is in a linear correlation with the features xi.
  * It classifies to class 0 if the sum is negative;
  * It classifies to class 1 if the sum is positive;
- * H(y)= [ (a1*x1 + a2*x2 + ... + an*xn + c)>0]
  * The state is an array of doubles containing the ai and at the end the constant.
  * There are two parameters to defined for this class: the learning rate alpha, and the number of iterations.
  * Created by assaad on 10/02/15.

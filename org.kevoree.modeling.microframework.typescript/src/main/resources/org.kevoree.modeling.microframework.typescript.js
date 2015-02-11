@@ -3307,19 +3307,32 @@ var org;
                 })(extrapolation = api.extrapolation || (api.extrapolation = {}));
                 var infer;
                 (function (infer) {
-                    var AverageKInfer = (function (_super) {
-                        __extends(AverageKInfer, _super);
-                        function AverageKInfer(p_view, p_uuid, p_timeTree) {
+                    var AnalyticKInfer = (function (_super) {
+                        __extends(AnalyticKInfer, _super);
+                        function AnalyticKInfer(p_view, p_uuid, p_timeTree) {
                             _super.call(this, p_view, p_uuid, p_timeTree, null);
                         }
-                        AverageKInfer.prototype.train = function (trainingSet, expectedResultSet, callback) {
+                        AnalyticKInfer.prototype.train = function (trainingSet, expectedResultSet, callback) {
                             var currentState = this.modifyState();
                             for (var i = 0; i < expectedResultSet.length; i++) {
-                                currentState.setSum(currentState.getSum() + java.lang.Double.parseDouble(expectedResultSet[i].toString()));
+                                var value = java.lang.Double.parseDouble(expectedResultSet[i].toString());
+                                if (currentState.getNb() == 0) {
+                                    currentState.setMax(value);
+                                    currentState.setMin(value);
+                                }
+                                else {
+                                    if (value < currentState.getMin()) {
+                                        currentState.setMin(value);
+                                    }
+                                    if (value > currentState.getMax()) {
+                                        currentState.setMax(value);
+                                    }
+                                }
+                                currentState.setSum(currentState.getSum() + value);
                                 currentState.setNb(currentState.getNb() + 1);
                             }
                         };
-                        AverageKInfer.prototype.infer = function (features) {
+                        AnalyticKInfer.prototype.infer = function (features) {
                             var currentState = this.readOnlyState();
                             if (currentState.getNb() != 0) {
                                 return currentState.getSum() / currentState.getNb();
@@ -3328,20 +3341,20 @@ var org;
                                 return null;
                             }
                         };
-                        AverageKInfer.prototype.accuracy = function (testSet, expectedResultSet) {
+                        AnalyticKInfer.prototype.accuracy = function (testSet, expectedResultSet) {
                             return null;
                         };
-                        AverageKInfer.prototype.clear = function () {
+                        AnalyticKInfer.prototype.clear = function () {
                             var currentState = this.modifyState();
                             currentState.setSum(0);
                             currentState.setNb(0);
                         };
-                        AverageKInfer.prototype.createEmptyState = function () {
-                            return new org.kevoree.modeling.api.infer.states.AverageKInferState();
+                        AnalyticKInfer.prototype.createEmptyState = function () {
+                            return new org.kevoree.modeling.api.infer.states.AnalyticKInferState();
                         };
-                        return AverageKInfer;
+                        return AnalyticKInfer;
                     })(org.kevoree.modeling.api.abs.AbstractKObjectInfer);
-                    infer.AverageKInfer = AverageKInfer;
+                    infer.AnalyticKInfer = AnalyticKInfer;
                     var LinearRegressionKInfer = (function (_super) {
                         __extends(LinearRegressionKInfer, _super);
                         function LinearRegressionKInfer(p_view, p_uuid, p_timeTree, p_metaClass) {
@@ -3372,18 +3385,15 @@ var org;
                         LinearRegressionKInfer.prototype.train = function (trainingSet, expectedResultSet, callback) {
                             var currentState = this.modifyState();
                             var weights = currentState.getWeights();
-                            var size = trainingSet[0].length;
+                            var featuresize = trainingSet[0].length;
                             if (weights == null) {
                                 weights = new Array();
-                                var random = new java.util.Random();
-                                for (var i = 0; i < size + 1; i++) {
-                                }
                             }
                             var features = new Array();
                             var results = new Array();
                             for (var i = 0; i < trainingSet.length; i++) {
                                 features[i] = new Array();
-                                for (var j = 0; j < size; j++) {
+                                for (var j = 0; j < featuresize; j++) {
                                     features[i][j] = trainingSet[i][j];
                                 }
                                 results[i] = expectedResultSet[i];
@@ -3392,10 +3402,10 @@ var org;
                                 for (var i = 0; i < trainingSet.length; i++) {
                                     var h = this.calculate(weights, features[i]);
                                     var err = -this.alpha * (h - results[i]);
-                                    for (var k = 0; k < size; k++) {
+                                    for (var k = 0; k < featuresize; k++) {
                                         weights[k] = weights[k] + err * features[i][k];
                                     }
-                                    weights[size] = weights[size] + err;
+                                    weights[featuresize] = weights[featuresize] + err;
                                 }
                             }
                             currentState.setWeights(weights);
@@ -3422,34 +3432,279 @@ var org;
                         return LinearRegressionKInfer;
                     })(org.kevoree.modeling.api.abs.AbstractKObjectInfer);
                     infer.LinearRegressionKInfer = LinearRegressionKInfer;
+                    var PerceptronClassificationKInfer = (function (_super) {
+                        __extends(PerceptronClassificationKInfer, _super);
+                        function PerceptronClassificationKInfer(p_view, p_uuid, p_timeTree, p_metaClass) {
+                            _super.call(this, p_view, p_uuid, p_timeTree, p_metaClass);
+                            this.alpha = 0.001;
+                            this.iterations = 100;
+                        }
+                        PerceptronClassificationKInfer.prototype.getAlpha = function () {
+                            return this.alpha;
+                        };
+                        PerceptronClassificationKInfer.prototype.setAlpha = function (alpha) {
+                            this.alpha = alpha;
+                        };
+                        PerceptronClassificationKInfer.prototype.getIterations = function () {
+                            return this.iterations;
+                        };
+                        PerceptronClassificationKInfer.prototype.setIterations = function (iterations) {
+                            this.iterations = iterations;
+                        };
+                        PerceptronClassificationKInfer.prototype.calculate = function (weights, features) {
+                            var res = 0;
+                            for (var i = 0; i < features.length; i++) {
+                                res = res + weights[i] * (features[i]);
+                            }
+                            res = res + weights[features.length];
+                            if (res >= 0) {
+                                return 1;
+                            }
+                            else {
+                                return 0;
+                            }
+                        };
+                        PerceptronClassificationKInfer.prototype.train = function (trainingSet, expectedResultSet, callback) {
+                            var currentState = this.modifyState();
+                            var weights = currentState.getWeights();
+                            var featuresize = trainingSet[0].length;
+                            if (weights == null) {
+                                weights = new Array();
+                            }
+                            var features = new Array();
+                            var results = new Array();
+                            for (var i = 0; i < trainingSet.length; i++) {
+                                features[i] = new Array();
+                                for (var j = 0; j < featuresize; j++) {
+                                    features[i][j] = trainingSet[i][j];
+                                }
+                                results[i] = expectedResultSet[i];
+                                if (results[i] == 0) {
+                                    results[i] = -1;
+                                }
+                            }
+                            for (var j = 0; j < this.iterations; j++) {
+                                for (var i = 0; i < trainingSet.length; i++) {
+                                    var h = this.calculate(weights, features[i]);
+                                    if (h == 0) {
+                                        h = -1;
+                                    }
+                                    if (h * results[i] <= 0) {
+                                        for (var k = 0; k < featuresize; k++) {
+                                            weights[k] = weights[k] + this.alpha * (results[i] * features[i][k]);
+                                        }
+                                        weights[featuresize] = weights[featuresize] + this.alpha * (results[i]);
+                                    }
+                                }
+                            }
+                            currentState.setWeights(weights);
+                        };
+                        PerceptronClassificationKInfer.prototype.infer = function (features) {
+                            var currentState = this.readOnlyState();
+                            var weights = currentState.getWeights();
+                            var ft = new Array();
+                            for (var i = 0; i < features.length; i++) {
+                                ft[i] = features[i];
+                            }
+                            return this.calculate(weights, ft);
+                        };
+                        PerceptronClassificationKInfer.prototype.accuracy = function (testSet, expectedResultSet) {
+                            return null;
+                        };
+                        PerceptronClassificationKInfer.prototype.clear = function () {
+                            var currentState = this.modifyState();
+                            currentState.setWeights(null);
+                        };
+                        PerceptronClassificationKInfer.prototype.createEmptyState = function () {
+                            return new org.kevoree.modeling.api.infer.states.DoubleArrayKInferState();
+                        };
+                        return PerceptronClassificationKInfer;
+                    })(org.kevoree.modeling.api.abs.AbstractKObjectInfer);
+                    infer.PerceptronClassificationKInfer = PerceptronClassificationKInfer;
+                    var PolynomialKInfer = (function (_super) {
+                        __extends(PolynomialKInfer, _super);
+                        function PolynomialKInfer(p_view, p_uuid, p_timeTree, p_metaClass) {
+                            _super.call(this, p_view, p_uuid, p_timeTree, p_metaClass);
+                        }
+                        PolynomialKInfer.prototype.calculate = function (weights, features) {
+                            var result = 0;
+                            for (var i = 0; i < features.length; i++) {
+                                result += weights[i] * features[i];
+                            }
+                            result += weights[features.length];
+                            return result;
+                        };
+                        PolynomialKInfer.prototype.train = function (trainingSet, expectedResultSet, callback) {
+                            var currentState = this.modifyState();
+                            var weights = currentState.getWeights();
+                            var featuresize = trainingSet[0].length;
+                            if (weights == null) {
+                                weights = new Array();
+                            }
+                        };
+                        PolynomialKInfer.prototype.infer = function (features) {
+                            var currentState = this.readOnlyState();
+                            var weights = currentState.getWeights();
+                            var ft = new Array();
+                            for (var i = 0; i < features.length; i++) {
+                                ft[i] = features[i];
+                            }
+                            return this.calculate(weights, ft);
+                        };
+                        PolynomialKInfer.prototype.accuracy = function (testSet, expectedResultSet) {
+                            return null;
+                        };
+                        PolynomialKInfer.prototype.clear = function () {
+                            var currentState = this.modifyState();
+                            currentState.setWeights(null);
+                        };
+                        PolynomialKInfer.prototype.createEmptyState = function () {
+                            return new org.kevoree.modeling.api.infer.states.DoubleArrayKInferState();
+                        };
+                        return PolynomialKInfer;
+                    })(org.kevoree.modeling.api.abs.AbstractKObjectInfer);
+                    infer.PolynomialKInfer = PolynomialKInfer;
+                    var WinnowClassificationKInfer = (function (_super) {
+                        __extends(WinnowClassificationKInfer, _super);
+                        function WinnowClassificationKInfer(p_view, p_uuid, p_timeTree, p_metaClass) {
+                            _super.call(this, p_view, p_uuid, p_timeTree, p_metaClass);
+                            this.alpha = 2;
+                            this.beta = 2;
+                        }
+                        WinnowClassificationKInfer.prototype.getAlpha = function () {
+                            return this.alpha;
+                        };
+                        WinnowClassificationKInfer.prototype.setAlpha = function (alpha) {
+                            this.alpha = alpha;
+                        };
+                        WinnowClassificationKInfer.prototype.getBeta = function () {
+                            return this.beta;
+                        };
+                        WinnowClassificationKInfer.prototype.setBeta = function (beta) {
+                            this.beta = beta;
+                        };
+                        WinnowClassificationKInfer.prototype.calculate = function (weights, features) {
+                            var result = 0;
+                            for (var i = 0; i < features.length; i++) {
+                                result += weights[i] * features[i];
+                            }
+                            if (result >= features.length) {
+                                return 1.0;
+                            }
+                            else {
+                                return 0.0;
+                            }
+                        };
+                        WinnowClassificationKInfer.prototype.train = function (trainingSet, expectedResultSet, callback) {
+                            var currentState = this.modifyState();
+                            var weights = currentState.getWeights();
+                            var featuresize = trainingSet[0].length;
+                            if (weights == null) {
+                                weights = new Array();
+                                for (var i = 0; i < weights.length; i++) {
+                                    weights[i] = 2;
+                                }
+                            }
+                            var features = new Array();
+                            var results = new Array();
+                            for (var i = 0; i < trainingSet.length; i++) {
+                                features[i] = new Array();
+                                for (var j = 0; j < featuresize; j++) {
+                                    features[i][j] = trainingSet[i][j];
+                                }
+                                results[i] = expectedResultSet[i];
+                            }
+                            for (var i = 0; i < trainingSet.length; i++) {
+                                if (this.calculate(weights, features[i]) == results[i]) {
+                                    continue;
+                                }
+                                if (results[i] == 0) {
+                                    for (var j = 0; j < features[i].length; j++) {
+                                        if (features[i][j] != 0) {
+                                            weights[j] = weights[j] / this.beta;
+                                        }
+                                    }
+                                }
+                                else {
+                                    for (var j = 0; i < features[i].length; j++) {
+                                        if (features[i][j] != 0) {
+                                            weights[j] = weights[j] * this.alpha;
+                                        }
+                                    }
+                                }
+                            }
+                            currentState.setWeights(weights);
+                        };
+                        WinnowClassificationKInfer.prototype.infer = function (features) {
+                            var currentState = this.readOnlyState();
+                            var weights = currentState.getWeights();
+                            var ft = new Array();
+                            for (var i = 0; i < features.length; i++) {
+                                ft[i] = features[i];
+                            }
+                            return this.calculate(weights, ft);
+                        };
+                        WinnowClassificationKInfer.prototype.accuracy = function (testSet, expectedResultSet) {
+                            return null;
+                        };
+                        WinnowClassificationKInfer.prototype.clear = function () {
+                            var currentState = this.modifyState();
+                            currentState.setWeights(null);
+                        };
+                        WinnowClassificationKInfer.prototype.createEmptyState = function () {
+                            return new org.kevoree.modeling.api.infer.states.DoubleArrayKInferState();
+                        };
+                        return WinnowClassificationKInfer;
+                    })(org.kevoree.modeling.api.abs.AbstractKObjectInfer);
+                    infer.WinnowClassificationKInfer = WinnowClassificationKInfer;
                     var states;
                     (function (states) {
-                        var AverageKInferState = (function (_super) {
-                            __extends(AverageKInferState, _super);
-                            function AverageKInferState() {
+                        var AnalyticKInferState = (function (_super) {
+                            __extends(AnalyticKInferState, _super);
+                            function AnalyticKInferState() {
                                 _super.apply(this, arguments);
                                 this._isDirty = false;
                                 this.sum = 0;
                                 this.nb = 0;
                             }
-                            AverageKInferState.prototype.getNb = function () {
+                            AnalyticKInferState.prototype.getMin = function () {
+                                return this.min;
+                            };
+                            AnalyticKInferState.prototype.setMin = function (min) {
+                                this._isDirty = true;
+                                this.min = min;
+                            };
+                            AnalyticKInferState.prototype.is_isDirty = function () {
+                                return this._isDirty;
+                            };
+                            AnalyticKInferState.prototype.set_isDirty = function (_isDirty) {
+                                this._isDirty = _isDirty;
+                            };
+                            AnalyticKInferState.prototype.getMax = function () {
+                                return this.max;
+                            };
+                            AnalyticKInferState.prototype.setMax = function (max) {
+                                this._isDirty = true;
+                                this.max = max;
+                            };
+                            AnalyticKInferState.prototype.getNb = function () {
                                 return this.nb;
                             };
-                            AverageKInferState.prototype.setNb = function (nb) {
+                            AnalyticKInferState.prototype.setNb = function (nb) {
                                 this._isDirty = true;
                                 this.nb = nb;
                             };
-                            AverageKInferState.prototype.getSum = function () {
+                            AnalyticKInferState.prototype.getSum = function () {
                                 return this.sum;
                             };
-                            AverageKInferState.prototype.setSum = function (sum) {
+                            AnalyticKInferState.prototype.setSum = function (sum) {
                                 this._isDirty = true;
                                 this.sum = sum;
                             };
-                            AverageKInferState.prototype.save = function () {
+                            AnalyticKInferState.prototype.save = function () {
                                 return this.sum + "/" + this.nb;
                             };
-                            AverageKInferState.prototype.load = function (payload) {
+                            AnalyticKInferState.prototype.load = function (payload) {
                                 try {
                                     var previousState = payload.split("/");
                                     this.sum = java.lang.Double.parseDouble(previousState[0]);
@@ -3464,18 +3719,18 @@ var org;
                                 }
                                 this._isDirty = false;
                             };
-                            AverageKInferState.prototype.isDirty = function () {
+                            AnalyticKInferState.prototype.isDirty = function () {
                                 return this._isDirty;
                             };
-                            AverageKInferState.prototype.cloneState = function () {
-                                var cloned = new org.kevoree.modeling.api.infer.states.AverageKInferState();
+                            AnalyticKInferState.prototype.cloneState = function () {
+                                var cloned = new org.kevoree.modeling.api.infer.states.AnalyticKInferState();
                                 cloned.setNb(this.getNb());
                                 cloned.setSum(this.getSum());
                                 return cloned;
                             };
-                            return AverageKInferState;
+                            return AnalyticKInferState;
                         })(org.kevoree.modeling.api.KInferState);
-                        states.AverageKInferState = AverageKInferState;
+                        states.AnalyticKInferState = AnalyticKInferState;
                         var DoubleArrayKInferState = (function (_super) {
                             __extends(DoubleArrayKInferState, _super);
                             function DoubleArrayKInferState() {

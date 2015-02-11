@@ -760,7 +760,7 @@ declare module org {
                     }
                 }
                 module infer {
-                    class AverageKInfer extends abs.AbstractKObjectInfer {
+                    class AnalyticKInfer extends abs.AbstractKObjectInfer {
                         constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree);
                         train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
                         infer(features: any[]): any;
@@ -783,11 +783,58 @@ declare module org {
                         clear(): void;
                         createEmptyState(): KInferState;
                     }
+                    class PerceptronClassificationKInfer extends abs.AbstractKObjectInfer {
+                        private alpha;
+                        private iterations;
+                        getAlpha(): number;
+                        setAlpha(alpha: number): void;
+                        getIterations(): number;
+                        setIterations(iterations: number): void;
+                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
+                        private calculate(weights, features);
+                        train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
+                        infer(features: any[]): any;
+                        accuracy(testSet: any[][], expectedResultSet: any[]): any;
+                        clear(): void;
+                        createEmptyState(): KInferState;
+                    }
+                    class PolynomialKInfer extends abs.AbstractKObjectInfer {
+                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
+                        private calculate(weights, features);
+                        train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
+                        infer(features: any[]): any;
+                        accuracy(testSet: any[][], expectedResultSet: any[]): any;
+                        clear(): void;
+                        createEmptyState(): KInferState;
+                    }
+                    class WinnowClassificationKInfer extends abs.AbstractKObjectInfer {
+                        private alpha;
+                        private beta;
+                        getAlpha(): number;
+                        setAlpha(alpha: number): void;
+                        getBeta(): number;
+                        setBeta(beta: number): void;
+                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
+                        private calculate(weights, features);
+                        train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
+                        infer(features: any[]): any;
+                        accuracy(testSet: any[][], expectedResultSet: any[]): any;
+                        clear(): void;
+                        createEmptyState(): KInferState;
+                    }
                     module states {
-                        class AverageKInferState extends KInferState {
+                        class AnalyticKInferState extends KInferState {
                             private _isDirty;
                             private sum;
                             private nb;
+                            private min;
+                            private max;
+                            getMin(): number;
+                            setMin(min: number): void;
+                            is_isDirty(): boolean;
+                            set_isDirty(_isDirty: boolean): void;
+                            getMax(): number;
+                            setMax(max: number): void;
                             getNb(): number;
                             setNb(nb: number): void;
                             getSum(): number;

@@ -13,7 +13,6 @@ import org.kevoree.modeling.api.time.TimeTree;
  * The learning hypothesis is that the result y is according to majority of votes of experts xi.
  * It classifies to class 0 if the majority of experts vote 0;
  * It classifies to class 1 if the majority of experts vote 1;
- * H(y)= [ (a1*x1 + a2*x2 + ... + an*xn)> n/2]
  * The state is an array of doubles containing the voting weights of experts.
  * There are two parameters to defined for this class:
  * Alpha is the reward in term of voting power multiplication for experts who guess right (usually x2).

@@ -3915,22 +3915,34 @@ module org {
 
                 }
                 export module infer {
-                    export class AverageKInfer extends org.kevoree.modeling.api.abs.AbstractKObjectInfer {
+                    export class AnalyticKInfer extends org.kevoree.modeling.api.abs.AbstractKObjectInfer {
 
                         constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_timeTree: org.kevoree.modeling.api.time.TimeTree) {
                             super(p_view, p_uuid, p_timeTree, null);
                         }
 
                         public train(trainingSet: any[][], expectedResultSet: any[], callback: (p : java.lang.Throwable) => void): void {
-                            var currentState: org.kevoree.modeling.api.infer.states.AverageKInferState = <org.kevoree.modeling.api.infer.states.AverageKInferState>this.modifyState();
+                            var currentState: org.kevoree.modeling.api.infer.states.AnalyticKInferState = <org.kevoree.modeling.api.infer.states.AnalyticKInferState>this.modifyState();
                             for (var i: number = 0; i < expectedResultSet.length; i++) {
-                                currentState.setSum(currentState.getSum() + java.lang.Double.parseDouble(expectedResultSet[i].toString()));
+                                var value: number = java.lang.Double.parseDouble(expectedResultSet[i].toString());
+                                if (currentState.getNb() == 0) {
+                                    currentState.setMax(value);
+                                    currentState.setMin(value);
+                                } else {
+                                    if (value < currentState.getMin()) {
+                                        currentState.setMin(value);
+                                    }
+                                    if (value > currentState.getMax()) {
+                                        currentState.setMax(value);
+                                    }
+                                }
+                                currentState.setSum(currentState.getSum() + value);
                                 currentState.setNb(currentState.getNb() + 1);
                             }
                         }
 
                         public infer(features: any[]): any {
-                            var currentState: org.kevoree.modeling.api.infer.states.AverageKInferState = <org.kevoree.modeling.api.infer.states.AverageKInferState>this.readOnlyState();
+                            var currentState: org.kevoree.modeling.api.infer.states.AnalyticKInferState = <org.kevoree.modeling.api.infer.states.AnalyticKInferState>this.readOnlyState();
                             if (currentState.getNb() != 0) {
                                 return currentState.getSum() / currentState.getNb();
                             } else {
@@ -3943,13 +3955,13 @@ module org {
                         }
 
                         public clear(): void {
-                            var currentState: org.kevoree.modeling.api.infer.states.AverageKInferState = <org.kevoree.modeling.api.infer.states.AverageKInferState>this.modifyState();
+                            var currentState: org.kevoree.modeling.api.infer.states.AnalyticKInferState = <org.kevoree.modeling.api.infer.states.AnalyticKInferState>this.modifyState();
                             currentState.setSum(0);
                             currentState.setNb(0);
                         }
 
                         public createEmptyState(): org.kevoree.modeling.api.KInferState {
-                            return new org.kevoree.modeling.api.infer.states.AverageKInferState();
+                            return new org.kevoree.modeling.api.infer.states.AnalyticKInferState();
                         }
 
                     }
@@ -3990,18 +4002,15 @@ module org {
                         public train(trainingSet: any[][], expectedResultSet: any[], callback: (p : java.lang.Throwable) => void): void {
                             var currentState: org.kevoree.modeling.api.infer.states.DoubleArrayKInferState = <org.kevoree.modeling.api.infer.states.DoubleArrayKInferState>this.modifyState();
                             var weights: number[] = currentState.getWeights();
-                            var size: number = trainingSet[0].length;
+                            var featuresize: number = trainingSet[0].length;
                             if (weights == null) {
                                 weights = new Array();
-                                var random: java.util.Random = new java.util.Random();
-                                for (var i: number = 0; i < size + 1; i++) {
-                                }
                             }
                             var features: number[][] = new Array();
                             var results: number[] = new Array();
                             for (var i: number = 0; i < trainingSet.length; i++) {
                                 features[i] = new Array();
-                                for (var j: number = 0; j < size; j++) {
+                                for (var j: number = 0; j < featuresize; j++) {
                                     features[i][j] = <number>trainingSet[i][j];
                                 }
                                 results[i] = <number>expectedResultSet[i];
@@ -4010,10 +4019,258 @@ module org {
                                 for (var i: number = 0; i < trainingSet.length; i++) {
                                     var h: number = this.calculate(weights, features[i]);
                                     var err: number = -this.alpha * (h - results[i]);
-                                    for (var k: number = 0; k < size; k++) {
+                                    for (var k: number = 0; k < featuresize; k++) {
                                         weights[k] = weights[k] + err * features[i][k];
                                     }
-                                    weights[size] = weights[size] + err;
+                                    weights[featuresize] = weights[featuresize] + err;
+                                }
+                            }
+                            currentState.setWeights(weights);
+                        }
+
+                        public infer(features: any[]): any {
+                            var currentState: org.kevoree.modeling.api.infer.states.DoubleArrayKInferState = <org.kevoree.modeling.api.infer.states.DoubleArrayKInferState>this.readOnlyState();
+                            var weights: number[] = currentState.getWeights();
+                            var ft: number[] = new Array();
+                            for (var i: number = 0; i < features.length; i++) {
+                                ft[i] = <number>features[i];
+                            }
+                            return this.calculate(weights, ft);
+                        }
+
+                        public accuracy(testSet: any[][], expectedResultSet: any[]): any {
+                            return null;
+                        }
+
+                        public clear(): void {
+                            var currentState: org.kevoree.modeling.api.infer.states.DoubleArrayKInferState = <org.kevoree.modeling.api.infer.states.DoubleArrayKInferState>this.modifyState();
+                            currentState.setWeights(null);
+                        }
+
+                        public createEmptyState(): org.kevoree.modeling.api.KInferState {
+                            return new org.kevoree.modeling.api.infer.states.DoubleArrayKInferState();
+                        }
+
+                    }
+
+                    export class PerceptronClassificationKInfer extends org.kevoree.modeling.api.abs.AbstractKObjectInfer {
+
+                        private alpha: number = 0.001;
+                        private iterations: number = 100;
+                        public getAlpha(): number {
+                            return this.alpha;
+                        }
+
+                        public setAlpha(alpha: number): void {
+                            this.alpha = alpha;
+                        }
+
+                        public getIterations(): number {
+                            return this.iterations;
+                        }
+
+                        public setIterations(iterations: number): void {
+                            this.iterations = iterations;
+                        }
+
+                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_timeTree: org.kevoree.modeling.api.time.TimeTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
+                            super(p_view, p_uuid, p_timeTree, p_metaClass);
+                        }
+
+                        private calculate(weights: number[], features: number[]): number {
+                            var res: number = 0;
+                            for (var i: number = 0; i < features.length; i++) {
+                                res = res + weights[i] * (features[i]);
+                            }
+                            res = res + weights[features.length];
+                            if (res >= 0) {
+                                return 1;
+                            } else {
+                                return 0;
+                            }
+                        }
+
+                        public train(trainingSet: any[][], expectedResultSet: any[], callback: (p : java.lang.Throwable) => void): void {
+                            var currentState: org.kevoree.modeling.api.infer.states.DoubleArrayKInferState = <org.kevoree.modeling.api.infer.states.DoubleArrayKInferState>this.modifyState();
+                            var weights: number[] = currentState.getWeights();
+                            var featuresize: number = trainingSet[0].length;
+                            if (weights == null) {
+                                weights = new Array();
+                            }
+                            var features: number[][] = new Array();
+                            var results: number[] = new Array();
+                            for (var i: number = 0; i < trainingSet.length; i++) {
+                                features[i] = new Array();
+                                for (var j: number = 0; j < featuresize; j++) {
+                                    features[i][j] = <number>trainingSet[i][j];
+                                }
+                                results[i] = <number>expectedResultSet[i];
+                                if (results[i] == 0) {
+                                    results[i] = -1;
+                                }
+                            }
+                            for (var j: number = 0; j < this.iterations; j++) {
+                                for (var i: number = 0; i < trainingSet.length; i++) {
+                                    var h: number = this.calculate(weights, features[i]);
+                                    if (h == 0) {
+                                        h = -1;
+                                    }
+                                    if (h * results[i] <= 0) {
+                                        for (var k: number = 0; k < featuresize; k++) {
+                                            weights[k] = weights[k] + this.alpha * (results[i] * features[i][k]);
+                                        }
+                                        weights[featuresize] = weights[featuresize] + this.alpha * (results[i]);
+                                    }
+                                }
+                            }
+                            currentState.setWeights(weights);
+                        }
+
+                        public infer(features: any[]): any {
+                            var currentState: org.kevoree.modeling.api.infer.states.DoubleArrayKInferState = <org.kevoree.modeling.api.infer.states.DoubleArrayKInferState>this.readOnlyState();
+                            var weights: number[] = currentState.getWeights();
+                            var ft: number[] = new Array();
+                            for (var i: number = 0; i < features.length; i++) {
+                                ft[i] = <number>features[i];
+                            }
+                            return this.calculate(weights, ft);
+                        }
+
+                        public accuracy(testSet: any[][], expectedResultSet: any[]): any {
+                            return null;
+                        }
+
+                        public clear(): void {
+                            var currentState: org.kevoree.modeling.api.infer.states.DoubleArrayKInferState = <org.kevoree.modeling.api.infer.states.DoubleArrayKInferState>this.modifyState();
+                            currentState.setWeights(null);
+                        }
+
+                        public createEmptyState(): org.kevoree.modeling.api.KInferState {
+                            return new org.kevoree.modeling.api.infer.states.DoubleArrayKInferState();
+                        }
+
+                    }
+
+                    export class PolynomialKInfer extends org.kevoree.modeling.api.abs.AbstractKObjectInfer {
+
+                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_timeTree: org.kevoree.modeling.api.time.TimeTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
+                            super(p_view, p_uuid, p_timeTree, p_metaClass);
+                        }
+
+                        private calculate(weights: number[], features: number[]): number {
+                            var result: number = 0;
+                            for (var i: number = 0; i < features.length; i++) {
+                                result += weights[i] * features[i];
+                            }
+                            result += weights[features.length];
+                            return result;
+                        }
+
+                        public train(trainingSet: any[][], expectedResultSet: any[], callback: (p : java.lang.Throwable) => void): void {
+                            var currentState: org.kevoree.modeling.api.infer.states.DoubleArrayKInferState = <org.kevoree.modeling.api.infer.states.DoubleArrayKInferState>this.modifyState();
+                            var weights: number[] = currentState.getWeights();
+                            var featuresize: number = trainingSet[0].length;
+                            if (weights == null) {
+                                weights = new Array();
+                            }
+                        }
+
+                        public infer(features: any[]): any {
+                            var currentState: org.kevoree.modeling.api.infer.states.DoubleArrayKInferState = <org.kevoree.modeling.api.infer.states.DoubleArrayKInferState>this.readOnlyState();
+                            var weights: number[] = currentState.getWeights();
+                            var ft: number[] = new Array();
+                            for (var i: number = 0; i < features.length; i++) {
+                                ft[i] = <number>features[i];
+                            }
+                            return this.calculate(weights, ft);
+                        }
+
+                        public accuracy(testSet: any[][], expectedResultSet: any[]): any {
+                            return null;
+                        }
+
+                        public clear(): void {
+                            var currentState: org.kevoree.modeling.api.infer.states.DoubleArrayKInferState = <org.kevoree.modeling.api.infer.states.DoubleArrayKInferState>this.modifyState();
+                            currentState.setWeights(null);
+                        }
+
+                        public createEmptyState(): org.kevoree.modeling.api.KInferState {
+                            return new org.kevoree.modeling.api.infer.states.DoubleArrayKInferState();
+                        }
+
+                    }
+
+                    export class WinnowClassificationKInfer extends org.kevoree.modeling.api.abs.AbstractKObjectInfer {
+
+                        private alpha: number = 2;
+                        private beta: number = 2;
+                        public getAlpha(): number {
+                            return this.alpha;
+                        }
+
+                        public setAlpha(alpha: number): void {
+                            this.alpha = alpha;
+                        }
+
+                        public getBeta(): number {
+                            return this.beta;
+                        }
+
+                        public setBeta(beta: number): void {
+                            this.beta = beta;
+                        }
+
+                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_timeTree: org.kevoree.modeling.api.time.TimeTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
+                            super(p_view, p_uuid, p_timeTree, p_metaClass);
+                        }
+
+                        private calculate(weights: number[], features: number[]): number {
+                            var result: number = 0;
+                            for (var i: number = 0; i < features.length; i++) {
+                                result += weights[i] * features[i];
+                            }
+                            if (result >= features.length) {
+                                return 1.0;
+                            } else {
+                                return 0.0;
+                            }
+                        }
+
+                        public train(trainingSet: any[][], expectedResultSet: any[], callback: (p : java.lang.Throwable) => void): void {
+                            var currentState: org.kevoree.modeling.api.infer.states.DoubleArrayKInferState = <org.kevoree.modeling.api.infer.states.DoubleArrayKInferState>this.modifyState();
+                            var weights: number[] = currentState.getWeights();
+                            var featuresize: number = trainingSet[0].length;
+                            if (weights == null) {
+                                weights = new Array();
+                                for (var i: number = 0; i < weights.length; i++) {
+                                    weights[i] = 2;
+                                }
+                            }
+                            var features: number[][] = new Array();
+                            var results: number[] = new Array();
+                            for (var i: number = 0; i < trainingSet.length; i++) {
+                                features[i] = new Array();
+                                for (var j: number = 0; j < featuresize; j++) {
+                                    features[i][j] = <number>trainingSet[i][j];
+                                }
+                                results[i] = <number>expectedResultSet[i];
+                            }
+                            for (var i: number = 0; i < trainingSet.length; i++) {
+                                if (this.calculate(weights, features[i]) == results[i]) {
+                                    continue;
+                                }
+                                if (results[i] == 0) {
+                                    for (var j: number = 0; j < features[i].length; j++) {
+                                        if (features[i][j] != 0) {
+                                            weights[j] = weights[j] / this.beta;
+                                        }
+                                    }
+                                } else {
+                                    for (var j: number = 0; i < features[i].length; j++) {
+                                        if (features[i][j] != 0) {
+                                            weights[j] = weights[j] * this.alpha;
+                                        }
+                                    }
                                 }
                             }
                             currentState.setWeights(weights);
@@ -4045,11 +4302,39 @@ module org {
                     }
 
                     export module states {
-                        export class AverageKInferState extends org.kevoree.modeling.api.KInferState {
+                        export class AnalyticKInferState extends org.kevoree.modeling.api.KInferState {
 
                             private _isDirty: boolean = false;
                             private sum: number = 0;
                             private nb: number = 0;
+                            private min: number;
+                            private max: number;
+                            public getMin(): number {
+                                return this.min;
+                            }
+
+                            public setMin(min: number): void {
+                                this._isDirty = true;
+                                this.min = min;
+                            }
+
+                            public is_isDirty(): boolean {
+                                return this._isDirty;
+                            }
+
+                            public set_isDirty(_isDirty: boolean): void {
+                                this._isDirty = _isDirty;
+                            }
+
+                            public getMax(): number {
+                                return this.max;
+                            }
+
+                            public setMax(max: number): void {
+                                this._isDirty = true;
+                                this.max = max;
+                            }
+
                             public getNb(): number {
                                 return this.nb;
                             }
@@ -4092,7 +4377,7 @@ module org {
                             }
 
                             public cloneState(): org.kevoree.modeling.api.KInferState {
-                                var cloned: org.kevoree.modeling.api.infer.states.AverageKInferState = new org.kevoree.modeling.api.infer.states.AverageKInferState();
+                                var cloned: org.kevoree.modeling.api.infer.states.AnalyticKInferState = new org.kevoree.modeling.api.infer.states.AnalyticKInferState();
                                 cloned.setNb(this.getNb());
                                 cloned.setSum(this.getSum());
                                 return cloned;
