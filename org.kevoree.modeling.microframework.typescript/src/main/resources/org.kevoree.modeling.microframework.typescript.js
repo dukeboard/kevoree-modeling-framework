@@ -1240,6 +1240,7 @@ var org;
                     abs.AbstractKObjectInfer = AbstractKObjectInfer;
                     var AbstractKTask = (function () {
                         function AbstractKTask() {
+                            this._name = null;
                             this._isDone = false;
                             this._isReady = false;
                             this._nbRecResult = 0;
@@ -1273,7 +1274,7 @@ var org;
                                     for (var i = 0; i < keys.length; i++) {
                                         this._results.put(keys[i], castedEnd._results.get(keys[i]));
                                     }
-                                    this._results.put(end, castedEnd._result);
+                                    this._results.put(end.getName(), castedEnd._result);
                                     this._nbRecResult--;
                                 }
                             }
@@ -1295,7 +1296,7 @@ var org;
                                     for (var i = 0; i < keys.length; i++) {
                                         this._results.put(keys[i], castedEnd._results.get(keys[i]));
                                     }
-                                    this._results.put(p_previous, castedEnd._result);
+                                    this._results.put(p_previous.getName(), castedEnd._result);
                                 }
                             }
                             return this;
@@ -1327,10 +1328,28 @@ var org;
                                 }
                             }).ready();
                         };
-                        AbstractKTask.prototype.results = function () {
-                            return this._results;
+                        AbstractKTask.prototype.setName = function (p_taskName) {
+                            this._name = p_taskName;
+                            return this;
                         };
-                        AbstractKTask.prototype.setResult = function (p_result) {
+                        AbstractKTask.prototype.getName = function () {
+                            if (this._name == null) {
+                                return this.toString();
+                            }
+                            else {
+                                return this._name;
+                            }
+                        };
+                        AbstractKTask.prototype.resultKeys = function () {
+                            return this._results.keySet().toArray(new Array());
+                        };
+                        AbstractKTask.prototype.resultByName = function (p_name) {
+                            return this._results.get(p_name);
+                        };
+                        AbstractKTask.prototype.resultByTask = function (p_task) {
+                            return this._results.get(p_task.getName());
+                        };
+                        AbstractKTask.prototype.addTaskResult = function (p_result) {
                             this._result = p_result;
                         };
                         AbstractKTask.prototype.clearResults = function () {
@@ -1362,7 +1381,7 @@ var org;
                             var selfPointer = this;
                             this._callback = function (a) {
                                 selfPointer._isReady = true;
-                                selfPointer.setResult(a);
+                                selfPointer.addTaskResult(a);
                                 selfPointer.setDoneOrRegister(null);
                             };
                         }
@@ -9739,7 +9758,7 @@ var org;
                             thisTask.wait(allTask);
                             thisTask.setJob(function (currentTask) {
                                 try {
-                                    var objects = currentTask.results().get(allTask);
+                                    var objects = currentTask.resultByTask(allTask);
                                     for (var i = 0; i < objects.length; i++) {
                                         var adjustedAddress = p_context.addressTable.get(objects[i].uuid());
                                         p_context.printer.append(" " + ref.metaName() + "=\"" + adjustedAddress + "\"");
@@ -9761,8 +9780,8 @@ var org;
                             thisTask.wait(allTask);
                             thisTask.setJob(function (currentTask) {
                                 try {
-                                    if (currentTask.results().get(allTask) != null) {
-                                        var objs = currentTask.results().get(allTask);
+                                    if (currentTask.resultByTask(allTask) != null) {
+                                        var objs = currentTask.resultByTask(allTask);
                                         for (var i = 0; i < objs.length; i++) {
                                             var elem = objs[i];
                                             context.printer.append("<");

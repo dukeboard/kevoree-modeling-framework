@@ -76,9 +76,13 @@ module org {
 
                 export interface KCurrentTask<A> extends org.kevoree.modeling.api.KTask<any> {
 
-                    results(): java.util.Map<org.kevoree.modeling.api.KTask<any>, any>;
+                    resultKeys(): string[];
 
-                    setResult(result: A): void;
+                    resultByName(name: string): any;
+
+                    resultByTask(task: org.kevoree.modeling.api.KTask<any>): any;
+
+                    addTaskResult(result: A): void;
 
                     clearResults(): void;
 
@@ -341,6 +345,10 @@ module org {
                     next(): org.kevoree.modeling.api.KTask<any>;
 
                     then(callback: (p : A) => void): void;
+
+                    setName(taskName: string): org.kevoree.modeling.api.KTask<any>;
+
+                    getName(): string;
 
                 }
 
@@ -1644,11 +1652,12 @@ module org {
 
                     export class AbstractKTask<A> implements org.kevoree.modeling.api.KCurrentTask<any> {
 
+                        private _name: string = null;
                         private _isDone: boolean = false;
                         public _isReady: boolean = false;
                         private _nbRecResult: number = 0;
                         private _nbExpectedResult: number = 0;
-                        private _results: java.util.Map<org.kevoree.modeling.api.KTask<any>, any> = new java.util.HashMap<org.kevoree.modeling.api.KTask<any>, any>();
+                        private _results: java.util.Map<string, any> = new java.util.HashMap<string, any>();
                         private _nextTasks: java.util.Set<org.kevoree.modeling.api.KTask<any>> = new java.util.HashSet<org.kevoree.modeling.api.KTask<any>>();
                         private _job: (p : org.kevoree.modeling.api.KCurrentTask<any>) => void;
                         private _result: A = null;
@@ -1672,11 +1681,11 @@ module org {
                             } else {
                                 if (end != this) {
                                     var castedEnd: org.kevoree.modeling.api.abs.AbstractKTask<any> = <org.kevoree.modeling.api.abs.AbstractKTask<any>>end;
-                                    var keys: org.kevoree.modeling.api.KTask<any>[] = <org.kevoree.modeling.api.KTask<any>[]>castedEnd._results.keySet().toArray(new Array());
+                                    var keys: string[] = <string[]>castedEnd._results.keySet().toArray(new Array());
                                     for (var i: number = 0; i < keys.length; i++) {
                                         this._results.put(keys[i], castedEnd._results.get(keys[i]));
                                     }
-                                    this._results.put(end, castedEnd._result);
+                                    this._results.put(end.getName(), castedEnd._result);
                                     this._nbRecResult--;
                                 }
                             }
@@ -1694,11 +1703,11 @@ module org {
                                     this._nbExpectedResult++;
                                 } else {
                                     var castedEnd: org.kevoree.modeling.api.abs.AbstractKTask<any> = <org.kevoree.modeling.api.abs.AbstractKTask<any>>p_previous;
-                                    var keys: org.kevoree.modeling.api.KTask<any>[] = <org.kevoree.modeling.api.KTask<any>[]>castedEnd._results.keySet().toArray(new Array());
+                                    var keys: string[] = <string[]>castedEnd._results.keySet().toArray(new Array());
                                     for (var i: number = 0; i < keys.length; i++) {
                                         this._results.put(keys[i], castedEnd._results.get(keys[i]));
                                     }
-                                    this._results.put(p_previous, castedEnd._result);
+                                    this._results.put(p_previous.getName(), castedEnd._result);
                                 }
                             }
                             return this;
@@ -1732,11 +1741,32 @@ module org {
                             }).ready();
                         }
 
-                        public results(): java.util.Map<org.kevoree.modeling.api.KTask<any>, any> {
-                            return this._results;
+                        public setName(p_taskName: string): org.kevoree.modeling.api.KTask<any> {
+                            this._name = p_taskName;
+                            return this;
                         }
 
-                        public setResult(p_result: A): void {
+                        public getName(): string {
+                            if (this._name == null) {
+                                return this.toString();
+                            } else {
+                                return this._name;
+                            }
+                        }
+
+                        public resultKeys(): string[] {
+                            return this._results.keySet().toArray(new Array());
+                        }
+
+                        public resultByName(p_name: string): any {
+                            return this._results.get(p_name);
+                        }
+
+                        public resultByTask(p_task: org.kevoree.modeling.api.KTask<any>): any {
+                            return this._results.get(p_task.getName());
+                        }
+
+                        public addTaskResult(p_result: A): void {
                             this._result = p_result;
                         }
 
@@ -1771,7 +1801,7 @@ module org {
                             var selfPointer: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = this;
                             this._callback =  (a : A) => {
                                 selfPointer._isReady = true;
-                                selfPointer.setResult(a);
+                                selfPointer.addTaskResult(a);
                                 selfPointer.setDoneOrRegister(null);
                             };
                         }
@@ -10659,7 +10689,7 @@ module org {
                             thisTask.wait(allTask);
                             thisTask.setJob( (currentTask : org.kevoree.modeling.api.KCurrentTask<any>) => {
                                 try {
-                                    var objects: org.kevoree.modeling.api.KObject[] = (<org.kevoree.modeling.api.KObject[]>currentTask.results().get(allTask));
+                                    var objects: org.kevoree.modeling.api.KObject[] = (<org.kevoree.modeling.api.KObject[]>currentTask.resultByTask(allTask));
                                     for (var i: number = 0; i < objects.length; i++) {
                                         var adjustedAddress: string = p_context.addressTable.get(objects[i].uuid());
                                         p_context.printer.append(" " + ref.metaName() + "=\"" + adjustedAddress + "\"");
@@ -10681,8 +10711,8 @@ module org {
                             thisTask.wait(allTask);
                             thisTask.setJob( (currentTask : org.kevoree.modeling.api.KCurrentTask<any>) => {
                                 try {
-                                    if (currentTask.results().get(allTask) != null) {
-                                        var objs: org.kevoree.modeling.api.KObject[] = (<org.kevoree.modeling.api.KObject[]>currentTask.results().get(allTask));
+                                    if (currentTask.resultByTask(allTask) != null) {
+                                        var objs: org.kevoree.modeling.api.KObject[] = (<org.kevoree.modeling.api.KObject[]>currentTask.resultByTask(allTask));
                                         for (var i: number = 0; i < objs.length; i++) {
                                             var elem: org.kevoree.modeling.api.KObject = objs[i];
                                             context.printer.append("<");

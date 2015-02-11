@@ -29,8 +29,10 @@ declare module org {
                     static values(): KActionType[];
                 }
                 interface KCurrentTask<A> extends KTask<any> {
-                    results(): java.util.Map<KTask<any>, any>;
-                    setResult(result: A): void;
+                    resultKeys(): string[];
+                    resultByName(name: string): any;
+                    resultByTask(task: KTask<any>): any;
+                    addTaskResult(result: A): void;
                     clearResults(): void;
                 }
                 interface KEvent {
@@ -158,6 +160,8 @@ declare module org {
                     ready(): KTask<any>;
                     next(): KTask<any>;
                     then(callback: (p: A) => void): void;
+                    setName(taskName: string): KTask<any>;
+                    getName(): string;
                 }
                 interface KUniverse<A extends KView, B extends KUniverse<any, any, any>, C extends KModel<any>> {
                     key(): number;
@@ -359,6 +363,7 @@ declare module org {
                         createEmptyState(): KInferState;
                     }
                     class AbstractKTask<A> implements KCurrentTask<any> {
+                        private _name;
                         private _isDone;
                         _isReady: boolean;
                         private _nbRecResult;
@@ -373,8 +378,12 @@ declare module org {
                         ready(): KTask<any>;
                         next(): KTask<any>;
                         then(p_callback: (p: A) => void): void;
-                        results(): java.util.Map<KTask<any>, any>;
-                        setResult(p_result: A): void;
+                        setName(p_taskName: string): KTask<any>;
+                        getName(): string;
+                        resultKeys(): string[];
+                        resultByName(p_name: string): any;
+                        resultByTask(p_task: KTask<any>): any;
+                        addTaskResult(p_result: A): void;
                         clearResults(): void;
                         getResult(): A;
                         isDone(): boolean;

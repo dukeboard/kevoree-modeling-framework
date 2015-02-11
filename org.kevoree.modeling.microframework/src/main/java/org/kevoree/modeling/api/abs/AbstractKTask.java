@@ -47,9 +47,9 @@ public class AbstractKTask<A> implements KCurrentTask<A> {
         } else {
             if (end != this) {
                 AbstractKTask castedEnd = (AbstractKTask) end;
-                KTask[] keys = (KTask[]) castedEnd._results.keySet().toArray(new KTask[castedEnd._results.size()]);
+                String[] keys = (String[]) castedEnd._results.keySet().toArray(new String[castedEnd._results.size()]);
                 for (int i = 0; i < keys.length; i++) {
-                    _results.put(keys[i].getName(), castedEnd._results.get(keys[i]));
+                    _results.put(keys[i], castedEnd._results.get(keys[i]));
                 }
                 _results.put(end.getName(), castedEnd._result);
                 _nbRecResult--;
@@ -122,7 +122,7 @@ public class AbstractKTask<A> implements KCurrentTask<A> {
     @Override
     public String getName() {
         if (_name == null) {
-            return hashCode() + "";
+            return this.toString();
         } else {
             return _name;
         }
