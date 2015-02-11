@@ -2,8 +2,8 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.data.KDataBase;
 import voldemort.client.ClientConfig;
-import voldemort.client.SocketStoreClientFactory;
 import voldemort.client.StoreClient;
+import voldemort.client.SocketStoreClientFactory;
 import voldemort.client.StoreClientFactory;
 import voldemort.server.VoldemortConfig;
 import voldemort.server.VoldemortServer;
@@ -29,7 +29,7 @@ private StoreClientFactory factory = null;
 
             File folder_config = null;
             try {
-                folder_config = new File( this.getClass().getClassLoader().getResource("config/../").toURI() );
+                folder_config = new File( this.getClass().getClassLoader().getResource("voldemort").toURI() );
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }

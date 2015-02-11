@@ -1,4 +1,7 @@
+import org.junit.Assert;
 import org.junit.Test;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.ThrowableCallback;
 
 import java.io.IOException;
 
