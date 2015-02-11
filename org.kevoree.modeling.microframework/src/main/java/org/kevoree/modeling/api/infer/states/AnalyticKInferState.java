@@ -5,11 +5,42 @@ import org.kevoree.modeling.api.KInferState;
 /**
  * Created by duke on 10/02/15.
  */
-public class AverageKInferState extends KInferState {
+public class AnalyticKInferState extends KInferState {
 
     private boolean _isDirty = false;
 
+
     private double sum = 0;
+    private int nb = 0;
+
+    public double getMin() {
+        return min;
+    }
+
+    public void setMin(double min) {
+        _isDirty=true;
+        this.min = min;
+    }
+
+    public boolean is_isDirty() {
+        return _isDirty;
+    }
+
+    public void set_isDirty(boolean _isDirty) {
+        this._isDirty = _isDirty;
+    }
+
+    public double getMax() {
+        return max;
+    }
+
+    public void setMax(double max) {
+        _isDirty=true;
+        this.max = max;
+    }
+
+    private double min;
+    private double max;
 
     public int getNb() {
         return nb;
@@ -29,7 +60,7 @@ public class AverageKInferState extends KInferState {
         this.sum = sum;
     }
 
-    private int nb = 0;
+
 
     @Override
     public String save() {
@@ -56,7 +87,7 @@ public class AverageKInferState extends KInferState {
 
     @Override
     public KInferState cloneState() {
-        AverageKInferState cloned = new AverageKInferState();
+        AnalyticKInferState cloned = new AnalyticKInferState();
         cloned.setNb(getNb());
         cloned.setSum(getSum());
         return cloned;

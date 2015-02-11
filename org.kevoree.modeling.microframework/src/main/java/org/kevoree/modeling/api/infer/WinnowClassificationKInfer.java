@@ -9,6 +9,15 @@ import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.time.TimeTree;
 
 /**
+ * This class create a live learner classifier using the winnow algorithm.
+ * The learning hypothesis is that the result y is according to majority of votes of experts xi.
+ * It classifies to class 0 if the majority of experts vote 0;
+ * It classifies to class 1 if the majority of experts vote 1;
+ * H(y)= [ (a1*x1 + a2*x2 + ... + an*xn)> n/2]
+ * The state is an array of doubles containing the voting weights of experts.
+ * There are two parameters to defined for this class:
+ * Alpha is the reward in term of voting power multiplication for experts who guess right (usually x2).
+ * Beta is the penalty in term of voting power division for experts who guess wrong (usually /2).
  * Created by assaad on 11/02/15.
  */
 public class WinnowClassificationKInfer extends AbstractKObjectInfer {

@@ -9,8 +9,17 @@ import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.time.TimeTree;
 
 /**
+ * This class create a live learner classifier of perceptron algorithm.
+ * The learning hypothesis is that the result y is in a linear correlation with the features xi.
+ * It classifies to class 0 if the sum is negative;
+ * It classifies to class 1 if the sum is positive;
+ * H(y)= [ (a1*x1 + a2*x2 + ... + an*xn + c)>0]
+ * The state is an array of doubles containing the ai and at the end the constant.
+ * There are two parameters to defined for this class: the learning rate alpha, and the number of iterations.
  * Created by assaad on 10/02/15.
  */
+
+
 public class PerceptronClassificationKInfer extends AbstractKObjectInfer {
 
     public double getAlpha() {
@@ -54,10 +63,10 @@ public class PerceptronClassificationKInfer extends AbstractKObjectInfer {
         //The bias variable is encoded as the last weight.
         res = res + weights[features.length];
         if(res>=0){
-            return 1;
+            return 1; //Class 1
         }
         else {
-            return 0;
+            return 0; //Class 0
         }
     }
 

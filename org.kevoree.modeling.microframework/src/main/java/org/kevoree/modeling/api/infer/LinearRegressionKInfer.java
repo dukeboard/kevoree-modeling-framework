@@ -11,6 +11,11 @@ import org.kevoree.modeling.api.time.TimeTree;
 import java.util.Random;
 
 /**
+ * This class create a live learner of a linear regression.
+ * The learning hypothesis is that the result y is in a linear correlation with the features xi.
+ * H(y)= a1*x1 + a2*x2 + ... + an*xn + c
+ * The state is an array of doubles containing the ai and at the end the constant.
+ * There are two parameters to defined for this class: the learning rate alpha, and the number of iterations.
  * Created by assaad on 10/02/15.
  */
 public class LinearRegressionKInfer extends AbstractKObjectInfer {
