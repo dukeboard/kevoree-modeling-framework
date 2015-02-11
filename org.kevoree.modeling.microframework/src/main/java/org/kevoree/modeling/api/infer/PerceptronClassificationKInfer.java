@@ -13,13 +13,7 @@ import org.kevoree.modeling.api.time.TimeTree;
  */
 public class PerceptronClassificationKInfer extends AbstractKObjectInfer {
 
-    public double getAlpha() {
-        return alpha;
-    }
 
-    public void setAlpha(double alpha) {
-        this.alpha = alpha;
-    }
 
     public int getIterations() {
         return iterations;
@@ -29,10 +23,6 @@ public class PerceptronClassificationKInfer extends AbstractKObjectInfer {
         this.iterations = iterations;
     }
 
-    /**
-     * @param alpha is the learning rate of the linear regression
-     */
-    private double alpha=0.0001;
 
     /**
      * @param iterations is the number of passes of the live learning on the training set
@@ -46,12 +36,19 @@ public class PerceptronClassificationKInfer extends AbstractKObjectInfer {
     }
 
     private double calculate(double[] weights, double[] features) {
-        double result=0;
-        for(int i=0;i<features.length;i++){
-            result+=weights[i]*features[i];
+        double res=0;
+
+        for(int i=0; i<features.length;i++){
+            res = res + weights[i]*(features[i]);
         }
-        result+=weights[features.length];
-        return result;
+        //The bias variable is encoded as the last weight.
+        res = res + weights[features.length];
+        if(res>=0){
+            return 1;
+        }
+        else {
+            return 0;
+        }
     }
 
 
@@ -66,10 +63,6 @@ public class PerceptronClassificationKInfer extends AbstractKObjectInfer {
 
         if(weights==null){
             weights=new double[featuresize+1];
-          /*  Random random = new Random();
-            for(int i=0; i<size+1;i++){
-                weights[i]=random.nextDouble();
-            }*/
         }
 
         double[][] features=new double[trainingSet.length][];
@@ -81,16 +74,25 @@ public class PerceptronClassificationKInfer extends AbstractKObjectInfer {
                 features[i][j]=(double) trainingSet[i][j];
             }
             results[i]=(double) expectedResultSet[i];
+            if(results[i]==0){
+                results[i]=-1;
+            }
         }
 
-        for(int j=0; j<iterations;j++) {
+     for(int j=0; j<iterations;j++) {
             for(int i=0;i<trainingSet.length;i++){
                 double h = calculate(weights, features[i]);
-                double err = -alpha * (h - results[i]);
-                for (int k = 0; k < featuresize; k++) {
-                    weights[k] = weights[k] + err * features[i][k];
+                if(h==0){
+                    h=-1;
                 }
-                weights[featuresize] = weights[featuresize] + err;
+
+                if(h*results[i]<=0){
+                    for(int k=0; k<featuresize;k++){
+                        weights[k]=weights[k]+results[i]*features[i][k];
+                    }
+                    //Updating the bias
+                    weights[featuresize]=weights[featuresize]+results[i];
+                }
             }
 
         }
