@@ -18,7 +18,6 @@ public class AnalyticKInferState extends KInferState {
     }
 
     private double sumSquares=0;
-
     private double sum = 0;
     private int nb = 0;
 
@@ -31,13 +30,6 @@ public class AnalyticKInferState extends KInferState {
         this.min = min;
     }
 
-    public boolean is_isDirty() {
-        return _isDirty;
-    }
-
-    public void set_isDirty(boolean _isDirty) {
-        this._isDirty = _isDirty;
-    }
 
     public double getMax() {
         return max;

@@ -40,7 +40,7 @@ public class PolynomialOfflineKInfer extends AbstractKObjectInfer {
     }
 
 
-    private double calculate (long time,  double[] weights, long timeOrigin, long unit) {
+    private double calculateLong (long time,  double[] weights, long timeOrigin, long unit) {
        double t= ((double)(time-timeOrigin))/unit;
        return calculate(weights,t);
     }
