@@ -8,12 +8,20 @@ import org.kevoree.modeling.api.infer.states.DoubleArrayKInferState;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.time.TimeTree;
 
-import java.util.Random;
-
 /**
- * Created by assaad on 10/02/15.
+ * Created by assaad on 11/02/15.
  */
-public class LinearRegressionKInfer extends AbstractKObjectInfer {
+public class WinnowClassificationKInfer extends AbstractKObjectInfer {
+
+    /**
+     * @param alpha is the reward multiplier when the expert is correct
+     */
+    private double alpha=2;
+
+    /**
+     * @param beta is the penalty divider when the expert is wrong
+     */
+    private double beta=2;
 
     public double getAlpha() {
         return alpha;
@@ -23,40 +31,32 @@ public class LinearRegressionKInfer extends AbstractKObjectInfer {
         this.alpha = alpha;
     }
 
-    public int getIterations() {
-        return iterations;
+    public double getBeta() {
+        return beta;
     }
 
-    public void setIterations(int iterations) {
-        this.iterations = iterations;
+    public void setBeta(double beta) {
+        this.beta = beta;
     }
 
-    /**
-     * @param alpha is the learning rate of the linear regression
-     */
-    private double alpha=0.0001;
-
-    /**
-     * @param iterations is the number of passes of the live learning on the training set
-     */
-    private int iterations=100;
 
 
-
-    public LinearRegressionKInfer(KView p_view, long p_uuid, TimeTree p_timeTree, MetaClass p_metaClass) {
+    public WinnowClassificationKInfer(KView p_view, long p_uuid, TimeTree p_timeTree, MetaClass p_metaClass) {
         super(p_view, p_uuid, p_timeTree, p_metaClass);
     }
 
     private double calculate(double[] weights, double[] features) {
         double result=0;
-        for(int i=0;i<features.length;i++){
-            result+=weights[i]*features[i];
+        for(int i=0; i<features.length;i++){
+            result+= weights[i]*features[i];
         }
-        result+=weights[features.length];
-        return result;
+        if(result>=features.length){
+            return 1.0;
+        }
+        else{
+            return 0.0;
+        }
     }
-
-
 
 
     @Override
@@ -67,12 +67,12 @@ public class LinearRegressionKInfer extends AbstractKObjectInfer {
         int featuresize=trainingSet[0].length;
 
         if(weights==null){
-            weights=new double[featuresize+1];
-          /*  Random random = new Random();
-            for(int i=0; i<size+1;i++){
-                weights[i]=random.nextDouble();
-            }*/
+            weights=new double[featuresize];
+            for(int i=0; i<weights.length;i++){
+                weights[i]=2;
+            }
         }
+
 
         double[][] features=new double[trainingSet.length][];
         double[] results = new double[expectedResultSet.length];
@@ -85,18 +85,32 @@ public class LinearRegressionKInfer extends AbstractKObjectInfer {
             results[i]=(double) expectedResultSet[i];
         }
 
-        for(int j=0; j<iterations;j++) {
             for(int i=0;i<trainingSet.length;i++){
-                double h = calculate(weights, features[i]);
-                double err = -alpha * (h - results[i]);
-                for (int k = 0; k < featuresize; k++) {
-                    weights[k] = weights[k] + err * features[i][k];
+
+                //If the learning fit continue.
+                if(calculate(weights,features[i])==results[i])
+                    continue;
+
+                //Else update the weights
+
+                if(results[i]==0) {
+                    for (int j = 0; j < features[i].length; j++) {
+                        if(features[i][j]!=0){
+                            weights[j]=weights[j]/beta;
+                        }
+
+                    }
                 }
-                weights[featuresize] = weights[featuresize] + err;
+                else{
+                    for (int j = 0; i < features[i].length; j++) {
+                        if(features[i][j]!=0){
+                            weights[j]=weights[j]*alpha;
+                        }
+
+                    }
+
+                }
             }
-
-        }
-
         currentState.setWeights(weights);
     }
 
@@ -109,8 +123,6 @@ public class LinearRegressionKInfer extends AbstractKObjectInfer {
             ft[i]=(double)features[i];
         }
         return calculate(weights,ft);
-
-
     }
 
     @Override
