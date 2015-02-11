@@ -13,7 +13,13 @@ import org.kevoree.modeling.api.time.TimeTree;
  */
 public class PerceptronClassificationKInfer extends AbstractKObjectInfer {
 
+    public double getAlpha() {
+        return alpha;
+    }
 
+    public void setAlpha(double alpha) {
+        this.alpha = alpha;
+    }
 
     public int getIterations() {
         return iterations;
@@ -23,6 +29,10 @@ public class PerceptronClassificationKInfer extends AbstractKObjectInfer {
         this.iterations = iterations;
     }
 
+    /**
+     * @param alpha is the learning rate of the linear regression
+     */
+    private double alpha=0.001;
 
     /**
      * @param iterations is the number of passes of the live learning on the training set
@@ -88,10 +98,10 @@ public class PerceptronClassificationKInfer extends AbstractKObjectInfer {
 
                 if(h*results[i]<=0){
                     for(int k=0; k<featuresize;k++){
-                        weights[k]=weights[k]+results[i]*features[i][k];
+                        weights[k]=weights[k]+alpha*(results[i]*features[i][k]);
                     }
                     //Updating the bias
-                    weights[featuresize]=weights[featuresize]+results[i];
+                    weights[featuresize]=weights[featuresize]+alpha*(results[i]);
                 }
             }
 
