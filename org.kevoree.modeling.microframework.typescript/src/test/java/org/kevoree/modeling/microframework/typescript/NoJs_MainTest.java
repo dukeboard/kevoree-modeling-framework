@@ -34,7 +34,7 @@ public class NoJs_MainTest {
 
         try {
             
-            String basePath = NoJs_MainTest.class.getClassLoader().getResource(file).getFile();
+            String basePath = NoJs_MainTest.class.getClassLoader().getResource(file).getFile().replaceAll("%20"," ");
 
             NodejsConfig nodejsConfig = new NodejsConfig(NodejsVersion.Main.V0_10, basePath, new ArrayList<String>(), basePath.toString().substring(0, basePath.toString().lastIndexOf("/")));
             NodejsStarter runtime = new NodejsStarter(runtimeConfig);
