@@ -11,22 +11,47 @@ import org.kevoree.modeling.api.time.TimeTree;
 /**
  * Created by assaad on 11/02/15.
  */
-public class PolynomialKInfer extends AbstractKObjectInfer {
+public class PolynomialOfflineKInfer extends AbstractKObjectInfer {
+
+    public int maxDegree =20;
+
+    public double getToleratedErr() {
+        return toleratedErr;
+    }
+
+    public void setToleratedErr(double toleratedErr) {
+        this.toleratedErr = toleratedErr;
+    }
+
+    public int getMaxDegree() {
+        return maxDegree;
+    }
+
+    public void setMaxDegree(int maxDegree) {
+        this.maxDegree = maxDegree;
+    }
+
+    public double toleratedErr=0.01;
 
 
 
-
-
-    public PolynomialKInfer(KView p_view, long p_uuid, TimeTree p_timeTree, MetaClass p_metaClass) {
+    public PolynomialOfflineKInfer(KView p_view, long p_uuid, TimeTree p_timeTree, MetaClass p_metaClass) {
         super(p_view, p_uuid, p_timeTree, p_metaClass);
     }
 
-    private double calculate(double[] weights, double[] features) {
+
+    private double calculate (long time,  double[] weights, long timeOrigin, long unit) {
+       double t= ((double)(time-timeOrigin))/unit;
+       return calculate(weights,t);
+    }
+
+    private double calculate(double[] weights, double t) {
         double result=0;
-        for(int i=0;i<features.length;i++){
-            result+=weights[i]*features[i];
+        double power=1;
+        for(int j=0;j<weights.length;j++){
+            result+= weights[j]*power;
+            power=power*t;
         }
-        result+=weights[features.length];
         return result;
     }
 
@@ -41,8 +66,16 @@ public class PolynomialKInfer extends AbstractKObjectInfer {
         int featuresize=trainingSet[0].length;
 
         if(weights==null){
-            weights=new double[featuresize+1];
         }
+
+        long[] times=new long[trainingSet.length];
+        double[] results = new double[expectedResultSet.length];
+
+        for(int i=0;i<trainingSet.length;i++){
+            times[i] = (Long) trainingSet[i][0];
+            results[i]=(double) expectedResultSet[i];
+        }
+
 
 
     }
@@ -50,12 +83,9 @@ public class PolynomialKInfer extends AbstractKObjectInfer {
     @Override
     public Object infer(Object[] features) {
         DoubleArrayKInferState currentState = (DoubleArrayKInferState) readOnlyState();
-        double[] weights=currentState.getWeights();
-        double[] ft=new double[features.length];
-        for(int i=0;i<features.length;i++){
-            ft[i]=(double)features[i];
-        }
-        return calculate(weights,ft);
+
+
+        return 0;
 
 
     }

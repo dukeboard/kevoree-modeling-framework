@@ -29,30 +29,14 @@ public class AnalyticKInfer extends AbstractKObjectInfer {
 
         for (int i = 0; i < expectedResultSet.length; i++) {
             double value=Double.parseDouble(expectedResultSet[i].toString());
-            if(currentState.getNb()==0){
-                currentState.setMax(value);
-                currentState.setMin(value);
-            }
-            else{
-                if(value<currentState.getMin()){
-                    currentState.setMin(value);
-                }
-                if(value>currentState.getMax()){
-                    currentState.setMax(value);
-                }
-            }currentState.setSum(currentState.getSum() + value);
-            currentState.setNb(currentState.getNb() + 1);
+            currentState.train(value);
         }
     }
 
     @Override
     public Object infer(Object[] features) {
         AnalyticKInferState currentState = (AnalyticKInferState) readOnlyState();
-        if (currentState.getNb() != 0) {
-            return currentState.getSum() / currentState.getNb();
-        } else {
-            return null;
-        }
+        return currentState.getAverage();
     }
 
     @Override
@@ -63,8 +47,7 @@ public class AnalyticKInfer extends AbstractKObjectInfer {
     @Override
     public void clear() {
         AnalyticKInferState currentState = (AnalyticKInferState) modifyState();
-        currentState.setSum(0);
-        currentState.setNb(0);
+        currentState.clear();
     }
 
     @Override
