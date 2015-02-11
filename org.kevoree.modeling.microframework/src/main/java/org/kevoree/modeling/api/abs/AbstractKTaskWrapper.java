@@ -18,7 +18,7 @@ public class AbstractKTaskWrapper<A> extends AbstractKTask<A> {
             @Override
             public void on(A a) {
                 selfPointer._isReady = true;
-                selfPointer.setResult(a);
+                selfPointer.addTaskResult(a);
                 selfPointer.setDoneOrRegister(null);
             }
         };

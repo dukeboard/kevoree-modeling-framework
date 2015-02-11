@@ -19,4 +19,8 @@ public interface KTask<A> {
 
     public void then(Callback<A> callback);
 
+    public KTask<A> setName(String taskName);
+
+    public String getName();
+
 }

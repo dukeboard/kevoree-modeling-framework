@@ -15,11 +15,12 @@ import java.util.Set;
  */
 public class AbstractKTask<A> implements KCurrentTask<A> {
 
+    private String _name = null;
     private boolean _isDone = false;
     protected boolean _isReady = false;
     private int _nbRecResult = 0;
     private int _nbExpectedResult = 0;
-    private Map<KTask, Object> _results = new HashMap<KTask, Object>();
+    private Map<String, Object> _results = new HashMap<String, Object>();
     private Set<KTask> _nextTasks = new HashSet<KTask>();
     private KJob _job;
     private A _result = null;
@@ -48,9 +49,9 @@ public class AbstractKTask<A> implements KCurrentTask<A> {
                 AbstractKTask castedEnd = (AbstractKTask) end;
                 KTask[] keys = (KTask[]) castedEnd._results.keySet().toArray(new KTask[castedEnd._results.size()]);
                 for (int i = 0; i < keys.length; i++) {
-                    _results.put(keys[i], castedEnd._results.get(keys[i]));
+                    _results.put(keys[i].getName(), castedEnd._results.get(keys[i]));
                 }
-                _results.put(end, castedEnd._result);
+                _results.put(end.getName(), castedEnd._result);
                 _nbRecResult--;
             }
         }
@@ -71,11 +72,11 @@ public class AbstractKTask<A> implements KCurrentTask<A> {
             } else {
                 //previous is already finished, no need to count, copy the result
                 AbstractKTask castedEnd = (AbstractKTask) p_previous;
-                KTask[] keys = (KTask[]) castedEnd._results.keySet().toArray(new KTask[castedEnd._results.size()]);
+                String[] keys = (String[]) castedEnd._results.keySet().toArray(new String[castedEnd._results.size()]);
                 for (int i = 0; i < keys.length; i++) {
                     _results.put(keys[i], castedEnd._results.get(keys[i]));
                 }
-                _results.put(p_previous, castedEnd._result);
+                _results.put(p_previous.getName(), castedEnd._result);
             }
         }
         return this;
@@ -113,12 +114,37 @@ public class AbstractKTask<A> implements KCurrentTask<A> {
     }
 
     @Override
-    public Map<KTask, Object> results() {
-        return _results;
+    public KTask<A> setName(String p_taskName) {
+        _name = p_taskName;
+        return this;
     }
 
     @Override
-    public void setResult(A p_result) {
+    public String getName() {
+        if (_name == null) {
+            return hashCode() + "";
+        } else {
+            return _name;
+        }
+    }
+
+    @Override
+    public String[] resultKeys() {
+        return _results.keySet().toArray(new String[_results.keySet().size()]);
+    }
+
+    @Override
+    public Object resultByName(String p_name) {
+        return _results.get(p_name);
+    }
+
+    @Override
+    public Object resultByTask(KTask p_task) {
+        return _results.get(p_task.getName());
+    }
+
+    @Override
+    public void addTaskResult(A p_result) {
         _result = p_result;
     }
 

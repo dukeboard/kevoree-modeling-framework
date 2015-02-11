@@ -156,7 +156,7 @@ public class XMIModelSerializer {
             @Override
             public void run(KCurrentTask currentTask) {
                 try {
-                    KObject[] objects = ((KObject[]) currentTask.results().get(allTask));
+                    KObject[] objects = ((KObject[]) currentTask.resultByTask(allTask));
                     for (int i = 0; i < objects.length; i++) {
                         String adjustedAddress = p_context.addressTable.get(objects[i].uuid());
                         p_context.printer.append(" " + ref.metaName() + "=\"" + adjustedAddress + "\"");
@@ -178,8 +178,8 @@ public class XMIModelSerializer {
             @Override
             public void run(KCurrentTask currentTask) {
                 try {
-                    if (currentTask.results().get(allTask) != null) {
-                        KObject[] objs = ((KObject[]) currentTask.results().get(allTask));
+                    if (currentTask.resultByTask(allTask) != null) {
+                        KObject[] objs = ((KObject[]) currentTask.resultByTask(allTask));
                         for (int i = 0; i < objs.length; i++) {
                             final KObject elem = objs[i];
                             context.printer.append("<");

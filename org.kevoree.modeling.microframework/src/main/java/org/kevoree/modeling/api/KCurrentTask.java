@@ -1,15 +1,17 @@
 package org.kevoree.modeling.api;
 
-import java.util.Map;
-
 /**
  * Created by duke on 21/01/15.
  */
 public interface KCurrentTask<A> extends KTask<A> {
 
-    public Map<KTask, Object> results();
+    public String[] resultKeys();
 
-    public void setResult(A result);
+    public Object resultByName(String name);
+
+    public Object resultByTask(KTask task);
+
+    public void addTaskResult(A result);
 
     public void clearResults();
 
