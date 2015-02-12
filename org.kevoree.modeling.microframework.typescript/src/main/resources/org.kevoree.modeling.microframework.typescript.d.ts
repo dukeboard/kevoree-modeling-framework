@@ -807,9 +807,16 @@ declare module org {
                         clear(): void;
                         createEmptyState(): KInferState;
                     }
-                    class PolynomialKInfer extends abs.AbstractKObjectInfer {
+                    class PolynomialOfflineKInfer extends abs.AbstractKObjectInfer {
+                        maxDegree: number;
+                        toleratedErr: number;
+                        getToleratedErr(): number;
+                        setToleratedErr(toleratedErr: number): void;
+                        getMaxDegree(): number;
+                        setMaxDegree(maxDegree: number): void;
                         constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
-                        private calculate(weights, features);
+                        private calculateLong(time, weights, timeOrigin, unit);
+                        private calculate(weights, t);
                         train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
                         infer(features: any[]): any;
                         accuracy(testSet: any[][], expectedResultSet: any[]): any;
@@ -834,20 +841,25 @@ declare module org {
                     module states {
                         class AnalyticKInferState extends KInferState {
                             private _isDirty;
+                            private sumSquares;
                             private sum;
                             private nb;
                             private min;
                             private max;
+                            getSumSquares(): number;
+                            setSumSquares(sumSquares: number): void;
                             getMin(): number;
                             setMin(min: number): void;
-                            is_isDirty(): boolean;
-                            set_isDirty(_isDirty: boolean): void;
                             getMax(): number;
                             setMax(max: number): void;
                             getNb(): number;
                             setNb(nb: number): void;
                             getSum(): number;
                             setSum(sum: number): void;
+                            getAverage(): number;
+                            train(value: number): void;
+                            getVariance(): number;
+                            clear(): void;
                             save(): string;
                             load(payload: string): void;
                             isDirty(): boolean;
@@ -856,6 +868,24 @@ declare module org {
                         class DoubleArrayKInferState extends KInferState {
                             private _isDirty;
                             private weights;
+                            save(): string;
+                            load(payload: string): void;
+                            isDirty(): boolean;
+                            set_isDirty(value: boolean): void;
+                            cloneState(): KInferState;
+                            getWeights(): number[];
+                            setWeights(weights: number[]): void;
+                        }
+                        class PolynomialKInferState extends KInferState {
+                            private _isDirty;
+                            private timeOrigin;
+                            private unit;
+                            private weights;
+                            getTimeOrigin(): number;
+                            setTimeOrigin(timeOrigin: number): void;
+                            is_isDirty(): boolean;
+                            getUnit(): number;
+                            setUnit(unit: number): void;
                             save(): string;
                             load(payload: string): void;
                             isDirty(): boolean;
