@@ -28,9 +28,9 @@
         <p>The <code>RTCPeerConnection</code> objects <code>localPeerConnection</code> and
             <code>remotePeerConnection</code> are in global scope, so you can inspect them in the console as well.</p>
 
-        <p>Code in this example used by kind permission of Vikas Marwaha.</p>
+        <p>This modified code comes from a google public release with kind permission of Vikas Marwaha.</p>
     </template>
-    <!-- script src="../../js/simpRTC.js"></script -->
+
     <script>
         Polymer({
             localPeerConnection: "",
@@ -39,16 +39,6 @@
             receiveChannel: "",
 
             ready: function () {
-                /*
-                 startButton.disabled = false;
-                 sendButton.disabled = true;
-                 closeButton.disabled = true;
-                 */
-                //var startButton = document.getElementById('startButton');
-                //var sendButton = document.getElementById('sendButton');
-                //var closeButton = document.getElementById('closeButton');
-                //var dataChannelSend = document.getElementById('dataChannelSend');
-                //var dataChannelReceive = document.getElementById('dataChannelReceive');
             },
 
             trace: function (text) {
@@ -62,25 +52,21 @@
 
                 try {
                     // Reliable Data Channels not yet supported in Chrome
-                    this.sendChannel = this.localPeerConnection.createDataChannel('sendDataChannel',
-                            {reliable: false});
+                    this.sendChannel = this.localPeerConnection.createDataChannel('sendDataChannel', {reliable: false});
                     this.trace('Created send data channel');
                 } catch (e) {
-                    alert('Failed to create data channel. ' +
-                    'You need Chrome M25 or later with RtpDataChannel enabled');
+                    alert('Failed to create data channel. ' + 'You need Chrome M25 or later with RtpDataChannel enabled');
                     this.trace('createDataChannel() failed with exception: ' + e.message);
                 }
                 this.localPeerConnection.onicecandidate = this.gotLocalCandidate.bind( this );
                 this.sendChannel.onopen = this.handleSendChannelStateChange.bind( this );
                 this.sendChannel.onclose = this.handleSendChannelStateChange.bind( this );
 
-                this.remotePeerConnection = window.remotePeerConnection = new webkitRTCPeerConnection(servers, {optional: [{RtpDataChannels: true}]});
+                this.remotePeerConnection = new webkitRTCPeerConnection(servers, {optional: [{RtpDataChannels: true}]});
                 this.trace('Created remote peer connection object remotePeerConnection');
-
                 this.remotePeerConnection.onicecandidate = this.gotRemoteIceCandidate.bind( this );
                 this.remotePeerConnection.ondatachannel = this.gotReceiveChannel.bind( this );
 
-                //var self = this;
                 this.localPeerConnection.createOffer( this.gotLocalDescription.bind( this ) );
                 this.$.startButton.disabled = true;
                 this.$.closeButton.disabled = false;
