@@ -1,0 +1,39 @@
+button {
+    background-color: #d84a38;
+    border: none;
+    border-radius: 2px;
+    color: white;
+    font-family: sans-serif;
+    font-size: 0.8em;
+    margin: 0 0 1em 0;
+    padding: 0.5em 0.7em 0.6em 0.7em;
+}
+
+button:active {
+    background-color: #cf402f;
+}
+button:hover {
+    background-color: #cf402f;
+}
+button[disabled] {
+    color: #ccc;
+}
+button[disabled]:hover {
+    background-color: #d84a38;
+}
+
+h2 {
+    color: #444;
+    font-size: 1em;
+    font-weight: 500;
+    line-height: 1.2em;
+    margin: 0 0 0.8em 0;
+}
+
+p {
+    color: #444;
+    font-weight: 300;
+    line-height: 1.6em;
+}
+
+
