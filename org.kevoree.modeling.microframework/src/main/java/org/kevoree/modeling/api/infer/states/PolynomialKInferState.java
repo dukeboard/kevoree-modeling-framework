@@ -34,6 +34,30 @@ public class PolynomialKInferState extends KInferState {
     private double[] weights;
 
 
+    public static double maxError(double[] coef, double[] normalizedTimes, double[] results) {
+        double maxErr = 0;
+        double temp = 0;
+
+        for (int i = 0; i < normalizedTimes.length; i++) {
+            double val = internal_extrapolate(normalizedTimes[i], coef);
+            temp = Math.abs(val - results[i]);
+            if (temp > maxErr) {
+                maxErr = temp;
+            }
+        }
+        return maxErr;
+    }
+
+    private static double internal_extrapolate(double normalizedTime, double[] coef) {
+        double result = 0;
+        double power = 1;
+        for (int j = 0; j < coef.length; j++) {
+            result += coef[j] * power;
+            power = power * normalizedTime;
+        }
+        return result;
+    }
+
 
     @Override
     public String save() {
@@ -100,5 +124,11 @@ public class PolynomialKInferState extends KInferState {
     public void setWeights(double[] weights) {
         this.weights = weights;
         _isDirty=true;
+    }
+
+    public Object infer(long time) {
+        double t= ((double)(time-timeOrigin))/unit;
+        return internal_extrapolate(t,weights);
+
     }
 }

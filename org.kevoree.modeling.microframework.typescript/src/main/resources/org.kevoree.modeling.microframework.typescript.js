@@ -3600,20 +3600,45 @@ var org;
                         };
                         PolynomialOfflineKInfer.prototype.train = function (trainingSet, expectedResultSet, callback) {
                             var currentState = this.modifyState();
-                            var weights = currentState.getWeights();
+                            var weights;
                             var featuresize = trainingSet[0].length;
-                            if (weights == null) {
-                            }
                             var times = new Array();
                             var results = new Array();
                             for (var i = 0; i < trainingSet.length; i++) {
                                 times[i] = trainingSet[i][0];
                                 results[i] = expectedResultSet[i];
                             }
+                            if (times.length == 0) {
+                                return;
+                            }
+                            if (times.length == 1) {
+                                weights = new Array();
+                                weights[0] = results[0];
+                                currentState.setWeights(weights);
+                                return;
+                            }
+                            var maxcurdeg = Math.min(times.length, this.maxDegree);
+                            var timeOrigin = times[0];
+                            var unit = times[1] - times[0];
+                            var normalizedTimes = new Array();
+                            for (var i = 0; i < times.length; i++) {
+                                normalizedTimes[i] = (times[i] - times[0]) / unit;
+                            }
+                            for (var deg = 0; deg < maxcurdeg; deg++) {
+                                var pf = new org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml(deg);
+                                pf.fit(normalizedTimes, results);
+                                if (org.kevoree.modeling.api.infer.states.PolynomialKInferState.maxError(pf.getCoef(), normalizedTimes, results) <= this.toleratedErr) {
+                                    currentState.setUnit(unit);
+                                    currentState.setTimeOrigin(timeOrigin);
+                                    currentState.setWeights(pf.getCoef());
+                                    return;
+                                }
+                            }
                         };
                         PolynomialOfflineKInfer.prototype.infer = function (features) {
                             var currentState = this.readOnlyState();
-                            return 0;
+                            var time = features[0];
+                            return currentState.infer(time);
                         };
                         PolynomialOfflineKInfer.prototype.accuracy = function (testSet, expectedResultSet) {
                             return null;
@@ -4083,6 +4108,27 @@ var org;
                             PolynomialKInferState.prototype.setUnit = function (unit) {
                                 this.unit = unit;
                             };
+                            PolynomialKInferState.maxError = function (coef, normalizedTimes, results) {
+                                var maxErr = 0;
+                                var temp = 0;
+                                for (var i = 0; i < normalizedTimes.length; i++) {
+                                    var val = org.kevoree.modeling.api.infer.states.PolynomialKInferState.internal_extrapolate(normalizedTimes[i], coef);
+                                    temp = Math.abs(val - results[i]);
+                                    if (temp > maxErr) {
+                                        maxErr = temp;
+                                    }
+                                }
+                                return maxErr;
+                            };
+                            PolynomialKInferState.internal_extrapolate = function (normalizedTime, coef) {
+                                var result = 0;
+                                var power = 1;
+                                for (var j = 0; j < coef.length; j++) {
+                                    result += coef[j] * power;
+                                    power = power * normalizedTime;
+                                }
+                                return result;
+                            };
                             PolynomialKInferState.prototype.save = function () {
                                 var s = "";
                                 var sb = new java.lang.StringBuilder();
@@ -4139,6 +4185,10 @@ var org;
                             PolynomialKInferState.prototype.setWeights = function (weights) {
                                 this.weights = weights;
                                 this._isDirty = true;
+                            };
+                            PolynomialKInferState.prototype.infer = function (time) {
+                                var t = (time - this.timeOrigin) / this.unit;
+                                return org.kevoree.modeling.api.infer.states.PolynomialKInferState.internal_extrapolate(t, this.weights);
                             };
                             return PolynomialKInferState;
                         })(org.kevoree.modeling.api.KInferState);

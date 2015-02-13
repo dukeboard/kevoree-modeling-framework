@@ -4256,22 +4256,47 @@ module org {
                         }
 
                         public train(trainingSet: any[][], expectedResultSet: any[], callback: (p : java.lang.Throwable) => void): void {
-                            var currentState: org.kevoree.modeling.api.infer.states.DoubleArrayKInferState = <org.kevoree.modeling.api.infer.states.DoubleArrayKInferState>this.modifyState();
-                            var weights: number[] = currentState.getWeights();
+                            var currentState: org.kevoree.modeling.api.infer.states.PolynomialKInferState = <org.kevoree.modeling.api.infer.states.PolynomialKInferState>this.modifyState();
+                            var weights: number[];
                             var featuresize: number = trainingSet[0].length;
-                            if (weights == null) {
-                            }
                             var times: number[] = new Array();
                             var results: number[] = new Array();
                             for (var i: number = 0; i < trainingSet.length; i++) {
                                 times[i] = <number>trainingSet[i][0];
                                 results[i] = <number>expectedResultSet[i];
                             }
+                            if (times.length == 0) {
+                                return;
+                            }
+                            if (times.length == 1) {
+                                weights = new Array();
+                                weights[0] = results[0];
+                                currentState.setWeights(weights);
+                                return;
+                            }
+                            var maxcurdeg: number = Math.min(times.length, this.maxDegree);
+                            var timeOrigin: number = times[0];
+                            var unit: number = times[1] - times[0];
+                            var normalizedTimes: number[] = new Array();
+                            for (var i: number = 0; i < times.length; i++) {
+                                normalizedTimes[i] = (<number>(times[i] - times[0])) / unit;
+                            }
+                            for (var deg: number = 0; deg < maxcurdeg; deg++) {
+                                var pf: org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml = new org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml(deg);
+                                pf.fit(normalizedTimes, results);
+                                if (org.kevoree.modeling.api.infer.states.PolynomialKInferState.maxError(pf.getCoef(), normalizedTimes, results) <= this.toleratedErr) {
+                                    currentState.setUnit(unit);
+                                    currentState.setTimeOrigin(timeOrigin);
+                                    currentState.setWeights(pf.getCoef());
+                                    return;
+                                }
+                            }
                         }
 
                         public infer(features: any[]): any {
-                            var currentState: org.kevoree.modeling.api.infer.states.DoubleArrayKInferState = <org.kevoree.modeling.api.infer.states.DoubleArrayKInferState>this.readOnlyState();
-                            return 0;
+                            var currentState: org.kevoree.modeling.api.infer.states.PolynomialKInferState = <org.kevoree.modeling.api.infer.states.PolynomialKInferState>this.readOnlyState();
+                            var time: number = <number>features[0];
+                            return currentState.infer(time);
                         }
 
                         public accuracy(testSet: any[][], expectedResultSet: any[]): any {
@@ -4781,6 +4806,29 @@ module org {
                                 this.unit = unit;
                             }
 
+                            public static maxError(coef: number[], normalizedTimes: number[], results: number[]): number {
+                                var maxErr: number = 0;
+                                var temp: number = 0;
+                                for (var i: number = 0; i < normalizedTimes.length; i++) {
+                                    var val: number = org.kevoree.modeling.api.infer.states.PolynomialKInferState.internal_extrapolate(normalizedTimes[i], coef);
+                                    temp = Math.abs(val - results[i]);
+                                    if (temp > maxErr) {
+                                        maxErr = temp;
+                                    }
+                                }
+                                return maxErr;
+                            }
+
+                            private static internal_extrapolate(normalizedTime: number, coef: number[]): number {
+                                var result: number = 0;
+                                var power: number = 1;
+                                for (var j: number = 0; j < coef.length; j++) {
+                                    result += coef[j] * power;
+                                    power = power * normalizedTime;
+                                }
+                                return result;
+                            }
+
                             public save(): string {
                                 var s: string = "";
                                 var sb: java.lang.StringBuilder = new java.lang.StringBuilder();
@@ -4842,6 +4890,11 @@ module org {
                             public setWeights(weights: number[]): void {
                                 this.weights = weights;
                                 this._isDirty = true;
+                            }
+
+                            public infer(time: number): any {
+                                var t: number = (<number>(time - this.timeOrigin)) / this.unit;
+                                return org.kevoree.modeling.api.infer.states.PolynomialKInferState.internal_extrapolate(t, this.weights);
                             }
 
                         }

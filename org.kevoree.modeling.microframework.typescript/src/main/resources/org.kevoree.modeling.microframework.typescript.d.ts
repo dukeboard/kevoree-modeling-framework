@@ -921,6 +921,8 @@ declare module org {
                             is_isDirty(): boolean;
                             getUnit(): number;
                             setUnit(unit: number): void;
+                            static maxError(coef: number[], normalizedTimes: number[], results: number[]): number;
+                            private static internal_extrapolate(normalizedTime, coef);
                             save(): string;
                             load(payload: string): void;
                             isDirty(): boolean;
@@ -928,6 +930,7 @@ declare module org {
                             cloneState(): KInferState;
                             getWeights(): number[];
                             setWeights(weights: number[]): void;
+                            infer(time: number): any;
                         }
                     }
                 }

@@ -13,4 +13,5 @@ public abstract class KInferState {
 
     public abstract KInferState cloneState();
 
+
 }

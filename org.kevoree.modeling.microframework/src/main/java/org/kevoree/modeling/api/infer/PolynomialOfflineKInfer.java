@@ -5,7 +5,9 @@ import org.kevoree.modeling.api.KInferState;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObjectInfer;
 import org.kevoree.modeling.api.infer.states.DoubleArrayKInferState;
+import org.kevoree.modeling.api.infer.states.PolynomialKInferState;
 import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml;
 import org.kevoree.modeling.api.time.TimeTree;
 
 /**
@@ -60,13 +62,11 @@ public class PolynomialOfflineKInfer extends AbstractKObjectInfer {
 
     @Override
     public void train(Object[][] trainingSet, Object[] expectedResultSet, Callback<Throwable> callback) {
-        DoubleArrayKInferState currentState = (DoubleArrayKInferState) modifyState();
-        double[] weights=currentState.getWeights();
+        PolynomialKInferState currentState = (PolynomialKInferState) modifyState();
 
+        double[] weights;
         int featuresize=trainingSet[0].length;
 
-        if(weights==null){
-        }
 
         long[] times=new long[trainingSet.length];
         double[] results = new double[expectedResultSet.length];
@@ -76,16 +76,49 @@ public class PolynomialOfflineKInfer extends AbstractKObjectInfer {
             results[i]=(double) expectedResultSet[i];
         }
 
+        if(times.length==0){
+            return;
+        }
 
+        if(times.length==1){
+            weights=new double[1];
+            weights[0]=results[0];
+            currentState.setWeights(weights);
+            return;
+        }
+
+        int maxcurdeg= Math.min(times.length,maxDegree);
+        Long timeOrigin = times[0];
+        Long unit=times[1]-times[0];
+
+        double[] normalizedTimes = new double[times.length];
+        for(int i=0; i<times.length;i++){
+            normalizedTimes[i]= ((double)(times[i]-times[0]))/unit;
+        }
+
+        for(int deg=0; deg<maxcurdeg;deg++){
+            PolynomialFitEjml pf = new PolynomialFitEjml(deg);
+            pf.fit(normalizedTimes, results);
+            if(PolynomialKInferState.maxError(pf.getCoef(), normalizedTimes, results) <= toleratedErr){
+                currentState.setUnit(unit);
+                currentState.setTimeOrigin(timeOrigin);
+                currentState.setWeights(pf.getCoef());
+                return;
+            }
+        }
+
+        //TODO If reached here, there should be split polynomial somewhere
 
     }
 
+
+
     @Override
     public Object infer(Object[] features) {
-        DoubleArrayKInferState currentState = (DoubleArrayKInferState) readOnlyState();
+        PolynomialKInferState currentState = (PolynomialKInferState) readOnlyState();
 
-
-        return 0;
+        long time=(Long) features[0];
+        return currentState.infer(time);
 
 
     }
