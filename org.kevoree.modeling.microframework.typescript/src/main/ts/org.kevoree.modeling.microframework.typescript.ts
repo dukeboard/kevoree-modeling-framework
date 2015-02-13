@@ -4801,9 +4801,10 @@ module org {
                                     if (previousState.length > 0) {
                                         this.timeOrigin = java.lang.Long.parseLong(previousState[0]);
                                         this.unit = java.lang.Long.parseLong(previousState[1]);
+                                        var size: number = previousState.length - 2;
                                         this.weights = new Array();
-                                        for (var i: number = 2; i < previousState.length; i++) {
-                                            this.weights[i] = java.lang.Double.parseDouble(previousState[i]);
+                                        for (var i: number = 0; i < size; i++) {
+                                            this.weights[i] = java.lang.Double.parseDouble(previousState[i - 2]);
                                         }
                                     }
                                 } catch ($ex$) {
@@ -4829,6 +4830,8 @@ module org {
                                     clonearray[i] = this.weights[i];
                                 }
                                 cloned.setWeights(clonearray);
+                                cloned.setTimeOrigin(this.getTimeOrigin());
+                                cloned.setUnit(this.getUnit());
                                 return cloned;
                             }
 

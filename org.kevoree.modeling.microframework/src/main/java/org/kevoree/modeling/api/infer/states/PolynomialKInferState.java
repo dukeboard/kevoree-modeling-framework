@@ -58,9 +58,10 @@ public class PolynomialKInferState extends KInferState {
             if(previousState.length>0) {
                 timeOrigin = Long.parseLong(previousState[0]);
                 unit=Long.parseLong(previousState[1]);
-                weights = new double[previousState.length];
-                for (int i = 2; i < previousState.length; i++) {
-                    weights[i] = Double.parseDouble(previousState[i]);
+                int size=previousState.length-2;
+                weights = new double[size];
+                for (int i = 0; i <  size; i++) {
+                    weights[i] = Double.parseDouble(previousState[i-2]);
                 }
             }
 
@@ -87,6 +88,8 @@ public class PolynomialKInferState extends KInferState {
             clonearray[i]=weights[i];
         }
         cloned.setWeights(clonearray);
+        cloned.setTimeOrigin(getTimeOrigin());
+        cloned.setUnit(getUnit());
         return cloned;
     }
 
