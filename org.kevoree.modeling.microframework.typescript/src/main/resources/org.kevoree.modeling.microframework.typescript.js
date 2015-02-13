@@ -3355,6 +3355,51 @@ var org;
                         return AnalyticKInfer;
                     })(org.kevoree.modeling.api.abs.AbstractKObjectInfer);
                     infer.AnalyticKInfer = AnalyticKInfer;
+                    var GaussianClassificationKInfer = (function (_super) {
+                        __extends(GaussianClassificationKInfer, _super);
+                        function GaussianClassificationKInfer(p_view, p_uuid, p_timeTree, p_metaClass) {
+                            _super.call(this, p_view, p_uuid, p_timeTree, p_metaClass);
+                            this.alpha = 0.05;
+                        }
+                        GaussianClassificationKInfer.prototype.getAlpha = function () {
+                            return this.alpha;
+                        };
+                        GaussianClassificationKInfer.prototype.setAlpha = function (alpha) {
+                            this.alpha = alpha;
+                        };
+                        GaussianClassificationKInfer.prototype.train = function (trainingSet, expectedResultSet, callback) {
+                            var currentState = this.modifyState();
+                            var featuresize = trainingSet[0].length;
+                            var features = new Array();
+                            var results = new Array();
+                            for (var i = 0; i < trainingSet.length; i++) {
+                                features[i] = new Array();
+                                for (var j = 0; j < featuresize; j++) {
+                                    features[i][j] = trainingSet[i][j];
+                                }
+                                results[i] = expectedResultSet[i];
+                                currentState.train(features[i], results[i], this.alpha);
+                            }
+                        };
+                        GaussianClassificationKInfer.prototype.infer = function (features) {
+                            var currentState = this.readOnlyState();
+                            var ft = new Array();
+                            for (var i = 0; i < features.length; i++) {
+                                ft[i] = features[i];
+                            }
+                            return currentState.infer(ft);
+                        };
+                        GaussianClassificationKInfer.prototype.accuracy = function (testSet, expectedResultSet) {
+                            return null;
+                        };
+                        GaussianClassificationKInfer.prototype.clear = function () {
+                        };
+                        GaussianClassificationKInfer.prototype.createEmptyState = function () {
+                            return null;
+                        };
+                        return GaussianClassificationKInfer;
+                    })(org.kevoree.modeling.api.abs.AbstractKObjectInfer);
+                    infer.GaussianClassificationKInfer = GaussianClassificationKInfer;
                     var LinearRegressionKInfer = (function (_super) {
                         __extends(LinearRegressionKInfer, _super);
                         function LinearRegressionKInfer(p_view, p_uuid, p_timeTree, p_metaClass) {
@@ -3858,6 +3903,165 @@ var org;
                             return DoubleArrayKInferState;
                         })(org.kevoree.modeling.api.KInferState);
                         states.DoubleArrayKInferState = DoubleArrayKInferState;
+                        var GaussianKInferState = (function (_super) {
+                            __extends(GaussianKInferState, _super);
+                            function GaussianKInferState() {
+                                _super.apply(this, arguments);
+                                this._isDirty = false;
+                                this.sumSquares = null;
+                                this.sum = null;
+                                this.epsilon = 0;
+                                this.nb = 0;
+                            }
+                            GaussianKInferState.prototype.getSumSquares = function () {
+                                return this.sumSquares;
+                            };
+                            GaussianKInferState.prototype.setSumSquares = function (sumSquares) {
+                                this.sumSquares = sumSquares;
+                            };
+                            GaussianKInferState.prototype.getNb = function () {
+                                return this.nb;
+                            };
+                            GaussianKInferState.prototype.setNb = function (nb) {
+                                this._isDirty = true;
+                                this.nb = nb;
+                            };
+                            GaussianKInferState.prototype.getSum = function () {
+                                return this.sum;
+                            };
+                            GaussianKInferState.prototype.setSum = function (sum) {
+                                this._isDirty = true;
+                                this.sum = sum;
+                            };
+                            GaussianKInferState.prototype.calculateProbability = function (features) {
+                                var size = this.sum.length;
+                                var avg = new Array();
+                                var variances = new Array();
+                                var p = 1;
+                                for (var i = 0; i < size; i++) {
+                                    avg[i] = this.sum[i] / this.nb;
+                                    variances[i] = this.sumSquares[i] / this.nb - avg[i] * avg[i];
+                                    p = p * (1 / Math.sqrt(2 * Math.PI * variances[i])) * Math.exp(-((features[i] - avg[i]) * (features[i] - avg[i])) / (2 * variances[i]));
+                                }
+                                return p;
+                            };
+                            GaussianKInferState.prototype.infer = function (features) {
+                                return (this.calculateProbability(features) <= this.epsilon);
+                            };
+                            GaussianKInferState.prototype.getAverage = function () {
+                                if (this.nb != 0) {
+                                    var size = this.sum.length;
+                                    var avg = new Array();
+                                    for (var i = 0; i < size; i++) {
+                                        avg[i] = this.sum[i] / this.nb;
+                                    }
+                                    return avg;
+                                }
+                                else {
+                                    return null;
+                                }
+                            };
+                            GaussianKInferState.prototype.train = function (features, result, alpha) {
+                                var size = features.length;
+                                if (this.nb == 0) {
+                                    this.sumSquares = new Array();
+                                    this.sum = new Array();
+                                }
+                                for (var i = 0; i < size; i++) {
+                                    this.sum[i] += features[i];
+                                    this.sumSquares[i] += features[i] * features[i];
+                                }
+                                this.nb++;
+                                var proba = this.calculateProbability(features);
+                                var diff = proba - this.epsilon;
+                                if ((proba < this.epsilon && result == false) || (proba > this.epsilon && result == true)) {
+                                    this.epsilon = this.epsilon + alpha * diff;
+                                }
+                                this._isDirty = true;
+                            };
+                            GaussianKInferState.prototype.getVariance = function () {
+                                if (this.nb != 0) {
+                                    var size = this.sum.length;
+                                    var avg = new Array();
+                                    var newvar = new Array();
+                                    for (var i = 0; i < size; i++) {
+                                        avg[i] = this.sum[i] / this.nb;
+                                        newvar[i] = this.sumSquares[i] / this.nb - avg[i] * avg[i];
+                                    }
+                                    return newvar;
+                                }
+                                else {
+                                    return null;
+                                }
+                            };
+                            GaussianKInferState.prototype.clear = function () {
+                                this.nb = 0;
+                                this.sum = null;
+                                this.sumSquares = null;
+                                this._isDirty = true;
+                            };
+                            GaussianKInferState.prototype.save = function () {
+                                var sb = new java.lang.StringBuilder();
+                                sb.append(this.nb + "/");
+                                sb.append(this.epsilon + "/");
+                                var size = this.sumSquares.length;
+                                for (var i = 0; i < size; i++) {
+                                    sb.append(this.sum[i] + "/");
+                                }
+                                for (var i = 0; i < size; i++) {
+                                    sb.append(this.sumSquares[i] + "/");
+                                }
+                                return sb.toString();
+                            };
+                            GaussianKInferState.prototype.load = function (payload) {
+                                try {
+                                    var previousState = payload.split("/");
+                                    this.nb = java.lang.Integer.parseInt(previousState[0]);
+                                    this.epsilon = java.lang.Double.parseDouble(previousState[1]);
+                                    var size = (previousState.length - 2) / 2;
+                                    this.sum = new Array();
+                                    this.sumSquares = new Array();
+                                    for (var i = 0; i < size; i++) {
+                                        this.sum[i] = java.lang.Double.parseDouble(previousState[i + 2]);
+                                    }
+                                    for (var i = 0; i < size; i++) {
+                                        this.sumSquares[i] = java.lang.Double.parseDouble(previousState[i + 2 + size]);
+                                    }
+                                }
+                                catch ($ex$) {
+                                    if ($ex$ instanceof java.lang.Exception) {
+                                        var e = $ex$;
+                                        this.sum = null;
+                                        this.sumSquares = null;
+                                        this.nb = 0;
+                                    }
+                                }
+                                this._isDirty = false;
+                            };
+                            GaussianKInferState.prototype.isDirty = function () {
+                                return this._isDirty;
+                            };
+                            GaussianKInferState.prototype.cloneState = function () {
+                                var cloned = new org.kevoree.modeling.api.infer.states.GaussianKInferState();
+                                cloned.setNb(this.getNb());
+                                if (this.nb != 0) {
+                                    var newSum = new Array();
+                                    var newSumSquares = new Array();
+                                    for (var i = 0; i < this.sum.length; i++) {
+                                        newSum[i] = this.sum[i];
+                                        newSumSquares[i] = this.sumSquares[i];
+                                    }
+                                    cloned.setSum(newSum);
+                                    cloned.setSumSquares(newSumSquares);
+                                }
+                                return cloned;
+                            };
+                            GaussianKInferState.prototype.getEpsilon = function () {
+                                return this.epsilon;
+                            };
+                            return GaussianKInferState;
+                        })(org.kevoree.modeling.api.KInferState);
+                        states.GaussianKInferState = GaussianKInferState;
                         var PolynomialKInferState = (function (_super) {
                             __extends(PolynomialKInferState, _super);
                             function PolynomialKInferState() {

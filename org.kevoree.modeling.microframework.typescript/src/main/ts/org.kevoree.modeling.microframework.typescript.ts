@@ -3979,6 +3979,58 @@ module org {
 
                     }
 
+                    export class GaussianClassificationKInfer extends org.kevoree.modeling.api.abs.AbstractKObjectInfer {
+
+                        private alpha: number = 0.05;
+                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_timeTree: org.kevoree.modeling.api.time.TimeTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
+                            super(p_view, p_uuid, p_timeTree, p_metaClass);
+                        }
+
+                        public getAlpha(): number {
+                            return this.alpha;
+                        }
+
+                        public setAlpha(alpha: number): void {
+                            this.alpha = alpha;
+                        }
+
+                        public train(trainingSet: any[][], expectedResultSet: any[], callback: (p : java.lang.Throwable) => void): void {
+                            var currentState: org.kevoree.modeling.api.infer.states.GaussianKInferState = <org.kevoree.modeling.api.infer.states.GaussianKInferState>this.modifyState();
+                            var featuresize: number = trainingSet[0].length;
+                            var features: number[][] = new Array();
+                            var results: boolean[] = new Array();
+                            for (var i: number = 0; i < trainingSet.length; i++) {
+                                features[i] = new Array();
+                                for (var j: number = 0; j < featuresize; j++) {
+                                    features[i][j] = <number>trainingSet[i][j];
+                                }
+                                results[i] = <boolean>expectedResultSet[i];
+                                currentState.train(features[i], results[i], this.alpha);
+                            }
+                        }
+
+                        public infer(features: any[]): any {
+                            var currentState: org.kevoree.modeling.api.infer.states.GaussianKInferState = <org.kevoree.modeling.api.infer.states.GaussianKInferState>this.readOnlyState();
+                            var ft: number[] = new Array();
+                            for (var i: number = 0; i < features.length; i++) {
+                                ft[i] = <number>features[i];
+                            }
+                            return currentState.infer(ft);
+                        }
+
+                        public accuracy(testSet: any[][], expectedResultSet: any[]): any {
+                            return null;
+                        }
+
+                        public clear(): void {
+                        }
+
+                        public createEmptyState(): org.kevoree.modeling.api.KInferState {
+                            return null;
+                        }
+
+                    }
+
                     export class LinearRegressionKInfer extends org.kevoree.modeling.api.abs.AbstractKObjectInfer {
 
                         private alpha: number = 0.0001;
@@ -4530,6 +4582,175 @@ module org {
                             public setWeights(weights: number[]): void {
                                 this.weights = weights;
                                 this._isDirty = true;
+                            }
+
+                        }
+
+                        export class GaussianKInferState extends org.kevoree.modeling.api.KInferState {
+
+                            private _isDirty: boolean = false;
+                            private sumSquares: number[] = null;
+                            private sum: number[] = null;
+                            private epsilon: number = 0;
+                            private nb: number = 0;
+                            public getSumSquares(): number[] {
+                                return this.sumSquares;
+                            }
+
+                            public setSumSquares(sumSquares: number[]): void {
+                                this.sumSquares = sumSquares;
+                            }
+
+                            public getNb(): number {
+                                return this.nb;
+                            }
+
+                            public setNb(nb: number): void {
+                                this._isDirty = true;
+                                this.nb = nb;
+                            }
+
+                            public getSum(): number[] {
+                                return this.sum;
+                            }
+
+                            public setSum(sum: number[]): void {
+                                this._isDirty = true;
+                                this.sum = sum;
+                            }
+
+                            public calculateProbability(features: number[]): number {
+                                var size: number = this.sum.length;
+                                var avg: number[] = new Array();
+                                var variances: number[] = new Array();
+                                var p: number = 1;
+                                for (var i: number = 0; i < size; i++) {
+                                    avg[i] = this.sum[i] / this.nb;
+                                    variances[i] = this.sumSquares[i] / this.nb - avg[i] * avg[i];
+                                    p = p * (1 / Math.sqrt(2 * Math.PI * variances[i])) * Math.exp(-((features[i] - avg[i]) * (features[i] - avg[i])) / (2 * variances[i]));
+                                }
+                                return p;
+                            }
+
+                            public infer(features: number[]): boolean {
+                                return (this.calculateProbability(features) <= this.epsilon);
+                            }
+
+                            public getAverage(): number[] {
+                                if (this.nb != 0) {
+                                    var size: number = this.sum.length;
+                                    var avg: number[] = new Array();
+                                    for (var i: number = 0; i < size; i++) {
+                                        avg[i] = this.sum[i] / this.nb;
+                                    }
+                                    return avg;
+                                } else {
+                                    return null;
+                                }
+                            }
+
+                            public train(features: number[], result: boolean, alpha: number): void {
+                                var size: number = features.length;
+                                if (this.nb == 0) {
+                                    this.sumSquares = new Array();
+                                    this.sum = new Array();
+                                }
+                                for (var i: number = 0; i < size; i++) {
+                                    this.sum[i] += features[i];
+                                    this.sumSquares[i] += features[i] * features[i];
+                                }
+                                this.nb++;
+                                var proba: number = this.calculateProbability(features);
+                                var diff: number = proba - this.epsilon;
+                                if ((proba < this.epsilon && result == false) || (proba > this.epsilon && result == true)) {
+                                    this.epsilon = this.epsilon + alpha * diff;
+                                }
+                                this._isDirty = true;
+                            }
+
+                            public getVariance(): number[] {
+                                if (this.nb != 0) {
+                                    var size: number = this.sum.length;
+                                    var avg: number[] = new Array();
+                                    var newvar: number[] = new Array();
+                                    for (var i: number = 0; i < size; i++) {
+                                        avg[i] = this.sum[i] / this.nb;
+                                        newvar[i] = this.sumSquares[i] / this.nb - avg[i] * avg[i];
+                                    }
+                                    return newvar;
+                                } else {
+                                    return null;
+                                }
+                            }
+
+                            public clear(): void {
+                                this.nb = 0;
+                                this.sum = null;
+                                this.sumSquares = null;
+                                this._isDirty = true;
+                            }
+
+                            public save(): string {
+                                var sb: java.lang.StringBuilder = new java.lang.StringBuilder();
+                                sb.append(this.nb + "/");
+                                sb.append(this.epsilon + "/");
+                                var size: number = this.sumSquares.length;
+                                for (var i: number = 0; i < size; i++) {
+                                    sb.append(this.sum[i] + "/");
+                                }
+                                for (var i: number = 0; i < size; i++) {
+                                    sb.append(this.sumSquares[i] + "/");
+                                }
+                                return sb.toString();
+                            }
+
+                            public load(payload: string): void {
+                                try {
+                                    var previousState: string[] = payload.split("/");
+                                    this.nb = java.lang.Integer.parseInt(previousState[0]);
+                                    this.epsilon = java.lang.Double.parseDouble(previousState[1]);
+                                    var size: number = (previousState.length - 2) / 2;
+                                    this.sum = new Array();
+                                    this.sumSquares = new Array();
+                                    for (var i: number = 0; i < size; i++) {
+                                        this.sum[i] = java.lang.Double.parseDouble(previousState[i + 2]);
+                                    }
+                                    for (var i: number = 0; i < size; i++) {
+                                        this.sumSquares[i] = java.lang.Double.parseDouble(previousState[i + 2 + size]);
+                                    }
+                                } catch ($ex$) {
+                                    if ($ex$ instanceof java.lang.Exception) {
+                                        var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                        this.sum = null;
+                                        this.sumSquares = null;
+                                        this.nb = 0;
+                                    }
+                                 }
+                                this._isDirty = false;
+                            }
+
+                            public isDirty(): boolean {
+                                return this._isDirty;
+                            }
+
+                            public cloneState(): org.kevoree.modeling.api.KInferState {
+                                var cloned: org.kevoree.modeling.api.infer.states.GaussianKInferState = new org.kevoree.modeling.api.infer.states.GaussianKInferState();
+                                cloned.setNb(this.getNb());
+                                if (this.nb != 0) {
+                                    var newSum: number[] = new Array();
+                                    var newSumSquares: number[] = new Array();
+                                    for (var i: number = 0; i < this.sum.length; i++) {
+                                        newSum[i] = this.sum[i];
+                                        newSumSquares[i] = this.sumSquares[i];
+                                    }
+                                    cloned.setSum(newSum);
+                                    cloned.setSumSquares(newSumSquares);
+                                }
+                                return cloned;
+                            }
+
+                            public getEpsilon(): number {
+                                return this.epsilon;
                             }
 
                         }

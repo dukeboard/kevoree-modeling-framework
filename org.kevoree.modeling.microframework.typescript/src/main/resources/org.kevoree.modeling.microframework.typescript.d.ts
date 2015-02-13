@@ -777,6 +777,17 @@ declare module org {
                         clear(): void;
                         createEmptyState(): KInferState;
                     }
+                    class GaussianClassificationKInfer extends abs.AbstractKObjectInfer {
+                        private alpha;
+                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
+                        getAlpha(): number;
+                        setAlpha(alpha: number): void;
+                        train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
+                        infer(features: any[]): any;
+                        accuracy(testSet: any[][], expectedResultSet: any[]): any;
+                        clear(): void;
+                        createEmptyState(): KInferState;
+                    }
                     class LinearRegressionKInfer extends abs.AbstractKObjectInfer {
                         private alpha;
                         private iterations;
@@ -875,6 +886,30 @@ declare module org {
                             cloneState(): KInferState;
                             getWeights(): number[];
                             setWeights(weights: number[]): void;
+                        }
+                        class GaussianKInferState extends KInferState {
+                            private _isDirty;
+                            private sumSquares;
+                            private sum;
+                            private epsilon;
+                            private nb;
+                            getSumSquares(): number[];
+                            setSumSquares(sumSquares: number[]): void;
+                            getNb(): number;
+                            setNb(nb: number): void;
+                            getSum(): number[];
+                            setSum(sum: number[]): void;
+                            calculateProbability(features: number[]): number;
+                            infer(features: number[]): boolean;
+                            getAverage(): number[];
+                            train(features: number[], result: boolean, alpha: number): void;
+                            getVariance(): number[];
+                            clear(): void;
+                            save(): string;
+                            load(payload: string): void;
+                            isDirty(): boolean;
+                            cloneState(): KInferState;
+                            getEpsilon(): number;
                         }
                         class PolynomialKInferState extends KInferState {
                             private _isDirty;
