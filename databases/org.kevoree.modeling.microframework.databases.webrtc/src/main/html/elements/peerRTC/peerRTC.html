@@ -52,6 +52,40 @@
             dataChannel: null, /* This is our outgoing data channel within WebRTC */
 
             ready: function () {
+                this.html5rocks.indexedDB = {};
+                this.html5rocks.indexedDB.db = null;
+
+                this.html5rocks.indexedDB.open = function() {
+                    var version = 1;
+                    var request = this.indexedDB.open("signaling", version);
+
+                    // We can only create Object stores in a versionchange transaction.
+                    request.onupgradeneeded = function(e) {
+                        var db = e.target.result;
+                        // A versionchange transaction is started automatically.
+                        e.target.transaction.onerror = this.html5rocks.indexedDB.onerror;
+                        if(db.objectStoreNames.contains("signal")) {
+                            db.deleteObjectStore("signal");
+                        }
+                        var store = db.createObjectStore("signal",
+                                {keyPath: "sharedKey"});
+                    };
+                    request.onsuccess = function(e) {
+                        this.html5rocks.indexedDB.db = e.target.result;
+                        this.html5rocks.indexedDB.getAllTodoItems();
+                    };
+                    request.onerror = this.html5rocks.indexedDB.onerror;
+                };
+/*
+                // Which we then observe
+                Object.observe(this.html5rocks.indexedDB.db, function(changes){
+                    // This asynchronous callback runs
+                    changes.forEach(function(change) {
+                        // Letting us know what changed
+                        console.log(change.type, change.name, change.oldValue);
+                    });
+                });
+*/
                 /* Generate this browser a unique ID */
                 this.id = Math.random().toString().replace('.', '');
                 /* Unique identifier for two clients, They MUST share this to find each other
@@ -71,6 +105,7 @@
                 */
                 this.sendAnnounceChannelMessage();
             },
+
             // Handle an incoming message on the announcement channel
             handleAnnounceChannelMessage: function (snapshot) {
                 var message = snapshot.val();
@@ -94,13 +129,12 @@
             },
             // Announce our arrival to the announcement channel
             sendAnnounceChannelMessage: function () {
-                this.db.put(this.sharedKey, this.id, function (err) {
-                    if (err) { // some kind of I/O error
-                        return console.log('Ooops! Put didn\'t work', err);
-                    }
-                });
-                this.db.remove(function () {
-                    this.db.push({sharedKey: sharedKey, id: id});
+                var db = this.html5rocks.indexedDB.db;
+                var trans = db.transaction(["signal"], "readwrite");
+                var store = trans.objectStore("signal");
+                var request = store.put({
+                    "id": id,
+                    "sharedKey" : sharedKey
                 });
                 console.log('Announced our sharedKey is ' + sharedKey);
                 console.log('Announced our ID is ' + id);
@@ -113,6 +147,9 @@
                 this.dataChannel = peerConnection.createDataChannel('myDataChannel');
                 //this.dataChannel.onmessage = handleDataChannelMessage;
                 //this.dataChannel.onopen = handleDataChannelOpen;
+
+
+
             },
             // Function to offer to start a WebRTC connection with a peer
             connect: function () {
