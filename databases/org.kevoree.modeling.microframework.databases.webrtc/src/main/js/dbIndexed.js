@@ -52,46 +52,77 @@ html5rocks.indexedDB.sendAnnounce = function( id, sharedKey ) {
             console.log('Announced our ID is ' + id);
             console.log("Transaction complete");
         };
-        request.onerror = function(e) {
-            console.log(e.value);
-        };
+    };
+    request.onerror = function(e) {
+        console.log(e.value);
     };
 };
-html5rocks.indexedDB.sendSignal = function( id ) {
+html5rocks.indexedDB.sendSignal = function( sharedKey, message ) {
     var request = indexedDB.open("signaling", html5rocks.indexedDB.version);
     request.onsuccess = function(e) {
         html5rocks.indexedDB.db = e.target.result;
         var transaction = html5rocks.indexedDB.db.transaction([html5rocks.indexedDB.chanSignal], "readwrite");
         var store = transaction.objectStore( html5rocks.indexedDB.chanSignal );
         var request = store.put({
-            "id": id,
+            "message": message,
+            "sharedKey" : sharedKey,
             "timeStamp" : new Date().getTime()
         });
         transaction.oncomplete = function(e) {
-            console.log('Signal ID is ' + id);
+            console.log('Signal message: ' + message);
             console.log("Transaction complete");
         };
-        request.onerror = function(e) {
-            console.log(e.value);
-        };
+    };
+    request.onerror = function(e) {
+        console.log(e.value);
     };
 };
 html5rocks.indexedDB.getAnnounce = function( sharedKey ) {
-    var transaction = html5rocks.indexedDB.db.transaction([html5rocks.indexedDB.chanAnnounce], "readonly");
-    var store = transaction.objectStore( html5rocks.indexedDB.chanAnnounce );
-    var request = store.get( sharedKey );
+    var request = indexedDB.open("signaling", html5rocks.indexedDB.version);
+    request.onsuccess = function(e) {
+        html5rocks.indexedDB.db = e.target.result;
+        var transaction = html5rocks.indexedDB.db.transaction([html5rocks.indexedDB.chanAnnounce], "readonly");
+        var store = transaction.objectStore( html5rocks.indexedDB.chanAnnounce );
+        var request = store.get( sharedKey );
 
-    console.log('GET announced our sharedKey is ' + sharedKey);
+        console.log('GET announced our sharedKey is ' + sharedKey);
 
-    var matching = request.result;
-    if (matching !== undefined) {
-        // A match was found.
-        return matching;
-    } else {
-        // No match was found.
+        var matching = request.result;
+        if (matching !== undefined) {
+            // A match was found.
+            return matching;
+        } else {
+            // No match was found.
+            return null;
+        }
+    };
+    request.onerror = function(e) {
+        console.log(e.value);
         return null;
-    }
+    };
+};
+html5rocks.indexedDB.getSignal = function( sharedKey ) {
+    var request = indexedDB.open("signaling", html5rocks.indexedDB.version);
+    request.onsuccess = function(e) {
+        html5rocks.indexedDB.db = e.target.result;
+        var transaction = html5rocks.indexedDB.db.transaction([html5rocks.indexedDB.chanSignal], "readonly");
+        var store = transaction.objectStore( html5rocks.indexedDB.chanAnnounce );
+        var index = store.index("sharedKey");
 
+        var request = index.get( sharedKey );
+        console.log('GET announced our sharedKey is ' + sharedKey);
 
-
+        var matching = request.result;
+        if (matching !== undefined) {
+            // A match was found.
+            return matching;
+        } else {
+            // No match was found.
+            return null;
+        }
+    };
+    request.onerror = function(e) {
+        console.log(e.value);
+        return null;
+    };
 };

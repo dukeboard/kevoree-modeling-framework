@@ -34,7 +34,7 @@ adaptator.trace = function (text) { // This function is used for logging.
     }
 };
 
-adaptator.adaptRTCapi = function() {
+adaptator.adapteRTCapi = function() {
     if (navigator.mozGetUserMedia) {
         console.log('This appears to be Firefox');
 
@@ -188,7 +188,7 @@ adaptator.adaptRTCapi = function() {
         // Get UserMedia (only difference is the prefix).
         // Code from Adam Barth.
         adaptator.getUserMedia = navigator.webkitGetUserMedia.bind(navigator);
-        navigator.getUserMedia = getUserMedia;
+        navigator.getUserMedia = adaptator.getUserMedia;
 
         // Attach a media stream to an element.
         adaptator.attachMediaStream = function(element, stream) {
