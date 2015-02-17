@@ -159,7 +159,11 @@ public class WebSocketDataBaseClient implements KDataBase {
                                         String[] result = new String[arr.size()];
                                         for (int i = 0; i < arr.size(); i++) {
                                             try {
-                                                result[i] = arr.get(i).asString();
+                                                if(arr.get(i).isNull()) {
+                                                    result[i] = null;
+                                                } else {
+                                                    result[i] = arr.get(i).asString();
+                                                }
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
