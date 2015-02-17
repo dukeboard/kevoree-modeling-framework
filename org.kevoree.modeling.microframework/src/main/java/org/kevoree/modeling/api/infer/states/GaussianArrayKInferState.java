@@ -5,7 +5,7 @@ import org.kevoree.modeling.api.KInferState;
 /**
  * Created by duke on 10/02/15.
  */
-public class GaussianKInferState extends KInferState {
+public class GaussianArrayKInferState extends KInferState {
 
     private boolean _isDirty = false;
 
@@ -164,7 +164,7 @@ public class GaussianKInferState extends KInferState {
 
     @Override
     public KInferState cloneState() {
-        GaussianKInferState cloned = new GaussianKInferState();
+        GaussianArrayKInferState cloned = new GaussianArrayKInferState();
         cloned.setNb(getNb());
         if(nb!=0) {
             double[] newSum = new double[sum.length];

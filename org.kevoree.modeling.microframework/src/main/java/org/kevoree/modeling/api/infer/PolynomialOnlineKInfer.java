@@ -13,6 +13,8 @@ import org.kevoree.modeling.api.time.TimeTree;
 /**
  * Created by assaad on 11/02/15.
  */
+
+//TODO needs update to live adapt - this is currently a copy paste of offline
 public class PolynomialOnlineKInfer extends AbstractKObjectInfer {
 
     public int maxDegree =20;

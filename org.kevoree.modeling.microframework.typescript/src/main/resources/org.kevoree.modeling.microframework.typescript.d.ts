@@ -834,6 +834,22 @@ declare module org {
                         clear(): void;
                         createEmptyState(): KInferState;
                     }
+                    class PolynomialOnlineKInfer extends abs.AbstractKObjectInfer {
+                        maxDegree: number;
+                        toleratedErr: number;
+                        getToleratedErr(): number;
+                        setToleratedErr(toleratedErr: number): void;
+                        getMaxDegree(): number;
+                        setMaxDegree(maxDegree: number): void;
+                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
+                        private calculateLong(time, weights, timeOrigin, unit);
+                        private calculate(weights, t);
+                        train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
+                        infer(features: any[]): any;
+                        accuracy(testSet: any[][], expectedResultSet: any[]): any;
+                        clear(): void;
+                        createEmptyState(): KInferState;
+                    }
                     class WinnowClassificationKInfer extends abs.AbstractKObjectInfer {
                         private alpha;
                         private beta;
@@ -876,6 +892,19 @@ declare module org {
                             isDirty(): boolean;
                             cloneState(): KInferState;
                         }
+                        class BayesianClassificationState extends KInferState {
+                            private states;
+                            private classStats;
+                            private numOfFeatures;
+                            private numOfClasses;
+                            initialize(metaFeatures: any[], MetaClassification: any): void;
+                            predict(features: any[]): number;
+                            train(features: any[], classNum: number): void;
+                            save(): string;
+                            load(payload: string): void;
+                            isDirty(): boolean;
+                            cloneState(): KInferState;
+                        }
                         class DoubleArrayKInferState extends KInferState {
                             private _isDirty;
                             private weights;
@@ -887,7 +916,7 @@ declare module org {
                             getWeights(): number[];
                             setWeights(weights: number[]): void;
                         }
-                        class GaussianKInferState extends KInferState {
+                        class GaussianArrayKInferState extends KInferState {
                             private _isDirty;
                             private sumSquares;
                             private sum;
@@ -931,6 +960,44 @@ declare module org {
                             getWeights(): number[];
                             setWeights(weights: number[]): void;
                             infer(time: number): any;
+                        }
+                        module Bayesian {
+                            class BayesianSubstate {
+                                calculateProbability(feature: any): number;
+                                train(feature: any): void;
+                                save(separator: string): string;
+                                load(payload: string, separator: string): void;
+                                cloneState(): BayesianSubstate;
+                            }
+                            class EnumSubstate extends BayesianSubstate {
+                                private counter;
+                                private total;
+                                initialize(number: number): void;
+                                calculateProbability(feature: any): number;
+                                train(feature: any): void;
+                                save(separator: string): string;
+                                load(payload: string, separator: string): void;
+                                cloneState(): BayesianSubstate;
+                            }
+                            class GaussianSubState extends BayesianSubstate {
+                                private sumSquares;
+                                private sum;
+                                private nb;
+                                getSumSquares(): number;
+                                setSumSquares(sumSquares: number): void;
+                                getNb(): number;
+                                setNb(nb: number): void;
+                                getSum(): number;
+                                setSum(sum: number): void;
+                                calculateProbability(feature: any): number;
+                                getAverage(): number;
+                                train(feature: any): void;
+                                getVariance(): number;
+                                clear(): void;
+                                save(separator: string): string;
+                                load(payload: string, separator: string): void;
+                                cloneState(): BayesianSubstate;
+                            }
                         }
                     }
                 }
@@ -1764,16 +1831,6 @@ declare module org {
                         static parentPath(currentPath: string): string;
                         static isRoot(path: string): boolean;
                         static path(parent: string, reference: meta.MetaReference, target: KObject): string;
-                    }
-                    class TimeMachine {
-                        private _previous;
-                        private _syncCallback;
-                        private _deepMonitoring;
-                        private _listener;
-                        set(target: KObject): void;
-                        jumpTime(targetTime: number): void;
-                        jumpDimension(targetDimension: number): void;
-                        init(p_deepMonitoring: boolean, p_callback: (p: trace.TraceSequence) => void): TimeMachine;
                     }
                 }
                 module xmi {

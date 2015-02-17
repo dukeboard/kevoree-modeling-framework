@@ -4,7 +4,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KInferState;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObjectInfer;
-import org.kevoree.modeling.api.infer.states.GaussianKInferState;
+import org.kevoree.modeling.api.infer.states.GaussianArrayKInferState;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.time.TimeTree;
 
@@ -34,7 +34,7 @@ public class GaussianClassificationKInfer extends AbstractKObjectInfer {
 
     @Override
     public void train(Object[][] trainingSet, Object[] expectedResultSet, Callback<Throwable> callback) {
-        GaussianKInferState currentState = (GaussianKInferState) modifyState();
+        GaussianArrayKInferState currentState = (GaussianArrayKInferState) modifyState();
         int featuresize=trainingSet[0].length;
 
 
@@ -53,7 +53,7 @@ public class GaussianClassificationKInfer extends AbstractKObjectInfer {
 
     @Override
     public Object infer(Object[] features) {
-        GaussianKInferState currentState = (GaussianKInferState) readOnlyState();
+        GaussianArrayKInferState currentState = (GaussianArrayKInferState) readOnlyState();
         double[] ft=new double[features.length];
         for(int i=0;i<features.length;i++){
             ft[i]=(double)features[i];

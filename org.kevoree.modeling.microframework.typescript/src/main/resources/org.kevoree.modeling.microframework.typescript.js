@@ -3653,6 +3653,93 @@ var org;
                         return PolynomialOfflineKInfer;
                     })(org.kevoree.modeling.api.abs.AbstractKObjectInfer);
                     infer.PolynomialOfflineKInfer = PolynomialOfflineKInfer;
+                    var PolynomialOnlineKInfer = (function (_super) {
+                        __extends(PolynomialOnlineKInfer, _super);
+                        function PolynomialOnlineKInfer(p_view, p_uuid, p_timeTree, p_metaClass) {
+                            _super.call(this, p_view, p_uuid, p_timeTree, p_metaClass);
+                            this.maxDegree = 20;
+                            this.toleratedErr = 0.01;
+                        }
+                        PolynomialOnlineKInfer.prototype.getToleratedErr = function () {
+                            return this.toleratedErr;
+                        };
+                        PolynomialOnlineKInfer.prototype.setToleratedErr = function (toleratedErr) {
+                            this.toleratedErr = toleratedErr;
+                        };
+                        PolynomialOnlineKInfer.prototype.getMaxDegree = function () {
+                            return this.maxDegree;
+                        };
+                        PolynomialOnlineKInfer.prototype.setMaxDegree = function (maxDegree) {
+                            this.maxDegree = maxDegree;
+                        };
+                        PolynomialOnlineKInfer.prototype.calculateLong = function (time, weights, timeOrigin, unit) {
+                            var t = (time - timeOrigin) / unit;
+                            return this.calculate(weights, t);
+                        };
+                        PolynomialOnlineKInfer.prototype.calculate = function (weights, t) {
+                            var result = 0;
+                            var power = 1;
+                            for (var j = 0; j < weights.length; j++) {
+                                result += weights[j] * power;
+                                power = power * t;
+                            }
+                            return result;
+                        };
+                        PolynomialOnlineKInfer.prototype.train = function (trainingSet, expectedResultSet, callback) {
+                            var currentState = this.modifyState();
+                            var weights;
+                            var featuresize = trainingSet[0].length;
+                            var times = new Array();
+                            var results = new Array();
+                            for (var i = 0; i < trainingSet.length; i++) {
+                                times[i] = trainingSet[i][0];
+                                results[i] = expectedResultSet[i];
+                            }
+                            if (times.length == 0) {
+                                return;
+                            }
+                            if (times.length == 1) {
+                                weights = new Array();
+                                weights[0] = results[0];
+                                currentState.setWeights(weights);
+                                return;
+                            }
+                            var maxcurdeg = Math.min(times.length, this.maxDegree);
+                            var timeOrigin = times[0];
+                            var unit = times[1] - times[0];
+                            var normalizedTimes = new Array();
+                            for (var i = 0; i < times.length; i++) {
+                                normalizedTimes[i] = (times[i] - times[0]) / unit;
+                            }
+                            for (var deg = 0; deg < maxcurdeg; deg++) {
+                                var pf = new org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml(deg);
+                                pf.fit(normalizedTimes, results);
+                                if (org.kevoree.modeling.api.infer.states.PolynomialKInferState.maxError(pf.getCoef(), normalizedTimes, results) <= this.toleratedErr) {
+                                    currentState.setUnit(unit);
+                                    currentState.setTimeOrigin(timeOrigin);
+                                    currentState.setWeights(pf.getCoef());
+                                    return;
+                                }
+                            }
+                        };
+                        PolynomialOnlineKInfer.prototype.infer = function (features) {
+                            var currentState = this.readOnlyState();
+                            var time = features[0];
+                            return currentState.infer(time);
+                        };
+                        PolynomialOnlineKInfer.prototype.accuracy = function (testSet, expectedResultSet) {
+                            return null;
+                        };
+                        PolynomialOnlineKInfer.prototype.clear = function () {
+                            var currentState = this.modifyState();
+                            currentState.setWeights(null);
+                        };
+                        PolynomialOnlineKInfer.prototype.createEmptyState = function () {
+                            return new org.kevoree.modeling.api.infer.states.DoubleArrayKInferState();
+                        };
+                        return PolynomialOnlineKInfer;
+                    })(org.kevoree.modeling.api.abs.AbstractKObjectInfer);
+                    infer.PolynomialOnlineKInfer = PolynomialOnlineKInfer;
                     var WinnowClassificationKInfer = (function (_super) {
                         __extends(WinnowClassificationKInfer, _super);
                         function WinnowClassificationKInfer(p_view, p_uuid, p_timeTree, p_metaClass) {
@@ -3869,6 +3956,57 @@ var org;
                             return AnalyticKInferState;
                         })(org.kevoree.modeling.api.KInferState);
                         states.AnalyticKInferState = AnalyticKInferState;
+                        var BayesianClassificationState = (function (_super) {
+                            __extends(BayesianClassificationState, _super);
+                            function BayesianClassificationState() {
+                                _super.apply(this, arguments);
+                            }
+                            BayesianClassificationState.prototype.initialize = function (metaFeatures, MetaClassification) {
+                                this.numOfFeatures = metaFeatures.length;
+                                this.numOfClasses = 0;
+                                this.states = new Array(new Array());
+                                this.classStats = new org.kevoree.modeling.api.infer.states.Bayesian.EnumSubstate();
+                                this.classStats.initialize(this.numOfClasses);
+                                for (var i = 0; i < this.numOfFeatures; i++) {
+                                }
+                            };
+                            BayesianClassificationState.prototype.predict = function (features) {
+                                var temp;
+                                var prediction = -1;
+                                var max = 0;
+                                for (var i = 0; i < this.numOfClasses; i++) {
+                                    temp = this.classStats.calculateProbability(i);
+                                    for (var j = 0; j < this.numOfFeatures; j++) {
+                                        temp = temp * this.states[i][j].calculateProbability(features[j]);
+                                    }
+                                    if (temp >= max) {
+                                        max = temp;
+                                        prediction = i;
+                                    }
+                                }
+                                return prediction;
+                            };
+                            BayesianClassificationState.prototype.train = function (features, classNum) {
+                                for (var i = 0; i < this.numOfFeatures; i++) {
+                                    this.states[classNum][i].train(features[i]);
+                                    this.states[this.numOfClasses][i].train(features[i]);
+                                }
+                                this.classStats.train(classNum);
+                            };
+                            BayesianClassificationState.prototype.save = function () {
+                                return null;
+                            };
+                            BayesianClassificationState.prototype.load = function (payload) {
+                            };
+                            BayesianClassificationState.prototype.isDirty = function () {
+                                return false;
+                            };
+                            BayesianClassificationState.prototype.cloneState = function () {
+                                return null;
+                            };
+                            return BayesianClassificationState;
+                        })(org.kevoree.modeling.api.KInferState);
+                        states.BayesianClassificationState = BayesianClassificationState;
                         var DoubleArrayKInferState = (function (_super) {
                             __extends(DoubleArrayKInferState, _super);
                             function DoubleArrayKInferState() {
@@ -3928,9 +4066,9 @@ var org;
                             return DoubleArrayKInferState;
                         })(org.kevoree.modeling.api.KInferState);
                         states.DoubleArrayKInferState = DoubleArrayKInferState;
-                        var GaussianKInferState = (function (_super) {
-                            __extends(GaussianKInferState, _super);
-                            function GaussianKInferState() {
+                        var GaussianArrayKInferState = (function (_super) {
+                            __extends(GaussianArrayKInferState, _super);
+                            function GaussianArrayKInferState() {
                                 _super.apply(this, arguments);
                                 this._isDirty = false;
                                 this.sumSquares = null;
@@ -3938,27 +4076,27 @@ var org;
                                 this.epsilon = 0;
                                 this.nb = 0;
                             }
-                            GaussianKInferState.prototype.getSumSquares = function () {
+                            GaussianArrayKInferState.prototype.getSumSquares = function () {
                                 return this.sumSquares;
                             };
-                            GaussianKInferState.prototype.setSumSquares = function (sumSquares) {
+                            GaussianArrayKInferState.prototype.setSumSquares = function (sumSquares) {
                                 this.sumSquares = sumSquares;
                             };
-                            GaussianKInferState.prototype.getNb = function () {
+                            GaussianArrayKInferState.prototype.getNb = function () {
                                 return this.nb;
                             };
-                            GaussianKInferState.prototype.setNb = function (nb) {
+                            GaussianArrayKInferState.prototype.setNb = function (nb) {
                                 this._isDirty = true;
                                 this.nb = nb;
                             };
-                            GaussianKInferState.prototype.getSum = function () {
+                            GaussianArrayKInferState.prototype.getSum = function () {
                                 return this.sum;
                             };
-                            GaussianKInferState.prototype.setSum = function (sum) {
+                            GaussianArrayKInferState.prototype.setSum = function (sum) {
                                 this._isDirty = true;
                                 this.sum = sum;
                             };
-                            GaussianKInferState.prototype.calculateProbability = function (features) {
+                            GaussianArrayKInferState.prototype.calculateProbability = function (features) {
                                 var size = this.sum.length;
                                 var avg = new Array();
                                 var variances = new Array();
@@ -3970,10 +4108,10 @@ var org;
                                 }
                                 return p;
                             };
-                            GaussianKInferState.prototype.infer = function (features) {
+                            GaussianArrayKInferState.prototype.infer = function (features) {
                                 return (this.calculateProbability(features) <= this.epsilon);
                             };
-                            GaussianKInferState.prototype.getAverage = function () {
+                            GaussianArrayKInferState.prototype.getAverage = function () {
                                 if (this.nb != 0) {
                                     var size = this.sum.length;
                                     var avg = new Array();
@@ -3986,7 +4124,7 @@ var org;
                                     return null;
                                 }
                             };
-                            GaussianKInferState.prototype.train = function (features, result, alpha) {
+                            GaussianArrayKInferState.prototype.train = function (features, result, alpha) {
                                 var size = features.length;
                                 if (this.nb == 0) {
                                     this.sumSquares = new Array();
@@ -4004,7 +4142,7 @@ var org;
                                 }
                                 this._isDirty = true;
                             };
-                            GaussianKInferState.prototype.getVariance = function () {
+                            GaussianArrayKInferState.prototype.getVariance = function () {
                                 if (this.nb != 0) {
                                     var size = this.sum.length;
                                     var avg = new Array();
@@ -4019,13 +4157,13 @@ var org;
                                     return null;
                                 }
                             };
-                            GaussianKInferState.prototype.clear = function () {
+                            GaussianArrayKInferState.prototype.clear = function () {
                                 this.nb = 0;
                                 this.sum = null;
                                 this.sumSquares = null;
                                 this._isDirty = true;
                             };
-                            GaussianKInferState.prototype.save = function () {
+                            GaussianArrayKInferState.prototype.save = function () {
                                 var sb = new java.lang.StringBuilder();
                                 sb.append(this.nb + "/");
                                 sb.append(this.epsilon + "/");
@@ -4038,7 +4176,7 @@ var org;
                                 }
                                 return sb.toString();
                             };
-                            GaussianKInferState.prototype.load = function (payload) {
+                            GaussianArrayKInferState.prototype.load = function (payload) {
                                 try {
                                     var previousState = payload.split("/");
                                     this.nb = java.lang.Integer.parseInt(previousState[0]);
@@ -4063,11 +4201,11 @@ var org;
                                 }
                                 this._isDirty = false;
                             };
-                            GaussianKInferState.prototype.isDirty = function () {
+                            GaussianArrayKInferState.prototype.isDirty = function () {
                                 return this._isDirty;
                             };
-                            GaussianKInferState.prototype.cloneState = function () {
-                                var cloned = new org.kevoree.modeling.api.infer.states.GaussianKInferState();
+                            GaussianArrayKInferState.prototype.cloneState = function () {
+                                var cloned = new org.kevoree.modeling.api.infer.states.GaussianArrayKInferState();
                                 cloned.setNb(this.getNb());
                                 if (this.nb != 0) {
                                     var newSum = new Array();
@@ -4081,12 +4219,12 @@ var org;
                                 }
                                 return cloned;
                             };
-                            GaussianKInferState.prototype.getEpsilon = function () {
+                            GaussianArrayKInferState.prototype.getEpsilon = function () {
                                 return this.epsilon;
                             };
-                            return GaussianKInferState;
+                            return GaussianArrayKInferState;
                         })(org.kevoree.modeling.api.KInferState);
-                        states.GaussianKInferState = GaussianKInferState;
+                        states.GaussianArrayKInferState = GaussianArrayKInferState;
                         var PolynomialKInferState = (function (_super) {
                             __extends(PolynomialKInferState, _super);
                             function PolynomialKInferState() {
@@ -4193,6 +4331,176 @@ var org;
                             return PolynomialKInferState;
                         })(org.kevoree.modeling.api.KInferState);
                         states.PolynomialKInferState = PolynomialKInferState;
+                        var Bayesian;
+                        (function (Bayesian) {
+                            var BayesianSubstate = (function () {
+                                function BayesianSubstate() {
+                                }
+                                BayesianSubstate.prototype.calculateProbability = function (feature) {
+                                    throw "Abstract method";
+                                };
+                                BayesianSubstate.prototype.train = function (feature) {
+                                    throw "Abstract method";
+                                };
+                                BayesianSubstate.prototype.save = function (separator) {
+                                    throw "Abstract method";
+                                };
+                                BayesianSubstate.prototype.load = function (payload, separator) {
+                                    throw "Abstract method";
+                                };
+                                BayesianSubstate.prototype.cloneState = function () {
+                                    throw "Abstract method";
+                                };
+                                return BayesianSubstate;
+                            })();
+                            Bayesian.BayesianSubstate = BayesianSubstate;
+                            var EnumSubstate = (function (_super) {
+                                __extends(EnumSubstate, _super);
+                                function EnumSubstate() {
+                                    _super.apply(this, arguments);
+                                    this.total = 0;
+                                }
+                                EnumSubstate.prototype.initialize = function (number) {
+                                    this.counter = new Array();
+                                };
+                                EnumSubstate.prototype.calculateProbability = function (feature) {
+                                    var res = feature;
+                                    var p = this.counter[res];
+                                    if (this.total != 0) {
+                                        return p / this.total;
+                                    }
+                                    else {
+                                        return 0;
+                                    }
+                                };
+                                EnumSubstate.prototype.train = function (feature) {
+                                    var res = feature;
+                                    this.counter[res]++;
+                                    this.total++;
+                                };
+                                EnumSubstate.prototype.save = function (separator) {
+                                    if (this.counter == null || this.counter.length == 0) {
+                                        return "";
+                                    }
+                                    var sb = new java.lang.StringBuilder();
+                                    for (var i = 0; i < this.counter.length; i++) {
+                                        sb.append(this.counter[i] + separator);
+                                    }
+                                    return sb.toString();
+                                };
+                                EnumSubstate.prototype.load = function (payload, separator) {
+                                    var res = payload.split(separator);
+                                    this.counter = new Array();
+                                    this.total = 0;
+                                    for (var i = 0; i < res.length; i++) {
+                                        this.counter[i] = java.lang.Integer.parseInt(res[i]);
+                                        this.total += this.counter[i];
+                                    }
+                                };
+                                EnumSubstate.prototype.cloneState = function () {
+                                    var cloned = new org.kevoree.modeling.api.infer.states.Bayesian.EnumSubstate();
+                                    cloned.load(this.save("/"), "/");
+                                    return cloned;
+                                };
+                                return EnumSubstate;
+                            })(org.kevoree.modeling.api.infer.states.Bayesian.BayesianSubstate);
+                            Bayesian.EnumSubstate = EnumSubstate;
+                            var GaussianSubState = (function (_super) {
+                                __extends(GaussianSubState, _super);
+                                function GaussianSubState() {
+                                    _super.apply(this, arguments);
+                                    this.sumSquares = 0;
+                                    this.sum = 0;
+                                    this.nb = 0;
+                                }
+                                GaussianSubState.prototype.getSumSquares = function () {
+                                    return this.sumSquares;
+                                };
+                                GaussianSubState.prototype.setSumSquares = function (sumSquares) {
+                                    this.sumSquares = sumSquares;
+                                };
+                                GaussianSubState.prototype.getNb = function () {
+                                    return this.nb;
+                                };
+                                GaussianSubState.prototype.setNb = function (nb) {
+                                    this.nb = nb;
+                                };
+                                GaussianSubState.prototype.getSum = function () {
+                                    return this.sum;
+                                };
+                                GaussianSubState.prototype.setSum = function (sum) {
+                                    this.sum = sum;
+                                };
+                                GaussianSubState.prototype.calculateProbability = function (feature) {
+                                    var fet = feature;
+                                    var avg = this.sum / this.nb;
+                                    var variances = this.sumSquares / this.nb - avg * avg;
+                                    return (1 / Math.sqrt(2 * Math.PI * variances)) * Math.exp(-((fet - avg) * (fet - avg)) / (2 * variances));
+                                };
+                                GaussianSubState.prototype.getAverage = function () {
+                                    if (this.nb != 0) {
+                                        var avg = this.sum / this.nb;
+                                        return avg;
+                                    }
+                                    else {
+                                        return null;
+                                    }
+                                };
+                                GaussianSubState.prototype.train = function (feature) {
+                                    var fet = feature;
+                                    this.sum += fet;
+                                    this.sumSquares += fet * fet;
+                                    this.nb++;
+                                };
+                                GaussianSubState.prototype.getVariance = function () {
+                                    if (this.nb != 0) {
+                                        var avg = this.sum / this.nb;
+                                        var newvar = this.sumSquares / this.nb - avg * avg;
+                                        return newvar;
+                                    }
+                                    else {
+                                        return null;
+                                    }
+                                };
+                                GaussianSubState.prototype.clear = function () {
+                                    this.nb = 0;
+                                    this.sum = 0;
+                                    this.sumSquares = 0;
+                                };
+                                GaussianSubState.prototype.save = function (separator) {
+                                    var sb = new java.lang.StringBuilder();
+                                    sb.append(this.nb + separator);
+                                    sb.append(this.sum + separator);
+                                    sb.append(this.sumSquares);
+                                    return sb.toString();
+                                };
+                                GaussianSubState.prototype.load = function (payload, separator) {
+                                    try {
+                                        var previousState = payload.split(separator);
+                                        this.nb = java.lang.Integer.parseInt(previousState[0]);
+                                        this.sum = java.lang.Double.parseDouble(previousState[1]);
+                                        this.sumSquares = java.lang.Double.parseDouble(previousState[2]);
+                                    }
+                                    catch ($ex$) {
+                                        if ($ex$ instanceof java.lang.Exception) {
+                                            var e = $ex$;
+                                            this.sum = 0;
+                                            this.sumSquares = 0;
+                                            this.nb = 0;
+                                        }
+                                    }
+                                };
+                                GaussianSubState.prototype.cloneState = function () {
+                                    var cloned = new org.kevoree.modeling.api.infer.states.Bayesian.GaussianSubState();
+                                    cloned.setNb(this.getNb());
+                                    cloned.setSum(this.getSum());
+                                    cloned.setSumSquares(this.getSumSquares());
+                                    return cloned;
+                                };
+                                return GaussianSubState;
+                            })(org.kevoree.modeling.api.infer.states.Bayesian.BayesianSubstate);
+                            Bayesian.GaussianSubState = GaussianSubState;
+                        })(Bayesian = states.Bayesian || (states.Bayesian = {}));
                     })(states = infer.states || (infer.states = {}));
                 })(infer = api.infer || (api.infer = {}));
                 var json;
@@ -9706,75 +10014,6 @@ var org;
                         return PathHelper;
                     })();
                     util.PathHelper = PathHelper;
-                    var TimeMachine = (function () {
-                        function TimeMachine() {
-                            this._listener = null;
-                        }
-                        TimeMachine.prototype.set = function (target) {
-                            var _this = this;
-                            if (this._syncCallback != null) {
-                                if (this._previous == null) {
-                                    if (this._deepMonitoring) {
-                                        target.intersection(target, function (traceSequence) {
-                                            if (_this._syncCallback != null) {
-                                                _this._syncCallback(traceSequence);
-                                            }
-                                        });
-                                    }
-                                    else {
-                                        var sequence = new org.kevoree.modeling.api.trace.TraceSequence();
-                                        var traces = new java.util.ArrayList();
-                                        var tempTraces = target.traces(org.kevoree.modeling.api.TraceRequest.ATTRIBUTES_REFERENCES);
-                                        for (var i = 0; i < tempTraces.length; i++) {
-                                            traces.add(tempTraces[i]);
-                                        }
-                                        sequence.populate(traces);
-                                        this._syncCallback(sequence);
-                                    }
-                                }
-                                else {
-                                    this._previous.universe().model().storage().eventBroker().unregister(this._listener);
-                                    this._previous.merge(target, function (traceSequence) {
-                                        if (_this._syncCallback != null) {
-                                            _this._syncCallback(traceSequence);
-                                        }
-                                    });
-                                }
-                                this._listener = function (evt) {
-                                    var sequence = new org.kevoree.modeling.api.trace.TraceSequence();
-                                    var traces = new java.util.ArrayList();
-                                    traces.add(evt.toTrace());
-                                    sequence.populate(traces);
-                                    _this._syncCallback(sequence);
-                                };
-                                target.listen(this._listener);
-                            }
-                            this._previous = target;
-                        };
-                        TimeMachine.prototype.jumpTime = function (targetTime) {
-                            var _this = this;
-                            if (this._previous != null) {
-                                this._previous.jump(targetTime, function (resolved) {
-                                    _this.set(resolved);
-                                });
-                            }
-                        };
-                        TimeMachine.prototype.jumpDimension = function (targetDimension) {
-                            var _this = this;
-                            if (this._previous != null) {
-                                this._previous.universe().model().universe(targetDimension).time(this._previous.now()).lookup(this._previous.uuid(), function (resolved) {
-                                    _this.set(resolved);
-                                });
-                            }
-                        };
-                        TimeMachine.prototype.init = function (p_deepMonitoring, p_callback) {
-                            this._syncCallback = p_callback;
-                            this._deepMonitoring = p_deepMonitoring;
-                            return this;
-                        };
-                        return TimeMachine;
-                    })();
-                    util.TimeMachine = TimeMachine;
                 })(util = api.util || (api.util = {}));
                 var xmi;
                 (function (xmi) {

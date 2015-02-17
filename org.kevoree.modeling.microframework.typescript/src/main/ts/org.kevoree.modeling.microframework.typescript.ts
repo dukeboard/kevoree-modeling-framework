@@ -3995,7 +3995,7 @@ module org {
                         }
 
                         public train(trainingSet: any[][], expectedResultSet: any[], callback: (p : java.lang.Throwable) => void): void {
-                            var currentState: org.kevoree.modeling.api.infer.states.GaussianKInferState = <org.kevoree.modeling.api.infer.states.GaussianKInferState>this.modifyState();
+                            var currentState: org.kevoree.modeling.api.infer.states.GaussianArrayKInferState = <org.kevoree.modeling.api.infer.states.GaussianArrayKInferState>this.modifyState();
                             var featuresize: number = trainingSet[0].length;
                             var features: number[][] = new Array();
                             var results: boolean[] = new Array();
@@ -4010,7 +4010,7 @@ module org {
                         }
 
                         public infer(features: any[]): any {
-                            var currentState: org.kevoree.modeling.api.infer.states.GaussianKInferState = <org.kevoree.modeling.api.infer.states.GaussianKInferState>this.readOnlyState();
+                            var currentState: org.kevoree.modeling.api.infer.states.GaussianArrayKInferState = <org.kevoree.modeling.api.infer.states.GaussianArrayKInferState>this.readOnlyState();
                             var ft: number[] = new Array();
                             for (var i: number = 0; i < features.length; i++) {
                                 ft[i] = <number>features[i];
@@ -4217,6 +4217,104 @@ module org {
                     }
 
                     export class PolynomialOfflineKInfer extends org.kevoree.modeling.api.abs.AbstractKObjectInfer {
+
+                        public maxDegree: number = 20;
+                        public toleratedErr: number = 0.01;
+                        public getToleratedErr(): number {
+                            return this.toleratedErr;
+                        }
+
+                        public setToleratedErr(toleratedErr: number): void {
+                            this.toleratedErr = toleratedErr;
+                        }
+
+                        public getMaxDegree(): number {
+                            return this.maxDegree;
+                        }
+
+                        public setMaxDegree(maxDegree: number): void {
+                            this.maxDegree = maxDegree;
+                        }
+
+                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_timeTree: org.kevoree.modeling.api.time.TimeTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
+                            super(p_view, p_uuid, p_timeTree, p_metaClass);
+                        }
+
+                        private calculateLong(time: number, weights: number[], timeOrigin: number, unit: number): number {
+                            var t: number = (<number>(time - timeOrigin)) / unit;
+                            return this.calculate(weights, t);
+                        }
+
+                        private calculate(weights: number[], t: number): number {
+                            var result: number = 0;
+                            var power: number = 1;
+                            for (var j: number = 0; j < weights.length; j++) {
+                                result += weights[j] * power;
+                                power = power * t;
+                            }
+                            return result;
+                        }
+
+                        public train(trainingSet: any[][], expectedResultSet: any[], callback: (p : java.lang.Throwable) => void): void {
+                            var currentState: org.kevoree.modeling.api.infer.states.PolynomialKInferState = <org.kevoree.modeling.api.infer.states.PolynomialKInferState>this.modifyState();
+                            var weights: number[];
+                            var featuresize: number = trainingSet[0].length;
+                            var times: number[] = new Array();
+                            var results: number[] = new Array();
+                            for (var i: number = 0; i < trainingSet.length; i++) {
+                                times[i] = <number>trainingSet[i][0];
+                                results[i] = <number>expectedResultSet[i];
+                            }
+                            if (times.length == 0) {
+                                return;
+                            }
+                            if (times.length == 1) {
+                                weights = new Array();
+                                weights[0] = results[0];
+                                currentState.setWeights(weights);
+                                return;
+                            }
+                            var maxcurdeg: number = Math.min(times.length, this.maxDegree);
+                            var timeOrigin: number = times[0];
+                            var unit: number = times[1] - times[0];
+                            var normalizedTimes: number[] = new Array();
+                            for (var i: number = 0; i < times.length; i++) {
+                                normalizedTimes[i] = (<number>(times[i] - times[0])) / unit;
+                            }
+                            for (var deg: number = 0; deg < maxcurdeg; deg++) {
+                                var pf: org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml = new org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml(deg);
+                                pf.fit(normalizedTimes, results);
+                                if (org.kevoree.modeling.api.infer.states.PolynomialKInferState.maxError(pf.getCoef(), normalizedTimes, results) <= this.toleratedErr) {
+                                    currentState.setUnit(unit);
+                                    currentState.setTimeOrigin(timeOrigin);
+                                    currentState.setWeights(pf.getCoef());
+                                    return;
+                                }
+                            }
+                        }
+
+                        public infer(features: any[]): any {
+                            var currentState: org.kevoree.modeling.api.infer.states.PolynomialKInferState = <org.kevoree.modeling.api.infer.states.PolynomialKInferState>this.readOnlyState();
+                            var time: number = <number>features[0];
+                            return currentState.infer(time);
+                        }
+
+                        public accuracy(testSet: any[][], expectedResultSet: any[]): any {
+                            return null;
+                        }
+
+                        public clear(): void {
+                            var currentState: org.kevoree.modeling.api.infer.states.DoubleArrayKInferState = <org.kevoree.modeling.api.infer.states.DoubleArrayKInferState>this.modifyState();
+                            currentState.setWeights(null);
+                        }
+
+                        public createEmptyState(): org.kevoree.modeling.api.KInferState {
+                            return new org.kevoree.modeling.api.infer.states.DoubleArrayKInferState();
+                        }
+
+                    }
+
+                    export class PolynomialOnlineKInfer extends org.kevoree.modeling.api.abs.AbstractKObjectInfer {
 
                         public maxDegree: number = 20;
                         public toleratedErr: number = 0.01;
@@ -4549,6 +4647,64 @@ module org {
 
                         }
 
+                        export class BayesianClassificationState extends org.kevoree.modeling.api.KInferState {
+
+                            private states: org.kevoree.modeling.api.infer.states.Bayesian.BayesianSubstate[][];
+                            private classStats: org.kevoree.modeling.api.infer.states.Bayesian.EnumSubstate;
+                            private numOfFeatures: number;
+                            private numOfClasses: number;
+                            public initialize(metaFeatures: any[], MetaClassification: any): void {
+                                this.numOfFeatures = metaFeatures.length;
+                                this.numOfClasses = 0;
+                                this.states = new Array(new Array());
+                                this.classStats = new org.kevoree.modeling.api.infer.states.Bayesian.EnumSubstate();
+                                this.classStats.initialize(this.numOfClasses);
+                                for (var i: number = 0; i < this.numOfFeatures; i++) {
+                                }
+                            }
+
+                            public predict(features: any[]): number {
+                                var temp: number;
+                                var prediction: number = -1;
+                                var max: number = 0;
+                                for (var i: number = 0; i < this.numOfClasses; i++) {
+                                    temp = this.classStats.calculateProbability(i);
+                                    for (var j: number = 0; j < this.numOfFeatures; j++) {
+                                        temp = temp * this.states[i][j].calculateProbability(features[j]);
+                                    }
+                                    if (temp >= max) {
+                                        max = temp;
+                                        prediction = i;
+                                    }
+                                }
+                                return prediction;
+                            }
+
+                            public train(features: any[], classNum: number): void {
+                                for (var i: number = 0; i < this.numOfFeatures; i++) {
+                                    this.states[classNum][i].train(features[i]);
+                                    this.states[this.numOfClasses][i].train(features[i]);
+                                }
+                                this.classStats.train(classNum);
+                            }
+
+                            public save(): string {
+                                return null;
+                            }
+
+                            public load(payload: string): void {
+                            }
+
+                            public isDirty(): boolean {
+                                return false;
+                            }
+
+                            public cloneState(): org.kevoree.modeling.api.KInferState {
+                                return null;
+                            }
+
+                        }
+
                         export class DoubleArrayKInferState extends org.kevoree.modeling.api.KInferState {
 
                             private _isDirty: boolean = false;
@@ -4611,7 +4767,7 @@ module org {
 
                         }
 
-                        export class GaussianKInferState extends org.kevoree.modeling.api.KInferState {
+                        export class GaussianArrayKInferState extends org.kevoree.modeling.api.KInferState {
 
                             private _isDirty: boolean = false;
                             private sumSquares: number[] = null;
@@ -4759,7 +4915,7 @@ module org {
                             }
 
                             public cloneState(): org.kevoree.modeling.api.KInferState {
-                                var cloned: org.kevoree.modeling.api.infer.states.GaussianKInferState = new org.kevoree.modeling.api.infer.states.GaussianKInferState();
+                                var cloned: org.kevoree.modeling.api.infer.states.GaussianArrayKInferState = new org.kevoree.modeling.api.infer.states.GaussianArrayKInferState();
                                 cloned.setNb(this.getNb());
                                 if (this.nb != 0) {
                                     var newSum: number[] = new Array();
@@ -4899,6 +5055,187 @@ module org {
 
                         }
 
+                        export module Bayesian {
+                            export class BayesianSubstate {
+
+                                public calculateProbability(feature: any): number {
+                                    throw "Abstract method";
+                                }
+
+                                public train(feature: any): void {
+                                    throw "Abstract method";
+                                }
+
+                                public save(separator: string): string {
+                                    throw "Abstract method";
+                                }
+
+                                public load(payload: string, separator: string): void {
+                                    throw "Abstract method";
+                                }
+
+                                public cloneState(): org.kevoree.modeling.api.infer.states.Bayesian.BayesianSubstate {
+                                    throw "Abstract method";
+                                }
+
+                            }
+
+                            export class EnumSubstate extends org.kevoree.modeling.api.infer.states.Bayesian.BayesianSubstate {
+
+                                private counter: number[];
+                                private total: number = 0;
+                                public initialize(number: number): void {
+                                    this.counter = new Array();
+                                }
+
+                                public calculateProbability(feature: any): number {
+                                    var res: number = <number>feature;
+                                    var p: number = this.counter[res];
+                                    if (this.total != 0) {
+                                        return p / this.total;
+                                    } else {
+                                        return 0;
+                                    }
+                                }
+
+                                public train(feature: any): void {
+                                    var res: number = <number>feature;
+                                    this.counter[res]++;
+                                    this.total++;
+                                }
+
+                                public save(separator: string): string {
+                                    if (this.counter == null || this.counter.length == 0) {
+                                        return "";
+                                    }
+                                    var sb: java.lang.StringBuilder = new java.lang.StringBuilder();
+                                    for (var i: number = 0; i < this.counter.length; i++) {
+                                        sb.append(this.counter[i] + separator);
+                                    }
+                                    return sb.toString();
+                                }
+
+                                public load(payload: string, separator: string): void {
+                                    var res: string[] = payload.split(separator);
+                                    this.counter = new Array();
+                                    this.total = 0;
+                                    for (var i: number = 0; i < res.length; i++) {
+                                        this.counter[i] = java.lang.Integer.parseInt(res[i]);
+                                        this.total += this.counter[i];
+                                    }
+                                }
+
+                                public cloneState(): org.kevoree.modeling.api.infer.states.Bayesian.BayesianSubstate {
+                                    var cloned: org.kevoree.modeling.api.infer.states.Bayesian.EnumSubstate = new org.kevoree.modeling.api.infer.states.Bayesian.EnumSubstate();
+                                    cloned.load(this.save("/"), "/");
+                                    return cloned;
+                                }
+
+                            }
+
+                            export class GaussianSubState extends org.kevoree.modeling.api.infer.states.Bayesian.BayesianSubstate {
+
+                                private sumSquares: number = 0;
+                                private sum: number = 0;
+                                private nb: number = 0;
+                                public getSumSquares(): number {
+                                    return this.sumSquares;
+                                }
+
+                                public setSumSquares(sumSquares: number): void {
+                                    this.sumSquares = sumSquares;
+                                }
+
+                                public getNb(): number {
+                                    return this.nb;
+                                }
+
+                                public setNb(nb: number): void {
+                                    this.nb = nb;
+                                }
+
+                                public getSum(): number {
+                                    return this.sum;
+                                }
+
+                                public setSum(sum: number): void {
+                                    this.sum = sum;
+                                }
+
+                                public calculateProbability(feature: any): number {
+                                    var fet: number = <number>feature;
+                                    var avg: number = this.sum / this.nb;
+                                    var variances: number = this.sumSquares / this.nb - avg * avg;
+                                    return (1 / Math.sqrt(2 * Math.PI * variances)) * Math.exp(-((fet - avg) * (fet - avg)) / (2 * variances));
+                                }
+
+                                public getAverage(): number {
+                                    if (this.nb != 0) {
+                                        var avg: number = this.sum / this.nb;
+                                        return avg;
+                                    } else {
+                                        return null;
+                                    }
+                                }
+
+                                public train(feature: any): void {
+                                    var fet: number = <number>feature;
+                                    this.sum += fet;
+                                    this.sumSquares += fet * fet;
+                                    this.nb++;
+                                }
+
+                                public getVariance(): number {
+                                    if (this.nb != 0) {
+                                        var avg: number = this.sum / this.nb;
+                                        var newvar: number = this.sumSquares / this.nb - avg * avg;
+                                        return newvar;
+                                    } else {
+                                        return null;
+                                    }
+                                }
+
+                                public clear(): void {
+                                    this.nb = 0;
+                                    this.sum = 0;
+                                    this.sumSquares = 0;
+                                }
+
+                                public save(separator: string): string {
+                                    var sb: java.lang.StringBuilder = new java.lang.StringBuilder();
+                                    sb.append(this.nb + separator);
+                                    sb.append(this.sum + separator);
+                                    sb.append(this.sumSquares);
+                                    return sb.toString();
+                                }
+
+                                public load(payload: string, separator: string): void {
+                                    try {
+                                        var previousState: string[] = payload.split(separator);
+                                        this.nb = java.lang.Integer.parseInt(previousState[0]);
+                                        this.sum = java.lang.Double.parseDouble(previousState[1]);
+                                        this.sumSquares = java.lang.Double.parseDouble(previousState[2]);
+                                    } catch ($ex$) {
+                                        if ($ex$ instanceof java.lang.Exception) {
+                                            var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                            this.sum = 0;
+                                            this.sumSquares = 0;
+                                            this.nb = 0;
+                                        }
+                                     }
+                                }
+
+                                public cloneState(): org.kevoree.modeling.api.infer.states.Bayesian.BayesianSubstate {
+                                    var cloned: org.kevoree.modeling.api.infer.states.Bayesian.GaussianSubState = new org.kevoree.modeling.api.infer.states.Bayesian.GaussianSubState();
+                                    cloned.setNb(this.getNb());
+                                    cloned.setSum(this.getSum());
+                                    cloned.setSumSquares(this.getSumSquares());
+                                    return cloned;
+                                }
+
+                            }
+
+                        }
                     }
                 }
                 export module json {
@@ -10678,75 +11015,6 @@ module org {
                             } else {
                                 return parent + PathHelper.pathSep + reference.metaName() + PathHelper.pathIDOpen + target.domainKey() + PathHelper.pathIDClose;
                             }
-                        }
-
-                    }
-
-                    export class TimeMachine {
-
-                        private _previous: org.kevoree.modeling.api.KObject;
-                        private _syncCallback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void;
-                        private _deepMonitoring: boolean;
-                        private _listener: (p : org.kevoree.modeling.api.KEvent) => void = null;
-                        public set(target: org.kevoree.modeling.api.KObject): void {
-                            if (this._syncCallback != null) {
-                                if (this._previous == null) {
-                                    if (this._deepMonitoring) {
-                                        target.intersection(target,  (traceSequence : org.kevoree.modeling.api.trace.TraceSequence) => {
-                                            if (this._syncCallback != null) {
-                                                this._syncCallback(traceSequence);
-                                            }
-                                        });
-                                    } else {
-                                        var sequence: org.kevoree.modeling.api.trace.TraceSequence = new org.kevoree.modeling.api.trace.TraceSequence();
-                                        var traces: java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace> = new java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>();
-                                        var tempTraces: org.kevoree.modeling.api.trace.ModelTrace[] = target.traces(org.kevoree.modeling.api.TraceRequest.ATTRIBUTES_REFERENCES);
-                                        for (var i: number = 0; i < tempTraces.length; i++) {
-                                            traces.add(tempTraces[i]);
-                                        }
-                                        sequence.populate(traces);
-                                        this._syncCallback(sequence);
-                                    }
-                                } else {
-                                    this._previous.universe().model().storage().eventBroker().unregister(this._listener);
-                                    this._previous.merge(target,  (traceSequence : org.kevoree.modeling.api.trace.TraceSequence) => {
-                                        if (this._syncCallback != null) {
-                                            this._syncCallback(traceSequence);
-                                        }
-                                    });
-                                }
-                                this._listener =  (evt : org.kevoree.modeling.api.KEvent) => {
-                                    var sequence: org.kevoree.modeling.api.trace.TraceSequence = new org.kevoree.modeling.api.trace.TraceSequence();
-                                    var traces: java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace> = new java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>();
-                                    traces.add(evt.toTrace());
-                                    sequence.populate(traces);
-                                    this._syncCallback(sequence);
-                                };
-                                target.listen(this._listener);
-                            }
-                            this._previous = target;
-                        }
-
-                        public jumpTime(targetTime: number): void {
-                            if (this._previous != null) {
-                                this._previous.jump(targetTime,  (resolved : org.kevoree.modeling.api.KObject) => {
-                                    this.set(resolved);
-                                });
-                            }
-                        }
-
-                        public jumpDimension(targetDimension: number): void {
-                            if (this._previous != null) {
-                                this._previous.universe().model().universe(targetDimension).time(this._previous.now()).lookup(this._previous.uuid(),  (resolved : org.kevoree.modeling.api.KObject) => {
-                                    this.set(resolved);
-                                });
-                            }
-                        }
-
-                        public init(p_deepMonitoring: boolean, p_callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): org.kevoree.modeling.api.util.TimeMachine {
-                            this._syncCallback = p_callback;
-                            this._deepMonitoring = p_deepMonitoring;
-                            return this;
                         }
 
                     }
