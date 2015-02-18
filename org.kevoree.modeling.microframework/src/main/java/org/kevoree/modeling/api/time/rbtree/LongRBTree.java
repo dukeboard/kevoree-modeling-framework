@@ -15,6 +15,11 @@ public class LongRBTree {
 
     public boolean dirty = false;
 
+    @Override
+    public String toString() {
+        return serialize();
+    }
+
     public String serialize() {
         StringBuilder builder = new StringBuilder();
         builder.append(_size);

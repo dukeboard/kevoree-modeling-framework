@@ -104,6 +104,7 @@ declare module org {
                     visit(visitor: (p: KObject) => VisitResult, end: (p: java.lang.Throwable) => void, request: VisitRequest): void;
                     now(): number;
                     timeTree(): time.TimeTree;
+                    universeTree(): time.rbtree.LongRBTree;
                     referenceInParent(): meta.MetaReference;
                     domainKey(): string;
                     metaClass(): meta.MetaClass;
@@ -274,8 +275,9 @@ declare module org {
                         private _view;
                         private _uuid;
                         private _timeTree;
+                        private _universeTree;
                         private _metaClass;
-                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
+                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_universeTree: time.rbtree.LongRBTree, p_metaClass: meta.MetaClass);
                         view(): KView;
                         uuid(): number;
                         metaClass(): meta.MetaClass;
@@ -283,6 +285,7 @@ declare module org {
                         setRoot(isRoot: boolean): void;
                         now(): number;
                         timeTree(): time.TimeTree;
+                        universeTree(): time.rbtree.LongRBTree;
                         universe(): KUniverse<any, any, any>;
                         path(callback: (p: string) => void): void;
                         parentUuid(): number;
@@ -341,7 +344,7 @@ declare module org {
                         inferCall(operation: meta.MetaOperation, params: any[], callback: (p: any) => void): void;
                     }
                     class AbstractKObjectInfer extends AbstractKObject implements KInfer {
-                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
+                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_universeTree: time.rbtree.LongRBTree, p_metaClass: meta.MetaClass);
                         readOnlyState(): KInferState;
                         modifyState(): KInferState;
                         private internal_load(raw);
@@ -416,10 +419,10 @@ declare module org {
                         select(query: string, callback: (p: KObject[]) => void): void;
                         lookup(kid: number, callback: (p: KObject) => void): void;
                         lookupAll(keys: number[], callback: (p: KObject[]) => void): void;
-                        createProxy(clazz: meta.MetaClass, timeTree: time.TimeTree, key: number): KObject;
+                        createProxy(clazz: meta.MetaClass, timeTree: time.TimeTree, universeTree: time.rbtree.LongRBTree, key: number): KObject;
                         create(clazz: meta.MetaClass): KObject;
                         listen(listener: (p: KEvent) => void): void;
-                        internalCreate(clazz: meta.MetaClass, timeTree: time.TimeTree, key: number): KObject;
+                        internalCreate(clazz: meta.MetaClass, timeTree: time.TimeTree, universeTree: time.rbtree.LongRBTree, key: number): KObject;
                         json(): ModelFormat;
                         xmi(): ModelFormat;
                         equals(obj: any): boolean;
@@ -517,37 +520,40 @@ declare module org {
                     }
                     class CacheEntry {
                         timeTree: time.TimeTree;
+                        universeTree: time.rbtree.LongRBTree;
                         metaClass: meta.MetaClass;
                         raw: any[];
                     }
                     class DefaultKStore implements KStore {
                         static KEY_SEP: string;
                         private _db;
-                        private caches;
-                        private universeTree;
+                        private cache;
                         private _eventBroker;
                         private _operationManager;
                         private _scheduler;
                         private _model;
                         private _objectKeyCalculator;
                         private _dimensionKeyCalculator;
+                        private isConnected;
                         private static OUT_OF_CACHE_MESSAGE;
                         private static DELETED_MESSAGE;
-                        private isConnected;
                         private static UNIVERSE_NOT_CONNECTED_ERROR;
-                        static INDEX_RESOLVED_DIM: number;
+                        static INDEX_RESOLVED_UNIVERSE: number;
+                        static INDEX_RESOLVED_UNIVERSE_TREE: number;
                         static INDEX_RESOLVED_TIME: number;
-                        static INDEX_RESOLVED_TIMETREE: number;
+                        static INDEX_RESOLVED_TIME_TREE: number;
+                        static INDEX_SIZE: number;
                         constructor(model: KModel<any>);
                         connect(callback: (p: java.lang.Throwable) => void): void;
                         close(callback: (p: java.lang.Throwable) => void): void;
-                        private keyTree(uni, key);
+                        private keyTimeTree(uni, key);
+                        private keyUniverseObjTree(key);
                         private keyRoot(uni);
                         private keyRootTree(uni_key);
                         keyPayload(uni: number, time: number, key: number): string;
                         private keyLastPrefix();
                         private keyLastUniIndex(prefix);
-                        private keyUniverseTree();
+                        private keyUniverseGlobalTree();
                         private keyLastObjIndex(prefix);
                         nextUniverseKey(): number;
                         nextObjectKey(): number;
@@ -567,11 +573,12 @@ declare module org {
                         setDataBase(p_dataBase: KDataBase): void;
                         setScheduler(p_scheduler: KScheduler): void;
                         operationManager(): util.KOperationManager;
-                        read_cache(dimensionKey: number, timeKey: number, uuid: number): CacheEntry;
-                        write_cache(dimensionKey: number, timeKey: number, uuid: number, cacheEntry: CacheEntry): void;
-                        private write_tree(dimensionKey, uuid, timeTree);
+                        read_cache(universeKey: number, timeKey: number, uuid: number): CacheEntry;
+                        write_cache(universeKey: number, timeKey: number, uuid: number, cacheEntry: CacheEntry): void;
+                        private write_time_tree(universeKey, uuid, timeTree);
+                        private write_universe_tree(universeKey, uuid, universeTree);
                         private write_roots(dimensionKey, timeTree);
-                        private size_dirties(universeCache);
+                        private size_dirties();
                         internal_resolve_dim_time(originView: KView, uuids: number[], callback: (p: any[][]) => void): void;
                         private resolve_timeTrees(p_universe, keys, callback);
                         private resolve_roots(p_universe, callback);
@@ -655,6 +662,11 @@ declare module org {
                         close(callback: (p: java.lang.Throwable) => void): void;
                     }
                     module cache {
+                        class ModelCache {
+                            universeTreeCache: java.util.Map<number, time.rbtree.LongRBTree>;
+                            universeCache: java.util.Map<number, UniverseCache>;
+                            universeTree: time.rbtree.LongRBTree;
+                        }
                         class TimeCache {
                             payload_cache: java.util.Map<number, CacheEntry>;
                             root: KObject;
@@ -759,7 +771,7 @@ declare module org {
                 }
                 module infer {
                     class AnalyticKInfer extends abs.AbstractKObjectInfer {
-                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree);
+                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_universeTree: time.rbtree.LongRBTree);
                         train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
                         infer(features: any[]): any;
                         accuracy(testSet: any[][], expectedResultSet: any[]): any;
@@ -768,7 +780,7 @@ declare module org {
                     }
                     class GaussianClassificationKInfer extends abs.AbstractKObjectInfer {
                         private alpha;
-                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
+                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_universeTree: time.rbtree.LongRBTree, p_metaClass: meta.MetaClass);
                         getAlpha(): number;
                         setAlpha(alpha: number): void;
                         train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
@@ -784,7 +796,7 @@ declare module org {
                         setAlpha(alpha: number): void;
                         getIterations(): number;
                         setIterations(iterations: number): void;
-                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
+                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_universeTree: time.rbtree.LongRBTree, p_metaClass: meta.MetaClass);
                         private calculate(weights, features);
                         train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
                         infer(features: any[]): any;
@@ -799,7 +811,7 @@ declare module org {
                         setAlpha(alpha: number): void;
                         getIterations(): number;
                         setIterations(iterations: number): void;
-                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
+                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_universeTree: time.rbtree.LongRBTree, p_metaClass: meta.MetaClass);
                         private calculate(weights, features);
                         train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
                         infer(features: any[]): any;
@@ -814,7 +826,7 @@ declare module org {
                         setToleratedErr(toleratedErr: number): void;
                         getMaxDegree(): number;
                         setMaxDegree(maxDegree: number): void;
-                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
+                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_universeTree: time.rbtree.LongRBTree, p_metaClass: meta.MetaClass);
                         private calculateLong(time, weights, timeOrigin, unit);
                         private calculate(weights, t);
                         train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
@@ -830,7 +842,7 @@ declare module org {
                         setToleratedErr(toleratedErr: number): void;
                         getMaxDegree(): number;
                         setMaxDegree(maxDegree: number): void;
-                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
+                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_universeTree: time.rbtree.LongRBTree, p_metaClass: meta.MetaClass);
                         private calculateLong(time, weights, timeOrigin, unit);
                         private calculate(weights, t);
                         train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
@@ -846,7 +858,7 @@ declare module org {
                         setAlpha(alpha: number): void;
                         getBeta(): number;
                         setBeta(beta: number): void;
-                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
+                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_universeTree: time.rbtree.LongRBTree, p_metaClass: meta.MetaClass);
                         private calculate(weights, features);
                         train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
                         infer(features: any[]): any;
@@ -1322,7 +1334,7 @@ declare module org {
                         internal_create(key: number): KUniverse<any, any, any>;
                     }
                     class DynamicKObject extends abs.AbstractKObject {
-                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
+                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_universeTree: time.rbtree.LongRBTree, p_metaClass: meta.MetaClass);
                     }
                     class DynamicKUniverse extends abs.AbstractKUniverse<any, any, any> {
                         constructor(p_universe: KModel<any>, p_key: number);
@@ -1330,7 +1342,7 @@ declare module org {
                     }
                     class DynamicKView extends abs.AbstractKView {
                         constructor(p_now: number, p_dimension: KUniverse<any, any, any>);
-                        internalCreate(clazz: meta.MetaClass, timeTree: time.TimeTree, key: number): KObject;
+                        internalCreate(clazz: meta.MetaClass, timeTree: time.TimeTree, p_universeTree: time.rbtree.LongRBTree, key: number): KObject;
                     }
                     class DynamicMetaClass extends abs.AbstractMetaClass {
                         private cached_attributes;
@@ -1419,6 +1431,7 @@ declare module org {
                             private _size;
                             dirty: boolean;
                             size(): number;
+                            toString(): string;
                             serialize(): string;
                             unserialize(payload: string): void;
                             previousOrEqual(key: number): LongTreeNode;

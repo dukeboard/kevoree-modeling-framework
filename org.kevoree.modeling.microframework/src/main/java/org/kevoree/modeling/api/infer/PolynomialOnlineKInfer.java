@@ -9,6 +9,7 @@ import org.kevoree.modeling.api.infer.states.PolynomialKInferState;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml;
 import org.kevoree.modeling.api.time.TimeTree;
+import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 
 /**
  * Created by assaad on 11/02/15.
@@ -39,8 +40,8 @@ public class PolynomialOnlineKInfer extends AbstractKObjectInfer {
 
 
 
-    public PolynomialOnlineKInfer(KView p_view, long p_uuid, TimeTree p_timeTree, MetaClass p_metaClass) {
-        super(p_view, p_uuid, p_timeTree, p_metaClass);
+    public PolynomialOnlineKInfer(KView p_view, long p_uuid, TimeTree p_timeTree, LongRBTree p_universeTree, MetaClass p_metaClass) {
+        super(p_view, p_uuid, p_timeTree,p_universeTree, p_metaClass);
     }
 
 

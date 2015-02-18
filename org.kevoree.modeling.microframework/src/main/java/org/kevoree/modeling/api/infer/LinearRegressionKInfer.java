@@ -7,6 +7,7 @@ import org.kevoree.modeling.api.abs.AbstractKObjectInfer;
 import org.kevoree.modeling.api.infer.states.DoubleArrayKInferState;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.time.TimeTree;
+import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 
 import java.util.Random;
 
@@ -48,8 +49,8 @@ public class LinearRegressionKInfer extends AbstractKObjectInfer {
 
 
 
-    public LinearRegressionKInfer(KView p_view, long p_uuid, TimeTree p_timeTree, MetaClass p_metaClass) {
-        super(p_view, p_uuid, p_timeTree, p_metaClass);
+    public LinearRegressionKInfer(KView p_view, long p_uuid, TimeTree p_timeTree, LongRBTree p_universeTree, MetaClass p_metaClass) {
+        super(p_view, p_uuid, p_timeTree,p_universeTree, p_metaClass);
     }
 
     private double calculate(double[] weights, double[] features) {

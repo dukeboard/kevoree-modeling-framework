@@ -1,3 +1,4 @@
+CLEANUP TIME_TREE for useless delete
 Finish storage of KInfer
 ADD REFLEXIVE CALL for OPERATION and INFER CALL for OPERATION
 LATER - PUT TASK BY default

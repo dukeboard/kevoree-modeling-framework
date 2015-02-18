@@ -13,6 +13,7 @@ import org.kevoree.modeling.api.meta.MetaModel;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.time.DefaultTimeTree;
 import org.kevoree.modeling.api.time.TimeTree;
+import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -88,8 +89,10 @@ public class JsonModelLoader {
                         String meta = elem.get(JsonModelSerializer.KEY_META).toString();
                         TimeTree timeTree = new DefaultTimeTree();
                         timeTree.insert(factory.now());
+                        LongRBTree universeTree = new LongRBTree();
+                        universeTree.insert(factory.universe().key(), factory.now());
                         MetaClass metaClass = metaModel.metaClass(meta);
-                        KObject current = ((AbstractKView) factory).createProxy(metaClass, timeTree, mappedKeys.get(kid));
+                        KObject current = ((AbstractKView) factory).createProxy(metaClass, timeTree, universeTree, mappedKeys.get(kid));
                         factory.universe().model().storage().initKObject(current, factory);
                         Object[] raw = factory.universe().model().storage().raw(current, AccessMode.WRITE);
                         String[] metaKeys = elem.keySet().toArray(new String[elem.size()]);

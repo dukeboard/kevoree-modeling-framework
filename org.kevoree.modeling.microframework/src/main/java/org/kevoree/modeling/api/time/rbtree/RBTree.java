@@ -21,15 +21,7 @@ public class RBTree {
         }
         return builder.toString();
     }
-
-    /*
-     fun serializeBinary() : ByteBuffer {
-         var bb = ByteBuffer.allocate(_size*13)
-         root?.serializeBinary(bb)
-         return bb
-     }*/
-
-
+    
     public void unserialize(String payload) throws Exception {
         if (payload == null || payload.length() == 0) {
             return;

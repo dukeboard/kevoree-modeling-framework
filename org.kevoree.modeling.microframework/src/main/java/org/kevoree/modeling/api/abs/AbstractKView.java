@@ -11,6 +11,7 @@ import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.json.JsonFormat;
 import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 import org.kevoree.modeling.api.traversal.selector.KSelector;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.DefaultTimeTree;
@@ -94,9 +95,9 @@ public abstract class AbstractKView implements KView {
         universe().model().storage().lookupAll(this, keys, callback);
     }
 
-    public KObject createProxy(MetaClass clazz, TimeTree timeTree, long key) {
+    public KObject createProxy(MetaClass clazz, TimeTree timeTree, LongRBTree universeTree, long key) {
         //TODO check the radixKey
-        return internalCreate(clazz, timeTree, key);
+        return internalCreate(clazz, timeTree, universeTree, key);
     }
 
     @Override
@@ -104,7 +105,10 @@ public abstract class AbstractKView implements KView {
         if (!Checker.isDefined(clazz)) {
             return null;
         }
-        KObject newObj = internalCreate(clazz, new DefaultTimeTree().insert(now()), universe().model().storage().nextObjectKey());
+        TimeTree newTimeTree = new DefaultTimeTree().insert(now());
+        LongRBTree newUniverseTree = new LongRBTree();
+        newUniverseTree.insert(universe().key(), now());
+        KObject newObj = internalCreate(clazz, newTimeTree, newUniverseTree, universe().model().storage().nextObjectKey());
         if (newObj != null) {
             universe().model().storage().initKObject(newObj, this);
             universe().model().storage().eventBroker().notify(new DefaultKEvent(KActionType.NEW, newObj, clazz, null));
@@ -116,7 +120,7 @@ public abstract class AbstractKView implements KView {
         universe().model().storage().eventBroker().registerListener(this, listener, null);
     }
 
-    protected abstract KObject internalCreate(MetaClass clazz, TimeTree timeTree, long key);
+    protected abstract KObject internalCreate(MetaClass clazz, TimeTree timeTree, LongRBTree universeTree, long key);
 
     @Override
     public ModelFormat json() {

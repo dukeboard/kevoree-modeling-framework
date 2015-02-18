@@ -7,6 +7,7 @@ import org.kevoree.modeling.api.abs.AbstractKObjectInfer;
 import org.kevoree.modeling.api.infer.states.AnalyticKInferState;
 import org.kevoree.modeling.api.infer.states.DoubleArrayKInferState;
 import org.kevoree.modeling.api.time.TimeTree;
+import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 
 /**
  * This class is a basic live learning of the average of a field.
@@ -19,8 +20,8 @@ import org.kevoree.modeling.api.time.TimeTree;
  */
 public class AnalyticKInfer extends AbstractKObjectInfer {
 
-    public AnalyticKInfer(KView p_view, long p_uuid, TimeTree p_timeTree) {
-        super(p_view, p_uuid, p_timeTree, null);
+    public AnalyticKInfer(KView p_view, long p_uuid, TimeTree p_timeTree, LongRBTree p_universeTree) {
+        super(p_view, p_uuid, p_timeTree,p_universeTree, null);
     }
 
     @Override

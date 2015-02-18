@@ -7,14 +7,15 @@ import org.kevoree.modeling.api.abs.AbstractKObjectInfer;
 import org.kevoree.modeling.api.infer.states.GaussianArrayKInferState;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.time.TimeTree;
+import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 
 /**
  * Created by assaad on 13/02/15.
  */
 public class GaussianClassificationKInfer extends AbstractKObjectInfer {
 
-    public GaussianClassificationKInfer(KView p_view, long p_uuid, TimeTree p_timeTree, MetaClass p_metaClass) {
-        super(p_view, p_uuid, p_timeTree, p_metaClass);
+    public GaussianClassificationKInfer(KView p_view, long p_uuid, TimeTree p_timeTree, LongRBTree p_universeTree, MetaClass p_metaClass) {
+        super(p_view, p_uuid, p_timeTree,p_universeTree, p_metaClass);
     }
 
     public double getAlpha() {

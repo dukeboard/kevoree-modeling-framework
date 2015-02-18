@@ -58,6 +58,7 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
 
     @Override
     public void listenAllTimes(KObject target, ModelListener listener) {
+        //TODO invert this and target to fix a potential bug
         model().storage().eventBroker().registerListener(this, listener, target);
     }
 

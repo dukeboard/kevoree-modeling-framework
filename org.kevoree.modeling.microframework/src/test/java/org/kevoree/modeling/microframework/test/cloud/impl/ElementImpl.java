@@ -3,6 +3,7 @@ package org.kevoree.modeling.microframework.test.cloud.impl;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.time.TimeTree;
+import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Element;
 import org.kevoree.modeling.microframework.test.cloud.meta.MetaElement;
@@ -12,8 +13,8 @@ import org.kevoree.modeling.microframework.test.cloud.meta.MetaElement;
  */
 public class ElementImpl extends AbstractKObject implements Element {
 
-    public ElementImpl(CloudView factory, long kid, TimeTree timeTree, MetaClass p_metaclass) {
-        super(factory, kid, timeTree, p_metaclass);
+    public ElementImpl(CloudView factory, long kid, TimeTree timeTree, LongRBTree p_universeTree, MetaClass p_metaclass) {
+        super(factory, kid, timeTree,p_universeTree, p_metaclass);
     }
 
     @Override

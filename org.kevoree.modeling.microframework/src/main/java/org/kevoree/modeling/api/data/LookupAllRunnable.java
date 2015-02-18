@@ -6,6 +6,7 @@ import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.time.TimeTree;
+import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,11 +37,11 @@ public class LookupAllRunnable implements Runnable {
                 List<Integer> toLoadIndexes = new ArrayList<Integer>();
                 for (int i = 0; i < objects.length; i++) {
                     if (objects[i][DefaultKStore.INDEX_RESOLVED_TIME] != null) {
-                        CacheEntry entry = _store.read_cache((Long) objects[i][DefaultKStore.INDEX_RESOLVED_DIM], (Long) objects[i][DefaultKStore.INDEX_RESOLVED_TIME], _keys[i]);
+                        CacheEntry entry = _store.read_cache((Long) objects[i][DefaultKStore.INDEX_RESOLVED_UNIVERSE], (Long) objects[i][DefaultKStore.INDEX_RESOLVED_TIME], _keys[i]);
                         if (entry == null) {
                             toLoadIndexes.add(i);
                         } else {
-                            resolved[i] = ((AbstractKView) _originView).createProxy(entry.metaClass, entry.timeTree, _keys[i]);
+                            resolved[i] = ((AbstractKView) _originView).createProxy(entry.metaClass, entry.timeTree, entry.universeTree, _keys[i]);
                         }
                     }
                 }
@@ -50,7 +51,7 @@ public class LookupAllRunnable implements Runnable {
                     String[] toLoadKeys = new String[toLoadIndexes.size()];
                     for (int i = 0; i < toLoadIndexes.size(); i++) {
                         int toLoadIndex = toLoadIndexes.get(i);
-                        toLoadKeys[i] = _store.keyPayload((Long) objects[toLoadIndex][DefaultKStore.INDEX_RESOLVED_DIM], (Long) objects[toLoadIndex][DefaultKStore.INDEX_RESOLVED_TIME], _keys[i]);
+                        toLoadKeys[i] = _store.keyPayload((Long) objects[toLoadIndex][DefaultKStore.INDEX_RESOLVED_UNIVERSE], (Long) objects[toLoadIndex][DefaultKStore.INDEX_RESOLVED_TIME], _keys[i]);
                     }
                     _store.dataBase().get(toLoadKeys, new ThrowableCallback<String[]>() {
                         @Override
@@ -65,11 +66,12 @@ public class LookupAllRunnable implements Runnable {
                                         //Create the raw CacheEntry
                                         CacheEntry entry = JsonRaw.decode(strings[i], _originView, (Long) objects[i][DefaultKStore.INDEX_RESOLVED_TIME]);
                                         if (entry != null) {
-                                            entry.timeTree = (TimeTree) objects[i][DefaultKStore.INDEX_RESOLVED_TIMETREE];
+                                            entry.timeTree = (TimeTree) objects[i][DefaultKStore.INDEX_RESOLVED_TIME_TREE];
+                                            entry.universeTree = (LongRBTree) objects[i][DefaultKStore.INDEX_RESOLVED_UNIVERSE_TREE];
                                             //Create and Add the proxy
-                                            resolved[index] = ((AbstractKView) _originView).createProxy(entry.metaClass, entry.timeTree, _keys[i]);
+                                            resolved[index] = ((AbstractKView) _originView).createProxy(entry.metaClass, entry.timeTree, entry.universeTree, _keys[i]);
                                             //Save the cache value
-                                            _store.write_cache((Long) objects[i][DefaultKStore.INDEX_RESOLVED_DIM], (Long) objects[i][DefaultKStore.INDEX_RESOLVED_TIME], _keys[i], entry);
+                                            _store.write_cache((Long) objects[i][DefaultKStore.INDEX_RESOLVED_UNIVERSE], (Long) objects[i][DefaultKStore.INDEX_RESOLVED_TIME], _keys[i], entry);
                                         }
                                     }
                                 }

@@ -290,11 +290,12 @@ var org;
                     })();
                     abs.AbstractKModel = AbstractKModel;
                     var AbstractKObject = (function () {
-                        function AbstractKObject(p_view, p_uuid, p_timeTree, p_metaClass) {
+                        function AbstractKObject(p_view, p_uuid, p_timeTree, p_universeTree, p_metaClass) {
                             this._view = p_view;
                             this._uuid = p_uuid;
                             this._timeTree = p_timeTree;
                             this._metaClass = p_metaClass;
+                            this._universeTree = p_universeTree;
                         }
                         AbstractKObject.prototype.view = function () {
                             return this._view;
@@ -331,6 +332,9 @@ var org;
                         };
                         AbstractKObject.prototype.timeTree = function () {
                             return this._timeTree;
+                        };
+                        AbstractKObject.prototype.universeTree = function () {
+                            return this._universeTree;
                         };
                         AbstractKObject.prototype.universe = function () {
                             return this._view.universe();
@@ -1182,8 +1186,8 @@ var org;
                     abs.AbstractKObject = AbstractKObject;
                     var AbstractKObjectInfer = (function (_super) {
                         __extends(AbstractKObjectInfer, _super);
-                        function AbstractKObjectInfer(p_view, p_uuid, p_timeTree, p_metaClass) {
-                            _super.call(this, p_view, p_uuid, p_timeTree, p_metaClass);
+                        function AbstractKObjectInfer(p_view, p_uuid, p_timeTree, p_universeTree, p_metaClass) {
+                            _super.call(this, p_view, p_uuid, p_timeTree, p_universeTree, p_metaClass);
                         }
                         AbstractKObjectInfer.prototype.readOnlyState = function () {
                             var raw = this.view().universe().model().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
@@ -1518,14 +1522,17 @@ var org;
                         AbstractKView.prototype.lookupAll = function (keys, callback) {
                             this.universe().model().storage().lookupAll(this, keys, callback);
                         };
-                        AbstractKView.prototype.createProxy = function (clazz, timeTree, key) {
-                            return this.internalCreate(clazz, timeTree, key);
+                        AbstractKView.prototype.createProxy = function (clazz, timeTree, universeTree, key) {
+                            return this.internalCreate(clazz, timeTree, universeTree, key);
                         };
                         AbstractKView.prototype.create = function (clazz) {
                             if (!org.kevoree.modeling.api.util.Checker.isDefined(clazz)) {
                                 return null;
                             }
-                            var newObj = this.internalCreate(clazz, new org.kevoree.modeling.api.time.DefaultTimeTree().insert(this.now()), this.universe().model().storage().nextObjectKey());
+                            var newTimeTree = new org.kevoree.modeling.api.time.DefaultTimeTree().insert(this.now());
+                            var newUniverseTree = new org.kevoree.modeling.api.time.rbtree.LongRBTree();
+                            newUniverseTree.insert(this.universe().key(), this.now());
+                            var newObj = this.internalCreate(clazz, newTimeTree, newUniverseTree, this.universe().model().storage().nextObjectKey());
                             if (newObj != null) {
                                 this.universe().model().storage().initKObject(newObj, this);
                                 this.universe().model().storage().eventBroker().notify(new org.kevoree.modeling.api.event.DefaultKEvent(org.kevoree.modeling.api.KActionType.NEW, newObj, clazz, null));
@@ -1535,7 +1542,7 @@ var org;
                         AbstractKView.prototype.listen = function (listener) {
                             this.universe().model().storage().eventBroker().registerListener(this, listener, null);
                         };
-                        AbstractKView.prototype.internalCreate = function (clazz, timeTree, key) {
+                        AbstractKView.prototype.internalCreate = function (clazz, timeTree, universeTree, key) {
                             throw "Abstract method";
                         };
                         AbstractKView.prototype.json = function () {
@@ -1810,8 +1817,7 @@ var org;
                     data.CacheEntry = CacheEntry;
                     var DefaultKStore = (function () {
                         function DefaultKStore(model) {
-                            this.caches = new java.util.HashMap();
-                            this.universeTree = new org.kevoree.modeling.api.time.rbtree.LongRBTree();
+                            this.cache = new org.kevoree.modeling.api.data.cache.ModelCache();
                             this._objectKeyCalculator = null;
                             this._dimensionKeyCalculator = null;
                             this.isConnected = false;
@@ -1859,7 +1865,7 @@ var org;
                                                                 var keys2 = new Array();
                                                                 keys2[0] = _this.keyLastUniIndex(payloadPrefix);
                                                                 keys2[1] = _this.keyLastObjIndex(payloadPrefix);
-                                                                keys2[2] = _this.keyUniverseTree();
+                                                                keys2[2] = _this.keyUniverseGlobalTree();
                                                                 _this._db.get(keys2, function (strings, error) {
                                                                     if (error != null) {
                                                                         if (callback != null) {
@@ -1879,7 +1885,7 @@ var org;
                                                                                 }
                                                                                 var globalUniverseTree = strings[2];
                                                                                 try {
-                                                                                    _this.universeTree.unserialize(globalUniverseTree);
+                                                                                    _this.cache.universeTree.unserialize(globalUniverseTree);
                                                                                 }
                                                                                 catch ($ex$) {
                                                                                     if ($ex$ instanceof java.lang.Exception) {
@@ -1967,8 +1973,11 @@ var org;
                                 });
                             }
                         };
-                        DefaultKStore.prototype.keyTree = function (uni, key) {
+                        DefaultKStore.prototype.keyTimeTree = function (uni, key) {
                             return "" + uni + DefaultKStore.KEY_SEP + key;
+                        };
+                        DefaultKStore.prototype.keyUniverseObjTree = function (key) {
+                            return "" + key;
                         };
                         DefaultKStore.prototype.keyRoot = function (uni) {
                             return "" + uni + DefaultKStore.KEY_SEP + "root";
@@ -1985,7 +1994,7 @@ var org;
                         DefaultKStore.prototype.keyLastUniIndex = function (prefix) {
                             return "index_uni_" + prefix;
                         };
-                        DefaultKStore.prototype.keyUniverseTree = function () {
+                        DefaultKStore.prototype.keyUniverseGlobalTree = function () {
                             return "uni_tree";
                         };
                         DefaultKStore.prototype.keyLastObjIndex = function (prefix) {
@@ -2004,28 +2013,30 @@ var org;
                             return this._objectKeyCalculator.nextKey();
                         };
                         DefaultKStore.prototype.initUniverse = function (p_universe, p_parent) {
-                            if (this.universeTree.lookup(p_universe.key()) == null) {
+                            if (this.cache.universeTree.lookup(p_universe.key()) == null) {
                                 if (p_parent == null) {
-                                    this.universeTree.insert(p_universe.key(), p_universe.key());
+                                    this.cache.universeTree.insert(p_universe.key(), p_universe.key());
                                 }
                                 else {
-                                    this.universeTree.insert(p_universe.key(), p_parent.key());
+                                    this.cache.universeTree.insert(p_universe.key(), p_parent.key());
                                 }
                             }
                         };
                         DefaultKStore.prototype.initKObject = function (obj, originView) {
-                            this.write_tree(obj.universe().key(), obj.uuid(), obj.timeTree());
+                            this.write_time_tree(obj.universe().key(), obj.uuid(), obj.timeTree());
+                            this.write_universe_tree(obj.universe().key(), obj.uuid(), obj.universeTree());
                             var cacheEntry = new org.kevoree.modeling.api.data.CacheEntry();
                             cacheEntry.raw = new Array();
                             cacheEntry.raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX] = true;
                             cacheEntry.metaClass = obj.metaClass();
                             cacheEntry.timeTree = obj.timeTree();
+                            cacheEntry.universeTree = obj.universeTree();
                             this.write_cache(obj.universe().key(), obj.now(), obj.uuid(), cacheEntry);
                         };
                         DefaultKStore.prototype.raw = function (origin, accessMode) {
                             var resolvedTime = origin.timeTree().resolve(origin.now());
                             var needCopy = accessMode.equals(org.kevoree.modeling.api.data.AccessMode.WRITE) && (resolvedTime != origin.now());
-                            var universeCache = this.caches.get(origin.universe().key());
+                            var universeCache = this.cache.universeCache.get(origin.universe().key());
                             if (universeCache == null) {
                                 System.err.println(DefaultKStore.OUT_OF_CACHE_MESSAGE);
                             }
@@ -2088,7 +2099,8 @@ var org;
                                     clonedEntry.raw = cloned;
                                     clonedEntry.metaClass = entry.metaClass;
                                     clonedEntry.timeTree = entry.timeTree;
-                                    entry.timeTree.insert(origin.now());
+                                    clonedEntry.universeTree = entry.universeTree;
+                                    clonedEntry.timeTree.insert(origin.now());
                                     this.write_cache(origin.universe().key(), origin.now(), origin.uuid(), clonedEntry);
                                     return clonedEntry.raw;
                                 }
@@ -2096,10 +2108,11 @@ var org;
                         };
                         DefaultKStore.prototype.discard = function (p_universe, callback) {
                             if (p_universe == null) {
-                                this.caches.clear();
+                                this.cache.universeCache.clear();
+                                this.cache.universeTreeCache.clear();
                             }
                             else {
-                                this.caches.remove(p_universe.key());
+                                this.cache.universeCache.remove(p_universe.key());
                             }
                             if (callback != null) {
                                 callback(null);
@@ -2109,29 +2122,23 @@ var org;
                             throw new java.lang.RuntimeException("Not implemented yet !");
                         };
                         DefaultKStore.prototype.save = function (callback) {
-                            if (this.caches == null) {
+                            if (this.cache.universeCache == null) {
                                 if (callback != null) {
                                     callback(null);
                                 }
                             }
                             else {
-                                var sizeOfDirties = 0;
-                                var universeKeys = this.caches.keySet().toArray(new Array());
-                                for (var i = 0; i < universeKeys.length; i++) {
-                                    var universeCache = this.caches.get(universeKeys[i]);
-                                    if (universeCache != null) {
-                                        sizeOfDirties = this.size_dirties(universeCache);
-                                    }
-                                }
+                                var sizeOfDirties = this.size_dirties();
                                 sizeOfDirties = sizeOfDirties + 2;
-                                if (this.universeTree.dirty) {
+                                if (this.cache.universeTree.dirty) {
                                     sizeOfDirties = sizeOfDirties + 1;
                                 }
                                 var payloads = new Array(new Array());
                                 var i = 0;
+                                var universeKeys = this.cache.universeCache.keySet().toArray(new Array());
                                 for (var h = 0; h < universeKeys.length; h++) {
                                     var currentUniverseKey = universeKeys[h];
-                                    var universeCache = this.caches.get(currentUniverseKey);
+                                    var universeCache = this.cache.universeCache.get(currentUniverseKey);
                                     if (universeCache != null) {
                                         var times = universeCache.timesCaches.keySet().toArray(new Array());
                                         for (var j = 0; j < times.length; j++) {
@@ -2158,7 +2165,7 @@ var org;
                                             var timeTree = universeCache.timeTreeCache.get(timeTreeKey);
                                             if (timeTree.isDirty()) {
                                                 var payloadC = new Array();
-                                                payloadC[0] = this.keyTree(currentUniverseKey, timeTreeKey);
+                                                payloadC[0] = this.keyTimeTree(currentUniverseKey, timeTreeKey);
                                                 payloadC[1] = timeTree.toString();
                                                 payloads[i] = payloadC;
                                                 timeTree.setDirty(false);
@@ -2174,6 +2181,29 @@ var org;
                                             i++;
                                         }
                                     }
+                                }
+                                var objectUUIDkeysArr = this.cache.universeTreeCache.keySet().toArray(new Array());
+                                for (var m = 0; m < objectUUIDkeysArr.length; m++) {
+                                    for (var l = 0; l < objectUUIDkeysArr.length; l++) {
+                                        var objectKey = objectUUIDkeysArr[l];
+                                        var universeObjTree = this.cache.universeTreeCache.get(objectKey);
+                                        if (universeObjTree.dirty) {
+                                            var payloadUNI = new Array();
+                                            payloadUNI[0] = this.keyUniverseObjTree(objectKey);
+                                            payloadUNI[1] = universeObjTree.serialize();
+                                            payloads[i] = payloadUNI;
+                                            universeObjTree.dirty = false;
+                                            i++;
+                                        }
+                                    }
+                                }
+                                if (this.cache.universeTree.dirty) {
+                                    var payloadUNI = new Array();
+                                    payloadUNI[0] = this.keyUniverseGlobalTree();
+                                    payloadUNI[1] = this.cache.universeTree.serialize();
+                                    payloads[i] = payloadUNI;
+                                    this.cache.universeTree.dirty = false;
+                                    i++;
                                 }
                                 var payloadDim = new Array();
                                 payloadDim[0] = this.keyLastUniIndex("" + this._dimensionKeyCalculator.prefix());
@@ -2254,8 +2284,8 @@ var org;
                         DefaultKStore.prototype.operationManager = function () {
                             return this._operationManager;
                         };
-                        DefaultKStore.prototype.read_cache = function (dimensionKey, timeKey, uuid) {
-                            var universeCache = this.caches.get(dimensionKey);
+                        DefaultKStore.prototype.read_cache = function (universeKey, timeKey, uuid) {
+                            var universeCache = this.cache.universeCache.get(universeKey);
                             if (universeCache != null) {
                                 var timeCache = universeCache.timesCaches.get(timeKey);
                                 if (timeCache == null) {
@@ -2269,11 +2299,11 @@ var org;
                                 return null;
                             }
                         };
-                        DefaultKStore.prototype.write_cache = function (dimensionKey, timeKey, uuid, cacheEntry) {
-                            var universeCache = this.caches.get(dimensionKey);
+                        DefaultKStore.prototype.write_cache = function (universeKey, timeKey, uuid, cacheEntry) {
+                            var universeCache = this.cache.universeCache.get(universeKey);
                             if (universeCache == null) {
                                 universeCache = new org.kevoree.modeling.api.data.cache.UniverseCache();
-                                this.caches.put(dimensionKey, universeCache);
+                                this.cache.universeCache.put(universeKey, universeCache);
                             }
                             var timeCache = universeCache.timesCaches.get(timeKey);
                             if (timeCache == null) {
@@ -2282,50 +2312,66 @@ var org;
                             }
                             timeCache.payload_cache.put(uuid, cacheEntry);
                         };
-                        DefaultKStore.prototype.write_tree = function (dimensionKey, uuid, timeTree) {
-                            var universeCache = this.caches.get(dimensionKey);
+                        DefaultKStore.prototype.write_time_tree = function (universeKey, uuid, timeTree) {
+                            var universeCache = this.cache.universeCache.get(universeKey);
                             if (universeCache == null) {
                                 universeCache = new org.kevoree.modeling.api.data.cache.UniverseCache();
-                                this.caches.put(dimensionKey, universeCache);
+                                this.cache.universeCache.put(universeKey, universeCache);
                             }
                             universeCache.timeTreeCache.put(uuid, timeTree);
                         };
+                        DefaultKStore.prototype.write_universe_tree = function (universeKey, uuid, universeTree) {
+                            this.cache.universeTreeCache.put(uuid, universeTree);
+                        };
                         DefaultKStore.prototype.write_roots = function (dimensionKey, timeTree) {
-                            var universeCache = this.caches.get(dimensionKey);
+                            var universeCache = this.cache.universeCache.get(dimensionKey);
                             if (universeCache == null) {
                                 universeCache = new org.kevoree.modeling.api.data.cache.UniverseCache();
-                                this.caches.put(dimensionKey, universeCache);
+                                this.cache.universeCache.put(dimensionKey, universeCache);
                             }
                             universeCache.roots = timeTree;
                         };
-                        DefaultKStore.prototype.size_dirties = function (universeCache) {
-                            var times = universeCache.timesCaches.keySet().toArray(new Array());
+                        DefaultKStore.prototype.size_dirties = function () {
                             var sizeCache = 0;
-                            for (var i = 0; i < times.length; i++) {
-                                var timeCache = universeCache.timesCaches.get(times[i]);
-                                if (timeCache != null) {
-                                    var keys = timeCache.payload_cache.keySet().toArray(new Array());
-                                    for (var k = 0; k < keys.length; k++) {
-                                        var idObj = keys[k];
-                                        var cachedEntry = timeCache.payload_cache.get(idObj);
-                                        if (cachedEntry != null && cachedEntry.raw != null && cachedEntry.raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX] != null && cachedEntry.raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX].toString().equals("true")) {
+                            var loadedUniverseKey = this.cache.universeCache.keySet().toArray(new Array());
+                            for (var l = 0; l < loadedUniverseKey.length; l++) {
+                                var universeCache = this.cache.universeCache.get(loadedUniverseKey[l]);
+                                if (universeCache != null) {
+                                    var times = universeCache.timesCaches.keySet().toArray(new Array());
+                                    for (var i = 0; i < times.length; i++) {
+                                        var timeCache = universeCache.timesCaches.get(times[i]);
+                                        if (timeCache != null) {
+                                            var keys = timeCache.payload_cache.keySet().toArray(new Array());
+                                            for (var k = 0; k < keys.length; k++) {
+                                                var idObj = keys[k];
+                                                var cachedEntry = timeCache.payload_cache.get(idObj);
+                                                if (cachedEntry != null && cachedEntry.raw != null && cachedEntry.raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX] != null && cachedEntry.raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX].toString().equals("true")) {
+                                                    sizeCache++;
+                                                }
+                                            }
+                                            if (timeCache.rootDirty) {
+                                                sizeCache++;
+                                            }
+                                        }
+                                    }
+                                    var ids = universeCache.timeTreeCache.keySet().toArray(new Array());
+                                    for (var k = 0; k < ids.length; k++) {
+                                        var timeTree = universeCache.timeTreeCache.get(ids[k]);
+                                        if (timeTree != null && timeTree.isDirty()) {
                                             sizeCache++;
                                         }
                                     }
-                                    if (timeCache.rootDirty) {
+                                    if (universeCache.roots != null && universeCache.roots.dirty) {
                                         sizeCache++;
                                     }
                                 }
                             }
-                            var ids = universeCache.timeTreeCache.keySet().toArray(new Array());
-                            for (var k = 0; k < ids.length; k++) {
-                                var timeTree = universeCache.timeTreeCache.get(ids[k]);
-                                if (timeTree != null && timeTree.isDirty()) {
+                            var objectUUIDarray = this.cache.universeTreeCache.keySet().toArray(new Array());
+                            for (var k = 0; k < objectUUIDarray.length; k++) {
+                                var universeTree = this.cache.universeTreeCache.get(objectUUIDarray[k]);
+                                if (universeTree != null && universeTree.dirty) {
                                     sizeCache++;
                                 }
-                            }
-                            if (universeCache.roots != null && universeCache.roots.dirty) {
-                                sizeCache++;
                             }
                             return sizeCache;
                         };
@@ -2334,9 +2380,12 @@ var org;
                             this.resolve_timeTrees(originView.universe(), uuids, function (timeTrees) {
                                 for (var i = 0; i < timeTrees.length; i++) {
                                     var resolved = new Array();
-                                    resolved[DefaultKStore.INDEX_RESOLVED_DIM] = originView.universe().key();
-                                    resolved[DefaultKStore.INDEX_RESOLVED_TIME] = timeTrees[i].resolve(originView.now());
-                                    resolved[DefaultKStore.INDEX_RESOLVED_TIMETREE] = timeTrees[i];
+                                    resolved[DefaultKStore.INDEX_RESOLVED_UNIVERSE] = originView.universe().key();
+                                    resolved[DefaultKStore.INDEX_RESOLVED_UNIVERSE_TREE] = null;
+                                    if (timeTrees[i] != null) {
+                                        resolved[DefaultKStore.INDEX_RESOLVED_TIME] = timeTrees[i].resolve(originView.now());
+                                    }
+                                    resolved[DefaultKStore.INDEX_RESOLVED_TIME_TREE] = timeTrees[i];
                                     result[i] = resolved;
                                 }
                                 callback(result);
@@ -2347,7 +2396,7 @@ var org;
                             var toLoad = new java.util.ArrayList();
                             var result = new Array();
                             for (var i = 0; i < keys.length; i++) {
-                                var universeCache = this.caches.get(p_universe.key());
+                                var universeCache = this.cache.universeCache.get(p_universe.key());
                                 if (universeCache == null) {
                                     toLoad.add(i);
                                 }
@@ -2367,7 +2416,7 @@ var org;
                             else {
                                 var toLoadKeys = new Array();
                                 for (var i = 0; i < toLoad.size(); i++) {
-                                    toLoadKeys[i] = this.keyTree(p_universe.key(), keys[toLoad.get(i)]);
+                                    toLoadKeys[i] = this.keyTimeTree(p_universe.key(), keys[toLoad.get(i)]);
                                 }
                                 this._db.get(toLoadKeys, function (res, error) {
                                     if (error != null) {
@@ -2382,7 +2431,7 @@ var org;
                                             else {
                                                 newTree.insert(p_universe.key());
                                             }
-                                            _this.write_tree(p_universe.key(), keys[toLoad.get(i)], newTree);
+                                            _this.write_time_tree(p_universe.key(), keys[toLoad.get(i)], newTree);
                                             result[toLoad.get(i)] = newTree;
                                         }
                                         catch ($ex$) {
@@ -2398,7 +2447,7 @@ var org;
                         };
                         DefaultKStore.prototype.resolve_roots = function (p_universe, callback) {
                             var _this = this;
-                            var universeCache = this.caches.get(p_universe.key());
+                            var universeCache = this.cache.universeCache.get(p_universe.key());
                             if (universeCache != null && universeCache.roots != null) {
                                 callback(universeCache.roots);
                             }
@@ -2432,11 +2481,11 @@ var org;
                             return this._model;
                         };
                         DefaultKStore.prototype.parentUniverseKey = function (currentUniverseKey) {
-                            return this.universeTree.lookup(currentUniverseKey);
+                            return this.cache.universeTree.lookup(currentUniverseKey);
                         };
                         DefaultKStore.prototype.descendantsUniverseKeys = function (currentUniverseKey) {
                             var nextElems = new java.util.ArrayList();
-                            var elem = this.universeTree.first();
+                            var elem = this.cache.universeTree.first();
                             while (elem != null) {
                                 if (elem.value == currentUniverseKey && elem.key != currentUniverseKey) {
                                     nextElems.add(elem.key);
@@ -2449,9 +2498,11 @@ var org;
                         DefaultKStore.OUT_OF_CACHE_MESSAGE = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
                         DefaultKStore.DELETED_MESSAGE = "KMF Error: your object has been deleted. Please do not use object pointer after a call to delete method";
                         DefaultKStore.UNIVERSE_NOT_CONNECTED_ERROR = "Please connect your model prior to create a universe or an object";
-                        DefaultKStore.INDEX_RESOLVED_DIM = 0;
-                        DefaultKStore.INDEX_RESOLVED_TIME = 1;
-                        DefaultKStore.INDEX_RESOLVED_TIMETREE = 2;
+                        DefaultKStore.INDEX_RESOLVED_UNIVERSE = 0;
+                        DefaultKStore.INDEX_RESOLVED_UNIVERSE_TREE = 1;
+                        DefaultKStore.INDEX_RESOLVED_TIME = 2;
+                        DefaultKStore.INDEX_RESOLVED_TIME_TREE = 3;
+                        DefaultKStore.INDEX_SIZE = 4;
                         return DefaultKStore;
                     })();
                     data.DefaultKStore = DefaultKStore;
@@ -2848,12 +2899,12 @@ var org;
                                 var toLoadIndexes = new java.util.ArrayList();
                                 for (var i = 0; i < objects.length; i++) {
                                     if (objects[i][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_TIME] != null) {
-                                        var entry = _this._store.read_cache(objects[i][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_DIM], objects[i][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_TIME], _this._keys[i]);
+                                        var entry = _this._store.read_cache(objects[i][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_UNIVERSE], objects[i][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_TIME], _this._keys[i]);
                                         if (entry == null) {
                                             toLoadIndexes.add(i);
                                         }
                                         else {
-                                            resolved[i] = _this._originView.createProxy(entry.metaClass, entry.timeTree, _this._keys[i]);
+                                            resolved[i] = _this._originView.createProxy(entry.metaClass, entry.timeTree, entry.universeTree, _this._keys[i]);
                                         }
                                     }
                                 }
@@ -2864,7 +2915,7 @@ var org;
                                     var toLoadKeys = new Array();
                                     for (var i = 0; i < toLoadIndexes.size(); i++) {
                                         var toLoadIndex = toLoadIndexes.get(i);
-                                        toLoadKeys[i] = _this._store.keyPayload(objects[toLoadIndex][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_DIM], objects[toLoadIndex][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_TIME], _this._keys[i]);
+                                        toLoadKeys[i] = _this._store.keyPayload(objects[toLoadIndex][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_UNIVERSE], objects[toLoadIndex][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_TIME], _this._keys[i]);
                                     }
                                     _this._store.dataBase().get(toLoadKeys, function (strings, error) {
                                         if (error != null) {
@@ -2877,9 +2928,10 @@ var org;
                                                     var index = toLoadIndexes.get(i);
                                                     var entry = org.kevoree.modeling.api.data.JsonRaw.decode(strings[i], _this._originView, objects[i][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_TIME]);
                                                     if (entry != null) {
-                                                        entry.timeTree = objects[i][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_TIMETREE];
-                                                        resolved[index] = _this._originView.createProxy(entry.metaClass, entry.timeTree, _this._keys[i]);
-                                                        _this._store.write_cache(objects[i][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_DIM], objects[i][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_TIME], _this._keys[i], entry);
+                                                        entry.timeTree = objects[i][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_TIME_TREE];
+                                                        entry.universeTree = objects[i][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_UNIVERSE_TREE];
+                                                        resolved[index] = _this._originView.createProxy(entry.metaClass, entry.timeTree, entry.universeTree, _this._keys[i]);
+                                                        _this._store.write_cache(objects[i][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_UNIVERSE], objects[i][org.kevoree.modeling.api.data.DefaultKStore.INDEX_RESOLVED_TIME], _this._keys[i], entry);
                                                     }
                                                 }
                                             }
@@ -2946,6 +2998,15 @@ var org;
                     data.MemoryKDataBase = MemoryKDataBase;
                     var cache;
                     (function (cache) {
+                        var ModelCache = (function () {
+                            function ModelCache() {
+                                this.universeTreeCache = new java.util.HashMap();
+                                this.universeCache = new java.util.HashMap();
+                                this.universeTree = new org.kevoree.modeling.api.time.rbtree.LongRBTree();
+                            }
+                            return ModelCache;
+                        })();
+                        cache.ModelCache = ModelCache;
                         var TimeCache = (function () {
                             function TimeCache() {
                                 this.payload_cache = new java.util.HashMap();
@@ -3357,8 +3418,8 @@ var org;
                 (function (infer) {
                     var AnalyticKInfer = (function (_super) {
                         __extends(AnalyticKInfer, _super);
-                        function AnalyticKInfer(p_view, p_uuid, p_timeTree) {
-                            _super.call(this, p_view, p_uuid, p_timeTree, null);
+                        function AnalyticKInfer(p_view, p_uuid, p_timeTree, p_universeTree) {
+                            _super.call(this, p_view, p_uuid, p_timeTree, p_universeTree, null);
                         }
                         AnalyticKInfer.prototype.train = function (trainingSet, expectedResultSet, callback) {
                             var currentState = this.modifyState();
@@ -3386,8 +3447,8 @@ var org;
                     infer.AnalyticKInfer = AnalyticKInfer;
                     var GaussianClassificationKInfer = (function (_super) {
                         __extends(GaussianClassificationKInfer, _super);
-                        function GaussianClassificationKInfer(p_view, p_uuid, p_timeTree, p_metaClass) {
-                            _super.call(this, p_view, p_uuid, p_timeTree, p_metaClass);
+                        function GaussianClassificationKInfer(p_view, p_uuid, p_timeTree, p_universeTree, p_metaClass) {
+                            _super.call(this, p_view, p_uuid, p_timeTree, p_universeTree, p_metaClass);
                             this.alpha = 0.05;
                         }
                         GaussianClassificationKInfer.prototype.getAlpha = function () {
@@ -3431,8 +3492,8 @@ var org;
                     infer.GaussianClassificationKInfer = GaussianClassificationKInfer;
                     var LinearRegressionKInfer = (function (_super) {
                         __extends(LinearRegressionKInfer, _super);
-                        function LinearRegressionKInfer(p_view, p_uuid, p_timeTree, p_metaClass) {
-                            _super.call(this, p_view, p_uuid, p_timeTree, p_metaClass);
+                        function LinearRegressionKInfer(p_view, p_uuid, p_timeTree, p_universeTree, p_metaClass) {
+                            _super.call(this, p_view, p_uuid, p_timeTree, p_universeTree, p_metaClass);
                             this.alpha = 0.0001;
                             this.iterations = 100;
                         }
@@ -3508,8 +3569,8 @@ var org;
                     infer.LinearRegressionKInfer = LinearRegressionKInfer;
                     var PerceptronClassificationKInfer = (function (_super) {
                         __extends(PerceptronClassificationKInfer, _super);
-                        function PerceptronClassificationKInfer(p_view, p_uuid, p_timeTree, p_metaClass) {
-                            _super.call(this, p_view, p_uuid, p_timeTree, p_metaClass);
+                        function PerceptronClassificationKInfer(p_view, p_uuid, p_timeTree, p_universeTree, p_metaClass) {
+                            _super.call(this, p_view, p_uuid, p_timeTree, p_universeTree, p_metaClass);
                             this.alpha = 0.001;
                             this.iterations = 100;
                         }
@@ -3597,8 +3658,8 @@ var org;
                     infer.PerceptronClassificationKInfer = PerceptronClassificationKInfer;
                     var PolynomialOfflineKInfer = (function (_super) {
                         __extends(PolynomialOfflineKInfer, _super);
-                        function PolynomialOfflineKInfer(p_view, p_uuid, p_timeTree, p_metaClass) {
-                            _super.call(this, p_view, p_uuid, p_timeTree, p_metaClass);
+                        function PolynomialOfflineKInfer(p_view, p_uuid, p_timeTree, p_universeTree, p_metaClass) {
+                            _super.call(this, p_view, p_uuid, p_timeTree, p_universeTree, p_metaClass);
                             this.maxDegree = 20;
                             this.toleratedErr = 0.01;
                         }
@@ -3684,8 +3745,8 @@ var org;
                     infer.PolynomialOfflineKInfer = PolynomialOfflineKInfer;
                     var PolynomialOnlineKInfer = (function (_super) {
                         __extends(PolynomialOnlineKInfer, _super);
-                        function PolynomialOnlineKInfer(p_view, p_uuid, p_timeTree, p_metaClass) {
-                            _super.call(this, p_view, p_uuid, p_timeTree, p_metaClass);
+                        function PolynomialOnlineKInfer(p_view, p_uuid, p_timeTree, p_universeTree, p_metaClass) {
+                            _super.call(this, p_view, p_uuid, p_timeTree, p_universeTree, p_metaClass);
                             this.maxDegree = 20;
                             this.toleratedErr = 0.01;
                         }
@@ -3771,8 +3832,8 @@ var org;
                     infer.PolynomialOnlineKInfer = PolynomialOnlineKInfer;
                     var WinnowClassificationKInfer = (function (_super) {
                         __extends(WinnowClassificationKInfer, _super);
-                        function WinnowClassificationKInfer(p_view, p_uuid, p_timeTree, p_metaClass) {
-                            _super.call(this, p_view, p_uuid, p_timeTree, p_metaClass);
+                        function WinnowClassificationKInfer(p_view, p_uuid, p_timeTree, p_universeTree, p_metaClass) {
+                            _super.call(this, p_view, p_uuid, p_timeTree, p_universeTree, p_metaClass);
                             this.alpha = 2;
                             this.beta = 2;
                         }
@@ -4709,8 +4770,10 @@ var org;
                                             var meta = elem.get(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_META).toString();
                                             var timeTree = new org.kevoree.modeling.api.time.DefaultTimeTree();
                                             timeTree.insert(factory.now());
+                                            var universeTree = new org.kevoree.modeling.api.time.rbtree.LongRBTree();
+                                            universeTree.insert(factory.universe().key(), factory.now());
                                             var metaClass = metaModel.metaClass(meta);
-                                            var current = factory.createProxy(metaClass, timeTree, mappedKeys.get(kid));
+                                            var current = factory.createProxy(metaClass, timeTree, universeTree, mappedKeys.get(kid));
                                             factory.universe().model().storage().initKObject(current, factory);
                                             var raw = factory.universe().model().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE);
                                             var metaKeys = elem.keySet().toArray(new Array());
@@ -6539,8 +6602,8 @@ var org;
                     reflexive.DynamicKModel = DynamicKModel;
                     var DynamicKObject = (function (_super) {
                         __extends(DynamicKObject, _super);
-                        function DynamicKObject(p_view, p_uuid, p_timeTree, p_metaClass) {
-                            _super.call(this, p_view, p_uuid, p_timeTree, p_metaClass);
+                        function DynamicKObject(p_view, p_uuid, p_timeTree, p_universeTree, p_metaClass) {
+                            _super.call(this, p_view, p_uuid, p_timeTree, p_universeTree, p_metaClass);
                         }
                         return DynamicKObject;
                     })(org.kevoree.modeling.api.abs.AbstractKObject);
@@ -6561,8 +6624,8 @@ var org;
                         function DynamicKView(p_now, p_dimension) {
                             _super.call(this, p_now, p_dimension);
                         }
-                        DynamicKView.prototype.internalCreate = function (clazz, timeTree, key) {
-                            return new org.kevoree.modeling.api.reflexive.DynamicKObject(this, key, timeTree, clazz);
+                        DynamicKView.prototype.internalCreate = function (clazz, timeTree, p_universeTree, key) {
+                            return new org.kevoree.modeling.api.reflexive.DynamicKObject(this, key, timeTree, p_universeTree, clazz);
                         };
                         return DynamicKView;
                     })(org.kevoree.modeling.api.abs.AbstractKView);
@@ -6861,6 +6924,9 @@ var org;
                             }
                             LongRBTree.prototype.size = function () {
                                 return this._size;
+                            };
+                            LongRBTree.prototype.toString = function () {
+                                return this.serialize();
                             };
                             LongRBTree.prototype.serialize = function () {
                                 var builder = new java.lang.StringBuilder();
@@ -8678,9 +8744,11 @@ var org;
                                                         }
                                                         else {
                                                             if (trace instanceof org.kevoree.modeling.api.trace.ModelNewTrace) {
-                                                                var tree = new org.kevoree.modeling.api.time.DefaultTimeTree();
-                                                                tree.insert(_this._targetModel.now());
-                                                                var newCreated = _this._targetModel.view().createProxy(trace.meta(), tree, trace.sourceUUID());
+                                                                var timeTree = new org.kevoree.modeling.api.time.DefaultTimeTree();
+                                                                timeTree.insert(_this._targetModel.now());
+                                                                var universeTree = new org.kevoree.modeling.api.time.rbtree.LongRBTree();
+                                                                universeTree.insert(_this._targetModel.universe().key(), _this._targetModel.now());
+                                                                var newCreated = _this._targetModel.view().createProxy(trace.meta(), timeTree, universeTree, trace.sourceUUID());
                                                                 cached.put(newCreated.uuid(), newCreated);
                                                             }
                                                             else {

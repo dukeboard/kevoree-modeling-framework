@@ -10,6 +10,7 @@ import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.operation.DefaultModelCompare;
+import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 import org.kevoree.modeling.api.traversal.DefaultKTraversal;
 import org.kevoree.modeling.api.traversal.KTraversal;
 import org.kevoree.modeling.api.traversal.actions.KParentsAction;
@@ -38,13 +39,15 @@ public abstract class AbstractKObject implements KObject {
     private KView _view;
     private long _uuid;
     private TimeTree _timeTree;
+    private LongRBTree _universeTree;
     private MetaClass _metaClass;
 
-    public AbstractKObject(KView p_view, long p_uuid, TimeTree p_timeTree, MetaClass p_metaClass) {
+    public AbstractKObject(KView p_view, long p_uuid, TimeTree p_timeTree, LongRBTree p_universeTree, MetaClass p_metaClass) {
         this._view = p_view;
         this._uuid = p_uuid;
         this._timeTree = p_timeTree;
         this._metaClass = p_metaClass;
+        this._universeTree = p_universeTree;
     }
 
     @Override
@@ -92,6 +95,11 @@ public abstract class AbstractKObject implements KObject {
     @Override
     public TimeTree timeTree() {
         return _timeTree;
+    }
+
+    @Override
+    public LongRBTree universeTree() {
+        return _universeTree;
     }
 
     @Override

@@ -8,14 +8,15 @@ import org.kevoree.modeling.api.KInferState;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaInferClass;
 import org.kevoree.modeling.api.time.TimeTree;
+import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 
 /**
  * Created by duke on 09/12/14.
  */
 public abstract class AbstractKObjectInfer extends AbstractKObject implements KInfer {
 
-    public AbstractKObjectInfer(KView p_view, long p_uuid, TimeTree p_timeTree, MetaClass p_metaClass) {
-        super(p_view, p_uuid, p_timeTree, p_metaClass);
+    public AbstractKObjectInfer(KView p_view, long p_uuid, TimeTree p_timeTree, LongRBTree p_universeTree, MetaClass p_metaClass) {
+        super(p_view, p_uuid, p_timeTree, p_universeTree, p_metaClass);
     }
 
     public KInferState readOnlyState() {

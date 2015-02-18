@@ -4,6 +4,7 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
+import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 import org.kevoree.modeling.api.traversal.KTraversal;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelTrace;
@@ -46,6 +47,8 @@ public interface KObject {
 
     public TimeTree timeTree();
 
+    public LongRBTree universeTree();
+    
     /* Reflexive API */
     public MetaReference referenceInParent();
 
