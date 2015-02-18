@@ -4023,9 +4023,44 @@ var org;
                                 this.classStats.train(classNum);
                             };
                             BayesianClassificationState.prototype.save = function () {
-                                return null;
+                                var sb = new java.lang.StringBuilder();
+                                sb.append(this.numOfClasses + BayesianClassificationState.interStateSep);
+                                sb.append(this.numOfFeatures + BayesianClassificationState.interStateSep);
+                                for (var i = 0; i < this.numOfClasses + 1; i++) {
+                                    for (var j = 0; j < this.numOfFeatures; j++) {
+                                        sb.append(this.states[i][j].save(BayesianClassificationState.stateSep));
+                                        sb.append(BayesianClassificationState.interStateSep);
+                                    }
+                                }
+                                sb.append(this.classStats.save(BayesianClassificationState.stateSep));
+                                return sb.toString();
                             };
                             BayesianClassificationState.prototype.load = function (payload) {
+                                var st = payload.split(BayesianClassificationState.interStateSep);
+                                this.numOfClasses = java.lang.Integer.parseInt(st[0]);
+                                this.numOfFeatures = java.lang.Integer.parseInt(st[1]);
+                                this.states = new Array(new Array());
+                                var counter = 2;
+                                for (var i = 0; i < this.numOfClasses + 1; i++) {
+                                    for (var j = 0; j < this.numOfFeatures; j++) {
+                                        var s = st[counter].split(BayesianClassificationState.stateSep)[0];
+                                        if (s.equals("EnumSubstate")) {
+                                            this.states[i][j] = new org.kevoree.modeling.api.infer.states.Bayesian.EnumSubstate();
+                                        }
+                                        else {
+                                            if (s.equals("GaussianSubState")) {
+                                                this.states[i][j] = new org.kevoree.modeling.api.infer.states.Bayesian.GaussianSubState();
+                                            }
+                                        }
+                                        s = st[counter].substring(s.length + 1);
+                                        this.states[i][j].load(s, BayesianClassificationState.stateSep);
+                                        counter++;
+                                    }
+                                }
+                                var s = st[counter].split(BayesianClassificationState.stateSep)[0];
+                                s = st[counter].substring(s.length + 1);
+                                this.classStats = new org.kevoree.modeling.api.infer.states.Bayesian.EnumSubstate();
+                                this.classStats.load(s, BayesianClassificationState.stateSep);
                             };
                             BayesianClassificationState.prototype.isDirty = function () {
                                 return false;
@@ -4033,6 +4068,8 @@ var org;
                             BayesianClassificationState.prototype.cloneState = function () {
                                 return null;
                             };
+                            BayesianClassificationState.stateSep = "/";
+                            BayesianClassificationState.interStateSep = "|";
                             return BayesianClassificationState;
                         })(org.kevoree.modeling.api.KInferState);
                         states.BayesianClassificationState = BayesianClassificationState;
@@ -4389,6 +4426,18 @@ var org;
                                     _super.apply(this, arguments);
                                     this.total = 0;
                                 }
+                                EnumSubstate.prototype.getCounter = function () {
+                                    return this.counter;
+                                };
+                                EnumSubstate.prototype.setCounter = function (counter) {
+                                    this.counter = counter;
+                                };
+                                EnumSubstate.prototype.getTotal = function () {
+                                    return this.total;
+                                };
+                                EnumSubstate.prototype.setTotal = function (total) {
+                                    this.total = total;
+                                };
                                 EnumSubstate.prototype.initialize = function (number) {
                                     this.counter = new Array();
                                 };
@@ -4409,9 +4458,10 @@ var org;
                                 };
                                 EnumSubstate.prototype.save = function (separator) {
                                     if (this.counter == null || this.counter.length == 0) {
-                                        return "";
+                                        return "EnumSubstate" + separator;
                                     }
                                     var sb = new java.lang.StringBuilder();
+                                    sb.append("EnumSubstate" + separator);
                                     for (var i = 0; i < this.counter.length; i++) {
                                         sb.append(this.counter[i] + separator);
                                     }
@@ -4428,7 +4478,12 @@ var org;
                                 };
                                 EnumSubstate.prototype.cloneState = function () {
                                     var cloned = new org.kevoree.modeling.api.infer.states.Bayesian.EnumSubstate();
-                                    cloned.load(this.save("/"), "/");
+                                    var newCounter = new Array();
+                                    for (var i = 0; i < this.counter.length; i++) {
+                                        newCounter[i] = this.counter[i];
+                                    }
+                                    cloned.setCounter(newCounter);
+                                    cloned.setTotal(this.total);
                                     return cloned;
                                 };
                                 return EnumSubstate;
@@ -4498,6 +4553,7 @@ var org;
                                 };
                                 GaussianSubState.prototype.save = function (separator) {
                                     var sb = new java.lang.StringBuilder();
+                                    sb.append("GaussianSubState" + separator);
                                     sb.append(this.nb + separator);
                                     sb.append(this.sum + separator);
                                     sb.append(this.sumSquares);

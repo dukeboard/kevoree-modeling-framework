@@ -14,6 +14,9 @@ public class BayesianClassificationState extends KInferState{
     private int numOfFeatures;
     private int numOfClasses;
 
+    private  static String stateSep="/";
+    private static String interStateSep="|";
+
     public void initialize (Object[] metaFeatures, Object MetaClassification){
         //TODO write cases
 
@@ -71,11 +74,46 @@ public class BayesianClassificationState extends KInferState{
 
     @Override
     public String save() {
-        return null;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(numOfClasses+interStateSep);
+        sb.append(numOfFeatures+interStateSep);
+        for(int i=0;i<numOfClasses+1;i++){
+            for(int j=0;j<numOfFeatures;j++) {
+                sb.append(states[i][j].save(stateSep));
+                sb.append(interStateSep);
+            }
+        }
+        sb.append(classStats.save(stateSep));
+        return sb.toString();
+
     }
 
     @Override
     public void load(String payload) {
+        String[] st=payload.split(interStateSep);
+        numOfClasses=Integer.parseInt(st[0]);
+        numOfFeatures=Integer.parseInt(st[1]);
+        states=new BayesianSubstate[numOfClasses+1][numOfFeatures];
+        int counter=2;
+        for(int i=0;i<numOfClasses+1;i++) {
+            for (int j = 0; j < numOfFeatures; j++) {
+                String s=st[counter].split(stateSep)[0];
+                if(s.equals("EnumSubstate")){
+                    states[i][j]=new EnumSubstate();
+                }
+                else if(s.equals("GaussianSubState")){
+                    states[i][j]=new GaussianSubState();
+                }
+                s=st[counter].substring(s.length()+1);
+                states[i][j].load(s,stateSep);
+                counter++;
+            }
+        }
+        String s=st[counter].split(stateSep)[0];
+        s=st[counter].substring(s.length()+1);
+        classStats=new EnumSubstate();
+        classStats.load(s,stateSep);
 
     }
 

@@ -886,6 +886,8 @@ declare module org {
                             private classStats;
                             private numOfFeatures;
                             private numOfClasses;
+                            private static stateSep;
+                            private static interStateSep;
                             initialize(metaFeatures: any[], MetaClassification: any): void;
                             predict(features: any[]): number;
                             train(features: any[], classNum: number): void;
@@ -961,6 +963,10 @@ declare module org {
                             class EnumSubstate extends BayesianSubstate {
                                 private counter;
                                 private total;
+                                getCounter(): number[];
+                                setCounter(counter: number[]): void;
+                                getTotal(): number;
+                                setTotal(total: number): void;
                                 initialize(number: number): void;
                                 calculateProbability(feature: any): number;
                                 train(feature: any): void;

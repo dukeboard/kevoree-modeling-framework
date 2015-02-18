@@ -85,6 +85,7 @@ public class GaussianSubState extends BayesianSubstate {
     @Override
     public String save(String separator) {
         StringBuilder sb = new StringBuilder();
+        sb.append("GaussianSubState"+separator);
         sb.append(nb+separator);
         sb.append(sum+separator);
         sb.append(sumSquares);

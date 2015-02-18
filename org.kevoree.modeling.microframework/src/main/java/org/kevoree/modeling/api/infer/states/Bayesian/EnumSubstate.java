@@ -5,6 +5,22 @@ package org.kevoree.modeling.api.infer.states.Bayesian;
  */
 public class EnumSubstate extends BayesianSubstate{
 
+    public int[] getCounter() {
+        return counter;
+    }
+
+    public void setCounter(int[] counter) {
+        this.counter = counter;
+    }
+
+    public int getTotal() {
+        return total;
+    }
+
+    public void setTotal(int total) {
+        this.total = total;
+    }
+
     private int[] counter;
     private int total=0;
 
@@ -37,9 +53,10 @@ public class EnumSubstate extends BayesianSubstate{
     @Override
     public String save(String separator) {
         if(counter==null||counter.length==0){
-            return "";
+            return "EnumSubstate"+separator;
         }
         StringBuilder sb=new StringBuilder();
+        sb.append("EnumSubstate"+separator);
         for(int i=0;i<counter.length;i++){
             sb.append(counter[i]+separator);
         }
@@ -58,11 +75,15 @@ public class EnumSubstate extends BayesianSubstate{
 
     }
 
-    //TODO ugly clone to re-implement
     @Override
     public BayesianSubstate cloneState() {
         EnumSubstate cloned =new EnumSubstate();
-        cloned.load(save("/"),"/");
+        int[] newCounter=new int[counter.length];
+        for(int i=0;i<counter.length;i++){
+            newCounter[i]=counter[i];
+        }
+        cloned.setCounter(newCounter);
+        cloned.setTotal(total);
         return cloned;
     }
 }

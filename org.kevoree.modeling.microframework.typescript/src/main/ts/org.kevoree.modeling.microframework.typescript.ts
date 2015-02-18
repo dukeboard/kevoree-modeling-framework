@@ -4660,6 +4660,8 @@ module org {
                             private classStats: org.kevoree.modeling.api.infer.states.Bayesian.EnumSubstate;
                             private numOfFeatures: number;
                             private numOfClasses: number;
+                            private static stateSep: string = "/";
+                            private static interStateSep: string = "|";
                             public initialize(metaFeatures: any[], MetaClassification: any): void {
                                 this.numOfFeatures = metaFeatures.length;
                                 this.numOfClasses = 0;
@@ -4696,10 +4698,44 @@ module org {
                             }
 
                             public save(): string {
-                                return null;
+                                var sb: java.lang.StringBuilder = new java.lang.StringBuilder();
+                                sb.append(this.numOfClasses + BayesianClassificationState.interStateSep);
+                                sb.append(this.numOfFeatures + BayesianClassificationState.interStateSep);
+                                for (var i: number = 0; i < this.numOfClasses + 1; i++) {
+                                    for (var j: number = 0; j < this.numOfFeatures; j++) {
+                                        sb.append(this.states[i][j].save(BayesianClassificationState.stateSep));
+                                        sb.append(BayesianClassificationState.interStateSep);
+                                    }
+                                }
+                                sb.append(this.classStats.save(BayesianClassificationState.stateSep));
+                                return sb.toString();
                             }
 
                             public load(payload: string): void {
+                                var st: string[] = payload.split(BayesianClassificationState.interStateSep);
+                                this.numOfClasses = java.lang.Integer.parseInt(st[0]);
+                                this.numOfFeatures = java.lang.Integer.parseInt(st[1]);
+                                this.states = new Array(new Array());
+                                var counter: number = 2;
+                                for (var i: number = 0; i < this.numOfClasses + 1; i++) {
+                                    for (var j: number = 0; j < this.numOfFeatures; j++) {
+                                        var s: string = st[counter].split(BayesianClassificationState.stateSep)[0];
+                                        if (s.equals("EnumSubstate")) {
+                                            this.states[i][j] = new org.kevoree.modeling.api.infer.states.Bayesian.EnumSubstate();
+                                        } else {
+                                            if (s.equals("GaussianSubState")) {
+                                                this.states[i][j] = new org.kevoree.modeling.api.infer.states.Bayesian.GaussianSubState();
+                                            }
+                                        }
+                                        s = st[counter].substring(s.length + 1);
+                                        this.states[i][j].load(s, BayesianClassificationState.stateSep);
+                                        counter++;
+                                    }
+                                }
+                                var s: string = st[counter].split(BayesianClassificationState.stateSep)[0];
+                                s = st[counter].substring(s.length + 1);
+                                this.classStats = new org.kevoree.modeling.api.infer.states.Bayesian.EnumSubstate();
+                                this.classStats.load(s, BayesianClassificationState.stateSep);
                             }
 
                             public isDirty(): boolean {
@@ -5091,6 +5127,22 @@ module org {
 
                                 private counter: number[];
                                 private total: number = 0;
+                                public getCounter(): number[] {
+                                    return this.counter;
+                                }
+
+                                public setCounter(counter: number[]): void {
+                                    this.counter = counter;
+                                }
+
+                                public getTotal(): number {
+                                    return this.total;
+                                }
+
+                                public setTotal(total: number): void {
+                                    this.total = total;
+                                }
+
                                 public initialize(number: number): void {
                                     this.counter = new Array();
                                 }
@@ -5113,9 +5165,10 @@ module org {
 
                                 public save(separator: string): string {
                                     if (this.counter == null || this.counter.length == 0) {
-                                        return "";
+                                        return "EnumSubstate" + separator;
                                     }
                                     var sb: java.lang.StringBuilder = new java.lang.StringBuilder();
+                                    sb.append("EnumSubstate" + separator);
                                     for (var i: number = 0; i < this.counter.length; i++) {
                                         sb.append(this.counter[i] + separator);
                                     }
@@ -5134,7 +5187,12 @@ module org {
 
                                 public cloneState(): org.kevoree.modeling.api.infer.states.Bayesian.BayesianSubstate {
                                     var cloned: org.kevoree.modeling.api.infer.states.Bayesian.EnumSubstate = new org.kevoree.modeling.api.infer.states.Bayesian.EnumSubstate();
-                                    cloned.load(this.save("/"), "/");
+                                    var newCounter: number[] = new Array();
+                                    for (var i: number = 0; i < this.counter.length; i++) {
+                                        newCounter[i] = this.counter[i];
+                                    }
+                                    cloned.setCounter(newCounter);
+                                    cloned.setTotal(this.total);
                                     return cloned;
                                 }
 
@@ -5210,6 +5268,7 @@ module org {
 
                                 public save(separator: string): string {
                                     var sb: java.lang.StringBuilder = new java.lang.StringBuilder();
+                                    sb.append("GaussianSubState" + separator);
                                     sb.append(this.nb + separator);
                                     sb.append(this.sum + separator);
                                     sb.append(this.sumSquares);
