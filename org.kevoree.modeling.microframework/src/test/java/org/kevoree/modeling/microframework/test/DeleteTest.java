@@ -25,14 +25,18 @@ public class DeleteTest {
         CloudView factory = universe.time(0l);
         Node n = factory.createNode();
         factory.setRoot(n, null);
-        universe.unload(new Callback<Throwable>() {
+        model.save(new Callback<Throwable>() {
             @Override
-            public void on(Throwable throwable) {
-                if (throwable != null) {
-                    throwable.printStackTrace();
-                }
+            public void on(Throwable aBoolean) {
+                model.discard(new Callback<Throwable>() {
+                    @Override
+                    public void on(Throwable aBoolean) {
+
+                    }
+                });
             }
         });
+
         CloudView factory1 = universe.time(1l);
         Element e = factory1.createElement();
         factory1.select("/", new Callback<KObject[]>() {
@@ -42,14 +46,20 @@ public class DeleteTest {
                 n2.setElement(e);
             }
         });
-        universe.unload(new Callback<Throwable>() {
+
+
+        model.save(new Callback<Throwable>() {
             @Override
-            public void on(Throwable throwable) {
-                if (throwable != null) {
-                    throwable.printStackTrace();
-                }
+            public void on(Throwable aBoolean) {
+                model.discard(new Callback<Throwable>() {
+                    @Override
+                    public void on(Throwable aBoolean) {
+
+                    }
+                });
             }
         });
+
         CloudView factory2 = universe.time(2l);
         factory2.select("/", new Callback<KObject[]>() {
             @Override
@@ -70,14 +80,19 @@ public class DeleteTest {
                 });
             }
         });
-        universe.unload(new Callback<Throwable>() {
+
+        model.save(new Callback<Throwable>() {
             @Override
-            public void on(Throwable throwable) {
-                if (throwable != null) {
-                    throwable.printStackTrace();
-                }
+            public void on(Throwable aBoolean) {
+                model.discard(new Callback<Throwable>() {
+                    @Override
+                    public void on(Throwable aBoolean) {
+
+                    }
+                });
             }
         });
+
         CloudView factory3 = universe.time(3l);
         factory3.select("/", new Callback<KObject[]>() {
             @Override

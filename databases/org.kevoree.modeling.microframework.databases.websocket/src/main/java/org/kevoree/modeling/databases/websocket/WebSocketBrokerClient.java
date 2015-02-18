@@ -20,6 +20,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,7 +32,7 @@ public class WebSocketBrokerClient implements KEventBroker {
     private KEventBroker _baseBroker;
     private String _ip;
     private int _port;
-    private Map<Long, ArrayList<KEvent>> storedEvents = new HashMap<Long, ArrayList<KEvent>>();
+    private List<KEvent> storedEvents = new ArrayList<KEvent>();
 
     private MetaModel _metaModel;
     private KStore _store;
@@ -80,8 +81,8 @@ public class WebSocketBrokerClient implements KEventBroker {
                     for (int i = 0; i < events.size(); i++) {
                         System.out.println(events.get(i).asString());
                         KEvent kEvent = DefaultKEvent.fromJSON(events.get(i).asString(), _metaModel);
-                        if(kEvent.actionType() == KActionType.CALL
-                            || kEvent.actionType() == KActionType.CALL_RESPONSE) {
+                        if (kEvent.actionType() == KActionType.CALL
+                                || kEvent.actionType() == KActionType.CALL_RESPONSE) {
                             _store.operationManager().operationEventReceived(kEvent);
                         } else {
                             notifyOnly(kEvent);
@@ -123,30 +124,22 @@ public class WebSocketBrokerClient implements KEventBroker {
     }
 
     @Override
-    public void notify(KEvent event) {
-        _baseBroker.notify(event);
-        ArrayList<KEvent> dimEvents = storedEvents.get(event.universe());
-        if (dimEvents == null) {
-            dimEvents = new ArrayList<KEvent>();
-            storedEvents.put(event.universe(), dimEvents);
-        }
-        dimEvents.add(event);
+    public void notify(KEvent p_event) {
+        _baseBroker.notify(p_event);
+        storedEvents.add(p_event);
     }
 
     @Override
-    public void flush(Long dimensionKey) {
-        ArrayList<KEvent> eventList = storedEvents.remove(dimensionKey);
-        if (eventList != null) {
-            JsonArray serializedEventList = new JsonArray();
-            for (int i = 0; i < eventList.size(); i++) {
-                serializedEventList.add(eventList.get(i).toJSON());
-            }
-            JsonObject jsonMessage = new JsonObject();
-            jsonMessage.add("dimKey", dimensionKey);
-            jsonMessage.add("events", serializedEventList);
-            String message = jsonMessage.toString();
-            client.send(message);
+    public void flush() {
+        JsonArray serializedEventList = new JsonArray();
+        for (int i = 0; i < storedEvents.size(); i++) {
+            serializedEventList.add(storedEvents.get(i).toJSON());
         }
+        JsonObject jsonMessage = new JsonObject();
+        jsonMessage.add("events", serializedEventList);
+        String message = jsonMessage.toString();
+        client.send(message);
+        storedEvents.clear();
     }
 
     @Override

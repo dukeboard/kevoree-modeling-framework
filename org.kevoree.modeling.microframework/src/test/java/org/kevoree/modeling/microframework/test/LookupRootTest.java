@@ -16,11 +16,11 @@ public class LookupRootTest {
     public void loadRootFromDbTest() {
 //        MemoryKDataBase.DEBUG = true;
 
-        final CloudModel universe = new CloudModel();
-        universe.setDataBase(new MemoryKDataBase());
-        universe.connect(null);
+        final CloudModel cloudModel = new CloudModel();
+        cloudModel.setDataBase(new MemoryKDataBase());
+        cloudModel.connect(null);
 
-        final CloudUniverse dimension0 = universe.newUniverse();
+        final CloudUniverse dimension0 = cloudModel.newUniverse();
         final CloudView t0 = dimension0.time(0l);
 
         // create node0 and element0 and link them
@@ -30,16 +30,23 @@ public class LookupRootTest {
 
         t0.setRoot(node0, new Callback<Throwable>() {
             @Override
+
             public void on(Throwable throwable) {
-                dimension0.save(new Callback<Throwable>() {
+
+                cloudModel.save(new Callback<Throwable>() {
                     @Override
-                    public void on(Throwable throwable) {
-                        Assert.assertNull(throwable);
+                    public void on(Throwable aBoolean) {
+                        cloudModel.discard(new Callback<Throwable>() {
+                            @Override
+                            public void on(Throwable aBoolean) {
+
+                            }
+                        });
                     }
                 });
 
                 final CloudView lookupView = dimension0.time(0l);
-                universe.storage().getRoot(lookupView, new Callback<KObject>() {
+                cloudModel.storage().getRoot(lookupView, new Callback<KObject>() {
                     @Override
                     public void on(KObject kObject) {
                         Assert.assertNotNull(kObject);
@@ -61,11 +68,11 @@ public class LookupRootTest {
     public void reloadRootFromDbTest() {
         final MemoryKDataBase db = new MemoryKDataBase();
 
-        final CloudModel universe = new CloudModel();
-        universe.setDataBase(db);
-        universe.connect(null);
+        final CloudModel cloudModel = new CloudModel();
+        cloudModel.setDataBase(db);
+        cloudModel.connect(null);
 
-        final CloudUniverse dimension0 = universe.newUniverse();
+        final CloudUniverse dimension0 = cloudModel.newUniverse();
         final CloudView t0 = dimension0.time(0l);
 
         // create node0 and element0 and link them
@@ -76,10 +83,15 @@ public class LookupRootTest {
         t0.setRoot(node0, new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
-                dimension0.save(new Callback<Throwable>() {
+                cloudModel.save(new Callback<Throwable>() {
                     @Override
-                    public void on(Throwable throwable) {
-                        Assert.assertNull(throwable);
+                    public void on(Throwable aBoolean) {
+                        cloudModel.discard(new Callback<Throwable>() {
+                            @Override
+                            public void on(Throwable aBoolean) {
+
+                            }
+                        });
                     }
                 });
             }

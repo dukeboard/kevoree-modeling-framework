@@ -36,21 +36,17 @@ public interface KModel<A extends KUniverse> {
 
     public KTask task();
 
-    public void save(Callback<Boolean> callback);
+    public void save(Callback<Throwable> callback);
 
-    public void discard(Callback<Boolean> callback);
-
-    public void unload(Callback<Boolean> callback);
+    public void discard(Callback<Throwable> callback);
 
     public void connect(Callback<Throwable> callback);
 
     public void close(Callback<Throwable> callback);
 
-    public KTask<Boolean> taskSave();
+    public KTask<Throwable> taskSave();
 
-    public KTask<Boolean> taskDiscard();
-
-    public KTask<Boolean> taskUnload();
+    public KTask<Throwable> taskDiscard();
 
     public KTask<Throwable> taskConnect();
 

@@ -1,6 +1,16 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KModel;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KTask;
+import org.kevoree.modeling.api.KUniverse;
+import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.ModelListener;
+import org.kevoree.modeling.api.time.rbtree.LongRBTree;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by duke on 10/10/14.
@@ -24,17 +34,6 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
     @Override
     public C model() {
         return (C) _model;
-    }
-
-    @Override
-    public void save(Callback<Throwable> callback) {
-        model().storage().save(this, callback);
-    }
-
-    @Override
-    public void unload(Callback<Throwable> callback) {
-        //TODO
-        model().storage().saveUnload(this, callback);
     }
 
     @Override
@@ -75,53 +74,27 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
     }
 
     @Override
-    public void origin(Callback<B> callback) {
-        //TODO
+    public B origin() {
+        return (B) _model.universe(_model.storage().parentUniverseKey(_key));
     }
 
     @Override
-    public void split(Callback<B> callback) {
-        //TODO
+    public B diverge() {
+        AbstractKModel casted = (AbstractKModel) _model;
+        long nextKey = _model.storage().nextUniverseKey();
+        B newUniverse = (B) casted.internal_create(nextKey);
+        _model.storage().initUniverse(newUniverse, this);
+        return newUniverse;
     }
 
     @Override
-    public void descendants(Callback<B[]> callback) {
-        //TODO
-    }
-
-    @Override
-    public KTask<B> taskSplit() {
-        AbstractKTaskWrapper<B> task = new AbstractKTaskWrapper<B>();
-        split(task.initCallback());
-        return task;
-    }
-
-    @Override
-    public KTask<B> taskOrigin() {
-        AbstractKTaskWrapper<B> task = new AbstractKTaskWrapper<B>();
-        origin(task.initCallback());
-        return task;
-    }
-
-    @Override
-    public KTask<B[]> taskDescendants() {
-        AbstractKTaskWrapper<B[]> task = new AbstractKTaskWrapper<B[]>();
-        descendants(task.initCallback());
-        return task;
-    }
-
-    @Override
-    public KTask<Throwable> taskSave() {
-        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
-        save(task.initCallback());
-        return task;
-    }
-
-    @Override
-    public KTask<Throwable> taskUnload() {
-        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
-        unload(task.initCallback());
-        return task;
+    public List<B> descendants() {
+        Long[] descendentsKey = _model.storage().descendantsUniverseKeys(_key);
+        List<B> childs = new ArrayList<B>();
+        for (int i = 0; i < descendentsKey.length; i++) {
+            childs.add((B) _model.universe(descendentsKey[i]));
+        }
+        return childs;
     }
 
     @Override

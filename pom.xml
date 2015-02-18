@@ -137,6 +137,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <additionalparam>-Xdoclint:none</additionalparam>
                     <maxmemory>128M</maxmemory>
                     <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
                     <tags>

@@ -3,7 +3,6 @@ package org.kevoree.modeling.microframework.test.storage;
 import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.InboundReference;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudModel;
@@ -18,11 +17,11 @@ public class ParentStorageTest {
 
     @Test
     public void discardTest() {
-        CloudModel universe = new CloudModel();
-        universe.connect(null);
+        CloudModel cloudModel = new CloudModel();
+        cloudModel.connect(null);
         //model.connect(null);
 
-        CloudUniverse dimension0 = universe.newUniverse();
+        CloudUniverse dimension0 = cloudModel.newUniverse();
         CloudView time0 = dimension0.time(0l);
 
         Node root = time0.createNode();
@@ -47,7 +46,13 @@ public class ParentStorageTest {
             Assert.assertNull(e);
         }
         //We clear the cache
-        dimension0.discard(null);
+
+        cloudModel.discard(new Callback<Throwable>() {
+            @Override
+            public void on(Throwable aBoolean) {
+
+            }
+        });
 
         /*
         try {
@@ -70,10 +75,10 @@ public class ParentStorageTest {
 
         //MemoryKDataBase.DEBUG = true;
 
-        CloudModel universe = new CloudModel();
-        universe.connect(null);
+        CloudModel cloudModel = new CloudModel();
+        cloudModel.connect(null);
 
-        CloudUniverse dimension0 = universe.newUniverse();
+        CloudUniverse dimension0 = cloudModel.newUniverse();
         CloudView time0 = dimension0.time(0l);
 
         Node root = time0.createNode();
@@ -106,7 +111,19 @@ public class ParentStorageTest {
             Assert.assertNull(e);
         }
         //We clear the cache
-        dimension0.unload(null);
+
+        cloudModel.save(new Callback<Throwable>() {
+            @Override
+            public void on(Throwable aBoolean) {
+                cloudModel.discard(new Callback<Throwable>() {
+                    @Override
+                    public void on(Throwable aBoolean) {
+
+                    }
+                });
+            }
+        });
+
 
         /*
         try {

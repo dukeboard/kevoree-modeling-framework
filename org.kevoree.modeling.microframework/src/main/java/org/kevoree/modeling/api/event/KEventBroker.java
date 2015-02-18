@@ -21,7 +21,7 @@ public interface KEventBroker {
 
     void notify(KEvent event);
 
-    void flush(Long dimensionKey);
+    void flush();
 
     void setKStore(KStore store);
 

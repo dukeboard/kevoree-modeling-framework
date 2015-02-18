@@ -201,14 +201,15 @@ public class TimeTest {
         Node node0 = t0.createNode();
         node0.setName("Node0");
         t0.setRoot(node0, null);
-        universe.save(new Callback<Throwable>() {
+
+        model.save(new Callback<Throwable>() {
             @Override
-            public void on(Throwable throwable) {
-                if (throwable != null) {
-                    throwable.printStackTrace();
-                }
+            public void on(Throwable aBoolean) {
+
             }
         });
+
+
 
         CloudView t1 = universe.time(1L);
         Element element = t1.createElement();
@@ -219,12 +220,10 @@ public class TimeTest {
                 ((Node) node0Back).setElement(element);
             }
         });
-        universe.save(new Callback<Throwable>() {
+        model.save(new Callback<Throwable>() {
             @Override
-            public void on(Throwable throwable) {
-                if (throwable != null) {
-                    throwable.printStackTrace();
-                }
+            public void on(Throwable aBoolean) {
+
             }
         });
 
@@ -252,14 +251,20 @@ public class TimeTest {
         Node node0 = t0.createNode();
         node0.setName("Node0");
         t0.setRoot(node0, null);
-        universe.save(new Callback<Throwable>() {
+
+        model.save(new Callback<Throwable>() {
             @Override
-            public void on(Throwable throwable) {
-                if (throwable != null) {
-                    throwable.printStackTrace();
-                }
+            public void on(Throwable aBoolean) {
+                model.discard(new Callback<Throwable>() {
+                    @Override
+                    public void on(Throwable aBoolean) {
+
+                    }
+                });
             }
         });
+
+
 
         CloudView t1 = universe.time(1L);
         Element element = t1.createElement();
@@ -274,12 +279,16 @@ public class TimeTest {
                 }
             }
         });
-        universe.save(new Callback<Throwable>() {
+
+        model.save(new Callback<Throwable>() {
             @Override
-            public void on(Throwable throwable) {
-                if (throwable != null) {
-                    throwable.printStackTrace();
-                }
+            public void on(Throwable aBoolean) {
+                model.discard(new Callback<Throwable>() {
+                    @Override
+                    public void on(Throwable aBoolean) {
+
+                    }
+                });
             }
         });
 

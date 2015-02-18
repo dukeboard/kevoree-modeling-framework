@@ -19,7 +19,6 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
 
     protected AbstractKModel() {
         _storage = new DefaultKStore(this);
-        //_storage.connect(null);
     }
 
     @Override
@@ -41,7 +40,7 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
     public A newUniverse() {
         long nextKey = _storage.nextUniverseKey();
         final A newDimension = internal_create(nextKey);
-        storage().initUniverse(newDimension);
+        storage().initUniverse(newDimension, null);
         return newDimension;
     }
 
@@ -50,28 +49,23 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
     @Override
     public A universe(long key) {
         A newDimension = internal_create(key);
-        storage().initUniverse(newDimension);
+        storage().initUniverse(newDimension, null);
         return newDimension;
     }
 
     @Override
-    public void save(Callback<Boolean> callback) {
-
+    public void save(Callback<Throwable> callback) {
+        _storage.save(callback);
     }
 
     @Override
-    public void discard(Callback<Boolean> callback) {
-
-    }
-
-    @Override
-    public void unload(Callback<Boolean> callback) {
-
+    public void discard(Callback<Throwable> callback) {
+        _storage.discard(null, callback);
     }
 
     @Override
     public void disable(ModelListener listener) {
-
+        storage().eventBroker().unregister(listener);
     }
 
     @Override
@@ -114,23 +108,16 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
     }
 
     @Override
-    public KTask<Boolean> taskSave() {
-        AbstractKTaskWrapper<Boolean> task = new AbstractKTaskWrapper<Boolean>();
+    public KTask<Throwable> taskSave() {
+        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
         save(task.initCallback());
         return task;
     }
 
     @Override
-    public KTask<Boolean> taskDiscard() {
-        AbstractKTaskWrapper<Boolean> task = new AbstractKTaskWrapper<Boolean>();
+    public KTask<Throwable> taskDiscard() {
+        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
         discard(task.initCallback());
-        return task;
-    }
-
-    @Override
-    public KTask<Boolean> taskUnload() {
-        AbstractKTaskWrapper<Boolean> task = new AbstractKTaskWrapper<Boolean>();
-        unload(task.initCallback());
         return task;
     }
 

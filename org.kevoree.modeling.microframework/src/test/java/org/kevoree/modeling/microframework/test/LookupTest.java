@@ -17,26 +17,27 @@ public class LookupTest {
     @Test
     public void lookupTest() throws Exception {
         //MemoryKDataBase.DEBUG = true;
-        final CloudModel universe = new CloudModel();
-        universe.connect(null);
-        CloudUniverse dimension0 = universe.newUniverse();
+        final CloudModel cloudModel = new CloudModel();
+        cloudModel.connect(null);
+        CloudUniverse dimension0 = cloudModel.newUniverse();
         CloudView t0 = dimension0.time(0l);
         final Node node = t0.createNode();
         node.setName("n0");
         t0.setRoot(node, null);
         Assert.assertTrue(node.isRoot());
-        universe.storage().getRoot(t0, new Callback<KObject>() {
+        cloudModel.storage().getRoot(t0, new Callback<KObject>() {
             @Override
             public void on(KObject resolvedRoot) {
                 Assert.assertEquals(node, resolvedRoot);
             }
         });
         Assert.assertTrue(node.isRoot());
-        dimension0.save(new Callback<Throwable>() {
+
+        cloudModel.save(new Callback<Throwable>() {
             @Override
-            public void on(Throwable e) {
+            public void on(Throwable error) {
                 final CloudModel universe2 = new CloudModel();
-                universe2.setDataBase(universe.storage().dataBase());
+                universe2.setDataBase(cloudModel.storage().dataBase());
                 CloudUniverse dimension0_2 = universe2.universe(dimension0.key());
                 final CloudView t0_2 = dimension0_2.time(0l);
                 t0_2.lookup(node.uuid(), new Callback<KObject>() {
@@ -60,6 +61,7 @@ public class LookupTest {
                 });
             }
         });
+
     }
 
 }

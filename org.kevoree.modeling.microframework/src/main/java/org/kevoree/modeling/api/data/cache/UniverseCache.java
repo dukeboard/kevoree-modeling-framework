@@ -13,5 +13,13 @@ public class UniverseCache {
     public Map<Long, TimeTree> timeTreeCache = new HashMap<Long, TimeTree>();
     public Map<Long, TimeCache> timesCaches = new HashMap<Long, TimeCache>();
     public LongRBTree roots = null;
+    private boolean _isDirty = false;
 
+    public boolean isDirty() {
+        return _isDirty;
+    }
+
+    public void setDirty() {
+        this._isDirty = true;
+    }
 }

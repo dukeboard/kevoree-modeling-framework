@@ -221,7 +221,7 @@ var org;
                         AbstractKModel.prototype.newUniverse = function () {
                             var nextKey = this._storage.nextUniverseKey();
                             var newDimension = this.internal_create(nextKey);
-                            this.storage().initUniverse(newDimension);
+                            this.storage().initUniverse(newDimension, null);
                             return newDimension;
                         };
                         AbstractKModel.prototype.internal_create = function (key) {
@@ -229,16 +229,17 @@ var org;
                         };
                         AbstractKModel.prototype.universe = function (key) {
                             var newDimension = this.internal_create(key);
-                            this.storage().initUniverse(newDimension);
+                            this.storage().initUniverse(newDimension, null);
                             return newDimension;
                         };
                         AbstractKModel.prototype.save = function (callback) {
+                            this._storage.save(callback);
                         };
                         AbstractKModel.prototype.discard = function (callback) {
-                        };
-                        AbstractKModel.prototype.unload = function (callback) {
+                            this._storage.discard(null, callback);
                         };
                         AbstractKModel.prototype.disable = function (listener) {
+                            this.storage().eventBroker().unregister(listener);
                         };
                         AbstractKModel.prototype.listen = function (listener) {
                             this.storage().eventBroker().registerListener(this, listener, null);
@@ -273,11 +274,6 @@ var org;
                         AbstractKModel.prototype.taskDiscard = function () {
                             var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
                             this.discard(task.initCallback());
-                            return task;
-                        };
-                        AbstractKModel.prototype.taskUnload = function () {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
-                            this.unload(task.initCallback());
                             return task;
                         };
                         AbstractKModel.prototype.taskConnect = function () {
@@ -1411,12 +1407,6 @@ var org;
                         AbstractKUniverse.prototype.model = function () {
                             return this._model;
                         };
-                        AbstractKUniverse.prototype.save = function (callback) {
-                            this.model().storage().save(this, callback);
-                        };
-                        AbstractKUniverse.prototype.unload = function (callback) {
-                            this.model().storage().saveUnload(this, callback);
-                        };
                         AbstractKUniverse.prototype.delete = function (callback) {
                             this.model().storage().delete(this, callback);
                         };
@@ -1444,36 +1434,23 @@ var org;
                                 return casted._key == this._key;
                             }
                         };
-                        AbstractKUniverse.prototype.origin = function (callback) {
+                        AbstractKUniverse.prototype.origin = function () {
+                            return this._model.universe(this._model.storage().parentUniverseKey(this._key));
                         };
-                        AbstractKUniverse.prototype.split = function (callback) {
+                        AbstractKUniverse.prototype.diverge = function () {
+                            var casted = this._model;
+                            var nextKey = this._model.storage().nextUniverseKey();
+                            var newUniverse = casted.internal_create(nextKey);
+                            this._model.storage().initUniverse(newUniverse, this);
+                            return newUniverse;
                         };
-                        AbstractKUniverse.prototype.descendants = function (callback) {
-                        };
-                        AbstractKUniverse.prototype.taskSplit = function () {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
-                            this.split(task.initCallback());
-                            return task;
-                        };
-                        AbstractKUniverse.prototype.taskOrigin = function () {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
-                            this.origin(task.initCallback());
-                            return task;
-                        };
-                        AbstractKUniverse.prototype.taskDescendants = function () {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
-                            this.descendants(task.initCallback());
-                            return task;
-                        };
-                        AbstractKUniverse.prototype.taskSave = function () {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
-                            this.save(task.initCallback());
-                            return task;
-                        };
-                        AbstractKUniverse.prototype.taskUnload = function () {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
-                            this.unload(task.initCallback());
-                            return task;
+                        AbstractKUniverse.prototype.descendants = function () {
+                            var descendentsKey = this._model.storage().descendantsUniverseKeys(this._key);
+                            var childs = new java.util.ArrayList();
+                            for (var i = 0; i < descendentsKey.length; i++) {
+                                childs.add(this._model.universe(descendentsKey[i]));
+                            }
+                            return childs;
                         };
                         AbstractKUniverse.prototype.taskDelete = function () {
                             var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
@@ -1834,6 +1811,7 @@ var org;
                     var DefaultKStore = (function () {
                         function DefaultKStore(model) {
                             this.caches = new java.util.HashMap();
+                            this.universeTree = new org.kevoree.modeling.api.time.rbtree.LongRBTree();
                             this._objectKeyCalculator = null;
                             this._dimensionKeyCalculator = null;
                             this.isConnected = false;
@@ -1879,8 +1857,9 @@ var org;
                                                                 }
                                                                 var newPrefix = java.lang.Short.parseShort(payloadPrefix);
                                                                 var keys2 = new Array();
-                                                                keys2[0] = _this.keyLastDimIndex(payloadPrefix);
+                                                                keys2[0] = _this.keyLastUniIndex(payloadPrefix);
                                                                 keys2[1] = _this.keyLastObjIndex(payloadPrefix);
+                                                                keys2[2] = _this.keyUniverseTree();
                                                                 _this._db.get(keys2, function (strings, error) {
                                                                     if (error != null) {
                                                                         if (callback != null) {
@@ -1888,7 +1867,7 @@ var org;
                                                                         }
                                                                     }
                                                                     else {
-                                                                        if (strings.length == 2) {
+                                                                        if (strings.length == 3) {
                                                                             try {
                                                                                 var dimIndexPayload = strings[0];
                                                                                 if (dimIndexPayload == null || dimIndexPayload.equals("")) {
@@ -1897,6 +1876,16 @@ var org;
                                                                                 var objIndexPayload = strings[1];
                                                                                 if (objIndexPayload == null || objIndexPayload.equals("")) {
                                                                                     objIndexPayload = "0";
+                                                                                }
+                                                                                var globalUniverseTree = strings[2];
+                                                                                try {
+                                                                                    _this.universeTree.unserialize(globalUniverseTree);
+                                                                                }
+                                                                                catch ($ex$) {
+                                                                                    if ($ex$ instanceof java.lang.Exception) {
+                                                                                        var e = $ex$;
+                                                                                        e.printStackTrace();
+                                                                                    }
                                                                                 }
                                                                                 var newDimIndex = java.lang.Long.parseLong(dimIndexPayload);
                                                                                 var newObjIndex = java.lang.Long.parseLong(objIndexPayload);
@@ -1978,23 +1967,26 @@ var org;
                                 });
                             }
                         };
-                        DefaultKStore.prototype.keyTree = function (dim, key) {
-                            return "" + dim + DefaultKStore.KEY_SEP + key;
+                        DefaultKStore.prototype.keyTree = function (uni, key) {
+                            return "" + uni + DefaultKStore.KEY_SEP + key;
                         };
-                        DefaultKStore.prototype.keyRoot = function (dim) {
-                            return "" + dim + DefaultKStore.KEY_SEP + "root";
+                        DefaultKStore.prototype.keyRoot = function (uni) {
+                            return "" + uni + DefaultKStore.KEY_SEP + "root";
                         };
-                        DefaultKStore.prototype.keyRootTree = function (dim) {
-                            return "" + dim.key() + DefaultKStore.KEY_SEP + "root";
+                        DefaultKStore.prototype.keyRootTree = function (uni_key) {
+                            return "" + uni_key + DefaultKStore.KEY_SEP + "root";
                         };
-                        DefaultKStore.prototype.keyPayload = function (dim, time, key) {
-                            return "" + dim + DefaultKStore.KEY_SEP + time + DefaultKStore.KEY_SEP + key;
+                        DefaultKStore.prototype.keyPayload = function (uni, time, key) {
+                            return "" + uni + DefaultKStore.KEY_SEP + time + DefaultKStore.KEY_SEP + key;
                         };
                         DefaultKStore.prototype.keyLastPrefix = function () {
                             return "ring_prefix";
                         };
-                        DefaultKStore.prototype.keyLastDimIndex = function (prefix) {
-                            return "index_dim_" + prefix;
+                        DefaultKStore.prototype.keyLastUniIndex = function (prefix) {
+                            return "index_uni_" + prefix;
+                        };
+                        DefaultKStore.prototype.keyUniverseTree = function () {
+                            return "uni_tree";
                         };
                         DefaultKStore.prototype.keyLastObjIndex = function (prefix) {
                             return "index_obj_" + prefix;
@@ -2011,7 +2003,15 @@ var org;
                             }
                             return this._objectKeyCalculator.nextKey();
                         };
-                        DefaultKStore.prototype.initUniverse = function (p_universe) {
+                        DefaultKStore.prototype.initUniverse = function (p_universe, p_parent) {
+                            if (this.universeTree.lookup(p_universe.key()) == null) {
+                                if (p_parent == null) {
+                                    this.universeTree.insert(p_universe.key(), p_universe.key());
+                                }
+                                else {
+                                    this.universeTree.insert(p_universe.key(), p_parent.key());
+                                }
+                            }
                         };
                         DefaultKStore.prototype.initKObject = function (obj, originView) {
                             this.write_tree(obj.universe().key(), obj.uuid(), obj.timeTree());
@@ -2095,7 +2095,12 @@ var org;
                             }
                         };
                         DefaultKStore.prototype.discard = function (p_universe, callback) {
-                            this.caches.remove(p_universe.key());
+                            if (p_universe == null) {
+                                this.caches.clear();
+                            }
+                            else {
+                                this.caches.remove(p_universe.key());
+                            }
                             if (callback != null) {
                                 callback(null);
                             }
@@ -2103,82 +2108,85 @@ var org;
                         DefaultKStore.prototype.delete = function (p_universe, callback) {
                             throw new java.lang.RuntimeException("Not implemented yet !");
                         };
-                        DefaultKStore.prototype.save = function (p_universe, callback) {
-                            var universeCache = this.caches.get(p_universe.key());
-                            if (universeCache == null) {
+                        DefaultKStore.prototype.save = function (callback) {
+                            if (this.caches == null) {
                                 if (callback != null) {
                                     callback(null);
                                 }
                             }
                             else {
-                                var times = universeCache.timesCaches.keySet().toArray(new Array());
-                                var sizeCache = this.size_dirties(universeCache) + 2;
+                                var sizeOfDirties = 0;
+                                var universeKeys = this.caches.keySet().toArray(new Array());
+                                for (var i = 0; i < universeKeys.length; i++) {
+                                    var universeCache = this.caches.get(universeKeys[i]);
+                                    if (universeCache != null) {
+                                        sizeOfDirties = this.size_dirties(universeCache);
+                                    }
+                                }
+                                sizeOfDirties = sizeOfDirties + 2;
+                                if (this.universeTree.dirty) {
+                                    sizeOfDirties = sizeOfDirties + 1;
+                                }
                                 var payloads = new Array(new Array());
                                 var i = 0;
-                                for (var j = 0; j < times.length; j++) {
-                                    var now = times[j];
-                                    var timeCache = universeCache.timesCaches.get(now);
-                                    var keys = timeCache.payload_cache.keySet().toArray(new Array());
-                                    for (var k = 0; k < keys.length; k++) {
-                                        var idObj = keys[k];
-                                        var cached_entry = timeCache.payload_cache.get(idObj);
-                                        var cached_raw = cached_entry.raw;
-                                        if (cached_raw != null && cached_raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX] != null && cached_raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX].toString().equals("true")) {
-                                            var payloadA = new Array();
-                                            payloadA[0] = this.keyPayload(p_universe.key(), now, idObj);
-                                            payloadA[1] = org.kevoree.modeling.api.data.JsonRaw.encode(cached_raw, idObj, cached_entry.metaClass, true);
-                                            payloads[i] = payloadA;
-                                            cached_raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX] = false;
+                                for (var h = 0; h < universeKeys.length; h++) {
+                                    var currentUniverseKey = universeKeys[h];
+                                    var universeCache = this.caches.get(currentUniverseKey);
+                                    if (universeCache != null) {
+                                        var times = universeCache.timesCaches.keySet().toArray(new Array());
+                                        for (var j = 0; j < times.length; j++) {
+                                            var now = times[j];
+                                            var timeCache = universeCache.timesCaches.get(now);
+                                            var keys = timeCache.payload_cache.keySet().toArray(new Array());
+                                            for (var k = 0; k < keys.length; k++) {
+                                                var idObj = keys[k];
+                                                var cached_entry = timeCache.payload_cache.get(idObj);
+                                                var cached_raw = cached_entry.raw;
+                                                if (cached_raw != null && cached_raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX] != null && cached_raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX].toString().equals("true")) {
+                                                    var payloadA = new Array();
+                                                    payloadA[0] = this.keyPayload(currentUniverseKey, now, idObj);
+                                                    payloadA[1] = org.kevoree.modeling.api.data.JsonRaw.encode(cached_raw, idObj, cached_entry.metaClass, true);
+                                                    payloads[i] = payloadA;
+                                                    cached_raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX] = false;
+                                                    i++;
+                                                }
+                                            }
+                                        }
+                                        var keyArr = universeCache.timeTreeCache.keySet().toArray(new Array());
+                                        for (var l = 0; l < keyArr.length; l++) {
+                                            var timeTreeKey = keyArr[l];
+                                            var timeTree = universeCache.timeTreeCache.get(timeTreeKey);
+                                            if (timeTree.isDirty()) {
+                                                var payloadC = new Array();
+                                                payloadC[0] = this.keyTree(currentUniverseKey, timeTreeKey);
+                                                payloadC[1] = timeTree.toString();
+                                                payloads[i] = payloadC;
+                                                timeTree.setDirty(false);
+                                                i++;
+                                            }
+                                        }
+                                        if (universeCache.roots != null && universeCache.roots.dirty) {
+                                            var payloadD = new Array();
+                                            payloadD[0] = this.keyRootTree(currentUniverseKey);
+                                            payloadD[1] = universeCache.roots.serialize();
+                                            payloads[i] = payloadD;
+                                            universeCache.roots.dirty = false;
                                             i++;
                                         }
                                     }
                                 }
-                                var keyArr = universeCache.timeTreeCache.keySet().toArray(new Array());
-                                for (var l = 0; l < keyArr.length; l++) {
-                                    var timeTreeKey = keyArr[l];
-                                    var timeTree = universeCache.timeTreeCache.get(timeTreeKey);
-                                    if (timeTree.isDirty()) {
-                                        var payloadC = new Array();
-                                        payloadC[0] = this.keyTree(p_universe.key(), timeTreeKey);
-                                        payloadC[1] = timeTree.toString();
-                                        payloads[i] = payloadC;
-                                        timeTree.setDirty(false);
-                                        i++;
-                                    }
-                                }
-                                if (universeCache.roots != null && universeCache.roots.dirty) {
-                                    var payloadD = new Array();
-                                    payloadD[0] = this.keyRootTree(p_universe);
-                                    payloadD[1] = universeCache.roots.serialize();
-                                    payloads[i] = payloadD;
-                                    universeCache.roots.dirty = false;
-                                    i++;
-                                }
                                 var payloadDim = new Array();
-                                payloadDim[0] = this.keyLastDimIndex("" + this._dimensionKeyCalculator.prefix());
+                                payloadDim[0] = this.keyLastUniIndex("" + this._dimensionKeyCalculator.prefix());
                                 payloadDim[1] = "" + this._dimensionKeyCalculator.lastComputedIndex();
                                 payloads[i] = payloadDim;
                                 i++;
                                 var payloadObj = new Array();
-                                payloadObj[0] = this.keyLastDimIndex("" + this._objectKeyCalculator.prefix());
+                                payloadObj[0] = this.keyLastUniIndex("" + this._objectKeyCalculator.prefix());
                                 payloadObj[1] = "" + this._objectKeyCalculator.lastComputedIndex();
                                 payloads[i] = payloadObj;
                                 this._db.put(payloads, callback);
-                                this._eventBroker.flush(p_universe.key());
+                                this._eventBroker.flush();
                             }
-                        };
-                        DefaultKStore.prototype.saveUnload = function (p_universe, callback) {
-                            var _this = this;
-                            this.save(p_universe, function (throwable) {
-                                if (throwable == null) {
-                                    _this.discard(p_universe, callback);
-                                }
-                                else {
-                                    if (callback != null) {
-                                        callback(throwable);
-                                    }
-                                }
-                            });
                         };
                         DefaultKStore.prototype.lookup = function (originView, key, callback) {
                             var keys = new Array();
@@ -2422,6 +2430,20 @@ var org;
                         };
                         DefaultKStore.prototype.getModel = function () {
                             return this._model;
+                        };
+                        DefaultKStore.prototype.parentUniverseKey = function (currentUniverseKey) {
+                            return this.universeTree.lookup(currentUniverseKey);
+                        };
+                        DefaultKStore.prototype.descendantsUniverseKeys = function (currentUniverseKey) {
+                            var nextElems = new java.util.ArrayList();
+                            var elem = this.universeTree.first();
+                            while (elem != null) {
+                                if (elem.value == currentUniverseKey && elem.key != currentUniverseKey) {
+                                    nextElems.add(elem.key);
+                                }
+                                elem = elem.next();
+                            }
+                            return nextElems.toArray(new Array());
                         };
                         DefaultKStore.KEY_SEP = ',';
                         DefaultKStore.OUT_OF_CACHE_MESSAGE = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
@@ -2938,7 +2960,14 @@ var org;
                                 this.timeTreeCache = new java.util.HashMap();
                                 this.timesCaches = new java.util.HashMap();
                                 this.roots = null;
+                                this._isDirty = false;
                             }
+                            UniverseCache.prototype.isDirty = function () {
+                                return this._isDirty;
+                            };
+                            UniverseCache.prototype.setDirty = function () {
+                                this._isDirty = true;
+                            };
                             return UniverseCache;
                         })();
                         cache.UniverseCache = UniverseCache;
@@ -3017,7 +3046,7 @@ var org;
                         };
                         DefaultKBroker.prototype.sendOperationEvent = function (eventk) {
                         };
-                        DefaultKBroker.prototype.flush = function (dimensionKey) {
+                        DefaultKBroker.prototype.flush = function () {
                         };
                         DefaultKBroker.prototype.setKStore = function (store) {
                             this._store = store;
@@ -5250,24 +5279,6 @@ var org;
                 })(meta = api.meta || (api.meta = {}));
                 var operation;
                 (function (operation) {
-                    var DefaultModelCloner = (function () {
-                        function DefaultModelCloner() {
-                        }
-                        DefaultModelCloner.clone = function (originalObject, callback) {
-                            if (originalObject == null || originalObject.view() == null || originalObject.view().universe() == null) {
-                                callback(null);
-                            }
-                            else {
-                                originalObject.view().universe().split(function (o) {
-                                    o.time(originalObject.view().now()).lookup(originalObject.uuid(), function (clonedObject) {
-                                        callback(clonedObject);
-                                    });
-                                });
-                            }
-                        };
-                        return DefaultModelCloner;
-                    })();
-                    operation.DefaultModelCloner = DefaultModelCloner;
                     var DefaultModelCompare = (function () {
                         function DefaultModelCompare() {
                         }

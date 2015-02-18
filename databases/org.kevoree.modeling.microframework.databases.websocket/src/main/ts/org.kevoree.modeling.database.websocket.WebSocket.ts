@@ -10,7 +10,7 @@ module org {
 
 
                         private  _baseBroker:org.kevoree.modeling.api.event.KEventBroker;
-                        private storedEvents = new java.util.HashMap<java.lang.Long, java.util.ArrayList<org.kevoree.modeling.api.KEvent>>();
+                        private storedEvents = new java.util.ArrayList<org.kevoree.modeling.api.KEvent>();
                         private _connectionUri:string;
                         private clientConnection:WebSocket;
                         private _metaModel:org.kevoree.modeling.api.meta.MetaModel;
@@ -68,28 +68,20 @@ module org {
 
                         public  notify(event:org.kevoree.modeling.api.KEvent):void {
                             this._baseBroker.notify(event);
-                            var dimEvents:java.util.ArrayList<org.kevoree.modeling.api.KEvent> = this.storedEvents.get(event.universe());
-                            if (dimEvents == null) {
-                                dimEvents = new java.util.ArrayList<org.kevoree.modeling.api.KEvent>();
-                                this.storedEvents.put(event.universe(), dimEvents);
-                            }
-                            dimEvents.add(event);
+                            this.storedEvents.add(event);
                         }
 
                         public notifyOnly(event:org.kevoree.modeling.api.KEvent) {
                             this._baseBroker.notify(event);
                         }
 
-                        public flush(dimensionKey) {
-                            var eventList:java.util.ArrayList<org.kevoree.modeling.api.KEvent> = this.storedEvents.remove(dimensionKey);
-                            if (eventList != null) {
-                                var serializedEventList = [];
-                                for (var i = 0; i < eventList.size(); i++) {
-                                    serializedEventList.push(eventList.get(i).toJSON());
-                                }
-                                var jsonMessage = {"dimKey": dimensionKey, "events": serializedEventList};
-                                this.clientConnection.send(JSON.stringify(jsonMessage));
+                        public flush() {
+                            var serializedEventList = [];
+                            for (var i = 0; i < this.storedEvents.size(); i++) {
+                                serializedEventList.push(this.storedEvents.get(i).toJSON());
                             }
+                            var jsonMessage = {"events": serializedEventList};
+                            this.clientConnection.send(JSON.stringify(jsonMessage));
                         }
 
                         public sendOperationEvent(operationEvent:org.kevoree.modeling.api.KEvent) {

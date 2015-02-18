@@ -98,7 +98,7 @@ public class DefaultKBroker implements KEventBroker {
     }
 
     @Override
-    public void flush(Long dimensionKey) {
+    public void flush() {
         //Noop
     }
 

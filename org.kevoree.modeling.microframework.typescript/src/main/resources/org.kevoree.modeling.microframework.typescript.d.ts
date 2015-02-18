@@ -80,14 +80,12 @@ declare module org {
                     setInstanceOperation(metaOperation: meta.MetaOperation, target: KObject, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
                     metaModel(): meta.MetaModel;
                     task(): KTask<any>;
-                    save(callback: (p: boolean) => void): void;
-                    discard(callback: (p: boolean) => void): void;
-                    unload(callback: (p: boolean) => void): void;
+                    save(callback: (p: java.lang.Throwable) => void): void;
+                    discard(callback: (p: java.lang.Throwable) => void): void;
                     connect(callback: (p: java.lang.Throwable) => void): void;
                     close(callback: (p: java.lang.Throwable) => void): void;
                     taskSave(): KTask<any>;
                     taskDiscard(): KTask<any>;
-                    taskUnload(): KTask<any>;
                     taskConnect(): KTask<any>;
                     taskClose(): KTask<any>;
                 }
@@ -170,18 +168,11 @@ declare module org {
                     equals(other: any): boolean;
                     listen(listener: (p: KEvent) => void): void;
                     listenAllTimes(target: KObject, listener: (p: KEvent) => void): void;
-                    split(callback: (p: B) => void): void;
-                    origin(callback: (p: B) => void): void;
-                    descendants(callback: (p: B[]) => void): void;
-                    save(callback: (p: java.lang.Throwable) => void): void;
-                    unload(callback: (p: java.lang.Throwable) => void): void;
+                    diverge(): B;
+                    origin(): B;
+                    descendants(): java.util.List<B>;
                     delete(callback: (p: java.lang.Throwable) => void): void;
                     discard(callback: (p: java.lang.Throwable) => void): void;
-                    taskSplit(): KTask<any>;
-                    taskOrigin(): KTask<any>;
-                    taskDescendants(): KTask<any>;
-                    taskSave(): KTask<any>;
-                    taskUnload(): KTask<any>;
                     taskDelete(): KTask<any>;
                     taskDiscard(): KTask<any>;
                 }
@@ -264,9 +255,8 @@ declare module org {
                         newUniverse(): A;
                         internal_create(key: number): A;
                         universe(key: number): A;
-                        save(callback: (p: boolean) => void): void;
-                        discard(callback: (p: boolean) => void): void;
-                        unload(callback: (p: boolean) => void): void;
+                        save(callback: (p: java.lang.Throwable) => void): void;
+                        discard(callback: (p: java.lang.Throwable) => void): void;
                         disable(listener: (p: KEvent) => void): void;
                         listen(listener: (p: KEvent) => void): void;
                         setEventBroker(p_eventBroker: event.KEventBroker): KModel<any>;
@@ -277,7 +267,6 @@ declare module org {
                         task(): KTask<any>;
                         taskSave(): KTask<any>;
                         taskDiscard(): KTask<any>;
-                        taskUnload(): KTask<any>;
                         taskConnect(): KTask<any>;
                         taskClose(): KTask<any>;
                     }
@@ -403,8 +392,6 @@ declare module org {
                         constructor(p_model: KModel<any>, p_key: number);
                         key(): number;
                         model(): C;
-                        save(callback: (p: java.lang.Throwable) => void): void;
-                        unload(callback: (p: java.lang.Throwable) => void): void;
                         delete(callback: (p: java.lang.Throwable) => void): void;
                         discard(callback: (p: java.lang.Throwable) => void): void;
                         time(timePoint: number): A;
@@ -412,14 +399,9 @@ declare module org {
                         listenAllTimes(target: KObject, listener: (p: KEvent) => void): void;
                         internal_create(timePoint: number): A;
                         equals(obj: any): boolean;
-                        origin(callback: (p: B) => void): void;
-                        split(callback: (p: B) => void): void;
-                        descendants(callback: (p: B[]) => void): void;
-                        taskSplit(): KTask<any>;
-                        taskOrigin(): KTask<any>;
-                        taskDescendants(): KTask<any>;
-                        taskSave(): KTask<any>;
-                        taskUnload(): KTask<any>;
+                        origin(): B;
+                        diverge(): B;
+                        descendants(): java.util.List<B>;
                         taskDelete(): KTask<any>;
                         taskDiscard(): KTask<any>;
                     }
@@ -542,6 +524,7 @@ declare module org {
                         static KEY_SEP: string;
                         private _db;
                         private caches;
+                        private universeTree;
                         private _eventBroker;
                         private _operationManager;
                         private _scheduler;
@@ -558,22 +541,22 @@ declare module org {
                         constructor(model: KModel<any>);
                         connect(callback: (p: java.lang.Throwable) => void): void;
                         close(callback: (p: java.lang.Throwable) => void): void;
-                        private keyTree(dim, key);
-                        private keyRoot(dim);
-                        private keyRootTree(dim);
-                        keyPayload(dim: number, time: number, key: number): string;
+                        private keyTree(uni, key);
+                        private keyRoot(uni);
+                        private keyRootTree(uni_key);
+                        keyPayload(uni: number, time: number, key: number): string;
                         private keyLastPrefix();
-                        private keyLastDimIndex(prefix);
+                        private keyLastUniIndex(prefix);
+                        private keyUniverseTree();
                         private keyLastObjIndex(prefix);
                         nextUniverseKey(): number;
                         nextObjectKey(): number;
-                        initUniverse(p_universe: KUniverse<any, any, any>): void;
+                        initUniverse(p_universe: KUniverse<any, any, any>, p_parent: KUniverse<any, any, any>): void;
                         initKObject(obj: KObject, originView: KView): void;
                         raw(origin: KObject, accessMode: AccessMode): any[];
                         discard(p_universe: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
                         delete(p_universe: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
-                        save(p_universe: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
-                        saveUnload(p_universe: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
+                        save(callback: (p: java.lang.Throwable) => void): void;
                         lookup(originView: KView, key: number, callback: (p: KObject) => void): void;
                         lookupAll(originView: KView, keys: number[], callback: (p: KObject[]) => void): void;
                         getRoot(originView: KView, callback: (p: KObject) => void): void;
@@ -593,6 +576,8 @@ declare module org {
                         private resolve_timeTrees(p_universe, keys, callback);
                         private resolve_roots(p_universe, callback);
                         getModel(): KModel<any>;
+                        parentUniverseKey(currentUniverseKey: number): number;
+                        descendantsUniverseKeys(currentUniverseKey: number): number[];
                     }
                     class Index {
                         static PARENT_INDEX: number;
@@ -620,12 +605,11 @@ declare module org {
                         lookup(originView: KView, key: number, callback: (p: KObject) => void): void;
                         lookupAll(originView: KView, key: number[], callback: (p: KObject[]) => void): void;
                         raw(origin: KObject, accessMode: AccessMode): any[];
-                        save(universe: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
-                        saveUnload(universe: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
+                        save(callback: (p: java.lang.Throwable) => void): void;
                         discard(universe: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
                         delete(universe: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
                         initKObject(obj: KObject, originView: KView): void;
-                        initUniverse(universe: KUniverse<any, any, any>): void;
+                        initUniverse(universe: KUniverse<any, any, any>, parent: KUniverse<any, any, any>): void;
                         nextUniverseKey(): number;
                         nextObjectKey(): number;
                         getRoot(originView: KView, callback: (p: KObject) => void): void;
@@ -639,6 +623,8 @@ declare module org {
                         connect(callback: (p: java.lang.Throwable) => void): void;
                         close(callback: (p: java.lang.Throwable) => void): void;
                         getModel(): KModel<any>;
+                        parentUniverseKey(currentUniverseKey: number): number;
+                        descendantsUniverseKeys(currentUniverseKey: number): number[];
                     }
                     class KeyCalculator {
                         static LONG_LIMIT_JS: number;
@@ -678,6 +664,9 @@ declare module org {
                             timeTreeCache: java.util.Map<number, time.TimeTree>;
                             timesCaches: java.util.Map<number, TimeCache>;
                             roots: time.rbtree.LongRBTree;
+                            private _isDirty;
+                            isDirty(): boolean;
+                            setDirty(): void;
                         }
                     }
                 }
@@ -695,7 +684,7 @@ declare module org {
                         registerListener(origin: any, listener: (p: KEvent) => void, scope: any): void;
                         notify(event: KEvent): void;
                         sendOperationEvent(eventk: KEvent): void;
-                        flush(dimensionKey: number): void;
+                        flush(): void;
                         setKStore(store: data.KStore): void;
                         setMetaModel(p_metaModel: meta.MetaModel): void;
                         unregister(listener: (p: KEvent) => void): void;
@@ -737,7 +726,7 @@ declare module org {
                         registerListener(origin: any, listener: (p: KEvent) => void, scope: any): void;
                         unregister(listener: (p: KEvent) => void): void;
                         notify(event: KEvent): void;
-                        flush(dimensionKey: number): void;
+                        flush(): void;
                         setKStore(store: data.KStore): void;
                         setMetaModel(metaModel: meta.MetaModel): void;
                         sendOperationEvent(operationEvent: KEvent): void;
@@ -1135,9 +1124,6 @@ declare module org {
                     }
                 }
                 module operation {
-                    class DefaultModelCloner {
-                        static clone<A extends KObject>(originalObject: A, callback: (p: A) => void): void;
-                    }
                     class DefaultModelCompare {
                         static diff(origin: KObject, target: KObject, callback: (p: trace.TraceSequence) => void): void;
                         static merge(origin: KObject, target: KObject, callback: (p: trace.TraceSequence) => void): void;

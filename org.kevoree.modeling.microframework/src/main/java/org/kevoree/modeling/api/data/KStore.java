@@ -2,6 +2,7 @@ package org.kevoree.modeling.api.data;
 
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.event.KEventBroker;
+import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 import org.kevoree.modeling.api.util.KOperationManager;
 
 /**
@@ -15,9 +16,7 @@ public interface KStore {
 
     Object[] raw(KObject origin, AccessMode accessMode);
 
-    public void save(KUniverse universe, Callback<Throwable> callback);
-
-    public void saveUnload(KUniverse universe, Callback<Throwable> callback);
+    public void save(Callback<Throwable> callback);
 
     public void discard(KUniverse universe, Callback<Throwable> callback);
 
@@ -25,7 +24,7 @@ public interface KStore {
 
     public void initKObject(KObject obj, KView originView);
 
-    public void initUniverse(KUniverse universe);
+    public void initUniverse(KUniverse universe, KUniverse parent);
 
     long nextUniverseKey();
 
@@ -52,5 +51,9 @@ public interface KStore {
     public void close(Callback<Throwable> callback);
 
     public KModel getModel();
+
+    public Long parentUniverseKey(Long currentUniverseKey);
+
+    public Long[] descendantsUniverseKeys(Long currentUniverseKey);
 
 }

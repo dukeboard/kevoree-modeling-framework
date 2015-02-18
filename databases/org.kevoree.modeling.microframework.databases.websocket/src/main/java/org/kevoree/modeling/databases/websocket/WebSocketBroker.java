@@ -35,7 +35,7 @@ public class WebSocketBroker extends AbstractReceiveListener implements KEventBr
     private KEventBroker _baseBroker;
     private Undertow server;
     private ArrayList<WebSocketChannel> webSocketClients = new ArrayList<>();
-    private Map<Long, ArrayList<KEvent>> storedEvents = new HashMap<Long, ArrayList<KEvent>>();
+    private ArrayList<KEvent> storedEvents = new ArrayList<KEvent>();
     private Map<Long, Map<Integer, Callback>> operationCallbacks = new HashMap<>();
 
     private MetaModel _metaModel;
@@ -92,37 +92,29 @@ public class WebSocketBroker extends AbstractReceiveListener implements KEventBr
     }
 
     @Override
-    public void notify(KEvent event) {
-        _baseBroker.notify(event);
-        ArrayList<KEvent> dimEvents = storedEvents.get(event.universe());
-        if (dimEvents == null) {
-            dimEvents = new ArrayList<KEvent>();
-            storedEvents.put(event.universe(), dimEvents);
-        }
-        dimEvents.add(event);
+    public void notify(KEvent p_event) {
+        _baseBroker.notify(p_event);
+        storedEvents.add(p_event);
     }
 
     public void notifyOnly(KEvent event) {
         _baseBroker.notify(event);
     }
 
-    public void flush(Long dimensionKey) {
-        ArrayList<KEvent> eventList = storedEvents.remove(dimensionKey);
-        if (eventList != null) {
-            JsonArray serializedEventList = new JsonArray();
-            for (int i = 0; i < eventList.size(); i++) {
-                serializedEventList.add(eventList.get(i).toJSON());
-            }
-            JsonObject jsonMessage = new JsonObject();
-            jsonMessage.add("dimKey", dimensionKey);
-            jsonMessage.add("events", serializedEventList);
-            String message = jsonMessage.toString();
-            if (server != null) {
-                for (int j = 0; j < webSocketClients.size(); j++) {
-                    WebSockets.sendText(message, webSocketClients.get(j), null);
-                }
+    public void flush() {
+        JsonArray serializedEventList = new JsonArray();
+        for (int i = 0; i < storedEvents.size(); i++) {
+            serializedEventList.add(storedEvents.get(i).toJSON());
+        }
+        JsonObject jsonMessage = new JsonObject();
+        jsonMessage.add("events", serializedEventList);
+        String message = jsonMessage.toString();
+        if (server != null) {
+            for (int j = 0; j < webSocketClients.size(); j++) {
+                WebSockets.sendText(message, webSocketClients.get(j), null);
             }
         }
+        storedEvents.clear();
     }
 
     @Override
@@ -174,8 +166,8 @@ public class WebSocketBroker extends AbstractReceiveListener implements KEventBr
         JsonArray events = jsonMessage.get("events").asArray();
         for (int i = 0; i < events.size(); i++) {
             KEvent event = DefaultKEvent.fromJSON(events.get(i).asString(), this._metaModel);
-            if(event.actionType() == KActionType.CALL
-                || event.actionType() == KActionType.CALL_RESPONSE) {
+            if (event.actionType() == KActionType.CALL
+                    || event.actionType() == KActionType.CALL_RESPONSE) {
                 _store.operationManager().operationEventReceived(event);
             } else {
                 notifyOnly(event);

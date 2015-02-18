@@ -62,10 +62,15 @@ public class PolynomialSaveLoadTest {
             });
         }
 
-        universe.unload(new Callback<Throwable>() {
+        model.save(new Callback<Throwable>() {
             @Override
-            public void on(Throwable throwable) {
+            public void on(Throwable aBoolean) {
+                model.discard(new Callback<Throwable>() {
+                    @Override
+                    public void on(Throwable aBoolean) {
 
+                    }
+                });
             }
         });
 
@@ -85,12 +90,20 @@ public class PolynomialSaveLoadTest {
         }
         Assert.assertEquals(element.timeTree().size(), 2);
 
-        universe.save(new Callback<Throwable>() {
-            @Override
-            public void on(Throwable throwable) {
 
+        model.save(new Callback<Throwable>() {
+            @Override
+            public void on(Throwable aBoolean) {
+                model.discard(new Callback<Throwable>() {
+                    @Override
+                    public void on(Throwable aBoolean) {
+
+                    }
+                });
             }
         });
+
+
         Assert.assertEquals(nbAssert[0], 801);
     }
 
