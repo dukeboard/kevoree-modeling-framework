@@ -32,14 +32,15 @@ public class LookupAllRunnable implements Runnable {
 
     @Override
     public void run() {
-        _store.internal_resolve_universe_time(_originView, _keys, new Callback<Object[][]>() {
+        _store.internal_resolve_universe_time(_originView, _keys, new Callback<ResolutionResult[]>() {
             @Override
-            public void on(Object[][] objects) {
+            public void on(ResolutionResult[] objects) {
                 KObject[] resolved = new KObject[_keys.length];
                 List<Integer> toLoadIndexes = new ArrayList<Integer>();
                 for (int i = 0; i < objects.length; i++) {
-                    if (objects[i][DefaultKDataManager.INDEX_RESOLVED_TIME] != null) {
-                        KCacheEntry entry = (KCacheEntry) _store.dataBase().cache().get(KContentKey.createObject((Long) objects[i][DefaultKDataManager.INDEX_RESOLVED_UNIVERSE], (Long) objects[i][DefaultKDataManager.INDEX_RESOLVED_TIME], _keys[i]));
+                    if (objects[i] != null && objects[i].resolvedQuanta != null && objects[i].resolvedUniverse != null) {
+                        KContentKey contentKey = KContentKey.createObject(objects[i].resolvedUniverse, objects[i].resolvedUniverse, _keys[i]);
+                        KCacheEntry entry = (KCacheEntry) _store.dataBase().cache().get(contentKey);
                         if (entry == null) {
                             toLoadIndexes.add(i);
                         } else {
@@ -53,7 +54,7 @@ public class LookupAllRunnable implements Runnable {
                     KContentKey[] toLoadKeys = new KContentKey[toLoadIndexes.size()];
                     for (int i = 0; i < toLoadIndexes.size(); i++) {
                         int toLoadIndex = toLoadIndexes.get(i);
-                        toLoadKeys[i] = KContentKey.createObject((Long) objects[toLoadIndex][DefaultKDataManager.INDEX_RESOLVED_UNIVERSE], (Long) objects[toLoadIndex][DefaultKDataManager.INDEX_RESOLVED_TIME], _keys[i]);
+                        toLoadKeys[i] = KContentKey.createObject(objects[toLoadIndex].resolvedUniverse, objects[toLoadIndex].resolvedQuanta, _keys[i]);
                     }
                     _store.dataBase().get(toLoadKeys, new ThrowableCallback<String[]>() {
                         @Override
@@ -66,14 +67,14 @@ public class LookupAllRunnable implements Runnable {
                                     if (strings[i] != null) {
                                         int index = toLoadIndexes.get(i);
                                         //Create the raw CacheEntry
-                                        KCacheEntry entry = JsonRaw.decode(strings[i], _originView, (Long) objects[i][DefaultKDataManager.INDEX_RESOLVED_TIME]);
+                                        KCacheEntry entry = JsonRaw.decode(strings[i], _originView, objects[i].resolvedQuanta);
                                         if (entry != null) {
-                                            entry.timeTree = (TimeTree) objects[i][DefaultKDataManager.INDEX_RESOLVED_TIME_TREE];
-                                            entry.universeTree = (LongRBTree) objects[i][DefaultKDataManager.INDEX_RESOLVED_UNIVERSE_TREE];
+                                            entry.timeTree = (TimeTree) objects[i].timeTree;
+                                            entry.universeTree = objects[i].universeTree;
                                             //Create and Add the proxy
                                             resolved[index] = ((AbstractKView) _originView).createProxy(entry.metaClass, entry.timeTree, entry.universeTree, _keys[i]);
                                             //Save the cache value
-                                            _store.dataBase().cache().put(KContentKey.createObject((Long) objects[i][DefaultKDataManager.INDEX_RESOLVED_UNIVERSE], (Long) objects[i][DefaultKDataManager.INDEX_RESOLVED_TIME], _keys[i]), entry);
+                                            _store.dataBase().cache().put(KContentKey.createObject(objects[i].resolvedUniverse, (Long) objects[i].resolvedQuanta, _keys[i]), entry);
                                         }
                                     }
                                 }

@@ -4,7 +4,7 @@ package org.kevoree.modeling.microframework.test.tree;
 import org.junit.Test;
 import org.junit.Assert;
 import org.kevoree.modeling.api.time.rbtree.TreeNode;
-import org.kevoree.modeling.api.time.rbtree.RBTree;
+import org.kevoree.modeling.api.time.rbtree.IndexRBTree;
 import org.kevoree.modeling.api.time.rbtree.State;
 
 import java.util.LinkedList;
@@ -14,14 +14,14 @@ import java.util.LinkedList;
  * Created by gregory.nain on 01/08/2014.
  */
 
-public class RBTreeTest {
+public class IndexRBTreeTest {
 
     @Test
     public void printTest() {
         long MIN = 0L;
         long MAX = 99L;
         for (long j = MIN; j <= MAX; j++) {
-            RBTree tree = new RBTree();
+            IndexRBTree tree = new IndexRBTree();
             for (long i = MIN; i <= j; i++) {
                 if ((i % 3) == 0L) {
                     tree.insert(i, State.DELETED);
@@ -39,7 +39,7 @@ public class RBTreeTest {
         long MIN = 0L;
         long MAX = 99L;
         for (long j = MIN; j <= MAX; j++) {
-            RBTree tree = new RBTree();
+            IndexRBTree tree = new IndexRBTree();
             for (long i = MIN; i <= j; i++) {
                 if ((i % 3) == 0L) {
                     tree.insert(i, State.DELETED);
@@ -82,7 +82,7 @@ public class RBTreeTest {
         long MIN = 0L;
         long MAX = 99L;
         for (long j = MIN + 1; j <= MAX; j++) {
-            RBTree tree = new RBTree();
+            IndexRBTree tree = new IndexRBTree();
             for (long i = MIN; i <= j; i++) {
                 if ((i % 7) == 0L) {
                     tree.insert(i, State.DELETED);
@@ -99,7 +99,7 @@ public class RBTreeTest {
 
     @Test
     public void nextWhileNotTest() {
-        RBTree tree = new RBTree();
+        IndexRBTree tree = new IndexRBTree();
         for (long i = 0; i <= 6; i++) {
             tree.insert(i, State.EXISTS);
         }
@@ -123,7 +123,7 @@ public class RBTreeTest {
 
     @Test
     public void previousWhileNotTest() {
-        RBTree tree = new RBTree();
+        IndexRBTree tree = new IndexRBTree();
         for (long i = 0; i <= 6; i++) {
             tree.insert(i, State.EXISTS);
         }
@@ -147,7 +147,7 @@ public class RBTreeTest {
         long MIN = 0L;
         long MAX = 99L;
         for (long j = MIN + 1; j <= MAX; j++) {
-            RBTree tree = new RBTree();
+            IndexRBTree tree = new IndexRBTree();
             for (long i = MIN; i <= j; i++) {
                 if ((i % 3) == 0L) {
                     tree.insert(i, State.DELETED);
@@ -164,7 +164,7 @@ public class RBTreeTest {
         long MIN = 0L;
         long MAX = 99L;
         for (long j = MIN + 1; j <= MAX; j++) {
-            RBTree tree = new RBTree();
+            IndexRBTree tree = new IndexRBTree();
             for (long i = MIN; i <= j; i++) {
                 if ((i % 3) == 0L) {
                     tree.insert(i, State.DELETED);
@@ -178,7 +178,7 @@ public class RBTreeTest {
 
     @Test
     public void firstWhileNot() {
-        RBTree tree = new RBTree();
+        IndexRBTree tree = new IndexRBTree();
         for (long i = 0; i <= 6; i++) {
             tree.insert(i, State.EXISTS);
         }
@@ -200,7 +200,7 @@ public class RBTreeTest {
 
     @Test
     public void lastWhileNot() {
-        RBTree tree = new RBTree();
+        IndexRBTree tree = new IndexRBTree();
         for (long i = 0; i <= 6; i++) {
             tree.insert(i, State.EXISTS);
         }
@@ -224,7 +224,7 @@ public class RBTreeTest {
 
     @Test
     public void previousOrEqualTest() {
-        RBTree tree = new RBTree();
+        IndexRBTree tree = new IndexRBTree();
         for (long i = 0; i <= 6; i++) {
             tree.insert(i, State.EXISTS);
         }
@@ -246,7 +246,7 @@ public class RBTreeTest {
 
     @Test
     public void nextOrEqualTest() {
-        RBTree tree = new RBTree();
+        IndexRBTree tree = new IndexRBTree();
         for (long i = 0; i <= 6; i++) {
             tree.insert(i, State.EXISTS);
         }

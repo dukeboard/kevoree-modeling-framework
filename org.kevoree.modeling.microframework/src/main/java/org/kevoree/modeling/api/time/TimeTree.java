@@ -10,14 +10,6 @@ public interface TimeTree extends KCacheObject {
 
     public void walk(TimeWalker walker);
 
-    public void walkAsc(TimeWalker walker);
-
-    public void walkDesc(TimeWalker walker);
-
-    public void walkRangeAsc(TimeWalker walker, long from, long to);
-
-    public void walkRangeDesc(TimeWalker walker, long from, long to);
-
     public Long first();
 
     public Long last();
@@ -31,7 +23,7 @@ public interface TimeTree extends KCacheObject {
     public TimeTree insert(long time);
 
     public TimeTree delete(long time);
-    
+
     public int size();
 
 }

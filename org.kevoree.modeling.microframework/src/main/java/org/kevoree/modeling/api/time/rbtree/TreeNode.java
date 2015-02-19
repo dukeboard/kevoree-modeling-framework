@@ -5,18 +5,14 @@ package org.kevoree.modeling.api.time.rbtree;
  */
 public class TreeNode {
 
-    public static final char BLACK_DELETE = '0';
-    public static final char BLACK_EXISTS = '1';
-    public static final char RED_DELETE = '2';
-    public static final char RED_EXISTS = '3';
+    public static final char BLACK = '0';
+    public static final char RED = '1';
 
     protected long key;
 
     public long getKey() {
         return key;
     }
-
-    protected State value;
 
     protected Color color;
 
@@ -26,13 +22,11 @@ public class TreeNode {
 
     private TreeNode parent = null;
 
-    public TreeNode(long key, State value, Color color, TreeNode left, TreeNode right) {
+    public TreeNode(long key, Color color, TreeNode left, TreeNode right) {
         this.key = key;
-        this.value = value;
         this.color = color;
         this.left = left;
         this.right = right;
-
         if (left != null) {
             left.parent = this;
         }
@@ -96,18 +90,10 @@ public class TreeNode {
 
     public void serialize(StringBuilder builder) {
         builder.append("|");
-        if (value == State.DELETED) {
-            if (color == Color.BLACK) {
-                builder.append(BLACK_DELETE);
-            } else {
-                builder.append(RED_DELETE);
-            }
+        if (color == Color.BLACK) {
+            builder.append(BLACK);
         } else {
-            if (color == Color.BLACK) {
-                builder.append(BLACK_EXISTS);
-            } else {
-                builder.append(RED_EXISTS);
-            }
+            builder.append(RED);
         }
         builder.append(key);
         if (left == null && right == null) {
@@ -199,25 +185,11 @@ public class TreeNode {
         }
         ctx.index = ctx.index + 1;
         ch = ctx.payload.charAt(ctx.index);
-        Color color = Color.BLACK;
-        State state = State.EXISTS;
-        switch (ch) {
-            case TreeNode.BLACK_DELETE:
-                color = Color.BLACK;
-                state = State.DELETED;
-                break;
-            case TreeNode.BLACK_EXISTS:
-                color = Color.BLACK;
-                state = State.EXISTS;
-                break;
-            case TreeNode.RED_DELETE:
-                color = Color.RED;
-                state = State.DELETED;
-                break;
-            case TreeNode.RED_EXISTS:
-                color = Color.RED;
-                state = State.EXISTS;
-                break;
+        Color color;
+        if (ch == TreeNode.BLACK) {
+            color = Color.BLACK;
+        } else {
+            color = Color.RED;
         }
         ctx.index = ctx.index + 1;
         ch = ctx.payload.charAt(ctx.index);
@@ -229,7 +201,7 @@ public class TreeNode {
         if (ch != '|' && ch != '#' && ch != '%') {
             tokenBuild.append(ch);
         }
-        TreeNode p = new TreeNode(Long.parseLong(tokenBuild.toString()), state, color, null, null);
+        TreeNode p = new TreeNode(Long.parseLong(tokenBuild.toString()), color, null, null);
         TreeNode left = internal_unserialize(false, ctx);
         if (left != null) {
             left.setParent(p);

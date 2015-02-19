@@ -3,7 +3,7 @@ package org.kevoree.modeling.microframework.test.tree;
 import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.time.rbtree.LongRBTree;
-import org.kevoree.modeling.api.time.rbtree.RBTree;
+import org.kevoree.modeling.api.time.rbtree.IndexRBTree;
 import org.kevoree.modeling.api.time.rbtree.State;
 
 /**
@@ -14,11 +14,11 @@ public class LongRBTreeTest {
 
     @Test
     public void saveLoad0() throws Exception {
-        RBTree tree = new RBTree();
+        IndexRBTree tree = new IndexRBTree();
         for (long i = 0; i <= 6; i++) {
             tree.insert(i, State.EXISTS);
         }
-        RBTree treeBis = new RBTree();
+        IndexRBTree treeBis = new IndexRBTree();
         treeBis.unserialize(tree.serialize());
         Assert.assertEquals(tree.size(), treeBis.size());
         for (int i = 0; i < tree.size(); i++) {

@@ -93,11 +93,6 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public TimeTree timeTree() {
-        return _timeTree;
-    }
-
-    @Override
     public LongRBTree universeTree() {
         return _universeTree;
     }

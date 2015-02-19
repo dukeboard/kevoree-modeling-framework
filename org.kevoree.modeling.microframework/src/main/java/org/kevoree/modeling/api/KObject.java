@@ -45,10 +45,8 @@ public interface KObject {
     /* Time navigation */
     public long now();
 
-    public TimeTree timeTree();
-
     public LongRBTree universeTree();
-    
+
     /* Reflexive API */
     public MetaReference referenceInParent();
 

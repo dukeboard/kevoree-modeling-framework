@@ -11,10 +11,11 @@ import org.kevoree.modeling.api.data.cdn.MemoryKContentDeliveryDriver;
 import org.kevoree.modeling.api.event.DefaultKBroker;
 import org.kevoree.modeling.api.event.KEventBroker;
 import org.kevoree.modeling.api.scheduler.DirectScheduler;
-import org.kevoree.modeling.api.time.DefaultTimeTree;
 import org.kevoree.modeling.api.time.TimeTree;
+import org.kevoree.modeling.api.time.rbtree.IndexRBTree;
 import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 import org.kevoree.modeling.api.time.rbtree.LongTreeNode;
+import org.kevoree.modeling.api.time.rbtree.RBTree;
 import org.kevoree.modeling.api.util.DefaultOperationManager;
 import org.kevoree.modeling.api.util.KOperationManager;
 
@@ -296,14 +297,10 @@ public class DefaultKDataManager implements KDataManager {
         }
     }
 
-    private String keyTimeTree(long uni, long key) {
-        return "" + uni + KEY_SEP + key;
-    }
-
     private String keyRoot(long uni) {
         return "" + uni + KEY_SEP + "root";
     }
-    
+
     private String keyLastPrefix() {
         return "ring_prefix";
     }
@@ -323,9 +320,16 @@ public class DefaultKDataManager implements KDataManager {
     //TODO
     @Override
     public Object[] raw(KObject origin, AccessMode accessMode) {
-        //TODO manage multi universe, and protect for potential null
-        long resolvedTime = origin.timeTree().resolve(origin.now());
-        boolean needCopy = accessMode.equals(AccessMode.WRITE) && (resolvedTime != origin.now());
+        LongRBTree dimensionTree = origin.universeTree();
+        Long resolvedUniverse = internal_resolve_universe(dimensionTree, origin.view().universe().key(), origin.now());
+        IndexRBTree timeTree = (IndexRBTree) _db.cache().get(KContentKey.createTimeTree(resolvedUniverse, origin.uuid()));
+        if (timeTree == null) {
+            System.err.println(OUT_OF_CACHE_MESSAGE);
+            return null;
+        }
+        long resolvedTime = timeTree.lookup(origin.now());
+        boolean needTimeCopy = accessMode.equals(AccessMode.WRITE) && (resolvedTime != origin.now());
+        boolean needUniverseCopy = accessMode.equals(AccessMode.WRITE) && (resolvedUniverse != origin.universe().key());
         KCacheEntry entry = (KCacheEntry) _db.cache().get(KContentKey.createObject(origin.universe().key(), origin.now(), origin.uuid()));
         if (entry == null) {
             System.err.println(OUT_OF_CACHE_MESSAGE);
@@ -341,7 +345,7 @@ public class DefaultKDataManager implements KDataManager {
             System.err.println(DELETED_MESSAGE);
             return null;
         } else {
-            if (!needCopy) {
+            if (!needTimeCopy && !needUniverseCopy) {
                 if (accessMode.equals(AccessMode.WRITE)) {
                     entry._dirty = true;
                 }
@@ -484,87 +488,127 @@ public class DefaultKDataManager implements KDataManager {
         return _operationManager;
     }
 
-    /* Private not synchronized methods */
-
-    public static final int INDEX_RESOLVED_UNIVERSE = 0;
-
-    public static final int INDEX_RESOLVED_UNIVERSE_TREE = 1;
-
-    public static final int INDEX_RESOLVED_TIME = 2;
-
-    public static final int INDEX_RESOLVED_TIME_TREE = 3;
-
-    public static final int INDEX_SIZE = 4;
-
-    void internal_resolve_universe_time(KView originView, Long[] uuids, Callback<Object[][]> callback) {
-        Object[][] result = new Object[uuids.length][];
-        resolve_timeTrees(originView.universe(), uuids, new Callback<TimeTree[]>() {
-            @Override
-            public void on(TimeTree[] timeTrees) {
-                for (int i = 0; i < timeTrees.length; i++) {
-                    Object[] resolved = new Object[INDEX_SIZE];
-                    resolved[INDEX_RESOLVED_UNIVERSE] = originView.universe().key(); //TODO better ...
-                    resolved[INDEX_RESOLVED_UNIVERSE_TREE] = null; //TODO
-                    if (timeTrees[i] != null) {
-                        resolved[INDEX_RESOLVED_TIME] = timeTrees[i].resolve(originView.now());
-                    }
-                    resolved[INDEX_RESOLVED_TIME_TREE] = timeTrees[i];
-                    result[i] = resolved;
-                }
-                callback.on(result);
+    private void internal_resolve_universe_time(KView originView, Long[] uuids, Callback<ResolutionResult[]> callback) {
+        final ResolutionResult[] tempResult = new ResolutionResult[uuids.length];
+        //step 0: try to hit the cache layer for dimensions
+        List<Integer> toLoadIndexUniverse = null;
+        List<KContentKey> toLoadUniverseTrees = null;
+        for (int i = 0; i < uuids.length; i++) {
+            if (tempResult[i] == null) {
+                tempResult[i] = new ResolutionResult();
             }
-        });
-    }
-
-    private void resolve_timeTrees(final KUniverse p_universe, final Long[] keys, final Callback<TimeTree[]> callback) {
-        final List<Integer> toLoad = new ArrayList<Integer>();
-        final TimeTree[] result = new TimeTree[keys.length];
-        for (int i = 0; i < keys.length; i++) {
-            final UniverseCache universeCache = cache.universeCache.get(p_universe.key());
-            if (universeCache == null) {
-                toLoad.add(i);
+            KContentKey universeObjectTreeKey = KContentKey.createUniverseTree(uuids[i]);
+            LongRBTree cachedUniverseTree = (LongRBTree) _db.cache().get(universeObjectTreeKey);
+            if (cachedUniverseTree != null) {
+                tempResult[i].universeTree = cachedUniverseTree;
             } else {
-                TimeTree cachedTree = universeCache.timeTreeCache.get(keys[i]);
-                if (cachedTree != null) {
-                    result[i] = cachedTree;
-                } else {
-                    toLoad.add(i);
+                if (toLoadIndexUniverse == null) {
+                    toLoadIndexUniverse = new ArrayList<Integer>();
                 }
+                if (toLoadUniverseTrees == null) {
+                    toLoadUniverseTrees = new ArrayList<KContentKey>();
+                }
+                toLoadIndexUniverse.add(i);
+                toLoadUniverseTrees.add(universeObjectTreeKey);
             }
         }
-        if (toLoad.isEmpty()) {
-            callback.on(result);
-        } else {
-            String[] toLoadKeys = new String[toLoad.size()];
-            for (int i = 0; i < toLoad.size(); i++) {
-                toLoadKeys[i] = keyTimeTree(p_universe.key(), keys[toLoad.get(i)]);
-            }
+        //step 1: try to hit the CDN layer for dimensions
+        if (toLoadUniverseTrees != null) {
+            KContentKey[] toLoadKeys = toLoadUniverseTrees.toArray(new KContentKey[toLoadUniverseTrees.size()]);
+            final List<Integer> finalToLoadIndexUniverse = toLoadIndexUniverse;
             _db.get(toLoadKeys, new ThrowableCallback<String[]>() {
                 @Override
-                public void on(String[] res, Throwable error) { //TODO process error
+                public void on(String[] resolvedContents, Throwable error) {
                     if (error != null) {
                         error.printStackTrace();
-                    }
-                    for (int i = 0; i < res.length; i++) {
-                        DefaultTimeTree newTree = new DefaultTimeTree();
-                        try {
-                            if (res[i] != null) {
-                                newTree.load(res[i]);
-                            } else {
-                                newTree.insert(p_universe.key());
+                        callback.on(tempResult);
+                    } else {
+                        for (int i = 0; i < resolvedContents.length; i++) {
+                            LongRBTree newLoadedTree = new LongRBTree();
+                            if (resolvedContents[i] != null) {
+                                try {
+                                    newLoadedTree.unserialize(resolvedContents[i]);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
                             }
-                            //Write in cache the Resolved TimeTree
-                            //TODO resolve first the universeTree
-                            write_time_tree(p_universe.key(), keys[toLoad.get(i)], newTree);
-                            result[toLoad.get(i)] = newTree;
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                            tempResult[finalToLoadIndexUniverse.get(i)].universeTree = newLoadedTree;
                         }
+                        internal_resolve_times(originView, uuids, tempResult, callback);
                     }
-                    callback.on(result);
                 }
             });
+        } else {
+            internal_resolve_times(originView, uuids, tempResult, callback);
         }
+    }
+
+    private void internal_resolve_times(KView originView, Long[] uuids, ResolutionResult[] tempResult, Callback<ResolutionResult[]> callback) {
+        //step 1.0: try to hit the cache layer for times
+        List<Integer> toLoadIndexTimes = null;
+        List<KContentKey> toLoadTimeTrees = null;
+        for (int i = 0; i < uuids.length; i++) {
+            if (tempResult[i].universeTree != null) {
+                Long closestUniverse = internal_resolve_universe(tempResult[i].universeTree, originView.now(), originView.universe().key());
+                if (closestUniverse != null) {
+                    tempResult[i].resolvedUniverse = closestUniverse;
+                    KContentKey timeObjectTreeKey = KContentKey.createUniverseTree(uuids[i]);
+                    IndexRBTree cachedIndexTree = (IndexRBTree) _db.cache().get(timeObjectTreeKey);
+                    if (cachedIndexTree != null) {
+                        tempResult[i].timeTree = cachedIndexTree;
+                        tempResult[i].resolvedQuanta = cachedIndexTree.lookup(originView.now());
+                    } else {
+                        if (toLoadIndexTimes == null) {
+                            toLoadIndexTimes = new ArrayList<Integer>();
+                        }
+                        if (toLoadTimeTrees == null) {
+                            toLoadTimeTrees = new ArrayList<KContentKey>();
+                        }
+                        toLoadIndexTimes.add(i);
+                        toLoadTimeTrees.add(timeObjectTreeKey);
+                    }
+                } else {
+                    System.err.println("KMF ERROR on object:" + uuids[i]);
+                }
+            }
+        }
+        //step 1.1: try to hit the CDN layer for times
+        if (toLoadTimeTrees != null) {
+            KContentKey[] toLoadKeys = toLoadTimeTrees.toArray(new KContentKey[toLoadTimeTrees.size()]);
+            final List<Integer> finalToLoadIndexTimes = toLoadIndexTimes;
+            _db.get(toLoadKeys, new ThrowableCallback<String[]>() {
+                @Override
+                public void on(String[] resolvedContents, Throwable error) {
+                    if (error != null) {
+                        error.printStackTrace();
+                        callback.on(tempResult);
+                    } else {
+                        for (int i = 0; i < resolvedContents.length; i++) {
+                            IndexRBTree newLoadedTree = new IndexRBTree();
+                            if (resolvedContents[i] != null) {
+                                try {
+                                    newLoadedTree.unserialize(resolvedContents[i]);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            int initialIndex = finalToLoadIndexTimes.get(i);
+                            tempResult[initialIndex].timeTree = newLoadedTree;
+                            tempResult[initialIndex].resolvedQuanta = newLoadedTree.lookup(originView.now());
+                        }
+                        callback.on(tempResult);
+                    }
+                }
+            });
+        } else {
+            callback.on(tempResult);
+        }
+
+    }
+
+    private Long internal_resolve_universe(LongRBTree universeTree, long timeToResolve, long currentUniverse) {
+        //TODO :( uch
+        return -1l;
     }
 
     private void resolve_roots(final KUniverse p_universe, final Callback<LongRBTree> callback) {
