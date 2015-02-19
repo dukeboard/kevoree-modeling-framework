@@ -6,7 +6,7 @@ import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KOperation;
 import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.data.KStore;
+import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.meta.MetaOperation;
 
@@ -21,7 +21,7 @@ public class DefaultOperationManager implements KOperationManager{
 
     private Map<Integer, Map<Integer, KOperation>> staticOperations = new HashMap<Integer, Map<Integer, KOperation>>();
     private Map<Long, Map<Integer, KOperation>> instanceOperations = new HashMap<Long, Map<Integer, KOperation>>();
-    private KStore _store;
+    private KDataManager _store;
 
     private static int DIM_INDEX = 0;
     private static int TIME_INDEX = 1;
@@ -32,7 +32,7 @@ public class DefaultOperationManager implements KOperationManager{
     private HashMap<Long[], Callback<Object>> remoteCallCallbacks = new HashMap<Long[], Callback<Object>>();
 
 
-    public DefaultOperationManager(KStore store) {
+    public DefaultOperationManager(KDataManager store) {
         this._store = store;
     }
 

@@ -3,14 +3,11 @@ package org.kevoree.modeling.microframework.test;
 import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.*;
-import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
 import org.kevoree.modeling.microframework.test.cloud.Element;
-
-import java.util.Map;
 
 /**
  * Created by duke on 10/13/14.

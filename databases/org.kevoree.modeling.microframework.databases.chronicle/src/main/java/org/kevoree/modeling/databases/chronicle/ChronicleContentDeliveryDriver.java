@@ -4,7 +4,7 @@ import net.openhft.chronicle.map.ChronicleMap;
 import net.openhft.chronicle.map.ChronicleMapBuilder;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.data.KDataBase;
+import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,11 +12,11 @@ import java.io.IOException;
 /**
  * Created by duke on 11/4/14.
  */
-public class ChronicleDataBase implements KDataBase {
+public class ChronicleContentDeliveryDriver implements KContentDeliveryDriver {
 
     private ChronicleMap<String, String> raw;
 
-    public ChronicleDataBase(String storagePath) throws IOException {
+    public ChronicleContentDeliveryDriver(String storagePath) throws IOException {
         if (storagePath == null) {
             raw = ChronicleMapBuilder.of(String.class, String.class).create();
         } else {

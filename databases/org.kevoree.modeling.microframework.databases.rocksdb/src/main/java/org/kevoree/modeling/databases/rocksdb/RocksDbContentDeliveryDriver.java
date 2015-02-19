@@ -2,7 +2,7 @@ package org.kevoree.modeling.databases.rocksdb;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.data.KDataBase;
+import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import org.rocksdb.*;
 
 import java.io.File;
@@ -11,13 +11,13 @@ import java.io.IOException;
 /**
  * Created by duke on 11/4/14.
  */
-public class RocksDbDataBase implements KDataBase {
+public class RocksDbContentDeliveryDriver implements KContentDeliveryDriver {
 
     private Options options;
 
     private RocksDB db;
 
-    public RocksDbDataBase(String storagePath) throws IOException, RocksDBException {
+    public RocksDbContentDeliveryDriver(String storagePath) throws IOException, RocksDBException {
         options = new Options();
         options.setCreateIfMissing(true);
         File location = new File(storagePath);

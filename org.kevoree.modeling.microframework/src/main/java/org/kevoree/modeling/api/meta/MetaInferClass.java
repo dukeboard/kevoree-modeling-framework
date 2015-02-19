@@ -1,7 +1,7 @@
 package org.kevoree.modeling.api.meta;
 
 import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
-import org.kevoree.modeling.api.data.Index;
+import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation;
 
 /**

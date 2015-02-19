@@ -7,7 +7,7 @@ import io.undertow.websockets.client.WebSocketClient;
 import io.undertow.websockets.core.*;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.data.KDataBase;
+import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import org.xnio.BufferAllocator;
 import org.xnio.ByteBufferSlicePool;
 import org.xnio.OptionMap;
@@ -25,7 +25,7 @@ import java.util.function.IntUnaryOperator;
 /**
  * Created by duke on 16/01/15.
  */
-public class WebSocketDataBaseClient implements KDataBase {
+public class WebSocketContentDeliveryDriverClient implements KContentDeliveryDriver {
 
     private static XnioWorker worker = null;
     private Pool<ByteBuffer> buffer = null;
@@ -34,7 +34,7 @@ public class WebSocketDataBaseClient implements KDataBase {
     private Object[] callbacks = null;
     private AtomicInteger atomicInteger = null;
 
-    public WebSocketDataBaseClient(String _url) {
+    public WebSocketContentDeliveryDriverClient(String _url) {
         this.url = _url;
         callbacks = new Object[1000];
         atomicInteger = new AtomicInteger(0);

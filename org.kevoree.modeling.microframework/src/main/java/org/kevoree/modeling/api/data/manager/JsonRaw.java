@@ -1,9 +1,9 @@
-package org.kevoree.modeling.api.data;
+package org.kevoree.modeling.api.data.manager;
 
 import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.json.*;
 import org.kevoree.modeling.api.meta.*;
-import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,7 +17,7 @@ public class JsonRaw {
 
     public static final String SEP = "@";
 
-    public static CacheEntry decode(String payload, KView currentView, long now) {
+    public static KCacheEntry decode(String payload, KView currentView, long now) {
         if (payload == null) {
             return null;
         }
@@ -55,13 +55,13 @@ public class JsonRaw {
         if (content.get(JsonModelSerializer.KEY_META) == null) {
             return null;
         } else {
-            CacheEntry entry = new CacheEntry();
+            KCacheEntry entry = new KCacheEntry();
             MetaModel metaModel = currentView.universe().model().metaModel();
             //Init metaClass before everything
             entry.metaClass = metaModel.metaClass(content.get(JsonModelSerializer.KEY_META).toString());
             //Init the Raw storage
             entry.raw = new Object[Index.RESERVED_INDEXES + entry.metaClass.metaAttributes().length + entry.metaClass.metaReferences().length];
-            entry.raw[Index.IS_DIRTY_INDEX] = false;
+            entry._dirty = false;
             //Now Fill the Raw Storage
             String[] metaKeys = content.keySet().toArray(new String[content.size()]);
             for (int i = 0; i < metaKeys.length; i++) {
@@ -226,7 +226,7 @@ public class JsonRaw {
         for (int i = 0; i < metaAttributes.length; i++) {
             Object payload_res = raw[metaAttributes[i].index()];
             if (payload_res != null) {
-                if(metaAttributes[i].metaType() != PrimitiveMetaTypes.TRANSIENT){
+                if (metaAttributes[i].metaType() != PrimitiveMetaTypes.TRANSIENT) {
                     String attrsPayload = metaAttributes[i].strategy().save(payload_res, metaAttributes[i]);
                     if (attrsPayload != null) {
                         builder.append("\t\t");

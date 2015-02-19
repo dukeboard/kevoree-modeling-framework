@@ -2,7 +2,7 @@ package org.kevoree.modeling.databases.redis;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.data.KDataBase;
+import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import redis.clients.jedis.Jedis;
 
 import java.util.List;
@@ -10,11 +10,11 @@ import java.util.List;
 /**
  * Created by liryc on 8/4/14.
  */
-public class RedisDataBase implements KDataBase {
+public class RedisContentDeliveryDriver implements KContentDeliveryDriver {
 
     private Jedis jedis = null;
 
-    public RedisDataBase(String ip, Integer port) {
+    public RedisContentDeliveryDriver(String ip, Integer port) {
         jedis = new Jedis(ip, port);
     }
 

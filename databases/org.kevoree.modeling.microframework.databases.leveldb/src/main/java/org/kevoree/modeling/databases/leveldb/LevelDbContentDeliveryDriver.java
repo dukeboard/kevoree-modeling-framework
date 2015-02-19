@@ -5,7 +5,7 @@ import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.data.KDataBase;
+import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,13 +13,13 @@ import java.io.IOException;
 /**
  * Created by duke on 11/4/14.
  */
-public class LevelDbDataBase implements KDataBase {
+public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
 
     private Options options = new Options().createIfMissing(true);
 
     private DB db;
 
-    public LevelDbDataBase(String storagePath) throws IOException {
+    public LevelDbContentDeliveryDriver(String storagePath) throws IOException {
         File location = new File(storagePath);
         if (!location.exists()) {
             location.mkdirs();

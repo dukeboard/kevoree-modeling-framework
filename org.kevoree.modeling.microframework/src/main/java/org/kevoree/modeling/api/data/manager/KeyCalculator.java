@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.data;
+package org.kevoree.modeling.api.data.manager;
 
 /**
  * Created by gregory.nain on 02/12/14.

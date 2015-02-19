@@ -2,7 +2,7 @@ package org.kevoree.modeling.api.reflexive;
 
 import org.kevoree.modeling.api.KMetaType;
 import org.kevoree.modeling.api.abs.*;
-import org.kevoree.modeling.api.data.Index;
+import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation;
 import org.kevoree.modeling.api.meta.*;
 

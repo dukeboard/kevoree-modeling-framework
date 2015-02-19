@@ -40,12 +40,7 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
     public void delete(Callback<Throwable> callback) {
         model().storage().delete(this, callback);
     }
-
-    @Override
-    public void discard(Callback<Throwable> callback) {
-        model().storage().discard(this, callback);
-    }
-
+    
     @Override
     public synchronized A time(long timePoint) {
         return internal_create(timePoint);
@@ -105,10 +100,4 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
         return task;
     }
 
-    @Override
-    public KTask<Throwable> taskDiscard() {
-        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
-        discard(task.initCallback());
-        return task;
-    }
 }

@@ -14,7 +14,7 @@ public class ChronicleTest {
 
     @Test
     public void test() throws IOException {
-        ChronicleDataBase db = new ChronicleDataBase("target/temp");
+        ChronicleContentDeliveryDriver db = new ChronicleContentDeliveryDriver("target/temp");
         String[][] insertPayload = new String[2][2];
         insertPayload[0][0] = "/0";
         insertPayload[0][1] = "/0/payload";

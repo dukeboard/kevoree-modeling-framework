@@ -4,7 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.databases.leveldb.LevelDbDataBase;
+import org.kevoree.modeling.databases.leveldb.LevelDbContentDeliveryDriver;
 
 import java.io.IOException;
 
@@ -15,7 +15,7 @@ public class LevelDbTest {
 
     @Test
     public void test() throws IOException {
-        LevelDbDataBase db = new LevelDbDataBase("target/temp");
+        LevelDbContentDeliveryDriver db = new LevelDbContentDeliveryDriver("target/temp");
         String[][] insertPayload = new String[2][2];
         insertPayload[0][0] = "/0";
         insertPayload[0][1] = "/0/payload";

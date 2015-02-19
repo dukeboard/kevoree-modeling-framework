@@ -1,9 +1,9 @@
 package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.*;
-import org.kevoree.modeling.api.data.AccessMode;
-import org.kevoree.modeling.api.data.Index;
-import org.kevoree.modeling.api.data.JsonRaw;
+import org.kevoree.modeling.api.data.manager.AccessMode;
+import org.kevoree.modeling.api.data.manager.Index;
+import org.kevoree.modeling.api.data.manager.JsonRaw;
 import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;

@@ -1,9 +1,9 @@
 package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.*;
-import org.kevoree.modeling.api.data.DefaultKStore;
-import org.kevoree.modeling.api.data.KDataBase;
-import org.kevoree.modeling.api.data.KStore;
+import org.kevoree.modeling.api.data.manager.DefaultKDataManager;
+import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
+import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.event.KEventBroker;
 import org.kevoree.modeling.api.meta.MetaModel;
 import org.kevoree.modeling.api.meta.MetaOperation;
@@ -13,12 +13,12 @@ import org.kevoree.modeling.api.meta.MetaOperation;
  */
 public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
 
-    private final KStore _storage;
+    private final KDataManager _storage;
 
     public abstract MetaModel metaModel();
 
     protected AbstractKModel() {
-        _storage = new DefaultKStore(this);
+        _storage = new DefaultKDataManager(this);
     }
 
     @Override
@@ -32,7 +32,7 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
     }
 
     @Override
-    public KStore storage() {
+    public KDataManager storage() {
         return _storage;
     }
 
@@ -81,7 +81,7 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
     }
 
     @Override
-    public KModel<A> setDataBase(KDataBase p_dataBase) {
+    public KModel<A> setDataBase(KContentDeliveryDriver p_dataBase) {
         storage().setDataBase(p_dataBase);
         return this;
     }

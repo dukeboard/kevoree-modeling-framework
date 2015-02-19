@@ -6,7 +6,7 @@ import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.abs.AbstractKUniverse;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.abs.AbstractKView;
-import org.kevoree.modeling.api.data.KStore;
+import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.meta.MetaModel;
 
 import java.util.HashMap;
@@ -25,7 +25,7 @@ public class DefaultKBroker implements KEventBroker {
 
     private MetaModel _metaModel;
 
-    private KStore _store;
+    private KDataManager _store;
 
     @Override
     public void connect(Callback<Throwable> callback) {
@@ -103,7 +103,7 @@ public class DefaultKBroker implements KEventBroker {
     }
 
     @Override
-    public void setKStore(KStore store) {
+    public void setKStore(KDataManager store) {
         this._store = store;
     }
 

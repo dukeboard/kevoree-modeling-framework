@@ -28,10 +28,6 @@ public interface KUniverse<A extends KView, B extends KUniverse, C extends KMode
 
     public void delete(Callback<Throwable> callback);
 
-    public void discard(Callback<Throwable> callback);
-
     public KTask<Throwable> taskDelete();
-
-    public KTask<Throwable> taskDiscard();
-
+    
 }

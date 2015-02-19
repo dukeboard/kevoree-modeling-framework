@@ -15,7 +15,7 @@ public class RocksDbTest {
 
     @Test
     public void test() throws IOException, RocksDBException {
-        RocksDbDataBase db = new RocksDbDataBase("target/temp");
+        RocksDbContentDeliveryDriver db = new RocksDbContentDeliveryDriver("target/temp");
         String[][] insertPayload = new String[2][2];
         insertPayload[0][0] = "/0";
         insertPayload[0][1] = "/0/payload";

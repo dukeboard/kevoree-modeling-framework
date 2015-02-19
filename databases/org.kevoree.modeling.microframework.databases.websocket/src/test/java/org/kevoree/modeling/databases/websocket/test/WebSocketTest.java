@@ -4,9 +4,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.data.MemoryKDataBase;
-import org.kevoree.modeling.databases.websocket.WebSocketDataBaseClient;
-import org.kevoree.modeling.databases.websocket.WebSocketDataBaseWrapper;
+import org.kevoree.modeling.api.data.cdn.MemoryKContentDeliveryDriver;
+import org.kevoree.modeling.databases.websocket.WebSocketContentDeliveryDriverClient;
+import org.kevoree.modeling.databases.websocket.WebSocketContentDeliveryDriverWrapper;
 
 /**
  * Created by duke on 05/01/15.
@@ -18,14 +18,14 @@ public class WebSocketTest {
 
         final String[] result = new String[1];
 
-        WebSocketDataBaseWrapper wrapper = new WebSocketDataBaseWrapper(new MemoryKDataBase(), 8080);
+        WebSocketContentDeliveryDriverWrapper wrapper = new WebSocketContentDeliveryDriverWrapper(new MemoryKContentDeliveryDriver(), 8080);
         wrapper.connect(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
                     throwable.printStackTrace();
                 } else {
-                    WebSocketDataBaseClient client = new WebSocketDataBaseClient("http://localhost:8080");
+                    WebSocketContentDeliveryDriverClient client = new WebSocketContentDeliveryDriverClient("http://localhost:8080");
                     client.connect(new Callback<Throwable>() {
                         @Override
                         public void on(Throwable throwable) {

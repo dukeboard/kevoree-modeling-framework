@@ -1,7 +1,7 @@
 package org.kevoree.modeling.api.operation;
 
 import org.kevoree.modeling.api.*;
-import org.kevoree.modeling.api.data.AccessMode;
+import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.trace.*;

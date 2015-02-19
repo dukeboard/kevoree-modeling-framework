@@ -3,19 +3,17 @@ package org.kevoree.modeling.datastores.mongodb;
 import com.mongodb.*;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.data.KDataBase;
+import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
 
-public class MongoDbDataBase implements KDataBase {
+public class MongoDbContentDeliveryDriver implements KContentDeliveryDriver {
 
     private DB db = null;
     private MongoClient mongoClient = null;
 
 
-    public MongoDbDataBase(String host, Integer port, String dbName) throws UnknownHostException {
+    public MongoDbContentDeliveryDriver(String host, Integer port, String dbName) throws UnknownHostException {
         mongoClient = new MongoClient(host, port);
         db = mongoClient.getDB(dbName);
     }

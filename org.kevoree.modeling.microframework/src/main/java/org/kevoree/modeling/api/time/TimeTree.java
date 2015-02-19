@@ -1,10 +1,12 @@
 package org.kevoree.modeling.api.time;
 
+import org.kevoree.modeling.api.data.cache.KCacheObject;
+
 /**
  * Created by duke on 8/1/14.
  */
 
-public interface TimeTree {
+public interface TimeTree extends KCacheObject {
 
     public void walk(TimeWalker walker);
 
@@ -29,11 +31,7 @@ public interface TimeTree {
     public TimeTree insert(long time);
 
     public TimeTree delete(long time);
-
-    //TODO nextGeneration
-
-    public boolean isDirty();
-
+    
     public int size();
 
 }

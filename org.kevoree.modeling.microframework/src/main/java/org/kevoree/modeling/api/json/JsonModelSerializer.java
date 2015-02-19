@@ -1,8 +1,8 @@
 package org.kevoree.modeling.api.json;
 
 import org.kevoree.modeling.api.*;
-import org.kevoree.modeling.api.data.AccessMode;
-import org.kevoree.modeling.api.data.JsonRaw;
+import org.kevoree.modeling.api.data.manager.AccessMode;
+import org.kevoree.modeling.api.data.manager.JsonRaw;
 
 /**
  * Created with IntelliJ IDEA.

@@ -1,6 +1,6 @@
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.data.KDataBase;
+import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import voldemort.client.ClientConfig;
 import voldemort.client.StoreClient;
 import voldemort.client.SocketStoreClientFactory;
@@ -17,12 +17,12 @@ import java.util.Map;
 /**
  * Created by cyril on 10/02/15.
  */
-public class VoldemortDataBase implements KDataBase {
+public class VoldemortContentDeliveryDriver implements KContentDeliveryDriver {
 
 private StoreClient<String, String> client = null;
 private StoreClientFactory factory = null;
 
-        public VoldemortDataBase(String storeName, String bootstrapUrl) {
+        public VoldemortContentDeliveryDriver(String storeName, String bootstrapUrl) {
             System.err.println("===================================================================");
             System.err.println("==                            Voldemort                          ==");
             System.err.println("===================================================================");

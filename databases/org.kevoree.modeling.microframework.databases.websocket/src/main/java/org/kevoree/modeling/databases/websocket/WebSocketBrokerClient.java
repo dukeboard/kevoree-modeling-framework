@@ -2,7 +2,6 @@ package org.kevoree.modeling.databases.websocket;
 
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
-import io.undertow.websockets.core.WebSockets;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft_17;
 import org.java_websocket.handshake.ServerHandshake;
@@ -10,7 +9,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.ModelListener;
-import org.kevoree.modeling.api.data.KStore;
+import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.event.DefaultKBroker;
 import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.event.KEventBroker;
@@ -19,9 +18,7 @@ import org.kevoree.modeling.api.meta.MetaModel;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by duke on 05/01/15.
@@ -35,7 +32,7 @@ public class WebSocketBrokerClient implements KEventBroker {
     private List<KEvent> storedEvents = new ArrayList<KEvent>();
 
     private MetaModel _metaModel;
-    private KStore _store;
+    private KDataManager _store;
 
     public WebSocketBrokerClient(String ip, int port) {
         this._baseBroker = new DefaultKBroker();
@@ -44,7 +41,7 @@ public class WebSocketBrokerClient implements KEventBroker {
     }
 
     @Override
-    public void setKStore(KStore store) {
+    public void setKStore(KDataManager store) {
         this._store = store;
     }
 

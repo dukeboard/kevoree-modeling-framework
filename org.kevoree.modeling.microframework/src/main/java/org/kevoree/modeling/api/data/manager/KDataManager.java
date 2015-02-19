@@ -1,14 +1,14 @@
-package org.kevoree.modeling.api.data;
+package org.kevoree.modeling.api.data.manager;
 
 import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.api.event.KEventBroker;
-import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 import org.kevoree.modeling.api.util.KOperationManager;
 
 /**
  * Created by duke on 10/17/14.
  */
-public interface KStore {
+public interface KDataManager {
 
     void lookup(KView originView, Long key, Callback<KObject> callback);
 
@@ -38,9 +38,9 @@ public interface KStore {
 
     public void setEventBroker(KEventBroker broker);
 
-    public KDataBase dataBase();
+    public KContentDeliveryDriver dataBase();
 
-    public void setDataBase(KDataBase dataBase);
+    public void setDataBase(KContentDeliveryDriver dataBase);
 
     public void setScheduler(KScheduler scheduler);
 

@@ -14,7 +14,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.ModelListener;
-import org.kevoree.modeling.api.data.KStore;
+import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.event.DefaultKBroker;
 import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.event.KEventBroker;
@@ -39,7 +39,7 @@ public class WebSocketBroker extends AbstractReceiveListener implements KEventBr
     private Map<Long, Map<Integer, Callback>> operationCallbacks = new HashMap<>();
 
     private MetaModel _metaModel;
-    private KStore _store;
+    private KDataManager _store;
 
     private String _ip;
     private int _port;
@@ -51,7 +51,7 @@ public class WebSocketBroker extends AbstractReceiveListener implements KEventBr
     }
 
     @Override
-    public void setKStore(KStore store) {
+    public void setKStore(KDataManager store) {
         this._store = store;
     }
 

@@ -1,9 +1,11 @@
 package org.kevoree.modeling.api.time.rbtree;
 
+import org.kevoree.modeling.api.data.cache.KCacheObject;
+
 /**
  * Created by duke on 10/7/14.
  */
-public class LongRBTree {
+public class LongRBTree implements KCacheObject {
 
     public LongTreeNode root = null;
 
@@ -13,11 +15,16 @@ public class LongRBTree {
         return _size;
     }
 
-    public boolean dirty = false;
+    public boolean _dirty = false;
 
     @Override
     public String toString() {
         return serialize();
+    }
+
+    @Override
+    public boolean isDirty() {
+        return _dirty;
     }
 
     public String serialize() {
@@ -27,6 +34,11 @@ public class LongRBTree {
             root.serialize(builder);
         }
         return builder.toString();
+    }
+
+    @Override
+    public void setClean() {
+        this._dirty = false;
     }
 
     public void unserialize(String payload) throws Exception {
@@ -47,7 +59,7 @@ public class LongRBTree {
         ctx.payload = payload;
         ctx.buffer = new char[20];
         root = LongTreeNode.unserialize(ctx);
-        dirty = false;
+        _dirty = false;
     }
 
     public LongTreeNode previousOrEqual(long key) {
@@ -332,7 +344,7 @@ public class LongRBTree {
     }
 
     public synchronized void insert(long key, long value) {
-        dirty = true;
+        _dirty = true;
         LongTreeNode insertedNode = new LongTreeNode(key, value, Color.RED, null, null);
         if (root == null) {
             _size++;

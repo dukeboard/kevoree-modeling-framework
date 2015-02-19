@@ -19,7 +19,7 @@ public class RedisTest {
         RedisServer redisServer = new RedisServer(6379);
         redisServer.start();
 
-        RedisDataBase db = new RedisDataBase("localhost", 6379);
+        RedisContentDeliveryDriver db = new RedisContentDeliveryDriver("localhost", 6379);
         String[][] insertPayload = new String[2][2];
         insertPayload[0][0] = "/0";
         insertPayload[0][1] = "/0/payload";

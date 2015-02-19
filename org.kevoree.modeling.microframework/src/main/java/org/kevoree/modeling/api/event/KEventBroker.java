@@ -3,7 +3,7 @@ package org.kevoree.modeling.api.event;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.ModelListener;
-import org.kevoree.modeling.api.data.KStore;
+import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.meta.MetaModel;
 
 /**
@@ -23,7 +23,7 @@ public interface KEventBroker {
 
     void flush();
 
-    void setKStore(KStore store);
+    void setKStore(KDataManager store);
 
     void setMetaModel(MetaModel metaModel);
 

@@ -11,22 +11,22 @@ import io.undertow.websockets.core.WebSockets;
 import io.undertow.websockets.spi.WebSocketHttpExchange;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.data.KDataBase;
+import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 
 import static io.undertow.Handlers.websocket;
 
 /**
  * Created by duke on 11/5/14.
  */
-public class WebSocketDataBaseWrapper extends AbstractReceiveListener implements WebSocketConnectionCallback, KDataBase {
+public class WebSocketContentDeliveryDriverWrapper extends AbstractReceiveListener implements WebSocketConnectionCallback, KContentDeliveryDriver {
 
-    private KDataBase wrapped = null;
+    private KContentDeliveryDriver wrapped = null;
 
     private Undertow server = null;
 
     private int port = 8080;
 
-    public WebSocketDataBaseWrapper(KDataBase p_wrapped, int p_port) {
+    public WebSocketContentDeliveryDriverWrapper(KContentDeliveryDriver p_wrapped, int p_port) {
         this.wrapped = p_wrapped;
         this.port = p_port;
     }

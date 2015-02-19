@@ -4,7 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.data.MemoryKDataBase;
+import org.kevoree.modeling.api.data.cdn.MemoryKContentDeliveryDriver;
 import org.kevoree.modeling.microframework.test.cloud.*;
 
 /**
@@ -17,7 +17,7 @@ public class LookupRootTest {
 //        MemoryKDataBase.DEBUG = true;
 
         final CloudModel cloudModel = new CloudModel();
-        cloudModel.setDataBase(new MemoryKDataBase());
+        cloudModel.setDataBase(new MemoryKContentDeliveryDriver());
         cloudModel.connect(null);
 
         final CloudUniverse dimension0 = cloudModel.newUniverse();
@@ -66,7 +66,7 @@ public class LookupRootTest {
 
     @Test
     public void reloadRootFromDbTest() {
-        final MemoryKDataBase db = new MemoryKDataBase();
+        final MemoryKContentDeliveryDriver db = new MemoryKContentDeliveryDriver();
 
         final CloudModel cloudModel = new CloudModel();
         cloudModel.setDataBase(db);

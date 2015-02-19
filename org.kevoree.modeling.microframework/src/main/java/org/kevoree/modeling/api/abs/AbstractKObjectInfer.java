@@ -3,7 +3,7 @@ package org.kevoree.modeling.api.abs;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KInfer;
 import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.data.AccessMode;
+import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.KInferState;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaInferClass;

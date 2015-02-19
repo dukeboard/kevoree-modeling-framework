@@ -58,7 +58,6 @@ public class DefaultTimeTree implements TimeTree {
                     return;
                 }
             }
-
         }
     }
 
@@ -153,12 +152,18 @@ public class DefaultTimeTree implements TimeTree {
     }
 
     @Override
-    public int size() {
-        return versionTree.size();
+    public String serialize() {
+        return versionTree.serialize();
     }
 
-    public void setDirty(boolean state) {
-        dirty = state;
+    @Override
+    public void setClean() {
+        this.dirty = false;
+    }
+
+    @Override
+    public int size() {
+        return versionTree.size();
     }
 
     @Override
