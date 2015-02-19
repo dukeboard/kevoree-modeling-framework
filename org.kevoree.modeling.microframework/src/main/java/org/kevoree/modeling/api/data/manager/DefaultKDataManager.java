@@ -522,7 +522,7 @@ public class DefaultKDataManager implements KDataManager {
                 Long closestUniverse = internal_resolve_universe(tempResult[i].universeTree, originView.now(), originView.universe().key());
                 if (closestUniverse != null) {
                     tempResult[i].resolvedUniverse = closestUniverse;
-                    KContentKey timeObjectTreeKey = KContentKey.createTimeTree(closestUniverse,uuids[i]);
+                    KContentKey timeObjectTreeKey = KContentKey.createTimeTree(closestUniverse, uuids[i]);
                     IndexRBTree cachedIndexTree = (IndexRBTree) _db.cache().get(timeObjectTreeKey);
                     if (cachedIndexTree != null) {
                         tempResult[i].timeTree = cachedIndexTree;

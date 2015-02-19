@@ -18,8 +18,8 @@ public class DefaultMemoryCache implements KCache {
     public KCacheObject get(KContentKey key) {
         KCacheObject result = cache.get(key.toString());
         if (DEBUG) {
-            if(result!= null){
-                System.out.println("CACHE_GET:" + key + "->" + result.getClass().getName()+"("+result+")");
+            if (result != null) {
+                System.out.println("CACHE_GET:" + key + "->" + result.getClass().getName() + "(" + result + ")");
             } else {
                 System.out.println("CACHE_GET:" + key + "->" + null);
             }
@@ -31,7 +31,7 @@ public class DefaultMemoryCache implements KCache {
     public void put(KContentKey key, KCacheObject payload) {
         cache.put(key.toString(), payload);
         if (DEBUG) {
-            System.out.println("CACHE_PUT:" + key + "->" + payload.getClass().getName()+"("+payload+")");
+            System.out.println("CACHE_PUT:" + key + "->" + payload.getClass().getName() + "(" + payload + ")");
         }
     }
 
@@ -44,8 +44,7 @@ public class DefaultMemoryCache implements KCache {
                 result.add(KContentKey.create(elems[i]));
             }
         }
-        KContentKey[] flatResult = result.toArray(new KContentKey[result.size()]);
-        return flatResult;
+        return result.toArray(new KContentKey[result.size()]);
     }
 
     @Override
