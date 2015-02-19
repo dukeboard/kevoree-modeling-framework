@@ -81,9 +81,7 @@ public class HelloTest {
                 counter[0]++;
             }
         });
-
         Assert.assertNotNull(dimension0);
-
         CloudView t0 = dimension0.time(0l);
         t0.listen(new ModelListener() {
             @Override
@@ -91,26 +89,20 @@ public class HelloTest {
                 counter[0]++;
             }
         });
-
         Assert.assertNotNull(t0);
         Assert.assertEquals(t0.now(), 0l);
-
         Node nodeT0 = t0.createNode();
         Assert.assertNotNull(nodeT0);
         Assert.assertNotNull(nodeT0.uuid());
         // assertNotNull(nodeT0.path());
-
         Assert.assertNull(nodeT0.getName());
         Assert.assertEquals("name=", nodeT0.domainKey());
         nodeT0.setName("node0");
         Assert.assertEquals("node0", nodeT0.getName());
         Assert.assertEquals("name=node0", nodeT0.domainKey());
         Assert.assertEquals(0l, nodeT0.now());
-
 //        assertNull(nodeT0.parentPath());
-
         Element child0 = t0.createElement();
-
         //TODO reInsert following test
         //Assert.assertNotNull(child0.timeTree());
         //Assert.assertTrue(child0.timeTree().last().equals(0l));
@@ -120,8 +112,7 @@ public class HelloTest {
         nodeT1.setName("n1");
 
         nodeT0.addChildren(nodeT1);
-
-
+        
 //        assertTrue(nodeT1.path().endsWith("/children[name=n1]"));
         final int[] i = {0};
         nodeT0.getChildren(new Callback<Node[]>() {

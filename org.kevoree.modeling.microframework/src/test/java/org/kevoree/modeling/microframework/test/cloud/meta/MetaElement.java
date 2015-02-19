@@ -20,9 +20,9 @@ public class MetaElement extends AbstractMetaClass {
         return INSTANCE;
     }
 
-    public static final MetaAttribute ATT_NAME = new AbstractMetaAttribute("name", 6, 5, true, PrimitiveMetaTypes.STRING, DiscreteExtrapolation.instance());
+    public static final MetaAttribute ATT_NAME = new AbstractMetaAttribute("name", 5, 5, true, PrimitiveMetaTypes.STRING, DiscreteExtrapolation.instance());
 
-    public static final MetaAttribute ATT_VALUE = new AbstractMetaAttribute("value", 7, 5, false, PrimitiveMetaTypes.DOUBLE, PolynomialExtrapolation.instance());
+    public static final MetaAttribute ATT_VALUE = new AbstractMetaAttribute("value", 6, 5, false, PrimitiveMetaTypes.DOUBLE, PolynomialExtrapolation.instance());
 
     public MetaElement() {
         super("org.kevoree.modeling.microframework.test.cloud.Element", 1);
