@@ -1,6 +1,12 @@
 package org.kevoree.modeling.api.data.manager;
 
-import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KModel;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KScheduler;
+import org.kevoree.modeling.api.KUniverse;
+import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.cache.KContentKey;
@@ -12,18 +18,14 @@ import org.kevoree.modeling.api.data.cdn.MemoryKContentDeliveryDriver;
 import org.kevoree.modeling.api.event.DefaultKBroker;
 import org.kevoree.modeling.api.event.KEventBroker;
 import org.kevoree.modeling.api.scheduler.DirectScheduler;
-import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.rbtree.IndexRBTree;
 import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 import org.kevoree.modeling.api.time.rbtree.LongTreeNode;
-import org.kevoree.modeling.api.time.rbtree.RBTree;
 import org.kevoree.modeling.api.util.DefaultOperationManager;
 import org.kevoree.modeling.api.util.KOperationManager;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by duke on 10/17/14.
@@ -38,7 +40,7 @@ public class DefaultKDataManager implements KDataManager {
     private KScheduler _scheduler;
     private KModel _model;
     private KeyCalculator _objectKeyCalculator = null;
-    private KeyCalculator _dimensionKeyCalculator = null;
+    private KeyCalculator _universeKeyCalculator = null;
     private boolean isConnected = false;
 
     private static final String OUT_OF_CACHE_MESSAGE = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
@@ -77,10 +79,10 @@ public class DefaultKDataManager implements KDataManager {
 
     @Override
     public synchronized long nextUniverseKey() {
-        if (_dimensionKeyCalculator == null) {
+        if (_universeKeyCalculator == null) {
             throw new RuntimeException(UNIVERSE_NOT_CONNECTED_ERROR);
         }
-        return _dimensionKeyCalculator.nextKey();
+        return _universeKeyCalculator.nextKey();
     }
 
     private static final String UNIVERSE_NOT_CONNECTED_ERROR = "Please connect your model prior to create a universe or an object";
@@ -139,12 +141,14 @@ public class DefaultKDataManager implements KDataManager {
     @Override
     public synchronized void save(Callback<Throwable> callback) {
         KContentKey[] dirtiesKeys = _db.cache().dirties();
-        KContentPutRequest request = new KContentPutRequest(dirtiesKeys.length);
+        KContentPutRequest request = new KContentPutRequest(dirtiesKeys.length + 2);
         for (int i = 0; i < dirtiesKeys.length; i++) {
             KCacheObject cachedObject = _db.cache().get(dirtiesKeys[i]);
             cachedObject.setClean();
             request.put(dirtiesKeys[i], cachedObject.serialize());
         }
+        request.put(KContentKey.createLastObjectIndexFromPrefix(_objectKeyCalculator.prefix()), "" + _objectKeyCalculator.lastComputedIndex());
+        request.put(KContentKey.createLastUniverseIndexFromPrefix(_universeKeyCalculator.prefix()), "" + _universeKeyCalculator.lastComputedIndex());
         _db.put(request, new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
@@ -198,7 +202,7 @@ public class DefaultKDataManager implements KDataManager {
                                         public String mutate(String previous) {
                                             try {
                                                 Short previousPrefix = null;
-                                                if(previous != null){
+                                                if (previous != null) {
                                                     previousPrefix = Short.parseShort(previous);
                                                 } else {
                                                     previousPrefix = Short.parseShort("0");
@@ -258,7 +262,7 @@ public class DefaultKDataManager implements KDataManager {
                                                                         _db.cache().put(KContentKey.createGlobalUniverseTree(), globalUniverseTree);
                                                                         Long newUniIndex = Long.parseLong(uniIndexPayload);
                                                                         Long newObjIndex = Long.parseLong(objIndexPayload);
-                                                                        _dimensionKeyCalculator = new KeyCalculator(newPrefix, newUniIndex);
+                                                                        _universeKeyCalculator = new KeyCalculator(newPrefix, newUniIndex);
                                                                         _objectKeyCalculator = new KeyCalculator(newPrefix, newObjIndex);
                                                                         isConnected = true;
                                                                         if (callback != null) {
