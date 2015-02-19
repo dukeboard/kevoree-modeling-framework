@@ -14,6 +14,14 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
     public static boolean DEBUG = false;
 
     @Override
+    public void atomicGetMutate(KContentKey key, AtomicOperation operation, ThrowableCallback<String> callback) {
+        //TODO implement a lock
+        String result = backend.get(key.toString());
+        backend.put(key.toString(), operation.mutate(result));
+        callback.on(result, null);
+    }
+
+    @Override
     public void get(KContentKey[] keys, ThrowableCallback<String[]> callback) {
         String[] values = new String[keys.length];
         for (int i = 0; i < keys.length; i++) {
@@ -28,7 +36,7 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void put(KContentPutRequest p_request, Callback<Throwable> p_callback) {
+    public synchronized void put(KContentPutRequest p_request, Callback<Throwable> p_callback) {
         for (int i = 0; i < p_request.size(); i++) {
             backend.put(p_request.getKey(i).toString(), p_request.getContent(i));
             if (DEBUG) {

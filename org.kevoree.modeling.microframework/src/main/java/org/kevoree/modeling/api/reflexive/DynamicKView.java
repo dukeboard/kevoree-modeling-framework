@@ -16,7 +16,7 @@ public class DynamicKView extends AbstractKView {
     }
 
     @Override
-    protected KObject internalCreate(MetaClass clazz, TimeTree timeTree, LongRBTree p_universeTree, long key) {
-        return new DynamicKObject(this, key, timeTree, p_universeTree, clazz);
+    protected KObject internalCreate(MetaClass clazz, LongRBTree p_universeTree, long key) {
+        return new DynamicKObject(this, key, p_universeTree, clazz);
     }
 }

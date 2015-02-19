@@ -55,7 +55,8 @@ public class PolynomialExtrapolation implements Extrapolation {
             } else {
                 //Value fit the previous polynomial, but if degrees has changed we have to set the object to dirty for the next save batch
                 if (previousPol.isDirty()) {
-                    raw[Index.IS_DIRTY_INDEX] = true;
+                    //TODO fix me!
+                    //raw[Index.IS_DIRTY_INDEX] = true;
                 }
             }
         }

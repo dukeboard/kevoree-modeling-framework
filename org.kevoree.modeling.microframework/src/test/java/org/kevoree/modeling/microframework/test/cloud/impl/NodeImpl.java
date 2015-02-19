@@ -5,7 +5,6 @@ import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Element;
@@ -17,8 +16,8 @@ import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
  */
 public class NodeImpl extends AbstractKObject implements Node {
 
-    public NodeImpl(CloudView p_factory, long p_uuid, TimeTree p_timeTree, LongRBTree p_universeTree, MetaClass p_clazz) {
-        super(p_factory, p_uuid, p_timeTree,p_universeTree, p_clazz);
+    public NodeImpl(CloudView p_factory, long p_uuid, LongRBTree p_universeTree, MetaClass p_clazz) {
+        super(p_factory, p_uuid, p_universeTree, p_clazz);
     }
 
     @Override

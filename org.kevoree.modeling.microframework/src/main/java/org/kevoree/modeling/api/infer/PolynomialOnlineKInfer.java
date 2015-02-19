@@ -18,7 +18,7 @@ import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 //TODO needs update to live adapt - this is currently a copy paste of offline
 public class PolynomialOnlineKInfer extends AbstractKObjectInfer {
 
-    public int maxDegree =20;
+    public int maxDegree = 20;
 
     public double getToleratedErr() {
         return toleratedErr;
@@ -36,31 +36,28 @@ public class PolynomialOnlineKInfer extends AbstractKObjectInfer {
         this.maxDegree = maxDegree;
     }
 
-    public double toleratedErr=0.01;
+    public double toleratedErr = 0.01;
 
 
-
-    public PolynomialOnlineKInfer(KView p_view, long p_uuid, TimeTree p_timeTree, LongRBTree p_universeTree, MetaClass p_metaClass) {
-        super(p_view, p_uuid, p_timeTree,p_universeTree, p_metaClass);
+    public PolynomialOnlineKInfer(KView p_view, long p_uuid, LongRBTree p_universeTree, MetaClass p_metaClass) {
+        super(p_view, p_uuid, p_universeTree, p_metaClass);
     }
 
 
-    private double calculateLong (long time,  double[] weights, long timeOrigin, long unit) {
-       double t= ((double)(time-timeOrigin))/unit;
-       return calculate(weights,t);
+    private double calculateLong(long time, double[] weights, long timeOrigin, long unit) {
+        double t = ((double) (time - timeOrigin)) / unit;
+        return calculate(weights, t);
     }
 
     private double calculate(double[] weights, double t) {
-        double result=0;
-        double power=1;
-        for(int j=0;j<weights.length;j++){
-            result+= weights[j]*power;
-            power=power*t;
+        double result = 0;
+        double power = 1;
+        for (int j = 0; j < weights.length; j++) {
+            result += weights[j] * power;
+            power = power * t;
         }
         return result;
     }
-
-
 
 
     @Override
@@ -68,41 +65,41 @@ public class PolynomialOnlineKInfer extends AbstractKObjectInfer {
         PolynomialKInferState currentState = (PolynomialKInferState) modifyState();
 
         double[] weights;
-        int featuresize=trainingSet[0].length;
+        int featuresize = trainingSet[0].length;
 
 
-        long[] times=new long[trainingSet.length];
+        long[] times = new long[trainingSet.length];
         double[] results = new double[expectedResultSet.length];
 
-        for(int i=0;i<trainingSet.length;i++){
+        for (int i = 0; i < trainingSet.length; i++) {
             times[i] = (Long) trainingSet[i][0];
-            results[i]=(double) expectedResultSet[i];
+            results[i] = (double) expectedResultSet[i];
         }
 
-        if(times.length==0){
+        if (times.length == 0) {
             return;
         }
 
-        if(times.length==1){
-            weights=new double[1];
-            weights[0]=results[0];
+        if (times.length == 1) {
+            weights = new double[1];
+            weights[0] = results[0];
             currentState.setWeights(weights);
             return;
         }
 
-        int maxcurdeg= Math.min(times.length,maxDegree);
+        int maxcurdeg = Math.min(times.length, maxDegree);
         Long timeOrigin = times[0];
-        Long unit=times[1]-times[0];
+        Long unit = times[1] - times[0];
 
         double[] normalizedTimes = new double[times.length];
-        for(int i=0; i<times.length;i++){
-            normalizedTimes[i]= ((double)(times[i]-times[0]))/unit;
+        for (int i = 0; i < times.length; i++) {
+            normalizedTimes[i] = ((double) (times[i] - times[0])) / unit;
         }
 
-        for(int deg=0; deg<maxcurdeg;deg++){
+        for (int deg = 0; deg < maxcurdeg; deg++) {
             PolynomialFitEjml pf = new PolynomialFitEjml(deg);
             pf.fit(normalizedTimes, results);
-            if(PolynomialKInferState.maxError(pf.getCoef(), normalizedTimes, results) <= toleratedErr){
+            if (PolynomialKInferState.maxError(pf.getCoef(), normalizedTimes, results) <= toleratedErr) {
                 currentState.setUnit(unit);
                 currentState.setTimeOrigin(timeOrigin);
                 currentState.setWeights(pf.getCoef());
@@ -115,12 +112,11 @@ public class PolynomialOnlineKInfer extends AbstractKObjectInfer {
     }
 
 
-
     @Override
     public Object infer(Object[] features) {
         PolynomialKInferState currentState = (PolynomialKInferState) readOnlyState();
 
-        long time=(Long) features[0];
+        long time = (Long) features[0];
         return currentState.infer(time);
 
 

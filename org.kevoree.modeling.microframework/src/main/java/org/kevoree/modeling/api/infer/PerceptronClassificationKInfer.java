@@ -48,15 +48,12 @@ public class PerceptronClassificationKInfer extends AbstractKObjectInfer {
      */
     private int iterations=100;
 
-
-
-    public PerceptronClassificationKInfer(KView p_view, long p_uuid, TimeTree p_timeTree, LongRBTree p_universeTree, MetaClass p_metaClass) {
-        super(p_view, p_uuid, p_timeTree,p_universeTree, p_metaClass);
+    public PerceptronClassificationKInfer(KView p_view, long p_uuid, LongRBTree p_universeTree, MetaClass p_metaClass) {
+        super(p_view, p_uuid,p_universeTree, p_metaClass);
     }
 
     private double calculate(double[] weights, double[] features) {
         double res=0;
-
         for(int i=0; i<features.length;i++){
             res = res + weights[i]*(features[i]);
         }
@@ -69,9 +66,6 @@ public class PerceptronClassificationKInfer extends AbstractKObjectInfer {
             return 0; //Class 0
         }
     }
-
-
-
 
     @Override
     public void train(Object[][] trainingSet, Object[] expectedResultSet, Callback<Throwable> callback) {

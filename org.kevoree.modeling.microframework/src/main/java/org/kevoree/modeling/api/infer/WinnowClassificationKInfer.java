@@ -50,8 +50,8 @@ public class WinnowClassificationKInfer extends AbstractKObjectInfer {
 
 
 
-    public WinnowClassificationKInfer(KView p_view, long p_uuid, TimeTree p_timeTree, LongRBTree p_universeTree, MetaClass p_metaClass) {
-        super(p_view, p_uuid, p_timeTree,p_universeTree, p_metaClass);
+    public WinnowClassificationKInfer(KView p_view, long p_uuid, LongRBTree p_universeTree, MetaClass p_metaClass) {
+        super(p_view, p_uuid,p_universeTree, p_metaClass);
     }
 
     private double calculate(double[] weights, double[] features) {

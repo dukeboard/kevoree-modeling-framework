@@ -44,7 +44,7 @@ public class LookupAllRunnable implements Runnable {
                         if (entry == null) {
                             toLoadIndexes.add(i);
                         } else {
-                            resolved[i] = ((AbstractKView) _originView).createProxy(entry.metaClass, entry.timeTree, entry.universeTree, _keys[i]);
+                            resolved[i] = ((AbstractKView) _originView).createProxy(entry.metaClass, entry.universeTree, _keys[i]);
                         }
                     }
                 }
@@ -69,10 +69,9 @@ public class LookupAllRunnable implements Runnable {
                                         //Create the raw CacheEntry
                                         KCacheEntry entry = JsonRaw.decode(strings[i], _originView, objects[i].resolvedQuanta);
                                         if (entry != null) {
-                                            entry.timeTree = (TimeTree) objects[i].timeTree;
                                             entry.universeTree = objects[i].universeTree;
                                             //Create and Add the proxy
-                                            resolved[index] = ((AbstractKView) _originView).createProxy(entry.metaClass, entry.timeTree, entry.universeTree, _keys[i]);
+                                            resolved[index] = ((AbstractKView) _originView).createProxy(entry.metaClass, entry.universeTree, _keys[i]);
                                             //Save the cache value
                                             _store.dataBase().cache().put(KContentKey.createObject(objects[i].resolvedUniverse, (Long) objects[i].resolvedQuanta, _keys[i]), entry);
                                         }

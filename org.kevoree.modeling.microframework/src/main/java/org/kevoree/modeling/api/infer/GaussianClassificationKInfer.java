@@ -6,7 +6,6 @@ import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObjectInfer;
 import org.kevoree.modeling.api.infer.states.GaussianArrayKInferState;
 import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 
 /**
@@ -14,8 +13,8 @@ import org.kevoree.modeling.api.time.rbtree.LongRBTree;
  */
 public class GaussianClassificationKInfer extends AbstractKObjectInfer {
 
-    public GaussianClassificationKInfer(KView p_view, long p_uuid, TimeTree p_timeTree, LongRBTree p_universeTree, MetaClass p_metaClass) {
-        super(p_view, p_uuid, p_timeTree,p_universeTree, p_metaClass);
+    public GaussianClassificationKInfer(KView p_view, long p_uuid, LongRBTree p_universeTree, MetaClass p_metaClass) {
+        super(p_view, p_uuid, p_universeTree, p_metaClass);
     }
 
     public double getAlpha() {
@@ -29,35 +28,34 @@ public class GaussianClassificationKInfer extends AbstractKObjectInfer {
     /**
      * @param alpha is the learning rate of the linear regression
      */
-    private double alpha=0.05;
-
+    private double alpha = 0.05;
 
 
     @Override
     public void train(Object[][] trainingSet, Object[] expectedResultSet, Callback<Throwable> callback) {
         GaussianArrayKInferState currentState = (GaussianArrayKInferState) modifyState();
-        int featuresize=trainingSet[0].length;
+        int featuresize = trainingSet[0].length;
 
 
-        double[][] features=new double[trainingSet.length][];
+        double[][] features = new double[trainingSet.length][];
         boolean[] results = new boolean[expectedResultSet.length];
 
-        for(int i=0;i<trainingSet.length;i++){
+        for (int i = 0; i < trainingSet.length; i++) {
             features[i] = new double[featuresize];
-            for(int j=0;j<featuresize;j++){
-                features[i][j]=(double) trainingSet[i][j];
+            for (int j = 0; j < featuresize; j++) {
+                features[i][j] = (double) trainingSet[i][j];
             }
-            results[i]=(boolean) expectedResultSet[i];
-            currentState.train(features[i],results[i],alpha);
+            results[i] = (boolean) expectedResultSet[i];
+            currentState.train(features[i], results[i], alpha);
         }
     }
 
     @Override
     public Object infer(Object[] features) {
         GaussianArrayKInferState currentState = (GaussianArrayKInferState) readOnlyState();
-        double[] ft=new double[features.length];
-        for(int i=0;i<features.length;i++){
-            ft[i]=(double)features[i];
+        double[] ft = new double[features.length];
+        for (int i = 0; i < features.length; i++) {
+            ft[i] = (double) features[i];
         }
         return currentState.infer(ft);
     }

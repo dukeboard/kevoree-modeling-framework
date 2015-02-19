@@ -40,59 +40,49 @@ public class LinearRegressionKInfer extends AbstractKObjectInfer {
     /**
      * @param alpha is the learning rate of the linear regression
      */
-    private double alpha=0.0001;
+    private double alpha = 0.0001;
 
     /**
      * @param iterations is the number of passes of the live learning on the training set
      */
-    private int iterations=100;
+    private int iterations = 100;
 
-
-
-    public LinearRegressionKInfer(KView p_view, long p_uuid, TimeTree p_timeTree, LongRBTree p_universeTree, MetaClass p_metaClass) {
-        super(p_view, p_uuid, p_timeTree,p_universeTree, p_metaClass);
+    public LinearRegressionKInfer(KView p_view, long p_uuid, LongRBTree p_universeTree, MetaClass p_metaClass) {
+        super(p_view, p_uuid, p_universeTree, p_metaClass);
     }
 
     private double calculate(double[] weights, double[] features) {
-        double result=0;
-        for(int i=0;i<features.length;i++){
-            result+=weights[i]*features[i];
+        double result = 0;
+        for (int i = 0; i < features.length; i++) {
+            result += weights[i] * features[i];
         }
-        result+=weights[features.length];
+        result += weights[features.length];
         return result;
     }
-
-
-
 
     @Override
     public void train(Object[][] trainingSet, Object[] expectedResultSet, Callback<Throwable> callback) {
         DoubleArrayKInferState currentState = (DoubleArrayKInferState) modifyState();
-        double[] weights=currentState.getWeights();
-
-        int featuresize=trainingSet[0].length;
-
-        if(weights==null){
-            weights=new double[featuresize+1];
+        double[] weights = currentState.getWeights();
+        int featuresize = trainingSet[0].length;
+        if (weights == null) {
+            weights = new double[featuresize + 1];
           /*  Random random = new Random();
             for(int i=0; i<size+1;i++){
                 weights[i]=random.nextDouble();
             }*/
         }
-
-        double[][] features=new double[trainingSet.length][];
+        double[][] features = new double[trainingSet.length][];
         double[] results = new double[expectedResultSet.length];
-
-        for(int i=0;i<trainingSet.length;i++){
+        for (int i = 0; i < trainingSet.length; i++) {
             features[i] = new double[featuresize];
-            for(int j=0;j<featuresize;j++){
-                features[i][j]=(double) trainingSet[i][j];
+            for (int j = 0; j < featuresize; j++) {
+                features[i][j] = (double) trainingSet[i][j];
             }
-            results[i]=(double) expectedResultSet[i];
+            results[i] = (double) expectedResultSet[i];
         }
-
-        for(int j=0; j<iterations;j++) {
-            for(int i=0;i<trainingSet.length;i++){
+        for (int j = 0; j < iterations; j++) {
+            for (int i = 0; i < trainingSet.length; i++) {
                 double h = calculate(weights, features[i]);
                 double err = -alpha * (h - results[i]);
                 for (int k = 0; k < featuresize; k++) {
@@ -102,21 +92,18 @@ public class LinearRegressionKInfer extends AbstractKObjectInfer {
             }
 
         }
-
         currentState.setWeights(weights);
     }
 
     @Override
     public Object infer(Object[] features) {
         DoubleArrayKInferState currentState = (DoubleArrayKInferState) readOnlyState();
-        double[] weights=currentState.getWeights();
-        double[] ft=new double[features.length];
-        for(int i=0;i<features.length;i++){
-            ft[i]=(double)features[i];
+        double[] weights = currentState.getWeights();
+        double[] ft = new double[features.length];
+        for (int i = 0; i < features.length; i++) {
+            ft[i] = (double) features[i];
         }
-        return calculate(weights,ft);
-
-
+        return calculate(weights, ft);
     }
 
     @Override

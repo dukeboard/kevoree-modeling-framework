@@ -161,10 +161,16 @@ public class DefaultKDataManager implements KDataManager {
         KCacheEntry._dirty = true;
         KCacheEntry.metaClass = obj.metaClass();
         KCacheEntry.universeTree = obj.universeTree();
-        _db.cache().put(KContentKey.createTimeTree(obj.universe().key(), obj.uuid()), obj.timeTree());
+        IndexRBTree timeTree = new IndexRBTree();
+        timeTree.insert(obj.now());
+        _db.cache().put(KContentKey.createTimeTree(obj.universe().key(), obj.uuid()), timeTree);
         _db.cache().put(KContentKey.createUniverseTree(obj.uuid()), obj.universeTree());
         _db.cache().put(KContentKey.createObject(obj.universe().key(), obj.now(), obj.uuid()), KCacheEntry);
     }
+
+    private final int UNIVERSE_INDEX = 0;
+    private final int OBJ_INDEX = 1;
+    private final int GLO_TREE_INDEX = 2;
 
     @Override
     public void connect(Callback<Throwable> callback) {
@@ -191,7 +197,12 @@ public class DefaultKDataManager implements KDataManager {
                                         @Override
                                         public String mutate(String previous) {
                                             try {
-                                                final Short previousPrefix = Short.parseShort(previous);
+                                                Short previousPrefix = null;
+                                                if(previous != null){
+                                                    previousPrefix = Short.parseShort(previous);
+                                                } else {
+                                                    previousPrefix = Short.parseShort("0");
+                                                }
                                                 if (previousPrefix == Short.MAX_VALUE) {
                                                     return "" + Short.MIN_VALUE;
                                                 } else {
@@ -216,9 +227,9 @@ public class DefaultKDataManager implements KDataManager {
                                                     }
                                                     final Short newPrefix = Short.parseShort(payloadPrefix);
                                                     KContentKey[] connectionElemKeys = new KContentKey[3];
-                                                    keys2[0] = keyLastUniIndex(payloadPrefix);
-                                                    keys2[1] = keyLastObjIndex(payloadPrefix);
-                                                    keys2[2] = keyUniverseGlobalTree();
+                                                    connectionElemKeys[UNIVERSE_INDEX] = KContentKey.createLastUniverseIndexFromPrefix(newPrefix);
+                                                    connectionElemKeys[OBJ_INDEX] = KContentKey.createLastObjectIndexFromPrefix(newPrefix);
+                                                    connectionElemKeys[GLO_TREE_INDEX] = KContentKey.createGlobalUniverseTree();
                                                     _db.get(connectionElemKeys, new ThrowableCallback<String[]>() {
                                                         @Override
                                                         public void on(String[] strings, Throwable error) {
@@ -229,15 +240,15 @@ public class DefaultKDataManager implements KDataManager {
                                                             } else {
                                                                 if (strings.length == 3) {
                                                                     try {
-                                                                        String dimIndexPayload = strings[0];
-                                                                        if (dimIndexPayload == null || dimIndexPayload.equals("")) {
-                                                                            dimIndexPayload = "0";
+                                                                        String uniIndexPayload = strings[UNIVERSE_INDEX];
+                                                                        if (uniIndexPayload == null || uniIndexPayload.equals("")) {
+                                                                            uniIndexPayload = "0";
                                                                         }
-                                                                        String objIndexPayload = strings[1];
+                                                                        String objIndexPayload = strings[OBJ_INDEX];
                                                                         if (objIndexPayload == null || objIndexPayload.equals("")) {
                                                                             objIndexPayload = "0";
                                                                         }
-                                                                        String globalUniverseTreePayload = strings[2];
+                                                                        String globalUniverseTreePayload = strings[GLO_TREE_INDEX];
                                                                         LongRBTree globalUniverseTree = new LongRBTree();
                                                                         try {
                                                                             globalUniverseTree.unserialize(globalUniverseTreePayload);
@@ -245,9 +256,9 @@ public class DefaultKDataManager implements KDataManager {
                                                                             e.printStackTrace();
                                                                         }
                                                                         _db.cache().put(KContentKey.createGlobalUniverseTree(), globalUniverseTree);
-                                                                        Long newDimIndex = Long.parseLong(dimIndexPayload);
+                                                                        Long newUniIndex = Long.parseLong(uniIndexPayload);
                                                                         Long newObjIndex = Long.parseLong(objIndexPayload);
-                                                                        _dimensionKeyCalculator = new KeyCalculator(newPrefix, newDimIndex);
+                                                                        _dimensionKeyCalculator = new KeyCalculator(newPrefix, newUniIndex);
                                                                         _objectKeyCalculator = new KeyCalculator(newPrefix, newObjIndex);
                                                                         isConnected = true;
                                                                         if (callback != null) {
@@ -286,26 +297,6 @@ public class DefaultKDataManager implements KDataManager {
                 }
             });
         }
-    }
-
-    private String keyRoot(long uni) {
-        return "" + uni + KEY_SEP + "root";
-    }
-
-    private String keyLastPrefix() {
-        return "ring_prefix";
-    }
-
-    private String keyLastUniIndex(String prefix) {
-        return "index_uni_" + prefix;
-    }
-
-    private String keyUniverseGlobalTree() {
-        return "uni_tree";
-    }
-
-    private String keyLastObjIndex(String prefix) {
-        return "index_obj_" + prefix;
     }
 
     //TODO
@@ -460,7 +451,7 @@ public class DefaultKDataManager implements KDataManager {
         return _operationManager;
     }
 
-    private void internal_resolve_universe_time(KView originView, Long[] uuids, Callback<ResolutionResult[]> callback) {
+    void internal_resolve_universe_time(KView originView, Long[] uuids, Callback<ResolutionResult[]> callback) {
         final ResolutionResult[] tempResult = new ResolutionResult[uuids.length];
         //step 0: try to hit the cache layer for dimensions
         List<Integer> toLoadIndexUniverse = null;
@@ -588,6 +579,7 @@ public class DefaultKDataManager implements KDataManager {
     }
 
     private void resolve_roots(final KUniverse p_universe, final Callback<LongRBTree> callback) {
+        /*
         UniverseCache universeCache = cache.universeCache.get(p_universe.key());
         if (universeCache != null && universeCache.roots != null) {
             //If value is already in cache, return it
@@ -616,6 +608,7 @@ public class DefaultKDataManager implements KDataManager {
                 }
             });
         }
+        */
     }
 
 }

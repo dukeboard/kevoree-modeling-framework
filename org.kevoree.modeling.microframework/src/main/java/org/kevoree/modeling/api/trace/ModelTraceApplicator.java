@@ -8,7 +8,6 @@ import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.time.DefaultTimeTree;
 import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 
 import java.util.HashMap;
@@ -93,11 +92,10 @@ public class ModelTraceApplicator {
                                         }
                                     }
                                 } else if (trace instanceof ModelNewTrace) {
-                                    DefaultTimeTree timeTree = new DefaultTimeTree();
-                                    timeTree.insert(_targetModel.now());
                                     LongRBTree universeTree = new LongRBTree();
                                     universeTree.insert(_targetModel.universe().key(), _targetModel.now());
-                                    KObject newCreated = ((AbstractKView) _targetModel.view()).createProxy((MetaClass) trace.meta(), timeTree, universeTree, trace.sourceUUID());
+                                    KObject newCreated = ((AbstractKView) _targetModel.view()).createProxy((MetaClass) trace.meta(), universeTree, trace.sourceUUID());
+                                    _targetModel.universe().model().storage().initKObject(newCreated, _targetModel.view());
                                     cached.put(newCreated.uuid(), newCreated);
                                 } else {
                                     System.err.println("Unknow traceType: " + trace);

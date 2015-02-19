@@ -5,8 +5,6 @@ import org.kevoree.modeling.api.KInferState;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObjectInfer;
 import org.kevoree.modeling.api.infer.states.AnalyticKInferState;
-import org.kevoree.modeling.api.infer.states.DoubleArrayKInferState;
-import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 
 /**
@@ -20,8 +18,8 @@ import org.kevoree.modeling.api.time.rbtree.LongRBTree;
  */
 public class AnalyticKInfer extends AbstractKObjectInfer {
 
-    public AnalyticKInfer(KView p_view, long p_uuid, TimeTree p_timeTree, LongRBTree p_universeTree) {
-        super(p_view, p_uuid, p_timeTree,p_universeTree, null);
+    public AnalyticKInfer(KView p_view, long p_uuid, LongRBTree p_universeTree) {
+        super(p_view, p_uuid,p_universeTree, null);
     }
 
     @Override

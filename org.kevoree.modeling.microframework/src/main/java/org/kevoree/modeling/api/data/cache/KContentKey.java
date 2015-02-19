@@ -19,6 +19,10 @@ public class KContentKey {
 
     private static long GLOBAL_SEGMENT_PREFIX = 2;
 
+    private static long GLOBAL_SUB_SEGMENT_PREFIX_OBJ = 0;
+
+    private static long GLOBAL_SUB_SEGMENT_PREFIX_UNI = 1;
+
     public KContentKey(Long p_prefixID, Long p_universeID, Long p_timeID, Long p_objID) {
         elem[0] = p_prefixID;
         elem[1] = p_universeID;
@@ -62,8 +66,16 @@ public class KContentKey {
         return new KContentKey(GLOBAL_SEGMENT_DATA, p_universeID, p_quantaID, p_objectID);
     }
 
-    public static KContentKey createLastPrefix(){
+    public static KContentKey createLastPrefix() {
         return new KContentKey(GLOBAL_SEGMENT_PREFIX, null, null, null);
+    }
+
+    public static KContentKey createLastObjectIndexFromPrefix(Short prefix) {
+        return new KContentKey(GLOBAL_SEGMENT_PREFIX, GLOBAL_SUB_SEGMENT_PREFIX_OBJ, null, Long.parseLong(prefix.toString()));
+    }
+
+    public static KContentKey createLastUniverseIndexFromPrefix(Short prefix) {
+        return new KContentKey(GLOBAL_SEGMENT_PREFIX, GLOBAL_SUB_SEGMENT_PREFIX_UNI, null, Long.parseLong(prefix.toString()));
     }
 
     public static KContentKey create(String payload) {

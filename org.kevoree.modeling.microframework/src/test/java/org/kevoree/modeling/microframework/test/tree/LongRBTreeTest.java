@@ -4,7 +4,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 import org.kevoree.modeling.api.time.rbtree.IndexRBTree;
-import org.kevoree.modeling.api.time.rbtree.State;
 
 /**
  * Created by duke on 01/12/14.
@@ -16,16 +15,11 @@ public class LongRBTreeTest {
     public void saveLoad0() throws Exception {
         IndexRBTree tree = new IndexRBTree();
         for (long i = 0; i <= 6; i++) {
-            tree.insert(i, State.EXISTS);
+            tree.insert(i);
         }
         IndexRBTree treeBis = new IndexRBTree();
         treeBis.unserialize(tree.serialize());
         Assert.assertEquals(tree.size(), treeBis.size());
-        for (int i = 0; i < tree.size(); i++) {
-            State resolved = tree.lookup(i);
-            State resolvedBis = treeBis.lookup(i);
-            Assert.assertEquals(resolved, resolvedBis);
-        }
     }
 
     @Test

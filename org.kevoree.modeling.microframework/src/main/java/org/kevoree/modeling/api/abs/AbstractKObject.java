@@ -1,6 +1,19 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KActionType;
+import org.kevoree.modeling.api.KEvent;
+import org.kevoree.modeling.api.KInfer;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KTask;
+import org.kevoree.modeling.api.KUniverse;
+import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.ModelAttributeVisitor;
+import org.kevoree.modeling.api.ModelListener;
+import org.kevoree.modeling.api.ModelVisitor;
+import org.kevoree.modeling.api.TraceRequest;
+import org.kevoree.modeling.api.VisitRequest;
+import org.kevoree.modeling.api.VisitResult;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.data.manager.JsonRaw;
@@ -18,7 +31,6 @@ import org.kevoree.modeling.api.traversal.actions.KReverseQueryAction;
 import org.kevoree.modeling.api.traversal.actions.KTraverseAction;
 import org.kevoree.modeling.api.traversal.actions.KTraverseQueryAction;
 import org.kevoree.modeling.api.traversal.selector.KSelector;
-import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelAddTrace;
 import org.kevoree.modeling.api.trace.ModelSetTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
@@ -38,14 +50,12 @@ public abstract class AbstractKObject implements KObject {
 
     private KView _view;
     private long _uuid;
-    private TimeTree _timeTree;
     private LongRBTree _universeTree;
     private MetaClass _metaClass;
 
-    public AbstractKObject(KView p_view, long p_uuid, TimeTree p_timeTree, LongRBTree p_universeTree, MetaClass p_metaClass) {
+    public AbstractKObject(KView p_view, long p_uuid, LongRBTree p_universeTree, MetaClass p_metaClass) {
         this._view = p_view;
         this._uuid = p_uuid;
-        this._timeTree = p_timeTree;
         this._metaClass = p_metaClass;
         this._universeTree = p_universeTree;
     }

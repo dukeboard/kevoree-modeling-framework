@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.junit.Assert;
 import org.kevoree.modeling.api.time.rbtree.TreeNode;
 import org.kevoree.modeling.api.time.rbtree.IndexRBTree;
-import org.kevoree.modeling.api.time.rbtree.State;
 
 import java.util.LinkedList;
 
@@ -24,12 +23,11 @@ public class IndexRBTreeTest {
             IndexRBTree tree = new IndexRBTree();
             for (long i = MIN; i <= j; i++) {
                 if ((i % 3) == 0L) {
-                    tree.insert(i, State.DELETED);
+                    tree.insert(i);
                 } else {
-                    tree.insert(i, State.EXISTS);
+                    tree.insert(i);
                 }
             }
-            //printTree(tree.root);
         }
     }
 
@@ -42,9 +40,9 @@ public class IndexRBTreeTest {
             IndexRBTree tree = new IndexRBTree();
             for (long i = MIN; i <= j; i++) {
                 if ((i % 3) == 0L) {
-                    tree.insert(i, State.DELETED);
+                    tree.insert(i);
                 } else {
-                    tree.insert(i, State.EXISTS);
+                    tree.insert(i);
                 }
             }
             for (long i = MIN; i < j - 1; i++) {
@@ -85,9 +83,9 @@ public class IndexRBTreeTest {
             IndexRBTree tree = new IndexRBTree();
             for (long i = MIN; i <= j; i++) {
                 if ((i % 7) == 0L) {
-                    tree.insert(i, State.DELETED);
+                    tree.insert(i);
                 } else {
-                    tree.insert(i, State.EXISTS);
+                    tree.insert(i);
                 }
             }
             for (long i = j; i > MIN; i--) {
@@ -98,51 +96,6 @@ public class IndexRBTreeTest {
     }
 
     @Test
-    public void nextWhileNotTest() {
-        IndexRBTree tree = new IndexRBTree();
-        for (long i = 0; i <= 6; i++) {
-            tree.insert(i, State.EXISTS);
-        }
-        tree.insert(8L, State.DELETED);
-        tree.insert(10L, State.EXISTS);
-        tree.insert(11L, State.EXISTS);
-        tree.insert(13L, State.EXISTS);
-
-        // printTree(tree.root!!)
-        for (long i = 0; i < 5; i++) {
-            //println("i:" + i + " -> " + tree.upperUntil(i, State.DELETED)?.domainKey + " != " + (i+1))
-            Assert.assertTrue(tree.nextWhileNot(i, State.DELETED).getKey() == (i + 1));
-        }
-        Assert.assertTrue(tree.nextWhileNot(5, State.DELETED) != null && tree.nextWhileNot(5, State.DELETED).getKey() == 6L);
-        Assert.assertNull(tree.nextWhileNot(6, State.DELETED));
-        Assert.assertNull(tree.nextWhileNot(7, State.DELETED));
-        Assert.assertNull(tree.nextWhileNot(8, State.DELETED));
-        Assert.assertTrue(tree.nextWhileNot(9, State.DELETED) != null && tree.nextWhileNot(9, State.DELETED).getKey() == 10L);
-        Assert.assertTrue(tree.nextWhileNot(10, State.DELETED) != null && tree.nextWhileNot(10, State.DELETED).getKey() == 11L);
-    }
-
-    @Test
-    public void previousWhileNotTest() {
-        IndexRBTree tree = new IndexRBTree();
-        for (long i = 0; i <= 6; i++) {
-            tree.insert(i, State.EXISTS);
-        }
-        tree.insert(8L, State.DELETED);
-        tree.insert(10L, State.EXISTS);
-        tree.insert(11L, State.EXISTS);
-        tree.insert(13L, State.EXISTS);
-        Assert.assertTrue(tree.previousWhileNot(14, State.DELETED) != null && tree.previousWhileNot(14, State.DELETED).getKey() == 13L);
-        Assert.assertTrue(tree.previousWhileNot(13, State.DELETED) != null && tree.previousWhileNot(13, State.DELETED).getKey() == 11L);
-        Assert.assertTrue(tree.previousWhileNot(12, State.DELETED) != null && tree.previousWhileNot(12, State.DELETED).getKey() == 11L);
-        Assert.assertTrue(tree.previousWhileNot(11, State.DELETED) != null && tree.previousWhileNot(11, State.DELETED).getKey() == 10L);
-        Assert.assertNull(tree.previousWhileNot(10, State.DELETED));
-        Assert.assertNull(tree.previousWhileNot(9, State.DELETED));
-        Assert.assertNull(tree.previousWhileNot(8, State.DELETED));
-        Assert.assertTrue(tree.previousWhileNot(7, State.DELETED) != null && tree.previousWhileNot(7, State.DELETED).getKey() == 6L);
-        Assert.assertTrue(tree.previousWhileNot(6, State.DELETED) != null && tree.previousWhileNot(6, State.DELETED).getKey() == 5L);
-    }
-
-    @Test
     public void firstTest() {
         long MIN = 0L;
         long MAX = 99L;
@@ -150,9 +103,9 @@ public class IndexRBTreeTest {
             IndexRBTree tree = new IndexRBTree();
             for (long i = MIN; i <= j; i++) {
                 if ((i % 3) == 0L) {
-                    tree.insert(i, State.DELETED);
+                    tree.insert(i);
                 } else {
-                    tree.insert(i, State.EXISTS);
+                    tree.insert(i);
                 }
             }
             Assert.assertTrue(tree.first().getKey() == MIN);
@@ -167,9 +120,9 @@ public class IndexRBTreeTest {
             IndexRBTree tree = new IndexRBTree();
             for (long i = MIN; i <= j; i++) {
                 if ((i % 3) == 0L) {
-                    tree.insert(i, State.DELETED);
+                    tree.insert(i);
                 } else {
-                    tree.insert(i, State.EXISTS);
+                    tree.insert(i);
                 }
             }
             Assert.assertTrue(tree.last().getKey() == j);
@@ -177,61 +130,15 @@ public class IndexRBTreeTest {
     }
 
     @Test
-    public void firstWhileNot() {
-        IndexRBTree tree = new IndexRBTree();
-        for (long i = 0; i <= 6; i++) {
-            tree.insert(i, State.EXISTS);
-        }
-        tree.insert(8L, State.DELETED);
-        tree.insert(10L, State.EXISTS);
-        tree.insert(11L, State.EXISTS);
-        tree.insert(13L, State.EXISTS);
-        //printTree(tree.root!!)
-        Assert.assertTrue(tree.firstWhileNot(14, State.DELETED).getKey() == 10L);
-        Assert.assertTrue(tree.firstWhileNot(13, State.DELETED).getKey() == 10L);
-        Assert.assertTrue(tree.firstWhileNot(12, State.DELETED).getKey() == 10L);
-        Assert.assertTrue(tree.firstWhileNot(11, State.DELETED).getKey() == 10L);
-        Assert.assertTrue(tree.firstWhileNot(10, State.DELETED).getKey() == 10L);
-        Assert.assertNull(tree.firstWhileNot(9, State.DELETED));
-        Assert.assertNull(tree.firstWhileNot(8, State.DELETED));
-        Assert.assertTrue(tree.firstWhileNot(7, State.DELETED).getKey() == 0L);
-        Assert.assertTrue(tree.firstWhileNot(6, State.DELETED).getKey() == 0L);
-    }
-
-    @Test
-    public void lastWhileNot() {
-        IndexRBTree tree = new IndexRBTree();
-        for (long i = 0; i <= 6; i++) {
-            tree.insert(i, State.EXISTS);
-        }
-        tree.insert(8L, State.DELETED);
-        tree.insert(10L, State.EXISTS);
-        tree.insert(11L, State.EXISTS);
-        tree.insert(13L, State.EXISTS);
-        //printTree(tree.root!!);
-        Assert.assertTrue(tree.lastWhileNot(0, State.DELETED).getKey() == 6L);
-        Assert.assertTrue(tree.lastWhileNot(5, State.DELETED).getKey() == 6L);
-        Assert.assertTrue(tree.lastWhileNot(6, State.DELETED).getKey() == 6L);
-        Assert.assertTrue(tree.lastWhileNot(7, State.DELETED).getKey() == 6L);
-        Assert.assertNull(tree.lastWhileNot(8, State.DELETED));
-        Assert.assertNull(tree.lastWhileNot(9, State.DELETED));
-        Assert.assertTrue(tree.lastWhileNot(10, State.DELETED).getKey() == 13L);
-        Assert.assertTrue(tree.lastWhileNot(11, State.DELETED).getKey() == 13L);
-        Assert.assertTrue(tree.lastWhileNot(12, State.DELETED).getKey() == 13L);
-        Assert.assertTrue(tree.lastWhileNot(13, State.DELETED).getKey() == 13L);
-        Assert.assertTrue(tree.lastWhileNot(14, State.DELETED).getKey() == 13L);
-    }
-
-    @Test
     public void previousOrEqualTest() {
         IndexRBTree tree = new IndexRBTree();
         for (long i = 0; i <= 6; i++) {
-            tree.insert(i, State.EXISTS);
+            tree.insert(i);
         }
-        tree.insert(8L, State.DELETED);
-        tree.insert(10L, State.EXISTS);
-        tree.insert(11L, State.EXISTS);
-        tree.insert(13L, State.EXISTS);
+        tree.insert(8L);
+        tree.insert(10L);
+        tree.insert(11L);
+        tree.insert(13L);
         //printTree(tree.root);
         Assert.assertNull(tree.previousOrEqual(-1));
         Assert.assertEquals(tree.previousOrEqual(0).getKey(), 0L);
@@ -248,12 +155,12 @@ public class IndexRBTreeTest {
     public void nextOrEqualTest() {
         IndexRBTree tree = new IndexRBTree();
         for (long i = 0; i <= 6; i++) {
-            tree.insert(i, State.EXISTS);
+            tree.insert(i);
         }
-        tree.insert(8L, State.DELETED);
-        tree.insert(10L, State.EXISTS);
-        tree.insert(11L, State.EXISTS);
-        tree.insert(13L, State.EXISTS);
+        tree.insert(8L);
+        tree.insert(10L);
+        tree.insert(11L);
+        tree.insert(13L);
         //printTree(tree.root!!)
         Assert.assertTrue(tree.nextOrEqual(-1).getKey() == 0L);
         Assert.assertTrue(tree.nextOrEqual(0).getKey() == 0L);
