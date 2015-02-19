@@ -17,7 +17,7 @@ public class KContentKey {
 
     private static long GLOBAL_SEGMENT_UNIVERSE_TREE = 2;
 
-    private static long GLOBAL_SEGMENT_PREFIX = 2;
+    private static long GLOBAL_SEGMENT_PREFIX = 3;
 
     private static long GLOBAL_SUB_SEGMENT_PREFIX_OBJ = 0;
 

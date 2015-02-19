@@ -2,6 +2,7 @@ package org.kevoree.modeling.api.data.cdn;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.ThrowableCallback;
+import org.kevoree.modeling.api.data.cache.DefaultMemoryCache;
 import org.kevoree.modeling.api.data.cache.KCache;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 
@@ -13,10 +14,15 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
 
     public static boolean DEBUG = false;
 
+    //TODO implement a lock
     @Override
     public void atomicGetMutate(KContentKey key, AtomicOperation operation, ThrowableCallback<String> callback) {
-        //TODO implement a lock
         String result = backend.get(key.toString());
+        String mutated = operation.mutate(result);
+        if (DEBUG) {
+            System.out.println("ATOMIC GET " + key + "->" + result);
+            System.out.println("ATOMIC PUT " + key + "->" + mutated);
+        }
         backend.put(key.toString(), operation.mutate(result));
         callback.on(result, null);
     }
@@ -77,9 +83,11 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
         backend.clear();
     }
 
+    private DefaultMemoryCache _cache = new DefaultMemoryCache();
+
     @Override
     public KCache cache() {
-        return null;
+        return _cache;
     }
 
 }

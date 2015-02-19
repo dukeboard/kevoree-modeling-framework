@@ -37,6 +37,11 @@ public class IndexRBTree implements KCacheObject {
         _dirty = false;
     }
 
+    @Override
+    public String toString(){
+        return serialize();
+    }
+
     public void unserialize(String payload) throws Exception {
         if (payload == null || payload.length() == 0) {
             return;

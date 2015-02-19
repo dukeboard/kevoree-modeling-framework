@@ -3,6 +3,8 @@ package org.kevoree.modeling.microframework.test;
 import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.data.cache.DefaultMemoryCache;
+import org.kevoree.modeling.api.data.cdn.MemoryKContentDeliveryDriver;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
@@ -16,31 +18,42 @@ public class HelloTest {
 
     @Test
     public void simpleTest() {
-        CloudModel universe = new CloudModel();
-        universe.connect(null);
-        CloudUniverse dimension0 = universe.newUniverse();
-        CloudView time0 = dimension0.time(0l);
-        Node root = time0.createNode();
-        time0.setRoot(root, null);
-        root.setName("root");
 
-        Node n1 = time0.createNode();
-        n1.setName("n1");
-        Node n2 = time0.createNode();
-        n2.setName("n2");
-        root.addChildren(n1);
-        root.addChildren(n2);
+        MemoryKContentDeliveryDriver.DEBUG = true;
+        DefaultMemoryCache.DEBUG = true;
 
-        n1.inbounds(new Callback<KObject[]>() {
+        CloudModel model = new CloudModel();
+        model.connect(new Callback<Throwable>() {
             @Override
-            public void on(KObject[] kObjects) {
-                Assert.assertEquals(kObjects[0].uuid(), root.uuid());
-            }
-        });
-        n2.inbounds(new Callback<KObject[]>() {
-            @Override
-            public void on(KObject[] kObjects) {
-                Assert.assertEquals(kObjects[0].uuid(), root.uuid());
+            public void on(Throwable throwable) {
+                if(throwable!=null){
+                    throwable.printStackTrace();
+                } else {
+                    CloudUniverse universe = model.newUniverse();
+                    CloudView time0 = universe.time(0l);
+                    Node root = time0.createNode();
+//                    time0.setRoot(root, null);
+                    root.setName("root");
+                    Node n1 = time0.createNode();
+                    n1.setName("n1");
+                    Node n2 = time0.createNode();
+                    n2.setName("n2");
+                    root.addChildren(n1);
+                    root.addChildren(n2);
+                    n1.inbounds(new Callback<KObject[]>() {
+                        @Override
+                        public void on(KObject[] kObjects) {
+                            Assert.assertNotNull(kObjects[0]);
+                            Assert.assertEquals(kObjects[0].uuid(), root.uuid());
+                        }
+                    });
+                    n2.inbounds(new Callback<KObject[]>() {
+                        @Override
+                        public void on(KObject[] kObjects) {
+                            Assert.assertEquals(kObjects[0].uuid(), root.uuid());
+                        }
+                    });
+                }
             }
         });
 
