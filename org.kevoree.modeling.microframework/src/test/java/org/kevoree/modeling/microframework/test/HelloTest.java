@@ -18,15 +18,11 @@ public class HelloTest {
 
     @Test
     public void simpleTest() {
-
-        MemoryKContentDeliveryDriver.DEBUG = true;
-        DefaultMemoryCache.DEBUG = true;
-
         CloudModel model = new CloudModel();
         model.connect(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
-                if(throwable!=null){
+                if (throwable != null) {
                     throwable.printStackTrace();
                 } else {
                     CloudUniverse universe = model.newUniverse();
@@ -34,12 +30,20 @@ public class HelloTest {
                     Node root = time0.createNode();
 //                    time0.setRoot(root, null);
                     root.setName("root");
+                    Assert.assertEquals("root", root.getName());
                     Node n1 = time0.createNode();
                     n1.setName("n1");
                     Node n2 = time0.createNode();
                     n2.setName("n2");
                     root.addChildren(n1);
                     root.addChildren(n2);
+                    time0.lookup(root.uuid(), new Callback<KObject>() {
+                        @Override
+                        public void on(KObject kObject) {
+                            Assert.assertNotNull(kObject);
+                            Assert.assertEquals(kObject, root);
+                        }
+                    });
                     n1.inbounds(new Callback<KObject[]>() {
                         @Override
                         public void on(KObject[] kObjects) {
@@ -56,9 +60,7 @@ public class HelloTest {
                 }
             }
         });
-
     }
-
 
     @Test
     public void helloTest() {

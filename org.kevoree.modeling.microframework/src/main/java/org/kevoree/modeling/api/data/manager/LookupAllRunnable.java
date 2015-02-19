@@ -39,7 +39,7 @@ public class LookupAllRunnable implements Runnable {
                 List<Integer> toLoadIndexes = new ArrayList<Integer>();
                 for (int i = 0; i < objects.length; i++) {
                     if (objects[i] != null && objects[i].resolvedQuanta != null && objects[i].resolvedUniverse != null) {
-                        KContentKey contentKey = KContentKey.createObject(objects[i].resolvedUniverse, objects[i].resolvedUniverse, _keys[i]);
+                        KContentKey contentKey = KContentKey.createObject(objects[i].resolvedUniverse, objects[i].resolvedQuanta, _keys[i]);
                         KCacheEntry entry = (KCacheEntry) _store.dataBase().cache().get(contentKey);
                         if (entry == null) {
                             toLoadIndexes.add(i);
