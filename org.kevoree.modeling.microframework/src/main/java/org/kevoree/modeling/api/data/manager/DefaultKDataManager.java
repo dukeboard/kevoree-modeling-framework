@@ -5,6 +5,7 @@ import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.cache.KCacheObject;
+import org.kevoree.modeling.api.data.cdn.AtomicOperation;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
 import org.kevoree.modeling.api.data.cdn.MemoryKContentDeliveryDriver;
@@ -159,7 +160,6 @@ public class DefaultKDataManager implements KDataManager {
         KCacheEntry.raw = new Object[Index.RESERVED_INDEXES + obj.metaClass().metaAttributes().length + obj.metaClass().metaReferences().length];
         KCacheEntry._dirty = true;
         KCacheEntry.metaClass = obj.metaClass();
-        KCacheEntry.timeTree = obj.timeTree();
         KCacheEntry.universeTree = obj.universeTree();
         _db.cache().put(KContentKey.createTimeTree(obj.universe().key(), obj.uuid()), obj.timeTree());
         _db.cache().put(KContentKey.createUniverseTree(obj.uuid()), obj.universeTree());
@@ -187,98 +187,89 @@ public class DefaultKDataManager implements KDataManager {
                             @Override
                             public void on(Throwable throwable) {
                                 if (throwable == null) {
-                                    String[] keys = new String[1];
-                                    keys[0] = keyLastPrefix();
-                                    _db.get(keys, new ThrowableCallback<String[]>() {
+                                    _db.atomicGetMutate(KContentKey.createLastPrefix(), new AtomicOperation() {
                                         @Override
-                                        public void on(String[] strings, Throwable error) {
+                                        public String mutate(String previous) {
+                                            try {
+                                                final Short previousPrefix = Short.parseShort(previous);
+                                                if (previousPrefix == Short.MAX_VALUE) {
+                                                    return "" + Short.MIN_VALUE;
+                                                } else {
+                                                    return "" + (previousPrefix + 1);
+                                                }
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                                return "" + Short.MIN_VALUE;
+                                            }
+                                        }
+                                    }, new ThrowableCallback<String>() {
+                                        @Override
+                                        public void on(String payloadPrefix, Throwable error) {
                                             if (error != null) {
                                                 if (callback != null) {
                                                     callback.on(error);
                                                 }
                                             } else {
-                                                if (strings.length == 1) {
-                                                    try {
-                                                        String payloadPrefix = strings[0];
-                                                        if (payloadPrefix == null || payloadPrefix.equals("")) {
-                                                            payloadPrefix = "0";
-                                                        }
-                                                        final Short newPrefix = Short.parseShort(payloadPrefix);
-                                                        String[] keys2 = new String[3];
-                                                        keys2[0] = keyLastUniIndex(payloadPrefix);
-                                                        keys2[1] = keyLastObjIndex(payloadPrefix);
-                                                        keys2[2] = keyUniverseGlobalTree();
-                                                        _db.get(keys2, new ThrowableCallback<String[]>() {
-                                                            @Override
-                                                            public void on(String[] strings, Throwable error) {
-                                                                if (error != null) {
-                                                                    if (callback != null) {
-                                                                        callback.on(error);
+                                                try {
+                                                    if (payloadPrefix == null || payloadPrefix.equals("")) {
+                                                        payloadPrefix = "0";
+                                                    }
+                                                    final Short newPrefix = Short.parseShort(payloadPrefix);
+                                                    KContentKey[] connectionElemKeys = new KContentKey[3];
+                                                    keys2[0] = keyLastUniIndex(payloadPrefix);
+                                                    keys2[1] = keyLastObjIndex(payloadPrefix);
+                                                    keys2[2] = keyUniverseGlobalTree();
+                                                    _db.get(connectionElemKeys, new ThrowableCallback<String[]>() {
+                                                        @Override
+                                                        public void on(String[] strings, Throwable error) {
+                                                            if (error != null) {
+                                                                if (callback != null) {
+                                                                    callback.on(error);
+                                                                }
+                                                            } else {
+                                                                if (strings.length == 3) {
+                                                                    try {
+                                                                        String dimIndexPayload = strings[0];
+                                                                        if (dimIndexPayload == null || dimIndexPayload.equals("")) {
+                                                                            dimIndexPayload = "0";
+                                                                        }
+                                                                        String objIndexPayload = strings[1];
+                                                                        if (objIndexPayload == null || objIndexPayload.equals("")) {
+                                                                            objIndexPayload = "0";
+                                                                        }
+                                                                        String globalUniverseTreePayload = strings[2];
+                                                                        LongRBTree globalUniverseTree = new LongRBTree();
+                                                                        try {
+                                                                            globalUniverseTree.unserialize(globalUniverseTreePayload);
+                                                                        } catch (Exception e) {
+                                                                            e.printStackTrace();
+                                                                        }
+                                                                        _db.cache().put(KContentKey.createGlobalUniverseTree(), globalUniverseTree);
+                                                                        Long newDimIndex = Long.parseLong(dimIndexPayload);
+                                                                        Long newObjIndex = Long.parseLong(objIndexPayload);
+                                                                        _dimensionKeyCalculator = new KeyCalculator(newPrefix, newDimIndex);
+                                                                        _objectKeyCalculator = new KeyCalculator(newPrefix, newObjIndex);
+                                                                        isConnected = true;
+                                                                        if (callback != null) {
+                                                                            callback.on(null);
+                                                                        }
+                                                                    } catch (Exception e) {
+                                                                        if (callback != null) {
+                                                                            callback.on(e);
+                                                                        }
                                                                     }
                                                                 } else {
-                                                                    if (strings.length == 3) {
-                                                                        try {
-                                                                            String dimIndexPayload = strings[0];
-                                                                            if (dimIndexPayload == null || dimIndexPayload.equals("")) {
-                                                                                dimIndexPayload = "0";
-                                                                            }
-                                                                            String objIndexPayload = strings[1];
-                                                                            if (objIndexPayload == null || objIndexPayload.equals("")) {
-                                                                                objIndexPayload = "0";
-                                                                            }
-                                                                            String globalUniverseTreePayload = strings[2];
-                                                                            try {
-                                                                                LongRBTree globalUniverseTree = new LongRBTree();
-                                                                                globalUniverseTree.unserialize(globalUniverseTreePayload);
-                                                                                _db.cache().put(KContentKey.createGlobalUniverseTree(), globalUniverseTree);
-                                                                            } catch (Exception e) {
-                                                                                e.printStackTrace();
-                                                                                //noop
-                                                                            }
-                                                                            Long newDimIndex = Long.parseLong(dimIndexPayload);
-                                                                            Long newObjIndex = Long.parseLong(objIndexPayload);
-                                                                            String[][] keys3 = new String[1][2];
-                                                                            String[] payloadKeys3 = new String[2];
-                                                                            payloadKeys3[0] = keyLastPrefix();
-                                                                            if (newPrefix == Short.MAX_VALUE) {
-                                                                                payloadKeys3[1] = "" + Short.MIN_VALUE;
-                                                                            } else {
-                                                                                payloadKeys3[1] = "" + (newPrefix + 1);
-                                                                            }
-                                                                            keys3[0] = payloadKeys3;
-                                                                            _db.put(keys3, new Callback<Throwable>() {
-                                                                                @Override
-                                                                                public void on(Throwable throwable) {
-                                                                                    _dimensionKeyCalculator = new KeyCalculator(newPrefix, newDimIndex);
-                                                                                    _objectKeyCalculator = new KeyCalculator(newPrefix, newObjIndex);
-                                                                                    isConnected = true;
-                                                                                    if (callback != null) {
-                                                                                        callback.on(null);
-                                                                                    }
-                                                                                }
-                                                                            });
-                                                                        } catch (Exception e) {
-                                                                            if (callback != null) {
-                                                                                callback.on(e);
-                                                                            }
-                                                                        }
-                                                                    } else {
-                                                                        if (callback != null) {
-                                                                            callback.on(new Exception("Error while connecting the KDataStore..."));
-                                                                        }
+                                                                    if (callback != null) {
+                                                                        callback.on(new Exception("Error while connecting the KDataStore..."));
                                                                     }
                                                                 }
                                                             }
-                                                        });
-
-                                                    } catch (Exception e) {
-                                                        if (callback != null) {
-                                                            callback.on(e);
                                                         }
-                                                    }
-                                                } else {
+                                                    });
+
+                                                } catch (Exception e) {
                                                     if (callback != null) {
-                                                        callback.on(new Exception("Error while connecting the KDataStore..."));
+                                                        callback.on(e);
                                                     }
                                                 }
                                             }
@@ -337,7 +328,7 @@ public class DefaultKDataManager implements KDataManager {
         }
         Object[] payload = entry.raw;
         if (accessMode.equals(AccessMode.DELETE)) {
-            entry.timeTree.delete(origin.now());
+            timeTree.delete(origin.now());
             entry.raw = null;
             return payload;
         }
@@ -351,40 +342,21 @@ public class DefaultKDataManager implements KDataManager {
                 }
                 return payload;
             } else {
-                //deep copy the structure
-                Object[] cloned = new Object[payload.length];
-                for (int i = 0; i < payload.length; i++) {
-                    Object resolved = payload[i];
-                    if (resolved != null) {
-                        if (resolved instanceof Set) {
-                            HashSet<Long> clonedSet = new HashSet<Long>();
-                            clonedSet.addAll((Set<Long>) resolved);
-                            cloned[i] = clonedSet;
-                        } else if (resolved instanceof List) {
-                            ArrayList<Long> clonedList = new ArrayList<Long>();
-                            clonedList.addAll((List<Long>) resolved);
-                            cloned[i] = clonedList;
-                        } else if (resolved instanceof KInferState) {
-                            cloned[i] = ((KInferState) resolved).cloneState();
-                        } else {
-                            cloned[i] = resolved;
-                        }
-                    }
-                }
-                KCacheEntry clonedEntry = new KCacheEntry();
+                KCacheEntry clonedEntry = entry.clone();
                 clonedEntry._dirty = true;
-                clonedEntry.raw = cloned;
-                clonedEntry.metaClass = entry.metaClass;
-                clonedEntry.timeTree = entry.timeTree;
-                clonedEntry.universeTree = entry.universeTree;
-                clonedEntry.timeTree.insert(origin.now());
-                //TODO update structure for multi universe
+                if (!needUniverseCopy) {
+                    timeTree.insert(origin.now());
+                } else {
+                    IndexRBTree newTemporalTree = new IndexRBTree();
+                    newTemporalTree.insert(origin.now());
+                    _db.cache().put(KContentKey.createTimeTree(origin.universe().key(), origin.uuid()), newTemporalTree);
+                    origin.universeTree().insert(origin.universe().key(), origin.now());//insert this time as a divergence point for this object
+                }
                 _db.cache().put(KContentKey.createObject(origin.universe().key(), origin.now(), origin.uuid()), clonedEntry);
                 return clonedEntry.raw;
             }
         }
     }
-
 
     @Override
     public void discard(KUniverse p_universe, Callback<Throwable> callback) {
@@ -516,6 +488,7 @@ public class DefaultKDataManager implements KDataManager {
         if (toLoadUniverseTrees != null) {
             KContentKey[] toLoadKeys = toLoadUniverseTrees.toArray(new KContentKey[toLoadUniverseTrees.size()]);
             final List<Integer> finalToLoadIndexUniverse = toLoadIndexUniverse;
+            final List<KContentKey> finalToLoadUniverseTrees = toLoadUniverseTrees;
             _db.get(toLoadKeys, new ThrowableCallback<String[]>() {
                 @Override
                 public void on(String[] resolvedContents, Throwable error) {
@@ -533,6 +506,7 @@ public class DefaultKDataManager implements KDataManager {
                                 }
                             }
                             tempResult[finalToLoadIndexUniverse.get(i)].universeTree = newLoadedTree;
+                            _db.cache().put(finalToLoadUniverseTrees.get(i), newLoadedTree);
                         }
                         internal_resolve_times(originView, uuids, tempResult, callback);
                     }
@@ -576,6 +550,7 @@ public class DefaultKDataManager implements KDataManager {
         if (toLoadTimeTrees != null) {
             KContentKey[] toLoadKeys = toLoadTimeTrees.toArray(new KContentKey[toLoadTimeTrees.size()]);
             final List<Integer> finalToLoadIndexTimes = toLoadIndexTimes;
+            final List<KContentKey> finalToLoadTimeTrees = toLoadTimeTrees;
             _db.get(toLoadKeys, new ThrowableCallback<String[]>() {
                 @Override
                 public void on(String[] resolvedContents, Throwable error) {
@@ -595,6 +570,7 @@ public class DefaultKDataManager implements KDataManager {
                             int initialIndex = finalToLoadIndexTimes.get(i);
                             tempResult[initialIndex].timeTree = newLoadedTree;
                             tempResult[initialIndex].resolvedQuanta = newLoadedTree.lookup(originView.now());
+                            _db.cache().put(finalToLoadTimeTrees.get(i), newLoadedTree);
                         }
                         callback.on(tempResult);
                     }

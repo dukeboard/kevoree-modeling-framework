@@ -14,6 +14,8 @@ import org.kevoree.modeling.api.data.cache.KContentKey;
 
 public interface KContentDeliveryDriver {
 
+    public void atomicGetMutate(KContentKey key, AtomicOperation operation, ThrowableCallback<String> callback);
+
     public void get(KContentKey[] keys, ThrowableCallback<String[]> callback);
 
     public void put(KContentPutRequest request, Callback<Throwable> error);

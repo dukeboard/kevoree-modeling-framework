@@ -17,6 +17,8 @@ public class KContentKey {
 
     private static long GLOBAL_SEGMENT_UNIVERSE_TREE = 2;
 
+    private static long GLOBAL_SEGMENT_PREFIX = 2;
+
     public KContentKey(Long p_prefixID, Long p_universeID, Long p_timeID, Long p_objID) {
         elem[0] = p_prefixID;
         elem[1] = p_universeID;
@@ -58,6 +60,10 @@ public class KContentKey {
 
     public static KContentKey createObject(Long p_universeID, Long p_quantaID, Long p_objectID) {
         return new KContentKey(GLOBAL_SEGMENT_DATA, p_universeID, p_quantaID, p_objectID);
+    }
+
+    public static KContentKey createLastPrefix(){
+        return new KContentKey(GLOBAL_SEGMENT_PREFIX, null, null, null);
     }
 
     public static KContentKey create(String payload) {
