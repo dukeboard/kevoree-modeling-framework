@@ -76,30 +76,4 @@ public class MultiLayeredMemoryCache implements KCache {
         _nestedLayers.remove(KContentKey.GLOBAL_SEGMENT_DATA);
     }
 
-    public static void main(String[] args) {
-        MultiLayeredMemoryCache cache = new MultiLayeredMemoryCache();
-        KCacheObject temp = new KCacheObject() {
-            @Override
-            public boolean isDirty() {
-                return false;
-            }
-
-            @Override
-            public String serialize() {
-                return null;
-            }
-
-            @Override
-            public void setClean() {
-
-            }
-        };
-        System.err.println(temp.hashCode());
-        cache.put(KContentKey.create("0///"),temp);
-        System.err.println(cache.get(KContentKey.create("0///")).hashCode());
-        cache.put(KContentKey.create("0/0//"),temp);
-        System.err.println(cache.get(KContentKey.create("0///")).hashCode());
-        System.err.println(cache.get(KContentKey.create("0/0//")).hashCode());
-    }
-
 }

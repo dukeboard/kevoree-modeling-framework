@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.data.cache.MultiLayeredMemoryCache;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
@@ -17,6 +18,7 @@ public class ParentStorageTest {
 
     @Test
     public void discardTest() {
+
         CloudModel cloudModel = new CloudModel();
         cloudModel.connect(null);
         //model.connect(null);
@@ -73,7 +75,7 @@ public class ParentStorageTest {
     @Test
     public void parentTest() {
 
-        //MemoryKDataBase.DEBUG = true;
+        MultiLayeredMemoryCache.DEBUG = true;
 
         CloudModel cloudModel = new CloudModel();
         cloudModel.connect(null);
@@ -123,16 +125,6 @@ public class ParentStorageTest {
                 });
             }
         });
-
-
-        /*
-        try {
-            root.eachChildren(null);
-            Assert.assertNull(root);
-        } catch (Exception e) {
-            Assert.assertNotNull(e);
-        }
-*/
 
         time0.lookup(n1.uuid(), new Callback<KObject>() {
             @Override
