@@ -7,7 +7,6 @@ import org.kevoree.modeling.api.KScheduler;
 import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.cache.KCacheObject;
@@ -142,8 +141,8 @@ public class DefaultKDataManager implements KDataManager {
         KContentKey[] dirtiesKeys = _db.cache().dirties();
         KContentPutRequest request = new KContentPutRequest(dirtiesKeys.length + 2);
         for (int i = 0; i < dirtiesKeys.length; i++) {
-            if(dirtiesKeys[i]==null){
-                System.err.println("KeyNull ? "+i +" on "+dirtiesKeys.length);
+            if (dirtiesKeys[i] == null) {
+                System.err.println("KeyNull ? " + i + " on " + dirtiesKeys.length);
             }
 
             KCacheObject cachedObject = _db.cache().get(dirtiesKeys[i]);
@@ -180,16 +179,15 @@ public class DefaultKDataManager implements KDataManager {
     private final int GLO_TREE_INDEX = 2;
 
     @Override
-    public void connect(Callback<Throwable> callback) {
+    public void connect(Callback<Throwable> connectCallback) {
         if (isConnected) {
-            if (callback != null) {
-                callback.on(null);
+            if (connectCallback != null) {
+                connectCallback.on(null);
             }
-            return;
         }
         if (_db == null || _eventBroker == null) {
-            if (callback != null) {
-                callback.on(new Exception("Please attach a KDataBase AND a KBroker first !"));
+            if (connectCallback != null) {
+                connectCallback.on(new Exception("Please attach a KDataBase AND a KBroker first !"));
             }
         } else {
             _eventBroker.connect(new Callback<Throwable>() {
@@ -224,84 +222,83 @@ public class DefaultKDataManager implements KDataManager {
                                         @Override
                                         public void on(String payloadPrefix, Throwable error) {
                                             if (error != null) {
-                                                if (callback != null) {
-                                                    callback.on(error);
+                                                if (connectCallback != null) {
+                                                    connectCallback.on(error);
                                                 }
                                             } else {
+                                                String cleanedPrefixPayload = payloadPrefix;
+                                                if (cleanedPrefixPayload == null || cleanedPrefixPayload.equals("")) {
+                                                    cleanedPrefixPayload = "0";
+                                                }
+                                                Short newPrefix;
                                                 try {
-                                                    String cleanedPrefixPayload = payloadPrefix;
-                                                    if (cleanedPrefixPayload == null || cleanedPrefixPayload.equals("")) {
-                                                        cleanedPrefixPayload = "0";
-                                                    }
-                                                    final Short newPrefix = Short.parseShort(cleanedPrefixPayload);
-                                                    KContentKey[] connectionElemKeys = new KContentKey[3];
-                                                    connectionElemKeys[UNIVERSE_INDEX] = KContentKey.createLastUniverseIndexFromPrefix(newPrefix);
-                                                    connectionElemKeys[OBJ_INDEX] = KContentKey.createLastObjectIndexFromPrefix(newPrefix);
-                                                    connectionElemKeys[GLO_TREE_INDEX] = KContentKey.createGlobalUniverseTree();
-                                                    _db.get(connectionElemKeys, new ThrowableCallback<String[]>() {
-                                                        @Override
-                                                        public void on(String[] strings, Throwable error) {
-                                                            if (error != null) {
-                                                                if (callback != null) {
-                                                                    callback.on(error);
+                                                    newPrefix = Short.parseShort(cleanedPrefixPayload);
+                                                } catch (Exception e) {
+                                                    newPrefix = Short.parseShort("0");
+                                                }
+                                                KContentKey[] connectionElemKeys = new KContentKey[3];
+                                                connectionElemKeys[UNIVERSE_INDEX] = KContentKey.createLastUniverseIndexFromPrefix(newPrefix);
+                                                connectionElemKeys[OBJ_INDEX] = KContentKey.createLastObjectIndexFromPrefix(newPrefix);
+                                                connectionElemKeys[GLO_TREE_INDEX] = KContentKey.createGlobalUniverseTree();
+                                                final Short finalNewPrefix = newPrefix;
+                                                _db.get(connectionElemKeys, new ThrowableCallback<String[]>() {
+                                                    @Override
+                                                    public void on(String[] strings, Throwable errorL2) {
+                                                        if (errorL2 != null) {
+                                                            if (connectCallback != null) {
+                                                                connectCallback.on(errorL2);
+                                                            }
+                                                        } else {
+                                                            if (strings.length == 3) {
+                                                                Exception detected = null;
+                                                                try {
+                                                                    String uniIndexPayload = strings[UNIVERSE_INDEX];
+                                                                    if (uniIndexPayload == null || uniIndexPayload.equals("")) {
+                                                                        uniIndexPayload = "0";
+                                                                    }
+                                                                    String objIndexPayload = strings[OBJ_INDEX];
+                                                                    if (objIndexPayload == null || objIndexPayload.equals("")) {
+                                                                        objIndexPayload = "0";
+                                                                    }
+                                                                    String globalUniverseTreePayload = strings[GLO_TREE_INDEX];
+                                                                    LongRBTree globalUniverseTree = new LongRBTree();
+                                                                    if (globalUniverseTreePayload != null) {
+                                                                        try {
+                                                                            globalUniverseTree.unserialize(globalUniverseTreePayload);
+                                                                        } catch (Exception e) {
+                                                                            e.printStackTrace();
+                                                                        }
+                                                                    }
+                                                                    _db.cache().put(KContentKey.createGlobalUniverseTree(), globalUniverseTree);
+                                                                    Long newUniIndex = Long.parseLong(uniIndexPayload);
+                                                                    Long newObjIndex = Long.parseLong(objIndexPayload);
+                                                                    _universeKeyCalculator = new KeyCalculator(finalNewPrefix, newUniIndex);
+                                                                    _objectKeyCalculator = new KeyCalculator(finalNewPrefix, newObjIndex);
+                                                                    isConnected = true;
+                                                                } catch (Exception e) {
+                                                                    detected = e;
+                                                                }
+                                                                if (connectCallback != null) {
+                                                                    connectCallback.on(detected);
                                                                 }
                                                             } else {
-                                                                if (strings.length == 3) {
-                                                                    try {
-                                                                        String uniIndexPayload = strings[UNIVERSE_INDEX];
-                                                                        if (uniIndexPayload == null || uniIndexPayload.equals("")) {
-                                                                            uniIndexPayload = "0";
-                                                                        }
-                                                                        String objIndexPayload = strings[OBJ_INDEX];
-                                                                        if (objIndexPayload == null || objIndexPayload.equals("")) {
-                                                                            objIndexPayload = "0";
-                                                                        }
-                                                                        String globalUniverseTreePayload = strings[GLO_TREE_INDEX];
-                                                                        LongRBTree globalUniverseTree = new LongRBTree();
-                                                                        if (globalUniverseTreePayload != null) {
-                                                                            try {
-                                                                                globalUniverseTree.unserialize(globalUniverseTreePayload);
-                                                                            } catch (Exception e) {
-                                                                                e.printStackTrace();
-                                                                            }
-                                                                        }
-                                                                        _db.cache().put(KContentKey.createGlobalUniverseTree(), globalUniverseTree);
-                                                                        Long newUniIndex = Long.parseLong(uniIndexPayload);
-                                                                        Long newObjIndex = Long.parseLong(objIndexPayload);
-                                                                        _universeKeyCalculator = new KeyCalculator(newPrefix, newUniIndex);
-                                                                        _objectKeyCalculator = new KeyCalculator(newPrefix, newObjIndex);
-                                                                        isConnected = true;
-                                                                        if (callback != null) {
-                                                                            callback.on(null);
-                                                                        }
-                                                                    } catch (Exception e) {
-                                                                        if (callback != null) {
-                                                                            callback.on(e);
-                                                                        }
-                                                                    }
-                                                                } else {
-                                                                    if (callback != null) {
-                                                                        callback.on(new Exception("Error while connecting the KDataStore..."));
-                                                                    }
+                                                                if (connectCallback != null) {
+                                                                    connectCallback.on(new Exception("Error while connecting the KDataStore..."));
                                                                 }
                                                             }
                                                         }
-                                                    });
-                                                } catch (Exception e) {
-                                                    if (callback != null) {
-                                                        callback.on(e);
                                                     }
-                                                }
+                                                });
                                             }
                                         }
                                     });
                                 } else {
-                                    callback.on(throwable);
+                                    connectCallback.on(throwable);
                                 }
                             }
                         });
                     } else {
-                        callback.on(throwable);
+                        connectCallback.on(throwable);
                     }
                 }
             });

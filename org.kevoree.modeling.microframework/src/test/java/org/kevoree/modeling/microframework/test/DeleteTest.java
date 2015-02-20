@@ -160,9 +160,6 @@ public class DeleteTest {
                 CloudView factory = universe.time(0l);
                 Node n = factory.createNode();
                 n.setName("n");
-
-                System.err.println("Seriously !!!");
-
                 factory.lookup(n.uuid(), new Callback<KObject>() {
                     @Override
                     public void on(KObject kObject) {
@@ -170,7 +167,6 @@ public class DeleteTest {
                         System.err.println(kObject.uuid());
                     }
                 });
-
                 factory.setRoot(n, null);
                 Node n2 = factory.createNode();
                 n2.setName("n2");
