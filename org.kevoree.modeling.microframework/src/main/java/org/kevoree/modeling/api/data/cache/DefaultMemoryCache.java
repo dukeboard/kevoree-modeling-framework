@@ -7,6 +7,7 @@ import java.util.List;
 /**
  * Created by duke on 18/02/15.
  */
+/*
 public class DefaultMemoryCache implements KCache {
 
     public static boolean DEBUG = false;
@@ -60,3 +61,4 @@ public class DefaultMemoryCache implements KCache {
     }
 
 }
+*/

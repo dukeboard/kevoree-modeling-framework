@@ -5,7 +5,7 @@ package org.kevoree.modeling.api.data.cache;
  */
 public class KContentKey {
 
-    private static final int ELEM_SIZE = 4;
+    public static final int ELEM_SIZE = 4;
 
     private Long[] elem = new Long[ELEM_SIZE];
 
@@ -13,7 +13,7 @@ public class KContentKey {
 
     private static long GLOBAL_SEGMENT_META = 0;
 
-    private static long GLOBAL_SEGMENT_DATA = 1;
+    public static long GLOBAL_SEGMENT_DATA = 1;
 
     private static long GLOBAL_SEGMENT_UNIVERSE_TREE = 2;
 
@@ -32,20 +32,28 @@ public class KContentKey {
         elem[3] = p_objID;
     }
 
-    public Long segmentID() {
+    public Long part0() {
         return elem[0];
     }
 
-    public Long universeID() {
+    public Long part1() {
         return elem[1];
     }
 
-    public Long timeID() {
+    public Long part2() {
         return elem[2];
     }
 
-    public Long objID() {
+    public Long part3() {
         return elem[3];
+    }
+
+    public Long part(int i) {
+        if (i >= 0 && i < ELEM_SIZE) {
+            return elem[i];
+        } else {
+            return null;
+        }
     }
 
     public static KContentKey createGlobal(Long p_prefixID) {

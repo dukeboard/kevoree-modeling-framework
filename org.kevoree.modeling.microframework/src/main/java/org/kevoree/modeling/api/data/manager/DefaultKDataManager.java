@@ -7,6 +7,7 @@ import org.kevoree.modeling.api.KScheduler;
 import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ThrowableCallback;
+import org.kevoree.modeling.api.data.cache.KCacheDirty;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.cache.KCacheObject;
@@ -138,16 +139,12 @@ public class DefaultKDataManager implements KDataManager {
 
     @Override
     public synchronized void save(Callback<Throwable> callback) {
-        KContentKey[] dirtiesKeys = _db.cache().dirties();
-        KContentPutRequest request = new KContentPutRequest(dirtiesKeys.length + 2);
-        for (int i = 0; i < dirtiesKeys.length; i++) {
-            if (dirtiesKeys[i] == null) {
-                System.err.println("KeyNull ? " + i + " on " + dirtiesKeys.length);
-            }
-
-            KCacheObject cachedObject = _db.cache().get(dirtiesKeys[i]);
+        KCacheDirty[] dirtiesEntries = _db.cache().dirties();
+        KContentPutRequest request = new KContentPutRequest(dirtiesEntries.length + 2);
+        for (int i = 0; i < dirtiesEntries.length; i++) {
+            KCacheObject cachedObject = dirtiesEntries[i].object;
             cachedObject.setClean();
-            request.put(dirtiesKeys[i], cachedObject.serialize());
+            request.put(dirtiesEntries[i].key, cachedObject.serialize());
         }
         request.put(KContentKey.createLastObjectIndexFromPrefix(_objectKeyCalculator.prefix()), "" + _objectKeyCalculator.lastComputedIndex());
         request.put(KContentKey.createLastUniverseIndexFromPrefix(_universeKeyCalculator.prefix()), "" + _universeKeyCalculator.lastComputedIndex());

@@ -9,7 +9,7 @@ public interface KCache {
 
     public void put(KContentKey key, KCacheObject payload);
 
-    public KContentKey[] dirties();
+    public KCacheDirty[] dirties();
 
     public void clearDataSegment();
 

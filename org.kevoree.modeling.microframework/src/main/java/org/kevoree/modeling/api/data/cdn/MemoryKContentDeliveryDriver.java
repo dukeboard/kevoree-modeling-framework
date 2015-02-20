@@ -2,9 +2,9 @@ package org.kevoree.modeling.api.data.cdn;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.data.cache.DefaultMemoryCache;
 import org.kevoree.modeling.api.data.cache.KCache;
 import org.kevoree.modeling.api.data.cache.KContentKey;
+import org.kevoree.modeling.api.data.cache.MultiLayeredMemoryCache;
 
 import java.util.HashMap;
 
@@ -83,7 +83,7 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
         backend.clear();
     }
 
-    private DefaultMemoryCache _cache = new DefaultMemoryCache();
+    private MultiLayeredMemoryCache _cache = new MultiLayeredMemoryCache();
 
     @Override
     public KCache cache() {
