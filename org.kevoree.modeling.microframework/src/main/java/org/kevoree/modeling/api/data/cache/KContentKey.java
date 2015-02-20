@@ -9,7 +9,7 @@ public class KContentKey {
 
     private Long[] elem = new Long[ELEM_SIZE];
 
-    public static final char KEY_SEP = ',';
+    public static final char KEY_SEP = '/';
 
     private static long GLOBAL_SEGMENT_META = 0;
 
@@ -89,18 +89,35 @@ public class KContentKey {
     }
 
     public static KContentKey create(String payload) {
-        String[] splittedPayload = payload.split(KEY_SEP + "");
-        if (splittedPayload.length != ELEM_SIZE) {
+        if (payload == null || payload.length() == 0) {
             return null;
         } else {
             Long[] temp = new Long[ELEM_SIZE];
-            for (int i = 0; i < ELEM_SIZE; i++) {
-                if (splittedPayload[i] != null && !splittedPayload[i].equals("")) {
-                    try {
-                        temp[i] = Long.parseLong(splittedPayload[i]);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+            int maxRead = payload.length();
+            int indexStartElem = -1;
+            int indexElem = 0;
+            for (int i = 0; i < maxRead; i++) {
+                if (payload.charAt(i) == KEY_SEP) {
+                    if (indexStartElem != -1) {
+                        try {
+                            temp[indexElem] = Long.parseLong(payload.substring(indexStartElem, i));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
+                    indexStartElem = -1;
+                    indexElem = indexElem + 1;
+                } else {
+                    if (indexStartElem == -1) {
+                        indexStartElem = i;
+                    }
+                }
+            }
+            if (indexStartElem != -1) {
+                try {
+                    temp[indexElem] = Long.parseLong(payload.substring(indexStartElem, maxRead));
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
             return new KContentKey(temp[0], temp[1], temp[2], temp[3]);

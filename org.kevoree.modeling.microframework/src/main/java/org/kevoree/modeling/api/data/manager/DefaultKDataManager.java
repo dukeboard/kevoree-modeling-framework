@@ -142,6 +142,10 @@ public class DefaultKDataManager implements KDataManager {
         KContentKey[] dirtiesKeys = _db.cache().dirties();
         KContentPutRequest request = new KContentPutRequest(dirtiesKeys.length + 2);
         for (int i = 0; i < dirtiesKeys.length; i++) {
+            if(dirtiesKeys[i]==null){
+                System.err.println("KeyNull ? "+i +" on "+dirtiesKeys.length);
+            }
+
             KCacheObject cachedObject = _db.cache().get(dirtiesKeys[i]);
             cachedObject.setClean();
             request.put(dirtiesKeys[i], cachedObject.serialize());
@@ -632,7 +636,7 @@ public class DefaultKDataManager implements KDataManager {
             @Override
             public void on(LongRBTree longRBTree) {
                 if (longRBTree == null) {
-                    callback.on(null);
+                    callback.on(new Exception("KMF ERROR, ROOT TREE CANNOT BE CREATED"));
                 } else {
                     Long closestUniverse = internal_resolve_universe(longRBTree, newRoot.now(), newRoot.universe().key());
                     if (closestUniverse != newRoot.universe().key()) {
@@ -641,6 +645,7 @@ public class DefaultKDataManager implements KDataManager {
                         newTimeTree.insert(newRoot.now(), newRoot.uuid());
                         KContentKey universeTreeRootKey = KContentKey.createRootTimeTree(newRoot.universe().key());
                         _db.cache().put(universeTreeRootKey, newTimeTree);
+                        callback.on(null);
                     } else {
                         KContentKey universeTreeRootKey = KContentKey.createRootTimeTree(closestUniverse);
                         internal_root_load(universeTreeRootKey, new Callback<LongRBTree>() {
@@ -650,6 +655,7 @@ public class DefaultKDataManager implements KDataManager {
                                     callback.on(new Exception("KMF ERROR, ROOT TREE CANNOT BE CREATED"));
                                 } else {
                                     longRBTree.insert(newRoot.now(), newRoot.uuid());
+                                    callback.on(null);
                                 }
                             }
                         });

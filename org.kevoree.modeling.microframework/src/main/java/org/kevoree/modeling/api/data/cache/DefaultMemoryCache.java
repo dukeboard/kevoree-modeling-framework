@@ -41,8 +41,15 @@ public class DefaultMemoryCache implements KCache {
         String[] elems = cache.keySet().toArray(new String[cache.keySet().size()]);
         for (int i = 0; i < elems.length; i++) {
             if (cache.get(elems[i]).isDirty()) {
-                result.add(KContentKey.create(elems[i]));
+                KContentKey createdKey = KContentKey.create(elems[i]);
+                if(createdKey == null){
+                    System.err.println("Null Key for "+elems[i]);
+                }
+                result.add(createdKey);
             }
+        }
+        if(DEBUG){
+            System.out.println("CACHE SIZE: "+cache.size()+", dirties:"+result);
         }
         return result.toArray(new KContentKey[result.size()]);
     }
