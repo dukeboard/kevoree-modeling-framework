@@ -76,28 +76,6 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public boolean isRoot() {
-        Object[] raw = _view.universe().model().storage().raw(this, AccessMode.READ);
-        if (raw != null) {
-            Boolean isRoot = (Boolean) raw[Index.IS_ROOT_INDEX];
-            if (isRoot == null) {
-                return false;
-            } else {
-                return isRoot;
-            }
-        } else {
-            return false;
-        }
-    }
-
-    public void setRoot(boolean isRoot) {
-        Object[] raw = _view.universe().model().storage().raw(this, AccessMode.WRITE);
-        if (raw != null) {
-            raw[Index.IS_ROOT_INDEX] = isRoot;
-        }
-    }
-
-    @Override
     public long now() {
         return _view.now();
     }
@@ -117,25 +95,21 @@ public abstract class AbstractKObject implements KObject {
         if (!Checker.isDefined(callback)) {
             return;
         }
-        if (isRoot()) {
-            callback.on("/");
-        } else {
-            parent(new Callback<KObject>() {
-                @Override
-                public void on(KObject parent) {
-                    if (parent == null) {
-                        callback.on(null);
-                    } else {
-                        parent.path(new Callback<String>() {
-                            @Override
-                            public void on(String parentPath) {
-                                callback.on(PathHelper.path(parentPath, referenceInParent(), AbstractKObject.this));
-                            }
-                        });
-                    }
+        parent(new Callback<KObject>() {
+            @Override
+            public void on(KObject parent) {
+                if (parent == null) {
+                    callback.on(null);
+                } else {
+                    parent.path(new Callback<String>() {
+                        @Override
+                        public void on(String parentPath) {
+                            callback.on(PathHelper.path(parentPath, referenceInParent(), AbstractKObject.this));
+                        }
+                    });
                 }
-            });
-        }
+            }
+        });
     }
 
     @Override
@@ -217,24 +191,20 @@ public abstract class AbstractKObject implements KObject {
         if (cleanedQuery.startsWith("/")) {
             cleanedQuery = cleanedQuery.substring(1);
         }
-        if (isRoot()) {
-            KSelector.select(this, cleanedQuery, callback);
-        } else {
-            if (query.startsWith("/")) {
-                final String finalCleanedQuery = cleanedQuery;
-                universe().model().storage().getRoot(this.view(), new Callback<KObject>() {
-                    @Override
-                    public void on(KObject rootObj) {
-                        if (rootObj == null) {
-                            callback.on(new KObject[0]);
-                        } else {
-                            KSelector.select(rootObj, finalCleanedQuery, callback);
-                        }
+        if (query.startsWith("/")) {
+            final String finalCleanedQuery = cleanedQuery;
+            universe().model().storage().getRoot(this.view(), new Callback<KObject>() {
+                @Override
+                public void on(KObject rootObj) {
+                    if (rootObj == null) {
+                        callback.on(new KObject[0]);
+                    } else {
+                        KSelector.select(rootObj, finalCleanedQuery, callback);
                     }
-                });
-            } else {
-                KSelector.select(this, query, callback);
-            }
+                }
+            });
+        } else {
+            KSelector.select(this, query, callback);
         }
     }
 

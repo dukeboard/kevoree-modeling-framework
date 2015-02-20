@@ -144,11 +144,13 @@ public class JsonModelLoader {
                                 }
                             } else if (metaKey.equals(JsonModelSerializer.KEY_ROOT)) {
                                 try {
+                                    /*
                                     if ("true".equals(payload_content)) {
                                         raw[Index.IS_ROOT_INDEX] = true;
                                     } else {
                                         raw[Index.IS_ROOT_INDEX] = false;
                                     }
+                                    */
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -197,12 +199,14 @@ public class JsonModelLoader {
                                 }
                             }
                         }
+                        /*
                         if (raw[Index.IS_ROOT_INDEX] == null) {
                             raw[Index.IS_ROOT_INDEX] = false;
                         }
                         if (raw[Index.IS_ROOT_INDEX].equals(true)) {
                             factory.setRoot(current, null);
                         }
+                        */
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

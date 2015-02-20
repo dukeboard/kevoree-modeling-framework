@@ -16,9 +16,7 @@ import org.kevoree.modeling.api.trace.TraceSequence;
 public interface KObject {
 
     public KUniverse universe();
-
-    public boolean isRoot();
-
+    
     public long uuid();
 
     public void path(Callback<String> callback);

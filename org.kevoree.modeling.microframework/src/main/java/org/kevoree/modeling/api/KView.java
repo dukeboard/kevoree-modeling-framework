@@ -34,6 +34,8 @@ public interface KView {
 
     public void setRoot(KObject elem, Callback<Throwable> callback);
 
+    public void getRoot(Callback<KObject> callback);
+
     public KTask<KObject> taskLookup(Long key);
 
     public KTask<KObject[]> taskLookupAll(Long[] keys);

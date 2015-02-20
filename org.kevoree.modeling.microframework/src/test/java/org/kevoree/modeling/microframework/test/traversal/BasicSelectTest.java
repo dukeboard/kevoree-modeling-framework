@@ -19,12 +19,25 @@ public class BasicSelectTest {
     public void rootSelectTest() throws Exception {
         CloudModel universe = new CloudModel();
         universe.connect(null);
-
         CloudUniverse dimension0 = universe.newUniverse();
         CloudView t0 = dimension0.time(0l);
         Node node = t0.createNode();
         node.setName("n0");
-        t0.setRoot(node, null);
+        t0.setRoot(node, new Callback<Throwable>() {
+            @Override
+            public void on(Throwable throwable) {
+                if (throwable != null) {
+                    throwable.printStackTrace();
+                }
+            }
+        });
+        t0.getRoot(new Callback<KObject>() {
+            @Override
+            public void on(KObject kObject) {
+                Assert.assertEquals(kObject.uuid(), node.uuid());
+                Assert.assertEquals(kObject, node);
+            }
+        });
         t0.select("/", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] kObjects) {

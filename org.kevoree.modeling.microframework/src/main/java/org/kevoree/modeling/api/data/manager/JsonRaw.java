@@ -107,11 +107,13 @@ public class JsonRaw {
                     }
                 } else if (metaKeys[i].equals(JsonModelSerializer.KEY_ROOT)) {
                     try {
+                        /*
                         if ("true".equals(content.get(metaKeys[i]))) {
                             entry.raw[Index.IS_ROOT_INDEX] = true;
                         } else {
                             entry.raw[Index.IS_ROOT_INDEX] = false;
                         }
+                        */
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -168,11 +170,13 @@ public class JsonRaw {
         builder.append("\",\n");
         builder.append("\t\t\"" + JsonModelSerializer.KEY_UUID + "\": \"");
         builder.append(uuid);
+        /*
         if (raw[Index.IS_ROOT_INDEX] != null && raw[Index.IS_ROOT_INDEX].toString().equals("true")) {
             builder.append("\",\n");
             builder.append("\t\t\"" + JsonModelSerializer.KEY_ROOT + "\": \"");
             builder.append("true");
         }
+        */
         if (raw[Index.PARENT_INDEX] != null) {
             builder.append("\",\n");
             builder.append("\t\t\"" + JsonModelSerializer.PARENT_META + "\": \"");

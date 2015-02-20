@@ -48,8 +48,12 @@ public abstract class AbstractKView implements KView {
     @Override
     public void setRoot(KObject elem, Callback<Throwable> callback) {
         ((AbstractKObject) elem).set_parent(null, null);
-        ((AbstractKObject) elem).setRoot(true);
         universe().model().storage().setRoot(elem, callback);
+    }
+
+    @Override
+    public void getRoot(Callback<KObject> callback) {
+        universe().model().storage().getRoot(this, callback);
     }
 
     @Override

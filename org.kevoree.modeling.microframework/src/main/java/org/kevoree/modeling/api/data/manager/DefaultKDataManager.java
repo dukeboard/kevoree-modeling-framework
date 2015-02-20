@@ -549,65 +549,96 @@ public class DefaultKDataManager implements KDataManager {
         return currentUniverse;
     }
 
-    private void resolve_roots(final KUniverse p_universe, final Callback<LongRBTree> callback) {
-        /*
-        UniverseCache universeCache = cache.universeCache.get(p_universe.key());
-        if (universeCache != null && universeCache.roots != null) {
-            //If value is already in cache, return it
-            callback.on(universeCache.roots);
-        } else {
-            //otherwise, load it from DB
-            String[] keys = new String[1];
-            keys[0] = keyRoot(p_universe.key());
-            _db.get(keys, new ThrowableCallback<String[]>() {
+    public void internal_root_load(KContentKey contentKey, Callback<LongRBTree> callback) {
+        LongRBTree rootUniverseTree = (LongRBTree) _db.cache().get(contentKey);
+        if (rootUniverseTree == null) {
+            KContentKey[] requestKeys = new KContentKey[1];
+            requestKeys[0] = contentKey;
+            _db.get(requestKeys, new ThrowableCallback<String[]>() {
                 @Override
-                public void on(String[] res, Throwable error) { //TODO process error
-                    LongRBTree tree = new LongRBTree();
+                public void on(String[] strings, Throwable error) {
                     if (error != null) {
                         error.printStackTrace();
+                        callback.on(null);
                     } else {
-                        if (res != null && res.length == 1 && res[0] != null && !res[0].equals("")) {
-                            try {
-                                tree.unserialize(res[0]);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+                        LongRBTree newRootUniverseTree = new LongRBTree();
+                        try {
+                            newRootUniverseTree.unserialize(strings[0]);
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
+                        _db.cache().put(contentKey, newRootUniverseTree);
+                        callback.on(newRootUniverseTree);
                     }
-                    write_roots(p_universe.key(), tree);
-                    callback.on(tree);
                 }
             });
+        } else {
+            callback.on(rootUniverseTree);
         }
-        */
-    }
-
-    @Override
-    public void setRoot(KObject newRoot, Callback<Throwable> callback) {
-        resolve_roots(newRoot.universe(), new Callback<LongRBTree>() {
-            @Override
-            public void on(LongRBTree longRBTree) {
-                longRBTree.insert(newRoot.now(), newRoot.uuid());
-                ((AbstractKObject) newRoot).setRoot(true);
-                if (callback != null) {
-                    callback.on(null);
-                }
-            }
-        });
     }
 
     public void getRoot(final KView originView, final Callback<KObject> callback) {
-        resolve_roots(originView.universe(), new Callback<LongRBTree>() {
+        KContentKey universeTreeRootKey = KContentKey.createRootUniverseTree();
+        internal_root_load(universeTreeRootKey, new Callback<LongRBTree>() {
             @Override
             public void on(LongRBTree longRBTree) {
                 if (longRBTree == null) {
                     callback.on(null);
                 } else {
-                    LongTreeNode resolved = longRBTree.previousOrEqual(originView.now());
-                    if (resolved == null) {
+                    Long closestUniverse = internal_resolve_universe(longRBTree, originView.now(), originView.universe().key());
+                    if (closestUniverse == null) {
                         callback.on(null);
                     } else {
-                        lookup(originView, resolved.value, callback);
+                        KContentKey universeTreeRootKey = KContentKey.createRootTimeTree(closestUniverse);
+                        internal_root_load(universeTreeRootKey, new Callback<LongRBTree>() {
+                            @Override
+                            public void on(LongRBTree longRBTree) {
+                                if (longRBTree == null) {
+                                    callback.on(null);
+                                } else {
+                                    Long closestObjectID = longRBTree.lookup(originView.now());
+                                    if (closestObjectID == null) {
+                                        callback.on(null);
+                                    } else {
+                                        lookup(originView, closestObjectID, callback);
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public void setRoot(KObject newRoot, Callback<Throwable> callback) {
+        KContentKey universeTreeRootKey = KContentKey.createRootUniverseTree();
+        internal_root_load(universeTreeRootKey, new Callback<LongRBTree>() {
+            @Override
+            public void on(LongRBTree longRBTree) {
+                if (longRBTree == null) {
+                    callback.on(null);
+                } else {
+                    Long closestUniverse = internal_resolve_universe(longRBTree, newRoot.now(), newRoot.universe().key());
+                    if (closestUniverse != newRoot.universe().key()) {
+                        longRBTree.insert(newRoot.universe().key(), newRoot.now());
+                        LongRBTree newTimeTree = new LongRBTree();
+                        newTimeTree.insert(newRoot.now(), newRoot.uuid());
+                        KContentKey universeTreeRootKey = KContentKey.createRootTimeTree(newRoot.universe().key());
+                        _db.cache().put(universeTreeRootKey, newTimeTree);
+                    } else {
+                        KContentKey universeTreeRootKey = KContentKey.createRootTimeTree(closestUniverse);
+                        internal_root_load(universeTreeRootKey, new Callback<LongRBTree>() {
+                            @Override
+                            public void on(LongRBTree longRBTree) {
+                                if (longRBTree == null) {
+                                    callback.on(new Exception("KMF ERROR, ROOT TREE CANNOT BE CREATED"));
+                                } else {
+                                    longRBTree.insert(newRoot.now(), newRoot.uuid());
+                                }
+                            }
+                        });
                     }
                 }
             }
