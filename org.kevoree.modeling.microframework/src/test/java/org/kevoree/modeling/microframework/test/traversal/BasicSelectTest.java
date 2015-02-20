@@ -45,6 +45,13 @@ public class BasicSelectTest {
             }
         });
         CloudView t1 = dimension0.time(1l);
+        t1.getRoot(new Callback<KObject>() {
+            @Override
+            public void on(KObject kObject) {
+                Assert.assertEquals(node.uuid(), kObject.uuid());
+                Assert.assertEquals(t1.now(), kObject.now());
+            }
+        });
         t1.select("/", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] kObjects) {
@@ -52,7 +59,6 @@ public class BasicSelectTest {
                 Assert.assertEquals(t1.now(), kObjects[0].now());
             }
         });
-
     }
 
 
@@ -73,7 +79,6 @@ public class BasicSelectTest {
         final Node node3 = t0.createNode();
         node3.setName("n2");
         node2.addChildren(node3);
-
 
         Node node4 = t0.createNode();
         node4.setName("n4");

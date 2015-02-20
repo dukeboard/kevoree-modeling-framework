@@ -21,6 +21,7 @@ import org.kevoree.modeling.api.scheduler.DirectScheduler;
 import org.kevoree.modeling.api.time.rbtree.IndexRBTree;
 import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 import org.kevoree.modeling.api.time.rbtree.LongTreeNode;
+import org.kevoree.modeling.api.time.rbtree.TreeNode;
 import org.kevoree.modeling.api.util.DefaultOperationManager;
 import org.kevoree.modeling.api.util.KOperationManager;
 
@@ -312,10 +313,17 @@ public class DefaultKDataManager implements KDataManager {
         if (timeTree == null) {
             throw new RuntimeException(OUT_OF_CACHE_MESSAGE + " : TimeTree not found for " + KContentKey.createTimeTree(resolvedUniverse, origin.uuid()) + " from " + origin.universe().key() + "/" + resolvedUniverse);
         }
-        long resolvedTime = timeTree.lookup(origin.now());
+        TreeNode resolvedNode = timeTree.previousOrEqual(origin.now());
+        Long resolvedTime;
+        if (resolvedNode != null) {
+            resolvedTime = resolvedNode.getKey();
+        } else {
+            System.err.println(OUT_OF_CACHE_MESSAGE + " Time not resolved " + origin.now());
+            return null;
+        }
         boolean needTimeCopy = accessMode.equals(AccessMode.WRITE) && (resolvedTime != origin.now());
         boolean needUniverseCopy = accessMode.equals(AccessMode.WRITE) && (resolvedUniverse != origin.universe().key());
-        KCacheEntry entry = (KCacheEntry) _db.cache().get(KContentKey.createObject(origin.universe().key(), origin.now(), origin.uuid()));
+        KCacheEntry entry = (KCacheEntry) _db.cache().get(KContentKey.createObject(resolvedUniverse, resolvedTime, origin.uuid()));
         if (entry == null) {
             System.err.println(OUT_OF_CACHE_MESSAGE);
             return null;
@@ -492,7 +500,10 @@ public class DefaultKDataManager implements KDataManager {
                     IndexRBTree cachedIndexTree = (IndexRBTree) _db.cache().get(timeObjectTreeKey);
                     if (cachedIndexTree != null) {
                         tempResult[i].timeTree = cachedIndexTree;
-                        tempResult[i].resolvedQuanta = cachedIndexTree.lookup(originView.now());
+                        TreeNode resolvedNode = cachedIndexTree.previousOrEqual(originView.now());
+                        if (resolvedNode != null) {
+                            tempResult[i].resolvedQuanta = resolvedNode.getKey();
+                        }
                     } else {
                         if (toLoadIndexTimes == null) {
                             toLoadIndexTimes = new ArrayList<Integer>();
@@ -531,7 +542,10 @@ public class DefaultKDataManager implements KDataManager {
                             }
                             int initialIndex = finalToLoadIndexTimes.get(i);
                             tempResult[initialIndex].timeTree = newLoadedTree;
-                            tempResult[initialIndex].resolvedQuanta = newLoadedTree.lookup(originView.now());
+                            TreeNode resolvedNode = newLoadedTree.previousOrEqual(originView.now());
+                            if (resolvedNode != null) {
+                                tempResult[initialIndex].resolvedQuanta = resolvedNode.getKey();
+                            }
                             _db.cache().put(finalToLoadTimeTrees.get(i), newLoadedTree);
                         }
                         callback.on(tempResult);
@@ -596,11 +610,11 @@ public class DefaultKDataManager implements KDataManager {
                                 if (longRBTree == null) {
                                     callback.on(null);
                                 } else {
-                                    Long closestObjectID = longRBTree.lookup(originView.now());
-                                    if (closestObjectID == null) {
+                                    LongTreeNode resolvedNode = longRBTree.previousOrEqual(originView.now());
+                                    if (resolvedNode == null) {
                                         callback.on(null);
                                     } else {
-                                        lookup(originView, closestObjectID, callback);
+                                        lookup(originView, resolvedNode.value, callback);
                                     }
                                 }
                             }
