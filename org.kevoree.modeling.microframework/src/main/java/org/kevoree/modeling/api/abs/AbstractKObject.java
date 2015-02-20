@@ -410,21 +410,25 @@ public abstract class AbstractKObject implements KObject {
                                 }
                                 //Inbound
                                 Object[] rawParam = view().universe().model().storage().raw(resolvedParam, AccessMode.WRITE);
-                                Set<Long> previousInbounds;
-                                if (rawParam[Index.INBOUNDS_INDEX] != null && rawParam[Index.INBOUNDS_INDEX] instanceof Set) {
+                                Set<Long> previousInbounds = null;
+                                if (rawParam != null && rawParam[Index.INBOUNDS_INDEX] != null && rawParam[Index.INBOUNDS_INDEX] instanceof Set) {
                                     previousInbounds = (Set<Long>) rawParam[Index.INBOUNDS_INDEX];
                                 } else {
-                                    if (rawParam[Index.INBOUNDS_INDEX] != null) {
-                                        try {
-                                            throw new Exception("Bad cache values in KMF, " + rawParam[Index.INBOUNDS_INDEX] + " is not an instance of Set for the INBOUNDS storage");
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
+                                    if(rawParam!= null){
+                                        if (rawParam[Index.INBOUNDS_INDEX] != null) {
+                                            try {
+                                                throw new Exception("Bad cache values in KMF, " + rawParam[Index.INBOUNDS_INDEX] + " is not an instance of Set for the INBOUNDS storage");
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                         }
+                                        previousInbounds = new HashSet<Long>();
+                                        rawParam[Index.INBOUNDS_INDEX] = previousInbounds;
                                     }
-                                    previousInbounds = new HashSet<Long>();
-                                    rawParam[Index.INBOUNDS_INDEX] = previousInbounds;
                                 }
-                                previousInbounds.remove(_uuid);
+                                if(previousInbounds != null){
+                                    previousInbounds.remove(_uuid);
+                                }
                             }
                         }
                     });

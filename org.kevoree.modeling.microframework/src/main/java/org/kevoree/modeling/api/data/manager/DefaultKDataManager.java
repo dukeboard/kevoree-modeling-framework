@@ -336,7 +336,7 @@ public class DefaultKDataManager implements KDataManager {
             return payload;
         }
         if (payload == null) {
-            System.err.println(DELETED_MESSAGE);
+            //System.err.println(DELETED_MESSAGE);
             return null;
         } else {
             if (!needTimeCopy && !needUniverseCopy) {
