@@ -642,17 +642,23 @@ public class DefaultKDataManager implements KDataManager {
                         newTimeTree.insert(newRoot.now(), newRoot.uuid());
                         KContentKey universeTreeRootKey = KContentKey.createRootTimeTree(newRoot.universe().key());
                         _db.cache().put(universeTreeRootKey, newTimeTree);
-                        callback.on(null);
+                        if(callback != null){
+                            callback.on(null);
+                        }
                     } else {
                         KContentKey universeTreeRootKey = KContentKey.createRootTimeTree(closestUniverse);
                         internal_root_load(universeTreeRootKey, new Callback<LongRBTree>() {
                             @Override
                             public void on(LongRBTree longRBTree) {
                                 if (longRBTree == null) {
-                                    callback.on(new Exception("KMF ERROR, ROOT TREE CANNOT BE CREATED"));
+                                    if(callback != null){
+                                        callback.on(new Exception("KMF ERROR, ROOT TREE CANNOT BE CREATED"));
+                                    }
                                 } else {
                                     longRBTree.insert(newRoot.now(), newRoot.uuid());
-                                    callback.on(null);
+                                    if(callback != null){
+                                        callback.on(null);
+                                    }
                                 }
                             }
                         });

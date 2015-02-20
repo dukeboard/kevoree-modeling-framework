@@ -19,9 +19,6 @@ public class DeleteTest {
 
     @Test
     public void basicDeleteTest() {
-
-        DefaultMemoryCache.DEBUG = true;
-
         CloudModel model = new CloudModel();
         model.connect(new Callback<Throwable>() {
             @Override
@@ -50,8 +47,6 @@ public class DeleteTest {
                                                     n2.setElement(e);
                                                 }
                                             });
-
-
                                             model.save(new Callback<Throwable>() {
                                                 @Override
                                                 public void on(Throwable aBoolean) {
@@ -160,13 +155,6 @@ public class DeleteTest {
                 CloudView factory = universe.time(0l);
                 Node n = factory.createNode();
                 n.setName("n");
-                factory.lookup(n.uuid(), new Callback<KObject>() {
-                    @Override
-                    public void on(KObject kObject) {
-                        System.err.println(kObject);
-                        System.err.println(kObject.uuid());
-                    }
-                });
                 factory.setRoot(n, null);
                 Node n2 = factory.createNode();
                 n2.setName("n2");
