@@ -32,8 +32,6 @@ import java.util.List;
  */
 public class DefaultKDataManager implements KDataManager {
 
-    public static final char KEY_SEP = ',';
-
     private KContentDeliveryDriver _db;
     private KEventBroker _eventBroker;
     private KOperationManager _operationManager;
@@ -392,38 +390,6 @@ public class DefaultKDataManager implements KDataManager {
         this._scheduler.dispatch(new LookupAllRunnable(originView, keys, callback, this));
     }
 
-    public void getRoot(final KView originView, final Callback<KObject> callback) {
-        resolve_roots(originView.universe(), new Callback<LongRBTree>() {
-            @Override
-            public void on(LongRBTree longRBTree) {
-                if (longRBTree == null) {
-                    callback.on(null);
-                } else {
-                    LongTreeNode resolved = longRBTree.previousOrEqual(originView.now());
-                    if (resolved == null) {
-                        callback.on(null);
-                    } else {
-                        lookup(originView, resolved.value, callback);
-                    }
-                }
-            }
-        });
-    }
-
-    @Override
-    public void setRoot(KObject newRoot, Callback<Throwable> callback) {
-        resolve_roots(newRoot.universe(), new Callback<LongRBTree>() {
-            @Override
-            public void on(LongRBTree longRBTree) {
-                longRBTree.insert(newRoot.now(), newRoot.uuid());
-                ((AbstractKObject) newRoot).setRoot(true);
-                if (callback != null) {
-                    callback.on(null);
-                }
-            }
-        });
-    }
-
     @Override
     public KEventBroker eventBroker() {
         return _eventBroker;
@@ -614,6 +580,38 @@ public class DefaultKDataManager implements KDataManager {
             });
         }
         */
+    }
+
+    @Override
+    public void setRoot(KObject newRoot, Callback<Throwable> callback) {
+        resolve_roots(newRoot.universe(), new Callback<LongRBTree>() {
+            @Override
+            public void on(LongRBTree longRBTree) {
+                longRBTree.insert(newRoot.now(), newRoot.uuid());
+                ((AbstractKObject) newRoot).setRoot(true);
+                if (callback != null) {
+                    callback.on(null);
+                }
+            }
+        });
+    }
+
+    public void getRoot(final KView originView, final Callback<KObject> callback) {
+        resolve_roots(originView.universe(), new Callback<LongRBTree>() {
+            @Override
+            public void on(LongRBTree longRBTree) {
+                if (longRBTree == null) {
+                    callback.on(null);
+                } else {
+                    LongTreeNode resolved = longRBTree.previousOrEqual(originView.now());
+                    if (resolved == null) {
+                        callback.on(null);
+                    } else {
+                        lookup(originView, resolved.value, callback);
+                    }
+                }
+            }
+        });
     }
 
 }
