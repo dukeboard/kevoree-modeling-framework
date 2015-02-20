@@ -50,7 +50,12 @@ public class ParentStorageTest {
         cloudModel.discard(new Callback<Throwable>() {
             @Override
             public void on(Throwable aBoolean) {
-
+                time0.lookup(n1.uuid(), new Callback<KObject>() {
+                    @Override
+                    public void on(KObject r_n1) {
+                        Assert.assertNull(r_n1);
+                    }
+                });
             }
         });
 
@@ -62,12 +67,7 @@ public class ParentStorageTest {
             Assert.assertNotNull(e);
         }*/
 
-        time0.lookup(n1.uuid(), new Callback<KObject>() {
-            @Override
-            public void on(KObject r_n1) {
-                Assert.assertNull(r_n1);
-            }
-        });
+
     }
 
     @Test

@@ -99,7 +99,7 @@ public abstract class AbstractKObject implements KObject {
             @Override
             public void on(KObject parent) {
                 if (parent == null) {
-                    callback.on(null);
+                    callback.on("/");
                 } else {
                     parent.path(new Callback<String>() {
                         @Override
@@ -414,7 +414,7 @@ public abstract class AbstractKObject implements KObject {
                                 if (rawParam != null && rawParam[Index.INBOUNDS_INDEX] != null && rawParam[Index.INBOUNDS_INDEX] instanceof Set) {
                                     previousInbounds = (Set<Long>) rawParam[Index.INBOUNDS_INDEX];
                                 } else {
-                                    if(rawParam!= null){
+                                    if (rawParam != null) {
                                         if (rawParam[Index.INBOUNDS_INDEX] != null) {
                                             try {
                                                 throw new Exception("Bad cache values in KMF, " + rawParam[Index.INBOUNDS_INDEX] + " is not an instance of Set for the INBOUNDS storage");
@@ -426,7 +426,7 @@ public abstract class AbstractKObject implements KObject {
                                         rawParam[Index.INBOUNDS_INDEX] = previousInbounds;
                                     }
                                 }
-                                if(previousInbounds != null){
+                                if (previousInbounds != null) {
                                     previousInbounds.remove(_uuid);
                                 }
                             }
@@ -667,7 +667,7 @@ public abstract class AbstractKObject implements KObject {
     public String toJSON() {
         Object[] raw = view().universe().model().storage().raw(this, AccessMode.READ);
         if (raw != null) {
-            return JsonRaw.encode(raw, _uuid, _metaClass, true);
+            return JsonRaw.encode(raw, _uuid, _metaClass, true, false);
         } else {
             return "";
         }
