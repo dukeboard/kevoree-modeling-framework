@@ -71,6 +71,7 @@ public class JsonModelLoader {
                     }
                     currentToken = lexer.nextToken();
                 }
+                KObject rootElem = null;
                 Map<Long, Long> mappedKeys = new HashMap<Long, Long>();
                 for (int i = 0; i < alls.size(); i++) {
                     try {
@@ -143,16 +144,8 @@ public class JsonModelLoader {
                                     e.printStackTrace();
                                 }
                             } else if (metaKey.equals(JsonModelSerializer.KEY_ROOT)) {
-                                try {
-                                    /*
-                                    if ("true".equals(payload_content)) {
-                                        raw[Index.IS_ROOT_INDEX] = true;
-                                    } else {
-                                        raw[Index.IS_ROOT_INDEX] = false;
-                                    }
-                                    */
-                                } catch (Exception e) {
-                                    e.printStackTrace();
+                                if("true".equals(payload_content)){
+                                    rootElem = current;
                                 }
                             } else if (metaKey.equals(JsonModelSerializer.KEY_META)) {
                                 //nothing metaClass is already set
@@ -199,20 +192,23 @@ public class JsonModelLoader {
                                 }
                             }
                         }
-                        /*
-                        if (raw[Index.IS_ROOT_INDEX] == null) {
-                            raw[Index.IS_ROOT_INDEX] = false;
-                        }
-                        if (raw[Index.IS_ROOT_INDEX].equals(true)) {
-                            factory.setRoot(current, null);
-                        }
-                        */
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
-                if (callback != null) {
-                    callback.on(null);
+                if(rootElem != null){
+                    factory.setRoot(rootElem, new Callback<Throwable>() {
+                        @Override
+                        public void on(Throwable throwable) {
+                            if (callback != null) {
+                                callback.on(throwable);
+                            }
+                        }
+                    });
+                } else {
+                    if (callback != null) {
+                        callback.on(null);
+                    }
                 }
             }
         }
