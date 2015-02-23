@@ -40,12 +40,8 @@ public interface KContentDeliveryDriver {
 
     void notify(KEvent event);
 
-    void flush();
+    void sendOperationEvent(KEvent operationEvent);
 
     void setManager(KDataManager manager);
-
-    void setMetaModel(MetaModel metaModel);
-
-    void sendOperationEvent(KEvent operationEvent);
 
 }

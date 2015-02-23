@@ -139,8 +139,7 @@ public class DefaultKDataManager implements KDataManager {
         _db.put(request, new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
-                _db.flush();
-                callback.on(throwable);
+                _db.commit(callback);
             }
         });
     }

@@ -7,7 +7,7 @@ import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KOperation;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.data.manager.KDataManager;
-import org.kevoree.modeling.api.event.DefaultKEvent;
+import org.kevoree.modeling.api.abs.AbstractKEvent;
 import org.kevoree.modeling.api.meta.MetaOperation;
 
 import java.util.ArrayList;
@@ -96,7 +96,7 @@ public class DefaultOperationManager implements KOperationManager {
             }
         }
         sb.append("]");
-        DefaultKEvent operationCallEvent = new DefaultKEvent(KActionType.CALL, source, operation, sb.toString());
+        AbstractKEvent operationCallEvent = new AbstractKEvent(KActionType.CALL, source, operation, sb.toString());
         _manager.cdn().sendOperationEvent(operationCallEvent);
     }
 
@@ -173,7 +173,7 @@ public class DefaultOperationManager implements KOperationManager {
                             Object[] params = parseParams((String) operationEvent.value());
                             operationCore.on(kObject, params, new Callback<Object>() {
                                 public void on(Object o) {
-                                    DefaultKEvent operationCallResponseEvent = new DefaultKEvent(KActionType.CALL_RESPONSE, kObject, operationEvent.metaElement(), "[\"" + protectString(o.toString()) + "\"]");
+                                    AbstractKEvent operationCallResponseEvent = new AbstractKEvent(KActionType.CALL_RESPONSE, kObject, operationEvent.metaElement(), "[\"" + protectString(o.toString()) + "\"]");
                                     _manager.cdn().sendOperationEvent(operationCallResponseEvent);
                                 }
                             });

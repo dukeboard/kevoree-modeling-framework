@@ -1,9 +1,13 @@
 package org.kevoree.modeling.api.data.manager;
 
-import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KModel;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KScheduler;
+import org.kevoree.modeling.api.KUniverse;
+import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
-import org.kevoree.modeling.api.event.KEventBroker;
 import org.kevoree.modeling.api.util.KOperationManager;
 
 /**

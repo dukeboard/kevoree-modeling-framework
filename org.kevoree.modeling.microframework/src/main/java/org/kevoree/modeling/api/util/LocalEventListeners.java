@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.event;
+package org.kevoree.modeling.api.util;
 
 import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.ModelListener;

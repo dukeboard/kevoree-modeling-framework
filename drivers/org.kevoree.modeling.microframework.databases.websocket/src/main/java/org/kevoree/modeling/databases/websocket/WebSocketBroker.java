@@ -15,8 +15,8 @@ import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.data.manager.KDataManager;
-import org.kevoree.modeling.api.event.LocalEventListeners;
-import org.kevoree.modeling.api.event.DefaultKEvent;
+import org.kevoree.modeling.api.util.LocalEventListeners;
+import org.kevoree.modeling.api.abs.AbstractKEvent;
 import org.kevoree.modeling.api.event.KEventBroker;
 import org.kevoree.modeling.api.meta.MetaModel;
 
@@ -165,7 +165,7 @@ public class WebSocketBroker extends AbstractReceiveListener implements KEventBr
         JsonObject jsonMessage = JsonObject.readFrom(messageData);
         JsonArray events = jsonMessage.get("events").asArray();
         for (int i = 0; i < events.size(); i++) {
-            KEvent event = DefaultKEvent.fromJSON(events.get(i).asString(), this._metaModel);
+            KEvent event = AbstractKEvent.fromJSON(events.get(i).asString(), this._metaModel);
             if (event.actionType() == KActionType.CALL
                     || event.actionType() == KActionType.CALL_RESPONSE) {
                 _store.operationManager().operationEventReceived(event);

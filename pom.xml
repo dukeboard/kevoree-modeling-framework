@@ -85,17 +85,17 @@
         <module>org.kevoree.modeling.generator.mavenplugin</module>
 
         <!-- DataStores -->
-        <module>databases/org.kevoree.modeling.microframework.databases.leveldb</module>
-        <module>databases/org.kevoree.modeling.microframework.databases.rocksdb</module>
-        <module>databases/org.kevoree.modeling.microframework.databases.redis</module>
-        <module>databases/org.kevoree.modeling.microframework.databases.mongodb</module>
-        <module>databases/org.kevoree.modeling.microframework.databases.websocket</module>
-        <module>databases/org.kevoree.modeling.microframework.databases.chronicle</module>
-        <module>databases/org.kevoree.modeling.microframework.databases.voldemort</module>
-        <module>databases/org.kevoree.modeling.microframework.databases.webrtc</module>
-        <module>databases/org.kevoree.modeling.microframework.databases.dht.openChord</module>
-        <module>databases/org.kevoree.modeling.microframework.databases.dht.freepastry</module>
-        <module>databases/org.kevoree.modeling.microframework.databases.dht.hyperbolic</module>
+        <module>drivers/org.kevoree.modeling.microframework.databases.leveldb</module>
+        <module>drivers/org.kevoree.modeling.microframework.databases.rocksdb</module>
+        <module>drivers/org.kevoree.modeling.microframework.databases.redis</module>
+        <module>drivers/org.kevoree.modeling.microframework.databases.mongodb</module>
+        <module>drivers/org.kevoree.modeling.microframework.databases.websocket</module>
+        <module>drivers/org.kevoree.modeling.microframework.databases.chronicle</module>
+        <module>drivers/org.kevoree.modeling.microframework.databases.voldemort</module>
+        <module>drivers/org.kevoree.modeling.microframework.databases.webrtc</module>
+        <module>drivers/org.kevoree.modeling.microframework.databases.dht.openChord</module>
+        <module>drivers/org.kevoree.modeling.microframework.databases.dht.freepastry</module>
+        <module>drivers/org.kevoree.modeling.microframework.databases.dht.hyperbolic</module>
         <!-- End DataStores -->
 
     </modules>

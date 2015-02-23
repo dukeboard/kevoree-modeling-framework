@@ -10,8 +10,8 @@ import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.data.manager.KDataManager;
-import org.kevoree.modeling.api.event.LocalEventListeners;
-import org.kevoree.modeling.api.event.DefaultKEvent;
+import org.kevoree.modeling.api.util.LocalEventListeners;
+import org.kevoree.modeling.api.abs.AbstractKEvent;
 import org.kevoree.modeling.api.event.KEventBroker;
 import org.kevoree.modeling.api.meta.MetaModel;
 
@@ -77,7 +77,7 @@ public class WebSocketBrokerClient implements KEventBroker {
                     JsonArray events = message.get("events").asArray();
                     for (int i = 0; i < events.size(); i++) {
                         System.out.println(events.get(i).asString());
-                        KEvent kEvent = DefaultKEvent.fromJSON(events.get(i).asString(), _metaModel);
+                        KEvent kEvent = AbstractKEvent.fromJSON(events.get(i).asString(), _metaModel);
                         if (kEvent.actionType() == KActionType.CALL
                                 || kEvent.actionType() == KActionType.CALL_RESPONSE) {
                             _store.operationManager().operationEventReceived(kEvent);

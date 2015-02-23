@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.event;
+package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.KObject;
@@ -13,7 +13,7 @@ import org.kevoree.modeling.api.trace.ModelNewTrace;
 import org.kevoree.modeling.api.trace.ModelSetTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
 
-public class DefaultKEvent implements KEvent {
+public class AbstractKEvent implements KEvent {
 
     private Long _dimensionKey;
     private Long _time;
@@ -23,7 +23,7 @@ public class DefaultKEvent implements KEvent {
     private Meta _metaElement;
     private Object _value;
     
-    public DefaultKEvent(KActionType p_type, KObject p_source, Meta p_meta, Object p_newValue) {
+    public AbstractKEvent(KActionType p_type, KObject p_source, Meta p_meta, Object p_newValue) {
         if (p_source != null) {
             this._dimensionKey = p_source.universe().key();
             this._time = p_source.now();
@@ -101,7 +101,7 @@ public class DefaultKEvent implements KEvent {
         JsonToken currentToken = lexer.nextToken();
         if (currentToken.tokenType() == Type.LEFT_BRACE) {
             String currentAttributeName = null;
-            DefaultKEvent event = new DefaultKEvent(null, null, null, null);
+            AbstractKEvent event = new AbstractKEvent(null, null, null, null);
             currentToken = lexer.nextToken();
             while (currentToken.tokenType() != Type.EOF) {
                 if (currentToken.tokenType() == Type.VALUE) {
@@ -119,7 +119,7 @@ public class DefaultKEvent implements KEvent {
         return null;
     }
 
-    private static void setEventAttribute(DefaultKEvent event, String currentAttributeName, String value, MetaModel metaModel) {
+    private static void setEventAttribute(AbstractKEvent event, String currentAttributeName, String value, MetaModel metaModel) {
         if (currentAttributeName.equals(DIMENSION_KEY)) {
             event._dimensionKey = Long.parseLong(value);
         } else if (currentAttributeName.equals(TIME_KEY)) {

@@ -4,14 +4,11 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.abs.AbstractKObject;
-import org.kevoree.modeling.api.abs.AbstractKUniverse;
-import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.data.cache.KCache;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.cache.MultiLayeredMemoryCache;
 import org.kevoree.modeling.api.data.manager.KDataManager;
-import org.kevoree.modeling.api.event.LocalEventListeners;
+import org.kevoree.modeling.api.util.LocalEventListeners;
 import org.kevoree.modeling.api.meta.MetaModel;
 
 import java.util.HashMap;
@@ -118,22 +115,12 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void flush() {
-        //noop in memory
+    public void sendOperationEvent(KEvent operationEvent) {
+
     }
 
     @Override
     public void setManager(KDataManager manager) {
-
-    }
-
-    @Override
-    public void setMetaModel(MetaModel metaModel) {
-
-    }
-
-    @Override
-    public void sendOperationEvent(KEvent operationEvent) {
 
     }
 
