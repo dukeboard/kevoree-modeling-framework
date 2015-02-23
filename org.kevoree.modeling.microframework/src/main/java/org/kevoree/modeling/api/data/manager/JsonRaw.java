@@ -160,16 +160,18 @@ public class JsonRaw {
         }
     }
 
-    public static String encode(Object[] raw, long uuid, MetaClass p_metaClass, boolean endline, boolean isRoot) {
+    public static String encode(Object[] raw, Long uuid, MetaClass p_metaClass, boolean endline, boolean isRoot) {
         MetaReference[] metaReferences = p_metaClass.metaReferences();
         MetaAttribute[] metaAttributes = p_metaClass.metaAttributes();
         StringBuilder builder = new StringBuilder();
         builder.append("\t{\n");
         builder.append("\t\t\"" + JsonModelSerializer.KEY_META + "\": \"");
         builder.append(p_metaClass.metaName());
-        builder.append("\",\n");
-        builder.append("\t\t\"" + JsonModelSerializer.KEY_UUID + "\": \"");
-        builder.append(uuid);
+        if (uuid != null) {
+            builder.append("\",\n");
+            builder.append("\t\t\"" + JsonModelSerializer.KEY_UUID + "\": \"");
+            builder.append(uuid);
+        }
         if (isRoot) {
             builder.append("\",\n");
             builder.append("\t\t\"" + JsonModelSerializer.KEY_ROOT + "\": \"");

@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.data.cache;
 
 import org.kevoree.modeling.api.KInferState;
+import org.kevoree.modeling.api.data.manager.JsonRaw;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 
@@ -29,7 +30,7 @@ public class KCacheEntry implements KCacheObject {
 
     @Override
     public String serialize() {
-        return null;
+        return JsonRaw.encode(raw, null, metaClass, true, false);
     }
 
     @Override
