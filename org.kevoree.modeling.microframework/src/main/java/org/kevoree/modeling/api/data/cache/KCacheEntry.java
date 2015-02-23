@@ -30,7 +30,7 @@ public class KCacheEntry implements KCacheObject {
 
     @Override
     public String serialize() {
-        return JsonRaw.encode(raw, null, metaClass, true, false);
+        return JsonRaw.encode(this, null, metaClass, true, false);
     }
 
     @Override
@@ -39,12 +39,20 @@ public class KCacheEntry implements KCacheObject {
     }
 
     public Object get(int index) {
-        return raw[index];
+        if (raw != null) {
+            return raw[index];
+        } else {
+            return null;
+        }
     }
 
     public synchronized void set(int index, Object content) {
         raw[index] = content;
         _dirty = true;
+    }
+
+    public int length() {
+        return raw.length;
     }
 
     public KCacheEntry clone() {

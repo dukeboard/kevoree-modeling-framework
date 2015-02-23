@@ -3,6 +3,7 @@ package org.kevoree.modeling.api.traversal.actions;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObject;
+import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
@@ -42,7 +43,7 @@ public class KFilterAttributeAction implements KTraversalAction {
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
-                    Object[] raw = currentView.universe().model().storage().raw(loopObj, AccessMode.READ);
+                    KCacheEntry raw = currentView.universe().model().storage().entry(loopObj, AccessMode.READ);
                     if (raw != null) {
                         if (_attribute == null) {
                             if (_expectedValue == null) {
@@ -51,7 +52,7 @@ public class KFilterAttributeAction implements KTraversalAction {
                                 boolean addToNext = false;
                                 for (int j = 0; j < loopObj.metaClass().metaAttributes().length; j++) {
                                     MetaAttribute ref = loopObj.metaClass().metaAttributes()[j];
-                                    Object resolved = raw[ref.index()];
+                                    Object resolved = raw.get(ref.index());
                                     if (resolved == null) {
                                         if (_expectedValue.toString().equals("*")) {
                                             addToNext = true;
@@ -73,7 +74,7 @@ public class KFilterAttributeAction implements KTraversalAction {
                         } else {
                             MetaAttribute translatedAtt = loopObj.internal_transpose_att(_attribute);
                             if (translatedAtt != null) {
-                                Object resolved = raw[translatedAtt.index()];
+                                Object resolved = raw.get(translatedAtt.index());
                                 if (_expectedValue == null) {
                                     if (resolved == null) {
                                         nextStep.add(loopObj);

@@ -77,7 +77,7 @@ public class ParentStorageTest {
     public void parentTest() {
 
      //   MultiLayeredMemoryCache.DEBUG = true;
-        MemoryKContentDeliveryDriver.DEBUG = true;
+        //MemoryKContentDeliveryDriver.DEBUG = true;
 
         CloudModel cloudModel = new CloudModel();
         cloudModel.connect(null);

@@ -14,6 +14,7 @@ import org.kevoree.modeling.api.ModelVisitor;
 import org.kevoree.modeling.api.TraceRequest;
 import org.kevoree.modeling.api.VisitRequest;
 import org.kevoree.modeling.api.VisitResult;
+import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.data.manager.JsonRaw;
@@ -114,11 +115,11 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public Long parentUuid() {
-        Object[] raw = _view.universe().model().storage().raw(this, AccessMode.READ);
+        KCacheEntry raw = _view.universe().model().storage().entry(this, AccessMode.READ);
         if (raw == null) {
             return null;
         } else {
-            return (Long) raw[Index.PARENT_INDEX];
+            return (Long) raw.get(Index.PARENT_INDEX);
         }
     }
 
@@ -137,22 +138,22 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public MetaReference referenceInParent() {
-        Object[] raw = _view.universe().model().storage().raw(this, AccessMode.READ);
+        KCacheEntry raw = _view.universe().model().storage().entry(this, AccessMode.READ);
         if (raw == null) {
             return null;
         } else {
-            return (MetaReference) raw[Index.REF_IN_PARENT_INDEX];
+            return (MetaReference) raw.get(Index.REF_IN_PARENT_INDEX);
         }
     }
 
     @Override
     public void delete(Callback<Throwable> callback) {
         KObject toRemove = this;
-        Object[] rawPayload = _view.universe().model().storage().raw(this, AccessMode.DELETE);
+        KCacheEntry rawPayload = _view.universe().model().storage().entry(this, AccessMode.DELETE);
         if (rawPayload == null) {
             callback.on(new Exception("Out of cache Error"));
         } else {
-            Object payload = rawPayload[Index.INBOUNDS_INDEX];
+            Object payload = rawPayload.get(Index.INBOUNDS_INDEX);
             if (payload != null) {
                 Set<Long> inboundsKeys = (Set<Long>) payload;
                 Long[] refArr = inboundsKeys.toArray(new Long[inboundsKeys.size()]);
@@ -290,20 +291,20 @@ public abstract class AbstractKObject implements KObject {
             if (metaReference.single()) {
                 internal_mutate(KActionType.SET, metaReference, param, setOpposite, inDelete);
             } else {
-                Object[] raw = view().universe().model().storage().raw(this, AccessMode.WRITE);
+                KCacheEntry raw = view().universe().model().storage().entry(this, AccessMode.WRITE);
                 Set<Long> previousList;
-                if (raw[metaReference.index()] != null && raw[metaReference.index()] instanceof Set) {
-                    previousList = (Set<Long>) raw[metaReference.index()];
+                if (raw.get(metaReference.index()) != null && raw.get(metaReference.index()) instanceof Set) {
+                    previousList = (Set<Long>) raw.get(metaReference.index());
                 } else {
-                    if (raw[metaReference.index()] != null) {
+                    if (raw.get(metaReference.index()) != null) {
                         try {
-                            throw new Exception("Bad cache values in KMF, " + raw[metaReference.index()] + " is not an instance of Set for the reference " + metaReference.metaName() + ", index:" + metaReference.index());
+                            throw new Exception("Bad cache values in KMF, " + raw.get(metaReference.index()) + " is not an instance of Set for the reference " + metaReference.metaName() + ", index:" + metaReference.index());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
                     previousList = new HashSet<Long>();
-                    raw[metaReference.index()] = previousList;
+                    raw.set(metaReference.index(), previousList);
                 }
                 //Actual add
                 previousList.add(param.uuid());
@@ -317,20 +318,20 @@ public abstract class AbstractKObject implements KObject {
                     ((AbstractKObject) param).set_parent(_uuid, metaReference);
                 }
                 //Inbound
-                Object[] rawParam = view().universe().model().storage().raw(param, AccessMode.WRITE);
+                KCacheEntry rawParam = view().universe().model().storage().entry(param, AccessMode.WRITE);
                 Set<Long> previousInbounds;
-                if (rawParam[Index.INBOUNDS_INDEX] != null && rawParam[Index.INBOUNDS_INDEX] instanceof Set) {
-                    previousInbounds = (Set<Long>) rawParam[Index.INBOUNDS_INDEX];
+                if (rawParam.get(Index.INBOUNDS_INDEX) != null && rawParam.get(Index.INBOUNDS_INDEX) instanceof Set) {
+                    previousInbounds = (Set<Long>) rawParam.get(Index.INBOUNDS_INDEX);
                 } else {
-                    if (rawParam[Index.INBOUNDS_INDEX] != null) {
+                    if (rawParam.get(Index.INBOUNDS_INDEX) != null) {
                         try {
-                            throw new Exception("Bad cache values in KMF, " + rawParam[Index.INBOUNDS_INDEX] + " is not an instance of Set for the INBOUNDS storage");
+                            throw new Exception("Bad cache values in KMF, " + rawParam.get(Index.INBOUNDS_INDEX) + " is not an instance of Set for the INBOUNDS storage");
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
                     previousInbounds = new HashSet<Long>();
-                    rawParam[Index.INBOUNDS_INDEX] = previousInbounds;
+                    rawParam.set(Index.INBOUNDS_INDEX, previousInbounds);
                 }
                 previousInbounds.add(uuid());
                 //publish event
@@ -346,32 +347,32 @@ public abstract class AbstractKObject implements KObject {
                     internal_mutate(KActionType.REMOVE, metaReference, null, setOpposite, inDelete);
                 } else {
                     //Actual add
-                    Object[] payload = view().universe().model().storage().raw(this, AccessMode.WRITE);
-                    Object previous = payload[metaReference.index()];
+                    KCacheEntry payload = view().universe().model().storage().entry(this, AccessMode.WRITE);
+                    Object previous = payload.get(metaReference.index());
                     if (previous != null) {
                         internal_mutate(KActionType.REMOVE, metaReference, null, setOpposite, inDelete);
                     }
-                    payload[metaReference.index()] = param.uuid();
+                    payload.set(metaReference.index(), param.uuid());
                     //Container
                     if (metaReference.contained()) {
                         removeFromContainer(param);
                         ((AbstractKObject) param).set_parent(_uuid, metaReference);
                     }
                     //Inbound
-                    Object[] rawParam = view().universe().model().storage().raw(param, AccessMode.WRITE);
+                    KCacheEntry rawParam = view().universe().model().storage().entry(param, AccessMode.WRITE);
                     Set<Long> previousInbounds;
-                    if (rawParam[Index.INBOUNDS_INDEX] != null && rawParam[Index.INBOUNDS_INDEX] instanceof Set) {
-                        previousInbounds = (Set<Long>) rawParam[Index.INBOUNDS_INDEX];
+                    if (rawParam.get(Index.INBOUNDS_INDEX) != null && rawParam.get(Index.INBOUNDS_INDEX) instanceof Set) {
+                        previousInbounds = (Set<Long>) rawParam.get(Index.INBOUNDS_INDEX);
                     } else {
-                        if (rawParam[Index.INBOUNDS_INDEX] != null) {
+                        if (rawParam.get(Index.INBOUNDS_INDEX) != null) {
                             try {
-                                throw new Exception("Bad cache values in KMF, " + rawParam[Index.INBOUNDS_INDEX] + " is not an instance of Set for the INBOUNDS storage");
+                                throw new Exception("Bad cache values in KMF, " + rawParam.get(Index.INBOUNDS_INDEX) + " is not an instance of Set for the INBOUNDS storage");
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
                         }
                         previousInbounds = new HashSet<Long>();
-                        rawParam[Index.INBOUNDS_INDEX] = previousInbounds;
+                        rawParam.set(Index.INBOUNDS_INDEX, previousInbounds);
                     }
                     previousInbounds.add(uuid());
                     //Opposite
@@ -393,9 +394,9 @@ public abstract class AbstractKObject implements KObject {
             }
         } else if (actionType.equals(KActionType.REMOVE)) {
             if (metaReference.single()) {
-                Object[] raw = view().universe().model().storage().raw(this, AccessMode.WRITE);
-                Object previousKid = raw[metaReference.index()];
-                raw[metaReference.index()] = null;
+                KCacheEntry raw = view().universe().model().storage().entry(this, AccessMode.WRITE);
+                Object previousKid = raw.get(metaReference.index());
+                raw.set(metaReference.index(),null);
                 if (previousKid != null) {
                     final KObject self = this;
                     _view.universe().model().storage().lookup(_view, (Long) previousKid, new Callback<KObject>() {
@@ -409,21 +410,21 @@ public abstract class AbstractKObject implements KObject {
                                     ((AbstractKObject) resolvedParam).internal_mutate(KActionType.REMOVE, metaReference.opposite(), self, false, inDelete);
                                 }
                                 //Inbound
-                                Object[] rawParam = view().universe().model().storage().raw(resolvedParam, AccessMode.WRITE);
+                                KCacheEntry rawParam = view().universe().model().storage().entry(resolvedParam, AccessMode.WRITE);
                                 Set<Long> previousInbounds = null;
-                                if (rawParam != null && rawParam[Index.INBOUNDS_INDEX] != null && rawParam[Index.INBOUNDS_INDEX] instanceof Set) {
-                                    previousInbounds = (Set<Long>) rawParam[Index.INBOUNDS_INDEX];
+                                if (rawParam != null && rawParam.get(Index.INBOUNDS_INDEX) != null && rawParam.get(Index.INBOUNDS_INDEX) instanceof Set) {
+                                    previousInbounds = (Set<Long>) rawParam.get(Index.INBOUNDS_INDEX);
                                 } else {
                                     if (rawParam != null) {
-                                        if (rawParam[Index.INBOUNDS_INDEX] != null) {
+                                        if (rawParam.get(Index.INBOUNDS_INDEX) != null) {
                                             try {
-                                                throw new Exception("Bad cache values in KMF, " + rawParam[Index.INBOUNDS_INDEX] + " is not an instance of Set for the INBOUNDS storage");
+                                                throw new Exception("Bad cache values in KMF, " + rawParam.get(Index.INBOUNDS_INDEX) + " is not an instance of Set for the INBOUNDS storage");
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
                                         }
                                         previousInbounds = new HashSet<Long>();
-                                        rawParam[Index.INBOUNDS_INDEX] = previousInbounds;
+                                        rawParam.set(Index.INBOUNDS_INDEX,previousInbounds);
                                     }
                                 }
                                 if (previousInbounds != null) {
@@ -437,8 +438,8 @@ public abstract class AbstractKObject implements KObject {
                     view().universe().model().storage().eventBroker().notify(event);
                 }
             } else {
-                Object[] payload = view().universe().model().storage().raw(this, AccessMode.WRITE);
-                Object previous = payload[metaReference.index()];
+                KCacheEntry payload = view().universe().model().storage().entry(this, AccessMode.WRITE);
+                Object previous = payload.get(metaReference.index());
                 if (previous != null) {
                     Set<Long> previousList = (Set<Long>) previous;
                     previousList.remove(param.uuid());
@@ -455,9 +456,9 @@ public abstract class AbstractKObject implements KObject {
                 //Inbounds
                 if (!inDelete) {
                     //Inbound
-                    Object[] rawParam = view().universe().model().storage().raw(param, AccessMode.WRITE);
-                    if (rawParam != null && rawParam[Index.INBOUNDS_INDEX] != null && rawParam[Index.INBOUNDS_INDEX] instanceof Set) {
-                        Set<Long> previousInbounds = (Set<Long>) rawParam[Index.INBOUNDS_INDEX];
+                    KCacheEntry rawParam = view().universe().model().storage().entry(param, AccessMode.WRITE);
+                    if (rawParam != null && rawParam.get(Index.INBOUNDS_INDEX) != null && rawParam.get(Index.INBOUNDS_INDEX) instanceof Set) {
+                        Set<Long> previousInbounds = (Set<Long>) rawParam.get(Index.INBOUNDS_INDEX);
                         previousInbounds.remove(_uuid);
                     }
                 }
@@ -470,9 +471,9 @@ public abstract class AbstractKObject implements KObject {
         if (transposed == null) {
             throw new RuntimeException("Bad KMF usage, the attribute named " + p_metaReference.metaName() + " is not part of " + metaClass().metaName());
         } else {
-            Object[] raw = view().universe().model().storage().raw(this, AccessMode.READ);
+            KCacheEntry raw = view().universe().model().storage().entry(this, AccessMode.READ);
             if (raw != null) {
-                Object ref = raw[transposed.index()];
+                Object ref = raw.get(transposed.index());
                 if (ref == null) {
                     return 0;
                 } else {
@@ -493,11 +494,11 @@ public abstract class AbstractKObject implements KObject {
         if (transposed == null) {
             throw new RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + metaClass().metaName());
         } else {
-            Object[] raw = view().universe().model().storage().raw(this, AccessMode.READ);
+            KCacheEntry raw = view().universe().model().storage().entry(this, AccessMode.READ);
             if (raw == null) {
                 p_callback.on(new KObject[0]);
             } else {
-                Object o = raw[transposed.index()];
+                Object o = raw.get(transposed.index());
                 if (o == null) {
                     p_callback.on(new KObject[0]);
                 } else if (o instanceof Set) {
@@ -569,10 +570,10 @@ public abstract class AbstractKObject implements KObject {
         for (int i = 0; i < metaClass().metaReferences().length; i++) {
             final MetaReference reference = metaClass().metaReferences()[i];
             if (!(containedOnly && !reference.contained())) {
-                Object[] raw = view().universe().model().storage().raw(this, AccessMode.READ);
+                KCacheEntry raw = view().universe().model().storage().entry(this, AccessMode.READ);
                 Object obj = null;
                 if (raw != null) {
-                    obj = raw[reference.index()];
+                    obj = raw.get(reference.index());
                 }
                 if (obj != null) {
                     if (obj instanceof Set) {
@@ -665,7 +666,7 @@ public abstract class AbstractKObject implements KObject {
     }
 
     public String toJSON() {
-        Object[] raw = view().universe().model().storage().raw(this, AccessMode.READ);
+        KCacheEntry raw = view().universe().model().storage().entry(this, AccessMode.READ);
         if (raw != null) {
             return JsonRaw.encode(raw, _uuid, _metaClass, true, false);
         } else {
@@ -696,10 +697,10 @@ public abstract class AbstractKObject implements KObject {
         if (TraceRequest.REFERENCES_ONLY.equals(request) || TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
             for (int i = 0; i < metaClass().metaReferences().length; i++) {
                 MetaReference ref = metaClass().metaReferences()[i];
-                Object[] raw = view().universe().model().storage().raw(this, AccessMode.READ);
+                KCacheEntry raw = view().universe().model().storage().entry(this, AccessMode.READ);
                 Object o = null;
                 if (raw != null) {
-                    o = raw[ref.index()];
+                    o = raw.get(ref.index());
                 }
                 if (o instanceof Set) {
                     Set<Long> contents = (Set<Long>) o;
@@ -716,9 +717,9 @@ public abstract class AbstractKObject implements KObject {
     }
 
     public void inbounds(Callback<KObject[]> callback) {
-        Object[] rawPayload = view().universe().model().storage().raw(this, AccessMode.READ);
+        KCacheEntry rawPayload = view().universe().model().storage().entry(this, AccessMode.READ);
         if (rawPayload != null) {
-            Object payload = rawPayload[Index.INBOUNDS_INDEX];
+            Object payload = rawPayload.get(Index.INBOUNDS_INDEX);
             if (payload != null) {
                 Set<Long> inboundsKeys = (Set<Long>) payload;
                 Long[] keysArr = inboundsKeys.toArray(new Long[inboundsKeys.size()]);
@@ -732,10 +733,10 @@ public abstract class AbstractKObject implements KObject {
     }
 
     public void set_parent(Long p_parentKID, MetaReference p_metaReference) {
-        Object[] raw = _view.universe().model().storage().raw(this, AccessMode.WRITE);
+        KCacheEntry raw = _view.universe().model().storage().entry(this, AccessMode.WRITE);
         if (raw != null) {
-            raw[Index.PARENT_INDEX] = p_parentKID;
-            raw[Index.REF_IN_PARENT_INDEX] = p_metaReference;
+            raw.set(Index.PARENT_INDEX, p_parentKID);
+            raw.set(Index.REF_IN_PARENT_INDEX, p_metaReference);
         }
     }
 
@@ -831,12 +832,12 @@ public abstract class AbstractKObject implements KObject {
     @Override
     public MetaReference[] referencesWith(KObject o) {
         if (Checker.isDefined(o)) {
-            Object[] raw = _view.universe().model().storage().raw(this, AccessMode.READ);
+            KCacheEntry raw = _view.universe().model().storage().entry(this, AccessMode.READ);
             if (raw != null) {
                 MetaReference[] allReferences = metaClass().metaReferences();
                 List<MetaReference> selected = new ArrayList<MetaReference>();
                 for (int i = 0; i < allReferences.length; i++) {
-                    Object rawI = raw[allReferences[i].index()];
+                    Object rawI = raw.get(allReferences[i].index());
                     if (rawI instanceof Set) {
                         try {
                             Set<Long> castedSet = (Set<Long>) rawI;

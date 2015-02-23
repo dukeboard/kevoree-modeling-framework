@@ -160,7 +160,7 @@ public class JsonRaw {
         }
     }
 
-    public static String encode(Object[] raw, Long uuid, MetaClass p_metaClass, boolean endline, boolean isRoot) {
+    public static String encode(KCacheEntry raw, Long uuid, MetaClass p_metaClass, boolean endline, boolean isRoot) {
         MetaReference[] metaReferences = p_metaClass.metaReferences();
         MetaAttribute[] metaAttributes = p_metaClass.metaAttributes();
         StringBuilder builder = new StringBuilder();
@@ -177,27 +177,27 @@ public class JsonRaw {
             builder.append("\t\t\"" + JsonModelSerializer.KEY_ROOT + "\": \"");
             builder.append("true");
         }
-        if (raw[Index.PARENT_INDEX] != null) {
+        if (raw.get(Index.PARENT_INDEX) != null) {
             builder.append("\",\n");
             builder.append("\t\t\"" + JsonModelSerializer.PARENT_META + "\": \"");
-            builder.append(raw[Index.PARENT_INDEX].toString());
+            builder.append(raw.get(Index.PARENT_INDEX).toString());
         }
-        if (raw[Index.REF_IN_PARENT_INDEX] != null) {
+        if (raw.get(Index.REF_IN_PARENT_INDEX) != null) {
             builder.append("\",\n");
             builder.append("\t\t\"" + JsonModelSerializer.PARENT_REF_META + "\": \"");
             try {
-                builder.append(((MetaReference) raw[Index.REF_IN_PARENT_INDEX]).origin().metaName());
+                builder.append(((MetaReference) raw.get(Index.REF_IN_PARENT_INDEX)).origin().metaName());
                 builder.append(SEP);
-                builder.append(((MetaReference) raw[Index.REF_IN_PARENT_INDEX]).metaName());
+                builder.append(((MetaReference) raw.get(Index.REF_IN_PARENT_INDEX)).metaName());
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        if (raw[Index.INBOUNDS_INDEX] != null) {
+        if (raw.get(Index.INBOUNDS_INDEX) != null) {
             builder.append("\",\n");
             builder.append("\t\t\"" + JsonModelSerializer.INBOUNDS_META + "\": [");
             try {
-                Set<Long> elemsInRaw = (Set<Long>) raw[Index.INBOUNDS_INDEX];
+                Set<Long> elemsInRaw = (Set<Long>) raw.get(Index.INBOUNDS_INDEX);
                 Long[] elemsArr = elemsInRaw.toArray(new Long[elemsInRaw.size()]);
                 boolean isFirst = true;
                 for (int j = 0; j < elemsArr.length; j++) {
@@ -219,8 +219,8 @@ public class JsonRaw {
         }
 
         int nbElemToPrint = 0;
-        for (int i = Index.RESERVED_INDEXES; i < raw.length; i++) {
-            if (raw[i] != null) {
+        for (int i = Index.RESERVED_INDEXES; i < raw.length(); i++) {
+            if (raw.get(i) != null) {
                 nbElemToPrint++;
             }
         }
@@ -228,7 +228,7 @@ public class JsonRaw {
 
         int nbElemPrinted = 0;
         for (int i = 0; i < metaAttributes.length; i++) {
-            Object payload_res = raw[metaAttributes[i].index()];
+            Object payload_res = raw.get(metaAttributes[i].index());
             if (payload_res != null) {
                 if (metaAttributes[i].metaType() != PrimitiveMetaTypes.TRANSIENT) {
                     String attrsPayload = metaAttributes[i].strategy().save(payload_res, metaAttributes[i]);
@@ -249,7 +249,7 @@ public class JsonRaw {
             }
         }
         for (int i = 0; i < metaReferences.length; i++) {
-            Object refPayload = raw[metaReferences[i].index()];
+            Object refPayload = raw.get(metaReferences[i].index());
             if (refPayload != null) {
                 builder.append("\t\t");
                 builder.append("\"");

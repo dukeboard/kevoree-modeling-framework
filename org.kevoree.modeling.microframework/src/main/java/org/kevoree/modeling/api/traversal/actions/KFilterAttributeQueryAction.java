@@ -3,6 +3,7 @@ package org.kevoree.modeling.api.traversal.actions;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObject;
+import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
@@ -37,56 +38,51 @@ public class KFilterAttributeQueryAction implements KTraversalAction {
             _next.execute(p_inputs);
             return;
         } else {
-            KView currentView = p_inputs[0].view();
             Set<KObject> nextStep = new HashSet<KObject>();
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
-                    Object[] raw = currentView.universe().model().storage().raw(loopObj, AccessMode.READ);
-                    if (raw != null) {
-                        if (_attributeQuery == null) {
-                            nextStep.add(loopObj);
-                        } else {
-                            Map<String, KQueryParam> params = buildParams(_attributeQuery);
-                            boolean selectedForNext = true;
-                            String[] paramKeys = params.keySet().toArray(new String[params.keySet().size()]);
-                            for (int h = 0; h < paramKeys.length; h++) {
-                                KQueryParam param = params.get(paramKeys[h]);
-                                for (int j = 0; j < loopObj.metaClass().metaAttributes().length; j++) {
-                                    MetaAttribute metaAttribute = loopObj.metaClass().metaAttributes()[j];
-                                    if (metaAttribute.metaName().matches(param.name())) {
-                                        Object o_raw = loopObj.get(metaAttribute);
-                                        if (o_raw != null) {
-                                            if (param.value().equals("null")) {
-                                                if (!param.isNegative()) {
-                                                    selectedForNext = false;
-                                                }
-                                            } else if (o_raw.toString().matches(param.value())) {
-                                                if (param.isNegative()) {
-                                                    selectedForNext = false;
-                                                }
-                                            } else {
-                                                if (!param.isNegative()) {
-                                                    selectedForNext = false;
-                                                }
+                    if (_attributeQuery == null) {
+                        nextStep.add(loopObj);
+                    } else {
+                        Map<String, KQueryParam> params = buildParams(_attributeQuery);
+                        boolean selectedForNext = true;
+                        String[] paramKeys = params.keySet().toArray(new String[params.keySet().size()]);
+                        for (int h = 0; h < paramKeys.length; h++) {
+                            KQueryParam param = params.get(paramKeys[h]);
+                            for (int j = 0; j < loopObj.metaClass().metaAttributes().length; j++) {
+                                MetaAttribute metaAttribute = loopObj.metaClass().metaAttributes()[j];
+                                if (metaAttribute.metaName().matches(param.name())) {
+                                    Object o_raw = loopObj.get(metaAttribute);
+                                    if (o_raw != null) {
+                                        if (param.value().equals("null")) {
+                                            if (!param.isNegative()) {
+                                                selectedForNext = false;
+                                            }
+                                        } else if (o_raw.toString().matches(param.value())) {
+                                            if (param.isNegative()) {
+                                                selectedForNext = false;
                                             }
                                         } else {
-                                            if (param.value().equals("null") || param.value().equals("*")) {
-                                                if (param.isNegative()) {
-                                                    selectedForNext = false;
-                                                }
+                                            if (!param.isNegative()) {
+                                                selectedForNext = false;
+                                            }
+                                        }
+                                    } else {
+                                        if (param.value().equals("null") || param.value().equals("*")) {
+                                            if (param.isNegative()) {
+                                                selectedForNext = false;
                                             }
                                         }
                                     }
                                 }
                             }
-                            if (selectedForNext) {
-                                nextStep.add(loopObj);
-                            }
                         }
-                    } else {
-                        System.err.println("WARN: Empty KObject " + loopObj.uuid());
+                        if (selectedForNext) {
+                            nextStep.add(loopObj);
+                        }
                     }
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

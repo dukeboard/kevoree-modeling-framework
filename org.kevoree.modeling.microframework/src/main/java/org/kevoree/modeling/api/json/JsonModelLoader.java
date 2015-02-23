@@ -4,6 +4,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKView;
+import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.data.manager.JsonRaw;
@@ -92,14 +93,14 @@ public class JsonModelLoader {
                         MetaClass metaClass = metaModel.metaClass(meta);
                         KObject current = ((AbstractKView) factory).createProxy(metaClass, universeTree, mappedKeys.get(kid));
                         factory.universe().model().storage().initKObject(current, factory);
-                        Object[] raw = factory.universe().model().storage().raw(current, AccessMode.WRITE);
+                        KCacheEntry raw = factory.universe().model().storage().entry(current, AccessMode.WRITE);
                         String[] metaKeys = elem.keySet().toArray(new String[elem.size()]);
                         for (int h = 0; h < metaKeys.length; h++) {
                             String metaKey = metaKeys[h];
                             Object payload_content = elem.get(metaKey);
                             if (metaKey.equals(JsonModelSerializer.INBOUNDS_META)) {
                                 Set<Long> inbounds = new HashSet<Long>();
-                                raw[Index.INBOUNDS_INDEX] = inbounds;
+                                raw.set(Index.INBOUNDS_INDEX,inbounds);
                                 try {
                                     HashSet<String> raw_keys = (HashSet<String>) payload_content;
                                     String[] raw_keys_p = raw_keys.toArray(new String[raw_keys.size()]);
@@ -123,7 +124,7 @@ public class JsonModelLoader {
                                     if (mappedKeys.containsKey(raw_k)) {
                                         raw_k = mappedKeys.get(raw_k);
                                     }
-                                    raw[Index.PARENT_INDEX] = raw_k;
+                                    raw.set(Index.PARENT_INDEX, raw_k);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -136,7 +137,7 @@ public class JsonModelLoader {
                                         if (foundMeta != null) {
                                             MetaReference metaReference = foundMeta.metaReference(elems[1].trim());
                                             if (metaReference != null) {
-                                                raw[Index.REF_IN_PARENT_INDEX] = metaReference;
+                                                raw.set(Index.REF_IN_PARENT_INDEX, metaReference);
                                             }
                                         }
                                     }
@@ -144,7 +145,7 @@ public class JsonModelLoader {
                                     e.printStackTrace();
                                 }
                             } else if (metaKey.equals(JsonModelSerializer.KEY_ROOT)) {
-                                if("true".equals(payload_content)){
+                                if ("true".equals(payload_content)) {
                                     rootElem = current;
                                 }
                             } else if (metaKey.equals(JsonModelSerializer.KEY_META)) {
@@ -154,7 +155,7 @@ public class JsonModelLoader {
                                 MetaReference metaReference = metaClass.metaReference(metaKey);
                                 if (payload_content != null) {
                                     if (metaAttribute != null) {
-                                        raw[metaAttribute.index()] = metaAttribute.strategy().load(payload_content.toString(), metaAttribute, factory.now());
+                                        raw.set(metaAttribute.index(),metaAttribute.strategy().load(payload_content.toString(), metaAttribute, factory.now()));
                                     } else if (metaReference != null) {
                                         if (metaReference.single()) {
                                             try {
@@ -162,7 +163,7 @@ public class JsonModelLoader {
                                                 if (mappedKeys.containsKey(converted)) {
                                                     converted = mappedKeys.get(converted);
                                                 }
-                                                raw[metaReference.index()] = converted;
+                                                raw.set(metaReference.index(),converted);
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
@@ -183,7 +184,7 @@ public class JsonModelLoader {
                                                         e.printStackTrace();
                                                     }
                                                 }
-                                                raw[metaReference.index()] = convertedRaw;
+                                                raw.set(metaReference.index(),convertedRaw);
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
@@ -196,7 +197,7 @@ public class JsonModelLoader {
                         e.printStackTrace();
                     }
                 }
-                if(rootElem != null){
+                if (rootElem != null) {
                     factory.setRoot(rootElem, new Callback<Throwable>() {
                         @Override
                         public void on(Throwable throwable) {

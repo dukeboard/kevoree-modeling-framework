@@ -3,6 +3,7 @@ package org.kevoree.modeling.api.abs;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KInfer;
 import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.KInferState;
 import org.kevoree.modeling.api.meta.MetaClass;
@@ -20,34 +21,34 @@ public abstract class AbstractKObjectInfer extends AbstractKObject implements KI
     }
 
     public KInferState readOnlyState() {
-        Object[] raw = view().universe().model().storage().raw(this, AccessMode.READ);
+        KCacheEntry raw = view().universe().model().storage().entry(this, AccessMode.READ);
         if (raw != null) {
-            if (raw[MetaInferClass.getInstance().getCache().index()] == null) {
+            if (raw.get(MetaInferClass.getInstance().getCache().index()) == null) {
                 internal_load(raw);
             }
-            return (KInferState) raw[MetaInferClass.getInstance().getCache().index()];
+            return (KInferState) raw.get(MetaInferClass.getInstance().getCache().index());
         } else {
             return null;
         }
     }
 
     public KInferState modifyState() {
-        Object[] raw = view().universe().model().storage().raw(this, AccessMode.WRITE);
+        KCacheEntry raw = view().universe().model().storage().entry(this, AccessMode.WRITE);
         if (raw != null) {
-            if (raw[MetaInferClass.getInstance().getCache().index()] == null) {
+            if (raw.get(MetaInferClass.getInstance().getCache().index()) == null) {
                 internal_load(raw);
             }
-            return (KInferState) raw[MetaInferClass.getInstance().getCache().index()];
+            return (KInferState) raw.get(MetaInferClass.getInstance().getCache().index());
         } else {
             return null;
         }
     }
 
-    private synchronized void internal_load(Object[] raw) {
-        if (raw[MetaInferClass.getInstance().getCache().index()] == null) {
+    private synchronized void internal_load(KCacheEntry raw) {
+        if (raw.get(MetaInferClass.getInstance().getCache().index()) == null) {
             KInferState currentState = createEmptyState();
-            currentState.load(raw[MetaInferClass.getInstance().getRaw().index()].toString());
-            raw[MetaInferClass.getInstance().getCache().index()] = currentState;
+            currentState.load(raw.get(MetaInferClass.getInstance().getRaw().index()).toString());
+            raw.set(MetaInferClass.getInstance().getCache().index(), currentState);
         }
     }
 

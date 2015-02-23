@@ -4,6 +4,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObject;
+import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
@@ -42,53 +43,18 @@ public class KTraverseQueryAction implements KTraversalAction {
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
-                    Object[] raw = currentView.universe().model().storage().raw(loopObj, AccessMode.READ);
-                    if (_referenceQuery == null) {
-                        for (int j = 0; j < loopObj.metaClass().metaReferences().length; j++) {
-                            MetaReference ref = loopObj.metaClass().metaReferences()[j];
-                            Object resolved = raw[ref.index()];
-                            if (resolved != null) {
-                                if (resolved instanceof Set) {
-                                    Set<Long> resolvedCasted = (Set<Long>) resolved;
-                                    Long[] resolvedArr = resolvedCasted.toArray(new Long[resolvedCasted.size()]);
-                                    for (int k = 0; k < resolvedArr.length; k++) {
-                                        Long idResolved = resolvedArr[k];
-                                        if (idResolved != null) {
-                                            nextIds.add(idResolved);
-                                        }
-                                    }
-                                } else {
-                                    try {
-                                        nextIds.add((Long) resolved);
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        String[] queries = _referenceQuery.split(SEP);
-                        for (int k = 0; k < queries.length; k++) {
-                            queries[k] = queries[k].replace("*", ".*");
-                        }
-                        MetaReference[] loopRefs = loopObj.metaClass().metaReferences();
-                        for (int h = 0; h < loopRefs.length; h++) {
-                            MetaReference ref = loopRefs[h];
-                            boolean selected = false;
-                            for (int k = 0; k < queries.length; k++) {
-                                if (ref.metaName().matches(queries[k])) {
-                                    selected = true;
-                                    break;
-                                }
-                            }
-                            if (selected) {
-                                Object resolved = raw[ref.index()];
+                    KCacheEntry raw = currentView.universe().model().storage().entry(loopObj, AccessMode.READ);
+                    if (raw != null) {
+                        if (_referenceQuery == null) {
+                            for (int j = 0; j < loopObj.metaClass().metaReferences().length; j++) {
+                                MetaReference ref = loopObj.metaClass().metaReferences()[j];
+                                Object resolved = raw.get(ref.index());
                                 if (resolved != null) {
                                     if (resolved instanceof Set) {
                                         Set<Long> resolvedCasted = (Set<Long>) resolved;
                                         Long[] resolvedArr = resolvedCasted.toArray(new Long[resolvedCasted.size()]);
-                                        for (int j = 0; j < resolvedArr.length; j++) {
-                                            Long idResolved = resolvedArr[j];
+                                        for (int k = 0; k < resolvedArr.length; k++) {
+                                            Long idResolved = resolvedArr[k];
                                             if (idResolved != null) {
                                                 nextIds.add(idResolved);
                                             }
@@ -98,6 +64,43 @@ public class KTraverseQueryAction implements KTraversalAction {
                                             nextIds.add((Long) resolved);
                                         } catch (Exception e) {
                                             e.printStackTrace();
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            String[] queries = _referenceQuery.split(SEP);
+                            for (int k = 0; k < queries.length; k++) {
+                                queries[k] = queries[k].replace("*", ".*");
+                            }
+                            MetaReference[] loopRefs = loopObj.metaClass().metaReferences();
+                            for (int h = 0; h < loopRefs.length; h++) {
+                                MetaReference ref = loopRefs[h];
+                                boolean selected = false;
+                                for (int k = 0; k < queries.length; k++) {
+                                    if (ref.metaName().matches(queries[k])) {
+                                        selected = true;
+                                        break;
+                                    }
+                                }
+                                if (selected) {
+                                    Object resolved = raw.get(ref.index());
+                                    if (resolved != null) {
+                                        if (resolved instanceof Set) {
+                                            Set<Long> resolvedCasted = (Set<Long>) resolved;
+                                            Long[] resolvedArr = resolvedCasted.toArray(new Long[resolvedCasted.size()]);
+                                            for (int j = 0; j < resolvedArr.length; j++) {
+                                                Long idResolved = resolvedArr[j];
+                                                if (idResolved != null) {
+                                                    nextIds.add(idResolved);
+                                                }
+                                            }
+                                        } else {
+                                            try {
+                                                nextIds.add((Long) resolved);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                         }
                                     }
                                 }

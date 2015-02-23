@@ -302,9 +302,8 @@ public class DefaultKDataManager implements KDataManager {
         }
     }
 
-    //TODO
     @Override
-    public Object[] raw(KObject origin, AccessMode accessMode) {
+    public KCacheEntry entry(KObject origin, AccessMode accessMode) {
         LongRBTree dimensionTree = origin.universeTree();
         Long resolvedUniverse = internal_resolve_universe(dimensionTree, origin.now(), origin.view().universe().key());
         IndexRBTree timeTree = (IndexRBTree) _db.cache().get(KContentKey.createTimeTree(resolvedUniverse, origin.uuid()));
@@ -329,8 +328,9 @@ public class DefaultKDataManager implements KDataManager {
         Object[] payload = entry.raw;
         if (accessMode.equals(AccessMode.DELETE)) {
             timeTree.delete(origin.now());
+            KCacheEntry clonedEntry = entry.clone();
             entry.raw = null;
-            return payload;
+            return clonedEntry;
         }
         if (payload == null) {
             //System.err.println(DELETED_MESSAGE);
@@ -340,7 +340,7 @@ public class DefaultKDataManager implements KDataManager {
                 if (accessMode.equals(AccessMode.WRITE)) {
                     entry._dirty = true;
                 }
-                return payload;
+                return entry;
             } else {
                 KCacheEntry clonedEntry = entry.clone();
                 clonedEntry._dirty = true;
@@ -353,7 +353,7 @@ public class DefaultKDataManager implements KDataManager {
                     origin.universeTree().insert(origin.universe().key(), origin.now());//insert this time as a divergence point for this object
                 }
                 _db.cache().put(KContentKey.createObject(origin.universe().key(), origin.now(), origin.uuid()), clonedEntry);
-                return clonedEntry.raw;
+                return clonedEntry;
             }
         }
     }

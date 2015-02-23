@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.data.manager;
 
 import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.api.event.KEventBroker;
 import org.kevoree.modeling.api.util.KOperationManager;
@@ -14,7 +15,7 @@ public interface KDataManager {
 
     void lookupAll(KView originView, Long[] key, Callback<KObject[]> callback);
 
-    Object[] raw(KObject origin, AccessMode accessMode);
+    KCacheEntry entry(KObject origin, AccessMode accessMode);
 
     public void save(Callback<Throwable> callback);
 

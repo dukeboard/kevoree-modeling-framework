@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.json;
 
 import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.data.manager.JsonRaw;
 
@@ -69,7 +70,7 @@ public class JsonModelSerializer {
 
     public static void printJSON(KObject elem, StringBuilder builder, boolean isRoot) {
         if (elem != null) {
-            Object[] raw = elem.view().universe().model().storage().raw(elem, AccessMode.READ);
+            KCacheEntry raw = elem.view().universe().model().storage().entry(elem, AccessMode.READ);
             if (raw != null) {
                 builder.append(JsonRaw.encode(raw, elem.uuid(), elem.metaClass(), false,isRoot));
             }

@@ -4,6 +4,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObject;
+import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
@@ -37,8 +38,8 @@ public class KParentsAction implements KTraversalAction {
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
-                    Object[] raw = currentView.universe().model().storage().raw(loopObj, AccessMode.READ);
-                    Object resolved = raw[Index.PARENT_INDEX];
+                    KCacheEntry raw = currentView.universe().model().storage().entry(loopObj, AccessMode.READ);
+                    Object resolved = raw.get(Index.PARENT_INDEX);
                     if (resolved != null) {
                         try {
                             nextIds.add((Long) resolved);

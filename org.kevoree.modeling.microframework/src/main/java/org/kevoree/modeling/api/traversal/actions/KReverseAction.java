@@ -4,6 +4,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObject;
+import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.meta.MetaReference;
@@ -41,21 +42,23 @@ public class KReverseAction implements KTraversalAction {
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
-                    Object[] raw = currentView.universe().model().storage().raw(loopObj, AccessMode.READ);
-                    if (_reference == null) {
-                        if (raw[Index.INBOUNDS_INDEX] != null && raw[Index.INBOUNDS_INDEX] instanceof Set) {
-                            Set<Long> casted = (Set<Long>) raw[Index.INBOUNDS_INDEX];
-                            Long[] castedArr = casted.toArray(new Long[casted.size()]);
-                            for (int j = 0; j < castedArr.length; j++) {
-                                nextIds.add(castedArr[j]);
+                    KCacheEntry raw = currentView.universe().model().storage().entry(loopObj, AccessMode.READ);
+                    if(raw!=null){
+                        if (_reference == null) {
+                            if (raw.get(Index.INBOUNDS_INDEX) != null && raw.get(Index.INBOUNDS_INDEX) instanceof Set) {
+                                Set<Long> casted = (Set<Long>) raw.get(Index.INBOUNDS_INDEX);
+                                Long[] castedArr = casted.toArray(new Long[casted.size()]);
+                                for (int j = 0; j < castedArr.length; j++) {
+                                    nextIds.add(castedArr[j]);
+                                }
                             }
-                        }
-                    } else {
-                        if (raw[Index.INBOUNDS_INDEX] != null && raw[Index.INBOUNDS_INDEX] instanceof Set) {
-                            Set<Long> casted = (Set<Long>) raw[Index.INBOUNDS_INDEX];
-                            Long[] castedArr = casted.toArray(new Long[casted.size()]);
-                            for (int j = 0; j < castedArr.length; j++) {
-                                toFilter.put(castedArr[j], p_inputs[i]);
+                        } else {
+                            if (raw.get(Index.INBOUNDS_INDEX) != null && raw.get(Index.INBOUNDS_INDEX) instanceof Set) {
+                                Set<Long> casted = (Set<Long>) raw.get(Index.INBOUNDS_INDEX);
+                                Long[] castedArr = casted.toArray(new Long[casted.size()]);
+                                for (int j = 0; j < castedArr.length; j++) {
+                                    toFilter.put(castedArr[j], p_inputs[i]);
+                                }
                             }
                         }
                     }
