@@ -22,15 +22,11 @@ public class KContentPutRequest {
     }
 
     public void put(KContentKey p_key, String p_payload) {
-        if (_size < _content.length) {
-            Object[] newLine = new Object[SIZE_INDEX];
-            newLine[KEY_INDEX] = p_key;
-            newLine[CONTENT_INDEX] = p_payload;
-            _content[_size] = newLine;
-            _size = _size + 1;
-        } else {
-            throw new RuntimeException("Insert over the limit of the request");
-        }
+        Object[] newLine = new Object[SIZE_INDEX];
+        newLine[KEY_INDEX] = p_key;
+        newLine[CONTENT_INDEX] = p_payload;
+        _content[_size] = newLine;
+        _size = _size + 1;
     }
 
     public KContentKey getKey(int index) {
@@ -49,7 +45,7 @@ public class KContentPutRequest {
         }
     }
 
-    public int size(){
+    public int size() {
         return _size;
     }
 

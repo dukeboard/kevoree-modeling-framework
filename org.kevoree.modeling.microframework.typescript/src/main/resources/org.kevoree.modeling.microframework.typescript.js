@@ -2057,16 +2057,11 @@ var org;
                                 this._content = new Array();
                             }
                             KContentPutRequest.prototype.put = function (p_key, p_payload) {
-                                if (this._size < this._content.length) {
-                                    var newLine = new Array();
-                                    newLine[KContentPutRequest.KEY_INDEX] = p_key;
-                                    newLine[KContentPutRequest.CONTENT_INDEX] = p_payload;
-                                    this._content[this._size] = newLine;
-                                    this._size = this._size + 1;
-                                }
-                                else {
-                                    throw new java.lang.RuntimeException("Insert over the limit of the request");
-                                }
+                                var newLine = new Array();
+                                newLine[KContentPutRequest.KEY_INDEX] = p_key;
+                                newLine[KContentPutRequest.CONTENT_INDEX] = p_payload;
+                                this._content[this._size] = newLine;
+                                this._size = this._size + 1;
                             };
                             KContentPutRequest.prototype.getKey = function (index) {
                                 if (index < this._content.length) {

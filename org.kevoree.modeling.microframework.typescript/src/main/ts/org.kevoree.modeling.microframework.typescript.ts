@@ -2535,15 +2535,11 @@ module org {
                             }
 
                             public put(p_key: org.kevoree.modeling.api.data.cache.KContentKey, p_payload: string): void {
-                                if (this._size < this._content.length) {
-                                    var newLine: any[] = new Array();
-                                    newLine[KContentPutRequest.KEY_INDEX] = p_key;
-                                    newLine[KContentPutRequest.CONTENT_INDEX] = p_payload;
-                                    this._content[this._size] = newLine;
-                                    this._size = this._size + 1;
-                                } else {
-                                    throw new java.lang.RuntimeException("Insert over the limit of the request");
-                                }
+                                var newLine: any[] = new Array();
+                                newLine[KContentPutRequest.KEY_INDEX] = p_key;
+                                newLine[KContentPutRequest.CONTENT_INDEX] = p_payload;
+                                this._content[this._size] = newLine;
+                                this._size = this._size + 1;
                             }
 
                             public getKey(index: number): org.kevoree.modeling.api.data.cache.KContentKey {
