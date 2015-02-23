@@ -101,6 +101,10 @@ public abstract class AbstractKView implements KView {
         return task;
     }
 
+    public void internalLookupAll(Long[] keys, Callback<KObject[]> callback){
+        universe().model().manager().lookupAll(this, keys, callback);
+    }
+
     public KObject createProxy(MetaClass clazz, LongRBTree universeTree, long key) {
         //TODO check the radixKey
         return internalCreate(clazz, universeTree, key);

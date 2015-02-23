@@ -4,6 +4,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObject;
+import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.meta.MetaReference;
@@ -38,7 +39,7 @@ public class KTraverseQueryAction implements KTraversalAction {
             _next.execute(p_inputs);
             return;
         } else {
-            KView currentView = p_inputs[0].view();
+            AbstractKView currentView = (AbstractKView) p_inputs[0].view();
             Set<Long> nextIds = new HashSet<Long>();
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
@@ -112,7 +113,7 @@ public class KTraverseQueryAction implements KTraversalAction {
                 }
             }
             //call
-            currentView.lookupAll(nextIds.toArray(new Long[nextIds.size()])).then(new Callback<KObject[]>() {
+            currentView.internalLookupAll(nextIds.toArray(new Long[nextIds.size()]),new Callback<KObject[]>() {
                 @Override
                 public void on(KObject[] kObjects) {
                     _next.execute(kObjects);

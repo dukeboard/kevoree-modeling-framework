@@ -154,7 +154,7 @@ public abstract class AbstractKObject implements KObject {
             if (payload != null) {
                 Set<Long> inboundsKeys = (Set<Long>) payload;
                 Long[] refArr = inboundsKeys.toArray(new Long[inboundsKeys.size()]);
-                view().lookupAll(refArr).then(new Callback<KObject[]>() {
+                ((AbstractKView) view()).internalLookupAll(refArr, new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] resolved) {
                         for (int i = 0; i < resolved.length; i++) {
@@ -567,7 +567,7 @@ public abstract class AbstractKObject implements KObject {
             }
         } else {
             final Long[] toResolveIdsArr = toResolveIds.toArray(new Long[toResolveIds.size()]);
-            view().lookupAll(toResolveIdsArr).then(new Callback<KObject[]>() {
+            ((AbstractKView) view()).internalLookupAll(toResolveIdsArr, new Callback<KObject[]>() {
                 @Override
                 public void on(KObject[] resolvedArr) {
                     final List<KObject> nextDeep = new ArrayList<KObject>();
