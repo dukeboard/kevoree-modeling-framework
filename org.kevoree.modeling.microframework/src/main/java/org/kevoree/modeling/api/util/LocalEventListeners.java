@@ -1,10 +1,11 @@
 package org.kevoree.modeling.api.util;
 
-import org.kevoree.modeling.api.KEvent;
-import org.kevoree.modeling.api.ModelListener;
+import org.kevoree.modeling.api.KEventListener;
+import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.abs.AbstractKUniverse;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.abs.AbstractKView;
+import org.kevoree.modeling.api.meta.Meta;
 
 import java.util.HashMap;
 
@@ -18,9 +19,9 @@ public class LocalEventListeners {
     private static int UUID_INDEX = 2;
     private static int TUPLE_SIZE = 3;
 
-    private HashMap<ModelListener, Long[]> listeners = new HashMap<ModelListener, Long[]>();
+    private HashMap<KEventListener, Long[]> listeners = new HashMap<KEventListener, Long[]>();
 
-    public void registerListener(Object origin, ModelListener listener, Object scope) {
+    public void registerListener(Object origin, KEventListener listener, Object scope) {
         Long[] tuple = new Long[TUPLE_SIZE];
         if (origin instanceof AbstractKUniverse) {
             tuple[DIM_INDEX] = ((AbstractKUniverse) origin).key();
@@ -44,37 +45,37 @@ public class LocalEventListeners {
     }
 
 
-    public void notify(KEvent event) {
-        ModelListener[] keys = listeners.keySet().toArray(new ModelListener[listeners.size()]);
+    public void dispatch(KObject src, Meta[] modications) {
+        KEventListener[] keys = listeners.keySet().toArray(new KEventListener[listeners.size()]);
         for (int i = 0; i < keys.length; i++) {
             Object[] tuple = listeners.get(keys[i]);
             boolean match = true;
             if (tuple[DIM_INDEX] != null) {
-                if (!tuple[DIM_INDEX].equals(event.universe())) {
+                if (!tuple[DIM_INDEX].equals(src.universe().key())) {
                     match = false;
                 }
             }
             if (tuple[TIME_INDEX] != null) {
-                if (!tuple[TIME_INDEX].equals(event.time())) {
+                if (!tuple[TIME_INDEX].equals(src.view().now())) {
                     match = false;
                 }
             }
             if (tuple[UUID_INDEX] != null) {
-                if (!tuple[UUID_INDEX].equals(event.uuid())) {
+                if (!tuple[UUID_INDEX].equals(src.uuid())) {
                     match = false;
                 }
             }
             if (match) {
-                keys[i].on(event);
+                keys[i].on(src, modications);
             }
         }
     }
 
-    public void unregister(ModelListener listener) {
+    public void unregister(KEventListener listener) {
         listeners.remove(listener);
     }
 
-    public void clear(){
+    public void clear() {
         listeners.clear();
     }
 

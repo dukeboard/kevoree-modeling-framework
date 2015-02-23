@@ -7,7 +7,7 @@ import org.kevoree.modeling.api.KTask;
 import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ModelFormat;
-import org.kevoree.modeling.api.ModelListener;
+import org.kevoree.modeling.api.KEventListener;
 import org.kevoree.modeling.api.json.JsonFormat;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.time.rbtree.LongRBTree;
@@ -111,12 +111,11 @@ public abstract class AbstractKView implements KView {
         KObject newObj = internalCreate(clazz, newUniverseTree, universe().model().manager().nextObjectKey());
         if (newObj != null) {
             universe().model().manager().initKObject(newObj, this);
-            universe().model().manager().cdn().notify(new AbstractKEvent(KActionType.NEW, newObj, clazz, null));
         }
         return newObj;
     }
 
-    public void listen(ModelListener listener) {
+    public void listen(KEventListener listener) {
         universe().model().manager().cdn().registerListener(this, listener, null);
     }
 

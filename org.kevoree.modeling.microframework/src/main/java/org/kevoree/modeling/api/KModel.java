@@ -15,11 +15,11 @@ public interface KModel<A extends KUniverse> {
 
     public A universe(long key);
 
-    public void disable(ModelListener listener);
+    public void disable(KEventListener listener);
 
     public KDataManager manager();
 
-    public void listen(ModelListener listener);
+    public void listen(KEventListener listener);
 
     public KModel<A> setContentDeliveryDriver(KContentDeliveryDriver dataBase);
 

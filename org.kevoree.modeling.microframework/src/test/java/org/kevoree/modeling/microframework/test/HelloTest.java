@@ -3,9 +3,7 @@ package org.kevoree.modeling.microframework.test;
 import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.ModelVisitor;
 import org.kevoree.modeling.api.VisitRequest;
 import org.kevoree.modeling.api.VisitResult;
@@ -70,29 +68,12 @@ public class HelloTest {
     public void helloTest() {
         CloudModel universe = new CloudModel();
         universe.connect(null);
-        int[] counter = new int[1];
-        counter[0] = 0;
-        universe.listen(new ModelListener() {
-            @Override
-            public void on(KEvent evt) {
-                counter[0]++;
-            }
-        });
+
         CloudUniverse dimension0 = universe.newUniverse();
-        dimension0.listen(new ModelListener() {
-            @Override
-            public void on(KEvent evt) {
-                counter[0]++;
-            }
-        });
+
         Assert.assertNotNull(dimension0);
         CloudView t0 = dimension0.time(0l);
-        t0.listen(new ModelListener() {
-            @Override
-            public void on(KEvent evt) {
-                counter[0]++;
-            }
-        });
+
         Assert.assertNotNull(t0);
         Assert.assertEquals(t0.now(), 0l);
         Node nodeT0 = t0.createNode();
@@ -116,7 +97,7 @@ public class HelloTest {
         nodeT1.setName("n1");
 
         nodeT0.addChildren(nodeT1);
-        
+
 //        assertTrue(nodeT1.path().endsWith("/children[name=n1]"));
         final int[] i = {0};
         nodeT0.getChildren(new Callback<Node[]>() {
@@ -247,8 +228,6 @@ public class HelloTest {
         Assert.assertEquals(1, j[0]);
 
         //System.err.println(nodeT0);
-
-        Assert.assertEquals(27, counter[0]);
 
     }
 

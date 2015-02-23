@@ -2,12 +2,10 @@ package org.kevoree.modeling.api.util;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KActionType;
-import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KOperation;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.data.manager.KDataManager;
-import org.kevoree.modeling.api.abs.AbstractKEvent;
 import org.kevoree.modeling.api.meta.MetaOperation;
 
 import java.util.ArrayList;
@@ -96,8 +94,8 @@ public class DefaultOperationManager implements KOperationManager {
             }
         }
         sb.append("]");
-        AbstractKEvent operationCallEvent = new AbstractKEvent(KActionType.CALL, source, operation, sb.toString());
-        _manager.cdn().sendOperationEvent(operationCallEvent);
+        //AbstractKEvent operationCallEvent = new AbstractKEvent(KActionType.CALL, source, operation, sb.toString());
+        //_manager.cdn().sendOperationEvent(operationCallEvent);
     }
 
     private String protectString(String input) {
@@ -145,6 +143,7 @@ public class DefaultOperationManager implements KOperationManager {
         return params.toArray(new Object[params.size()]);
     }
 
+    /*
     public void operationEventReceived(KEvent operationEvent) {
         if (operationEvent.actionType() == KActionType.CALL_RESPONSE) {
             Long[][] keys = remoteCallCallbacks.keySet().toArray(new Long[remoteCallCallbacks.size()][]);
@@ -185,6 +184,6 @@ public class DefaultOperationManager implements KOperationManager {
         } else {
             //Wrong routing.
         }
-    }
+    }*/
 
 }

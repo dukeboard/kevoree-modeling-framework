@@ -7,7 +7,7 @@ import org.kevoree.modeling.api.KOperation;
 import org.kevoree.modeling.api.KScheduler;
 import org.kevoree.modeling.api.KTask;
 import org.kevoree.modeling.api.KUniverse;
-import org.kevoree.modeling.api.ModelListener;
+import org.kevoree.modeling.api.KEventListener;
 import org.kevoree.modeling.api.data.manager.DefaultKDataManager;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.api.data.manager.KDataManager;
@@ -70,12 +70,12 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
     }
 
     @Override
-    public void disable(ModelListener listener) {
+    public void disable(KEventListener listener) {
         manager().cdn().unregister(listener);
     }
 
     @Override
-    public void listen(ModelListener listener) {
+    public void listen(KEventListener listener) {
         manager().cdn().registerListener(this, listener, null);
     }
 

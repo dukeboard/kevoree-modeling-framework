@@ -8,7 +8,7 @@ import org.java_websocket.handshake.ServerHandshake;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KEvent;
-import org.kevoree.modeling.api.ModelListener;
+import org.kevoree.modeling.api.KEventListener;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.util.LocalEventListeners;
 import org.kevoree.modeling.api.abs.AbstractKEvent;
@@ -111,12 +111,12 @@ public class WebSocketBrokerClient implements KEventBroker {
     }
 
     @Override
-    public void registerListener(Object origin, ModelListener listener, Object scope) {
+    public void registerListener(Object origin, KEventListener listener, Object scope) {
         this._baseBroker.registerListener(origin, listener, scope);
     }
 
     @Override
-    public void unregister(ModelListener listener) {
+    public void unregister(KEventListener listener) {
         this._baseBroker.unregister(listener);
     }
 

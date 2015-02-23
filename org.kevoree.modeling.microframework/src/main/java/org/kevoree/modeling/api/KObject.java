@@ -30,7 +30,7 @@ public interface KObject {
 
     public void select(String query, Callback<KObject[]> callback);
 
-    public void listen(ModelListener listener);
+    public void listen(KEventListener listener);
 
     /* Visit API */
     public void visitAttributes(ModelAttributeVisitor visitor);

@@ -13,7 +13,7 @@ import io.undertow.websockets.spi.WebSocketHttpExchange;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KEvent;
-import org.kevoree.modeling.api.ModelListener;
+import org.kevoree.modeling.api.KEventListener;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.util.LocalEventListeners;
 import org.kevoree.modeling.api.abs.AbstractKEvent;
@@ -87,7 +87,7 @@ public class WebSocketBroker extends AbstractReceiveListener implements KEventBr
     }
 
     @Override
-    public void registerListener(Object origin, ModelListener listener, Object scope) {
+    public void registerListener(Object origin, KEventListener listener, Object scope) {
         _baseBroker.registerListener(origin, listener, scope);
     }
 
@@ -138,7 +138,7 @@ public class WebSocketBroker extends AbstractReceiveListener implements KEventBr
     }
 
     @Override
-    public void unregister(ModelListener listener) {
+    public void unregister(KEventListener listener) {
         _baseBroker.unregister(listener);
     }
 

@@ -1,15 +1,14 @@
 package org.kevoree.modeling.api.data.cdn;
 
 import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KEvent;
-import org.kevoree.modeling.api.ModelListener;
+import org.kevoree.modeling.api.KEventListener;
 import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.data.cache.KCache;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.cache.MultiLayeredMemoryCache;
 import org.kevoree.modeling.api.data.manager.KDataManager;
+import org.kevoree.modeling.api.msg.KMessage;
 import org.kevoree.modeling.api.util.LocalEventListeners;
-import org.kevoree.modeling.api.meta.MetaModel;
 
 import java.util.HashMap;
 
@@ -70,13 +69,6 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void commit(Callback<Throwable> callback) {
-        if (callback != null) {
-            callback.on(null);//noop
-        }
-    }
-
-    @Override
     public void connect(Callback<Throwable> callback) {
         if (callback != null) {
             callback.on(null);
@@ -100,23 +92,18 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
     private LocalEventListeners localEventListeners = new LocalEventListeners();
 
     @Override
-    public void registerListener(Object p_origin, ModelListener p_listener, Object p_scope) {
+    public void registerListener(Object p_origin, KEventListener p_listener, Object p_scope) {
         localEventListeners.registerListener(p_origin, p_listener, p_scope);
     }
 
     @Override
-    public void unregister(ModelListener p_listener) {
+    public void unregister(KEventListener p_listener) {
         localEventListeners.unregister(p_listener);
     }
 
     @Override
-    public void notify(KEvent p_event) {
-        localEventListeners.notify(p_event);
-    }
-
-    @Override
-    public void sendOperationEvent(KEvent operationEvent) {
-
+    public void send(KMessage[] msgs) {
+        //NO REMOVE MANAGEMENT, NOOP OPERATION
     }
 
     @Override

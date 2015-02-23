@@ -1,9 +1,6 @@
 package org.kevoree.modeling.api;
 
 import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.trace.TraceSequence;
-
-import java.util.List;
 
 /**
  * Created by thomas on 10/2/14.
@@ -24,7 +21,7 @@ public interface KView {
 
     public long now();
 
-    public void listen(ModelListener listener);
+    public void listen(KEventListener listener);
 
     public ModelFormat json();
 

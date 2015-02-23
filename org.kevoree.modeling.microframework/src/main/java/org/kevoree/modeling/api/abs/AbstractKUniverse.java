@@ -6,7 +6,7 @@ import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KTask;
 import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.ModelListener;
+import org.kevoree.modeling.api.KEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,12 +46,12 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
     }
 
     @Override
-    public void listen(ModelListener listener) {
+    public void listen(KEventListener listener) {
         model().manager().cdn().registerListener(this, listener, null);
     }
 
     @Override
-    public void listenAllTimes(KObject target, ModelListener listener) {
+    public void listenAllTimes(KObject target, KEventListener listener) {
         //TODO invert this and target to fix a potential bug
         model().manager().cdn().registerListener(this, listener, target);
     }

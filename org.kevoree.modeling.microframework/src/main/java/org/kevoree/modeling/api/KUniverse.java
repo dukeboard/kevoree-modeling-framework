@@ -16,9 +16,9 @@ public interface KUniverse<A extends KView, B extends KUniverse, C extends KMode
 
     public boolean equals(Object other);
 
-    public void listen(ModelListener listener);
+    public void listen(KEventListener listener);
 
-    public void listenAllTimes(KObject target, ModelListener listener);
+    public void listenAllTimes(KObject target, KEventListener listener);
 
     public B diverge();
 

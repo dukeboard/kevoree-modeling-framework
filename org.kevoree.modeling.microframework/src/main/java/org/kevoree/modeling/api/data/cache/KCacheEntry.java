@@ -2,7 +2,10 @@ package org.kevoree.modeling.api.data.cache;
 
 import org.kevoree.modeling.api.KInferState;
 import org.kevoree.modeling.api.data.manager.JsonRaw;
+import org.kevoree.modeling.api.meta.Meta;
+import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 
 import java.util.ArrayList;
@@ -21,11 +24,35 @@ public class KCacheEntry implements KCacheObject {
 
     public Object[] raw;
 
+    public boolean[] _modifiedIndexes = null;
+
     public boolean _dirty = false;
 
     @Override
     public boolean isDirty() {
         return _dirty;
+    }
+
+    public int[] modifiedIndexes() {
+        if (_modifiedIndexes == null) {
+            return new int[0];
+        } else {
+            int nbModified = 0;
+            for (int i = 0; i < _modifiedIndexes.length; i++) {
+                if (_modifiedIndexes[i]) {
+                    nbModified = nbModified + 1;
+                }
+            }
+            int[] result = new int[nbModified];
+            int inserted = 0;
+            for (int i = 0; i < _modifiedIndexes.length; i++) {
+                if (_modifiedIndexes[i]) {
+                    result[inserted] = i;
+                    inserted = inserted +1;
+                }
+            }
+            return result;
+        }
     }
 
     @Override
@@ -36,6 +63,7 @@ public class KCacheEntry implements KCacheObject {
     @Override
     public void setClean() {
         _dirty = false;
+        _modifiedIndexes = null;
     }
 
     public Object get(int index) {
@@ -49,6 +77,10 @@ public class KCacheEntry implements KCacheObject {
     public synchronized void set(int index, Object content) {
         raw[index] = content;
         _dirty = true;
+        if (_modifiedIndexes == null) {
+            _modifiedIndexes = new boolean[raw.length];
+        }
+        _modifiedIndexes[index] = true;
     }
 
     public int length() {

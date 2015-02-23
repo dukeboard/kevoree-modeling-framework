@@ -1,6 +1,5 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.json.JsonString;
 import org.kevoree.modeling.api.json.JsonToken;
@@ -13,6 +12,7 @@ import org.kevoree.modeling.api.trace.ModelNewTrace;
 import org.kevoree.modeling.api.trace.ModelSetTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
 
+/*
 public class AbstractKEvent implements KEvent {
 
     private Long _dimensionKey;
@@ -165,4 +165,4 @@ public class AbstractKEvent implements KEvent {
     }
 
 
-}
+}*/

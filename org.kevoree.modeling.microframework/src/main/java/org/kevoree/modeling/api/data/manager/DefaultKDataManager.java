@@ -15,6 +15,8 @@ import org.kevoree.modeling.api.data.cdn.AtomicOperation;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
 import org.kevoree.modeling.api.data.cdn.MemoryKContentDeliveryDriver;
+import org.kevoree.modeling.api.msg.KEventMessage;
+import org.kevoree.modeling.api.msg.KMessage;
 import org.kevoree.modeling.api.scheduler.DirectScheduler;
 import org.kevoree.modeling.api.time.rbtree.IndexRBTree;
 import org.kevoree.modeling.api.time.rbtree.LongRBTree;
@@ -129,8 +131,25 @@ public class DefaultKDataManager implements KDataManager {
     public synchronized void save(Callback<Throwable> callback) {
         KCacheDirty[] dirtiesEntries = _db.cache().dirties();
         KContentPutRequest request = new KContentPutRequest(dirtiesEntries.length + 2);
+        int nbCacheEntry = 0;
+        for (int i = 0; i < dirtiesEntries.length; i++) {
+            if (dirtiesEntries[i].object instanceof KCacheEntry) {
+                nbCacheEntry = nbCacheEntry + 1;
+            }
+        }
+        KMessage[] notificationMessages = new KMessage[nbCacheEntry];
+        int nbInsertedMsg = 0;
         for (int i = 0; i < dirtiesEntries.length; i++) {
             KCacheObject cachedObject = dirtiesEntries[i].object;
+            if (dirtiesEntries[i].object instanceof KCacheEntry) {
+                KEventMessage newMessage = new KEventMessage();
+                newMessage.meta = ((KCacheEntry) dirtiesEntries[i].object).modifiedIndexes();
+                newMessage.universeID = dirtiesEntries[i].key.part1();
+                newMessage.timeID = dirtiesEntries[i].key.part2();
+                newMessage.objID = dirtiesEntries[i].key.part3();
+                notificationMessages[nbInsertedMsg] = new KEventMessage();
+                nbInsertedMsg = nbInsertedMsg + 1;
+            }
             cachedObject.setClean();
             request.put(dirtiesEntries[i].key, cachedObject.serialize());
         }
@@ -139,7 +158,10 @@ public class DefaultKDataManager implements KDataManager {
         _db.put(request, new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
-                _db.commit(callback);
+                if (throwable != null) {
+                    _db.send(notificationMessages);
+                }
+                callback.on(throwable);
             }
         });
     }

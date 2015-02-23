@@ -2,14 +2,13 @@ package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KActionType;
-import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.KInfer;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KTask;
 import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ModelAttributeVisitor;
-import org.kevoree.modeling.api.ModelListener;
+import org.kevoree.modeling.api.KEventListener;
 import org.kevoree.modeling.api.ModelVisitor;
 import org.kevoree.modeling.api.TraceRequest;
 import org.kevoree.modeling.api.VisitRequest;
@@ -209,7 +208,7 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public void listen(ModelListener listener) {
+    public void listen(KEventListener listener) {
         universe().model().manager().cdn().registerListener(this, listener, null);
     }
 
@@ -257,7 +256,6 @@ public abstract class AbstractKObject implements KObject {
             throw new RuntimeException("Bad KMF usage, the attribute named " + p_attribute.metaName() + " is not part of " + metaClass().metaName());
         } else {
             transposed.strategy().mutate(this, transposed, payload);
-            view().universe().model().manager().cdn().notify(new AbstractKEvent(KActionType.SET, this, transposed, payload));
         }
     }
 
@@ -333,10 +331,6 @@ public abstract class AbstractKObject implements KObject {
                     rawParam.set(Index.INBOUNDS_INDEX, previousInbounds);
                 }
                 previousInbounds.add(uuid());
-                //publish event
-                KEvent event = new AbstractKEvent(actionType, this, metaReference, param);
-                view().universe().model().manager().cdn().notify(event);
-
             }
         } else if (actionType.equals(KActionType.SET)) {
             if (!metaReference.single()) {
@@ -387,15 +381,13 @@ public abstract class AbstractKObject implements KObject {
                         }
                         ((AbstractKObject) param).internal_mutate(KActionType.ADD, metaReference.opposite(), this, false, inDelete);
                     }
-                    KEvent event = new AbstractKEvent(actionType, this, metaReference, param);
-                    view().universe().model().manager().cdn().notify(event);
                 }
             }
         } else if (actionType.equals(KActionType.REMOVE)) {
             if (metaReference.single()) {
                 KCacheEntry raw = view().universe().model().manager().entry(this, AccessMode.WRITE);
                 Object previousKid = raw.get(metaReference.index());
-                raw.set(metaReference.index(),null);
+                raw.set(metaReference.index(), null);
                 if (previousKid != null) {
                     final KObject self = this;
                     _view.universe().model().manager().lookup(_view, (Long) previousKid, new Callback<KObject>() {
@@ -423,7 +415,7 @@ public abstract class AbstractKObject implements KObject {
                                             }
                                         }
                                         previousInbounds = new HashSet<Long>();
-                                        rawParam.set(Index.INBOUNDS_INDEX,previousInbounds);
+                                        rawParam.set(Index.INBOUNDS_INDEX, previousInbounds);
                                     }
                                 }
                                 if (previousInbounds != null) {
@@ -432,9 +424,6 @@ public abstract class AbstractKObject implements KObject {
                             }
                         }
                     });
-                    //publish event
-                    KEvent event = new AbstractKEvent(actionType, this, metaReference, previousKid);
-                    view().universe().model().manager().cdn().notify(event);
                 }
             } else {
                 KCacheEntry payload = view().universe().model().manager().entry(this, AccessMode.WRITE);
@@ -448,9 +437,6 @@ public abstract class AbstractKObject implements KObject {
                     if (metaReference.opposite() != null && setOpposite) {
                         ((AbstractKObject) param).internal_mutate(KActionType.REMOVE, metaReference.opposite(), this, false, inDelete);
                     }
-                    //publish event
-                    KEvent event = new AbstractKEvent(actionType, this, metaReference, param);
-                    view().universe().model().manager().cdn().notify(event);
                 }
                 //Inbounds
                 if (!inDelete) {
