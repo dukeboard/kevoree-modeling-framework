@@ -27,7 +27,7 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
             System.out.println("ATOMIC GET " + key + "->" + result);
             System.out.println("ATOMIC PUT " + key + "->" + mutated);
         }
-        backend.put(key.toString(), operation.mutate(result));
+        backend.put(key.toString(), mutated);
         callback.on(result, null);
     }
 

@@ -85,7 +85,10 @@
         <module>org.kevoree.modeling.generator.mavenplugin</module>
 
         <!-- DataStores -->
-        <module>drivers/org.kevoree.modeling.microframework.databases.leveldb</module>
+        <module>drivers/org.kevoree.modeling.microframework.drivers.leveldb</module>
+
+
+        <!--
         <module>drivers/org.kevoree.modeling.microframework.databases.rocksdb</module>
         <module>drivers/org.kevoree.modeling.microframework.databases.redis</module>
         <module>drivers/org.kevoree.modeling.microframework.databases.mongodb</module>
@@ -96,6 +99,9 @@
         <module>drivers/org.kevoree.modeling.microframework.databases.dht.openChord</module>
         <module>drivers/org.kevoree.modeling.microframework.databases.dht.freepastry</module>
         <module>drivers/org.kevoree.modeling.microframework.databases.dht.hyperbolic</module>
+        -->
+
+
         <!-- End DataStores -->
 
     </modules>

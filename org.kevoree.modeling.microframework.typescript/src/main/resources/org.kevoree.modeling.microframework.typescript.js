@@ -2101,7 +2101,7 @@ var org;
                                     System.out.println("ATOMIC GET " + key + "->" + result);
                                     System.out.println("ATOMIC PUT " + key + "->" + mutated);
                                 }
-                                this.backend.put(key.toString(), operation(result));
+                                this.backend.put(key.toString(), mutated);
                                 callback(result, null);
                             };
                             MemoryKContentDeliveryDriver.prototype.get = function (keys, callback) {
