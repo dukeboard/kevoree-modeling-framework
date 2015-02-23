@@ -86,10 +86,10 @@
 
         <!-- DataStores -->
         <module>drivers/org.kevoree.modeling.microframework.drivers.leveldb</module>
+        <module>drivers/org.kevoree.modeling.microframework.drivers.rocksdb</module>
 
 
         <!--
-        <module>drivers/org.kevoree.modeling.microframework.databases.rocksdb</module>
         <module>drivers/org.kevoree.modeling.microframework.databases.redis</module>
         <module>drivers/org.kevoree.modeling.microframework.databases.mongodb</module>
         <module>drivers/org.kevoree.modeling.microframework.databases.websocket</module>
