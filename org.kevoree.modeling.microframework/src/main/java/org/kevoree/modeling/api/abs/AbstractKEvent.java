@@ -22,7 +22,7 @@ public class AbstractKEvent implements KEvent {
     private MetaClass _metaClass;
     private Meta _metaElement;
     private Object _value;
-    
+
     public AbstractKEvent(KActionType p_type, KObject p_source, Meta p_meta, Object p_newValue) {
         if (p_source != null) {
             this._dimensionKey = p_source.universe().key();
