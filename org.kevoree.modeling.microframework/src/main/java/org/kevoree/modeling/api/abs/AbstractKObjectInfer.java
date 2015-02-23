@@ -8,7 +8,6 @@ import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.KInferState;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaInferClass;
-import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 
 /**
@@ -21,7 +20,7 @@ public abstract class AbstractKObjectInfer extends AbstractKObject implements KI
     }
 
     public KInferState readOnlyState() {
-        KCacheEntry raw = view().universe().model().storage().entry(this, AccessMode.READ);
+        KCacheEntry raw = view().universe().model().manager().entry(this, AccessMode.READ);
         if (raw != null) {
             if (raw.get(MetaInferClass.getInstance().getCache().index()) == null) {
                 internal_load(raw);
@@ -33,7 +32,7 @@ public abstract class AbstractKObjectInfer extends AbstractKObject implements KI
     }
 
     public KInferState modifyState() {
-        KCacheEntry raw = view().universe().model().storage().entry(this, AccessMode.WRITE);
+        KCacheEntry raw = view().universe().model().manager().entry(this, AccessMode.WRITE);
         if (raw != null) {
             if (raw.get(MetaInferClass.getInstance().getCache().index()) == null) {
                 internal_load(raw);

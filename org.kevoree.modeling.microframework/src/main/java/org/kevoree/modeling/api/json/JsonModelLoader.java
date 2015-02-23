@@ -12,7 +12,6 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaModel;
 import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 
 import java.util.ArrayList;
@@ -78,7 +77,7 @@ public class JsonModelLoader {
                     try {
                         Map<String, Object> elem = alls.get(i);
                         Long kid = Long.parseLong(elem.get(JsonModelSerializer.KEY_UUID).toString());
-                        mappedKeys.put(kid, factory.universe().model().storage().nextObjectKey());
+                        mappedKeys.put(kid, factory.universe().model().manager().nextObjectKey());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -92,8 +91,8 @@ public class JsonModelLoader {
                         universeTree.insert(factory.universe().key(), factory.now());
                         MetaClass metaClass = metaModel.metaClass(meta);
                         KObject current = ((AbstractKView) factory).createProxy(metaClass, universeTree, mappedKeys.get(kid));
-                        factory.universe().model().storage().initKObject(current, factory);
-                        KCacheEntry raw = factory.universe().model().storage().entry(current, AccessMode.WRITE);
+                        factory.universe().model().manager().initKObject(current, factory);
+                        KCacheEntry raw = factory.universe().model().manager().entry(current, AccessMode.WRITE);
                         String[] metaKeys = elem.keySet().toArray(new String[elem.size()]);
                         for (int h = 0; h < metaKeys.length; h++) {
                             String metaKey = metaKeys[h];

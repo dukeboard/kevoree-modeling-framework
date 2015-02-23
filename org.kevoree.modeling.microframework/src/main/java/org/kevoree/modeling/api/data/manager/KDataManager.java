@@ -35,13 +35,9 @@ public interface KDataManager {
 
     public void setRoot(KObject newRoot, Callback<Throwable> callback);
 
-    public KEventBroker eventBroker();
+    public KContentDeliveryDriver cdn();
 
-    public void setEventBroker(KEventBroker broker);
-
-    public KContentDeliveryDriver dataBase();
-
-    public void setDataBase(KContentDeliveryDriver dataBase);
+    public void setContentDeliveryDriver(KContentDeliveryDriver driver);
 
     public void setScheduler(KScheduler scheduler);
 

@@ -5,7 +5,6 @@ import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ModelFormat;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.json.JsonModelSerializer;
 import org.kevoree.modeling.api.util.Checker;
 
 /**
@@ -26,7 +25,7 @@ public class XmiFormat implements ModelFormat {
 
     public void saveRoot(ThrowableCallback<String> callback) {
         if (Checker.isDefined(callback)) {
-            _view.universe().model().storage().getRoot(_view, new Callback<KObject>() {
+            _view.universe().model().manager().getRoot(_view, new Callback<KObject>() {
                 @Override
                 public void on(KObject root) {
                     if (root == null) {

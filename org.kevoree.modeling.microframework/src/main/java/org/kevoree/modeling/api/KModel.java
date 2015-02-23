@@ -18,13 +18,11 @@ public interface KModel<A extends KUniverse> {
 
     public void disable(ModelListener listener);
 
-    public KDataManager storage();
+    public KDataManager manager();
 
     public void listen(ModelListener listener);
 
-    public KModel<A> setEventBroker(KEventBroker eventBroker);
-
-    public KModel<A> setDataBase(KContentDeliveryDriver dataBase);
+    public KModel<A> setContentDeliveryDriver(KContentDeliveryDriver dataBase);
 
     public KModel<A> setScheduler(KScheduler scheduler);
 

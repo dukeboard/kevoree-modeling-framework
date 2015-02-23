@@ -9863,7 +9863,7 @@ scope.styleResolver = styleResolver;
         return;
       }
       this._elementPrepared = true;
-      // storage for shadowRoots info
+      // manager for shadowRoots info
       this.shadowRoots = {};
       // install property observers
       this.createPropertyObserver();
@@ -10888,7 +10888,7 @@ scope.api.declaration.path = path;
     // }
     //
     requireProperties: function(propertyInfos, prototype, base) {
-      // per-prototype storage for reflected properties
+      // per-prototype manager for reflected properties
       prototype.reflect = prototype.reflect || {};
       // ensure a prototype value for each property
       // and update the property's reflect to attribute status

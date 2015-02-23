@@ -70,7 +70,7 @@ public class JsonModelSerializer {
 
     public static void printJSON(KObject elem, StringBuilder builder, boolean isRoot) {
         if (elem != null) {
-            KCacheEntry raw = elem.view().universe().model().storage().entry(elem, AccessMode.READ);
+            KCacheEntry raw = elem.view().universe().model().manager().entry(elem, AccessMode.READ);
             if (raw != null) {
                 builder.append(JsonRaw.encode(raw, elem.uuid(), elem.metaClass(), false,isRoot));
             }

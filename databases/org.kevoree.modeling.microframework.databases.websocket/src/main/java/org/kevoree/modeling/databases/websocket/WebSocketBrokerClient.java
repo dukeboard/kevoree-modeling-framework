@@ -10,7 +10,7 @@ import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.data.manager.KDataManager;
-import org.kevoree.modeling.api.event.DefaultKBroker;
+import org.kevoree.modeling.api.event.LocalEventListeners;
 import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.event.KEventBroker;
 import org.kevoree.modeling.api.meta.MetaModel;
@@ -35,7 +35,7 @@ public class WebSocketBrokerClient implements KEventBroker {
     private KDataManager _store;
 
     public WebSocketBrokerClient(String ip, int port) {
-        this._baseBroker = new DefaultKBroker();
+        this._baseBroker = new LocalEventListeners();
         this._ip = ip;
         this._port = port;
     }

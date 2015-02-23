@@ -48,12 +48,12 @@ public abstract class AbstractKView implements KView {
     @Override
     public void setRoot(KObject elem, Callback<Throwable> callback) {
         ((AbstractKObject) elem).set_parent(null, null);
-        universe().model().storage().setRoot(elem, callback);
+        universe().model().manager().setRoot(elem, callback);
     }
 
     @Override
     public void getRoot(Callback<KObject> callback) {
-        universe().model().storage().getRoot(this, callback);
+        universe().model().manager().getRoot(this, callback);
     }
 
     @Override
@@ -65,7 +65,7 @@ public abstract class AbstractKView implements KView {
             callback.on(new KObject[0]);
             return;
         }
-        universe().model().storage().getRoot(this, new Callback<KObject>() {
+        universe().model().manager().getRoot(this, new Callback<KObject>() {
             @Override
             public void on(KObject rootObj) {
                 if (rootObj == null) {
@@ -89,12 +89,12 @@ public abstract class AbstractKView implements KView {
 
     @Override
     public void lookup(Long kid, Callback<KObject> callback) {
-        universe().model().storage().lookup(this, kid, callback);
+        universe().model().manager().lookup(this, kid, callback);
     }
 
     @Override
     public void lookupAll(Long[] keys, Callback<KObject[]> callback) {
-        universe().model().storage().lookupAll(this, keys, callback);
+        universe().model().manager().lookupAll(this, keys, callback);
     }
 
     public KObject createProxy(MetaClass clazz, LongRBTree universeTree, long key) {
@@ -109,16 +109,16 @@ public abstract class AbstractKView implements KView {
         }
         LongRBTree newUniverseTree = new LongRBTree();
         newUniverseTree.insert(universe().key(), now());
-        KObject newObj = internalCreate(clazz, newUniverseTree, universe().model().storage().nextObjectKey());
+        KObject newObj = internalCreate(clazz, newUniverseTree, universe().model().manager().nextObjectKey());
         if (newObj != null) {
-            universe().model().storage().initKObject(newObj, this);
-            universe().model().storage().eventBroker().notify(new DefaultKEvent(KActionType.NEW, newObj, clazz, null));
+            universe().model().manager().initKObject(newObj, this);
+            universe().model().manager().cdn().notify(new DefaultKEvent(KActionType.NEW, newObj, clazz, null));
         }
         return newObj;
     }
 
     public void listen(ModelListener listener) {
-        universe().model().storage().eventBroker().registerListener(this, listener, null);
+        universe().model().manager().cdn().registerListener(this, listener, null);
     }
 
     protected abstract KObject internalCreate(MetaClass clazz, LongRBTree universeTree, long key);

@@ -13,34 +13,34 @@ import org.kevoree.modeling.api.meta.MetaOperation;
  */
 public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
 
-    private final KDataManager _storage;
+    private final KDataManager _manager;
 
     public abstract MetaModel metaModel();
 
     protected AbstractKModel() {
-        _storage = new DefaultKDataManager(this);
+        _manager = new DefaultKDataManager(this);
     }
 
     @Override
     public void connect(Callback<Throwable> callback) {
-        _storage.connect(callback);
+        _manager.connect(callback);
     }
 
     @Override
     public void close(Callback<Throwable> callback) {
-        _storage.close(callback);
+        _manager.close(callback);
     }
 
     @Override
-    public KDataManager storage() {
-        return _storage;
+    public KDataManager manager() {
+        return _manager;
     }
 
     @Override
     public A newUniverse() {
-        long nextKey = _storage.nextUniverseKey();
+        long nextKey = _manager.nextUniverseKey();
         final A newDimension = internal_create(nextKey);
-        storage().initUniverse(newDimension, null);
+        manager().initUniverse(newDimension, null);
         return newDimension;
     }
 
@@ -49,57 +49,50 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
     @Override
     public A universe(long key) {
         A newDimension = internal_create(key);
-        storage().initUniverse(newDimension, null);
+        manager().initUniverse(newDimension, null);
         return newDimension;
     }
 
     @Override
     public void save(Callback<Throwable> callback) {
-        _storage.save(callback);
+        _manager.save(callback);
     }
 
     @Override
     public void discard(Callback<Throwable> callback) {
-        _storage.discard(null, callback);
+        _manager.discard(null, callback);
     }
 
     @Override
     public void disable(ModelListener listener) {
-        storage().eventBroker().unregister(listener);
+        manager().cdn().unregister(listener);
     }
 
     @Override
     public void listen(ModelListener listener) {
-        storage().eventBroker().registerListener(this, listener, null);
+        manager().cdn().registerListener(this, listener, null);
     }
 
     @Override
-    public KModel<A> setEventBroker(KEventBroker p_eventBroker) {
-        storage().setEventBroker(p_eventBroker);
-        p_eventBroker.setMetaModel(metaModel());
-        return this;
-    }
-
-    @Override
-    public KModel<A> setDataBase(KContentDeliveryDriver p_dataBase) {
-        storage().setDataBase(p_dataBase);
+    public KModel<A> setContentDeliveryDriver(KContentDeliveryDriver p_driver) {
+        manager().setContentDeliveryDriver(p_driver);
         return this;
     }
 
     @Override
     public KModel<A> setScheduler(KScheduler p_scheduler) {
-        storage().setScheduler(p_scheduler);
+        manager().setScheduler(p_scheduler);
         return this;
     }
 
     @Override
     public void setOperation(MetaOperation metaOperation, KOperation operation) {
-        storage().operationManager().registerOperation(metaOperation, operation, null);
+        manager().operationManager().registerOperation(metaOperation, operation, null);
     }
 
     @Override
     public void setInstanceOperation(MetaOperation metaOperation, KObject target, KOperation operation) {
-        storage().operationManager().registerOperation(metaOperation, operation, target);
+        manager().operationManager().registerOperation(metaOperation, operation, target);
     }
 
     @Override

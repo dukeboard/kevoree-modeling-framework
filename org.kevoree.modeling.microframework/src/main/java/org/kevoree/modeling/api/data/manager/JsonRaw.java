@@ -59,7 +59,7 @@ public class JsonRaw {
             MetaModel metaModel = currentView.universe().model().metaModel();
             //Init metaClass before everything
             entry.metaClass = metaModel.metaClass(content.get(JsonModelSerializer.KEY_META).toString());
-            //Init the Raw storage
+            //Init the Raw manager
             entry.raw = new Object[Index.RESERVED_INDEXES + entry.metaClass.metaAttributes().length + entry.metaClass.metaReferences().length];
             entry._dirty = false;
             //Now Fill the Raw Storage

@@ -561,7 +561,7 @@ var org;
                                     else {
                                         if (rawParam[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] != null) {
                                             try {
-                                                throw new java.lang.Exception("Bad cache values in KMF, " + rawParam[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] + " is not an instance of Set for the INBOUNDS storage");
+                                                throw new java.lang.Exception("Bad cache values in KMF, " + rawParam[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] + " is not an instance of Set for the INBOUNDS manager");
                                             }
                                             catch ($ex$) {
                                                 if ($ex$ instanceof java.lang.Exception) {
@@ -606,7 +606,7 @@ var org;
                                             else {
                                                 if (rawParam[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] != null) {
                                                     try {
-                                                        throw new java.lang.Exception("Bad cache values in KMF, " + rawParam[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] + " is not an instance of Set for the INBOUNDS storage");
+                                                        throw new java.lang.Exception("Bad cache values in KMF, " + rawParam[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] + " is not an instance of Set for the INBOUNDS manager");
                                                     }
                                                     catch ($ex$) {
                                                         if ($ex$ instanceof java.lang.Exception) {
@@ -657,7 +657,7 @@ var org;
                                                         else {
                                                             if (rawParam[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] != null) {
                                                                 try {
-                                                                    throw new java.lang.Exception("Bad cache values in KMF, " + rawParam[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] + " is not an instance of Set for the INBOUNDS storage");
+                                                                    throw new java.lang.Exception("Bad cache values in KMF, " + rawParam[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] + " is not an instance of Set for the INBOUNDS manager");
                                                                 }
                                                                 catch ($ex$) {
                                                                     if ($ex$ instanceof java.lang.Exception) {

@@ -17,7 +17,7 @@ public class LookupRootTest {
 //        MemoryKDataBase.DEBUG = true;
 
         final CloudModel cloudModel = new CloudModel();
-        cloudModel.setDataBase(new MemoryKContentDeliveryDriver());
+        cloudModel.setContentDeliveryDriver(new MemoryKContentDeliveryDriver());
         cloudModel.connect(null);
 
         final CloudUniverse dimension0 = cloudModel.newUniverse();
@@ -46,7 +46,7 @@ public class LookupRootTest {
                 });
 
                 final CloudView lookupView = dimension0.time(0l);
-                cloudModel.storage().getRoot(lookupView, new Callback<KObject>() {
+                cloudModel.manager().getRoot(lookupView, new Callback<KObject>() {
                     @Override
                     public void on(KObject kObject) {
                         Assert.assertNotNull(kObject);
@@ -69,7 +69,7 @@ public class LookupRootTest {
         final MemoryKContentDeliveryDriver db = new MemoryKContentDeliveryDriver();
 
         final CloudModel cloudModel = new CloudModel();
-        cloudModel.setDataBase(db);
+        cloudModel.setContentDeliveryDriver(db);
         cloudModel.connect(null);
 
         final CloudUniverse dimension0 = cloudModel.newUniverse();
@@ -98,7 +98,7 @@ public class LookupRootTest {
         });
 
         final CloudModel universe1 = new CloudModel();
-        universe1.setDataBase(db);
+        universe1.setContentDeliveryDriver(db);
         universe1.connect(null);
         final CloudUniverse cloudDimension1 = universe1.universe(dimension0.key());
         final CloudView cloudView1 = cloudDimension1.time(1l);

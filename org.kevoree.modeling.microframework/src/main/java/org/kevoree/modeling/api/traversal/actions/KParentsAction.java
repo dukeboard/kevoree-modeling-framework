@@ -38,7 +38,7 @@ public class KParentsAction implements KTraversalAction {
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
-                    KCacheEntry raw = currentView.universe().model().storage().entry(loopObj, AccessMode.READ);
+                    KCacheEntry raw = currentView.universe().model().manager().entry(loopObj, AccessMode.READ);
                     Object resolved = raw.get(Index.PARENT_INDEX);
                     if (resolved != null) {
                         try {

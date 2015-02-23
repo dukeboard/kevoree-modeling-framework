@@ -17,11 +17,11 @@ import java.util.Map;
 /**
  * Created by gregory.nain on 28/11/14.
  */
-public class DefaultOperationManager implements KOperationManager{
+public class DefaultOperationManager implements KOperationManager {
 
     private Map<Integer, Map<Integer, KOperation>> staticOperations = new HashMap<Integer, Map<Integer, KOperation>>();
     private Map<Long, Map<Integer, KOperation>> instanceOperations = new HashMap<Long, Map<Integer, KOperation>>();
-    private KDataManager _store;
+    private KDataManager _manager;
 
     private static int DIM_INDEX = 0;
     private static int TIME_INDEX = 1;
@@ -32,13 +32,13 @@ public class DefaultOperationManager implements KOperationManager{
     private HashMap<Long[], Callback<Object>> remoteCallCallbacks = new HashMap<Long[], Callback<Object>>();
 
 
-    public DefaultOperationManager(KDataManager store) {
-        this._store = store;
+    public DefaultOperationManager(KDataManager p_manager) {
+        this._manager = p_manager;
     }
 
     @Override
     public void registerOperation(MetaOperation operation, KOperation callback, KObject target) {
-        if( target == null) {
+        if (target == null) {
             Map<Integer, KOperation> clazzOperations = staticOperations.get(operation.origin().index());
             if (clazzOperations == null) {
                 clazzOperations = new HashMap<Integer, KOperation>();
@@ -47,7 +47,7 @@ public class DefaultOperationManager implements KOperationManager{
             clazzOperations.put(operation.index(), callback);
         } else {
             Map<Integer, KOperation> objectOperations = instanceOperations.get(target.uuid());
-            if( objectOperations == null) {
+            if (objectOperations == null) {
                 objectOperations = new HashMap<Integer, KOperation>();
                 instanceOperations.put(target.uuid(), objectOperations);
             }
@@ -57,7 +57,7 @@ public class DefaultOperationManager implements KOperationManager{
 
     private KOperation searchOperation(Long source, int clazz, int operation) {
         Map<Integer, KOperation> objectOperations = instanceOperations.get(source);
-        if( objectOperations != null) {
+        if (objectOperations != null) {
             return objectOperations.get(operation);
         }
         Map<Integer, KOperation> clazzOperations = staticOperations.get(clazz);
@@ -70,7 +70,7 @@ public class DefaultOperationManager implements KOperationManager{
     @Override
     public void call(KObject source, MetaOperation operation, Object[] param, Callback<Object> callback) {
         KOperation operationCore = searchOperation(source.uuid(), operation.origin().index(), operation.index());
-        if (operationCore != null){
+        if (operationCore != null) {
             operationCore.on(source, param, callback);
         } else {
             sendToRemote(source, operation, param, callback);
@@ -83,26 +83,26 @@ public class DefaultOperationManager implements KOperationManager{
         tuple[DIM_INDEX] = source.universe().key();
         tuple[TIME_INDEX] = source.now();
         tuple[UUID_INDEX] = source.uuid();
-        tuple[OPERATION_INDEX] = (long)operation.index();
+        tuple[OPERATION_INDEX] = (long) operation.index();
 
         remoteCallCallbacks.put(tuple, callback);
 
-        StringBuilder sb =new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         sb.append("[");
-        if(param.length > 0) {
+        if (param.length > 0) {
             sb.append("\"").append(protectString(param[0].toString())).append("\"");
-            for(int i = 1; i < param.length; i++) {
+            for (int i = 1; i < param.length; i++) {
                 sb.append(",").append("\"").append(protectString(param[i].toString())).append("\"");
             }
         }
         sb.append("]");
-        DefaultKEvent operationCallEvent = new DefaultKEvent(KActionType.CALL,source, operation, sb.toString());
-        _store.eventBroker().sendOperationEvent(operationCallEvent);
+        DefaultKEvent operationCallEvent = new DefaultKEvent(KActionType.CALL, source, operation, sb.toString());
+        _manager.cdn().sendOperationEvent(operationCallEvent);
     }
 
     private String protectString(String input) {
         StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < input.length(); i++) {
+        for (int i = 0; i < input.length(); i++) {
             char c = input.charAt(i);
             if (c == '{' || c == '}' || c == '[' || c == ']' || c == ',' || c == '\\' || c == '"') {
                 sb.append('\\');
@@ -112,27 +112,27 @@ public class DefaultOperationManager implements KOperationManager{
         return sb.toString();
     }
 
-    private Object[] parseParams (String inParams){
+    private Object[] parseParams(String inParams) {
         ArrayList<Object> params = new ArrayList<Object>();
         StringBuilder sb = new StringBuilder();
-        if(inParams.length() > 2) {
-            if(inParams.charAt(0) == '[') {
+        if (inParams.length() > 2) {
+            if (inParams.charAt(0) == '[') {
                 int i = 1;
                 char c = inParams.charAt(i);
                 boolean inParam = false;
-                while(i < inParams.length() && c != ']') {
+                while (i < inParams.length() && c != ']') {
                     if (c == '\\') { //despecialize
                         i++;
                         sb.append(inParams.charAt(i));
-                    } else if(c == '"') {
-                        if(inParam) {
+                    } else if (c == '"') {
+                        if (inParam) {
                             //END of param
                             params.add(sb.toString());
                             sb = new StringBuilder();
                         }
                         inParam = !inParam;
                     } else {
-                        if(inParam) {
+                        if (inParam) {
                             sb.append(c);
                         }
                     }
@@ -146,15 +146,15 @@ public class DefaultOperationManager implements KOperationManager{
     }
 
     public void operationEventReceived(KEvent operationEvent) {
-        if(operationEvent.actionType() == KActionType.CALL_RESPONSE) {
+        if (operationEvent.actionType() == KActionType.CALL_RESPONSE) {
             Long[][] keys = remoteCallCallbacks.keySet().toArray(new Long[remoteCallCallbacks.size()][]);
-            for(int i = 0; i < keys.length; i++) {
+            for (int i = 0; i < keys.length; i++) {
                 Long[] tuple = keys[i];
-                if(tuple[DIM_INDEX].equals(operationEvent.universe())) {
-                    if(tuple[TIME_INDEX].equals(operationEvent.time())) {
-                        if(tuple[UUID_INDEX].equals(operationEvent.uuid())) {
-                            if(tuple[OPERATION_INDEX].equals((long)operationEvent.metaElement().index())) {
-                                Object[] returnParam = parseParams((String)operationEvent.value());
+                if (tuple[DIM_INDEX].equals(operationEvent.universe())) {
+                    if (tuple[TIME_INDEX].equals(operationEvent.time())) {
+                        if (tuple[UUID_INDEX].equals(operationEvent.uuid())) {
+                            if (tuple[OPERATION_INDEX].equals((long) operationEvent.metaElement().index())) {
+                                Object[] returnParam = parseParams((String) operationEvent.value());
                                 Callback<Object> cb = remoteCallCallbacks.get(tuple);
                                 remoteCallCallbacks.remove(tuple);
                                 cb.on(returnParam);
@@ -163,18 +163,18 @@ public class DefaultOperationManager implements KOperationManager{
                     }
                 }
             }
-        } else if(operationEvent.actionType() == KActionType.CALL) {
+        } else if (operationEvent.actionType() == KActionType.CALL) {
             KOperation operationCore = searchOperation(operationEvent.uuid(), operationEvent.metaClass().index(), operationEvent.metaElement().index());
-            if (operationCore != null){
-                KView view = _store.getModel().universe(operationEvent.universe()).time(operationEvent.time());
+            if (operationCore != null) {
+                KView view = _manager.getModel().universe(operationEvent.universe()).time(operationEvent.time());
                 view.lookup(operationEvent.uuid(), new Callback<KObject>() {
                     public void on(KObject kObject) {
-                        if(kObject != null) {
-                            Object[] params = parseParams((String)operationEvent.value());
+                        if (kObject != null) {
+                            Object[] params = parseParams((String) operationEvent.value());
                             operationCore.on(kObject, params, new Callback<Object>() {
                                 public void on(Object o) {
-                                    DefaultKEvent operationCallResponseEvent = new DefaultKEvent(KActionType.CALL_RESPONSE,kObject, operationEvent.metaElement(), "[\""+protectString(o.toString())+"\"]");
-                                    _store.eventBroker().sendOperationEvent(operationCallResponseEvent);
+                                    DefaultKEvent operationCallResponseEvent = new DefaultKEvent(KActionType.CALL_RESPONSE, kObject, operationEvent.metaElement(), "[\"" + protectString(o.toString()) + "\"]");
+                                    _manager.cdn().sendOperationEvent(operationCallResponseEvent);
                                 }
                             });
                         }

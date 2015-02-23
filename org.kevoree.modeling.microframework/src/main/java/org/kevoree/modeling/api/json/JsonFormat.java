@@ -31,7 +31,7 @@ public class JsonFormat implements ModelFormat {
     @Override
     public void saveRoot(ThrowableCallback<String> callback) {
         if (Checker.isDefined(callback)) {
-            _view.universe().model().storage().getRoot(_view, new Callback<KObject>() {
+            _view.universe().model().manager().getRoot(_view, new Callback<KObject>() {
                 @Override
                 public void on(KObject root) {
                     if (root == null) {

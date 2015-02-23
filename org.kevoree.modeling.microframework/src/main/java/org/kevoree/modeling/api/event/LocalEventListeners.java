@@ -1,20 +1,17 @@
 package org.kevoree.modeling.api.event;
 
-import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.abs.AbstractKUniverse;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.abs.AbstractKView;
-import org.kevoree.modeling.api.data.manager.KDataManager;
-import org.kevoree.modeling.api.meta.MetaModel;
 
 import java.util.HashMap;
 
 /**
  * Created by gregory.nain on 11/11/14.
  */
-public class DefaultKBroker implements KEventBroker {
+public class LocalEventListeners {
 
     private static int DIM_INDEX = 0;
     private static int TIME_INDEX = 1;
@@ -22,25 +19,6 @@ public class DefaultKBroker implements KEventBroker {
     private static int TUPLE_SIZE = 3;
 
     private HashMap<ModelListener, Long[]> listeners = new HashMap<ModelListener, Long[]>();
-
-    private MetaModel _metaModel;
-
-    private KDataManager _store;
-
-    @Override
-    public void connect(Callback<Throwable> callback) {
-        if (callback != null) {
-            callback.on(null);
-        }
-    }
-
-    @Override
-    public void close(Callback<Throwable> callback) {
-        listeners.clear();
-        if (callback != null) {
-            callback.on(null);
-        }
-    }
 
     public void registerListener(Object origin, ModelListener listener, Object scope) {
         Long[] tuple = new Long[TUPLE_SIZE];
@@ -66,7 +44,6 @@ public class DefaultKBroker implements KEventBroker {
     }
 
 
-    //TODO optimize
     public void notify(KEvent event) {
         ModelListener[] keys = listeners.keySet().toArray(new ModelListener[listeners.size()]);
         for (int i = 0; i < keys.length; i++) {
@@ -93,29 +70,12 @@ public class DefaultKBroker implements KEventBroker {
         }
     }
 
-    public void sendOperationEvent(KEvent eventk) {
-        //NOOP DefaultBroker is local. Should have been found in DefaultOperationManager CallbackTable
-    }
-
-    @Override
-    public void flush() {
-        //Noop
-    }
-
-    @Override
-    public void setKStore(KDataManager store) {
-        this._store = store;
-    }
-
-
-    @Override
-    public void setMetaModel(MetaModel p_metaModel) {
-        this._metaModel = p_metaModel;
-    }
-
-    @Override
     public void unregister(ModelListener listener) {
         listeners.remove(listener);
+    }
+
+    public void clear(){
+        listeners.clear();
     }
 
 

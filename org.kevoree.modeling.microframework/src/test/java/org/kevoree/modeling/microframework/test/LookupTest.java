@@ -25,7 +25,7 @@ public class LookupTest {
         node.setName("n0");
         t0.setRoot(node, null);
         //Assert.assertTrue(node.isRoot());
-        cloudModel.storage().getRoot(t0, new Callback<KObject>() {
+        cloudModel.manager().getRoot(t0, new Callback<KObject>() {
             @Override
             public void on(KObject resolvedRoot) {
                 Assert.assertEquals(node, resolvedRoot);
@@ -37,7 +37,7 @@ public class LookupTest {
             @Override
             public void on(Throwable error) {
                 final CloudModel universe2 = new CloudModel();
-                universe2.setDataBase(cloudModel.storage().dataBase());
+                universe2.setContentDeliveryDriver(cloudModel.manager().cdn());
                 CloudUniverse dimension0_2 = universe2.universe(dimension0.key());
                 final CloudView t0_2 = dimension0_2.time(0l);
                 t0_2.lookup(node.uuid(), new Callback<KObject>() {
@@ -50,7 +50,7 @@ public class LookupTest {
                                 Assert.assertEquals(resolved, resolved2);
                             }
                         });
-                        universe2.storage().getRoot(t0_2, new Callback<KObject>() {
+                        universe2.manager().getRoot(t0_2, new Callback<KObject>() {
                             @Override
                             public void on(KObject resolvedRoot) {
                                 Assert.assertEquals(resolved, resolvedRoot);

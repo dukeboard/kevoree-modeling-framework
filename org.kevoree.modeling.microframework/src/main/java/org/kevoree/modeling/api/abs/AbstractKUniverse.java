@@ -7,7 +7,6 @@ import org.kevoree.modeling.api.KTask;
 import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ModelListener;
-import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +37,7 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
 
     @Override
     public void delete(Callback<Throwable> callback) {
-        model().storage().delete(this, callback);
+        model().manager().delete(this, callback);
     }
     
     @Override
@@ -48,13 +47,13 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
 
     @Override
     public void listen(ModelListener listener) {
-        model().storage().eventBroker().registerListener(this, listener, null);
+        model().manager().cdn().registerListener(this, listener, null);
     }
 
     @Override
     public void listenAllTimes(KObject target, ModelListener listener) {
         //TODO invert this and target to fix a potential bug
-        model().storage().eventBroker().registerListener(this, listener, target);
+        model().manager().cdn().registerListener(this, listener, target);
     }
 
     protected abstract A internal_create(Long timePoint);
@@ -71,21 +70,21 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
 
     @Override
     public B origin() {
-        return (B) _model.universe(_model.storage().parentUniverseKey(_key));
+        return (B) _model.universe(_model.manager().parentUniverseKey(_key));
     }
 
     @Override
     public B diverge() {
         AbstractKModel casted = (AbstractKModel) _model;
-        long nextKey = _model.storage().nextUniverseKey();
+        long nextKey = _model.manager().nextUniverseKey();
         B newUniverse = (B) casted.internal_create(nextKey);
-        _model.storage().initUniverse(newUniverse, this);
+        _model.manager().initUniverse(newUniverse, this);
         return newUniverse;
     }
 
     @Override
     public List<B> descendants() {
-        Long[] descendentsKey = _model.storage().descendantsUniverseKeys(_key);
+        Long[] descendentsKey = _model.manager().descendantsUniverseKeys(_key);
         List<B> childs = new ArrayList<B>();
         for (int i = 0; i < descendentsKey.length; i++) {
             childs.add((B) _model.universe(descendentsKey[i]));
