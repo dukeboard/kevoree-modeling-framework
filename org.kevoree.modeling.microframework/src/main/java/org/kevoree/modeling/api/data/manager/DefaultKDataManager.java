@@ -168,16 +168,16 @@ public class DefaultKDataManager implements KDataManager {
 
     @Override
     public void initKObject(KObject obj, KView originView) {
-        KCacheEntry KCacheEntry = new KCacheEntry();
-        KCacheEntry.raw = new Object[Index.RESERVED_INDEXES + obj.metaClass().metaAttributes().length + obj.metaClass().metaReferences().length];
-        KCacheEntry._dirty = true;
-        KCacheEntry.metaClass = obj.metaClass();
-        KCacheEntry.universeTree = obj.universeTree();
+        KCacheEntry cacheEntry = new KCacheEntry();
+        cacheEntry.raw = new Object[Index.RESERVED_INDEXES + obj.metaClass().metaAttributes().length + obj.metaClass().metaReferences().length];
+        cacheEntry._dirty = true;
+        cacheEntry.metaClass = obj.metaClass();
+        cacheEntry.universeTree = obj.universeTree();
         IndexRBTree timeTree = new IndexRBTree();
         timeTree.insert(obj.now());
         _db.cache().put(KContentKey.createTimeTree(obj.universe().key(), obj.uuid()), timeTree);
-        _db.cache().put(KContentKey.createUniverseTree(obj.uuid()), obj.universeTree());
-        _db.cache().put(KContentKey.createObject(obj.universe().key(), obj.now(), obj.uuid()), KCacheEntry);
+        _db.cache().put(KContentKey.createUniverseTree(obj.uuid()), cacheEntry.universeTree);
+        _db.cache().put(KContentKey.createObject(obj.universe().key(), obj.now(), obj.uuid()), cacheEntry);
     }
 
     private final int UNIVERSE_INDEX = 0;
@@ -350,7 +350,7 @@ public class DefaultKDataManager implements KDataManager {
                     IndexRBTree newTemporalTree = new IndexRBTree();
                     newTemporalTree.insert(origin.now());
                     _db.cache().put(KContentKey.createTimeTree(origin.universe().key(), origin.uuid()), newTemporalTree);
-                    origin.universeTree().insert(origin.universe().key(), origin.now());//insert this time as a divergence point for this object
+                    dimensionTree.insert(origin.universe().key(), origin.now());//insert this time as a divergence point for this object
                 }
                 _db.cache().put(KContentKey.createObject(origin.universe().key(), origin.now(), origin.uuid()), clonedEntry);
                 return clonedEntry;
