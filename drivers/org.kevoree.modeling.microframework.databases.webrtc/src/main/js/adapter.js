@@ -65,7 +65,7 @@ adaptator.adapteRTCapi = function() {
         // getUserMedia shim (only difference is the prefix).
         // Code from Adam Barth.
         adaptator.getUserMedia = navigator.mozGetUserMedia.bind(navigator);
-        navigator.getUserMedia = getUserMedia;
+        navigator.getUserMedia = adaptator.getUserMedia;
 
         // Shim for MediaStreamTrack.getSources.
         MediaStreamTrack.getSources = function(successCb) {

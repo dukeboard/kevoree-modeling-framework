@@ -29,12 +29,13 @@
             <code>remotePeerConnection</code> are in global scope, so you can inspect them in the console as well.</p>
     </template>
     <script src="../../../js/adapter.js"></script>
-    <script src="../../../js/dbIndexed.js"></script>
+    <script src="../../../js/intercom.js"></script>
+    <!-- script src="../../../js/dbIndexed.js"></script -->
     <script>
         Polymer({
-            id: null, /* Our unique ID */
-            sharedKey: null, /* Unique identifier for two clients to find each other */
-            remote: null, /* ID of the remote peer -- set once they send an offer */
+            id: "", /* Our unique ID */
+            sharedKey: "", /* Unique identifier for two clients to find each other */
+            remote: "", /* ID of the remote peer -- set once they send an offer */
 
             /* Keep track of our connection state */
             running: false,
@@ -43,15 +44,15 @@
              * */
             servers: {iceServers: [{url: 'stun:stun.l.google.com:19302'}]},
 
-            peerConnection: null, /* This is our WebRTC connection */
+            peerConnection: '', /* This is our WebRTC connection */
             dataChannel: null, /* This is our outgoing data channel within WebRTC */
 
-            annEV: new Event("on-announce"),
-            signalEV: new Event("on-signal"),
+            intercom: null,
 
             ready: function () {
-                html5rocks.indexedDB.open();
+                //html5rocks.indexedDB.open();
                 adaptator.adapteRTCapi();
+                this.intercom = Intercom.getInstance();
 
                 /* Generate this browser a unique ID */
                 this.id = Math.random().toString().replace('.', '');
@@ -67,18 +68,20 @@
                  */
                 this.sendAnnounceChannelMessage();
 
-                document.addEventListener("on-signal", this.handleSignalChannelMessage);
-                document.addEventListener("on-announce", this.handleAnnounceChannelMessage);
+                this.intercom.on("on-signal", this.handleSignalChannelMessage.bind(this));
+                this.intercom.on("on-announce", this.handleAnnounceChannelMessage.bind(this));
             },
             // Announce our arrival to the announcement channel
             sendAnnounceChannelMessage: function () {
-                html5rocks.indexedDB.sendAnnounce(this.id, this.sharedKey);
-                // Dispatch the event.
-                document.dispatchEvent(this.annEV);
+                this.intercom.emit("on-announce",{
+                    "id": this.id,
+                    "sharedKey" : this.sharedKey
+                });
+                //html5rocks.indexedDB.sendAnnounce(this.id, this.sharedKey);
             },
             // Handle an incoming message on the announcement channel
-            handleAnnounceChannelMessage: function () {
-                var message = html5rocks.indexedDB.getAnnounce(this.sharedKey);
+            handleAnnounceChannelMessage: function ( message ) {
+                //var message = html5rocks.indexedDB.getAnnounce(this.sharedKey);
                 if (message.id != this.id && message.sharedKey == this.sharedKey) {
                     console.log('Discovered matching announcement from ' + message.id);
                     this.remote = message.id;
@@ -90,7 +93,6 @@
             initiateWebRTCState: function () {
                 var channelSCTP = true, channelRTP = false;
                 var pcConstraint = null;
-
                 if (channelSCTP) {
                     // SCTP is supported from Chrome 31 and is supported in FF.
                     // No need to pass DTLS constraint as it is on by default in Chrome 31.
@@ -103,16 +105,17 @@
                     if (!channelRTP) {
                         // Use RTP data channels for Chrome versions older than 31.
                         adaptator.trace('Using RTP based data channels, as you are on an older version than 31.');
-                        channnelRTP = true;
+                        channelRTP = true;
                     }
                 }
                 adaptator.trace('Created remote peer connection object peerConnection');
-                this.peerConnection = new RTCPeerConnection(servers, pcConstraint);
+                this.peerConnection = new adaptator.RTCPeerConnection(this.servers, pcConstraint);
                 this.peerConnection.ondatachannel = this.handleDataChannel;
 
                 this.dataChannel = this.peerConnection.createDataChannel('myDataChannel');
                 this.dataChannel.onmessage = this.handleDataChannelMessage;
                 this.dataChannel.onopen = this.handleDataChannelOpen;
+                this.dataChannel.onclose = this.handleDataChannelClosed();
             },
             /* == Data Channel Functions ==
              * The WebRTC connection is established by the time these functions run
@@ -125,6 +128,7 @@
             // We receive this channel when our peer opens a sending channel
             // We will bind to trigger a handler when an incoming message happens
             handleDataChannel: function (event) {
+                adaptator.trace('Receive Channel Callback');
                 event.channel.onmessage = this.handleDataChannelMessage;
             },
             // This is called on an incoming message from our peer
@@ -135,46 +139,59 @@
             },
             // This is called when the WebRTC sending data channel is officially 'open'
             handleDataChannelOpen: function () {
-                console.log('Data channel created! Hello! I am ' + id);
+                console.log('Data channel created! Hello! I am ' + this.id);
+                this.$.dataChannelSend.disabled = false;
+                this.$.dataChannelSend.focus();
+                this.$.dataChannelSend.placeholder = '';
+                this.dataChannel.send('Hello! I am ' + id);
             },
             // Called when the data channel has closed
             handleDataChannelClosed: function () {
                 console.log('The data channel has been closed!');
+                this.$.dataChannelSend.disabled = true;
             },
             // Function to offer to start a WebRTC connection with a peer
             connect: function () {
                 this.running = true;
                 this.startSendingCandidates();
-                this.peerConnection.createOffer(function (sessionDescription) {
-                    console.log('Sending offer to ' + remote);
-                    this.peerConnection.setLocalDescription( sessionDescription );
-                    this.sendSignalChannelMessage( sessionDescription );
-                });
+                var self = this;
+                this.peerConnection.createOffer( (function ( offer ) {
+                    console.log('Sending offer to '+ this.remote);
+                    var sessionDescription = new RTCSessionDescription(offer);
+                    this.peerConnection.setLocalDescription( sessionDescription , function() {
+                        // send the offer to a server to be forwarded to the friend you're calling.
+                        self.sendSignalChannelMessage( sessionDescription );
+                    }, function error(err) {
+                                console.log("Offer error!");
+                            }
+                    );
+                }).bind(this));
             },
             /* == Signal Channel Functions ==
              * The signal channels are used to delegate the WebRTC connection between
              * two peers once they have found each other via the announcement channel.
              *
-             * This is done on Firebase as well. Once the two peers communicate the
-             * necessary information to 'find' each other via WebRTC, the signalling
-             * channel is no longer used and the connection becomes peer-to-peer.
+             * Once the two peers communicate the necessary information to 'find' each other via WebRTC,
+             * the signalling channel is no longer used and the connection becomes peer-to-peer.
              */
             sendSignalChannelMessage: function(message) {
-                message.sender = id;
-                html5rocks.indexedDB.sendSignal( this.sharedKey, message );
-                // Dispatch the event.
-                document.dispatchEvent(this.signalEV);
+                message.sender = this.id;
+                this.intercom.emit("on-signal",{
+                    "data": message,
+                    "sharedKey" : this.sharedKey
+                });
+                //html5rocks.indexedDB.sendSignal( this.sharedKey, message );
             },
             // This is the general handler for a message from our remote client
             // Determine what type of message it is, and call the appropriate handler
-            handleSignalChannelMessage: function () {
-                var message = html5rocks.indexedDB.getSignal( this.sharedKey );
-                var sender = message.sender;
-                var type = message.type;
+            handleSignalChannelMessage: function ( message ) {
+                //var message = html5rocks.indexedDB.getSignal( this.sharedKey );
+                var sender = message.data.sender;
+                var type = message.data.type;
                 console.log('Received a \'' + type + '\' signal from ' + sender);
-                if (type == 'offer') this.handleOfferSignal(message);
-                else if (type == 'answer') this.handleAnswerSignal(message);
-                else if (type == 'candidate' && running) this.handleCandidateSignal(message);
+                if (type == 'offer') { this.handleOfferSignal(message.data); }
+                else if (type == 'answer') { this.handleAnswerSignal(message.data); }
+                else if (type == 'candidate' && this.running) { this.handleCandidateSignal(message.data); }
             },
             // Handle a WebRTC offer request from a remote client
             handleOfferSignal: function (message) {
@@ -183,15 +200,15 @@
                 this.initiateWebRTCState();
                 this.startSendingCandidates();
                 this.peerConnection.setRemoteDescription(new RTCSessionDescription(message));
-                this.peerConnection.createAnswer(function (sessionDescription) {
+                this.peerConnection.createAnswer( (function (sessionDescription) {
                     console.log('Sending answer to ' + message.sender);
                     this.peerConnection.setLocalDescription(sessionDescription);
                     this.sendSignalChannelMessage(sessionDescription);
-                });
+                }).bind(this) );
             },
             // Handle a WebRTC answer response to our offer we gave the remote client
             handleAnswerSignal: function (message) {
-                this.peerConnection.setRemoteDescription(new RTCSessionDescription(message));
+                this.peerConnection.setRemoteDescription( new RTCSessionDescription(message) );
             },
             // Handle an ICE candidate notification from the remote client
             handleCandidateSignal: function (message) {
@@ -205,8 +222,8 @@
              */
             // Add listener functions to ICE Candidate events
             startSendingCandidates: function () {
-                this.peerConnection.oniceconnectionstatechange = this.handleICEConnectionStateChange;
-                this.peerConnection.onicecandidate = this.handleICECandidate;
+                this.peerConnection.oniceconnectionstatechange = this.handleICEConnectionStateChange.bind( this );
+                this.peerConnection.onicecandidate = this.handleICECandidate.bind( this );
             },
             // This is how we determine when the WebRTC connection has ended
             // This is most likely because the other peer left the page
@@ -222,7 +239,7 @@
                 var candidate = event.candidate;
                 if (candidate) {
                     candidate.type = 'candidate';
-                    console.log('Sending candidate to ' + remote);
+                    console.log('Sending candidate to ' + this.remote);
                     this.sendSignalChannelMessage(candidate);
                 } else {
                     console.log('All candidates sent');
@@ -232,6 +249,9 @@
                 var data = this.$.dataChannelSend.value;
                 this.dataChannel.send(data);
                 adaptator.trace('Sent data: ' + data);
+            },
+            closeDataChannels: function(){
+                console.log('Try to close');
             }
         });
     </script>

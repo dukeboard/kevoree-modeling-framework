@@ -21,7 +21,7 @@ html5rocks.indexedDB.open = function() {
             db.createObjectStore( html5rocks.indexedDB.chanSignal,  {keyPath: "timestamp"});
         }
         if( !db.objectStoreNames.contains( html5rocks.indexedDB.chanAnnounce ) ) {
-            db.createObjectStore( html5rocks.indexedDB.chanAnnounce,  {keyPath: "sharedKey"});
+            db.createObjectStore( html5rocks.indexedDB.chanAnnounce,  {keyPath: "id"});
         }
         console.log("DB is upgraded!");
     };
@@ -43,6 +43,7 @@ html5rocks.indexedDB.sendAnnounce = function( id, sharedKey ) {
         html5rocks.indexedDB.db = e.target.result;
         var transaction = html5rocks.indexedDB.db.transaction([html5rocks.indexedDB.chanAnnounce], "readwrite");
         var store = transaction.objectStore( html5rocks.indexedDB.chanAnnounce );
+        var keyIndex = store.createIndex("by_sharedKey", "sharedKey", {unique: true});
         var request = store.put({
             "id": id,
             "sharedKey" : sharedKey
@@ -50,7 +51,7 @@ html5rocks.indexedDB.sendAnnounce = function( id, sharedKey ) {
         transaction.oncomplete = function(e) {
             console.log('Announced our sharedKey is ' + sharedKey);
             console.log('Announced our ID is ' + id);
-            console.log("Transaction complete");
+            console.log("Send announce transaction complete");
         };
     };
     request.onerror = function(e) {
@@ -63,8 +64,9 @@ html5rocks.indexedDB.sendSignal = function( sharedKey, message ) {
         html5rocks.indexedDB.db = e.target.result;
         var transaction = html5rocks.indexedDB.db.transaction([html5rocks.indexedDB.chanSignal], "readwrite");
         var store = transaction.objectStore( html5rocks.indexedDB.chanSignal );
+        var keyIndex = store.createIndex("by_sharedKey", "sharedKey", {unique: true});
         var request = store.put({
-            "message": message,
+            "data": message,
             "sharedKey" : sharedKey,
             "timeStamp" : new Date().getTime()
         });
@@ -83,8 +85,9 @@ html5rocks.indexedDB.getAnnounce = function( sharedKey ) {
         html5rocks.indexedDB.db = e.target.result;
         var transaction = html5rocks.indexedDB.db.transaction([html5rocks.indexedDB.chanAnnounce], "readonly");
         var store = transaction.objectStore( html5rocks.indexedDB.chanAnnounce );
-        var request = store.get( sharedKey );
+        var index = store.index("by_sharedKey");
 
+        var request = index.get( sharedKey );
         console.log('GET announced our sharedKey is ' + sharedKey);
 
         var matching = request.result;
@@ -106,8 +109,8 @@ html5rocks.indexedDB.getSignal = function( sharedKey ) {
     request.onsuccess = function(e) {
         html5rocks.indexedDB.db = e.target.result;
         var transaction = html5rocks.indexedDB.db.transaction([html5rocks.indexedDB.chanSignal], "readonly");
-        var store = transaction.objectStore( html5rocks.indexedDB.chanAnnounce );
-        var index = store.index("sharedKey");
+        var store = transaction.objectStore( html5rocks.indexedDB.chanSignal );
+        var index = store.index("by_sharedKey");
 
         var request = index.get( sharedKey );
         console.log('GET announced our sharedKey is ' + sharedKey);
