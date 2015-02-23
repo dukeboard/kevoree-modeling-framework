@@ -76,15 +76,20 @@ public class KCacheLayer {
     }
 
     public void dirties(List<KCacheDirty> result, Long[] prefixKeys, int current) {
-        if (current == KContentKey.ELEM_SIZE) {
-            if (_cachedNullObject != null) {
+        if (current == KContentKey.ELEM_SIZE-1) {
+            if (_cachedNullObject != null && _cachedNullObject.isDirty()) {
                 KContentKey nullKey = new KContentKey(prefixKeys[0], prefixKeys[1], prefixKeys[2], null);
                 result.add(new KCacheDirty(nullKey, _cachedNullObject));
             }
-            Long[] objKeys = _cachedObjects.keySet().toArray(new Long[_cachedObjects.keySet().size()]);
-            for (int i = 0; i < objKeys.length; i++) {
-                KContentKey loopKey = new KContentKey(prefixKeys[0], prefixKeys[1], prefixKeys[2], objKeys[i]);
-                result.add(new KCacheDirty(loopKey, _cachedObjects.get(objKeys[i])));
+            if(_cachedObjects!=null){
+                Long[] objKeys = _cachedObjects.keySet().toArray(new Long[_cachedObjects.keySet().size()]);
+                for (int i = 0; i < objKeys.length; i++) {
+                    KCacheObject loopCached = _cachedObjects.get(objKeys[i]);
+                    if(loopCached.isDirty()){
+                        KContentKey loopKey = new KContentKey(prefixKeys[0], prefixKeys[1], prefixKeys[2], objKeys[i]);
+                        result.add(new KCacheDirty(loopKey, loopCached));
+                    }
+                }
             }
         } else {
             if (_nestedNullLayer != null) {

@@ -68,6 +68,9 @@ public class MultiLayeredMemoryCache implements KCache {
                 layer.dirties(result, prefixKey, 1);
             }
         }
+        if(DEBUG){
+            System.out.println("KMF_DEBUG_CACHE_DIRTIES:"+result.size());
+        }
         return result.toArray(new KCacheDirty[result.size()]);
     }
 

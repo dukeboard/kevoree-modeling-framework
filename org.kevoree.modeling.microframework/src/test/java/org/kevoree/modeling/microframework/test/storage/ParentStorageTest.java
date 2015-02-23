@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.data.cache.MultiLayeredMemoryCache;
+import org.kevoree.modeling.api.data.cdn.MemoryKContentDeliveryDriver;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
@@ -75,7 +76,8 @@ public class ParentStorageTest {
     @Test
     public void parentTest() {
 
-        MultiLayeredMemoryCache.DEBUG = true;
+     //   MultiLayeredMemoryCache.DEBUG = true;
+        MemoryKContentDeliveryDriver.DEBUG = true;
 
         CloudModel cloudModel = new CloudModel();
         cloudModel.connect(null);
@@ -131,20 +133,14 @@ public class ParentStorageTest {
             public void on(KObject r_n1) {
                 Assert.assertNotNull(r_n1.parentUuid());
                 Assert.assertNotNull(r_n1.referenceInParent());
-
                 r_n1.inbounds(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(1, kObjects.length);
                     }
                 });
-                //i[0]++;
             }
         });
-
-        //lookup test
-        //Assert.assertEquals(3, i[0]);
-
     }
 
 }

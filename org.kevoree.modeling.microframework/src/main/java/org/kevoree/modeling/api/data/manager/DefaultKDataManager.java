@@ -639,7 +639,7 @@ public class DefaultKDataManager implements KDataManager {
                         newTimeTree.insert(newRoot.now(), newRoot.uuid());
                         KContentKey universeTreeRootKey = KContentKey.createRootTimeTree(newRoot.universe().key());
                         _db.cache().put(universeTreeRootKey, newTimeTree);
-                        if(callback != null){
+                        if (callback != null) {
                             callback.on(null);
                         }
                     } else {
@@ -648,12 +648,12 @@ public class DefaultKDataManager implements KDataManager {
                             @Override
                             public void on(LongRBTree longRBTree) {
                                 if (longRBTree == null) {
-                                    if(callback != null){
+                                    if (callback != null) {
                                         callback.on(new Exception("KMF ERROR, ROOT TREE CANNOT BE CREATED"));
                                     }
                                 } else {
                                     longRBTree.insert(newRoot.now(), newRoot.uuid());
-                                    if(callback != null){
+                                    if (callback != null) {
                                         callback.on(null);
                                     }
                                 }

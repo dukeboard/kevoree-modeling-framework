@@ -19,7 +19,7 @@ public class IndexRBTree implements KCacheObject {
 
     @Override
     public boolean isDirty() {
-        return _dirty;
+        return this._dirty;
     }
 
     public String serialize() {
@@ -28,17 +28,16 @@ public class IndexRBTree implements KCacheObject {
         if (root != null) {
             root.serialize(builder);
         }
-        _dirty = false;
         return builder.toString();
     }
 
     @Override
     public void setClean() {
-        _dirty = false;
+        this._dirty = false;
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return serialize();
     }
 
@@ -272,6 +271,7 @@ public class IndexRBTree implements KCacheObject {
     }
 
     public void insert(long key) {
+        this._dirty = true;
         TreeNode insertedNode = new TreeNode(key, Color.RED, null, null);
         if (root == null) {
             _size++;
@@ -303,7 +303,6 @@ public class IndexRBTree implements KCacheObject {
             insertedNode.setParent(n);
         }
         insertCase1(insertedNode);
-        _dirty = true;
     }
 
     private void insertCase1(TreeNode n) {
