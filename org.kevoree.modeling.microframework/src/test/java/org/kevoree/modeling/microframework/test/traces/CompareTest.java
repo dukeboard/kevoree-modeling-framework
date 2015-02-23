@@ -22,7 +22,7 @@ public class CompareTest {
     //@Test
     public void diffTest() {
         CloudModel universe = new CloudModel();
-        universe.connect(null);
+        universe.connect();
         CloudUniverse dimension0 = universe.newUniverse();
         Assert.assertNotNull(dimension0);
         // create time0
@@ -35,7 +35,7 @@ public class CompareTest {
         node0_1.setName("node0_1");
         node0_1.setValue("0_1");
         // test diff
-        node0_0.diff(node0_1, new Callback<TraceSequence>() {
+        node0_0.diff(node0_1).then(new Callback<TraceSequence>() {
             @Override
             public void on(TraceSequence traceSequence) {
                 Assert.assertNotEquals(traceSequence.traces().length, 0);
@@ -45,7 +45,7 @@ public class CompareTest {
         });
 
         // model trace applicator
-        node0_0.diff(node0_1, new Callback<TraceSequence>() {
+        node0_0.diff(node0_1).then(new Callback<TraceSequence>() {
             @Override
             public void on(TraceSequence traceSequence) {
                 new ModelTraceApplicator(node0_0).applyTraceSequence(traceSequence, new Callback<Throwable>() {
@@ -53,7 +53,7 @@ public class CompareTest {
                     public void on(Throwable throwable) {
                         Assert.assertNull(throwable);
                         // compare new node0_0 with node0_1
-                        node0_0.diff(node0_1, new Callback<TraceSequence>() {
+                        node0_0.diff(node0_1).then(new Callback<TraceSequence>() {
                             @Override
                             public void on(TraceSequence traceSequence) {
                                 Assert.assertEquals(traceSequence.traces().length, 0);
@@ -72,7 +72,7 @@ public class CompareTest {
     //@Test
     public void intersectionTest() {
         CloudModel universe = new CloudModel();
-        universe.connect(null);
+        universe.connect();
 
         CloudUniverse dimension0 = universe.newUniverse();
 
@@ -91,7 +91,7 @@ public class CompareTest {
         node0_1.setValue("0_1");
 
         // test intersection
-        node0_0.intersection(node0_1, new Callback<TraceSequence>() {
+        node0_0.intersection(node0_1).then(new Callback<TraceSequence>() {
             @Override
             public void on(TraceSequence traceSequence) {
                 Assert.assertEquals(traceSequence.traces().length, 0);
@@ -103,7 +103,7 @@ public class CompareTest {
         node0_2.setName("node0_2");
         node0_2.setValue("0_1");
 
-        node0_2.intersection(node0_1, new Callback<TraceSequence>() {
+        node0_2.intersection(node0_1).then(new Callback<TraceSequence>() {
             @Override
             public void on(TraceSequence traceSequence) {
                 Assert.assertEquals(traceSequence.traces().length, 1);
@@ -119,7 +119,7 @@ public class CompareTest {
     //@Test
     public void unionTest() {
         CloudModel universe = new CloudModel();
-        universe.connect(null);
+        universe.connect();
 
         CloudUniverse dimension0 = universe.newUniverse();
         Assert.assertNotNull(dimension0);
@@ -140,7 +140,7 @@ public class CompareTest {
         node0_1.setValue("0_1");
 
         // test union
-        node0_0.merge(node0_1, new Callback<TraceSequence>() {
+        node0_0.merge(node0_1).then(new Callback<TraceSequence>() {
             @Override
             public void on(TraceSequence traceSequence) {
                 Assert.assertEquals("{\"type\":\"SET\",\"src\":\"1\",\"meta\":\"name\",\"val\":\"node0_1\"}", traceSequence.traces()[0].toString()); // merge behaviour

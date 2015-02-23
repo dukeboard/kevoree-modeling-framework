@@ -90,25 +90,24 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public void path(final Callback<String> callback) {
-        if (!Checker.isDefined(callback)) {
-            return;
-        }
-        parent(new Callback<KObject>() {
+    public KTask<String> path() {
+        AbstractKTaskWrapper<String> task = new AbstractKTaskWrapper<String>();
+        parent().then(new Callback<KObject>() {
             @Override
             public void on(KObject parent) {
                 if (parent == null) {
-                    callback.on("/");
+                    task.initCallback().on("/");
                 } else {
-                    parent.path(new Callback<String>() {
+                    parent.path().then(new Callback<String>() {
                         @Override
                         public void on(String parentPath) {
-                            callback.on(PathHelper.path(parentPath, referenceInParent(), AbstractKObject.this));
+                            task.initCallback().on(PathHelper.path(parentPath, referenceInParent(), AbstractKObject.this));
                         }
                     });
                 }
             }
         });
+        return task;
     }
 
     @Override
@@ -122,15 +121,14 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public void parent(Callback<KObject> callback) {
-        if (!Checker.isDefined(callback)) {
-            return;
-        }
+    public KTask<KObject> parent() {
         Long parentKID = parentUuid();
         if (parentKID == null) {
-            callback.on(null);
+            AbstractKTaskWrapper<KObject> task = new AbstractKTaskWrapper<KObject>();
+            task.initCallback().on(null);
+            return task;
         } else {
-            _view.lookup(parentKID, callback);
+            return _view.lookup(parentKID);
         }
     }
 
@@ -145,17 +143,18 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public void delete(Callback<Throwable> callback) {
+    public KTask<Throwable> delete() {
+        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
         KObject toRemove = this;
         KCacheEntry rawPayload = _view.universe().model().manager().entry(this, AccessMode.DELETE);
         if (rawPayload == null) {
-            callback.on(new Exception("Out of cache Error"));
+            task.initCallback().on(new Exception("Out of cache Error"));
         } else {
             Object payload = rawPayload.get(Index.INBOUNDS_INDEX);
             if (payload != null) {
                 Set<Long> inboundsKeys = (Set<Long>) payload;
                 Long[] refArr = inboundsKeys.toArray(new Long[inboundsKeys.size()]);
-                view().lookupAll(refArr, new Callback<KObject[]>() {
+                view().lookupAll(refArr).then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] resolved) {
                         for (int i = 0; i < resolved.length; i++) {
@@ -166,45 +165,43 @@ public abstract class AbstractKObject implements KObject {
                                 }
                             }
                         }
-                        if (callback != null) {
-                            callback.on(null);
+                        task.initCallback().on(null);
+                    }
+                });
+            } else {
+                task.initCallback().on(new Exception("Out of cache error"));
+            }
+        }
+        return task;
+    }
+
+    @Override
+    public KTask<KObject[]> select(String query) {
+        AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
+        if (!Checker.isDefined(query)) {
+            task.initCallback().on(new KObject[0]);
+        } else {
+            String cleanedQuery = query;
+            if (cleanedQuery.startsWith("/")) {
+                cleanedQuery = cleanedQuery.substring(1);
+            }
+            if (query.startsWith("/")) {
+                final String finalCleanedQuery = cleanedQuery;
+                universe().model().manager().getRoot(this.view(), new Callback<KObject>() {
+                    @Override
+                    public void on(KObject rootObj) {
+                        if (rootObj == null) {
+                            task.initCallback().on(new KObject[0]);
+                        } else {
+                            KSelector.select(rootObj, finalCleanedQuery, task.initCallback());
                         }
                     }
                 });
             } else {
-                callback.on(new Exception("Out of cache error"));
+                KSelector.select(this, query, task.initCallback());
             }
         }
-    }
-
-    @Override
-    public void select(String query, Callback<KObject[]> callback) {
-        if (!Checker.isDefined(callback)) {
-            return;
-        }
-        if (!Checker.isDefined(query)) {
-            callback.on(new KObject[0]);
-            return;
-        }
-        String cleanedQuery = query;
-        if (cleanedQuery.startsWith("/")) {
-            cleanedQuery = cleanedQuery.substring(1);
-        }
-        if (query.startsWith("/")) {
-            final String finalCleanedQuery = cleanedQuery;
-            universe().model().manager().getRoot(this.view(), new Callback<KObject>() {
-                @Override
-                public void on(KObject rootObj) {
-                    if (rootObj == null) {
-                        callback.on(new KObject[0]);
-                    } else {
-                        KSelector.select(rootObj, finalCleanedQuery, callback);
-                    }
-                }
-            });
-        } else {
-            KSelector.select(this, query, callback);
-        }
+        return task;
     }
 
     @Override
@@ -261,7 +258,7 @@ public abstract class AbstractKObject implements KObject {
 
     private void removeFromContainer(final KObject param) {
         if (param != null && param.parentUuid() != null && param.parentUuid() != _uuid) {
-            view().lookup(param.parentUuid(), new Callback<KObject>() {
+            view().lookup(param.parentUuid()).then(new Callback<KObject>() {
                 @Override
                 public void on(KObject parent) {
                     ((AbstractKObject) parent).internal_mutate(KActionType.REMOVE, param.referenceInParent(), param, true, false);
@@ -372,7 +369,7 @@ public abstract class AbstractKObject implements KObject {
                     final KObject self = this;
                     if (metaReference.opposite() != null && setOpposite) {
                         if (previous != null) {
-                            view().lookup((Long) previous, new Callback<KObject>() {
+                            view().lookup((Long) previous).then(new Callback<KObject>() {
                                 @Override
                                 public void on(KObject resolved) {
                                     ((AbstractKObject) resolved).internal_mutate(KActionType.REMOVE, metaReference.opposite(), self, false, inDelete);
@@ -471,56 +468,40 @@ public abstract class AbstractKObject implements KObject {
         }
     }
 
-    public void ref(MetaReference p_metaReference, final Callback<KObject[]> p_callback) {
-        if (!Checker.isDefined(p_callback)) {
-            return;
-        }
+    @Override
+    public KTask<KObject[]> ref(MetaReference p_metaReference) {
         MetaReference transposed = internal_transpose_ref(p_metaReference);
         if (transposed == null) {
             throw new RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + metaClass().metaName());
         } else {
             KCacheEntry raw = view().universe().model().manager().entry(this, AccessMode.READ);
             if (raw == null) {
-                p_callback.on(new KObject[0]);
+                AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
+                task.initCallback().on(new KObject[0]);
+                return task;
             } else {
                 Object o = raw.get(transposed.index());
                 if (o == null) {
-                    p_callback.on(new KObject[0]);
+                    AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
+                    task.initCallback().on(new KObject[0]);
+                    return task;
                 } else if (o instanceof Set) {
                     Set<Long> objs = (Set<Long>) o;
                     Long[] setContent = objs.toArray(new Long[objs.size()]);
-                    view().lookupAll(setContent, new Callback<KObject[]>() {
-                        @Override
-                        public void on(KObject[] result) {
-                            try {
-                                p_callback.on(result);
-                            } catch (Throwable t) {
-                                t.printStackTrace();
-                                p_callback.on(null);
-                            }
-                        }
-                    });
+                    return view().lookupAll(setContent);
                 } else {
                     Long[] content = new Long[]{(Long) o};
-                    view().lookupAll(content, new Callback<KObject[]>() {
-                        @Override
-                        public void on(KObject[] result) {
-                            try {
-                                p_callback.on(result);
-                            } catch (Throwable t) {
-                                t.printStackTrace();
-                                p_callback.on(null);
-                            }
-                        }
-                    });
+                    return view().lookupAll(content);
                 }
             }
         }
     }
 
     @Override
-    public void inferRef(MetaReference p_metaReference, Callback<KObject[]> p_callback) {
+    public KTask<KObject[]> inferRef(MetaReference p_metaReference) {
+        AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
         //TODO
+        return task;
     }
 
     @Override
@@ -534,14 +515,17 @@ public abstract class AbstractKObject implements KObject {
         }
     }
 
-    public void visit(ModelVisitor p_visitor, Callback<Throwable> p_end, VisitRequest p_request) {
+    @Override
+    public KTask<Throwable> visit(ModelVisitor p_visitor, VisitRequest p_request) {
+        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
         if (p_request.equals(VisitRequest.CHILDREN)) {
-            internal_visit(p_visitor, p_end, false, false, null, null);
+            internal_visit(p_visitor, task.initCallback(), false, false, null, null);
         } else if (p_request.equals(VisitRequest.ALL)) {
-            internal_visit(p_visitor, p_end, true, false, new HashSet<Long>(), new HashSet<Long>());
+            internal_visit(p_visitor, task.initCallback(), true, false, new HashSet<Long>(), new HashSet<Long>());
         } else if (p_request.equals(VisitRequest.CONTAINED)) {
-            internal_visit(p_visitor, p_end, true, true, null, null);
+            internal_visit(p_visitor, task.initCallback(), true, true, null, null);
         }
+        return task;
     }
 
     private void internal_visit(final ModelVisitor visitor, final Callback<Throwable> end, boolean deep, boolean containedOnly, final HashSet<Long> visited, final HashSet<Long> traversed) {
@@ -583,7 +567,7 @@ public abstract class AbstractKObject implements KObject {
             }
         } else {
             final Long[] toResolveIdsArr = toResolveIds.toArray(new Long[toResolveIds.size()]);
-            view().lookupAll(toResolveIdsArr, new Callback<KObject[]>() {
+            view().lookupAll(toResolveIdsArr).then(new Callback<KObject[]>() {
                 @Override
                 public void on(KObject[] resolvedArr) {
                     final List<KObject> nextDeep = new ArrayList<KObject>();
@@ -701,19 +685,24 @@ public abstract class AbstractKObject implements KObject {
         return traces.toArray(new ModelTrace[traces.size()]);
     }
 
-    public void inbounds(Callback<KObject[]> callback) {
+    @Override
+    public KTask<KObject[]> inbounds() {
         KCacheEntry rawPayload = view().universe().model().manager().entry(this, AccessMode.READ);
         if (rawPayload != null) {
             Object payload = rawPayload.get(Index.INBOUNDS_INDEX);
             if (payload != null) {
                 Set<Long> inboundsKeys = (Set<Long>) payload;
                 Long[] keysArr = inboundsKeys.toArray(new Long[inboundsKeys.size()]);
-                _view.lookupAll(keysArr, callback);
+                return _view.lookupAll(keysArr);
             } else {
-                callback.on(new KObject[0]);
+                AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
+                task.initCallback().on(new KObject[0]);
+                return task;
             }
         } else {
-            callback.on(new KObject[0]);
+            AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
+            task.initCallback().on(new KObject[0]);
+            return task;
         }
     }
 
@@ -742,35 +731,42 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public void diff(KObject target, Callback<TraceSequence> callback) {
-        DefaultModelCompare.diff(this, target, callback);
+    public KTask<TraceSequence> diff(KObject target) {
+        AbstractKTaskWrapper<TraceSequence> task = new AbstractKTaskWrapper<TraceSequence>();
+        DefaultModelCompare.diff(this, target, task.initCallback());
+        return task;
     }
 
     @Override
-    public void merge(KObject target, Callback<TraceSequence> callback) {
-        DefaultModelCompare.merge(this, target, callback);
+    public KTask<TraceSequence> merge(KObject target) {
+        AbstractKTaskWrapper<TraceSequence> task = new AbstractKTaskWrapper<TraceSequence>();
+        DefaultModelCompare.merge(this, target, task.initCallback());
+        return task;
     }
 
     @Override
-    public void intersection(KObject target, Callback<TraceSequence> callback) {
-        DefaultModelCompare.intersection(this, target, callback);
+    public KTask<TraceSequence> intersection(KObject target) {
+        AbstractKTaskWrapper<TraceSequence> task = new AbstractKTaskWrapper<TraceSequence>();
+        DefaultModelCompare.intersection(this, target, task.initCallback());
+        return task;
     }
 
     @Override
-    public <U extends KObject> void jump(long time, final Callback<U> callback) {
-        view().universe().time(time).lookup(_uuid, new Callback<KObject>() {
+    public <U extends KObject> KTask<U> jump(long time) {
+        AbstractKTaskWrapper<U> task = new AbstractKTaskWrapper<U>();
+        view().universe().time(time).lookup(_uuid).then(new Callback<KObject>() {
             @Override
             public void on(KObject kObject) {
-                if (callback != null) {
-                    try {
-                        callback.on((U) kObject);
-                    } catch (Throwable e) {
-                        e.printStackTrace();
-                        callback.on(null);
-                    }
+                U casted = null;
+                try {
+                    casted = (U) kObject;
+                } catch (Throwable e) {
+                    e.printStackTrace();
                 }
+                task.initCallback().on(casted);
             }
         });
+        return task;
     }
 
     public MetaReference internal_transpose_ref(MetaReference p) {
@@ -853,102 +849,16 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public KTask<Throwable> taskVisit(ModelVisitor p_visitor, VisitRequest p_request) {
-        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
-        visit(p_visitor, task.initCallback(), p_request);
-        return task;
-    }
-
-    @Override
-    public KTask<Throwable> taskDelete() {
-        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
-        delete(task.initCallback());
-        return task;
-    }
-
-    @Override
-    public KTask<KObject> taskParent() {
-        AbstractKTaskWrapper<KObject> task = new AbstractKTaskWrapper<KObject>();
-        parent(task.initCallback());
-        return task;
-    }
-
-    @Override
-    public KTask<KObject[]> taskSelect(String p_query) {
-        AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
-        select(p_query, task.initCallback());
-        return task;
-    }
-
-    @Override
-    public KTask<KObject[]> taskRef(MetaReference p_metaReference) {
-        AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
-        ref(p_metaReference, task.initCallback());
-        return task;
-    }
-
-    @Override
-    public KTask<KObject[]> taskInbounds() {
-        AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
-        inbounds(task.initCallback());
-        return task;
-    }
-
-    @Override
-    public KTask<TraceSequence> taskDiff(KObject p_target) {
-        AbstractKTaskWrapper<TraceSequence> task = new AbstractKTaskWrapper<TraceSequence>();
-        diff(p_target, task.initCallback());
-        return task;
-    }
-
-    @Override
-    public KTask<TraceSequence> taskMerge(KObject p_target) {
-        AbstractKTaskWrapper<TraceSequence> task = new AbstractKTaskWrapper<TraceSequence>();
-        merge(p_target, task.initCallback());
-        return task;
-    }
-
-    @Override
-    public KTask<TraceSequence> taskIntersection(KObject p_target) {
-        AbstractKTaskWrapper<TraceSequence> task = new AbstractKTaskWrapper<TraceSequence>();
-        intersection(p_target, task.initCallback());
-        return task;
-    }
-
-    @Override
-    public <U extends KObject> KTask<U> taskJump(long p_time) {
-        AbstractKTaskWrapper<U> task = new AbstractKTaskWrapper<U>();
-        jump(p_time, task.initCallback());
-        return task;
-    }
-
-    @Override
-    public KTask<String> taskPath() {
-        AbstractKTaskWrapper<String> task = new AbstractKTaskWrapper<String>();
-        path(task.initCallback());
-        return task;
-    }
-
-    @Override
-    public KTask<KInfer[]> taskInferObjects() {
+    public KTask<KInfer[]> inferObjects() {
         AbstractKTaskWrapper<KInfer[]> task = new AbstractKTaskWrapper<KInfer[]>();
-        inferObjects(task.initCallback());
+        //TODO
         return task;
     }
 
     @Override
-    public void inferObjects(Callback<KInfer[]> p_callback) {
-        //TODO
-    }
-
-    public void call(MetaOperation p_operation, Object[] p_params, Callback<Object> p_callback) {
-        view().universe().model().manager().operationManager().call(this, p_operation, p_params, p_callback);
-    }
-
-    @Override
-    public KTask<Object> taskCall(MetaOperation p_operation, Object[] p_params) {
+    public KTask<Object> call(MetaOperation p_operation, Object[] p_params) {
         AbstractKTaskWrapper<Object> temp_task = new AbstractKTaskWrapper<Object>();
-        call(p_operation, p_params, temp_task.initCallback());
+        view().universe().model().manager().operationManager().call(this, p_operation, p_params, temp_task.initCallback());
         return temp_task;
     }
 
@@ -959,8 +869,10 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public void inferCall(MetaOperation operation, Object[] params, Callback<Object> callback) {
+    public KTask<Object> inferCall(MetaOperation operation, Object[] params) {
+        AbstractKTaskWrapper<Object> temp_task = new AbstractKTaskWrapper<Object>();
         //TODO
+        return temp_task;
     }
 
 }

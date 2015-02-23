@@ -19,13 +19,13 @@ public class SchedulerTest {
     public void test() {
         CloudModel model = new CloudModel();
         model.setScheduler(new ExecutorServiceScheduler());
-        model.connect(new Callback<Throwable>() {
+        model.connect().then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 CloudUniverse dimension0 = model.newUniverse();
                 CloudView time0 = dimension0.time(0l);
                 Node root = time0.createNode();
-                time0.setRoot(root, null);
+                time0.setRoot(root);
                 root.setName("root");
                 Node n1 = time0.createNode();
                 n1.setName("n1");
@@ -34,13 +34,13 @@ public class SchedulerTest {
                 root.addChildren(n1);
                 root.addChildren(n2);
 
-                n1.inbounds(new Callback<KObject[]>() {
+                n1.inbounds().then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(kObjects[0].uuid(), root.uuid());
                     }
                 });
-                n2.inbounds(new Callback<KObject[]>() {
+                n2.inbounds().then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(kObjects[0].uuid(), root.uuid());

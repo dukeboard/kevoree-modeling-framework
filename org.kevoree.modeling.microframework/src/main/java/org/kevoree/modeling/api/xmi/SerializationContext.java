@@ -1,15 +1,17 @@
 package org.kevoree.modeling.api.xmi;
 
+import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ModelAttributeVisitor;
 import org.kevoree.modeling.api.ThrowableCallback;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
 class SerializationContext {
     public boolean ignoreGeneratedID = false;
     public KObject model;
-    public ThrowableCallback<String> finishCallback;
+    public Callback<String> finishCallback;
     public StringBuilder printer;
     public ModelAttributeVisitor attributesVisitor;
 

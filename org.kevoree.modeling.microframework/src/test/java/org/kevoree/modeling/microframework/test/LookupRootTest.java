@@ -18,7 +18,7 @@ public class LookupRootTest {
 
         final CloudModel cloudModel = new CloudModel();
         cloudModel.setContentDeliveryDriver(new MemoryKContentDeliveryDriver());
-        cloudModel.connect(null);
+        cloudModel.connect();
 
         final CloudUniverse dimension0 = cloudModel.newUniverse();
         final CloudView t0 = dimension0.time(0l);
@@ -28,15 +28,15 @@ public class LookupRootTest {
         final Element element0 = t0.createElement();
         node0.setElement(element0);
 
-        t0.setRoot(node0, new Callback<Throwable>() {
+        t0.setRoot(node0).then(new Callback<Throwable>() {
             @Override
 
             public void on(Throwable throwable) {
 
-                cloudModel.save(new Callback<Throwable>() {
+                cloudModel.save().then(new Callback<Throwable>() {
                     @Override
                     public void on(Throwable aBoolean) {
-                        cloudModel.discard(new Callback<Throwable>() {
+                        cloudModel.discard().then(new Callback<Throwable>() {
                             @Override
                             public void on(Throwable aBoolean) {
 
@@ -53,7 +53,7 @@ public class LookupRootTest {
                     }
                 });
 
-                lookupView.select("/", new Callback<KObject[]>() {
+                lookupView.select("/").then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertNotNull(kObjects[0]);
@@ -70,7 +70,7 @@ public class LookupRootTest {
 
         final CloudModel cloudModel = new CloudModel();
         cloudModel.setContentDeliveryDriver(db);
-        cloudModel.connect(null);
+        cloudModel.connect();
 
         final CloudUniverse dimension0 = cloudModel.newUniverse();
         final CloudView t0 = dimension0.time(0l);
@@ -80,13 +80,15 @@ public class LookupRootTest {
         final Element element0 = t0.createElement();
         node0.setElement(element0);
 
-        t0.setRoot(node0, new Callback<Throwable>() {
+
+
+        t0.setRoot(node0).then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
-                cloudModel.save(new Callback<Throwable>() {
+                cloudModel.save().then(new Callback<Throwable>() {
                     @Override
                     public void on(Throwable aBoolean) {
-                        cloudModel.discard(new Callback<Throwable>() {
+                        cloudModel.discard().then(new Callback<Throwable>() {
                             @Override
                             public void on(Throwable aBoolean) {
 
@@ -99,11 +101,11 @@ public class LookupRootTest {
 
         final CloudModel universe1 = new CloudModel();
         universe1.setContentDeliveryDriver(db);
-        universe1.connect(null);
+        universe1.connect();
         final CloudUniverse cloudDimension1 = universe1.universe(dimension0.key());
         final CloudView cloudView1 = cloudDimension1.time(1l);
 
-        cloudView1.select("/", new Callback<KObject[]>() {
+        cloudView1.select("/").then(new Callback<KObject[]>() {
             @Override
             public void on(KObject[] kObjects) {
                 Assert.assertNotNull(kObjects[0]);

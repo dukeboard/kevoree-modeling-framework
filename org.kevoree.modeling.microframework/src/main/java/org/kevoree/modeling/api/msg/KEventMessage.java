@@ -15,6 +15,7 @@ public class KEventMessage implements KMessage {
 
     @Override
     public String json() {
+        //TODO
         return null;
     }
 }

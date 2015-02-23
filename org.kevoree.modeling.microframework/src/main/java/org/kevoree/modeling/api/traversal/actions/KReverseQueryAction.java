@@ -72,7 +72,7 @@ public class KReverseQueryAction implements KTraversalAction {
                 }
             }
             if (toFilter.keySet().size() == 0) {
-                currentView.lookupAll(nextIds.toArray(new Long[nextIds.size()]), new Callback<KObject[]>() {
+                currentView.lookupAll(nextIds.toArray(new Long[nextIds.size()])).then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         _next.execute(kObjects);
@@ -80,7 +80,7 @@ public class KReverseQueryAction implements KTraversalAction {
                 });
             } else {
                 Long[] toFilterKeys = toFilter.keySet().toArray(new Long[toFilter.keySet().size()]);
-                currentView.lookupAll(toFilterKeys, new Callback<KObject[]>() {
+                currentView.lookupAll(toFilterKeys).then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         for (int i = 0; i < toFilterKeys.length; i++) {
@@ -93,7 +93,7 @@ public class KReverseQueryAction implements KTraversalAction {
                                 }
                             }
                         }
-                        currentView.lookupAll(nextIds.toArray(new Long[nextIds.size()]), new Callback<KObject[]>() {
+                        currentView.lookupAll(nextIds.toArray(new Long[nextIds.size()])).then(new Callback<KObject[]>() {
                             @Override
                             public void on(KObject[] kObjects) {
                                 _next.execute(kObjects);

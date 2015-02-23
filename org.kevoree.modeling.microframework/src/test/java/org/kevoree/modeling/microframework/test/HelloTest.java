@@ -21,7 +21,7 @@ public class HelloTest {
     @Test
     public void simpleTest() {
         CloudModel model = new CloudModel();
-        model.connect(new Callback<Throwable>() {
+        model.connect().then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
@@ -39,21 +39,21 @@ public class HelloTest {
                     n2.setName("n2");
                     root.addChildren(n1);
                     root.addChildren(n2);
-                    time0.lookup(root.uuid(), new Callback<KObject>() {
+                    time0.lookup(root.uuid()).then(new Callback<KObject>() {
                         @Override
                         public void on(KObject kObject) {
                             Assert.assertNotNull(kObject);
                             Assert.assertEquals(kObject, root);
                         }
                     });
-                    n1.inbounds(new Callback<KObject[]>() {
+                    n1.inbounds().then(new Callback<KObject[]>() {
                         @Override
                         public void on(KObject[] kObjects) {
                             Assert.assertNotNull(kObjects[0]);
                             Assert.assertEquals(kObjects[0].uuid(), root.uuid());
                         }
                     });
-                    n2.inbounds(new Callback<KObject[]>() {
+                    n2.inbounds().then(new Callback<KObject[]>() {
                         @Override
                         public void on(KObject[] kObjects) {
                             Assert.assertEquals(kObjects[0].uuid(), root.uuid());
@@ -67,7 +67,7 @@ public class HelloTest {
     @Test
     public void helloTest() {
         CloudModel universe = new CloudModel();
-        universe.connect(null);
+        universe.connect();
 
         CloudUniverse dimension0 = universe.newUniverse();
 
@@ -132,12 +132,12 @@ public class HelloTest {
                 i[0]++;
                 return VisitResult.CONTINUE;
             }
-        }, new Callback<Throwable>() {
+        },VisitRequest.CHILDREN).then(new Callback<Throwable>() {
             @Override
             public void on(Throwable t) {
                 j[0]++;
             }
-        }, VisitRequest.CHILDREN);
+        });
         Assert.assertEquals(1, i[0]);
         Assert.assertEquals(1, j[0]);
 
@@ -149,12 +149,12 @@ public class HelloTest {
                 i[0]++;
                 return VisitResult.CONTINUE;
             }
-        }, new Callback<Throwable>() {
+        }, VisitRequest.CHILDREN).then(new Callback<Throwable>() {
             @Override
             public void on(Throwable t) {
                 j[0]++;
             }
-        }, VisitRequest.CHILDREN);
+        });
         Assert.assertEquals(1, i[0]);
         Assert.assertEquals(1, j[0]);
 
@@ -166,12 +166,12 @@ public class HelloTest {
                 i[0]++;
                 return VisitResult.CONTINUE;
             }
-        }, new Callback<Throwable>() {
+        }, VisitRequest.CHILDREN).then(new Callback<Throwable>() {
             @Override
             public void on(Throwable t) {
                 j[0]++;
             }
-        }, VisitRequest.CHILDREN);
+        });
         Assert.assertEquals(0, i[0]);
         Assert.assertEquals(1, j[0]);
 
@@ -183,12 +183,12 @@ public class HelloTest {
                 i[0]++;
                 return VisitResult.CONTINUE;
             }
-        }, new Callback<Throwable>() {
+        },VisitRequest.CONTAINED).then(new Callback<Throwable>() {
             @Override
             public void on(Throwable t) {
                 j[0]++;
             }
-        }, VisitRequest.CONTAINED);
+        });
         Assert.assertEquals(2, i[0]);
         Assert.assertEquals(1, j[0]);
 
@@ -200,12 +200,12 @@ public class HelloTest {
                 i[0]++;
                 return VisitResult.CONTINUE;
             }
-        }, new Callback<Throwable>() {
+        }, VisitRequest.ALL).then(new Callback<Throwable>() {
             @Override
             public void on(Throwable t) {
                 j[0]++;
             }
-        }, VisitRequest.ALL);
+        });
         Assert.assertEquals(2, i[0]);
         Assert.assertEquals(1, j[0]);
 
@@ -218,12 +218,12 @@ public class HelloTest {
                 i[0]++;
                 return VisitResult.CONTINUE;
             }
-        }, new Callback<Throwable>() {
+        }, VisitRequest.ALL).then(new Callback<Throwable>() {
             @Override
             public void on(Throwable t) {
                 j[0]++;
             }
-        }, VisitRequest.ALL);
+        });
         Assert.assertEquals(2, i[0]);
         Assert.assertEquals(1, j[0]);
 

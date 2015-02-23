@@ -111,7 +111,7 @@ public class XMIModelLoader {
             for (int i = 0; i < context.resolvers.size(); i++) {
                 context.resolvers.get(i).run();
             }
-            p_view.setRoot(context.loadedRoots, null);
+            p_view.setRoot(context.loadedRoots);
             context.successCallback.on(null);
         } catch (Exception e) {
             context.successCallback.on(e);

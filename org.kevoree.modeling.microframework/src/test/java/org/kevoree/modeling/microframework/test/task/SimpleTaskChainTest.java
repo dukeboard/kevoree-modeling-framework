@@ -108,15 +108,15 @@ public class SimpleTaskChainTest {
         DynamicMetaModel metaModel = new DynamicMetaModel("DynamicMM");
         metaModel.createMetaClass("Sensor").addAttribute("name", PrimitiveMetaTypes.STRING);
         KModel dynamicKModel = metaModel.model();
-        dynamicKModel.connect(null);
+        dynamicKModel.connect();
         KObject root = dynamicKModel.universe(0).time(0).create(metaModel.metaClass("Sensor"));
         root.set(root.metaClass().metaAttribute("name"), "MyRoot");
-        dynamicKModel.universe(0).time(0).setRoot(root, null);
+        dynamicKModel.universe(0).time(0).setRoot(root);
 
         KTask rootTask = dynamicKModel.task();
-        KTask previousSelect = dynamicKModel.universe(0).time(0).taskSelect("/");
+        KTask previousSelect = dynamicKModel.universe(0).time(0).select("/");
         rootTask.wait(previousSelect);
-        KTask previousSelect2 = dynamicKModel.universe(0).time(0).taskSelect("/titi");
+        KTask previousSelect2 = dynamicKModel.universe(0).time(0).select("/titi");
         rootTask.wait(previousSelect2);
         final int[] res = new int[1];
         final Object[] res2 = new Object[2];

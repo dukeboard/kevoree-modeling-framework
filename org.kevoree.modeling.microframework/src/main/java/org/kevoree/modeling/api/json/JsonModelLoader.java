@@ -99,7 +99,7 @@ public class JsonModelLoader {
                             Object payload_content = elem.get(metaKey);
                             if (metaKey.equals(JsonModelSerializer.INBOUNDS_META)) {
                                 Set<Long> inbounds = new HashSet<Long>();
-                                raw.set(Index.INBOUNDS_INDEX,inbounds);
+                                raw.set(Index.INBOUNDS_INDEX, inbounds);
                                 try {
                                     HashSet<String> raw_keys = (HashSet<String>) payload_content;
                                     String[] raw_keys_p = raw_keys.toArray(new String[raw_keys.size()]);
@@ -154,7 +154,7 @@ public class JsonModelLoader {
                                 MetaReference metaReference = metaClass.metaReference(metaKey);
                                 if (payload_content != null) {
                                     if (metaAttribute != null) {
-                                        raw.set(metaAttribute.index(),metaAttribute.strategy().load(payload_content.toString(), metaAttribute, factory.now()));
+                                        raw.set(metaAttribute.index(), metaAttribute.strategy().load(payload_content.toString(), metaAttribute, factory.now()));
                                     } else if (metaReference != null) {
                                         if (metaReference.single()) {
                                             try {
@@ -162,7 +162,7 @@ public class JsonModelLoader {
                                                 if (mappedKeys.containsKey(converted)) {
                                                     converted = mappedKeys.get(converted);
                                                 }
-                                                raw.set(metaReference.index(),converted);
+                                                raw.set(metaReference.index(), converted);
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
@@ -183,7 +183,7 @@ public class JsonModelLoader {
                                                         e.printStackTrace();
                                                     }
                                                 }
-                                                raw.set(metaReference.index(),convertedRaw);
+                                                raw.set(metaReference.index(), convertedRaw);
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
@@ -197,7 +197,7 @@ public class JsonModelLoader {
                     }
                 }
                 if (rootElem != null) {
-                    factory.setRoot(rootElem, new Callback<Throwable>() {
+                    factory.setRoot(rootElem).then(new Callback<Throwable>() {
                         @Override
                         public void on(Throwable throwable) {
                             if (callback != null) {

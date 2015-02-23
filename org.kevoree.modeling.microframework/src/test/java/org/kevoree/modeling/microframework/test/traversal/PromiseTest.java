@@ -20,7 +20,7 @@ public class PromiseTest {
     @Test
     public void simpleTraversalTest() {
         final CloudModel universe = new CloudModel();
-        universe.connect(null);
+        universe.connect();
         final CloudUniverse dimension0 = universe.newUniverse();
         final CloudView t0 = dimension0.time(0l);
 
@@ -28,7 +28,7 @@ public class PromiseTest {
         final Element elem0_0 = t0.createElement();
         node0.setElement(elem0_0);
 
-        t0.setRoot(node0, new Callback<Throwable>() {
+        t0.setRoot(node0).then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
 
@@ -111,7 +111,7 @@ public class PromiseTest {
     @Test
     public void chainedTraversalTest() {
         final CloudModel universe = new CloudModel();
-        universe.connect(null);
+        universe.connect();
         final CloudUniverse dimension0 = universe.newUniverse();
         final CloudView t0 = dimension0.time(0l);
 
@@ -119,7 +119,7 @@ public class PromiseTest {
         final Element elem0_0 = t0.createElement();
         node0.setElement(elem0_0);
 
-        t0.setRoot(node0, new Callback<Throwable>() {
+        t0.setRoot(node0).then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
 
@@ -153,7 +153,7 @@ public class PromiseTest {
     @Test
     public void filterTest() {
         final CloudModel universe = new CloudModel();
-        universe.connect(null);
+        universe.connect();
         final CloudUniverse dimension0 = universe.newUniverse();
         final CloudView t0 = dimension0.time(0l);
 
@@ -161,7 +161,7 @@ public class PromiseTest {
         final Element elem0_0 = t0.createElement();
         node0.setElement(elem0_0);
 
-        t0.setRoot(node0, new Callback<Throwable>() {
+        t0.setRoot(node0).then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
 
@@ -202,7 +202,7 @@ public class PromiseTest {
     @Test
     public void parentTest() {
         final CloudModel model = new CloudModel();
-        model.connect(new Callback<Throwable>() {
+        model.connect().then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 final CloudUniverse universe = model.newUniverse();
@@ -210,7 +210,7 @@ public class PromiseTest {
                 final Node node0 = t0.createNode();
                 final Element elem0_0 = t0.createElement();
                 node0.setElement(elem0_0);
-                t0.setRoot(node0, new Callback<Throwable>() {
+                t0.setRoot(node0).then(new Callback<Throwable>() {
                     @Override
                     public void on(Throwable throwable) {
                         final Node node1 = t0.createNode();
@@ -250,7 +250,7 @@ public class PromiseTest {
     @Test
     public void traverseQueryTest() {
         final CloudModel universe = new CloudModel();
-        universe.connect(new Callback<Throwable>() {
+        universe.connect().then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 final CloudUniverse dimension0 = universe.newUniverse();
@@ -260,7 +260,7 @@ public class PromiseTest {
                 final Element elem0_0 = t0.createElement();
                 node0.setElement(elem0_0);
 
-                t0.setRoot(node0, new Callback<Throwable>() {
+                t0.setRoot(node0).then(new Callback<Throwable>() {
                     @Override
                     public void on(Throwable throwable) {
 
@@ -345,7 +345,7 @@ public class PromiseTest {
     @Test
     public void attributeQueryTest() {
         final CloudModel universe = new CloudModel();
-        universe.connect(null);
+        universe.connect();
         final CloudUniverse dimension0 = universe.newUniverse();
         final CloudView t0 = dimension0.time(0l);
 
@@ -353,7 +353,7 @@ public class PromiseTest {
         final Element elem0_0 = t0.createElement();
         node0.setElement(elem0_0);
 
-        t0.setRoot(node0, new Callback<Throwable>() {
+        t0.setRoot(node0).then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
 

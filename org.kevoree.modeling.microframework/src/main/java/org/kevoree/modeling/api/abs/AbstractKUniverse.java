@@ -1,6 +1,5 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KModel;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KTask;
@@ -36,10 +35,12 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
     }
 
     @Override
-    public void delete(Callback<Throwable> callback) {
-        model().manager().delete(this, callback);
+    public KTask<Throwable> delete() {
+        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
+        model().manager().delete(this, task.initCallback());
+        return task;
     }
-    
+
     @Override
     public synchronized A time(long timePoint) {
         return internal_create(timePoint);
@@ -90,13 +91,6 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
             childs.add((B) _model.universe(descendentsKey[i]));
         }
         return childs;
-    }
-
-    @Override
-    public KTask<Throwable> taskDelete() {
-        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
-        delete(task.initCallback());
-        return task;
     }
 
 }

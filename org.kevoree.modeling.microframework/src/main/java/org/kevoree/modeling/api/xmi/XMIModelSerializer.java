@@ -1,14 +1,6 @@
 package org.kevoree.modeling.api.xmi;
 
-import org.kevoree.modeling.api.KCurrentTask;
-import org.kevoree.modeling.api.KJob;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KTask;
-import org.kevoree.modeling.api.ModelAttributeVisitor;
-import org.kevoree.modeling.api.ModelVisitor;
-import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.VisitRequest;
-import org.kevoree.modeling.api.VisitResult;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
 
@@ -19,7 +11,7 @@ import org.kevoree.modeling.api.meta.MetaReference;
 
 public class XMIModelSerializer {
 
-    public static void save(KObject model, final ThrowableCallback<String> callback) {
+    public static void save(KObject model, final Callback<String> callback) {
         final SerializationContext context = new SerializationContext();
         context.model = model;
         context.finishCallback = callback;
@@ -42,7 +34,7 @@ public class XMIModelSerializer {
         context.addressTable.put(model.uuid(), "/");
 
 
-        KTask addressCreationTask = context.model.taskVisit(new ModelVisitor() {
+        KTask addressCreationTask = context.model.visit(new ModelVisitor() {
             @Override
             public VisitResult visit(KObject elem) {
                 String parentXmiAddress = context.addressTable.get(elem.parentUuid());
@@ -101,7 +93,7 @@ public class XMIModelSerializer {
                             @Override
                             public void run(KCurrentTask currentTask) {
                                 context.printer.append("</" + XMIModelSerializer.formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_") + ">\n");
-                                context.finishCallback.on(context.printer.toString(), null);
+                                context.finishCallback.on(context.printer.toString());
                             }
                         });
                         containedRefsTasks.ready();
@@ -147,11 +139,9 @@ public class XMIModelSerializer {
     }
 
     private static KTask nonContainedReferenceTaskMaker(final MetaReference ref, SerializationContext p_context, KObject p_currentElement) {
-        KTask allTask = p_currentElement.taskRef(ref);
-
+        KTask allTask = p_currentElement.ref(ref);
         KTask thisTask = p_context.model.universe().model().task();
         thisTask.wait(allTask);
-
         thisTask.setJob(new KJob() {
             @Override
             public void run(KCurrentTask currentTask) {
@@ -171,7 +161,7 @@ public class XMIModelSerializer {
     }
 
     private static KTask containedReferenceTaskMaker(final MetaReference ref, SerializationContext context, KObject currentElement) {
-        KTask allTask = currentElement.taskRef(ref);
+        KTask allTask = currentElement.ref(ref);
         KTask thisTask = context.model.universe().model().task();
         thisTask.wait(allTask);
         thisTask.setJob(new KJob() {

@@ -17,7 +17,7 @@ public class JSONLoadTest {
     @Test
     public void jsonTest() {
         CloudModel universe = new CloudModel();
-        universe.connect(null);
+        universe.connect();
 
         CloudUniverse dimension0 = universe.newUniverse();
 
@@ -42,10 +42,10 @@ public class JSONLoadTest {
                 "\t\t\"@uuid\": \"3\",\n" +
                 "\t\t\"name\": \"n2\"\n" +
                 "\t}\n" +
-                "]\n", new Callback<Throwable>() {
+                "]\n").then(new Callback<Throwable>() {
             @Override
             public void on(Throwable res) {
-                time0.lookup(1l, new Callback<KObject>() {
+                time0.lookup(1l).then(new Callback<KObject>() {
                     @Override
                     public void on(KObject r) {
                         Assert.assertNotNull(r);
@@ -53,7 +53,7 @@ public class JSONLoadTest {
                         passed[0]++;
                     }
                 });
-                time0.lookup(2l, new Callback<KObject>() {
+                time0.lookup(2l).then(new Callback<KObject>() {
                     @Override
                     public void on(KObject r) {
                         Assert.assertNotNull(r);
@@ -66,12 +66,12 @@ public class JSONLoadTest {
 
         Assert.assertEquals(passed[0], 2);
 
-        time0.select("/", new Callback<KObject[]>() {
+        time0.select("/").then(new Callback<KObject[]>() {
             @Override
             public void on(KObject[] kObjects) {
-                time0.json().save(kObjects[0], new ThrowableCallback<String>() {
+                time0.json().save(kObjects[0]).then(new Callback<String>() {
                     @Override
-                    public void on(String s, Throwable error) {
+                    public void on(String s) {
                         Assert.assertEquals(s, "[\n" +
                                 "\t{\n" +
                                 "\t\t\"@meta\": \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +

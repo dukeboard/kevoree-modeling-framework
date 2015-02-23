@@ -22,14 +22,14 @@ public class ParentAndReverseTest {
     @Test
     public void reverseQueryTest() {
         CloudModel universe = new CloudModel();
-        universe.connect(new Callback<Throwable>() {
+        universe.connect().then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 CloudUniverse dimension0 = universe.newUniverse();
                 CloudView t0 = dimension0.time(0l);
                 Node root = t0.createNode();
                 root.setName("root");
-                t0.setRoot(root, null);
+                t0.setRoot(root);
 
                 final Node n1 = t0.createNode();
                 n1.setName("n1");
@@ -47,7 +47,7 @@ public class ParentAndReverseTest {
                 n4.setName("n4");
                 n3.addChildren(n4);
 
-                root.select("children[*]/children[*]/..[]", new Callback<KObject[]>() {
+                root.select("children[*]/children[*]/..[]").then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(kObjects[0], n1);
@@ -55,7 +55,7 @@ public class ParentAndReverseTest {
                     }
                 });
 
-                root.select("children[*]/children[*]/@parent[]", new Callback<KObject[]>() {
+                root.select("children[*]/children[*]/@parent[]").then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(kObjects[0], n1);
@@ -63,7 +63,7 @@ public class ParentAndReverseTest {
                     }
                 });
 
-                root.select("children[*]/children[*]/..", new Callback<KObject[]>() {
+                root.select("children[*]/children[*]/..").then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(kObjects[0], n1);
@@ -71,7 +71,7 @@ public class ParentAndReverseTest {
                     }
                 });
 
-                root.select("children[*]/children[*]/../..", new Callback<KObject[]>() {
+                root.select("children[*]/children[*]/../..").then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(kObjects[0], root);
@@ -79,7 +79,7 @@ public class ParentAndReverseTest {
                     }
                 });
 
-                root.select("children[*]/children[*]/@parent/..", new Callback<KObject[]>() {
+                root.select("children[*]/children[*]/@parent/..").then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(kObjects[0], root);
@@ -87,7 +87,7 @@ public class ParentAndReverseTest {
                     }
                 });
 
-                root.select("children[*]/children[*]/@parent/@parent", new Callback<KObject[]>() {
+                root.select("children[*]/children[*]/@parent/@parent").then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(kObjects[0], root);

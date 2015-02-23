@@ -21,7 +21,7 @@ public class ParentStorageTest {
     public void discardTest() {
 
         CloudModel cloudModel = new CloudModel();
-        cloudModel.connect(null);
+        cloudModel.connect();
         //model.connect(null);
 
         CloudUniverse dimension0 = cloudModel.newUniverse();
@@ -29,7 +29,7 @@ public class ParentStorageTest {
 
         Node root = time0.createNode();
         root.setName("root");
-        time0.setRoot(root, null);
+        time0.setRoot(root);
 
         Node n1 = time0.createNode();
         n1.setName("n1");
@@ -50,10 +50,10 @@ public class ParentStorageTest {
         }
         //We clear the cache
 
-        cloudModel.discard(new Callback<Throwable>() {
+        cloudModel.discard().then(new Callback<Throwable>() {
             @Override
             public void on(Throwable aBoolean) {
-                time0.lookup(n1.uuid(), new Callback<KObject>() {
+                time0.lookup(n1.uuid()).then(new Callback<KObject>() {
                     @Override
                     public void on(KObject r_n1) {
                         Assert.assertNull(r_n1);
@@ -80,14 +80,14 @@ public class ParentStorageTest {
         //MemoryKContentDeliveryDriver.DEBUG = true;
 
         CloudModel cloudModel = new CloudModel();
-        cloudModel.connect(null);
+        cloudModel.connect();
 
         CloudUniverse dimension0 = cloudModel.newUniverse();
         CloudView time0 = dimension0.time(0l);
 
         Node root = time0.createNode();
         root.setName("root");
-        time0.setRoot(root, null);
+        time0.setRoot(root);
 
         Node n1 = time0.createNode();
         n1.setName("n1");
@@ -102,7 +102,7 @@ public class ParentStorageTest {
         Assert.assertEquals(n1.referenceInParent(), MetaNode.REF_CHILDREN);
 
 
-        n1.inbounds(new Callback<KObject[]>() {
+        n1.inbounds().then(new Callback<KObject[]>() {
             @Override
             public void on(KObject[] kObjects) {
                 Assert.assertEquals(1, kObjects.length);
@@ -116,10 +116,10 @@ public class ParentStorageTest {
         }
         //We clear the cache
 
-        cloudModel.save(new Callback<Throwable>() {
+        cloudModel.save().then(new Callback<Throwable>() {
             @Override
             public void on(Throwable aBoolean) {
-                cloudModel.discard(new Callback<Throwable>() {
+                cloudModel.discard().then(new Callback<Throwable>() {
                     @Override
                     public void on(Throwable aBoolean) {
 
@@ -128,12 +128,12 @@ public class ParentStorageTest {
             }
         });
 
-        time0.lookup(n1.uuid(), new Callback<KObject>() {
+        time0.lookup(n1.uuid()).then(new Callback<KObject>() {
             @Override
             public void on(KObject r_n1) {
                 Assert.assertNotNull(r_n1.parentUuid());
                 Assert.assertNotNull(r_n1.referenceInParent());
-                r_n1.inbounds(new Callback<KObject[]>() {
+                r_n1.inbounds().then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(1, kObjects.length);

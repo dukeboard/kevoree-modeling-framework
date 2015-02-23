@@ -17,13 +17,13 @@ public class TraceTest {
         //MemoryKDataBase.DEBUG = true;
 
         CloudModel universe = new CloudModel();
-        universe.connect(null);
+        universe.connect();
 
         CloudUniverse dimension0 = universe.newUniverse();
 
         CloudView time0 = dimension0.time(0l);
         Node root = time0.createNode();
-        time0.setRoot(root, null);
+        time0.setRoot(root);
         root.setName("root");
 
         Node n1 = time0.createNode();

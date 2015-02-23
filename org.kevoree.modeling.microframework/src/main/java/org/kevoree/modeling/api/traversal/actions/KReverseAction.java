@@ -43,7 +43,7 @@ public class KReverseAction implements KTraversalAction {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
                     KCacheEntry raw = currentView.universe().model().manager().entry(loopObj, AccessMode.READ);
-                    if(raw!=null){
+                    if (raw != null) {
                         if (_reference == null) {
                             if (raw.get(Index.INBOUNDS_INDEX) != null && raw.get(Index.INBOUNDS_INDEX) instanceof Set) {
                                 Set<Long> casted = (Set<Long>) raw.get(Index.INBOUNDS_INDEX);
@@ -67,7 +67,7 @@ public class KReverseAction implements KTraversalAction {
                 }
             }
             if (toFilter.keySet().size() == 0) {
-                currentView.lookupAll(nextIds.toArray(new Long[nextIds.size()]), new Callback<KObject[]>() {
+                currentView.lookupAll(nextIds.toArray(new Long[nextIds.size()])).then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         _next.execute(kObjects);
@@ -75,7 +75,7 @@ public class KReverseAction implements KTraversalAction {
                 });
             } else {
                 Long[] toFilterKeys = toFilter.keySet().toArray(new Long[toFilter.keySet().size()]);
-                currentView.lookupAll(toFilterKeys, new Callback<KObject[]>() {
+                currentView.lookupAll(toFilterKeys).then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         for (int i = 0; i < toFilterKeys.length; i++) {
@@ -88,7 +88,7 @@ public class KReverseAction implements KTraversalAction {
                                 }
                             }
                         }
-                        currentView.lookupAll(nextIds.toArray(new Long[nextIds.size()]), new Callback<KObject[]>() {
+                        currentView.lookupAll(nextIds.toArray(new Long[nextIds.size()])).then(new Callback<KObject[]>() {
                             @Override
                             public void on(KObject[] kObjects) {
                                 _next.execute(kObjects);

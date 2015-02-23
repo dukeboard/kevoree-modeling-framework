@@ -19,7 +19,7 @@ public class PolynomialSaveLoadTest {
         final int[] nbAssert = new int[1];
         nbAssert[0] = 0;
         CloudModel model = new CloudModel();
-        model.connect(null);
+        model.connect();
 
         CloudUniverse universe = model.newUniverse();
 
@@ -28,7 +28,7 @@ public class PolynomialSaveLoadTest {
         CloudView t0 = universe.time(0l);
         Node node = t0.createNode();
         node.setName("n0");
-        t0.setRoot(node, null);
+        t0.setRoot(node);
         final Element element = t0.createElement();
         element.setName("e0");
         node.setElement(element);
@@ -53,7 +53,7 @@ public class PolynomialSaveLoadTest {
             }
             final double vv = val[i];
             final long finalI = i;
-            universe.time(finalI).lookup(element.uuid(), new Callback<KObject>() {
+            universe.time(finalI).lookup(element.uuid()).then(new Callback<KObject>() {
                 @Override
                 public void on(KObject kObject) {
                     Element casted = (Element) kObject;
@@ -62,10 +62,10 @@ public class PolynomialSaveLoadTest {
             });
         }
 
-        model.save(new Callback<Throwable>() {
+        model.save().then(new Callback<Throwable>() {
             @Override
             public void on(Throwable aBoolean) {
-                model.discard(new Callback<Throwable>() {
+                model.discard().then(new Callback<Throwable>() {
                     @Override
                     public void on(Throwable aBoolean) {
 
@@ -79,12 +79,12 @@ public class PolynomialSaveLoadTest {
         nbAssert[0]++;
         for (int i = 200; i < 1000; i++) {
             final int finalI = i;
-            element.jump((long) finalI, new Callback<Element>() {
+            element.jump((long) finalI).then(new Callback<KObject>() {
                 @Override
-                public void on(Element element) {
+                public void on(KObject element) {
                     nbAssert[0]++;
                     //System.out.println(element.getValue());
-                    Assert.assertTrue((element.getValue() - val[finalI]) < 5);
+                    Assert.assertTrue((((Element) element).getValue() - val[finalI]) < 5);
                 }
             });
         }
@@ -92,10 +92,10 @@ public class PolynomialSaveLoadTest {
         //Assert.assertEquals(element.timeTree().size(), 2);
 
 
-        model.save(new Callback<Throwable>() {
+        model.save().then(new Callback<Throwable>() {
             @Override
             public void on(Throwable aBoolean) {
-                model.discard(new Callback<Throwable>() {
+                model.discard().then(new Callback<Throwable>() {
                     @Override
                     public void on(Throwable aBoolean) {
 

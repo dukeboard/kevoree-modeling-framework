@@ -96,7 +96,7 @@ public class KTraverseAction implements KTraversalAction {
                 }
             }
             //call
-            currentView.lookupAll(nextIds.toArray(new Long[nextIds.size()]), new Callback<KObject[]>() {
+            currentView.lookupAll(nextIds.toArray(new Long[nextIds.size()])).then(new Callback<KObject[]>() {
                 @Override
                 public void on(KObject[] kObjects) {
                     _next.execute(kObjects);

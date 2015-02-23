@@ -15,29 +15,26 @@ import org.kevoree.modeling.api.trace.TraceSequence;
 public interface KObject {
 
     public KUniverse universe();
-    
+
     public long uuid();
 
-    public void path(Callback<String> callback);
+    public KTask<String> path();
 
     public KView view();
 
-    public void delete(Callback<Throwable> callback);
+    public KTask<Throwable> delete();
 
-    public void parent(Callback<KObject> callback);
+    public KTask<KObject> parent();
 
     public Long parentUuid();
 
-    public void select(String query, Callback<KObject[]> callback);
+    public KTask<KObject[]> select(String query);
 
     public void listen(KEventListener listener);
 
-    /* Visit API */
     public void visitAttributes(ModelAttributeVisitor visitor);
 
-    public void visit(ModelVisitor visitor, Callback<Throwable> end, VisitRequest request);
-
-    /* End Visit API */
+    public KTask<Throwable> visit(ModelVisitor visitor, VisitRequest request);
 
     /* Time navigation */
     public long now();
@@ -53,9 +50,9 @@ public interface KObject {
 
     public void mutate(KActionType actionType, MetaReference metaReference, KObject param);
 
-    public void ref(MetaReference metaReference, Callback<KObject[]> callback);
+    public KTask<KObject[]> ref(MetaReference metaReference);
 
-    public void inferRef(MetaReference metaReference, Callback<KObject[]> callback);
+    public KTask<KObject[]> inferRef(MetaReference metaReference);
 
     public KTraversal traverse(MetaReference metaReference);
 
@@ -65,7 +62,7 @@ public interface KObject {
 
     public KTraversal traverseParent();
 
-    public void inbounds(Callback<KObject[]> callback);
+    public KTask<KObject[]> inbounds();
 
     /* End Reflexive API */
 
@@ -80,49 +77,23 @@ public interface KObject {
     public boolean equals(Object other);
 
     /* Model operations */
-    public void diff(KObject target, Callback<TraceSequence> callback);
+    public KTask<TraceSequence> diff(KObject target);
 
-    public void merge(KObject target, Callback<TraceSequence> callback);
+    public KTask<TraceSequence> merge(KObject target);
 
-    public void intersection(KObject target, Callback<TraceSequence> callback);
+    public KTask<TraceSequence> intersection(KObject target);
 
-    public <U extends KObject> void jump(long time, final Callback<U> callback);
+    public <U extends KObject> KTask<U> jump(long time);
 
     public MetaReference[] referencesWith(KObject o);
 
-    public KTask<String> taskPath();
-
-    public KTask<Throwable> taskDelete();
-
-    public KTask<KObject> taskParent();
-
-    public KTask<KObject[]> taskSelect(String query);
-
-    public KTask<KObject[]> taskRef(MetaReference metaReference);
-
-    public KTask<KObject[]> taskInbounds();
-
-    public KTask<TraceSequence> taskDiff(KObject target);
-
-    public KTask<TraceSequence> taskMerge(KObject target);
-
-    public KTask<TraceSequence> taskIntersection(KObject target);
-
-    public <U extends KObject> KTask<U> taskJump(long time);
-
-    public KTask<Throwable> taskVisit(ModelVisitor visitor, VisitRequest request);
-
     /* Inference Objects Manegement */
-    public void inferObjects(Callback<KInfer[]> callback);
-
-    public KTask<KInfer[]> taskInferObjects();
+    public KTask<KInfer[]> inferObjects();
 
     public Object inferAttribute(MetaAttribute attribute);
 
-    public void call(MetaOperation operation, Object[] params, Callback<Object> callback);
+    public KTask<Object> call(MetaOperation operation, Object[] params);
 
-    public KTask<Object> taskCall(MetaOperation operation, Object[] params);
-
-    public void inferCall(MetaOperation operation, Object[] params, Callback<Object> callback);
+    public KTask<Object> inferCall(MetaOperation operation, Object[] params);
 
 }

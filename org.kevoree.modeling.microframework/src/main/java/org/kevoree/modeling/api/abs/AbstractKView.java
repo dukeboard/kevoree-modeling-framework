@@ -1,7 +1,6 @@
 package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KTask;
 import org.kevoree.modeling.api.KUniverse;
@@ -45,55 +44,61 @@ public abstract class AbstractKView implements KView {
     }
 
     @Override
-    public void setRoot(KObject elem, Callback<Throwable> callback) {
+    public KTask<Throwable> setRoot(KObject elem) {
+        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
         ((AbstractKObject) elem).set_parent(null, null);
-        universe().model().manager().setRoot(elem, callback);
+        universe().model().manager().setRoot(elem, task.initCallback());
+        return task;
     }
 
     @Override
-    public void getRoot(Callback<KObject> callback) {
-        universe().model().manager().getRoot(this, callback);
+    public KTask<KObject> getRoot() {
+        AbstractKTaskWrapper<KObject> task = new AbstractKTaskWrapper<KObject>();
+        universe().model().manager().getRoot(this, task.initCallback());
+        return task;
     }
 
     @Override
-    public void select(final String query, final Callback<KObject[]> callback) {
-        if (callback == null) {
-            return;
-        }
+    public KTask<KObject[]> select(final String query) {
+        AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
         if (query == null) {
-            callback.on(new KObject[0]);
-            return;
+            task.initCallback().on(new KObject[0]);
         }
         universe().model().manager().getRoot(this, new Callback<KObject>() {
             @Override
             public void on(KObject rootObj) {
                 if (rootObj == null) {
-                    callback.on(new KObject[0]);
+                    task.initCallback().on(new KObject[0]);
                 } else {
                     String cleanedQuery = query;
                     if (cleanedQuery.equals("/")) {
                         KObject[] param = new KObject[1];
                         param[0] = rootObj;
-                        callback.on(param);
+                        task.initCallback().on(param);
                     } else {
                         if (cleanedQuery.startsWith("/")) {
                             cleanedQuery = cleanedQuery.substring(1);
                         }
-                        KSelector.select(rootObj, cleanedQuery, callback);
+                        KSelector.select(rootObj, cleanedQuery, task.initCallback());
                     }
                 }
             }
         });
+        return task;
     }
 
     @Override
-    public void lookup(Long kid, Callback<KObject> callback) {
-        universe().model().manager().lookup(this, kid, callback);
+    public KTask<KObject> lookup(Long kid) {
+        AbstractKTaskWrapper<KObject> task = new AbstractKTaskWrapper<KObject>();
+        universe().model().manager().lookup(this, kid, task.initCallback());
+        return task;
     }
 
     @Override
-    public void lookupAll(Long[] keys, Callback<KObject[]> callback) {
-        universe().model().manager().lookupAll(this, keys, callback);
+    public KTask<KObject[]> lookupAll(Long[] keys) {
+        AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
+        universe().model().manager().lookupAll(this, keys, task.initCallback());
+        return task;
     }
 
     public KObject createProxy(MetaClass clazz, LongRBTree universeTree, long key) {
@@ -141,34 +146,6 @@ public abstract class AbstractKView implements KView {
             AbstractKView casted = (AbstractKView) obj;
             return (casted._now == _now) && _universe.equals(casted._universe);
         }
-    }
-
-    @Override
-    public KTask<KObject> taskLookup(Long key) {
-        AbstractKTaskWrapper<KObject> task = new AbstractKTaskWrapper<KObject>();
-        lookup(key, task.initCallback());
-        return task;
-    }
-
-    @Override
-    public KTask<KObject[]> taskLookupAll(Long[] keys) {
-        AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
-        lookupAll(keys, task.initCallback());
-        return task;
-    }
-
-    @Override
-    public KTask<KObject[]> taskSelect(String query) {
-        AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
-        select(query, task.initCallback());
-        return task;
-    }
-
-    @Override
-    public KTask<Throwable> taskSetRoot(KObject elem) {
-        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
-        setRoot(elem, task.initCallback());
-        return task;
     }
 
 }

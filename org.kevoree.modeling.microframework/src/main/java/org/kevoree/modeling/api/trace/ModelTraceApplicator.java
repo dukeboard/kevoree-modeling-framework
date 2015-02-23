@@ -55,7 +55,7 @@ public class ModelTraceApplicator {
                 }
             }
             Long[] dependenciesArray = dependencies.toArray(new Long[dependencies.size()]);
-            _targetModel.view().lookupAll(dependenciesArray, new Callback<KObject[]>() {
+            _targetModel.view().lookupAll(dependenciesArray).then(new Callback<KObject[]>() {
                 @Override
                 public void on(KObject[] kObjects) {
                     HashMap<Long, KObject> cached = new HashMap<Long, KObject>();

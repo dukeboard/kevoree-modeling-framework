@@ -1,10 +1,7 @@
 package org.kevoree.modeling.api.xmi;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.ModelFormat;
-import org.kevoree.modeling.api.ThrowableCallback;
+import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.abs.AbstractKTaskWrapper;
 import org.kevoree.modeling.api.util.Checker;
 
 /**
@@ -19,29 +16,31 @@ public class XmiFormat implements ModelFormat {
     }
 
     @Override
-    public void save(KObject model, ThrowableCallback<String> callback) {
-        XMIModelSerializer.save(model, callback);
+    public KTask<String> save(KObject model) {
+        AbstractKTaskWrapper<String> wrapper = new AbstractKTaskWrapper<String>();
+        XMIModelSerializer.save(model, wrapper.initCallback());
+        return wrapper;
     }
 
-    public void saveRoot(ThrowableCallback<String> callback) {
-        if (Checker.isDefined(callback)) {
-            _view.universe().model().manager().getRoot(_view, new Callback<KObject>() {
-                @Override
-                public void on(KObject root) {
-                    if (root == null) {
-                        callback.on("", new Exception("Root not set yet !"));
-                    } else {
-                        XMIModelSerializer.save(root, callback);
-                    }
+    public KTask<String> saveRoot() {
+        AbstractKTaskWrapper<String> wrapper = new AbstractKTaskWrapper<String>();
+        _view.universe().model().manager().getRoot(_view, new Callback<KObject>() {
+            @Override
+            public void on(KObject root) {
+                if (root == null) {
+                    wrapper.initCallback().on(null);
+                } else {
+                    XMIModelSerializer.save(root, wrapper.initCallback());
                 }
-            });
-        } else {
-            throw new RuntimeException("one parameter is null");
-        }
+            }
+        });
+        return wrapper;
     }
 
     @Override
-    public void load(String payload, Callback<Throwable> callback) {
-        XMIModelLoader.load(this._view, payload, callback);
+    public KTask<Throwable> load(String payload) {
+        AbstractKTaskWrapper<Throwable> wrapper = new AbstractKTaskWrapper<Throwable>();
+        XMIModelLoader.load(this._view, payload, wrapper.initCallback());
+        return wrapper;
     }
 }

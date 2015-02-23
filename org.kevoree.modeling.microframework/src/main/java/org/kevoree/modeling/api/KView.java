@@ -11,11 +11,11 @@ public interface KView {
 
     public KObject create(MetaClass clazz);
 
-    public void select(String query, Callback<KObject[]> callback);
+    public KTask<KObject[]> select(String query);
 
-    public void lookup(Long key, Callback<KObject> callback);
+    public KTask<KObject> lookup(Long key);
 
-    public void lookupAll(Long[] keys, Callback<KObject[]> callback);
+    public KTask<KObject[]> lookupAll(Long[] keys);
 
     public KUniverse universe();
 
@@ -29,16 +29,8 @@ public interface KView {
 
     public boolean equals(Object other);
 
-    public void setRoot(KObject elem, Callback<Throwable> callback);
+    public KTask<Throwable> setRoot(KObject elem);
 
-    public void getRoot(Callback<KObject> callback);
-
-    public KTask<KObject> taskLookup(Long key);
-
-    public KTask<KObject[]> taskLookupAll(Long[] keys);
-
-    public KTask<KObject[]> taskSelect(String query);
-
-    public KTask<Throwable> taskSetRoot(KObject elem);
+    public KTask<KObject> getRoot();
 
 }

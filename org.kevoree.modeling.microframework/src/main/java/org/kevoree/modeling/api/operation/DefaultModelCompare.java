@@ -42,7 +42,7 @@ public class DefaultModelCompare {
                 objectsMap.put(elem.uuid(), elem);
                 return VisitResult.CONTINUE;
             }
-        }, new Callback<Throwable>() {
+        }, VisitRequest.CONTAINED).then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
@@ -71,7 +71,7 @@ public class DefaultModelCompare {
                             }
                             return VisitResult.CONTINUE;
                         }
-                    }, new Callback<Throwable>() {
+                    }, VisitRequest.CONTAINED).then(new Callback<Throwable>() {
                         @Override
                         public void on(Throwable throwable) {
                             if (throwable != null) {
@@ -92,10 +92,10 @@ public class DefaultModelCompare {
                                 callback.on(new TraceSequence().populate(traces));
                             }
                         }
-                    }, VisitRequest.CONTAINED);
+                    });
                 }
             }
-        }, VisitRequest.CONTAINED);
+        });
     }
 
     private static List<ModelTrace> internal_createTraces(final KObject current, KObject sibling, final boolean inter, boolean merge, boolean references, boolean attributes) {

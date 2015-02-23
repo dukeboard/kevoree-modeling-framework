@@ -3,7 +3,7 @@ package org.kevoree.modeling.api.msg;
 /**
  * Created by duke on 23/02/15.
  */
-public class KOperationCallMessage {
+public class KOperationCallMessage implements KMessage {
 
     public Long universeID;
 
@@ -13,4 +13,8 @@ public class KOperationCallMessage {
 
     public String[] params;
 
+    @Override
+    public String json() {
+        return null;
+    }
 }

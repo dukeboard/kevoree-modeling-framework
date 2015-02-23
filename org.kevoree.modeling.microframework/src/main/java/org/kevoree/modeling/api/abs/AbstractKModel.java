@@ -28,13 +28,17 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
     }
 
     @Override
-    public void connect(Callback<Throwable> callback) {
-        _manager.connect(callback);
+    public KTask<Throwable> connect() {
+        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
+        _manager.connect(task.initCallback());
+        return task;
     }
 
     @Override
-    public void close(Callback<Throwable> callback) {
-        _manager.close(callback);
+    public KTask<Throwable> close() {
+        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
+        _manager.close(task.initCallback());
+        return task;
     }
 
     @Override
@@ -60,13 +64,17 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
     }
 
     @Override
-    public void save(Callback<Throwable> callback) {
-        _manager.save(callback);
+    public KTask<Throwable> save() {
+        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
+        _manager.save(task.initCallback());
+        return task;
     }
 
     @Override
-    public void discard(Callback<Throwable> callback) {
-        _manager.discard(null, callback);
+    public KTask<Throwable> discard() {
+        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
+        _manager.discard(null,task.initCallback());
+        return task;
     }
 
     @Override
@@ -106,31 +114,4 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
         return new AbstractKTask();
     }
 
-    @Override
-    public KTask<Throwable> taskSave() {
-        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
-        save(task.initCallback());
-        return task;
-    }
-
-    @Override
-    public KTask<Throwable> taskDiscard() {
-        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
-        discard(task.initCallback());
-        return task;
-    }
-
-    @Override
-    public KTask<Throwable> taskConnect() {
-        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
-        connect(task.initCallback());
-        return task;
-    }
-
-    @Override
-    public KTask<Throwable> taskClose() {
-        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
-        close(task.initCallback());
-        return task;
-    }
 }

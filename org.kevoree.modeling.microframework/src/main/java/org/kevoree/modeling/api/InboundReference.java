@@ -16,11 +16,11 @@ public class InboundReference {
         this._source = p_source;
     }
 
-    public MetaReference getReference() {
+    public MetaReference reference() {
         return _reference;
     }
 
-    public long getSource() {
+    public long source() {
         return _source;
     }
 

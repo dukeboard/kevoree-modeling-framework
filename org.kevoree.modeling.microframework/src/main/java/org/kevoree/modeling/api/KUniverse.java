@@ -26,8 +26,6 @@ public interface KUniverse<A extends KView, B extends KUniverse, C extends KMode
 
     public List<B> descendants();
 
-    public void delete(Callback<Throwable> callback);
+    public KTask<Throwable> delete();
 
-    public KTask<Throwable> taskDelete();
-    
 }

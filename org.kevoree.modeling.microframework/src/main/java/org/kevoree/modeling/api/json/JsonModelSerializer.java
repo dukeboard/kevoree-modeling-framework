@@ -30,12 +30,12 @@ public class JsonModelSerializer {
 
     public static final String DIM_META = "@universe";
 
-    public static void serialize(KObject model, final ThrowableCallback<String> callback) {
-        model.view().getRoot(new Callback<KObject>() {
+    public static void serialize(KObject model, final Callback<String> callback) {
+        model.view().getRoot().then(new Callback<KObject>() {
             @Override
             public void on(KObject rootObj) {
                 boolean isRoot = false;
-                if(rootObj != null){
+                if (rootObj != null) {
                     isRoot = rootObj.uuid() == model.uuid();
                 }
                 final StringBuilder builder = new StringBuilder();
@@ -45,25 +45,25 @@ public class JsonModelSerializer {
                     @Override
                     public VisitResult visit(KObject elem) {
                         boolean isRoot2 = false;
-                        if(rootObj != null){
+                        if (rootObj != null) {
                             isRoot2 = rootObj.uuid() == elem.uuid();
                         }
                         builder.append(",\n");
                         try {
-                            printJSON(elem, builder,isRoot2);
+                            printJSON(elem, builder, isRoot2);
                         } catch (Exception e) {
                             e.printStackTrace();
                             builder.append("{}");
                         }
                         return VisitResult.CONTINUE;
                     }
-                }, new Callback<Throwable>() {
+                }, VisitRequest.ALL).then(new Callback<Throwable>() {
                     @Override
                     public void on(Throwable throwable) {
                         builder.append("\n]\n");
-                        callback.on(builder.toString(), throwable);
+                        callback.on(builder.toString());
                     }
-                }, VisitRequest.ALL);
+                });
             }
         });
     }
@@ -72,7 +72,7 @@ public class JsonModelSerializer {
         if (elem != null) {
             KCacheEntry raw = elem.view().universe().model().manager().entry(elem, AccessMode.READ);
             if (raw != null) {
-                builder.append(JsonRaw.encode(raw, elem.uuid(), elem.metaClass(), false,isRoot));
+                builder.append(JsonRaw.encode(raw, elem.uuid(), elem.metaClass(), false, isRoot));
             }
         }
     }

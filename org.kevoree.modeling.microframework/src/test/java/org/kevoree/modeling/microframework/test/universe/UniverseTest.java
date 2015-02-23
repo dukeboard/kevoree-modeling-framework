@@ -17,7 +17,7 @@ public class UniverseTest {
     @Test
     public void testCreation() {
         CloudModel universe = new CloudModel();
-        universe.connect(new Callback<Throwable>() {
+        universe.connect().then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 CloudUniverse dimension0 = universe.newUniverse();

@@ -15,9 +15,9 @@ public interface KModel<A extends KUniverse> {
 
     public A universe(long key);
 
-    public void disable(KEventListener listener);
-
     public KDataManager manager();
+
+    public void disable(KEventListener listener);
 
     public void listen(KEventListener listener);
 
@@ -33,20 +33,12 @@ public interface KModel<A extends KUniverse> {
 
     public KTask task();
 
-    public void save(Callback<Throwable> callback);
+    public KTask<Throwable> save();
 
-    public void discard(Callback<Throwable> callback);
+    public KTask<Throwable> discard();
 
-    public void connect(Callback<Throwable> callback);
+    public KTask<Throwable> connect();
 
-    public void close(Callback<Throwable> callback);
-
-    public KTask<Throwable> taskSave();
-
-    public KTask<Throwable> taskDiscard();
-
-    public KTask<Throwable> taskConnect();
-
-    public KTask<Throwable> taskClose();
+    public KTask<Throwable> close();
 
 }

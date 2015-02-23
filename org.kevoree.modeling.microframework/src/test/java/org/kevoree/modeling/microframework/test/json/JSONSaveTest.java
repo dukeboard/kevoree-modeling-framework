@@ -17,20 +17,17 @@ public class JSONSaveTest {
     @Test
     public void escapeJsonTest() {
         CloudModel universe = new CloudModel();
-        universe.connect(null);
+        universe.connect();
         CloudUniverse dimension0 = universe.newUniverse();
         CloudView time0 = dimension0.time(0l);
         Node root = time0.createNode();
-        time0.setRoot(root, null);
+        time0.setRoot(root);
         root.setName("root\nhello");
         final String[] result = new String[1];
-        time0.json().save(root, new ThrowableCallback<String>() {
+        time0.json().save(root).then(new Callback<String>() {
             @Override
-            public void on(String model, Throwable err) {
+            public void on(String model) {
                 result[0] = model;
-                if (err != null) {
-                    err.printStackTrace();
-                }
             }
         });
         Assert.assertEquals(result[0], "[\n" +
@@ -51,7 +48,7 @@ public class JSONSaveTest {
                 "\t\t\"@root\": \"true\",\n" +
                 "\t\t\"name\": \"root\\nhello\"\n" +
                 "\t}\n" +
-                "]\n", new Callback<Throwable>() {
+                "]\n").then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
@@ -59,13 +56,10 @@ public class JSONSaveTest {
                 }
             }
         });
-        time10.json().save(root, new ThrowableCallback<String>() {
+        time10.json().save(root).then(new Callback<String>() {
             @Override
-            public void on(String model, Throwable err) {
+            public void on(String model) {
                 result[0] = model;
-                if (err != null) {
-                    err.printStackTrace();
-                }
             }
         });
         Assert.assertEquals(result[0], "[\n" +
@@ -82,12 +76,12 @@ public class JSONSaveTest {
     @Test
     public void jsonTest() {
         CloudModel universe = new CloudModel();
-        universe.connect(null);
+        universe.connect();
         CloudUniverse dimension0 = universe.newUniverse();
 
         CloudView time0 = dimension0.time(0l);
         Node root = time0.createNode();
-        time0.setRoot(root, null);
+        time0.setRoot(root);
         root.setName("root");
         Node n1 = time0.createNode();
         n1.setName("n1");
@@ -98,13 +92,10 @@ public class JSONSaveTest {
 
 
         final String[] result = new String[1];
-        time0.json().save(root, new ThrowableCallback<String>() {
+        time0.json().save(root).then(new Callback<String>() {
             @Override
-            public void on(String model, Throwable err) {
+            public void on(String model) {
                 result[0] = model;
-                if (err != null) {
-                    err.printStackTrace();
-                }
             }
         });
         String payloadResult = "[\n" +
@@ -135,7 +126,7 @@ public class JSONSaveTest {
 
         Assert.assertEquals(result[0], payloadResult);
         final String[] pathN2 = {null};
-        n2.path(new Callback<String>() {
+        n2.path().then(new Callback<String>() {
             @Override
             public void on(String p) {
                 pathN2[0] = p;
@@ -143,7 +134,7 @@ public class JSONSaveTest {
         });
         Assert.assertEquals("/children[name=n2]", pathN2[0]);
         final String[] pathN1 = {null};
-        n1.path(new Callback<String>() {
+        n1.path().then(new Callback<String>() {
             @Override
             public void on(String p) {
                 pathN1[0] = p;
@@ -151,7 +142,7 @@ public class JSONSaveTest {
         });
         Assert.assertEquals("/children[name=n1]", pathN1[0]);
         final String[] pathR = {null};
-        root.path(new Callback<String>() {
+        root.path().then(new Callback<String>() {
             @Override
             public void on(String p) {
                 pathR[0] = p;
