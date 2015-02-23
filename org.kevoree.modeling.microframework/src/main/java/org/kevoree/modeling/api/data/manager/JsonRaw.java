@@ -219,7 +219,7 @@ public class JsonRaw {
         }
 
         int nbElemToPrint = 0;
-        for (int i = Index.RESERVED_INDEXES; i < raw.length(); i++) {
+        for (int i = Index.RESERVED_INDEXES; i < raw.sizeRaw(); i++) {
             if (raw.get(i) != null) {
                 nbElemToPrint++;
             }

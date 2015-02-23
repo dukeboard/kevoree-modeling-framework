@@ -18,4 +18,9 @@ public class KEventMessage implements KMessage {
         //TODO
         return null;
     }
+
+    @Override
+    public int type() {
+        return 0;
+    }
 }

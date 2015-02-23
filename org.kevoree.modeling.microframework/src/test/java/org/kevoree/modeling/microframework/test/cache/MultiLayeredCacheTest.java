@@ -31,12 +31,12 @@ public class MultiLayeredCacheTest {
             }
         };
         cache.put(KContentKey.create("0///"), temp);
-        Assert.assertEquals(temp.hashCode(), cache.get(KContentKey.create("0///")).hashCode());
+        Assert.assertEquals(temp, cache.get(KContentKey.create("0///")));
         cache.put(KContentKey.create("0/0//"), temp);
-        Assert.assertEquals(temp.hashCode(), cache.get(KContentKey.create("0///")).hashCode());
-        Assert.assertEquals(temp.hashCode(), cache.get(KContentKey.create("0/0//")).hashCode());
+        Assert.assertEquals(temp, cache.get(KContentKey.create("0///")));
+        Assert.assertEquals(temp, cache.get(KContentKey.create("0/0//")));
         cache.put(KContentKey.create("1///2"), temp);
-        Assert.assertEquals(temp.hashCode(), cache.get(KContentKey.create("1///2")).hashCode());
+        Assert.assertEquals(temp, cache.get(KContentKey.create("1///2")));
     }
 
 

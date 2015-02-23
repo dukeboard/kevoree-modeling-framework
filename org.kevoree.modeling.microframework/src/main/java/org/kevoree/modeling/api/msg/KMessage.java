@@ -7,4 +7,6 @@ public interface KMessage {
 
     public String json();
 
+    public int type();
+
 }

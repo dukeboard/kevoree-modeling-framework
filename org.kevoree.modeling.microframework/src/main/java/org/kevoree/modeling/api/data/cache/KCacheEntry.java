@@ -83,7 +83,7 @@ public class KCacheEntry implements KCacheObject {
         _modifiedIndexes[index] = true;
     }
 
-    public int length() {
+    public int sizeRaw() {
         return raw.length;
     }
 

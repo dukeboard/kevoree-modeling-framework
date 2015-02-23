@@ -13,4 +13,9 @@ public class KOperationResultMessage implements KMessage {
     public String json() {
         return null;
     }
+
+    @Override
+    public int type() {
+        return 0;
+    }
 }
