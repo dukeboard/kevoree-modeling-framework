@@ -9,13 +9,48 @@ public class KPutRequest implements KMessage {
 
     public KContentPutRequest request;
 
+    public Integer id;
+
     @Override
     public String json() {
-        return null;
+        StringBuilder buffer = new StringBuilder();
+        buffer.append("{\n\"type\":\"");
+        buffer.append(type());
+        buffer.append("\"\n");
+        if (id != null) {
+            buffer.append(",");
+            buffer.append("\"id\":\"");
+            buffer.append(id.toString());
+            buffer.append("\"\n");
+        }
+        if (request != null) {
+            buffer.append(",\"keys\":[");
+            for (int i = 0; i < request.size(); i++) {
+                if (i != 0) {
+                    buffer.append(",");
+                }
+                buffer.append("\"");
+                buffer.append(request.getKey(i));
+                buffer.append("\"");
+            }
+            buffer.append("]\n");
+            buffer.append(",\"values\":[");
+            for (int i = 0; i < request.size(); i++) {
+                if (i != 0) {
+                    buffer.append(",");
+                }
+                buffer.append("\"");
+                buffer.append(request.getContent(i));
+                buffer.append("\"");
+            }
+            buffer.append("]\n");
+        }
+        buffer.append("}\n");
+        return buffer.toString();
     }
 
     @Override
     public int type() {
-        return 0;
+        return KMessage.PUT_TYPE;
     }
 }

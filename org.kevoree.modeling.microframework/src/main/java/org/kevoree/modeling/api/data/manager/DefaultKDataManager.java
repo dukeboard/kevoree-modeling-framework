@@ -144,9 +144,7 @@ public class DefaultKDataManager implements KDataManager {
             if (dirtiesEntries[i].object instanceof KCacheEntry) {
                 KEventMessage newMessage = new KEventMessage();
                 newMessage.meta = ((KCacheEntry) dirtiesEntries[i].object).modifiedIndexes();
-                newMessage.universeID = dirtiesEntries[i].key.part1();
-                newMessage.timeID = dirtiesEntries[i].key.part2();
-                newMessage.objID = dirtiesEntries[i].key.part3();
+                newMessage.key = dirtiesEntries[i].key;
                 notificationMessages[nbInsertedMsg] = newMessage;
                 nbInsertedMsg = nbInsertedMsg + 1;
             }
