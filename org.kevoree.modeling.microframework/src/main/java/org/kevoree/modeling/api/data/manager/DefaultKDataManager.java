@@ -544,12 +544,6 @@ public class DefaultKDataManager implements KDataManager {
 
     }
 
-    private Long internal_resolve_universe(LongRBTree universeTree, long timeToResolve, long currentUniverse) {
-        //TODO :( uch
-        return currentUniverse;
-    }
-
-
     /* ROOT MANAGEMENT */
 
     public void internal_root_load(KContentKey contentKey, Callback<LongRBTree> callback) {
@@ -656,9 +650,27 @@ public class DefaultKDataManager implements KDataManager {
         });
     }
 
+    /* TODO MultiUniverse */
+
     @Override
-    public void timeTrees(KObject origin, Long start, Long end, Callback<IndexRBTree[]> callback) {
-        //TODO
+    public void timeTrees(KObject p_origin, Long start, Long end, Callback<IndexRBTree[]> callback) {
+        //TODO enhance for multiVerse
+        Long[] uuid = new Long[1];
+        uuid[0] = p_origin.uuid();
+        internal_resolve_universe_time(p_origin.view(), uuid, new Callback<ResolutionResult[]>() {
+            @Override
+            public void on(ResolutionResult[] resolutionResults) {
+                IndexRBTree[] trees = new IndexRBTree[1];
+                trees[0] = resolutionResults[0].timeTree;
+                callback.on(trees);
+            }
+        });
     }
+
+    private Long internal_resolve_universe(LongRBTree universeTree, long timeToResolve, long currentUniverse) {
+        //TODO :( uch
+        return currentUniverse;
+    }
+
 
 }
