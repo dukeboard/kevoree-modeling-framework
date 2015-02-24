@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.msg;
 
 import org.kevoree.modeling.api.data.cache.KContentKey;
+import org.kevoree.modeling.api.data.cdn.AtomicOperationFactory;
 import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
 import org.kevoree.modeling.api.json.JsonString;
 import org.kevoree.modeling.api.json.JsonToken;
@@ -30,6 +31,10 @@ public class KMessageLoader {
     public static final int OPERATION_CALL_TYPE = 5;
 
     public static final int OPERATION_RESULT_TYPE = 6;
+
+    public static final int ATOMIC_OPERATION_REQUEST_TYPE = 7;
+
+    public static final int ATOMIC_OPERATION_RESULT_TYPE = 8;
 
     public static KMessage load(String payload) {
         Lexer lexer = new Lexer(payload);
@@ -163,6 +168,27 @@ public class KMessageLoader {
                     resultMessage.result = content.get("result").toString();
                 }
                 return resultMessage;
+            } else if (parsedType == ATOMIC_OPERATION_REQUEST_TYPE) {
+                KAtomicGetRequest atomicGetMessage = new KAtomicGetRequest();
+                if (content.get("id") != null) {
+                    atomicGetMessage.id = Long.parseLong(content.get("id").toString());
+                }
+                if (content.get("key") != null) {
+                    atomicGetMessage.key = KContentKey.create(content.get("key").toString());
+                }
+                if (content.get("operation") != null) {
+                    atomicGetMessage.operation = AtomicOperationFactory.getOperationWithKey(Integer.parseInt((String) content.get("operation")));
+                }
+                return atomicGetMessage;
+            } else if (parsedType == ATOMIC_OPERATION_RESULT_TYPE) {
+                KAtomicGetResult atomicGetResultMessage = new KAtomicGetResult();
+                if (content.get("id") != null) {
+                    atomicGetResultMessage.id = Long.parseLong(content.get("id").toString());
+                }
+                if (content.get("value") != null) {
+                    atomicGetResultMessage.value = content.get("value").toString();
+                }
+                return atomicGetResultMessage;
             }
             return null;
         } catch (Exception e) {
