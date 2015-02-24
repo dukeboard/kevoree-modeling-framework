@@ -15,12 +15,14 @@ public class KEventMessage implements KMessage {
 
     @Override
     public String json() {
+        StringBuilder builder = new StringBuilder();
         //TODO
-        return null;
+        return builder.toString();
     }
 
     @Override
     public int type() {
+
         return 0;
     }
 }

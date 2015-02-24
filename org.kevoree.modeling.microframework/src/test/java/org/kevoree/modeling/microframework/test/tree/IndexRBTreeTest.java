@@ -3,8 +3,8 @@ package org.kevoree.modeling.microframework.test.tree;
 
 import org.junit.Test;
 import org.junit.Assert;
-import org.kevoree.modeling.api.time.rbtree.TreeNode;
-import org.kevoree.modeling.api.time.rbtree.IndexRBTree;
+import org.kevoree.modeling.api.rbtree.TreeNode;
+import org.kevoree.modeling.api.rbtree.IndexRBTree;
 
 import java.util.LinkedList;
 

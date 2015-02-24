@@ -4,8 +4,7 @@ import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.time.TimeTree;
-import org.kevoree.modeling.api.time.rbtree.LongRBTree;
+import org.kevoree.modeling.api.rbtree.LongRBTree;
 
 /**
  * Created by duke on 16/01/15.

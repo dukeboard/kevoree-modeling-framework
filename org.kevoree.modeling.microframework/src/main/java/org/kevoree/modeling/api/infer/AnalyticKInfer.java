@@ -5,7 +5,7 @@ import org.kevoree.modeling.api.KInferState;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObjectInfer;
 import org.kevoree.modeling.api.infer.states.AnalyticKInferState;
-import org.kevoree.modeling.api.time.rbtree.LongRBTree;
+import org.kevoree.modeling.api.rbtree.LongRBTree;
 
 /**
  * This class is a basic live learning of the average of a field.

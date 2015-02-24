@@ -18,10 +18,10 @@ import org.kevoree.modeling.api.data.cdn.MemoryKContentDeliveryDriver;
 import org.kevoree.modeling.api.msg.KEventMessage;
 import org.kevoree.modeling.api.msg.KMessage;
 import org.kevoree.modeling.api.scheduler.DirectScheduler;
-import org.kevoree.modeling.api.time.rbtree.IndexRBTree;
-import org.kevoree.modeling.api.time.rbtree.LongRBTree;
-import org.kevoree.modeling.api.time.rbtree.LongTreeNode;
-import org.kevoree.modeling.api.time.rbtree.TreeNode;
+import org.kevoree.modeling.api.rbtree.IndexRBTree;
+import org.kevoree.modeling.api.rbtree.LongRBTree;
+import org.kevoree.modeling.api.rbtree.LongTreeNode;
+import org.kevoree.modeling.api.rbtree.TreeNode;
 import org.kevoree.modeling.api.util.DefaultOperationManager;
 import org.kevoree.modeling.api.util.KOperationManager;
 
@@ -52,7 +52,7 @@ public class DefaultKDataManager implements KDataManager {
     }
 
     @Override
-    public KModel getModel() {
+    public KModel model() {
         return _model;
     }
 
@@ -361,6 +361,7 @@ public class DefaultKDataManager implements KDataManager {
     @Override
     public void discard(KUniverse p_universe, Callback<Throwable> callback) {
         _db.cache().clearDataSegment();
+        //TODO REVERT UNIVERSE_TREE
         if (callback != null) {
             callback.on(null);
         }
@@ -550,6 +551,9 @@ public class DefaultKDataManager implements KDataManager {
         return currentUniverse;
     }
 
+
+    /* ROOT MANAGEMENT */
+
     public void internal_root_load(KContentKey contentKey, Callback<LongRBTree> callback) {
         LongRBTree rootUniverseTree = (LongRBTree) _db.cache().get(contentKey);
         if (rootUniverseTree == null) {
@@ -652,6 +656,11 @@ public class DefaultKDataManager implements KDataManager {
                 }
             }
         });
+    }
+
+    @Override
+    public void timeTrees(KObject origin, Long start, Long end, Callback<IndexRBTree[]> callback) {
+        //TODO
     }
 
 }

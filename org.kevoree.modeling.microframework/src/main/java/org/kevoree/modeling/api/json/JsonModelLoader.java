@@ -12,7 +12,7 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaModel;
 import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.time.rbtree.LongRBTree;
+import org.kevoree.modeling.api.rbtree.LongRBTree;
 
 import java.util.ArrayList;
 import java.util.HashMap;

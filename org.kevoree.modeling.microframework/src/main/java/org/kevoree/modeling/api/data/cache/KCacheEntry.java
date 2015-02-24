@@ -2,11 +2,8 @@ package org.kevoree.modeling.api.data.cache;
 
 import org.kevoree.modeling.api.KInferState;
 import org.kevoree.modeling.api.data.manager.JsonRaw;
-import org.kevoree.modeling.api.meta.Meta;
-import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.time.rbtree.LongRBTree;
+import org.kevoree.modeling.api.rbtree.LongRBTree;
 
 import java.util.ArrayList;
 import java.util.HashSet;

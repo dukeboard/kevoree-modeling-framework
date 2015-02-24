@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.time.rbtree;
+package org.kevoree.modeling.api.rbtree;
 
 import org.kevoree.modeling.api.data.cache.KCacheObject;
 

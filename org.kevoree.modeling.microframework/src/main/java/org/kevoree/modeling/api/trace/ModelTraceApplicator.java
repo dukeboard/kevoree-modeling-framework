@@ -8,7 +8,7 @@ import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.time.rbtree.LongRBTree;
+import org.kevoree.modeling.api.rbtree.LongRBTree;
 
 import java.util.HashMap;
 import java.util.HashSet;

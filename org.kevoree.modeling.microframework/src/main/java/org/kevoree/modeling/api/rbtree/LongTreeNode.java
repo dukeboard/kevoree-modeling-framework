@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.time.rbtree;
+package org.kevoree.modeling.api.rbtree;
 
 /**
  * Created by duke on 10/5/14.

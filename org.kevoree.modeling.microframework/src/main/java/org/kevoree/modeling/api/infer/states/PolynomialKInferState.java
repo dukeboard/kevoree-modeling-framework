@@ -1,7 +1,6 @@
 package org.kevoree.modeling.api.infer.states;
 
 import org.kevoree.modeling.api.KInferState;
-import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 
 /**
  * Created by assaad on 10/02/15.

@@ -1,8 +1,7 @@
 package org.kevoree.modeling.api.data.manager;
 
-import org.kevoree.modeling.api.data.cache.KContentKey;
-import org.kevoree.modeling.api.time.rbtree.IndexRBTree;
-import org.kevoree.modeling.api.time.rbtree.LongRBTree;
+import org.kevoree.modeling.api.rbtree.IndexRBTree;
+import org.kevoree.modeling.api.rbtree.LongRBTree;
 
 /**
  * Created by duke on 19/02/15.

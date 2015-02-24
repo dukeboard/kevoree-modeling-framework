@@ -9,7 +9,7 @@ import org.kevoree.modeling.api.ModelFormat;
 import org.kevoree.modeling.api.KEventListener;
 import org.kevoree.modeling.api.json.JsonFormat;
 import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.time.rbtree.LongRBTree;
+import org.kevoree.modeling.api.rbtree.LongRBTree;
 import org.kevoree.modeling.api.traversal.selector.KSelector;
 import org.kevoree.modeling.api.util.Checker;
 import org.kevoree.modeling.api.xmi.XmiFormat;

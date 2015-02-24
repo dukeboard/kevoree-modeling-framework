@@ -165,7 +165,7 @@ public class DefaultOperationManager implements KOperationManager {
         } else if (operationEvent.actionType() == KActionType.CALL) {
             KOperation operationCore = searchOperation(operationEvent.uuid(), operationEvent.metaClass().index(), operationEvent.metaElement().index());
             if (operationCore != null) {
-                KView view = _manager.getModel().universe(operationEvent.universe()).time(operationEvent.time());
+                KView view = _manager.model().universe(operationEvent.universe()).time(operationEvent.time());
                 view.lookup(operationEvent.uuid(), new Callback<KObject>() {
                     public void on(KObject kObject) {
                         if (kObject != null) {

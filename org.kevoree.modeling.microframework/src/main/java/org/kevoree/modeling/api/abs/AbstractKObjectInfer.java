@@ -8,7 +8,7 @@ import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.KInferState;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaInferClass;
-import org.kevoree.modeling.api.time.rbtree.LongRBTree;
+import org.kevoree.modeling.api.rbtree.LongRBTree;
 
 /**
  * Created by duke on 09/12/14.

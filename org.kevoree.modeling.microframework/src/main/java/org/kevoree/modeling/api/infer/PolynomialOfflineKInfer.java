@@ -8,8 +8,7 @@ import org.kevoree.modeling.api.infer.states.DoubleArrayKInferState;
 import org.kevoree.modeling.api.infer.states.PolynomialKInferState;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml;
-import org.kevoree.modeling.api.time.TimeTree;
-import org.kevoree.modeling.api.time.rbtree.LongRBTree;
+import org.kevoree.modeling.api.rbtree.LongRBTree;
 
 /**
  * Created by assaad on 11/02/15.

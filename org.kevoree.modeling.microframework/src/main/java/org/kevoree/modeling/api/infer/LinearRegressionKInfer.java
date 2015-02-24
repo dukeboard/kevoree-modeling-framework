@@ -6,10 +6,7 @@ import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObjectInfer;
 import org.kevoree.modeling.api.infer.states.DoubleArrayKInferState;
 import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.time.TimeTree;
-import org.kevoree.modeling.api.time.rbtree.LongRBTree;
-
-import java.util.Random;
+import org.kevoree.modeling.api.rbtree.LongRBTree;
 
 /**
  * This class create a live learner of a linear regression.

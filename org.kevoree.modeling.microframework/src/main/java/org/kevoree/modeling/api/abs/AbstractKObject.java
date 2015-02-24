@@ -22,7 +22,8 @@ import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.operation.DefaultModelCompare;
-import org.kevoree.modeling.api.time.rbtree.LongRBTree;
+import org.kevoree.modeling.api.util.TimeWalker;
+import org.kevoree.modeling.api.rbtree.LongRBTree;
 import org.kevoree.modeling.api.traversal.DefaultKTraversal;
 import org.kevoree.modeling.api.traversal.KTraversal;
 import org.kevoree.modeling.api.traversal.actions.KParentsAction;
@@ -118,6 +119,11 @@ public abstract class AbstractKObject implements KObject {
         } else {
             return (Long) raw.get(Index.PARENT_INDEX);
         }
+    }
+
+    @Override
+    public TimeWalker timeWalker() {
+        return new TimeWalker(this);
     }
 
     @Override
@@ -728,6 +734,7 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public int hashCode() {
+        //TODO use Array hash function to be more efficient
         String hashString = uuid() + "-" + view().now() + "-" + view().universe().key();
         return hashString.hashCode();
     }
@@ -811,7 +818,6 @@ public abstract class AbstractKObject implements KObject {
         return new DefaultKTraversal(this, new KParentsAction());
     }
 
-
     @Override
     public MetaReference[] referencesWith(KObject o) {
         if (Checker.isDefined(o)) {
@@ -851,17 +857,17 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public KTask<KInfer[]> inferObjects() {
-        AbstractKTaskWrapper<KInfer[]> task = new AbstractKTaskWrapper<KInfer[]>();
-        //TODO
-        return task;
-    }
-
-    @Override
     public KTask<Object> call(MetaOperation p_operation, Object[] p_params) {
         AbstractKTaskWrapper<Object> temp_task = new AbstractKTaskWrapper<Object>();
         view().universe().model().manager().operationManager().call(this, p_operation, p_params, temp_task.initCallback());
         return temp_task;
+    }
+
+    @Override
+    public KTask<KInfer[]> inferObjects() {
+        AbstractKTaskWrapper<KInfer[]> task = new AbstractKTaskWrapper<KInfer[]>();
+        //TODO
+        return task;
     }
 
     @Override
