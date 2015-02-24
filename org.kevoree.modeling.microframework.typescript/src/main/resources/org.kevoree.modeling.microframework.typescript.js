@@ -5359,6 +5359,18 @@ var org;
                         return KEventMessage;
                     })();
                     msg.KEventMessage = KEventMessage;
+                    var KGetKeysRequest = (function () {
+                        function KGetKeysRequest() {
+                        }
+                        KGetKeysRequest.prototype.json = function () {
+                            return null;
+                        };
+                        KGetKeysRequest.prototype.type = function () {
+                            return 0;
+                        };
+                        return KGetKeysRequest;
+                    })();
+                    msg.KGetKeysRequest = KGetKeysRequest;
                     var KMessageLoader = (function () {
                         function KMessageLoader() {
                         }
@@ -5392,6 +5404,18 @@ var org;
                         return KOperationResultMessage;
                     })();
                     msg.KOperationResultMessage = KOperationResultMessage;
+                    var KPutRequest = (function () {
+                        function KPutRequest() {
+                        }
+                        KPutRequest.prototype.json = function () {
+                            return null;
+                        };
+                        KPutRequest.prototype.type = function () {
+                            return 0;
+                        };
+                        return KPutRequest;
+                    })();
+                    msg.KPutRequest = KPutRequest;
                 })(msg = api.msg || (api.msg = {}));
                 var operation;
                 (function (operation) {

@@ -6034,6 +6034,19 @@ module org {
 
                     }
 
+                    export class KGetKeysRequest implements org.kevoree.modeling.api.msg.KMessage {
+
+                        public keys: org.kevoree.modeling.api.data.cache.KContentKey[];
+                        public json(): string {
+                            return null;
+                        }
+
+                        public type(): number {
+                            return 0;
+                        }
+
+                    }
+
                     export interface KMessage {
 
                         json(): string;
@@ -6070,6 +6083,19 @@ module org {
 
                         public listenerID: number;
                         public result: string;
+                        public json(): string {
+                            return null;
+                        }
+
+                        public type(): number {
+                            return 0;
+                        }
+
+                    }
+
+                    export class KPutRequest implements org.kevoree.modeling.api.msg.KMessage {
+
+                        public request: org.kevoree.modeling.api.data.cdn.KContentPutRequest;
                         public json(): string {
                             return null;
                         }

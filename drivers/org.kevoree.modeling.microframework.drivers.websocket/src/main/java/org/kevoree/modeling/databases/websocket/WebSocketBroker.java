@@ -30,6 +30,9 @@ import static io.undertow.Handlers.websocket;
 /**
  * Created by gregory.nain on 10/11/14.
  */
+
+//TODO REMOVE this class after merge
+
 public class WebSocketBroker extends AbstractReceiveListener implements KEventBroker, WebSocketConnectionCallback {
 
     private KEventBroker _baseBroker;

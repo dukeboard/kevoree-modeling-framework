@@ -1094,6 +1094,11 @@ declare module org {
                         json(): string;
                         type(): number;
                     }
+                    class KGetKeysRequest implements KMessage {
+                        keys: data.cache.KContentKey[];
+                        json(): string;
+                        type(): number;
+                    }
                     interface KMessage {
                         json(): string;
                         type(): number;
@@ -1112,6 +1117,11 @@ declare module org {
                     class KOperationResultMessage implements KMessage {
                         listenerID: number;
                         result: string;
+                        json(): string;
+                        type(): number;
+                    }
+                    class KPutRequest implements KMessage {
+                        request: data.cdn.KContentPutRequest;
                         json(): string;
                         type(): number;
                     }

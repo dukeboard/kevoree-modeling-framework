@@ -23,6 +23,9 @@ import java.util.List;
 /**
  * Created by duke on 05/01/15.
  */
+
+//TODO REMOVE this class after merge
+
 public class WebSocketBrokerClient implements KEventBroker {
 
     private WebSocketClient client;

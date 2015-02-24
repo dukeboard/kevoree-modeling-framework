@@ -25,6 +25,9 @@ import java.util.function.IntUnaryOperator;
 /**
  * Created by duke on 16/01/15.
  */
+
+//TODO REMOVE this class after merge
+
 public class WebSocketContentDeliveryDriverClient implements KContentDeliveryDriver {
 
     private static XnioWorker worker = null;

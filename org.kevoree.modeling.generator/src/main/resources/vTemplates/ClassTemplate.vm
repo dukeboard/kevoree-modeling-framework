@@ -17,11 +17,11 @@ public interface ${classDeclaration.name} extends org.kevoree.modeling.api.KObje
 #foreach($rel in $classDeclaration.references)
 #if($rel.single)
     public ${classDeclaration.pack}.${classDeclaration.name} set${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn p_obj);
-    public org.kevoree.modeling.api.KTask<${rel.getType().fqn}> get${context.generationContext.helper.toCamelCase($rel.getName())}();
+    public org.kevoree.modeling.api.KDefer<${rel.getType().fqn}> get${context.generationContext.helper.toCamelCase($rel.getName())}();
 #{else}
     public ${classDeclaration.pack}.${classDeclaration.name} add${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn p_obj);
     public ${classDeclaration.pack}.${classDeclaration.name} remove${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn p_obj);
-    public org.kevoree.modeling.api.KTask<${rel.getType().fqn}[]> get${context.generationContext.helper.toCamelCase($rel.getName())}();
+    public org.kevoree.modeling.api.KDefer<${rel.getType().fqn}[]> get${context.generationContext.helper.toCamelCase($rel.getName())}();
     public int sizeOf${context.generationContext.helper.toCamelCase($rel.getName())}();
 #end
 #end

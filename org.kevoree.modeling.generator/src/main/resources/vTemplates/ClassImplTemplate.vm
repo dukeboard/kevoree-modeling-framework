@@ -3,7 +3,7 @@ package ${classDeclaration.pack}.impl;
 
 public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.AbstractKObject implements ${classDeclaration.pack}.${classDeclaration.name} {
 
-    public ${classDeclaration.name}Impl(${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}View p_factory, long p_uuid, org.kevoree.modeling.api.time.rbtree.LongRBTree p_universeTree, org.kevoree.modeling.api.meta.MetaClass p_metaClass) {
+    public ${classDeclaration.name}Impl(${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}View p_factory, long p_uuid, org.kevoree.modeling.api.rbtree.LongRBTree p_universeTree, org.kevoree.modeling.api.meta.MetaClass p_metaClass) {
         super(p_factory, p_uuid, p_universeTree, p_metaClass);
     }
 
@@ -52,8 +52,8 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
     }
 
     @Override
-    public org.kevoree.modeling.api.KTask<${ref.getType().fqn}> get${context.generationContext.helper.toCamelCase(${ref.getName()})}() {
-        org.kevoree.modeling.api.abs.AbstractKTaskWrapper<${ref.getType().fqn}> task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<${ref.getType().fqn}>();
+    public org.kevoree.modeling.api.KDefer<${ref.getType().fqn}> get${context.generationContext.helper.toCamelCase(${ref.getName()})}() {
+        org.kevoree.modeling.api.abs.AbstractKDeferWrapper<${ref.getType().fqn}> task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<${ref.getType().fqn}>();
         this.internal_ref(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject[]>() {
             @Override
             public void on(org.kevoree.modeling.api.KObject[] kObjects) {
@@ -82,8 +82,8 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
     }
 
     @Override
-    public org.kevoree.modeling.api.KTask<${ref.getType().fqn}[]> get${context.generationContext.helper.toCamelCase(${ref.getName()})}() {
-        org.kevoree.modeling.api.abs.AbstractKTaskWrapper<${ref.getType().fqn}[]> task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<${ref.getType().fqn}[]>();
+    public org.kevoree.modeling.api.KDefer<${ref.getType().fqn}[]> get${context.generationContext.helper.toCamelCase(${ref.getName()})}() {
+        org.kevoree.modeling.api.abs.AbstractKDeferWrapper<${ref.getType().fqn}[]> task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<${ref.getType().fqn}[]>();
         this.internal_ref(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject[]>() {
             @Override
             public void on(org.kevoree.modeling.api.KObject[] kObjects) {
