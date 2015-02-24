@@ -3,13 +3,13 @@ package org.kevoree.modeling.api;
 /**
  * Created by duke on 21/01/15.
  */
-public interface KCurrentTask<A> extends KTask<A> {
+public interface KCurrentDefer<A> extends KDefer<A> {
 
     public String[] resultKeys();
 
     public Object resultByName(String name);
 
-    public Object resultByTask(KTask task);
+    public Object resultByTask(KDefer task);
 
     public void addTaskResult(A result);
 

@@ -28,12 +28,23 @@ declare module org {
                     static _KActionTypeVALUES: KActionType[];
                     static values(): KActionType[];
                 }
-                interface KCurrentTask<A> extends KTask<any> {
+                interface KCurrentDefer<A> extends KDefer<any> {
                     resultKeys(): string[];
                     resultByName(name: string): any;
-                    resultByTask(task: KTask<any>): any;
+                    resultByTask(task: KDefer<any>): any;
                     addTaskResult(result: A): void;
                     clearResults(): void;
+                }
+                interface KDefer<A> {
+                    wait(previous: KDefer<any>): KDefer<any>;
+                    getResult(): A;
+                    isDone(): boolean;
+                    setJob(kjob: (p: KCurrentDefer<any>) => void): KDefer<any>;
+                    ready(): KDefer<any>;
+                    next(): KDefer<any>;
+                    then(callback: (p: A) => void): void;
+                    setName(taskName: string): KDefer<any>;
+                    getName(): string;
                 }
                 interface KEventListener {
                     on(src: KObject, modifications: meta.Meta[]): void;
@@ -51,7 +62,7 @@ declare module org {
                     cloneState(): KInferState;
                 }
                 interface KJob {
-                    run(currentTask: KCurrentTask<any>): void;
+                    run(currentTask: KCurrentDefer<any>): void;
                 }
                 interface KMetaType {
                     name(): string;
@@ -70,51 +81,52 @@ declare module org {
                     setOperation(metaOperation: meta.MetaOperation, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
                     setInstanceOperation(metaOperation: meta.MetaOperation, target: KObject, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
                     metaModel(): meta.MetaModel;
-                    task(): KTask<any>;
-                    save(): KTask<any>;
-                    discard(): KTask<any>;
-                    connect(): KTask<any>;
-                    close(): KTask<any>;
+                    defer(): KDefer<any>;
+                    save(): KDefer<any>;
+                    discard(): KDefer<any>;
+                    connect(): KDefer<any>;
+                    close(): KDefer<any>;
                 }
                 interface KObject {
                     universe(): KUniverse<any, any, any>;
                     uuid(): number;
-                    path(): KTask<any>;
+                    path(): KDefer<any>;
                     view(): KView;
-                    delete(): KTask<any>;
-                    parent(): KTask<any>;
+                    delete(): KDefer<any>;
+                    parent(): KDefer<any>;
                     parentUuid(): number;
-                    select(query: string): KTask<any>;
+                    select(query: string): KDefer<any>;
                     listen(listener: (p: KObject, p1: meta.Meta[]) => void): void;
                     visitAttributes(visitor: (p: meta.MetaAttribute, p1: any) => void): void;
-                    visit(visitor: (p: KObject) => VisitResult, request: VisitRequest): KTask<any>;
+                    visit(visitor: (p: KObject) => VisitResult, request: VisitRequest): KDefer<any>;
                     now(): number;
-                    universeTree(): time.rbtree.LongRBTree;
+                    universeTree(): rbtree.LongRBTree;
+                    timeWalker(): util.TimeWalker;
                     referenceInParent(): meta.MetaReference;
                     domainKey(): string;
                     metaClass(): meta.MetaClass;
                     mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject): void;
-                    ref(metaReference: meta.MetaReference): KTask<any>;
-                    inferRef(metaReference: meta.MetaReference): KTask<any>;
+                    ref(metaReference: meta.MetaReference): KDefer<any>;
+                    inferRef(metaReference: meta.MetaReference): KDefer<any>;
                     traverse(metaReference: meta.MetaReference): traversal.KTraversal;
                     traverseQuery(metaReferenceQuery: string): traversal.KTraversal;
                     traverseInbounds(metaReferenceQuery: string): traversal.KTraversal;
                     traverseParent(): traversal.KTraversal;
-                    inbounds(): KTask<any>;
+                    inbounds(): KDefer<any>;
                     traces(request: TraceRequest): trace.ModelTrace[];
                     get(attribute: meta.MetaAttribute): any;
                     set(attribute: meta.MetaAttribute, payload: any): void;
                     toJSON(): string;
                     equals(other: any): boolean;
-                    diff(target: KObject): KTask<any>;
-                    merge(target: KObject): KTask<any>;
-                    intersection(target: KObject): KTask<any>;
-                    jump<U extends KObject>(time: number): KTask<any>;
+                    diff(target: KObject): KDefer<any>;
+                    merge(target: KObject): KDefer<any>;
+                    intersection(target: KObject): KDefer<any>;
+                    jump<U extends KObject>(time: number): KDefer<any>;
                     referencesWith(o: KObject): meta.MetaReference[];
-                    inferObjects(): KTask<any>;
+                    inferObjects(): KDefer<any>;
                     inferAttribute(attribute: meta.MetaAttribute): any;
-                    call(operation: meta.MetaOperation, params: any[]): KTask<any>;
-                    inferCall(operation: meta.MetaOperation, params: any[]): KTask<any>;
+                    call(operation: meta.MetaOperation, params: any[]): KDefer<any>;
+                    inferCall(operation: meta.MetaOperation, params: any[]): KDefer<any>;
                 }
                 interface KOperation {
                     on(source: KObject, params: any[], result: (p: any) => void): void;
@@ -122,17 +134,6 @@ declare module org {
                 interface KScheduler {
                     dispatch(runnable: java.lang.Runnable): void;
                     stop(): void;
-                }
-                interface KTask<A> {
-                    wait(previous: KTask<any>): KTask<any>;
-                    getResult(): A;
-                    isDone(): boolean;
-                    setJob(kjob: (p: KCurrentTask<any>) => void): KTask<any>;
-                    ready(): KTask<any>;
-                    next(): KTask<any>;
-                    then(callback: (p: A) => void): void;
-                    setName(taskName: string): KTask<any>;
-                    getName(): string;
                 }
                 interface KUniverse<A extends KView, B extends KUniverse<any, any, any>, C extends KModel<any>> {
                     key(): number;
@@ -144,30 +145,30 @@ declare module org {
                     diverge(): B;
                     origin(): B;
                     descendants(): java.util.List<B>;
-                    delete(): KTask<any>;
+                    delete(): KDefer<any>;
                 }
                 interface KView {
                     createFQN(metaClassName: string): KObject;
                     create(clazz: meta.MetaClass): KObject;
-                    select(query: string): KTask<any>;
-                    lookup(key: number): KTask<any>;
-                    lookupAll(keys: number[]): KTask<any>;
+                    select(query: string): KDefer<any>;
+                    lookup(key: number): KDefer<any>;
+                    lookupAll(keys: number[]): KDefer<any>;
                     universe(): KUniverse<any, any, any>;
                     now(): number;
                     listen(listener: (p: KObject, p1: meta.Meta[]) => void): void;
                     json(): ModelFormat;
                     xmi(): ModelFormat;
                     equals(other: any): boolean;
-                    setRoot(elem: KObject): KTask<any>;
-                    getRoot(): KTask<any>;
+                    setRoot(elem: KObject): KDefer<any>;
+                    getRoot(): KDefer<any>;
                 }
                 interface ModelAttributeVisitor {
                     visit(metaAttribute: meta.MetaAttribute, value: any): void;
                 }
                 interface ModelFormat {
-                    save(model: KObject): KTask<any>;
-                    saveRoot(): KTask<any>;
-                    load(payload: string): KTask<any>;
+                    save(model: KObject): KDefer<any>;
+                    saveRoot(): KDefer<any>;
+                    load(payload: string): KDefer<any>;
                 }
                 interface ModelVisitor {
                     visit(elem: KObject): VisitResult;
@@ -209,94 +210,7 @@ declare module org {
                         save(src: any): string;
                         load(payload: string): any;
                     }
-                    class AbstractKModel<A extends KUniverse<any, any, any>> implements KModel<any> {
-                        private _manager;
-                        metaModel(): meta.MetaModel;
-                        constructor();
-                        connect(): KTask<any>;
-                        close(): KTask<any>;
-                        manager(): data.manager.KDataManager;
-                        newUniverse(): A;
-                        internal_create(key: number): A;
-                        universe(key: number): A;
-                        save(): KTask<any>;
-                        discard(): KTask<any>;
-                        disable(listener: (p: KObject, p1: meta.Meta[]) => void): void;
-                        listen(listener: (p: KObject, p1: meta.Meta[]) => void): void;
-                        setContentDeliveryDriver(p_driver: data.cdn.KContentDeliveryDriver): KModel<any>;
-                        setScheduler(p_scheduler: KScheduler): KModel<any>;
-                        setOperation(metaOperation: meta.MetaOperation, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
-                        setInstanceOperation(metaOperation: meta.MetaOperation, target: KObject, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
-                        task(): KTask<any>;
-                    }
-                    class AbstractKObject implements KObject {
-                        private _view;
-                        private _uuid;
-                        private _universeTree;
-                        private _metaClass;
-                        constructor(p_view: KView, p_uuid: number, p_universeTree: time.rbtree.LongRBTree, p_metaClass: meta.MetaClass);
-                        view(): KView;
-                        uuid(): number;
-                        metaClass(): meta.MetaClass;
-                        now(): number;
-                        universeTree(): time.rbtree.LongRBTree;
-                        universe(): KUniverse<any, any, any>;
-                        path(): KTask<any>;
-                        parentUuid(): number;
-                        parent(): KTask<any>;
-                        referenceInParent(): meta.MetaReference;
-                        delete(): KTask<any>;
-                        select(query: string): KTask<any>;
-                        listen(listener: (p: KObject, p1: meta.Meta[]) => void): void;
-                        domainKey(): string;
-                        get(p_attribute: meta.MetaAttribute): any;
-                        set(p_attribute: meta.MetaAttribute, payload: any): void;
-                        private removeFromContainer(param);
-                        mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject): void;
-                        internal_mutate(actionType: KActionType, metaReferenceP: meta.MetaReference, param: KObject, setOpposite: boolean, inDelete: boolean): void;
-                        size(p_metaReference: meta.MetaReference): number;
-                        internal_ref(p_metaReference: meta.MetaReference, callback: (p: KObject[]) => void): void;
-                        ref(p_metaReference: meta.MetaReference): KTask<any>;
-                        inferRef(p_metaReference: meta.MetaReference): KTask<any>;
-                        visitAttributes(visitor: (p: meta.MetaAttribute, p1: any) => void): void;
-                        visit(p_visitor: (p: KObject) => VisitResult, p_request: VisitRequest): KTask<any>;
-                        private internal_visit(visitor, end, deep, containedOnly, visited, traversed);
-                        toJSON(): string;
-                        toString(): string;
-                        traces(request: TraceRequest): trace.ModelTrace[];
-                        inbounds(): KTask<any>;
-                        set_parent(p_parentKID: number, p_metaReference: meta.MetaReference): void;
-                        equals(obj: any): boolean;
-                        hashCode(): number;
-                        diff(target: KObject): KTask<any>;
-                        merge(target: KObject): KTask<any>;
-                        intersection(target: KObject): KTask<any>;
-                        jump<U extends KObject>(time: number): KTask<any>;
-                        internal_transpose_ref(p: meta.MetaReference): meta.MetaReference;
-                        internal_transpose_att(p: meta.MetaAttribute): meta.MetaAttribute;
-                        internal_transpose_op(p: meta.MetaOperation): meta.MetaOperation;
-                        traverse(p_metaReference: meta.MetaReference): traversal.KTraversal;
-                        traverseQuery(metaReferenceQuery: string): traversal.KTraversal;
-                        traverseInbounds(metaReferenceQuery: string): traversal.KTraversal;
-                        traverseParent(): traversal.KTraversal;
-                        referencesWith(o: KObject): meta.MetaReference[];
-                        inferObjects(): KTask<any>;
-                        call(p_operation: meta.MetaOperation, p_params: any[]): KTask<any>;
-                        inferAttribute(attribute: meta.MetaAttribute): any;
-                        inferCall(operation: meta.MetaOperation, params: any[]): KTask<any>;
-                    }
-                    class AbstractKObjectInfer extends AbstractKObject implements KInfer {
-                        constructor(p_view: KView, p_uuid: number, p_universeTree: time.rbtree.LongRBTree, p_metaClass: meta.MetaClass);
-                        readOnlyState(): KInferState;
-                        modifyState(): KInferState;
-                        private internal_load(raw);
-                        train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
-                        infer(features: any[]): any;
-                        accuracy(testSet: any[][], expectedResultSet: any[]): any;
-                        clear(): void;
-                        createEmptyState(): KInferState;
-                    }
-                    class AbstractKTask<A> implements KCurrentTask<any> {
+                    class AbstractKDefer<A> implements KCurrentDefer<any> {
                         private _name;
                         private _isDone;
                         _isReady: boolean;
@@ -306,30 +220,118 @@ declare module org {
                         private _nextTasks;
                         private _job;
                         private _result;
-                        setDoneOrRegister(next: KTask<any>): boolean;
+                        setDoneOrRegister(next: KDefer<any>): boolean;
                         private informParentEnd(end);
-                        wait(p_previous: KTask<any>): KTask<any>;
-                        ready(): KTask<any>;
-                        next(): KTask<any>;
+                        wait(p_previous: KDefer<any>): KDefer<any>;
+                        ready(): KDefer<any>;
+                        next(): KDefer<any>;
                         then(p_callback: (p: A) => void): void;
-                        setName(p_taskName: string): KTask<any>;
+                        setName(p_taskName: string): KDefer<any>;
                         getName(): string;
                         resultKeys(): string[];
                         resultByName(p_name: string): any;
-                        resultByTask(p_task: KTask<any>): any;
+                        resultByTask(p_task: KDefer<any>): any;
                         addTaskResult(p_result: A): void;
                         clearResults(): void;
                         getResult(): A;
                         isDone(): boolean;
-                        setJob(p_kjob: (p: KCurrentTask<any>) => void): KTask<any>;
+                        setJob(p_kjob: (p: KCurrentDefer<any>) => void): KDefer<any>;
                     }
-                    class AbstractKTaskWrapper<A> extends AbstractKTask<any> {
+                    class AbstractKDeferWrapper<A> extends AbstractKDefer<any> {
                         private _callback;
                         constructor();
                         initCallback(): (p: A) => void;
-                        wait(previous: KTask<any>): KTask<any>;
-                        setJob(p_kjob: (p: KCurrentTask<any>) => void): KTask<any>;
-                        ready(): KTask<any>;
+                        wait(previous: KDefer<any>): KDefer<any>;
+                        setJob(p_kjob: (p: KCurrentDefer<any>) => void): KDefer<any>;
+                        ready(): KDefer<any>;
+                    }
+                    class AbstractKModel<A extends KUniverse<any, any, any>> implements KModel<any> {
+                        private _manager;
+                        metaModel(): meta.MetaModel;
+                        constructor();
+                        connect(): KDefer<any>;
+                        close(): KDefer<any>;
+                        manager(): data.manager.KDataManager;
+                        newUniverse(): A;
+                        internal_create(key: number): A;
+                        universe(key: number): A;
+                        save(): KDefer<any>;
+                        discard(): KDefer<any>;
+                        disable(listener: (p: KObject, p1: meta.Meta[]) => void): void;
+                        listen(listener: (p: KObject, p1: meta.Meta[]) => void): void;
+                        setContentDeliveryDriver(p_driver: data.cdn.KContentDeliveryDriver): KModel<any>;
+                        setScheduler(p_scheduler: KScheduler): KModel<any>;
+                        setOperation(metaOperation: meta.MetaOperation, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
+                        setInstanceOperation(metaOperation: meta.MetaOperation, target: KObject, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
+                        defer(): KDefer<any>;
+                    }
+                    class AbstractKObject implements KObject {
+                        private _view;
+                        private _uuid;
+                        private _universeTree;
+                        private _metaClass;
+                        constructor(p_view: KView, p_uuid: number, p_universeTree: rbtree.LongRBTree, p_metaClass: meta.MetaClass);
+                        view(): KView;
+                        uuid(): number;
+                        metaClass(): meta.MetaClass;
+                        now(): number;
+                        universeTree(): rbtree.LongRBTree;
+                        universe(): KUniverse<any, any, any>;
+                        path(): KDefer<any>;
+                        parentUuid(): number;
+                        timeWalker(): util.TimeWalker;
+                        parent(): KDefer<any>;
+                        referenceInParent(): meta.MetaReference;
+                        delete(): KDefer<any>;
+                        select(query: string): KDefer<any>;
+                        listen(listener: (p: KObject, p1: meta.Meta[]) => void): void;
+                        domainKey(): string;
+                        get(p_attribute: meta.MetaAttribute): any;
+                        set(p_attribute: meta.MetaAttribute, payload: any): void;
+                        private removeFromContainer(param);
+                        mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject): void;
+                        internal_mutate(actionType: KActionType, metaReferenceP: meta.MetaReference, param: KObject, setOpposite: boolean, inDelete: boolean): void;
+                        size(p_metaReference: meta.MetaReference): number;
+                        internal_ref(p_metaReference: meta.MetaReference, callback: (p: KObject[]) => void): void;
+                        ref(p_metaReference: meta.MetaReference): KDefer<any>;
+                        inferRef(p_metaReference: meta.MetaReference): KDefer<any>;
+                        visitAttributes(visitor: (p: meta.MetaAttribute, p1: any) => void): void;
+                        visit(p_visitor: (p: KObject) => VisitResult, p_request: VisitRequest): KDefer<any>;
+                        private internal_visit(visitor, end, deep, containedOnly, visited, traversed);
+                        toJSON(): string;
+                        toString(): string;
+                        traces(request: TraceRequest): trace.ModelTrace[];
+                        inbounds(): KDefer<any>;
+                        set_parent(p_parentKID: number, p_metaReference: meta.MetaReference): void;
+                        equals(obj: any): boolean;
+                        hashCode(): number;
+                        diff(target: KObject): KDefer<any>;
+                        merge(target: KObject): KDefer<any>;
+                        intersection(target: KObject): KDefer<any>;
+                        jump<U extends KObject>(time: number): KDefer<any>;
+                        internal_transpose_ref(p: meta.MetaReference): meta.MetaReference;
+                        internal_transpose_att(p: meta.MetaAttribute): meta.MetaAttribute;
+                        internal_transpose_op(p: meta.MetaOperation): meta.MetaOperation;
+                        traverse(p_metaReference: meta.MetaReference): traversal.KTraversal;
+                        traverseQuery(metaReferenceQuery: string): traversal.KTraversal;
+                        traverseInbounds(metaReferenceQuery: string): traversal.KTraversal;
+                        traverseParent(): traversal.KTraversal;
+                        referencesWith(o: KObject): meta.MetaReference[];
+                        call(p_operation: meta.MetaOperation, p_params: any[]): KDefer<any>;
+                        inferObjects(): KDefer<any>;
+                        inferAttribute(attribute: meta.MetaAttribute): any;
+                        inferCall(operation: meta.MetaOperation, params: any[]): KDefer<any>;
+                    }
+                    class AbstractKObjectInfer extends AbstractKObject implements KInfer {
+                        constructor(p_view: KView, p_uuid: number, p_universeTree: rbtree.LongRBTree, p_metaClass: meta.MetaClass);
+                        readOnlyState(): KInferState;
+                        modifyState(): KInferState;
+                        private internal_load(raw);
+                        train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
+                        infer(features: any[]): any;
+                        accuracy(testSet: any[][], expectedResultSet: any[]): any;
+                        clear(): void;
+                        createEmptyState(): KInferState;
                     }
                     class AbstractKUniverse<A extends KView, B extends KUniverse<any, any, any>, C extends KModel<any>> implements KUniverse<any, any, any> {
                         private _model;
@@ -337,7 +339,7 @@ declare module org {
                         constructor(p_model: KModel<any>, p_key: number);
                         key(): number;
                         model(): C;
-                        delete(): KTask<any>;
+                        delete(): KDefer<any>;
                         time(timePoint: number): A;
                         listen(listener: (p: KObject, p1: meta.Meta[]) => void): void;
                         listenAllTimes(target: KObject, listener: (p: KObject, p1: meta.Meta[]) => void): void;
@@ -354,16 +356,16 @@ declare module org {
                         now(): number;
                         universe(): KUniverse<any, any, any>;
                         createFQN(metaClassName: string): KObject;
-                        setRoot(elem: KObject): KTask<any>;
-                        getRoot(): KTask<any>;
-                        select(query: string): KTask<any>;
-                        lookup(kid: number): KTask<any>;
-                        lookupAll(keys: number[]): KTask<any>;
+                        setRoot(elem: KObject): KDefer<any>;
+                        getRoot(): KDefer<any>;
+                        select(query: string): KDefer<any>;
+                        lookup(kid: number): KDefer<any>;
+                        lookupAll(keys: number[]): KDefer<any>;
                         internalLookupAll(keys: number[], callback: (p: KObject[]) => void): void;
-                        createProxy(clazz: meta.MetaClass, universeTree: time.rbtree.LongRBTree, key: number): KObject;
+                        createProxy(clazz: meta.MetaClass, universeTree: rbtree.LongRBTree, key: number): KObject;
                         create(clazz: meta.MetaClass): KObject;
                         listen(listener: (p: KObject, p1: meta.Meta[]) => void): void;
-                        internalCreate(clazz: meta.MetaClass, universeTree: time.rbtree.LongRBTree, key: number): KObject;
+                        internalCreate(clazz: meta.MetaClass, universeTree: rbtree.LongRBTree, key: number): KObject;
                         json(): ModelFormat;
                         xmi(): ModelFormat;
                         equals(obj: any): boolean;
@@ -460,7 +462,7 @@ declare module org {
                             constructor(key: KContentKey, object: KCacheObject);
                         }
                         class KCacheEntry implements KCacheObject {
-                            universeTree: time.rbtree.LongRBTree;
+                            universeTree: rbtree.LongRBTree;
                             metaClass: meta.MetaClass;
                             raw: any[];
                             _modifiedIndexes: boolean[];
@@ -597,7 +599,7 @@ declare module org {
                             private OBJ_INDEX;
                             private GLO_TREE_INDEX;
                             constructor(model: KModel<any>);
-                            getModel(): KModel<any>;
+                            model(): KModel<any>;
                             close(callback: (p: java.lang.Throwable) => void): void;
                             nextUniverseKey(): number;
                             nextObjectKey(): number;
@@ -619,9 +621,10 @@ declare module org {
                             internal_resolve_universe_time(originView: KView, uuids: number[], callback: (p: ResolutionResult[]) => void): void;
                             private internal_resolve_times(originView, uuids, tempResult, callback);
                             private internal_resolve_universe(universeTree, timeToResolve, currentUniverse);
-                            internal_root_load(contentKey: cache.KContentKey, callback: (p: time.rbtree.LongRBTree) => void): void;
+                            internal_root_load(contentKey: cache.KContentKey, callback: (p: rbtree.LongRBTree) => void): void;
                             getRoot(originView: KView, callback: (p: KObject) => void): void;
                             setRoot(newRoot: KObject, callback: (p: java.lang.Throwable) => void): void;
+                            timeTrees(origin: KObject, start: number, end: number, callback: (p: rbtree.IndexRBTree[]) => void): void;
                         }
                         class Index {
                             static PARENT_INDEX: number;
@@ -636,9 +639,12 @@ declare module org {
                             static encode(raw: cache.KCacheEntry, uuid: number, p_metaClass: meta.MetaClass, endline: boolean, isRoot: boolean): string;
                         }
                         interface KDataManager {
+                            cdn(): cdn.KContentDeliveryDriver;
+                            model(): KModel<any>;
                             lookup(originView: KView, key: number, callback: (p: KObject) => void): void;
                             lookupAll(originView: KView, key: number[], callback: (p: KObject[]) => void): void;
                             entry(origin: KObject, accessMode: AccessMode): cache.KCacheEntry;
+                            timeTrees(origin: KObject, start: number, end: number, callback: (p: rbtree.IndexRBTree[]) => void): void;
                             save(callback: (p: java.lang.Throwable) => void): void;
                             discard(universe: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
                             delete(universe: KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
@@ -648,13 +654,11 @@ declare module org {
                             nextObjectKey(): number;
                             getRoot(originView: KView, callback: (p: KObject) => void): void;
                             setRoot(newRoot: KObject, callback: (p: java.lang.Throwable) => void): void;
-                            cdn(): cdn.KContentDeliveryDriver;
                             setContentDeliveryDriver(driver: cdn.KContentDeliveryDriver): void;
                             setScheduler(scheduler: KScheduler): void;
                             operationManager(): util.KOperationManager;
                             connect(callback: (p: java.lang.Throwable) => void): void;
                             close(callback: (p: java.lang.Throwable) => void): void;
-                            getModel(): KModel<any>;
                             parentUniverseKey(currentUniverseKey: number): number;
                             descendantsUniverseKeys(currentUniverseKey: number): number[];
                         }
@@ -678,9 +682,9 @@ declare module org {
                         }
                         class ResolutionResult {
                             resolvedUniverse: number;
-                            universeTree: time.rbtree.LongRBTree;
+                            universeTree: rbtree.LongRBTree;
                             resolvedQuanta: number;
-                            timeTree: time.rbtree.IndexRBTree;
+                            timeTree: rbtree.IndexRBTree;
                         }
                     }
                 }
@@ -711,7 +715,7 @@ declare module org {
                 }
                 module infer {
                     class AnalyticKInfer extends abs.AbstractKObjectInfer {
-                        constructor(p_view: KView, p_uuid: number, p_universeTree: time.rbtree.LongRBTree);
+                        constructor(p_view: KView, p_uuid: number, p_universeTree: rbtree.LongRBTree);
                         train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
                         infer(features: any[]): any;
                         accuracy(testSet: any[][], expectedResultSet: any[]): any;
@@ -720,7 +724,7 @@ declare module org {
                     }
                     class GaussianClassificationKInfer extends abs.AbstractKObjectInfer {
                         private alpha;
-                        constructor(p_view: KView, p_uuid: number, p_universeTree: time.rbtree.LongRBTree, p_metaClass: meta.MetaClass);
+                        constructor(p_view: KView, p_uuid: number, p_universeTree: rbtree.LongRBTree, p_metaClass: meta.MetaClass);
                         getAlpha(): number;
                         setAlpha(alpha: number): void;
                         train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
@@ -736,7 +740,7 @@ declare module org {
                         setAlpha(alpha: number): void;
                         getIterations(): number;
                         setIterations(iterations: number): void;
-                        constructor(p_view: KView, p_uuid: number, p_universeTree: time.rbtree.LongRBTree, p_metaClass: meta.MetaClass);
+                        constructor(p_view: KView, p_uuid: number, p_universeTree: rbtree.LongRBTree, p_metaClass: meta.MetaClass);
                         private calculate(weights, features);
                         train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
                         infer(features: any[]): any;
@@ -751,7 +755,7 @@ declare module org {
                         setAlpha(alpha: number): void;
                         getIterations(): number;
                         setIterations(iterations: number): void;
-                        constructor(p_view: KView, p_uuid: number, p_universeTree: time.rbtree.LongRBTree, p_metaClass: meta.MetaClass);
+                        constructor(p_view: KView, p_uuid: number, p_universeTree: rbtree.LongRBTree, p_metaClass: meta.MetaClass);
                         private calculate(weights, features);
                         train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
                         infer(features: any[]): any;
@@ -766,7 +770,7 @@ declare module org {
                         setToleratedErr(toleratedErr: number): void;
                         getMaxDegree(): number;
                         setMaxDegree(maxDegree: number): void;
-                        constructor(p_view: KView, p_uuid: number, p_universeTree: time.rbtree.LongRBTree, p_metaClass: meta.MetaClass);
+                        constructor(p_view: KView, p_uuid: number, p_universeTree: rbtree.LongRBTree, p_metaClass: meta.MetaClass);
                         private calculateLong(time, weights, timeOrigin, unit);
                         private calculate(weights, t);
                         train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
@@ -782,7 +786,7 @@ declare module org {
                         setToleratedErr(toleratedErr: number): void;
                         getMaxDegree(): number;
                         setMaxDegree(maxDegree: number): void;
-                        constructor(p_view: KView, p_uuid: number, p_universeTree: time.rbtree.LongRBTree, p_metaClass: meta.MetaClass);
+                        constructor(p_view: KView, p_uuid: number, p_universeTree: rbtree.LongRBTree, p_metaClass: meta.MetaClass);
                         private calculateLong(time, weights, timeOrigin, unit);
                         private calculate(weights, t);
                         train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
@@ -798,7 +802,7 @@ declare module org {
                         setAlpha(alpha: number): void;
                         getBeta(): number;
                         setBeta(beta: number): void;
-                        constructor(p_view: KView, p_uuid: number, p_universeTree: time.rbtree.LongRBTree, p_metaClass: meta.MetaClass);
+                        constructor(p_view: KView, p_uuid: number, p_universeTree: rbtree.LongRBTree, p_metaClass: meta.MetaClass);
                         private calculate(weights, features);
                         train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
                         infer(features: any[]): any;
@@ -952,9 +956,9 @@ declare module org {
                     class JsonFormat implements ModelFormat {
                         private _view;
                         constructor(p_view: KView);
-                        save(model: KObject): KTask<any>;
-                        saveRoot(): KTask<any>;
-                        load(payload: string): KTask<any>;
+                        save(model: KObject): KDefer<any>;
+                        saveRoot(): KDefer<any>;
+                        load(payload: string): KDefer<any>;
                     }
                     class JsonModelLoader {
                         static load(factory: KView, payload: string, callback: (p: java.lang.Throwable) => void): void;
@@ -1297,6 +1301,154 @@ declare module org {
                         }
                     }
                 }
+                module rbtree {
+                    class Color {
+                        static RED: Color;
+                        static BLACK: Color;
+                        equals(other: any): boolean;
+                        static _ColorVALUES: Color[];
+                        static values(): Color[];
+                    }
+                    class IndexRBTree implements data.cache.KCacheObject {
+                        root: TreeNode;
+                        private _size;
+                        private _dirty;
+                        size(): number;
+                        isDirty(): boolean;
+                        serialize(): string;
+                        setClean(): void;
+                        toString(): string;
+                        unserialize(payload: string): void;
+                        previousOrEqual(key: number): TreeNode;
+                        nextOrEqual(key: number): TreeNode;
+                        previous(key: number): TreeNode;
+                        next(key: number): TreeNode;
+                        first(): TreeNode;
+                        last(): TreeNode;
+                        private lookupNode(key);
+                        lookup(key: number): number;
+                        private rotateLeft(n);
+                        private rotateRight(n);
+                        private replaceNode(oldn, newn);
+                        insert(key: number): void;
+                        private insertCase1(n);
+                        private insertCase2(n);
+                        private insertCase3(n);
+                        private insertCase4(n_n);
+                        private insertCase5(n);
+                        delete(key: number): void;
+                        private deleteCase1(n);
+                        private deleteCase2(n);
+                        private deleteCase3(n);
+                        private deleteCase4(n);
+                        private deleteCase5(n);
+                        private deleteCase6(n);
+                        private nodeColor(n);
+                    }
+                    class LongRBTree implements data.cache.KCacheObject {
+                        root: LongTreeNode;
+                        private _size;
+                        _dirty: boolean;
+                        size(): number;
+                        toString(): string;
+                        isDirty(): boolean;
+                        serialize(): string;
+                        setClean(): void;
+                        unserialize(payload: string): void;
+                        previousOrEqual(key: number): LongTreeNode;
+                        nextOrEqual(key: number): LongTreeNode;
+                        previous(key: number): LongTreeNode;
+                        previousWhileNot(key: number, until: number): LongTreeNode;
+                        next(key: number): LongTreeNode;
+                        nextWhileNot(key: number, until: number): LongTreeNode;
+                        first(): LongTreeNode;
+                        last(): LongTreeNode;
+                        firstWhileNot(key: number, until: number): LongTreeNode;
+                        lastWhileNot(key: number, until: number): LongTreeNode;
+                        private lookupNode(key);
+                        lookup(key: number): number;
+                        private rotateLeft(n);
+                        private rotateRight(n);
+                        private replaceNode(oldn, newn);
+                        insert(key: number, value: number): void;
+                        private insertCase1(n);
+                        private insertCase2(n);
+                        private insertCase3(n);
+                        private insertCase4(n_n);
+                        private insertCase5(n);
+                        delete(key: number): void;
+                        private deleteCase1(n);
+                        private deleteCase2(n);
+                        private deleteCase3(n);
+                        private deleteCase4(n);
+                        private deleteCase5(n);
+                        private deleteCase6(n);
+                        private nodeColor(n);
+                    }
+                    class LongTreeNode {
+                        static BLACK: string;
+                        static RED: string;
+                        key: number;
+                        value: number;
+                        color: Color;
+                        private left;
+                        private right;
+                        private parent;
+                        constructor(key: number, value: number, color: Color, left: LongTreeNode, right: LongTreeNode);
+                        grandparent(): LongTreeNode;
+                        sibling(): LongTreeNode;
+                        uncle(): LongTreeNode;
+                        getLeft(): LongTreeNode;
+                        setLeft(left: LongTreeNode): void;
+                        getRight(): LongTreeNode;
+                        setRight(right: LongTreeNode): void;
+                        getParent(): LongTreeNode;
+                        setParent(parent: LongTreeNode): void;
+                        serialize(builder: java.lang.StringBuilder): void;
+                        next(): LongTreeNode;
+                        previous(): LongTreeNode;
+                        static unserialize(ctx: TreeReaderContext): LongTreeNode;
+                        static internal_unserialize(rightBranch: boolean, ctx: TreeReaderContext): LongTreeNode;
+                    }
+                    interface RBTree {
+                        first(): number;
+                        last(): number;
+                        next(from: number): number;
+                        previous(from: number): number;
+                        resolve(time: number): number;
+                        size(): number;
+                    }
+                    class TreeNode {
+                        static BLACK: string;
+                        static RED: string;
+                        key: number;
+                        color: Color;
+                        private left;
+                        private right;
+                        private parent;
+                        getKey(): number;
+                        constructor(key: number, color: Color, left: TreeNode, right: TreeNode);
+                        grandparent(): TreeNode;
+                        sibling(): TreeNode;
+                        uncle(): TreeNode;
+                        getLeft(): TreeNode;
+                        setLeft(left: TreeNode): void;
+                        getRight(): TreeNode;
+                        setRight(right: TreeNode): void;
+                        getParent(): TreeNode;
+                        setParent(parent: TreeNode): void;
+                        serialize(builder: java.lang.StringBuilder): void;
+                        next(): TreeNode;
+                        previous(): TreeNode;
+                        static unserialize(ctx: TreeReaderContext): TreeNode;
+                        static internal_unserialize(rightBranch: boolean, ctx: TreeReaderContext): TreeNode;
+                    }
+                    class TreeReaderContext {
+                        payload: string;
+                        index: number;
+                        buffer: string[];
+                    }
+                }
                 module reflexive {
                     class DynamicKModel extends abs.AbstractKModel<any> {
                         private _metaModel;
@@ -1305,7 +1457,7 @@ declare module org {
                         internal_create(key: number): KUniverse<any, any, any>;
                     }
                     class DynamicKObject extends abs.AbstractKObject {
-                        constructor(p_view: KView, p_uuid: number, p_universeTree: time.rbtree.LongRBTree, p_metaClass: meta.MetaClass);
+                        constructor(p_view: KView, p_uuid: number, p_universeTree: rbtree.LongRBTree, p_metaClass: meta.MetaClass);
                     }
                     class DynamicKUniverse extends abs.AbstractKUniverse<any, any, any> {
                         constructor(p_universe: KModel<any>, p_key: number);
@@ -1313,7 +1465,7 @@ declare module org {
                     }
                     class DynamicKView extends abs.AbstractKView {
                         constructor(p_now: number, p_dimension: KUniverse<any, any, any>);
-                        internalCreate(clazz: meta.MetaClass, p_universeTree: time.rbtree.LongRBTree, key: number): KObject;
+                        internalCreate(clazz: meta.MetaClass, p_universeTree: rbtree.LongRBTree, key: number): KObject;
                     }
                     class DynamicMetaClass extends abs.AbstractMetaClass {
                         private cached_attributes;
@@ -1349,173 +1501,6 @@ declare module org {
                     }
                 }
                 module time {
-                    interface TimeTree extends data.cache.KCacheObject {
-                        walk(walker: TimeWalker): void;
-                        first(): number;
-                        last(): number;
-                        next(from: number): number;
-                        previous(from: number): number;
-                        resolve(time: number): number;
-                        insert(time: number): TimeTree;
-                        delete(time: number): TimeTree;
-                        size(): number;
-                    }
-                    class TimeWalker {
-                        private versionTree;
-                        walk(walker: (p: number) => void): void;
-                        walkAsc(walker: (p: number) => void): void;
-                        walkDesc(walker: (p: number) => void): void;
-                        walkRangeAsc(walker: (p: number) => void, from: number, to: number): void;
-                        walkRangeDesc(walker: (p: number) => void, from: number, to: number): void;
-                    }
-                    module rbtree {
-                        class Color {
-                            static RED: Color;
-                            static BLACK: Color;
-                            equals(other: any): boolean;
-                            static _ColorVALUES: Color[];
-                            static values(): Color[];
-                        }
-                        class IndexRBTree implements data.cache.KCacheObject {
-                            root: TreeNode;
-                            private _size;
-                            private _dirty;
-                            size(): number;
-                            isDirty(): boolean;
-                            serialize(): string;
-                            setClean(): void;
-                            toString(): string;
-                            unserialize(payload: string): void;
-                            previousOrEqual(key: number): TreeNode;
-                            nextOrEqual(key: number): TreeNode;
-                            previous(key: number): TreeNode;
-                            next(key: number): TreeNode;
-                            first(): TreeNode;
-                            last(): TreeNode;
-                            private lookupNode(key);
-                            lookup(key: number): number;
-                            private rotateLeft(n);
-                            private rotateRight(n);
-                            private replaceNode(oldn, newn);
-                            insert(key: number): void;
-                            private insertCase1(n);
-                            private insertCase2(n);
-                            private insertCase3(n);
-                            private insertCase4(n_n);
-                            private insertCase5(n);
-                            delete(key: number): void;
-                            private deleteCase1(n);
-                            private deleteCase2(n);
-                            private deleteCase3(n);
-                            private deleteCase4(n);
-                            private deleteCase5(n);
-                            private deleteCase6(n);
-                            private nodeColor(n);
-                        }
-                        class LongRBTree implements data.cache.KCacheObject {
-                            root: LongTreeNode;
-                            private _size;
-                            _dirty: boolean;
-                            size(): number;
-                            toString(): string;
-                            isDirty(): boolean;
-                            serialize(): string;
-                            setClean(): void;
-                            unserialize(payload: string): void;
-                            previousOrEqual(key: number): LongTreeNode;
-                            nextOrEqual(key: number): LongTreeNode;
-                            previous(key: number): LongTreeNode;
-                            previousWhileNot(key: number, until: number): LongTreeNode;
-                            next(key: number): LongTreeNode;
-                            nextWhileNot(key: number, until: number): LongTreeNode;
-                            first(): LongTreeNode;
-                            last(): LongTreeNode;
-                            firstWhileNot(key: number, until: number): LongTreeNode;
-                            lastWhileNot(key: number, until: number): LongTreeNode;
-                            private lookupNode(key);
-                            lookup(key: number): number;
-                            private rotateLeft(n);
-                            private rotateRight(n);
-                            private replaceNode(oldn, newn);
-                            insert(key: number, value: number): void;
-                            private insertCase1(n);
-                            private insertCase2(n);
-                            private insertCase3(n);
-                            private insertCase4(n_n);
-                            private insertCase5(n);
-                            delete(key: number): void;
-                            private deleteCase1(n);
-                            private deleteCase2(n);
-                            private deleteCase3(n);
-                            private deleteCase4(n);
-                            private deleteCase5(n);
-                            private deleteCase6(n);
-                            private nodeColor(n);
-                        }
-                        class LongTreeNode {
-                            static BLACK: string;
-                            static RED: string;
-                            key: number;
-                            value: number;
-                            color: Color;
-                            private left;
-                            private right;
-                            private parent;
-                            constructor(key: number, value: number, color: Color, left: LongTreeNode, right: LongTreeNode);
-                            grandparent(): LongTreeNode;
-                            sibling(): LongTreeNode;
-                            uncle(): LongTreeNode;
-                            getLeft(): LongTreeNode;
-                            setLeft(left: LongTreeNode): void;
-                            getRight(): LongTreeNode;
-                            setRight(right: LongTreeNode): void;
-                            getParent(): LongTreeNode;
-                            setParent(parent: LongTreeNode): void;
-                            serialize(builder: java.lang.StringBuilder): void;
-                            next(): LongTreeNode;
-                            previous(): LongTreeNode;
-                            static unserialize(ctx: TreeReaderContext): LongTreeNode;
-                            static internal_unserialize(rightBranch: boolean, ctx: TreeReaderContext): LongTreeNode;
-                        }
-                        interface RBTree {
-                            first(): number;
-                            last(): number;
-                            next(from: number): number;
-                            previous(from: number): number;
-                            resolve(time: number): number;
-                            size(): number;
-                        }
-                        class TreeNode {
-                            static BLACK: string;
-                            static RED: string;
-                            key: number;
-                            color: Color;
-                            private left;
-                            private right;
-                            private parent;
-                            getKey(): number;
-                            constructor(key: number, color: Color, left: TreeNode, right: TreeNode);
-                            grandparent(): TreeNode;
-                            sibling(): TreeNode;
-                            uncle(): TreeNode;
-                            getLeft(): TreeNode;
-                            setLeft(left: TreeNode): void;
-                            getRight(): TreeNode;
-                            setRight(right: TreeNode): void;
-                            getParent(): TreeNode;
-                            setParent(parent: TreeNode): void;
-                            serialize(builder: java.lang.StringBuilder): void;
-                            next(): TreeNode;
-                            previous(): TreeNode;
-                            static unserialize(ctx: TreeReaderContext): TreeNode;
-                            static internal_unserialize(rightBranch: boolean, ctx: TreeReaderContext): TreeNode;
-                        }
-                        class TreeReaderContext {
-                            payload: string;
-                            index: number;
-                            buffer: string[];
-                        }
-                    }
                 }
                 module trace {
                     class ModelAddTrace implements ModelTrace {
@@ -1619,8 +1604,8 @@ declare module org {
                         parents(): KTraversal;
                         then(callback: (p: KObject[]) => void): void;
                         map(attribute: meta.MetaAttribute, callback: (p: any[]) => void): void;
-                        taskThen(): KTask<any>;
-                        taskMap(attribute: meta.MetaAttribute): KTask<any>;
+                        taskThen(): KDefer<any>;
+                        taskMap(attribute: meta.MetaAttribute): KDefer<any>;
                     }
                     interface KTraversal {
                         traverse(metaReference: meta.MetaReference): KTraversal;
@@ -1634,8 +1619,8 @@ declare module org {
                         parents(): KTraversal;
                         then(callback: (p: KObject[]) => void): void;
                         map(attribute: meta.MetaAttribute, callback: (p: any[]) => void): void;
-                        taskThen(): KTask<any>;
-                        taskMap(attribute: meta.MetaAttribute): KTask<any>;
+                        taskThen(): KDefer<any>;
+                        taskMap(attribute: meta.MetaAttribute): KDefer<any>;
                     }
                     interface KTraversalAction {
                         chain(next: KTraversalAction): void;
@@ -1796,6 +1781,16 @@ declare module org {
                         static isRoot(path: string): boolean;
                         static path(parent: string, reference: meta.MetaReference, target: KObject): string;
                     }
+                    class TimeWalker {
+                        private _origin;
+                        constructor(p_origin: KObject);
+                        walk(walker: (p: number) => void): KDefer<any>;
+                        walkAsc(walker: (p: number) => void): KDefer<any>;
+                        walkDesc(walker: (p: number) => void): KDefer<any>;
+                        private internal_walk(walker, asc, from, to);
+                        walkRangeAsc(walker: (p: number) => void, from: number, to: number): KDefer<any>;
+                        walkRangeDesc(walker: (p: number) => void, from: number, to: number): KDefer<any>;
+                    }
                 }
                 module xmi {
                     class SerializationContext {
@@ -1851,9 +1846,9 @@ declare module org {
                     class XmiFormat implements ModelFormat {
                         private _view;
                         constructor(p_view: KView);
-                        save(model: KObject): KTask<any>;
-                        saveRoot(): KTask<any>;
-                        load(payload: string): KTask<any>;
+                        save(model: KObject): KDefer<any>;
+                        saveRoot(): KDefer<any>;
+                        load(payload: string): KDefer<any>;
                     }
                     class XmlParser {
                         private payload;

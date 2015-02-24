@@ -202,6 +202,168 @@ var org;
                         return AbstractKDataType;
                     })();
                     abs.AbstractKDataType = AbstractKDataType;
+                    var AbstractKDefer = (function () {
+                        function AbstractKDefer() {
+                            this._name = null;
+                            this._isDone = false;
+                            this._isReady = false;
+                            this._nbRecResult = 0;
+                            this._nbExpectedResult = 0;
+                            this._results = new java.util.HashMap();
+                            this._nextTasks = new java.util.HashSet();
+                            this._result = null;
+                        }
+                        AbstractKDefer.prototype.setDoneOrRegister = function (next) {
+                            if (next != null) {
+                                this._nextTasks.add(next);
+                                return this._isDone;
+                            }
+                            else {
+                                this._isDone = true;
+                                var childrenTasks = this._nextTasks.toArray(new Array());
+                                for (var i = 0; i < childrenTasks.length; i++) {
+                                    childrenTasks[i].informParentEnd(this);
+                                }
+                                return this._isDone;
+                            }
+                        };
+                        AbstractKDefer.prototype.informParentEnd = function (end) {
+                            if (end == null) {
+                                this._nbRecResult = this._nbRecResult + this._nbExpectedResult;
+                            }
+                            else {
+                                if (end != this) {
+                                    var castedEnd = end;
+                                    var keys = castedEnd._results.keySet().toArray(new Array());
+                                    for (var i = 0; i < keys.length; i++) {
+                                        this._results.put(keys[i], castedEnd._results.get(keys[i]));
+                                    }
+                                    this._results.put(end.getName(), castedEnd._result);
+                                    this._nbRecResult--;
+                                }
+                            }
+                            if (this._nbRecResult == 0 && this._isReady) {
+                                if (this._job != null) {
+                                    this._job(this);
+                                }
+                                this.setDoneOrRegister(null);
+                            }
+                        };
+                        AbstractKDefer.prototype.wait = function (p_previous) {
+                            if (p_previous != this) {
+                                if (!p_previous.setDoneOrRegister(this)) {
+                                    this._nbExpectedResult++;
+                                }
+                                else {
+                                    var castedEnd = p_previous;
+                                    var keys = castedEnd._results.keySet().toArray(new Array());
+                                    for (var i = 0; i < keys.length; i++) {
+                                        this._results.put(keys[i], castedEnd._results.get(keys[i]));
+                                    }
+                                    this._results.put(p_previous.getName(), castedEnd._result);
+                                }
+                            }
+                            return this;
+                        };
+                        AbstractKDefer.prototype.ready = function () {
+                            if (!this._isReady) {
+                                this._isReady = true;
+                                this.informParentEnd(null);
+                            }
+                            return this;
+                        };
+                        AbstractKDefer.prototype.next = function () {
+                            var nextTask = new org.kevoree.modeling.api.abs.AbstractKDefer();
+                            nextTask.wait(this);
+                            return nextTask;
+                        };
+                        AbstractKDefer.prototype.then = function (p_callback) {
+                            var _this = this;
+                            this.next().setJob(function (currentTask) {
+                                try {
+                                    p_callback(_this.getResult());
+                                }
+                                catch ($ex$) {
+                                    if ($ex$ instanceof java.lang.Exception) {
+                                        var e = $ex$;
+                                        e.printStackTrace();
+                                        p_callback(null);
+                                    }
+                                }
+                            }).ready();
+                        };
+                        AbstractKDefer.prototype.setName = function (p_taskName) {
+                            this._name = p_taskName;
+                            return this;
+                        };
+                        AbstractKDefer.prototype.getName = function () {
+                            if (this._name == null) {
+                                return this.toString();
+                            }
+                            else {
+                                return this._name;
+                            }
+                        };
+                        AbstractKDefer.prototype.resultKeys = function () {
+                            return this._results.keySet().toArray(new Array());
+                        };
+                        AbstractKDefer.prototype.resultByName = function (p_name) {
+                            return this._results.get(p_name);
+                        };
+                        AbstractKDefer.prototype.resultByTask = function (p_task) {
+                            return this._results.get(p_task.getName());
+                        };
+                        AbstractKDefer.prototype.addTaskResult = function (p_result) {
+                            this._result = p_result;
+                        };
+                        AbstractKDefer.prototype.clearResults = function () {
+                            this._results.clear();
+                        };
+                        AbstractKDefer.prototype.getResult = function () {
+                            if (this._isDone) {
+                                return this._result;
+                            }
+                            else {
+                                throw new java.lang.Exception("Task is not executed yet !");
+                            }
+                        };
+                        AbstractKDefer.prototype.isDone = function () {
+                            return this._isDone;
+                        };
+                        AbstractKDefer.prototype.setJob = function (p_kjob) {
+                            this._job = p_kjob;
+                            return this;
+                        };
+                        return AbstractKDefer;
+                    })();
+                    abs.AbstractKDefer = AbstractKDefer;
+                    var AbstractKDeferWrapper = (function (_super) {
+                        __extends(AbstractKDeferWrapper, _super);
+                        function AbstractKDeferWrapper() {
+                            _super.call(this);
+                            this._callback = null;
+                            var selfPointer = this;
+                            this._callback = function (a) {
+                                selfPointer._isReady = true;
+                                selfPointer.addTaskResult(a);
+                                selfPointer.setDoneOrRegister(null);
+                            };
+                        }
+                        AbstractKDeferWrapper.prototype.initCallback = function () {
+                            return this._callback;
+                        };
+                        AbstractKDeferWrapper.prototype.wait = function (previous) {
+                            throw new java.lang.RuntimeException("Wait action is forbidden on wrapped tasks, please create a sub defer");
+                        };
+                        AbstractKDeferWrapper.prototype.setJob = function (p_kjob) {
+                            throw new java.lang.RuntimeException("setJob action is forbidden on wrapped tasks, please create a sub defer");
+                        };
+                        AbstractKDeferWrapper.prototype.ready = function () {
+                            return this;
+                        };
+                        return AbstractKDeferWrapper;
+                    })(org.kevoree.modeling.api.abs.AbstractKDefer);
+                    abs.AbstractKDeferWrapper = AbstractKDeferWrapper;
                     var AbstractKModel = (function () {
                         function AbstractKModel() {
                             this._manager = new org.kevoree.modeling.api.data.manager.DefaultKDataManager(this);
@@ -210,12 +372,12 @@ var org;
                             throw "Abstract method";
                         };
                         AbstractKModel.prototype.connect = function () {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             this._manager.connect(task.initCallback());
                             return task;
                         };
                         AbstractKModel.prototype.close = function () {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             this._manager.close(task.initCallback());
                             return task;
                         };
@@ -237,12 +399,12 @@ var org;
                             return newDimension;
                         };
                         AbstractKModel.prototype.save = function () {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             this._manager.save(task.initCallback());
                             return task;
                         };
                         AbstractKModel.prototype.discard = function () {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             this._manager.discard(null, task.initCallback());
                             return task;
                         };
@@ -266,8 +428,8 @@ var org;
                         AbstractKModel.prototype.setInstanceOperation = function (metaOperation, target, operation) {
                             this.manager().operationManager().registerOperation(metaOperation, operation, target);
                         };
-                        AbstractKModel.prototype.task = function () {
-                            return new org.kevoree.modeling.api.abs.AbstractKTask();
+                        AbstractKModel.prototype.defer = function () {
+                            return new org.kevoree.modeling.api.abs.AbstractKDefer();
                         };
                         return AbstractKModel;
                     })();
@@ -299,7 +461,7 @@ var org;
                         };
                         AbstractKObject.prototype.path = function () {
                             var _this = this;
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             this.parent().then(function (parent) {
                                 if (parent == null) {
                                     task.initCallback()("/");
@@ -321,10 +483,13 @@ var org;
                                 return raw.get(org.kevoree.modeling.api.data.manager.Index.PARENT_INDEX);
                             }
                         };
+                        AbstractKObject.prototype.timeWalker = function () {
+                            return new org.kevoree.modeling.api.util.TimeWalker(this);
+                        };
                         AbstractKObject.prototype.parent = function () {
                             var parentKID = this.parentUuid();
                             if (parentKID == null) {
-                                var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                                var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                                 task.initCallback()(null);
                                 return task;
                             }
@@ -342,7 +507,7 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.delete = function () {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             var toRemove = this;
                             var rawPayload = this._view.universe().model().manager().entry(this, org.kevoree.modeling.api.data.manager.AccessMode.DELETE);
                             if (rawPayload == null) {
@@ -372,7 +537,7 @@ var org;
                             return task;
                         };
                         AbstractKObject.prototype.select = function (query) {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             if (!org.kevoree.modeling.api.util.Checker.isDefined(query)) {
                                 task.initCallback()(new Array());
                             }
@@ -696,12 +861,12 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.ref = function (p_metaReference) {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             this.internal_ref(p_metaReference, task.initCallback());
                             return task;
                         };
                         AbstractKObject.prototype.inferRef = function (p_metaReference) {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             return task;
                         };
                         AbstractKObject.prototype.visitAttributes = function (visitor) {
@@ -714,7 +879,7 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.visit = function (p_visitor, p_request) {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             if (p_request.equals(org.kevoree.modeling.api.VisitRequest.CHILDREN)) {
                                 this.internal_visit(p_visitor, task.initCallback(), false, false, null, null);
                             }
@@ -894,13 +1059,13 @@ var org;
                                     return this._view.lookupAll(keysArr);
                                 }
                                 else {
-                                    var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                                    var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                                     task.initCallback()(new Array());
                                     return task;
                                 }
                             }
                             else {
-                                var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                                var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                                 task.initCallback()(new Array());
                                 return task;
                             }
@@ -926,22 +1091,22 @@ var org;
                             return hashString.hashCode();
                         };
                         AbstractKObject.prototype.diff = function (target) {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             org.kevoree.modeling.api.operation.DefaultModelCompare.diff(this, target, task.initCallback());
                             return task;
                         };
                         AbstractKObject.prototype.merge = function (target) {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             org.kevoree.modeling.api.operation.DefaultModelCompare.merge(this, target, task.initCallback());
                             return task;
                         };
                         AbstractKObject.prototype.intersection = function (target) {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             org.kevoree.modeling.api.operation.DefaultModelCompare.intersection(this, target, task.initCallback());
                             return task;
                         };
                         AbstractKObject.prototype.jump = function (time) {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             this.view().universe().time(time).lookup(this._uuid).then(function (kObject) {
                                 var casted = null;
                                 try {
@@ -1042,20 +1207,20 @@ var org;
                                 return new Array();
                             }
                         };
-                        AbstractKObject.prototype.inferObjects = function () {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
-                            return task;
-                        };
                         AbstractKObject.prototype.call = function (p_operation, p_params) {
-                            var temp_task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var temp_task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             this.view().universe().model().manager().operationManager().call(this, p_operation, p_params, temp_task.initCallback());
                             return temp_task;
+                        };
+                        AbstractKObject.prototype.inferObjects = function () {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
+                            return task;
                         };
                         AbstractKObject.prototype.inferAttribute = function (attribute) {
                             return null;
                         };
                         AbstractKObject.prototype.inferCall = function (operation, params) {
-                            var temp_task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var temp_task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             return temp_task;
                         };
                         return AbstractKObject;
@@ -1115,168 +1280,6 @@ var org;
                         return AbstractKObjectInfer;
                     })(org.kevoree.modeling.api.abs.AbstractKObject);
                     abs.AbstractKObjectInfer = AbstractKObjectInfer;
-                    var AbstractKTask = (function () {
-                        function AbstractKTask() {
-                            this._name = null;
-                            this._isDone = false;
-                            this._isReady = false;
-                            this._nbRecResult = 0;
-                            this._nbExpectedResult = 0;
-                            this._results = new java.util.HashMap();
-                            this._nextTasks = new java.util.HashSet();
-                            this._result = null;
-                        }
-                        AbstractKTask.prototype.setDoneOrRegister = function (next) {
-                            if (next != null) {
-                                this._nextTasks.add(next);
-                                return this._isDone;
-                            }
-                            else {
-                                this._isDone = true;
-                                var childrenTasks = this._nextTasks.toArray(new Array());
-                                for (var i = 0; i < childrenTasks.length; i++) {
-                                    childrenTasks[i].informParentEnd(this);
-                                }
-                                return this._isDone;
-                            }
-                        };
-                        AbstractKTask.prototype.informParentEnd = function (end) {
-                            if (end == null) {
-                                this._nbRecResult = this._nbRecResult + this._nbExpectedResult;
-                            }
-                            else {
-                                if (end != this) {
-                                    var castedEnd = end;
-                                    var keys = castedEnd._results.keySet().toArray(new Array());
-                                    for (var i = 0; i < keys.length; i++) {
-                                        this._results.put(keys[i], castedEnd._results.get(keys[i]));
-                                    }
-                                    this._results.put(end.getName(), castedEnd._result);
-                                    this._nbRecResult--;
-                                }
-                            }
-                            if (this._nbRecResult == 0 && this._isReady) {
-                                if (this._job != null) {
-                                    this._job(this);
-                                }
-                                this.setDoneOrRegister(null);
-                            }
-                        };
-                        AbstractKTask.prototype.wait = function (p_previous) {
-                            if (p_previous != this) {
-                                if (!p_previous.setDoneOrRegister(this)) {
-                                    this._nbExpectedResult++;
-                                }
-                                else {
-                                    var castedEnd = p_previous;
-                                    var keys = castedEnd._results.keySet().toArray(new Array());
-                                    for (var i = 0; i < keys.length; i++) {
-                                        this._results.put(keys[i], castedEnd._results.get(keys[i]));
-                                    }
-                                    this._results.put(p_previous.getName(), castedEnd._result);
-                                }
-                            }
-                            return this;
-                        };
-                        AbstractKTask.prototype.ready = function () {
-                            if (!this._isReady) {
-                                this._isReady = true;
-                                this.informParentEnd(null);
-                            }
-                            return this;
-                        };
-                        AbstractKTask.prototype.next = function () {
-                            var nextTask = new org.kevoree.modeling.api.abs.AbstractKTask();
-                            nextTask.wait(this);
-                            return nextTask;
-                        };
-                        AbstractKTask.prototype.then = function (p_callback) {
-                            var _this = this;
-                            this.next().setJob(function (currentTask) {
-                                try {
-                                    p_callback(_this.getResult());
-                                }
-                                catch ($ex$) {
-                                    if ($ex$ instanceof java.lang.Exception) {
-                                        var e = $ex$;
-                                        e.printStackTrace();
-                                        p_callback(null);
-                                    }
-                                }
-                            }).ready();
-                        };
-                        AbstractKTask.prototype.setName = function (p_taskName) {
-                            this._name = p_taskName;
-                            return this;
-                        };
-                        AbstractKTask.prototype.getName = function () {
-                            if (this._name == null) {
-                                return this.toString();
-                            }
-                            else {
-                                return this._name;
-                            }
-                        };
-                        AbstractKTask.prototype.resultKeys = function () {
-                            return this._results.keySet().toArray(new Array());
-                        };
-                        AbstractKTask.prototype.resultByName = function (p_name) {
-                            return this._results.get(p_name);
-                        };
-                        AbstractKTask.prototype.resultByTask = function (p_task) {
-                            return this._results.get(p_task.getName());
-                        };
-                        AbstractKTask.prototype.addTaskResult = function (p_result) {
-                            this._result = p_result;
-                        };
-                        AbstractKTask.prototype.clearResults = function () {
-                            this._results.clear();
-                        };
-                        AbstractKTask.prototype.getResult = function () {
-                            if (this._isDone) {
-                                return this._result;
-                            }
-                            else {
-                                throw new java.lang.Exception("Task is not executed yet !");
-                            }
-                        };
-                        AbstractKTask.prototype.isDone = function () {
-                            return this._isDone;
-                        };
-                        AbstractKTask.prototype.setJob = function (p_kjob) {
-                            this._job = p_kjob;
-                            return this;
-                        };
-                        return AbstractKTask;
-                    })();
-                    abs.AbstractKTask = AbstractKTask;
-                    var AbstractKTaskWrapper = (function (_super) {
-                        __extends(AbstractKTaskWrapper, _super);
-                        function AbstractKTaskWrapper() {
-                            _super.call(this);
-                            this._callback = null;
-                            var selfPointer = this;
-                            this._callback = function (a) {
-                                selfPointer._isReady = true;
-                                selfPointer.addTaskResult(a);
-                                selfPointer.setDoneOrRegister(null);
-                            };
-                        }
-                        AbstractKTaskWrapper.prototype.initCallback = function () {
-                            return this._callback;
-                        };
-                        AbstractKTaskWrapper.prototype.wait = function (previous) {
-                            throw new java.lang.RuntimeException("Wait action is forbidden on wrapped tasks, please create a sub task");
-                        };
-                        AbstractKTaskWrapper.prototype.setJob = function (p_kjob) {
-                            throw new java.lang.RuntimeException("setJob action is forbidden on wrapped tasks, please create a sub task");
-                        };
-                        AbstractKTaskWrapper.prototype.ready = function () {
-                            return this;
-                        };
-                        return AbstractKTaskWrapper;
-                    })(org.kevoree.modeling.api.abs.AbstractKTask);
-                    abs.AbstractKTaskWrapper = AbstractKTaskWrapper;
                     var AbstractKUniverse = (function () {
                         function AbstractKUniverse(p_model, p_key) {
                             this._model = p_model;
@@ -1289,7 +1292,7 @@ var org;
                             return this._model;
                         };
                         AbstractKUniverse.prototype.delete = function () {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             this.model().manager().delete(this, task.initCallback());
                             return task;
                         };
@@ -1350,18 +1353,18 @@ var org;
                             return this.create(this.universe().model().metaModel().metaClass(metaClassName));
                         };
                         AbstractKView.prototype.setRoot = function (elem) {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             elem.set_parent(null, null);
                             this.universe().model().manager().setRoot(elem, task.initCallback());
                             return task;
                         };
                         AbstractKView.prototype.getRoot = function () {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             this.universe().model().manager().getRoot(this, task.initCallback());
                             return task;
                         };
                         AbstractKView.prototype.select = function (query) {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             if (query == null) {
                                 task.initCallback()(new Array());
                             }
@@ -1387,12 +1390,12 @@ var org;
                             return task;
                         };
                         AbstractKView.prototype.lookup = function (kid) {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             this.universe().model().manager().lookup(this, kid, task.initCallback());
                             return task;
                         };
                         AbstractKView.prototype.lookupAll = function (keys) {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             this.universe().model().manager().lookupAll(this, keys, task.initCallback());
                             return task;
                         };
@@ -1406,7 +1409,7 @@ var org;
                             if (!org.kevoree.modeling.api.util.Checker.isDefined(clazz)) {
                                 return null;
                             }
-                            var newUniverseTree = new org.kevoree.modeling.api.time.rbtree.LongRBTree();
+                            var newUniverseTree = new org.kevoree.modeling.api.rbtree.LongRBTree();
                             newUniverseTree.insert(this.universe().key(), this.now());
                             var newObj = this.internalCreate(clazz, newUniverseTree, this.universe().model().manager().nextObjectKey());
                             if (newObj != null) {
@@ -2198,7 +2201,7 @@ var org;
                                 this._scheduler = new org.kevoree.modeling.api.scheduler.DirectScheduler();
                                 this._model = model;
                             }
-                            DefaultKDataManager.prototype.getModel = function () {
+                            DefaultKDataManager.prototype.model = function () {
                                 return this._model;
                             };
                             DefaultKDataManager.prototype.close = function (callback) {
@@ -2303,7 +2306,7 @@ var org;
                                 cacheEntry._dirty = true;
                                 cacheEntry.metaClass = obj.metaClass();
                                 cacheEntry.universeTree = obj.universeTree();
-                                var timeTree = new org.kevoree.modeling.api.time.rbtree.IndexRBTree();
+                                var timeTree = new org.kevoree.modeling.api.rbtree.IndexRBTree();
                                 timeTree.insert(obj.now());
                                 this._db.cache().put(org.kevoree.modeling.api.data.cache.KContentKey.createTimeTree(obj.universe().key(), obj.uuid()), timeTree);
                                 this._db.cache().put(org.kevoree.modeling.api.data.cache.KContentKey.createUniverseTree(obj.uuid()), cacheEntry.universeTree);
@@ -2392,7 +2395,7 @@ var org;
                                                                         objIndexPayload = "0";
                                                                     }
                                                                     var globalUniverseTreePayload = strings[_this.GLO_TREE_INDEX];
-                                                                    var globalUniverseTree = new org.kevoree.modeling.api.time.rbtree.LongRBTree();
+                                                                    var globalUniverseTree = new org.kevoree.modeling.api.rbtree.LongRBTree();
                                                                     if (globalUniverseTreePayload != null) {
                                                                         try {
                                                                             globalUniverseTree.unserialize(globalUniverseTreePayload);
@@ -2484,7 +2487,7 @@ var org;
                                             timeTree.insert(origin.now());
                                         }
                                         else {
-                                            var newTemporalTree = new org.kevoree.modeling.api.time.rbtree.IndexRBTree();
+                                            var newTemporalTree = new org.kevoree.modeling.api.rbtree.IndexRBTree();
                                             newTemporalTree.insert(origin.now());
                                             this._db.cache().put(org.kevoree.modeling.api.data.cache.KContentKey.createTimeTree(origin.universe().key(), origin.uuid()), newTemporalTree);
                                             dimensionTree.insert(origin.universe().key(), origin.now());
@@ -2572,7 +2575,7 @@ var org;
                                         }
                                         else {
                                             for (var i = 0; i < resolvedContents.length; i++) {
-                                                var newLoadedTree = new org.kevoree.modeling.api.time.rbtree.LongRBTree();
+                                                var newLoadedTree = new org.kevoree.modeling.api.rbtree.LongRBTree();
                                                 if (resolvedContents[i] != null) {
                                                     try {
                                                         newLoadedTree.unserialize(resolvedContents[i]);
@@ -2640,7 +2643,7 @@ var org;
                                         }
                                         else {
                                             for (var i = 0; i < resolvedContents.length; i++) {
-                                                var newLoadedTree = new org.kevoree.modeling.api.time.rbtree.IndexRBTree();
+                                                var newLoadedTree = new org.kevoree.modeling.api.rbtree.IndexRBTree();
                                                 if (resolvedContents[i] != null) {
                                                     try {
                                                         newLoadedTree.unserialize(resolvedContents[i]);
@@ -2683,7 +2686,7 @@ var org;
                                             callback(null);
                                         }
                                         else {
-                                            var newRootUniverseTree = new org.kevoree.modeling.api.time.rbtree.LongRBTree();
+                                            var newRootUniverseTree = new org.kevoree.modeling.api.rbtree.LongRBTree();
                                             try {
                                                 newRootUniverseTree.unserialize(strings[0]);
                                             }
@@ -2745,7 +2748,7 @@ var org;
                                         var closestUniverse = _this.internal_resolve_universe(longRBTree, newRoot.now(), newRoot.universe().key());
                                         if (closestUniverse != newRoot.universe().key()) {
                                             longRBTree.insert(newRoot.universe().key(), newRoot.now());
-                                            var newTimeTree = new org.kevoree.modeling.api.time.rbtree.LongRBTree();
+                                            var newTimeTree = new org.kevoree.modeling.api.rbtree.LongRBTree();
                                             newTimeTree.insert(newRoot.now(), newRoot.uuid());
                                             var universeTreeRootKey = org.kevoree.modeling.api.data.cache.KContentKey.createRootTimeTree(newRoot.universe().key());
                                             _this._db.cache().put(universeTreeRootKey, newTimeTree);
@@ -2771,6 +2774,8 @@ var org;
                                         }
                                     }
                                 });
+                            };
+                            DefaultKDataManager.prototype.timeTrees = function (origin, start, end, callback) {
                             };
                             DefaultKDataManager.OUT_OF_CACHE_MESSAGE = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
                             DefaultKDataManager.UNIVERSE_NOT_CONNECTED_ERROR = "Please connect your model prior to create a universe or an object";
@@ -4598,7 +4603,7 @@ var org;
                         }
                         JsonFormat.prototype.save = function (model) {
                             if (org.kevoree.modeling.api.util.Checker.isDefined(model)) {
-                                var wrapper = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                                var wrapper = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                                 org.kevoree.modeling.api.json.JsonModelSerializer.serialize(model, wrapper.initCallback());
                                 return wrapper;
                             }
@@ -4607,7 +4612,7 @@ var org;
                             }
                         };
                         JsonFormat.prototype.saveRoot = function () {
-                            var wrapper = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var wrapper = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             this._view.universe().model().manager().getRoot(this._view, function (root) {
                                 if (root == null) {
                                     wrapper.initCallback()(null);
@@ -4620,7 +4625,7 @@ var org;
                         };
                         JsonFormat.prototype.load = function (payload) {
                             if (org.kevoree.modeling.api.util.Checker.isDefined(payload)) {
-                                var wrapper = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                                var wrapper = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                                 org.kevoree.modeling.api.json.JsonModelLoader.load(this._view, payload, wrapper.initCallback());
                                 return wrapper;
                             }
@@ -4711,7 +4716,7 @@ var org;
                                             var elem = alls.get(i);
                                             var kid = java.lang.Long.parseLong(elem.get(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_UUID).toString());
                                             var meta = elem.get(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_META).toString();
-                                            var universeTree = new org.kevoree.modeling.api.time.rbtree.LongRBTree();
+                                            var universeTree = new org.kevoree.modeling.api.rbtree.LongRBTree();
                                             universeTree.insert(factory.universe().key(), factory.now());
                                             var metaClass = metaModel.metaClass(meta);
                                             var current = factory.createProxy(metaClass, universeTree, mappedKeys.get(kid));
@@ -5345,7 +5350,8 @@ var org;
                         function KEventMessage() {
                         }
                         KEventMessage.prototype.json = function () {
-                            return null;
+                            var builder = new java.lang.StringBuilder();
+                            return builder.toString();
                         };
                         KEventMessage.prototype.type = function () {
                             return 0;
@@ -6571,6 +6577,1463 @@ var org;
                         util.QRDecompositionHouseholderColumn_D64 = QRDecompositionHouseholderColumn_D64;
                     })(util = polynomial.util || (polynomial.util = {}));
                 })(polynomial = api.polynomial || (api.polynomial = {}));
+                var rbtree;
+                (function (rbtree) {
+                    var Color = (function () {
+                        function Color() {
+                        }
+                        Color.prototype.equals = function (other) {
+                            return this == other;
+                        };
+                        Color.values = function () {
+                            return Color._ColorVALUES;
+                        };
+                        Color.RED = new Color();
+                        Color.BLACK = new Color();
+                        Color._ColorVALUES = [
+                            Color.RED,
+                            Color.BLACK
+                        ];
+                        return Color;
+                    })();
+                    rbtree.Color = Color;
+                    var IndexRBTree = (function () {
+                        function IndexRBTree() {
+                            this.root = null;
+                            this._size = 0;
+                            this._dirty = false;
+                        }
+                        IndexRBTree.prototype.size = function () {
+                            return this._size;
+                        };
+                        IndexRBTree.prototype.isDirty = function () {
+                            return this._dirty;
+                        };
+                        IndexRBTree.prototype.serialize = function () {
+                            var builder = new java.lang.StringBuilder();
+                            builder.append(this._size);
+                            if (this.root != null) {
+                                this.root.serialize(builder);
+                            }
+                            return builder.toString();
+                        };
+                        IndexRBTree.prototype.setClean = function () {
+                            this._dirty = false;
+                        };
+                        IndexRBTree.prototype.toString = function () {
+                            return this.serialize();
+                        };
+                        IndexRBTree.prototype.unserialize = function (payload) {
+                            if (payload == null || payload.length == 0) {
+                                return;
+                            }
+                            var i = 0;
+                            var buffer = new java.lang.StringBuilder();
+                            var ch = payload.charAt(i);
+                            while (i < payload.length && ch != '|') {
+                                buffer.append(ch);
+                                i = i + 1;
+                                ch = payload.charAt(i);
+                            }
+                            this._size = java.lang.Integer.parseInt(buffer.toString());
+                            var ctx = new org.kevoree.modeling.api.rbtree.TreeReaderContext();
+                            ctx.index = i;
+                            ctx.payload = payload;
+                            this.root = org.kevoree.modeling.api.rbtree.TreeNode.unserialize(ctx);
+                        };
+                        IndexRBTree.prototype.previousOrEqual = function (key) {
+                            var p = this.root;
+                            if (p == null) {
+                                return null;
+                            }
+                            while (p != null) {
+                                if (key == p.key) {
+                                    return p;
+                                }
+                                if (key > p.key) {
+                                    if (p.getRight() != null) {
+                                        p = p.getRight();
+                                    }
+                                    else {
+                                        return p;
+                                    }
+                                }
+                                else {
+                                    if (p.getLeft() != null) {
+                                        p = p.getLeft();
+                                    }
+                                    else {
+                                        var parent = p.getParent();
+                                        var ch = p;
+                                        while (parent != null && ch == parent.getLeft()) {
+                                            ch = parent;
+                                            parent = parent.getParent();
+                                        }
+                                        return parent;
+                                    }
+                                }
+                            }
+                            return null;
+                        };
+                        IndexRBTree.prototype.nextOrEqual = function (key) {
+                            var p = this.root;
+                            if (p == null) {
+                                return null;
+                            }
+                            while (p != null) {
+                                if (key == p.key) {
+                                    return p;
+                                }
+                                if (key < p.key) {
+                                    if (p.getLeft() != null) {
+                                        p = p.getLeft();
+                                    }
+                                    else {
+                                        return p;
+                                    }
+                                }
+                                else {
+                                    if (p.getRight() != null) {
+                                        p = p.getRight();
+                                    }
+                                    else {
+                                        var parent = p.getParent();
+                                        var ch = p;
+                                        while (parent != null && ch == parent.getRight()) {
+                                            ch = parent;
+                                            parent = parent.getParent();
+                                        }
+                                        return parent;
+                                    }
+                                }
+                            }
+                            return null;
+                        };
+                        IndexRBTree.prototype.previous = function (key) {
+                            var p = this.root;
+                            if (p == null) {
+                                return null;
+                            }
+                            while (p != null) {
+                                if (key < p.key) {
+                                    if (p.getLeft() != null) {
+                                        p = p.getLeft();
+                                    }
+                                    else {
+                                        return p.previous();
+                                    }
+                                }
+                                else {
+                                    if (key > p.key) {
+                                        if (p.getRight() != null) {
+                                            p = p.getRight();
+                                        }
+                                        else {
+                                            return p;
+                                        }
+                                    }
+                                    else {
+                                        return p.previous();
+                                    }
+                                }
+                            }
+                            return null;
+                        };
+                        IndexRBTree.prototype.next = function (key) {
+                            var p = this.root;
+                            if (p == null) {
+                                return null;
+                            }
+                            while (p != null) {
+                                if (key < p.key) {
+                                    if (p.getLeft() != null) {
+                                        p = p.getLeft();
+                                    }
+                                    else {
+                                        return p;
+                                    }
+                                }
+                                else {
+                                    if (key > p.key) {
+                                        if (p.getRight() != null) {
+                                            p = p.getRight();
+                                        }
+                                        else {
+                                            return p.next();
+                                        }
+                                    }
+                                    else {
+                                        return p.next();
+                                    }
+                                }
+                            }
+                            return null;
+                        };
+                        IndexRBTree.prototype.first = function () {
+                            var p = this.root;
+                            if (p == null) {
+                                return null;
+                            }
+                            while (p != null) {
+                                if (p.getLeft() != null) {
+                                    p = p.getLeft();
+                                }
+                                else {
+                                    return p;
+                                }
+                            }
+                            return null;
+                        };
+                        IndexRBTree.prototype.last = function () {
+                            var p = this.root;
+                            if (p == null) {
+                                return null;
+                            }
+                            while (p != null) {
+                                if (p.getRight() != null) {
+                                    p = p.getRight();
+                                }
+                                else {
+                                    return p;
+                                }
+                            }
+                            return null;
+                        };
+                        IndexRBTree.prototype.lookupNode = function (key) {
+                            var n = this.root;
+                            if (n == null) {
+                                return null;
+                            }
+                            while (n != null) {
+                                if (key == n.key) {
+                                    return n;
+                                }
+                                else {
+                                    if (key < n.key) {
+                                        n = n.getLeft();
+                                    }
+                                    else {
+                                        n = n.getRight();
+                                    }
+                                }
+                            }
+                            return n;
+                        };
+                        IndexRBTree.prototype.lookup = function (key) {
+                            var n = this.lookupNode(key);
+                            if (n == null) {
+                                return null;
+                            }
+                            else {
+                                return n.key;
+                            }
+                        };
+                        IndexRBTree.prototype.rotateLeft = function (n) {
+                            var r = n.getRight();
+                            this.replaceNode(n, r);
+                            n.setRight(r.getLeft());
+                            if (r.getLeft() != null) {
+                                r.getLeft().setParent(n);
+                            }
+                            r.setLeft(n);
+                            n.setParent(r);
+                        };
+                        IndexRBTree.prototype.rotateRight = function (n) {
+                            var l = n.getLeft();
+                            this.replaceNode(n, l);
+                            n.setLeft(l.getRight());
+                            if (l.getRight() != null) {
+                                l.getRight().setParent(n);
+                            }
+                            l.setRight(n);
+                            n.setParent(l);
+                        };
+                        IndexRBTree.prototype.replaceNode = function (oldn, newn) {
+                            if (oldn.getParent() == null) {
+                                this.root = newn;
+                            }
+                            else {
+                                if (oldn == oldn.getParent().getLeft()) {
+                                    oldn.getParent().setLeft(newn);
+                                }
+                                else {
+                                    oldn.getParent().setRight(newn);
+                                }
+                            }
+                            if (newn != null) {
+                                newn.setParent(oldn.getParent());
+                            }
+                        };
+                        IndexRBTree.prototype.insert = function (key) {
+                            this._dirty = true;
+                            var insertedNode = new org.kevoree.modeling.api.rbtree.TreeNode(key, org.kevoree.modeling.api.rbtree.Color.RED, null, null);
+                            if (this.root == null) {
+                                this._size++;
+                                this.root = insertedNode;
+                            }
+                            else {
+                                var n = this.root;
+                                while (true) {
+                                    if (key == n.key) {
+                                        return;
+                                    }
+                                    else {
+                                        if (key < n.key) {
+                                            if (n.getLeft() == null) {
+                                                n.setLeft(insertedNode);
+                                                this._size++;
+                                                break;
+                                            }
+                                            else {
+                                                n = n.getLeft();
+                                            }
+                                        }
+                                        else {
+                                            if (n.getRight() == null) {
+                                                n.setRight(insertedNode);
+                                                this._size++;
+                                                break;
+                                            }
+                                            else {
+                                                n = n.getRight();
+                                            }
+                                        }
+                                    }
+                                }
+                                insertedNode.setParent(n);
+                            }
+                            this.insertCase1(insertedNode);
+                        };
+                        IndexRBTree.prototype.insertCase1 = function (n) {
+                            if (n.getParent() == null) {
+                                n.color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            }
+                            else {
+                                this.insertCase2(n);
+                            }
+                        };
+                        IndexRBTree.prototype.insertCase2 = function (n) {
+                            if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                return;
+                            }
+                            else {
+                                this.insertCase3(n);
+                            }
+                        };
+                        IndexRBTree.prototype.insertCase3 = function (n) {
+                            if (this.nodeColor(n.uncle()) == org.kevoree.modeling.api.rbtree.Color.RED) {
+                                n.getParent().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                n.uncle().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                n.grandparent().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                this.insertCase1(n.grandparent());
+                            }
+                            else {
+                                this.insertCase4(n);
+                            }
+                        };
+                        IndexRBTree.prototype.insertCase4 = function (n_n) {
+                            var n = n_n;
+                            if (n == n.getParent().getRight() && n.getParent() == n.grandparent().getLeft()) {
+                                this.rotateLeft(n.getParent());
+                                n = n.getLeft();
+                            }
+                            else {
+                                if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getRight()) {
+                                    this.rotateRight(n.getParent());
+                                    n = n.getRight();
+                                }
+                            }
+                            this.insertCase5(n);
+                        };
+                        IndexRBTree.prototype.insertCase5 = function (n) {
+                            n.getParent().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            n.grandparent().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                            if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getLeft()) {
+                                this.rotateRight(n.grandparent());
+                            }
+                            else {
+                                this.rotateLeft(n.grandparent());
+                            }
+                        };
+                        IndexRBTree.prototype.delete = function (key) {
+                            var n = this.lookupNode(key);
+                            if (n == null) {
+                                return;
+                            }
+                            else {
+                                this._size--;
+                                if (n.getLeft() != null && n.getRight() != null) {
+                                    var pred = n.getLeft();
+                                    while (pred.getRight() != null) {
+                                        pred = pred.getRight();
+                                    }
+                                    n.key = pred.key;
+                                    n = pred;
+                                }
+                                var child;
+                                if (n.getRight() == null) {
+                                    child = n.getLeft();
+                                }
+                                else {
+                                    child = n.getRight();
+                                }
+                                if (this.nodeColor(n) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                    n.color = this.nodeColor(child);
+                                    this.deleteCase1(n);
+                                }
+                                this.replaceNode(n, child);
+                            }
+                        };
+                        IndexRBTree.prototype.deleteCase1 = function (n) {
+                            if (n.getParent() == null) {
+                                return;
+                            }
+                            else {
+                                this.deleteCase2(n);
+                            }
+                        };
+                        IndexRBTree.prototype.deleteCase2 = function (n) {
+                            if (this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.RED) {
+                                n.getParent().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                n.sibling().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                if (n == n.getParent().getLeft()) {
+                                    this.rotateLeft(n.getParent());
+                                }
+                                else {
+                                    this.rotateRight(n.getParent());
+                                }
+                            }
+                            this.deleteCase3(n);
+                        };
+                        IndexRBTree.prototype.deleteCase3 = function (n) {
+                            if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                n.sibling().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                this.deleteCase1(n.getParent());
+                            }
+                            else {
+                                this.deleteCase4(n);
+                            }
+                        };
+                        IndexRBTree.prototype.deleteCase4 = function (n) {
+                            if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.rbtree.Color.RED && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                n.sibling().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                n.getParent().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            }
+                            else {
+                                this.deleteCase5(n);
+                            }
+                        };
+                        IndexRBTree.prototype.deleteCase5 = function (n) {
+                            if (n == n.getParent().getLeft() && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.rbtree.Color.RED && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                n.sibling().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                n.sibling().getLeft().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                this.rotateRight(n.sibling());
+                            }
+                            else {
+                                if (n == n.getParent().getRight() && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.rbtree.Color.RED && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                    n.sibling().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                    n.sibling().getRight().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                    this.rotateLeft(n.sibling());
+                                }
+                            }
+                            this.deleteCase6(n);
+                        };
+                        IndexRBTree.prototype.deleteCase6 = function (n) {
+                            n.sibling().color = this.nodeColor(n.getParent());
+                            n.getParent().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            if (n == n.getParent().getLeft()) {
+                                n.sibling().getRight().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                this.rotateLeft(n.getParent());
+                            }
+                            else {
+                                n.sibling().getLeft().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                this.rotateRight(n.getParent());
+                            }
+                        };
+                        IndexRBTree.prototype.nodeColor = function (n) {
+                            if (n == null) {
+                                return org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            }
+                            else {
+                                return n.color;
+                            }
+                        };
+                        return IndexRBTree;
+                    })();
+                    rbtree.IndexRBTree = IndexRBTree;
+                    var LongRBTree = (function () {
+                        function LongRBTree() {
+                            this.root = null;
+                            this._size = 0;
+                            this._dirty = false;
+                        }
+                        LongRBTree.prototype.size = function () {
+                            return this._size;
+                        };
+                        LongRBTree.prototype.toString = function () {
+                            return this.serialize();
+                        };
+                        LongRBTree.prototype.isDirty = function () {
+                            return this._dirty;
+                        };
+                        LongRBTree.prototype.serialize = function () {
+                            var builder = new java.lang.StringBuilder();
+                            builder.append(this._size);
+                            if (this.root != null) {
+                                this.root.serialize(builder);
+                            }
+                            return builder.toString();
+                        };
+                        LongRBTree.prototype.setClean = function () {
+                            this._dirty = false;
+                        };
+                        LongRBTree.prototype.unserialize = function (payload) {
+                            if (payload == null || payload.length == 0) {
+                                return;
+                            }
+                            var i = 0;
+                            var buffer = new java.lang.StringBuilder();
+                            var ch = payload.charAt(i);
+                            while (i < payload.length && ch != '|') {
+                                buffer.append(ch);
+                                i = i + 1;
+                                ch = payload.charAt(i);
+                            }
+                            this._size = java.lang.Integer.parseInt(buffer.toString());
+                            var ctx = new org.kevoree.modeling.api.rbtree.TreeReaderContext();
+                            ctx.index = i;
+                            ctx.payload = payload;
+                            ctx.buffer = new Array();
+                            this.root = org.kevoree.modeling.api.rbtree.LongTreeNode.unserialize(ctx);
+                            this._dirty = false;
+                        };
+                        LongRBTree.prototype.previousOrEqual = function (key) {
+                            var p = this.root;
+                            if (p == null) {
+                                return null;
+                            }
+                            while (p != null) {
+                                if (key == p.key) {
+                                    return p;
+                                }
+                                if (key > p.key) {
+                                    if (p.getRight() != null) {
+                                        p = p.getRight();
+                                    }
+                                    else {
+                                        return p;
+                                    }
+                                }
+                                else {
+                                    if (p.getLeft() != null) {
+                                        p = p.getLeft();
+                                    }
+                                    else {
+                                        var parent = p.getParent();
+                                        var ch = p;
+                                        while (parent != null && ch == parent.getLeft()) {
+                                            ch = parent;
+                                            parent = parent.getParent();
+                                        }
+                                        return parent;
+                                    }
+                                }
+                            }
+                            return null;
+                        };
+                        LongRBTree.prototype.nextOrEqual = function (key) {
+                            var p = this.root;
+                            if (p == null) {
+                                return null;
+                            }
+                            while (p != null) {
+                                if (key == p.key) {
+                                    return p;
+                                }
+                                if (key < p.key) {
+                                    if (p.getLeft() != null) {
+                                        p = p.getLeft();
+                                    }
+                                    else {
+                                        return p;
+                                    }
+                                }
+                                else {
+                                    if (p.getRight() != null) {
+                                        p = p.getRight();
+                                    }
+                                    else {
+                                        var parent = p.getParent();
+                                        var ch = p;
+                                        while (parent != null && ch == parent.getRight()) {
+                                            ch = parent;
+                                            parent = parent.getParent();
+                                        }
+                                        return parent;
+                                    }
+                                }
+                            }
+                            return null;
+                        };
+                        LongRBTree.prototype.previous = function (key) {
+                            var p = this.root;
+                            if (p == null) {
+                                return null;
+                            }
+                            while (p != null) {
+                                if (key < p.key) {
+                                    if (p.getLeft() != null) {
+                                        p = p.getLeft();
+                                    }
+                                    else {
+                                        return p.previous();
+                                    }
+                                }
+                                else {
+                                    if (key > p.key) {
+                                        if (p.getRight() != null) {
+                                            p = p.getRight();
+                                        }
+                                        else {
+                                            return p;
+                                        }
+                                    }
+                                    else {
+                                        return p.previous();
+                                    }
+                                }
+                            }
+                            return null;
+                        };
+                        LongRBTree.prototype.previousWhileNot = function (key, until) {
+                            var elm = this.previousOrEqual(key);
+                            if (elm.value == until) {
+                                return null;
+                            }
+                            else {
+                                if (elm.key == key) {
+                                    elm = elm.previous();
+                                }
+                            }
+                            if (elm == null || elm.value == until) {
+                                return null;
+                            }
+                            else {
+                                return elm;
+                            }
+                        };
+                        LongRBTree.prototype.next = function (key) {
+                            var p = this.root;
+                            if (p == null) {
+                                return null;
+                            }
+                            while (p != null) {
+                                if (key < p.key) {
+                                    if (p.getLeft() != null) {
+                                        p = p.getLeft();
+                                    }
+                                    else {
+                                        return p;
+                                    }
+                                }
+                                else {
+                                    if (key > p.key) {
+                                        if (p.getRight() != null) {
+                                            p = p.getRight();
+                                        }
+                                        else {
+                                            return p.next();
+                                        }
+                                    }
+                                    else {
+                                        return p.next();
+                                    }
+                                }
+                            }
+                            return null;
+                        };
+                        LongRBTree.prototype.nextWhileNot = function (key, until) {
+                            var elm = this.nextOrEqual(key);
+                            if (elm.value == until) {
+                                return null;
+                            }
+                            else {
+                                if (elm.key == key) {
+                                    elm = elm.next();
+                                }
+                            }
+                            if (elm == null || elm.value == until) {
+                                return null;
+                            }
+                            else {
+                                return elm;
+                            }
+                        };
+                        LongRBTree.prototype.first = function () {
+                            var p = this.root;
+                            if (p == null) {
+                                return null;
+                            }
+                            while (p != null) {
+                                if (p.getLeft() != null) {
+                                    p = p.getLeft();
+                                }
+                                else {
+                                    return p;
+                                }
+                            }
+                            return null;
+                        };
+                        LongRBTree.prototype.last = function () {
+                            var p = this.root;
+                            if (p == null) {
+                                return null;
+                            }
+                            while (p != null) {
+                                if (p.getRight() != null) {
+                                    p = p.getRight();
+                                }
+                                else {
+                                    return p;
+                                }
+                            }
+                            return null;
+                        };
+                        LongRBTree.prototype.firstWhileNot = function (key, until) {
+                            var elm = this.previousOrEqual(key);
+                            if (elm == null) {
+                                return null;
+                            }
+                            else {
+                                if (elm.value == until) {
+                                    return null;
+                                }
+                            }
+                            var prev = null;
+                            do {
+                                prev = elm.previous();
+                                if (prev == null || prev.value == until) {
+                                    return elm;
+                                }
+                                else {
+                                    elm = prev;
+                                }
+                            } while (elm != null);
+                            return prev;
+                        };
+                        LongRBTree.prototype.lastWhileNot = function (key, until) {
+                            var elm = this.previousOrEqual(key);
+                            if (elm == null) {
+                                return null;
+                            }
+                            else {
+                                if (elm.value == until) {
+                                    return null;
+                                }
+                            }
+                            var next;
+                            do {
+                                next = elm.next();
+                                if (next == null || next.value == until) {
+                                    return elm;
+                                }
+                                else {
+                                    elm = next;
+                                }
+                            } while (elm != null);
+                            return next;
+                        };
+                        LongRBTree.prototype.lookupNode = function (key) {
+                            var n = this.root;
+                            if (n == null) {
+                                return null;
+                            }
+                            while (n != null) {
+                                if (key == n.key) {
+                                    return n;
+                                }
+                                else {
+                                    if (key < n.key) {
+                                        n = n.getLeft();
+                                    }
+                                    else {
+                                        n = n.getRight();
+                                    }
+                                }
+                            }
+                            return n;
+                        };
+                        LongRBTree.prototype.lookup = function (key) {
+                            var n = this.lookupNode(key);
+                            if (n == null) {
+                                return null;
+                            }
+                            else {
+                                return n.value;
+                            }
+                        };
+                        LongRBTree.prototype.rotateLeft = function (n) {
+                            var r = n.getRight();
+                            this.replaceNode(n, r);
+                            n.setRight(r.getLeft());
+                            if (r.getLeft() != null) {
+                                r.getLeft().setParent(n);
+                            }
+                            r.setLeft(n);
+                            n.setParent(r);
+                        };
+                        LongRBTree.prototype.rotateRight = function (n) {
+                            var l = n.getLeft();
+                            this.replaceNode(n, l);
+                            n.setLeft(l.getRight());
+                            if (l.getRight() != null) {
+                                l.getRight().setParent(n);
+                            }
+                            l.setRight(n);
+                            n.setParent(l);
+                        };
+                        LongRBTree.prototype.replaceNode = function (oldn, newn) {
+                            if (oldn.getParent() == null) {
+                                this.root = newn;
+                            }
+                            else {
+                                if (oldn == oldn.getParent().getLeft()) {
+                                    oldn.getParent().setLeft(newn);
+                                }
+                                else {
+                                    oldn.getParent().setRight(newn);
+                                }
+                            }
+                            if (newn != null) {
+                                newn.setParent(oldn.getParent());
+                            }
+                        };
+                        LongRBTree.prototype.insert = function (key, value) {
+                            this._dirty = true;
+                            var insertedNode = new org.kevoree.modeling.api.rbtree.LongTreeNode(key, value, org.kevoree.modeling.api.rbtree.Color.RED, null, null);
+                            if (this.root == null) {
+                                this._size++;
+                                this.root = insertedNode;
+                            }
+                            else {
+                                var n = this.root;
+                                while (true) {
+                                    if (key == n.key) {
+                                        n.value = value;
+                                        return;
+                                    }
+                                    else {
+                                        if (key < n.key) {
+                                            if (n.getLeft() == null) {
+                                                n.setLeft(insertedNode);
+                                                this._size++;
+                                                break;
+                                            }
+                                            else {
+                                                n = n.getLeft();
+                                            }
+                                        }
+                                        else {
+                                            if (n.getRight() == null) {
+                                                n.setRight(insertedNode);
+                                                this._size++;
+                                                break;
+                                            }
+                                            else {
+                                                n = n.getRight();
+                                            }
+                                        }
+                                    }
+                                }
+                                insertedNode.setParent(n);
+                            }
+                            this.insertCase1(insertedNode);
+                        };
+                        LongRBTree.prototype.insertCase1 = function (n) {
+                            if (n.getParent() == null) {
+                                n.color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            }
+                            else {
+                                this.insertCase2(n);
+                            }
+                        };
+                        LongRBTree.prototype.insertCase2 = function (n) {
+                            if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                return;
+                            }
+                            else {
+                                this.insertCase3(n);
+                            }
+                        };
+                        LongRBTree.prototype.insertCase3 = function (n) {
+                            if (this.nodeColor(n.uncle()) == org.kevoree.modeling.api.rbtree.Color.RED) {
+                                n.getParent().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                n.uncle().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                n.grandparent().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                this.insertCase1(n.grandparent());
+                            }
+                            else {
+                                this.insertCase4(n);
+                            }
+                        };
+                        LongRBTree.prototype.insertCase4 = function (n_n) {
+                            var n = n_n;
+                            if (n == n.getParent().getRight() && n.getParent() == n.grandparent().getLeft()) {
+                                this.rotateLeft(n.getParent());
+                                n = n.getLeft();
+                            }
+                            else {
+                                if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getRight()) {
+                                    this.rotateRight(n.getParent());
+                                    n = n.getRight();
+                                }
+                            }
+                            this.insertCase5(n);
+                        };
+                        LongRBTree.prototype.insertCase5 = function (n) {
+                            n.getParent().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            n.grandparent().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                            if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getLeft()) {
+                                this.rotateRight(n.grandparent());
+                            }
+                            else {
+                                this.rotateLeft(n.grandparent());
+                            }
+                        };
+                        LongRBTree.prototype.delete = function (key) {
+                            var n = this.lookupNode(key);
+                            if (n == null) {
+                                return;
+                            }
+                            else {
+                                this._size--;
+                                if (n.getLeft() != null && n.getRight() != null) {
+                                    var pred = n.getLeft();
+                                    while (pred.getRight() != null) {
+                                        pred = pred.getRight();
+                                    }
+                                    n.key = pred.key;
+                                    n.value = pred.value;
+                                    n = pred;
+                                }
+                                var child;
+                                if (n.getRight() == null) {
+                                    child = n.getLeft();
+                                }
+                                else {
+                                    child = n.getRight();
+                                }
+                                if (this.nodeColor(n) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                    n.color = this.nodeColor(child);
+                                    this.deleteCase1(n);
+                                }
+                                this.replaceNode(n, child);
+                            }
+                        };
+                        LongRBTree.prototype.deleteCase1 = function (n) {
+                            if (n.getParent() == null) {
+                                return;
+                            }
+                            else {
+                                this.deleteCase2(n);
+                            }
+                        };
+                        LongRBTree.prototype.deleteCase2 = function (n) {
+                            if (this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.RED) {
+                                n.getParent().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                n.sibling().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                if (n == n.getParent().getLeft()) {
+                                    this.rotateLeft(n.getParent());
+                                }
+                                else {
+                                    this.rotateRight(n.getParent());
+                                }
+                            }
+                            this.deleteCase3(n);
+                        };
+                        LongRBTree.prototype.deleteCase3 = function (n) {
+                            if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                n.sibling().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                this.deleteCase1(n.getParent());
+                            }
+                            else {
+                                this.deleteCase4(n);
+                            }
+                        };
+                        LongRBTree.prototype.deleteCase4 = function (n) {
+                            if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.rbtree.Color.RED && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                n.sibling().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                n.getParent().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            }
+                            else {
+                                this.deleteCase5(n);
+                            }
+                        };
+                        LongRBTree.prototype.deleteCase5 = function (n) {
+                            if (n == n.getParent().getLeft() && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.rbtree.Color.RED && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                n.sibling().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                n.sibling().getLeft().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                this.rotateRight(n.sibling());
+                            }
+                            else {
+                                if (n == n.getParent().getRight() && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.rbtree.Color.RED && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                    n.sibling().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                    n.sibling().getRight().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                    this.rotateLeft(n.sibling());
+                                }
+                            }
+                            this.deleteCase6(n);
+                        };
+                        LongRBTree.prototype.deleteCase6 = function (n) {
+                            n.sibling().color = this.nodeColor(n.getParent());
+                            n.getParent().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            if (n == n.getParent().getLeft()) {
+                                n.sibling().getRight().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                this.rotateLeft(n.getParent());
+                            }
+                            else {
+                                n.sibling().getLeft().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                this.rotateRight(n.getParent());
+                            }
+                        };
+                        LongRBTree.prototype.nodeColor = function (n) {
+                            if (n == null) {
+                                return org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            }
+                            else {
+                                return n.color;
+                            }
+                        };
+                        return LongRBTree;
+                    })();
+                    rbtree.LongRBTree = LongRBTree;
+                    var LongTreeNode = (function () {
+                        function LongTreeNode(key, value, color, left, right) {
+                            this.parent = null;
+                            this.key = key;
+                            this.value = value;
+                            this.color = color;
+                            this.left = left;
+                            this.right = right;
+                            if (left != null) {
+                                left.parent = this;
+                            }
+                            if (right != null) {
+                                right.parent = this;
+                            }
+                            this.parent = null;
+                        }
+                        LongTreeNode.prototype.grandparent = function () {
+                            if (this.parent != null) {
+                                return this.parent.parent;
+                            }
+                            else {
+                                return null;
+                            }
+                        };
+                        LongTreeNode.prototype.sibling = function () {
+                            if (this.parent == null) {
+                                return null;
+                            }
+                            else {
+                                if (this == this.parent.left) {
+                                    return this.parent.right;
+                                }
+                                else {
+                                    return this.parent.left;
+                                }
+                            }
+                        };
+                        LongTreeNode.prototype.uncle = function () {
+                            if (this.parent != null) {
+                                return this.parent.sibling();
+                            }
+                            else {
+                                return null;
+                            }
+                        };
+                        LongTreeNode.prototype.getLeft = function () {
+                            return this.left;
+                        };
+                        LongTreeNode.prototype.setLeft = function (left) {
+                            this.left = left;
+                        };
+                        LongTreeNode.prototype.getRight = function () {
+                            return this.right;
+                        };
+                        LongTreeNode.prototype.setRight = function (right) {
+                            this.right = right;
+                        };
+                        LongTreeNode.prototype.getParent = function () {
+                            return this.parent;
+                        };
+                        LongTreeNode.prototype.setParent = function (parent) {
+                            this.parent = parent;
+                        };
+                        LongTreeNode.prototype.serialize = function (builder) {
+                            builder.append("|");
+                            if (this.color == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                builder.append(LongTreeNode.BLACK);
+                            }
+                            else {
+                                builder.append(LongTreeNode.RED);
+                            }
+                            builder.append(this.key);
+                            builder.append("@");
+                            builder.append(this.value);
+                            if (this.left == null && this.right == null) {
+                                builder.append("%");
+                            }
+                            else {
+                                if (this.left != null) {
+                                    this.left.serialize(builder);
+                                }
+                                else {
+                                    builder.append("#");
+                                }
+                                if (this.right != null) {
+                                    this.right.serialize(builder);
+                                }
+                                else {
+                                    builder.append("#");
+                                }
+                            }
+                        };
+                        LongTreeNode.prototype.next = function () {
+                            var p = this;
+                            if (p.right != null) {
+                                p = p.right;
+                                while (p.left != null) {
+                                    p = p.left;
+                                }
+                                return p;
+                            }
+                            else {
+                                if (p.parent != null) {
+                                    if (p == p.parent.left) {
+                                        return p.parent;
+                                    }
+                                    else {
+                                        while (p.parent != null && p == p.parent.right) {
+                                            p = p.parent;
+                                        }
+                                        return p.parent;
+                                    }
+                                }
+                                else {
+                                    return null;
+                                }
+                            }
+                        };
+                        LongTreeNode.prototype.previous = function () {
+                            var p = this;
+                            if (p.left != null) {
+                                p = p.left;
+                                while (p.right != null) {
+                                    p = p.right;
+                                }
+                                return p;
+                            }
+                            else {
+                                if (p.parent != null) {
+                                    if (p == p.parent.right) {
+                                        return p.parent;
+                                    }
+                                    else {
+                                        while (p.parent != null && p == p.parent.left) {
+                                            p = p.parent;
+                                        }
+                                        return p.parent;
+                                    }
+                                }
+                                else {
+                                    return null;
+                                }
+                            }
+                        };
+                        LongTreeNode.unserialize = function (ctx) {
+                            return org.kevoree.modeling.api.rbtree.LongTreeNode.internal_unserialize(true, ctx);
+                        };
+                        LongTreeNode.internal_unserialize = function (rightBranch, ctx) {
+                            if (ctx.index >= ctx.payload.length) {
+                                return null;
+                            }
+                            var ch = ctx.payload.charAt(ctx.index);
+                            if (ch == '%') {
+                                if (rightBranch) {
+                                    ctx.index = ctx.index + 1;
+                                }
+                                return null;
+                            }
+                            if (ch == '#') {
+                                ctx.index = ctx.index + 1;
+                                return null;
+                            }
+                            if (ch != '|') {
+                                throw new java.lang.Exception("Error while loading BTree");
+                            }
+                            ctx.index = ctx.index + 1;
+                            ch = ctx.payload.charAt(ctx.index);
+                            var color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            if (ch == LongTreeNode.RED) {
+                                color = org.kevoree.modeling.api.rbtree.Color.RED;
+                            }
+                            ctx.index = ctx.index + 1;
+                            ch = ctx.payload.charAt(ctx.index);
+                            var i = 0;
+                            while (ctx.index + 1 < ctx.payload.length && ch != '|' && ch != '#' && ch != '%' && ch != '@') {
+                                ctx.buffer[i] = ch;
+                                i++;
+                                ctx.index = ctx.index + 1;
+                                ch = ctx.payload.charAt(ctx.index);
+                            }
+                            if (ch != '|' && ch != '#' && ch != '%' && ch != '@') {
+                                ctx.buffer[i] = ch;
+                                i++;
+                            }
+                            var key = java.lang.Long.parseLong(StringUtils.copyValueOf(ctx.buffer, 0, i));
+                            i = 0;
+                            ctx.index = ctx.index + 1;
+                            ch = ctx.payload.charAt(ctx.index);
+                            while (ctx.index + 1 < ctx.payload.length && ch != '|' && ch != '#' && ch != '%' && ch != '@') {
+                                ctx.buffer[i] = ch;
+                                i++;
+                                ctx.index = ctx.index + 1;
+                                ch = ctx.payload.charAt(ctx.index);
+                            }
+                            if (ch != '|' && ch != '#' && ch != '%' && ch != '@') {
+                                ctx.buffer[i] = ch;
+                                i++;
+                            }
+                            var value = java.lang.Long.parseLong(StringUtils.copyValueOf(ctx.buffer, 0, i));
+                            var p = new org.kevoree.modeling.api.rbtree.LongTreeNode(key, value, color, null, null);
+                            var left = org.kevoree.modeling.api.rbtree.LongTreeNode.internal_unserialize(false, ctx);
+                            if (left != null) {
+                                left.setParent(p);
+                            }
+                            var right = org.kevoree.modeling.api.rbtree.LongTreeNode.internal_unserialize(true, ctx);
+                            if (right != null) {
+                                right.setParent(p);
+                            }
+                            p.setLeft(left);
+                            p.setRight(right);
+                            return p;
+                        };
+                        LongTreeNode.BLACK = '0';
+                        LongTreeNode.RED = '2';
+                        return LongTreeNode;
+                    })();
+                    rbtree.LongTreeNode = LongTreeNode;
+                    var TreeNode = (function () {
+                        function TreeNode(key, color, left, right) {
+                            this.parent = null;
+                            this.key = key;
+                            this.color = color;
+                            this.left = left;
+                            this.right = right;
+                            if (left != null) {
+                                left.parent = this;
+                            }
+                            if (right != null) {
+                                right.parent = this;
+                            }
+                            this.parent = null;
+                        }
+                        TreeNode.prototype.getKey = function () {
+                            return this.key;
+                        };
+                        TreeNode.prototype.grandparent = function () {
+                            if (this.parent != null) {
+                                return this.parent.parent;
+                            }
+                            else {
+                                return null;
+                            }
+                        };
+                        TreeNode.prototype.sibling = function () {
+                            if (this.parent == null) {
+                                return null;
+                            }
+                            else {
+                                if (this == this.parent.left) {
+                                    return this.parent.right;
+                                }
+                                else {
+                                    return this.parent.left;
+                                }
+                            }
+                        };
+                        TreeNode.prototype.uncle = function () {
+                            if (this.parent != null) {
+                                return this.parent.sibling();
+                            }
+                            else {
+                                return null;
+                            }
+                        };
+                        TreeNode.prototype.getLeft = function () {
+                            return this.left;
+                        };
+                        TreeNode.prototype.setLeft = function (left) {
+                            this.left = left;
+                        };
+                        TreeNode.prototype.getRight = function () {
+                            return this.right;
+                        };
+                        TreeNode.prototype.setRight = function (right) {
+                            this.right = right;
+                        };
+                        TreeNode.prototype.getParent = function () {
+                            return this.parent;
+                        };
+                        TreeNode.prototype.setParent = function (parent) {
+                            this.parent = parent;
+                        };
+                        TreeNode.prototype.serialize = function (builder) {
+                            builder.append("|");
+                            if (this.color == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                builder.append(TreeNode.BLACK);
+                            }
+                            else {
+                                builder.append(TreeNode.RED);
+                            }
+                            builder.append(this.key);
+                            if (this.left == null && this.right == null) {
+                                builder.append("%");
+                            }
+                            else {
+                                if (this.left != null) {
+                                    this.left.serialize(builder);
+                                }
+                                else {
+                                    builder.append("#");
+                                }
+                                if (this.right != null) {
+                                    this.right.serialize(builder);
+                                }
+                                else {
+                                    builder.append("#");
+                                }
+                            }
+                        };
+                        TreeNode.prototype.next = function () {
+                            var p = this;
+                            if (p.right != null) {
+                                p = p.right;
+                                while (p.left != null) {
+                                    p = p.left;
+                                }
+                                return p;
+                            }
+                            else {
+                                if (p.parent != null) {
+                                    if (p == p.parent.left) {
+                                        return p.parent;
+                                    }
+                                    else {
+                                        while (p.parent != null && p == p.parent.right) {
+                                            p = p.parent;
+                                        }
+                                        return p.parent;
+                                    }
+                                }
+                                else {
+                                    return null;
+                                }
+                            }
+                        };
+                        TreeNode.prototype.previous = function () {
+                            var p = this;
+                            if (p.left != null) {
+                                p = p.left;
+                                while (p.right != null) {
+                                    p = p.right;
+                                }
+                                return p;
+                            }
+                            else {
+                                if (p.parent != null) {
+                                    if (p == p.parent.right) {
+                                        return p.parent;
+                                    }
+                                    else {
+                                        while (p.parent != null && p == p.parent.left) {
+                                            p = p.parent;
+                                        }
+                                        return p.parent;
+                                    }
+                                }
+                                else {
+                                    return null;
+                                }
+                            }
+                        };
+                        TreeNode.unserialize = function (ctx) {
+                            return org.kevoree.modeling.api.rbtree.TreeNode.internal_unserialize(true, ctx);
+                        };
+                        TreeNode.internal_unserialize = function (rightBranch, ctx) {
+                            if (ctx.index >= ctx.payload.length) {
+                                return null;
+                            }
+                            var tokenBuild = new java.lang.StringBuilder();
+                            var ch = ctx.payload.charAt(ctx.index);
+                            if (ch == '%') {
+                                if (rightBranch) {
+                                    ctx.index = ctx.index + 1;
+                                }
+                                return null;
+                            }
+                            if (ch == '#') {
+                                ctx.index = ctx.index + 1;
+                                return null;
+                            }
+                            if (ch != '|') {
+                                throw new java.lang.Exception("Error while loading BTree");
+                            }
+                            ctx.index = ctx.index + 1;
+                            ch = ctx.payload.charAt(ctx.index);
+                            var color;
+                            if (ch == org.kevoree.modeling.api.rbtree.TreeNode.BLACK) {
+                                color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            }
+                            else {
+                                color = org.kevoree.modeling.api.rbtree.Color.RED;
+                            }
+                            ctx.index = ctx.index + 1;
+                            ch = ctx.payload.charAt(ctx.index);
+                            while (ctx.index + 1 < ctx.payload.length && ch != '|' && ch != '#' && ch != '%') {
+                                tokenBuild.append(ch);
+                                ctx.index = ctx.index + 1;
+                                ch = ctx.payload.charAt(ctx.index);
+                            }
+                            if (ch != '|' && ch != '#' && ch != '%') {
+                                tokenBuild.append(ch);
+                            }
+                            var p = new org.kevoree.modeling.api.rbtree.TreeNode(java.lang.Long.parseLong(tokenBuild.toString()), color, null, null);
+                            var left = org.kevoree.modeling.api.rbtree.TreeNode.internal_unserialize(false, ctx);
+                            if (left != null) {
+                                left.setParent(p);
+                            }
+                            var right = org.kevoree.modeling.api.rbtree.TreeNode.internal_unserialize(true, ctx);
+                            if (right != null) {
+                                right.setParent(p);
+                            }
+                            p.setLeft(left);
+                            p.setRight(right);
+                            return p;
+                        };
+                        TreeNode.BLACK = '0';
+                        TreeNode.RED = '1';
+                        return TreeNode;
+                    })();
+                    rbtree.TreeNode = TreeNode;
+                    var TreeReaderContext = (function () {
+                        function TreeReaderContext() {
+                        }
+                        return TreeReaderContext;
+                    })();
+                    rbtree.TreeReaderContext = TreeReaderContext;
+                })(rbtree = api.rbtree || (api.rbtree = {}));
                 var reflexive;
                 (function (reflexive) {
                     var DynamicKModel = (function (_super) {
@@ -6752,1526 +8215,6 @@ var org;
                     })();
                     scheduler.ExecutorServiceScheduler = ExecutorServiceScheduler;
                 })(scheduler = api.scheduler || (api.scheduler = {}));
-                var time;
-                (function (_time) {
-                    var TimeWalker = (function () {
-                        function TimeWalker() {
-                        }
-                        TimeWalker.prototype.walk = function (walker) {
-                            this.walkAsc(walker);
-                        };
-                        TimeWalker.prototype.walkAsc = function (walker) {
-                            var elem = this.versionTree.first();
-                            while (elem != null) {
-                                walker(elem.getKey());
-                                elem = elem.next();
-                            }
-                        };
-                        TimeWalker.prototype.walkDesc = function (walker) {
-                            var elem = this.versionTree.last();
-                            while (elem != null) {
-                                walker(elem.getKey());
-                                elem = elem.previous();
-                            }
-                        };
-                        TimeWalker.prototype.walkRangeAsc = function (walker, from, to) {
-                            var from2 = from;
-                            var to2 = to;
-                            if (from > to) {
-                                from2 = to;
-                                to2 = from;
-                            }
-                            var elem = this.versionTree.previousOrEqual(from2);
-                            while (elem != null) {
-                                walker(elem.getKey());
-                                elem = elem.next();
-                                if (elem != null) {
-                                    if (elem.getKey() >= to2) {
-                                        return;
-                                    }
-                                }
-                            }
-                        };
-                        TimeWalker.prototype.walkRangeDesc = function (walker, from, to) {
-                            var from2 = from;
-                            var to2 = to;
-                            if (from > to) {
-                                from2 = to;
-                                to2 = from;
-                            }
-                            var elem = this.versionTree.previousOrEqual(to2);
-                            while (elem != null) {
-                                walker(elem.getKey());
-                                elem = elem.previous();
-                                if (elem != null) {
-                                    if (elem.getKey() <= from2) {
-                                        walker(elem.getKey());
-                                        return;
-                                    }
-                                }
-                            }
-                        };
-                        return TimeWalker;
-                    })();
-                    _time.TimeWalker = TimeWalker;
-                    var rbtree;
-                    (function (rbtree) {
-                        var Color = (function () {
-                            function Color() {
-                            }
-                            Color.prototype.equals = function (other) {
-                                return this == other;
-                            };
-                            Color.values = function () {
-                                return Color._ColorVALUES;
-                            };
-                            Color.RED = new Color();
-                            Color.BLACK = new Color();
-                            Color._ColorVALUES = [
-                                Color.RED,
-                                Color.BLACK
-                            ];
-                            return Color;
-                        })();
-                        rbtree.Color = Color;
-                        var IndexRBTree = (function () {
-                            function IndexRBTree() {
-                                this.root = null;
-                                this._size = 0;
-                                this._dirty = false;
-                            }
-                            IndexRBTree.prototype.size = function () {
-                                return this._size;
-                            };
-                            IndexRBTree.prototype.isDirty = function () {
-                                return this._dirty;
-                            };
-                            IndexRBTree.prototype.serialize = function () {
-                                var builder = new java.lang.StringBuilder();
-                                builder.append(this._size);
-                                if (this.root != null) {
-                                    this.root.serialize(builder);
-                                }
-                                return builder.toString();
-                            };
-                            IndexRBTree.prototype.setClean = function () {
-                                this._dirty = false;
-                            };
-                            IndexRBTree.prototype.toString = function () {
-                                return this.serialize();
-                            };
-                            IndexRBTree.prototype.unserialize = function (payload) {
-                                if (payload == null || payload.length == 0) {
-                                    return;
-                                }
-                                var i = 0;
-                                var buffer = new java.lang.StringBuilder();
-                                var ch = payload.charAt(i);
-                                while (i < payload.length && ch != '|') {
-                                    buffer.append(ch);
-                                    i = i + 1;
-                                    ch = payload.charAt(i);
-                                }
-                                this._size = java.lang.Integer.parseInt(buffer.toString());
-                                var ctx = new org.kevoree.modeling.api.time.rbtree.TreeReaderContext();
-                                ctx.index = i;
-                                ctx.payload = payload;
-                                this.root = org.kevoree.modeling.api.time.rbtree.TreeNode.unserialize(ctx);
-                            };
-                            IndexRBTree.prototype.previousOrEqual = function (key) {
-                                var p = this.root;
-                                if (p == null) {
-                                    return null;
-                                }
-                                while (p != null) {
-                                    if (key == p.key) {
-                                        return p;
-                                    }
-                                    if (key > p.key) {
-                                        if (p.getRight() != null) {
-                                            p = p.getRight();
-                                        }
-                                        else {
-                                            return p;
-                                        }
-                                    }
-                                    else {
-                                        if (p.getLeft() != null) {
-                                            p = p.getLeft();
-                                        }
-                                        else {
-                                            var parent = p.getParent();
-                                            var ch = p;
-                                            while (parent != null && ch == parent.getLeft()) {
-                                                ch = parent;
-                                                parent = parent.getParent();
-                                            }
-                                            return parent;
-                                        }
-                                    }
-                                }
-                                return null;
-                            };
-                            IndexRBTree.prototype.nextOrEqual = function (key) {
-                                var p = this.root;
-                                if (p == null) {
-                                    return null;
-                                }
-                                while (p != null) {
-                                    if (key == p.key) {
-                                        return p;
-                                    }
-                                    if (key < p.key) {
-                                        if (p.getLeft() != null) {
-                                            p = p.getLeft();
-                                        }
-                                        else {
-                                            return p;
-                                        }
-                                    }
-                                    else {
-                                        if (p.getRight() != null) {
-                                            p = p.getRight();
-                                        }
-                                        else {
-                                            var parent = p.getParent();
-                                            var ch = p;
-                                            while (parent != null && ch == parent.getRight()) {
-                                                ch = parent;
-                                                parent = parent.getParent();
-                                            }
-                                            return parent;
-                                        }
-                                    }
-                                }
-                                return null;
-                            };
-                            IndexRBTree.prototype.previous = function (key) {
-                                var p = this.root;
-                                if (p == null) {
-                                    return null;
-                                }
-                                while (p != null) {
-                                    if (key < p.key) {
-                                        if (p.getLeft() != null) {
-                                            p = p.getLeft();
-                                        }
-                                        else {
-                                            return p.previous();
-                                        }
-                                    }
-                                    else {
-                                        if (key > p.key) {
-                                            if (p.getRight() != null) {
-                                                p = p.getRight();
-                                            }
-                                            else {
-                                                return p;
-                                            }
-                                        }
-                                        else {
-                                            return p.previous();
-                                        }
-                                    }
-                                }
-                                return null;
-                            };
-                            IndexRBTree.prototype.next = function (key) {
-                                var p = this.root;
-                                if (p == null) {
-                                    return null;
-                                }
-                                while (p != null) {
-                                    if (key < p.key) {
-                                        if (p.getLeft() != null) {
-                                            p = p.getLeft();
-                                        }
-                                        else {
-                                            return p;
-                                        }
-                                    }
-                                    else {
-                                        if (key > p.key) {
-                                            if (p.getRight() != null) {
-                                                p = p.getRight();
-                                            }
-                                            else {
-                                                return p.next();
-                                            }
-                                        }
-                                        else {
-                                            return p.next();
-                                        }
-                                    }
-                                }
-                                return null;
-                            };
-                            IndexRBTree.prototype.first = function () {
-                                var p = this.root;
-                                if (p == null) {
-                                    return null;
-                                }
-                                while (p != null) {
-                                    if (p.getLeft() != null) {
-                                        p = p.getLeft();
-                                    }
-                                    else {
-                                        return p;
-                                    }
-                                }
-                                return null;
-                            };
-                            IndexRBTree.prototype.last = function () {
-                                var p = this.root;
-                                if (p == null) {
-                                    return null;
-                                }
-                                while (p != null) {
-                                    if (p.getRight() != null) {
-                                        p = p.getRight();
-                                    }
-                                    else {
-                                        return p;
-                                    }
-                                }
-                                return null;
-                            };
-                            IndexRBTree.prototype.lookupNode = function (key) {
-                                var n = this.root;
-                                if (n == null) {
-                                    return null;
-                                }
-                                while (n != null) {
-                                    if (key == n.key) {
-                                        return n;
-                                    }
-                                    else {
-                                        if (key < n.key) {
-                                            n = n.getLeft();
-                                        }
-                                        else {
-                                            n = n.getRight();
-                                        }
-                                    }
-                                }
-                                return n;
-                            };
-                            IndexRBTree.prototype.lookup = function (key) {
-                                var n = this.lookupNode(key);
-                                if (n == null) {
-                                    return null;
-                                }
-                                else {
-                                    return n.key;
-                                }
-                            };
-                            IndexRBTree.prototype.rotateLeft = function (n) {
-                                var r = n.getRight();
-                                this.replaceNode(n, r);
-                                n.setRight(r.getLeft());
-                                if (r.getLeft() != null) {
-                                    r.getLeft().setParent(n);
-                                }
-                                r.setLeft(n);
-                                n.setParent(r);
-                            };
-                            IndexRBTree.prototype.rotateRight = function (n) {
-                                var l = n.getLeft();
-                                this.replaceNode(n, l);
-                                n.setLeft(l.getRight());
-                                if (l.getRight() != null) {
-                                    l.getRight().setParent(n);
-                                }
-                                l.setRight(n);
-                                n.setParent(l);
-                            };
-                            IndexRBTree.prototype.replaceNode = function (oldn, newn) {
-                                if (oldn.getParent() == null) {
-                                    this.root = newn;
-                                }
-                                else {
-                                    if (oldn == oldn.getParent().getLeft()) {
-                                        oldn.getParent().setLeft(newn);
-                                    }
-                                    else {
-                                        oldn.getParent().setRight(newn);
-                                    }
-                                }
-                                if (newn != null) {
-                                    newn.setParent(oldn.getParent());
-                                }
-                            };
-                            IndexRBTree.prototype.insert = function (key) {
-                                this._dirty = true;
-                                var insertedNode = new org.kevoree.modeling.api.time.rbtree.TreeNode(key, org.kevoree.modeling.api.time.rbtree.Color.RED, null, null);
-                                if (this.root == null) {
-                                    this._size++;
-                                    this.root = insertedNode;
-                                }
-                                else {
-                                    var n = this.root;
-                                    while (true) {
-                                        if (key == n.key) {
-                                            return;
-                                        }
-                                        else {
-                                            if (key < n.key) {
-                                                if (n.getLeft() == null) {
-                                                    n.setLeft(insertedNode);
-                                                    this._size++;
-                                                    break;
-                                                }
-                                                else {
-                                                    n = n.getLeft();
-                                                }
-                                            }
-                                            else {
-                                                if (n.getRight() == null) {
-                                                    n.setRight(insertedNode);
-                                                    this._size++;
-                                                    break;
-                                                }
-                                                else {
-                                                    n = n.getRight();
-                                                }
-                                            }
-                                        }
-                                    }
-                                    insertedNode.setParent(n);
-                                }
-                                this.insertCase1(insertedNode);
-                            };
-                            IndexRBTree.prototype.insertCase1 = function (n) {
-                                if (n.getParent() == null) {
-                                    n.color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                }
-                                else {
-                                    this.insertCase2(n);
-                                }
-                            };
-                            IndexRBTree.prototype.insertCase2 = function (n) {
-                                if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                    return;
-                                }
-                                else {
-                                    this.insertCase3(n);
-                                }
-                            };
-                            IndexRBTree.prototype.insertCase3 = function (n) {
-                                if (this.nodeColor(n.uncle()) == org.kevoree.modeling.api.time.rbtree.Color.RED) {
-                                    n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                    n.uncle().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                    n.grandparent().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                    this.insertCase1(n.grandparent());
-                                }
-                                else {
-                                    this.insertCase4(n);
-                                }
-                            };
-                            IndexRBTree.prototype.insertCase4 = function (n_n) {
-                                var n = n_n;
-                                if (n == n.getParent().getRight() && n.getParent() == n.grandparent().getLeft()) {
-                                    this.rotateLeft(n.getParent());
-                                    n = n.getLeft();
-                                }
-                                else {
-                                    if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getRight()) {
-                                        this.rotateRight(n.getParent());
-                                        n = n.getRight();
-                                    }
-                                }
-                                this.insertCase5(n);
-                            };
-                            IndexRBTree.prototype.insertCase5 = function (n) {
-                                n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                n.grandparent().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getLeft()) {
-                                    this.rotateRight(n.grandparent());
-                                }
-                                else {
-                                    this.rotateLeft(n.grandparent());
-                                }
-                            };
-                            IndexRBTree.prototype.delete = function (key) {
-                                var n = this.lookupNode(key);
-                                if (n == null) {
-                                    return;
-                                }
-                                else {
-                                    this._size--;
-                                    if (n.getLeft() != null && n.getRight() != null) {
-                                        var pred = n.getLeft();
-                                        while (pred.getRight() != null) {
-                                            pred = pred.getRight();
-                                        }
-                                        n.key = pred.key;
-                                        n = pred;
-                                    }
-                                    var child;
-                                    if (n.getRight() == null) {
-                                        child = n.getLeft();
-                                    }
-                                    else {
-                                        child = n.getRight();
-                                    }
-                                    if (this.nodeColor(n) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                        n.color = this.nodeColor(child);
-                                        this.deleteCase1(n);
-                                    }
-                                    this.replaceNode(n, child);
-                                }
-                            };
-                            IndexRBTree.prototype.deleteCase1 = function (n) {
-                                if (n.getParent() == null) {
-                                    return;
-                                }
-                                else {
-                                    this.deleteCase2(n);
-                                }
-                            };
-                            IndexRBTree.prototype.deleteCase2 = function (n) {
-                                if (this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.RED) {
-                                    n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                    n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                    if (n == n.getParent().getLeft()) {
-                                        this.rotateLeft(n.getParent());
-                                    }
-                                    else {
-                                        this.rotateRight(n.getParent());
-                                    }
-                                }
-                                this.deleteCase3(n);
-                            };
-                            IndexRBTree.prototype.deleteCase3 = function (n) {
-                                if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                    n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                    this.deleteCase1(n.getParent());
-                                }
-                                else {
-                                    this.deleteCase4(n);
-                                }
-                            };
-                            IndexRBTree.prototype.deleteCase4 = function (n) {
-                                if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.time.rbtree.Color.RED && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                    n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                    n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                }
-                                else {
-                                    this.deleteCase5(n);
-                                }
-                            };
-                            IndexRBTree.prototype.deleteCase5 = function (n) {
-                                if (n == n.getParent().getLeft() && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.RED && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                    n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                    n.sibling().getLeft().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                    this.rotateRight(n.sibling());
-                                }
-                                else {
-                                    if (n == n.getParent().getRight() && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.RED && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                        n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                        n.sibling().getRight().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                        this.rotateLeft(n.sibling());
-                                    }
-                                }
-                                this.deleteCase6(n);
-                            };
-                            IndexRBTree.prototype.deleteCase6 = function (n) {
-                                n.sibling().color = this.nodeColor(n.getParent());
-                                n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                if (n == n.getParent().getLeft()) {
-                                    n.sibling().getRight().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                    this.rotateLeft(n.getParent());
-                                }
-                                else {
-                                    n.sibling().getLeft().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                    this.rotateRight(n.getParent());
-                                }
-                            };
-                            IndexRBTree.prototype.nodeColor = function (n) {
-                                if (n == null) {
-                                    return org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                }
-                                else {
-                                    return n.color;
-                                }
-                            };
-                            return IndexRBTree;
-                        })();
-                        rbtree.IndexRBTree = IndexRBTree;
-                        var LongRBTree = (function () {
-                            function LongRBTree() {
-                                this.root = null;
-                                this._size = 0;
-                                this._dirty = false;
-                            }
-                            LongRBTree.prototype.size = function () {
-                                return this._size;
-                            };
-                            LongRBTree.prototype.toString = function () {
-                                return this.serialize();
-                            };
-                            LongRBTree.prototype.isDirty = function () {
-                                return this._dirty;
-                            };
-                            LongRBTree.prototype.serialize = function () {
-                                var builder = new java.lang.StringBuilder();
-                                builder.append(this._size);
-                                if (this.root != null) {
-                                    this.root.serialize(builder);
-                                }
-                                return builder.toString();
-                            };
-                            LongRBTree.prototype.setClean = function () {
-                                this._dirty = false;
-                            };
-                            LongRBTree.prototype.unserialize = function (payload) {
-                                if (payload == null || payload.length == 0) {
-                                    return;
-                                }
-                                var i = 0;
-                                var buffer = new java.lang.StringBuilder();
-                                var ch = payload.charAt(i);
-                                while (i < payload.length && ch != '|') {
-                                    buffer.append(ch);
-                                    i = i + 1;
-                                    ch = payload.charAt(i);
-                                }
-                                this._size = java.lang.Integer.parseInt(buffer.toString());
-                                var ctx = new org.kevoree.modeling.api.time.rbtree.TreeReaderContext();
-                                ctx.index = i;
-                                ctx.payload = payload;
-                                ctx.buffer = new Array();
-                                this.root = org.kevoree.modeling.api.time.rbtree.LongTreeNode.unserialize(ctx);
-                                this._dirty = false;
-                            };
-                            LongRBTree.prototype.previousOrEqual = function (key) {
-                                var p = this.root;
-                                if (p == null) {
-                                    return null;
-                                }
-                                while (p != null) {
-                                    if (key == p.key) {
-                                        return p;
-                                    }
-                                    if (key > p.key) {
-                                        if (p.getRight() != null) {
-                                            p = p.getRight();
-                                        }
-                                        else {
-                                            return p;
-                                        }
-                                    }
-                                    else {
-                                        if (p.getLeft() != null) {
-                                            p = p.getLeft();
-                                        }
-                                        else {
-                                            var parent = p.getParent();
-                                            var ch = p;
-                                            while (parent != null && ch == parent.getLeft()) {
-                                                ch = parent;
-                                                parent = parent.getParent();
-                                            }
-                                            return parent;
-                                        }
-                                    }
-                                }
-                                return null;
-                            };
-                            LongRBTree.prototype.nextOrEqual = function (key) {
-                                var p = this.root;
-                                if (p == null) {
-                                    return null;
-                                }
-                                while (p != null) {
-                                    if (key == p.key) {
-                                        return p;
-                                    }
-                                    if (key < p.key) {
-                                        if (p.getLeft() != null) {
-                                            p = p.getLeft();
-                                        }
-                                        else {
-                                            return p;
-                                        }
-                                    }
-                                    else {
-                                        if (p.getRight() != null) {
-                                            p = p.getRight();
-                                        }
-                                        else {
-                                            var parent = p.getParent();
-                                            var ch = p;
-                                            while (parent != null && ch == parent.getRight()) {
-                                                ch = parent;
-                                                parent = parent.getParent();
-                                            }
-                                            return parent;
-                                        }
-                                    }
-                                }
-                                return null;
-                            };
-                            LongRBTree.prototype.previous = function (key) {
-                                var p = this.root;
-                                if (p == null) {
-                                    return null;
-                                }
-                                while (p != null) {
-                                    if (key < p.key) {
-                                        if (p.getLeft() != null) {
-                                            p = p.getLeft();
-                                        }
-                                        else {
-                                            return p.previous();
-                                        }
-                                    }
-                                    else {
-                                        if (key > p.key) {
-                                            if (p.getRight() != null) {
-                                                p = p.getRight();
-                                            }
-                                            else {
-                                                return p;
-                                            }
-                                        }
-                                        else {
-                                            return p.previous();
-                                        }
-                                    }
-                                }
-                                return null;
-                            };
-                            LongRBTree.prototype.previousWhileNot = function (key, until) {
-                                var elm = this.previousOrEqual(key);
-                                if (elm.value == until) {
-                                    return null;
-                                }
-                                else {
-                                    if (elm.key == key) {
-                                        elm = elm.previous();
-                                    }
-                                }
-                                if (elm == null || elm.value == until) {
-                                    return null;
-                                }
-                                else {
-                                    return elm;
-                                }
-                            };
-                            LongRBTree.prototype.next = function (key) {
-                                var p = this.root;
-                                if (p == null) {
-                                    return null;
-                                }
-                                while (p != null) {
-                                    if (key < p.key) {
-                                        if (p.getLeft() != null) {
-                                            p = p.getLeft();
-                                        }
-                                        else {
-                                            return p;
-                                        }
-                                    }
-                                    else {
-                                        if (key > p.key) {
-                                            if (p.getRight() != null) {
-                                                p = p.getRight();
-                                            }
-                                            else {
-                                                return p.next();
-                                            }
-                                        }
-                                        else {
-                                            return p.next();
-                                        }
-                                    }
-                                }
-                                return null;
-                            };
-                            LongRBTree.prototype.nextWhileNot = function (key, until) {
-                                var elm = this.nextOrEqual(key);
-                                if (elm.value == until) {
-                                    return null;
-                                }
-                                else {
-                                    if (elm.key == key) {
-                                        elm = elm.next();
-                                    }
-                                }
-                                if (elm == null || elm.value == until) {
-                                    return null;
-                                }
-                                else {
-                                    return elm;
-                                }
-                            };
-                            LongRBTree.prototype.first = function () {
-                                var p = this.root;
-                                if (p == null) {
-                                    return null;
-                                }
-                                while (p != null) {
-                                    if (p.getLeft() != null) {
-                                        p = p.getLeft();
-                                    }
-                                    else {
-                                        return p;
-                                    }
-                                }
-                                return null;
-                            };
-                            LongRBTree.prototype.last = function () {
-                                var p = this.root;
-                                if (p == null) {
-                                    return null;
-                                }
-                                while (p != null) {
-                                    if (p.getRight() != null) {
-                                        p = p.getRight();
-                                    }
-                                    else {
-                                        return p;
-                                    }
-                                }
-                                return null;
-                            };
-                            LongRBTree.prototype.firstWhileNot = function (key, until) {
-                                var elm = this.previousOrEqual(key);
-                                if (elm == null) {
-                                    return null;
-                                }
-                                else {
-                                    if (elm.value == until) {
-                                        return null;
-                                    }
-                                }
-                                var prev = null;
-                                do {
-                                    prev = elm.previous();
-                                    if (prev == null || prev.value == until) {
-                                        return elm;
-                                    }
-                                    else {
-                                        elm = prev;
-                                    }
-                                } while (elm != null);
-                                return prev;
-                            };
-                            LongRBTree.prototype.lastWhileNot = function (key, until) {
-                                var elm = this.previousOrEqual(key);
-                                if (elm == null) {
-                                    return null;
-                                }
-                                else {
-                                    if (elm.value == until) {
-                                        return null;
-                                    }
-                                }
-                                var next;
-                                do {
-                                    next = elm.next();
-                                    if (next == null || next.value == until) {
-                                        return elm;
-                                    }
-                                    else {
-                                        elm = next;
-                                    }
-                                } while (elm != null);
-                                return next;
-                            };
-                            LongRBTree.prototype.lookupNode = function (key) {
-                                var n = this.root;
-                                if (n == null) {
-                                    return null;
-                                }
-                                while (n != null) {
-                                    if (key == n.key) {
-                                        return n;
-                                    }
-                                    else {
-                                        if (key < n.key) {
-                                            n = n.getLeft();
-                                        }
-                                        else {
-                                            n = n.getRight();
-                                        }
-                                    }
-                                }
-                                return n;
-                            };
-                            LongRBTree.prototype.lookup = function (key) {
-                                var n = this.lookupNode(key);
-                                if (n == null) {
-                                    return null;
-                                }
-                                else {
-                                    return n.value;
-                                }
-                            };
-                            LongRBTree.prototype.rotateLeft = function (n) {
-                                var r = n.getRight();
-                                this.replaceNode(n, r);
-                                n.setRight(r.getLeft());
-                                if (r.getLeft() != null) {
-                                    r.getLeft().setParent(n);
-                                }
-                                r.setLeft(n);
-                                n.setParent(r);
-                            };
-                            LongRBTree.prototype.rotateRight = function (n) {
-                                var l = n.getLeft();
-                                this.replaceNode(n, l);
-                                n.setLeft(l.getRight());
-                                if (l.getRight() != null) {
-                                    l.getRight().setParent(n);
-                                }
-                                l.setRight(n);
-                                n.setParent(l);
-                            };
-                            LongRBTree.prototype.replaceNode = function (oldn, newn) {
-                                if (oldn.getParent() == null) {
-                                    this.root = newn;
-                                }
-                                else {
-                                    if (oldn == oldn.getParent().getLeft()) {
-                                        oldn.getParent().setLeft(newn);
-                                    }
-                                    else {
-                                        oldn.getParent().setRight(newn);
-                                    }
-                                }
-                                if (newn != null) {
-                                    newn.setParent(oldn.getParent());
-                                }
-                            };
-                            LongRBTree.prototype.insert = function (key, value) {
-                                this._dirty = true;
-                                var insertedNode = new org.kevoree.modeling.api.time.rbtree.LongTreeNode(key, value, org.kevoree.modeling.api.time.rbtree.Color.RED, null, null);
-                                if (this.root == null) {
-                                    this._size++;
-                                    this.root = insertedNode;
-                                }
-                                else {
-                                    var n = this.root;
-                                    while (true) {
-                                        if (key == n.key) {
-                                            n.value = value;
-                                            return;
-                                        }
-                                        else {
-                                            if (key < n.key) {
-                                                if (n.getLeft() == null) {
-                                                    n.setLeft(insertedNode);
-                                                    this._size++;
-                                                    break;
-                                                }
-                                                else {
-                                                    n = n.getLeft();
-                                                }
-                                            }
-                                            else {
-                                                if (n.getRight() == null) {
-                                                    n.setRight(insertedNode);
-                                                    this._size++;
-                                                    break;
-                                                }
-                                                else {
-                                                    n = n.getRight();
-                                                }
-                                            }
-                                        }
-                                    }
-                                    insertedNode.setParent(n);
-                                }
-                                this.insertCase1(insertedNode);
-                            };
-                            LongRBTree.prototype.insertCase1 = function (n) {
-                                if (n.getParent() == null) {
-                                    n.color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                }
-                                else {
-                                    this.insertCase2(n);
-                                }
-                            };
-                            LongRBTree.prototype.insertCase2 = function (n) {
-                                if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                    return;
-                                }
-                                else {
-                                    this.insertCase3(n);
-                                }
-                            };
-                            LongRBTree.prototype.insertCase3 = function (n) {
-                                if (this.nodeColor(n.uncle()) == org.kevoree.modeling.api.time.rbtree.Color.RED) {
-                                    n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                    n.uncle().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                    n.grandparent().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                    this.insertCase1(n.grandparent());
-                                }
-                                else {
-                                    this.insertCase4(n);
-                                }
-                            };
-                            LongRBTree.prototype.insertCase4 = function (n_n) {
-                                var n = n_n;
-                                if (n == n.getParent().getRight() && n.getParent() == n.grandparent().getLeft()) {
-                                    this.rotateLeft(n.getParent());
-                                    n = n.getLeft();
-                                }
-                                else {
-                                    if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getRight()) {
-                                        this.rotateRight(n.getParent());
-                                        n = n.getRight();
-                                    }
-                                }
-                                this.insertCase5(n);
-                            };
-                            LongRBTree.prototype.insertCase5 = function (n) {
-                                n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                n.grandparent().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getLeft()) {
-                                    this.rotateRight(n.grandparent());
-                                }
-                                else {
-                                    this.rotateLeft(n.grandparent());
-                                }
-                            };
-                            LongRBTree.prototype.delete = function (key) {
-                                var n = this.lookupNode(key);
-                                if (n == null) {
-                                    return;
-                                }
-                                else {
-                                    this._size--;
-                                    if (n.getLeft() != null && n.getRight() != null) {
-                                        var pred = n.getLeft();
-                                        while (pred.getRight() != null) {
-                                            pred = pred.getRight();
-                                        }
-                                        n.key = pred.key;
-                                        n.value = pred.value;
-                                        n = pred;
-                                    }
-                                    var child;
-                                    if (n.getRight() == null) {
-                                        child = n.getLeft();
-                                    }
-                                    else {
-                                        child = n.getRight();
-                                    }
-                                    if (this.nodeColor(n) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                        n.color = this.nodeColor(child);
-                                        this.deleteCase1(n);
-                                    }
-                                    this.replaceNode(n, child);
-                                }
-                            };
-                            LongRBTree.prototype.deleteCase1 = function (n) {
-                                if (n.getParent() == null) {
-                                    return;
-                                }
-                                else {
-                                    this.deleteCase2(n);
-                                }
-                            };
-                            LongRBTree.prototype.deleteCase2 = function (n) {
-                                if (this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.RED) {
-                                    n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                    n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                    if (n == n.getParent().getLeft()) {
-                                        this.rotateLeft(n.getParent());
-                                    }
-                                    else {
-                                        this.rotateRight(n.getParent());
-                                    }
-                                }
-                                this.deleteCase3(n);
-                            };
-                            LongRBTree.prototype.deleteCase3 = function (n) {
-                                if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                    n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                    this.deleteCase1(n.getParent());
-                                }
-                                else {
-                                    this.deleteCase4(n);
-                                }
-                            };
-                            LongRBTree.prototype.deleteCase4 = function (n) {
-                                if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.time.rbtree.Color.RED && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                    n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                    n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                }
-                                else {
-                                    this.deleteCase5(n);
-                                }
-                            };
-                            LongRBTree.prototype.deleteCase5 = function (n) {
-                                if (n == n.getParent().getLeft() && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.RED && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                    n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                    n.sibling().getLeft().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                    this.rotateRight(n.sibling());
-                                }
-                                else {
-                                    if (n == n.getParent().getRight() && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.RED && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                        n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                        n.sibling().getRight().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                        this.rotateLeft(n.sibling());
-                                    }
-                                }
-                                this.deleteCase6(n);
-                            };
-                            LongRBTree.prototype.deleteCase6 = function (n) {
-                                n.sibling().color = this.nodeColor(n.getParent());
-                                n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                if (n == n.getParent().getLeft()) {
-                                    n.sibling().getRight().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                    this.rotateLeft(n.getParent());
-                                }
-                                else {
-                                    n.sibling().getLeft().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                    this.rotateRight(n.getParent());
-                                }
-                            };
-                            LongRBTree.prototype.nodeColor = function (n) {
-                                if (n == null) {
-                                    return org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                }
-                                else {
-                                    return n.color;
-                                }
-                            };
-                            return LongRBTree;
-                        })();
-                        rbtree.LongRBTree = LongRBTree;
-                        var LongTreeNode = (function () {
-                            function LongTreeNode(key, value, color, left, right) {
-                                this.parent = null;
-                                this.key = key;
-                                this.value = value;
-                                this.color = color;
-                                this.left = left;
-                                this.right = right;
-                                if (left != null) {
-                                    left.parent = this;
-                                }
-                                if (right != null) {
-                                    right.parent = this;
-                                }
-                                this.parent = null;
-                            }
-                            LongTreeNode.prototype.grandparent = function () {
-                                if (this.parent != null) {
-                                    return this.parent.parent;
-                                }
-                                else {
-                                    return null;
-                                }
-                            };
-                            LongTreeNode.prototype.sibling = function () {
-                                if (this.parent == null) {
-                                    return null;
-                                }
-                                else {
-                                    if (this == this.parent.left) {
-                                        return this.parent.right;
-                                    }
-                                    else {
-                                        return this.parent.left;
-                                    }
-                                }
-                            };
-                            LongTreeNode.prototype.uncle = function () {
-                                if (this.parent != null) {
-                                    return this.parent.sibling();
-                                }
-                                else {
-                                    return null;
-                                }
-                            };
-                            LongTreeNode.prototype.getLeft = function () {
-                                return this.left;
-                            };
-                            LongTreeNode.prototype.setLeft = function (left) {
-                                this.left = left;
-                            };
-                            LongTreeNode.prototype.getRight = function () {
-                                return this.right;
-                            };
-                            LongTreeNode.prototype.setRight = function (right) {
-                                this.right = right;
-                            };
-                            LongTreeNode.prototype.getParent = function () {
-                                return this.parent;
-                            };
-                            LongTreeNode.prototype.setParent = function (parent) {
-                                this.parent = parent;
-                            };
-                            LongTreeNode.prototype.serialize = function (builder) {
-                                builder.append("|");
-                                if (this.color == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                    builder.append(LongTreeNode.BLACK);
-                                }
-                                else {
-                                    builder.append(LongTreeNode.RED);
-                                }
-                                builder.append(this.key);
-                                builder.append("@");
-                                builder.append(this.value);
-                                if (this.left == null && this.right == null) {
-                                    builder.append("%");
-                                }
-                                else {
-                                    if (this.left != null) {
-                                        this.left.serialize(builder);
-                                    }
-                                    else {
-                                        builder.append("#");
-                                    }
-                                    if (this.right != null) {
-                                        this.right.serialize(builder);
-                                    }
-                                    else {
-                                        builder.append("#");
-                                    }
-                                }
-                            };
-                            LongTreeNode.prototype.next = function () {
-                                var p = this;
-                                if (p.right != null) {
-                                    p = p.right;
-                                    while (p.left != null) {
-                                        p = p.left;
-                                    }
-                                    return p;
-                                }
-                                else {
-                                    if (p.parent != null) {
-                                        if (p == p.parent.left) {
-                                            return p.parent;
-                                        }
-                                        else {
-                                            while (p.parent != null && p == p.parent.right) {
-                                                p = p.parent;
-                                            }
-                                            return p.parent;
-                                        }
-                                    }
-                                    else {
-                                        return null;
-                                    }
-                                }
-                            };
-                            LongTreeNode.prototype.previous = function () {
-                                var p = this;
-                                if (p.left != null) {
-                                    p = p.left;
-                                    while (p.right != null) {
-                                        p = p.right;
-                                    }
-                                    return p;
-                                }
-                                else {
-                                    if (p.parent != null) {
-                                        if (p == p.parent.right) {
-                                            return p.parent;
-                                        }
-                                        else {
-                                            while (p.parent != null && p == p.parent.left) {
-                                                p = p.parent;
-                                            }
-                                            return p.parent;
-                                        }
-                                    }
-                                    else {
-                                        return null;
-                                    }
-                                }
-                            };
-                            LongTreeNode.unserialize = function (ctx) {
-                                return org.kevoree.modeling.api.time.rbtree.LongTreeNode.internal_unserialize(true, ctx);
-                            };
-                            LongTreeNode.internal_unserialize = function (rightBranch, ctx) {
-                                if (ctx.index >= ctx.payload.length) {
-                                    return null;
-                                }
-                                var ch = ctx.payload.charAt(ctx.index);
-                                if (ch == '%') {
-                                    if (rightBranch) {
-                                        ctx.index = ctx.index + 1;
-                                    }
-                                    return null;
-                                }
-                                if (ch == '#') {
-                                    ctx.index = ctx.index + 1;
-                                    return null;
-                                }
-                                if (ch != '|') {
-                                    throw new java.lang.Exception("Error while loading BTree");
-                                }
-                                ctx.index = ctx.index + 1;
-                                ch = ctx.payload.charAt(ctx.index);
-                                var color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                if (ch == LongTreeNode.RED) {
-                                    color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                }
-                                ctx.index = ctx.index + 1;
-                                ch = ctx.payload.charAt(ctx.index);
-                                var i = 0;
-                                while (ctx.index + 1 < ctx.payload.length && ch != '|' && ch != '#' && ch != '%' && ch != '@') {
-                                    ctx.buffer[i] = ch;
-                                    i++;
-                                    ctx.index = ctx.index + 1;
-                                    ch = ctx.payload.charAt(ctx.index);
-                                }
-                                if (ch != '|' && ch != '#' && ch != '%' && ch != '@') {
-                                    ctx.buffer[i] = ch;
-                                    i++;
-                                }
-                                var key = java.lang.Long.parseLong(StringUtils.copyValueOf(ctx.buffer, 0, i));
-                                i = 0;
-                                ctx.index = ctx.index + 1;
-                                ch = ctx.payload.charAt(ctx.index);
-                                while (ctx.index + 1 < ctx.payload.length && ch != '|' && ch != '#' && ch != '%' && ch != '@') {
-                                    ctx.buffer[i] = ch;
-                                    i++;
-                                    ctx.index = ctx.index + 1;
-                                    ch = ctx.payload.charAt(ctx.index);
-                                }
-                                if (ch != '|' && ch != '#' && ch != '%' && ch != '@') {
-                                    ctx.buffer[i] = ch;
-                                    i++;
-                                }
-                                var value = java.lang.Long.parseLong(StringUtils.copyValueOf(ctx.buffer, 0, i));
-                                var p = new org.kevoree.modeling.api.time.rbtree.LongTreeNode(key, value, color, null, null);
-                                var left = org.kevoree.modeling.api.time.rbtree.LongTreeNode.internal_unserialize(false, ctx);
-                                if (left != null) {
-                                    left.setParent(p);
-                                }
-                                var right = org.kevoree.modeling.api.time.rbtree.LongTreeNode.internal_unserialize(true, ctx);
-                                if (right != null) {
-                                    right.setParent(p);
-                                }
-                                p.setLeft(left);
-                                p.setRight(right);
-                                return p;
-                            };
-                            LongTreeNode.BLACK = '0';
-                            LongTreeNode.RED = '2';
-                            return LongTreeNode;
-                        })();
-                        rbtree.LongTreeNode = LongTreeNode;
-                        var TreeNode = (function () {
-                            function TreeNode(key, color, left, right) {
-                                this.parent = null;
-                                this.key = key;
-                                this.color = color;
-                                this.left = left;
-                                this.right = right;
-                                if (left != null) {
-                                    left.parent = this;
-                                }
-                                if (right != null) {
-                                    right.parent = this;
-                                }
-                                this.parent = null;
-                            }
-                            TreeNode.prototype.getKey = function () {
-                                return this.key;
-                            };
-                            TreeNode.prototype.grandparent = function () {
-                                if (this.parent != null) {
-                                    return this.parent.parent;
-                                }
-                                else {
-                                    return null;
-                                }
-                            };
-                            TreeNode.prototype.sibling = function () {
-                                if (this.parent == null) {
-                                    return null;
-                                }
-                                else {
-                                    if (this == this.parent.left) {
-                                        return this.parent.right;
-                                    }
-                                    else {
-                                        return this.parent.left;
-                                    }
-                                }
-                            };
-                            TreeNode.prototype.uncle = function () {
-                                if (this.parent != null) {
-                                    return this.parent.sibling();
-                                }
-                                else {
-                                    return null;
-                                }
-                            };
-                            TreeNode.prototype.getLeft = function () {
-                                return this.left;
-                            };
-                            TreeNode.prototype.setLeft = function (left) {
-                                this.left = left;
-                            };
-                            TreeNode.prototype.getRight = function () {
-                                return this.right;
-                            };
-                            TreeNode.prototype.setRight = function (right) {
-                                this.right = right;
-                            };
-                            TreeNode.prototype.getParent = function () {
-                                return this.parent;
-                            };
-                            TreeNode.prototype.setParent = function (parent) {
-                                this.parent = parent;
-                            };
-                            TreeNode.prototype.serialize = function (builder) {
-                                builder.append("|");
-                                if (this.color == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                    builder.append(TreeNode.BLACK);
-                                }
-                                else {
-                                    builder.append(TreeNode.RED);
-                                }
-                                builder.append(this.key);
-                                if (this.left == null && this.right == null) {
-                                    builder.append("%");
-                                }
-                                else {
-                                    if (this.left != null) {
-                                        this.left.serialize(builder);
-                                    }
-                                    else {
-                                        builder.append("#");
-                                    }
-                                    if (this.right != null) {
-                                        this.right.serialize(builder);
-                                    }
-                                    else {
-                                        builder.append("#");
-                                    }
-                                }
-                            };
-                            TreeNode.prototype.next = function () {
-                                var p = this;
-                                if (p.right != null) {
-                                    p = p.right;
-                                    while (p.left != null) {
-                                        p = p.left;
-                                    }
-                                    return p;
-                                }
-                                else {
-                                    if (p.parent != null) {
-                                        if (p == p.parent.left) {
-                                            return p.parent;
-                                        }
-                                        else {
-                                            while (p.parent != null && p == p.parent.right) {
-                                                p = p.parent;
-                                            }
-                                            return p.parent;
-                                        }
-                                    }
-                                    else {
-                                        return null;
-                                    }
-                                }
-                            };
-                            TreeNode.prototype.previous = function () {
-                                var p = this;
-                                if (p.left != null) {
-                                    p = p.left;
-                                    while (p.right != null) {
-                                        p = p.right;
-                                    }
-                                    return p;
-                                }
-                                else {
-                                    if (p.parent != null) {
-                                        if (p == p.parent.right) {
-                                            return p.parent;
-                                        }
-                                        else {
-                                            while (p.parent != null && p == p.parent.left) {
-                                                p = p.parent;
-                                            }
-                                            return p.parent;
-                                        }
-                                    }
-                                    else {
-                                        return null;
-                                    }
-                                }
-                            };
-                            TreeNode.unserialize = function (ctx) {
-                                return org.kevoree.modeling.api.time.rbtree.TreeNode.internal_unserialize(true, ctx);
-                            };
-                            TreeNode.internal_unserialize = function (rightBranch, ctx) {
-                                if (ctx.index >= ctx.payload.length) {
-                                    return null;
-                                }
-                                var tokenBuild = new java.lang.StringBuilder();
-                                var ch = ctx.payload.charAt(ctx.index);
-                                if (ch == '%') {
-                                    if (rightBranch) {
-                                        ctx.index = ctx.index + 1;
-                                    }
-                                    return null;
-                                }
-                                if (ch == '#') {
-                                    ctx.index = ctx.index + 1;
-                                    return null;
-                                }
-                                if (ch != '|') {
-                                    throw new java.lang.Exception("Error while loading BTree");
-                                }
-                                ctx.index = ctx.index + 1;
-                                ch = ctx.payload.charAt(ctx.index);
-                                var color;
-                                if (ch == org.kevoree.modeling.api.time.rbtree.TreeNode.BLACK) {
-                                    color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                }
-                                else {
-                                    color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                }
-                                ctx.index = ctx.index + 1;
-                                ch = ctx.payload.charAt(ctx.index);
-                                while (ctx.index + 1 < ctx.payload.length && ch != '|' && ch != '#' && ch != '%') {
-                                    tokenBuild.append(ch);
-                                    ctx.index = ctx.index + 1;
-                                    ch = ctx.payload.charAt(ctx.index);
-                                }
-                                if (ch != '|' && ch != '#' && ch != '%') {
-                                    tokenBuild.append(ch);
-                                }
-                                var p = new org.kevoree.modeling.api.time.rbtree.TreeNode(java.lang.Long.parseLong(tokenBuild.toString()), color, null, null);
-                                var left = org.kevoree.modeling.api.time.rbtree.TreeNode.internal_unserialize(false, ctx);
-                                if (left != null) {
-                                    left.setParent(p);
-                                }
-                                var right = org.kevoree.modeling.api.time.rbtree.TreeNode.internal_unserialize(true, ctx);
-                                if (right != null) {
-                                    right.setParent(p);
-                                }
-                                p.setLeft(left);
-                                p.setRight(right);
-                                return p;
-                            };
-                            TreeNode.BLACK = '0';
-                            TreeNode.RED = '1';
-                            return TreeNode;
-                        })();
-                        rbtree.TreeNode = TreeNode;
-                        var TreeReaderContext = (function () {
-                            function TreeReaderContext() {
-                            }
-                            return TreeReaderContext;
-                        })();
-                        rbtree.TreeReaderContext = TreeReaderContext;
-                    })(rbtree = _time.rbtree || (_time.rbtree = {}));
-                })(time = api.time || (api.time = {}));
                 var trace;
                 (function (_trace) {
                     var ModelAddTrace = (function () {
@@ -8555,7 +8498,7 @@ var org;
                                                         }
                                                         else {
                                                             if (trace instanceof org.kevoree.modeling.api.trace.ModelNewTrace) {
-                                                                var universeTree = new org.kevoree.modeling.api.time.rbtree.LongRBTree();
+                                                                var universeTree = new org.kevoree.modeling.api.rbtree.LongRBTree();
                                                                 universeTree.insert(_this._targetModel.universe().key(), _this._targetModel.now());
                                                                 var newCreated = _this._targetModel.view().createProxy(trace.meta(), universeTree, trace.sourceUUID());
                                                                 _this._targetModel.universe().model().manager().initKObject(newCreated, _this._targetModel.view());
@@ -8786,12 +8729,12 @@ var org;
                             this._initAction.execute(this._initObjs);
                         };
                         DefaultKTraversal.prototype.taskThen = function () {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             this.then(task.initCallback());
                             return task;
                         };
                         DefaultKTraversal.prototype.taskMap = function (attribute) {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             this.map(attribute, task.initCallback());
                             return task;
                         };
@@ -9989,6 +9932,65 @@ var org;
                         return PathHelper;
                     })();
                     util.PathHelper = PathHelper;
+                    var TimeWalker = (function () {
+                        function TimeWalker(p_origin) {
+                            this._origin = null;
+                            this._origin = p_origin;
+                        }
+                        TimeWalker.prototype.walk = function (walker) {
+                            return this.walkAsc(walker);
+                        };
+                        TimeWalker.prototype.walkAsc = function (walker) {
+                            return this.internal_walk(walker, true, null, null);
+                        };
+                        TimeWalker.prototype.walkDesc = function (walker) {
+                            return this.internal_walk(walker, false, null, null);
+                        };
+                        TimeWalker.prototype.internal_walk = function (walker, asc, from, to) {
+                            var wrapper = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
+                            this._origin.view().universe().model().manager().timeTrees(this._origin, from, to, function (indexRBTrees) {
+                                var from2 = from;
+                                var to2 = to;
+                                if (from > to) {
+                                    from2 = to;
+                                    to2 = from;
+                                }
+                                for (var i = 0; i < indexRBTrees.length; i++) {
+                                    var elem;
+                                    if (asc) {
+                                        elem = indexRBTrees[i].previousOrEqual(from2);
+                                    }
+                                    else {
+                                        elem = indexRBTrees[i].previousOrEqual(to2);
+                                    }
+                                    while (elem != null) {
+                                        walker(elem.getKey());
+                                        if (asc) {
+                                            elem = elem.next();
+                                        }
+                                        else {
+                                            elem = elem.previous();
+                                        }
+                                        if (elem != null) {
+                                            if (elem.getKey() <= from2) {
+                                                walker(elem.getKey());
+                                            }
+                                        }
+                                    }
+                                }
+                                wrapper.initCallback()(null);
+                            });
+                            return wrapper;
+                        };
+                        TimeWalker.prototype.walkRangeAsc = function (walker, from, to) {
+                            return this.internal_walk(walker, true, from, to);
+                        };
+                        TimeWalker.prototype.walkRangeDesc = function (walker, from, to) {
+                            return this.internal_walk(walker, false, from, to);
+                        };
+                        return TimeWalker;
+                    })();
+                    util.TimeWalker = TimeWalker;
                 })(util = api.util || (api.util = {}));
                 var xmi;
                 (function (xmi) {
@@ -10269,7 +10271,7 @@ var org;
                                 }
                                 return org.kevoree.modeling.api.VisitResult.CONTINUE;
                             }, org.kevoree.modeling.api.VisitRequest.CONTAINED);
-                            var serializationTask = context.model.universe().model().task();
+                            var serializationTask = context.model.universe().model().defer();
                             serializationTask.wait(addressCreationTask);
                             serializationTask.setJob(function (currentTask) {
                                 context.printer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
@@ -10283,7 +10285,7 @@ var org;
                                     index++;
                                 }
                                 context.model.visitAttributes(context.attributesVisitor);
-                                var nonContainedRefsTasks = context.model.universe().model().task();
+                                var nonContainedRefsTasks = context.model.universe().model().defer();
                                 for (var i = 0; i < context.model.metaClass().metaReferences().length; i++) {
                                     if (!context.model.metaClass().metaReferences()[i].contained()) {
                                         nonContainedRefsTasks.wait(org.kevoree.modeling.api.xmi.XMIModelSerializer.nonContainedReferenceTaskMaker(context.model.metaClass().metaReferences()[i], context, context.model));
@@ -10291,7 +10293,7 @@ var org;
                                 }
                                 nonContainedRefsTasks.setJob(function (currentTask) {
                                     context.printer.append(">\n");
-                                    var containedRefsTasks = context.model.universe().model().task();
+                                    var containedRefsTasks = context.model.universe().model().defer();
                                     for (var i = 0; i < context.model.metaClass().metaReferences().length; i++) {
                                         if (context.model.metaClass().metaReferences()[i].contained()) {
                                             containedRefsTasks.wait(org.kevoree.modeling.api.xmi.XMIModelSerializer.containedReferenceTaskMaker(context.model.metaClass().metaReferences()[i], context, context.model));
@@ -10352,7 +10354,7 @@ var org;
                         };
                         XMIModelSerializer.nonContainedReferenceTaskMaker = function (ref, p_context, p_currentElement) {
                             var allTask = p_currentElement.ref(ref);
-                            var thisTask = p_context.model.universe().model().task();
+                            var thisTask = p_context.model.universe().model().defer();
                             thisTask.wait(allTask);
                             thisTask.setJob(function (currentTask) {
                                 try {
@@ -10374,7 +10376,7 @@ var org;
                         };
                         XMIModelSerializer.containedReferenceTaskMaker = function (ref, context, currentElement) {
                             var allTask = currentElement.ref(ref);
-                            var thisTask = context.model.universe().model().task();
+                            var thisTask = context.model.universe().model().defer();
                             thisTask.wait(allTask);
                             thisTask.setJob(function (currentTask) {
                                 try {
@@ -10386,7 +10388,7 @@ var org;
                                             context.printer.append(ref.metaName());
                                             context.printer.append(" xsi:type=\"" + org.kevoree.modeling.api.xmi.XMIModelSerializer.formatMetaClassName(elem.metaClass().metaName()) + "\"");
                                             elem.visitAttributes(context.attributesVisitor);
-                                            var nonContainedRefsTasks = context.model.universe().model().task();
+                                            var nonContainedRefsTasks = context.model.universe().model().defer();
                                             for (var j = 0; j < elem.metaClass().metaReferences().length; j++) {
                                                 if (!elem.metaClass().metaReferences()[i].contained()) {
                                                     nonContainedRefsTasks.wait(org.kevoree.modeling.api.xmi.XMIModelSerializer.nonContainedReferenceTaskMaker(elem.metaClass().metaReferences()[i], context, elem));
@@ -10394,7 +10396,7 @@ var org;
                                             }
                                             nonContainedRefsTasks.setJob(function (currentTask) {
                                                 context.printer.append(">\n");
-                                                var containedRefsTasks = context.model.universe().model().task();
+                                                var containedRefsTasks = context.model.universe().model().defer();
                                                 for (var i = 0; i < elem.metaClass().metaReferences().length; i++) {
                                                     if (elem.metaClass().metaReferences()[i].contained()) {
                                                         containedRefsTasks.wait(org.kevoree.modeling.api.xmi.XMIModelSerializer.containedReferenceTaskMaker(elem.metaClass().metaReferences()[i], context, elem));
@@ -10454,12 +10456,12 @@ var org;
                             this._view = p_view;
                         }
                         XmiFormat.prototype.save = function (model) {
-                            var wrapper = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var wrapper = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             org.kevoree.modeling.api.xmi.XMIModelSerializer.save(model, wrapper.initCallback());
                             return wrapper;
                         };
                         XmiFormat.prototype.saveRoot = function () {
-                            var wrapper = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var wrapper = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             this._view.universe().model().manager().getRoot(this._view, function (root) {
                                 if (root == null) {
                                     wrapper.initCallback()(null);
@@ -10471,7 +10473,7 @@ var org;
                             return wrapper;
                         };
                         XmiFormat.prototype.load = function (payload) {
-                            var wrapper = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            var wrapper = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             org.kevoree.modeling.api.xmi.XMIModelLoader.load(this._view, payload, wrapper.initCallback());
                             return wrapper;
                         };

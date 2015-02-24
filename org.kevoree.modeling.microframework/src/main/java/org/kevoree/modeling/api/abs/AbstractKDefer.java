@@ -1,9 +1,9 @@
 package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KCurrentTask;
+import org.kevoree.modeling.api.KCurrentDefer;
 import org.kevoree.modeling.api.KJob;
-import org.kevoree.modeling.api.KTask;
+import org.kevoree.modeling.api.KDefer;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,7 +13,7 @@ import java.util.Set;
 /**
  * Created by duke on 20/01/15.
  */
-public class AbstractKTask<A> implements KCurrentTask<A> {
+public class AbstractKDefer<A> implements KCurrentDefer<A> {
 
     private String _name = null;
     private boolean _isDone = false;
@@ -21,32 +21,32 @@ public class AbstractKTask<A> implements KCurrentTask<A> {
     private int _nbRecResult = 0;
     private int _nbExpectedResult = 0;
     private Map<String, Object> _results = new HashMap<String, Object>();
-    private Set<KTask> _nextTasks = new HashSet<KTask>();
+    private Set<KDefer> _nextTasks = new HashSet<KDefer>();
     private KJob _job;
     private A _result = null;
 
-    protected synchronized boolean setDoneOrRegister(KTask next) {
+    protected synchronized boolean setDoneOrRegister(KDefer next) {
         if (next != null) {
             _nextTasks.add(next);
             return _isDone;
         } else {
             _isDone = true;
             //inform child to decrease
-            KTask[] childrenTasks = _nextTasks.toArray(new KTask[_nextTasks.size()]);
+            KDefer[] childrenTasks = _nextTasks.toArray(new KDefer[_nextTasks.size()]);
             for (int i = 0; i < childrenTasks.length; i++) {
-                ((AbstractKTask) childrenTasks[i]).informParentEnd(this);
+                ((AbstractKDefer) childrenTasks[i]).informParentEnd(this);
             }
             return _isDone;
         }
     }
 
-    private synchronized void informParentEnd(KTask end) {
+    private synchronized void informParentEnd(KDefer end) {
         if (end == null) {
             //initCase
             _nbRecResult = _nbRecResult + _nbExpectedResult;
         } else {
             if (end != this) {
-                AbstractKTask castedEnd = (AbstractKTask) end;
+                AbstractKDefer castedEnd = (AbstractKDefer) end;
                 String[] keys = (String[]) castedEnd._results.keySet().toArray(new String[castedEnd._results.size()]);
                 for (int i = 0; i < keys.length; i++) {
                     _results.put(keys[i], castedEnd._results.get(keys[i]));
@@ -65,13 +65,13 @@ public class AbstractKTask<A> implements KCurrentTask<A> {
     }
 
     @Override
-    public synchronized KTask<A> wait(KTask p_previous) {
+    public synchronized KDefer<A> wait(KDefer p_previous) {
         if (p_previous != this) {
-            if (!((AbstractKTask) p_previous).setDoneOrRegister(this)) {
+            if (!((AbstractKDefer) p_previous).setDoneOrRegister(this)) {
                 _nbExpectedResult++;
             } else {
                 //previous is already finished, no need to count, copy the result
-                AbstractKTask castedEnd = (AbstractKTask) p_previous;
+                AbstractKDefer castedEnd = (AbstractKDefer) p_previous;
                 String[] keys = (String[]) castedEnd._results.keySet().toArray(new String[castedEnd._results.size()]);
                 for (int i = 0; i < keys.length; i++) {
                     _results.put(keys[i], castedEnd._results.get(keys[i]));
@@ -83,7 +83,7 @@ public class AbstractKTask<A> implements KCurrentTask<A> {
     }
 
     @Override
-    public synchronized KTask<A> ready() {
+    public synchronized KDefer<A> ready() {
         if (!_isReady) {
             _isReady = true;
             informParentEnd(null);
@@ -92,8 +92,8 @@ public class AbstractKTask<A> implements KCurrentTask<A> {
     }
 
     @Override
-    public KTask<Object> next() {
-        AbstractKTask<Object> nextTask = new AbstractKTask<Object>();
+    public KDefer<Object> next() {
+        AbstractKDefer<Object> nextTask = new AbstractKDefer<Object>();
         nextTask.wait(this);
         return nextTask;
     }
@@ -102,7 +102,7 @@ public class AbstractKTask<A> implements KCurrentTask<A> {
     public void then(Callback<A> p_callback) {
         next().setJob(new KJob() {
             @Override
-            public void run(KCurrentTask currentTask) {
+            public void run(KCurrentDefer currentTask) {
                 try {
                     p_callback.on(getResult());
                 } catch (Exception e) {
@@ -114,7 +114,7 @@ public class AbstractKTask<A> implements KCurrentTask<A> {
     }
 
     @Override
-    public KTask<A> setName(String p_taskName) {
+    public KDefer<A> setName(String p_taskName) {
         _name = p_taskName;
         return this;
     }
@@ -139,7 +139,7 @@ public class AbstractKTask<A> implements KCurrentTask<A> {
     }
 
     @Override
-    public Object resultByTask(KTask p_task) {
+    public Object resultByTask(KDefer p_task) {
         return _results.get(p_task.getName());
     }
 
@@ -168,7 +168,7 @@ public class AbstractKTask<A> implements KCurrentTask<A> {
     }
 
     @Override
-    public KTask<A> setJob(KJob p_kjob) {
+    public KDefer<A> setJob(KJob p_kjob) {
         this._job = p_kjob;
         return this;
     }

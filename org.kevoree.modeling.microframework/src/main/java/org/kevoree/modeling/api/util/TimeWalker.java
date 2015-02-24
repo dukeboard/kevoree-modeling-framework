@@ -2,8 +2,8 @@ package org.kevoree.modeling.api.util;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KTask;
-import org.kevoree.modeling.api.abs.AbstractKTaskWrapper;
+import org.kevoree.modeling.api.KDefer;
+import org.kevoree.modeling.api.abs.AbstractKDeferWrapper;
 import org.kevoree.modeling.api.rbtree.IndexRBTree;
 import org.kevoree.modeling.api.rbtree.TreeNode;
 
@@ -18,20 +18,20 @@ public class TimeWalker {
         this._origin = p_origin;
     }
 
-    public KTask<Throwable> walk(Callback<Long> walker) {
+    public KDefer<Throwable> walk(Callback<Long> walker) {
         return walkAsc(walker);
     }
 
-    public KTask<Throwable> walkAsc(Callback<Long> walker) {
+    public KDefer<Throwable> walkAsc(Callback<Long> walker) {
         return internal_walk(walker, true, null, null);
     }
 
-    public KTask<Throwable> walkDesc(Callback<Long> walker) {
+    public KDefer<Throwable> walkDesc(Callback<Long> walker) {
         return internal_walk(walker, false, null, null);
     }
 
-    private KTask<Throwable> internal_walk(Callback<Long> walker, boolean asc, Long from, Long to) {
-        AbstractKTaskWrapper<Throwable> wrapper = new AbstractKTaskWrapper<Throwable>();
+    private KDefer<Throwable> internal_walk(Callback<Long> walker, boolean asc, Long from, Long to) {
+        AbstractKDeferWrapper<Throwable> wrapper = new AbstractKDeferWrapper<Throwable>();
         _origin.view().universe().model().manager().timeTrees(_origin, from, to, new Callback<IndexRBTree[]>() {
             @Override
             public void on(IndexRBTree[] indexRBTrees) {
@@ -68,11 +68,11 @@ public class TimeWalker {
         return wrapper;
     }
 
-    public KTask<Throwable> walkRangeAsc(Callback<Long> walker, long from, long to) {
+    public KDefer<Throwable> walkRangeAsc(Callback<Long> walker, long from, long to) {
         return internal_walk(walker, true, from, to);
     }
 
-    public KTask<Throwable> walkRangeDesc(Callback<Long> walker, long from, long to) {
+    public KDefer<Throwable> walkRangeDesc(Callback<Long> walker, long from, long to) {
         return internal_walk(walker, false, from, to);
     }
 

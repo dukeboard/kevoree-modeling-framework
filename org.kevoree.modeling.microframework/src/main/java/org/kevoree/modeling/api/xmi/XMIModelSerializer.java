@@ -34,7 +34,7 @@ public class XMIModelSerializer {
         context.addressTable.put(model.uuid(), "/");
 
 
-        KTask addressCreationTask = context.model.visit(new ModelVisitor() {
+        KDefer addressCreationTask = context.model.visit(new ModelVisitor() {
             @Override
             public VisitResult visit(KObject elem) {
                 String parentXmiAddress = context.addressTable.get(elem.parentUuid());
@@ -54,11 +54,11 @@ public class XMIModelSerializer {
             }
         }, VisitRequest.CONTAINED);
 
-        KTask serializationTask = context.model.universe().model().task();
+        KDefer serializationTask = context.model.universe().model().defer();
         serializationTask.wait(addressCreationTask);
         serializationTask.setJob(new KJob() {
             @Override
-            public void run(KCurrentTask currentTask) {
+            public void run(KCurrentDefer currentTask) {
                 context.printer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
                 context.printer.append("<" + XMIModelSerializer.formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_"));
                 context.printer.append(" xmlns:xsi=\"http://wwww.w3.org/2001/XMLSchema-instance\"");
@@ -72,7 +72,7 @@ public class XMIModelSerializer {
                 }
                 context.model.visitAttributes(context.attributesVisitor);
 
-                KTask nonContainedRefsTasks = context.model.universe().model().task();
+                KDefer nonContainedRefsTasks = context.model.universe().model().defer();
                 for (int i = 0; i < context.model.metaClass().metaReferences().length; i++) {
                     if (!context.model.metaClass().metaReferences()[i].contained()) {
                         nonContainedRefsTasks.wait(nonContainedReferenceTaskMaker(context.model.metaClass().metaReferences()[i], context, context.model));
@@ -80,10 +80,10 @@ public class XMIModelSerializer {
                 }
                 nonContainedRefsTasks.setJob(new KJob() {
                     @Override
-                    public void run(KCurrentTask currentTask) {
+                    public void run(KCurrentDefer currentTask) {
                         context.printer.append(">\n");
 
-                        KTask containedRefsTasks = context.model.universe().model().task();
+                        KDefer containedRefsTasks = context.model.universe().model().defer();
                         for (int i = 0; i < context.model.metaClass().metaReferences().length; i++) {
                             if (context.model.metaClass().metaReferences()[i].contained()) {
                                 containedRefsTasks.wait(containedReferenceTaskMaker(context.model.metaClass().metaReferences()[i], context, context.model));
@@ -91,7 +91,7 @@ public class XMIModelSerializer {
                         }
                         containedRefsTasks.setJob(new KJob() {
                             @Override
-                            public void run(KCurrentTask currentTask) {
+                            public void run(KCurrentDefer currentTask) {
                                 context.printer.append("</" + XMIModelSerializer.formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_") + ">\n");
                                 context.finishCallback.on(context.printer.toString());
                             }
@@ -138,13 +138,13 @@ public class XMIModelSerializer {
         return pack + ":" + cls;
     }
 
-    private static KTask nonContainedReferenceTaskMaker(final MetaReference ref, SerializationContext p_context, KObject p_currentElement) {
-        KTask allTask = p_currentElement.ref(ref);
-        KTask thisTask = p_context.model.universe().model().task();
+    private static KDefer nonContainedReferenceTaskMaker(final MetaReference ref, SerializationContext p_context, KObject p_currentElement) {
+        KDefer allTask = p_currentElement.ref(ref);
+        KDefer thisTask = p_context.model.universe().model().defer();
         thisTask.wait(allTask);
         thisTask.setJob(new KJob() {
             @Override
-            public void run(KCurrentTask currentTask) {
+            public void run(KCurrentDefer currentTask) {
                 try {
                     KObject[] objects = ((KObject[]) currentTask.resultByTask(allTask));
                     for (int i = 0; i < objects.length; i++) {
@@ -160,13 +160,13 @@ public class XMIModelSerializer {
         return thisTask;
     }
 
-    private static KTask containedReferenceTaskMaker(final MetaReference ref, SerializationContext context, KObject currentElement) {
-        KTask allTask = currentElement.ref(ref);
-        KTask thisTask = context.model.universe().model().task();
+    private static KDefer containedReferenceTaskMaker(final MetaReference ref, SerializationContext context, KObject currentElement) {
+        KDefer allTask = currentElement.ref(ref);
+        KDefer thisTask = context.model.universe().model().defer();
         thisTask.wait(allTask);
         thisTask.setJob(new KJob() {
             @Override
-            public void run(KCurrentTask currentTask) {
+            public void run(KCurrentDefer currentTask) {
                 try {
                     if (currentTask.resultByTask(allTask) != null) {
                         KObject[] objs = ((KObject[]) currentTask.resultByTask(allTask));
@@ -176,7 +176,7 @@ public class XMIModelSerializer {
                             context.printer.append(ref.metaName());
                             context.printer.append(" xsi:type=\"" + XMIModelSerializer.formatMetaClassName(elem.metaClass().metaName()) + "\"");
                             elem.visitAttributes(context.attributesVisitor);
-                            KTask nonContainedRefsTasks = context.model.universe().model().task();
+                            KDefer nonContainedRefsTasks = context.model.universe().model().defer();
                             for (int j = 0; j < elem.metaClass().metaReferences().length; j++) {
                                 if (!elem.metaClass().metaReferences()[i].contained()) {
                                     nonContainedRefsTasks.wait(nonContainedReferenceTaskMaker(elem.metaClass().metaReferences()[i], context, elem));
@@ -184,9 +184,9 @@ public class XMIModelSerializer {
                             }
                             nonContainedRefsTasks.setJob(new KJob() {
                                 @Override
-                                public void run(KCurrentTask currentTask) {
+                                public void run(KCurrentDefer currentTask) {
                                     context.printer.append(">\n");
-                                    KTask containedRefsTasks = context.model.universe().model().task();
+                                    KDefer containedRefsTasks = context.model.universe().model().defer();
                                     for (int i = 0; i < elem.metaClass().metaReferences().length; i++) {
                                         if (elem.metaClass().metaReferences()[i].contained()) {
                                             containedRefsTasks.wait(containedReferenceTaskMaker(elem.metaClass().metaReferences()[i], context, elem));
@@ -194,7 +194,7 @@ public class XMIModelSerializer {
                                     }
                                     containedRefsTasks.setJob(new KJob() {
                                         @Override
-                                        public void run(KCurrentTask currentTask) {
+                                        public void run(KCurrentDefer currentTask) {
                                             context.printer.append("</");
                                             context.printer.append(ref.metaName());
                                             context.printer.append('>');

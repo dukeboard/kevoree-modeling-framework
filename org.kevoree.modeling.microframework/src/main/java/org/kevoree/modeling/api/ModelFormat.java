@@ -9,10 +9,10 @@ package org.kevoree.modeling.api;
 
 public interface ModelFormat {
 
-    public KTask<String> save(KObject model);
+    public KDefer<String> save(KObject model);
 
-    public KTask<String> saveRoot();
+    public KDefer<String> saveRoot();
 
-    public KTask<Throwable> load(String payload);
+    public KDefer<Throwable> load(String payload);
 
 }

@@ -2,7 +2,7 @@ package org.kevoree.modeling.api.json;
 
 
 import org.kevoree.modeling.api.*;
-import org.kevoree.modeling.api.abs.AbstractKTaskWrapper;
+import org.kevoree.modeling.api.abs.AbstractKDeferWrapper;
 import org.kevoree.modeling.api.util.Checker;
 
 /**
@@ -17,9 +17,9 @@ public class JsonFormat implements ModelFormat {
     }
 
     @Override
-    public KTask<String> save(KObject model) {
+    public KDefer<String> save(KObject model) {
         if (Checker.isDefined(model)) {
-            AbstractKTaskWrapper<String> wrapper = new AbstractKTaskWrapper<String>();
+            AbstractKDeferWrapper<String> wrapper = new AbstractKDeferWrapper<String>();
             JsonModelSerializer.serialize(model, wrapper.initCallback());
             return wrapper;
         } else {
@@ -28,8 +28,8 @@ public class JsonFormat implements ModelFormat {
     }
 
     @Override
-    public KTask<String> saveRoot() {
-        AbstractKTaskWrapper<String> wrapper = new AbstractKTaskWrapper<String>();
+    public KDefer<String> saveRoot() {
+        AbstractKDeferWrapper<String> wrapper = new AbstractKDeferWrapper<String>();
         _view.universe().model().manager().getRoot(_view, new Callback<KObject>() {
             @Override
             public void on(KObject root) {
@@ -44,9 +44,9 @@ public class JsonFormat implements ModelFormat {
     }
 
     @Override
-    public KTask<Throwable> load(String payload) {
+    public KDefer<Throwable> load(String payload) {
         if (Checker.isDefined(payload)) {
-            AbstractKTaskWrapper<Throwable> wrapper = new AbstractKTaskWrapper<Throwable>();
+            AbstractKDeferWrapper<Throwable> wrapper = new AbstractKDeferWrapper<Throwable>();
             JsonModelLoader.load(_view, payload, wrapper.initCallback());
             return wrapper;
         } else {

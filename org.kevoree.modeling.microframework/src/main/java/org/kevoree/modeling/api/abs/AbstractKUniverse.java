@@ -2,7 +2,7 @@ package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.KModel;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KTask;
+import org.kevoree.modeling.api.KDefer;
 import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.KEventListener;
@@ -35,8 +35,8 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
     }
 
     @Override
-    public KTask<Throwable> delete() {
-        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
+    public KDefer<Throwable> delete() {
+        AbstractKDeferWrapper<Throwable> task = new AbstractKDeferWrapper<Throwable>();
         model().manager().delete(this, task.initCallback());
         return task;
     }

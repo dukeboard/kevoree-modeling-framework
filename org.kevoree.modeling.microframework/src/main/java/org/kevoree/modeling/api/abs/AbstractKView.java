@@ -2,7 +2,7 @@ package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KTask;
+import org.kevoree.modeling.api.KDefer;
 import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ModelFormat;
@@ -44,23 +44,23 @@ public abstract class AbstractKView implements KView {
     }
 
     @Override
-    public KTask<Throwable> setRoot(KObject elem) {
-        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
+    public KDefer<Throwable> setRoot(KObject elem) {
+        AbstractKDeferWrapper<Throwable> task = new AbstractKDeferWrapper<Throwable>();
         ((AbstractKObject) elem).set_parent(null, null);
         universe().model().manager().setRoot(elem, task.initCallback());
         return task;
     }
 
     @Override
-    public KTask<KObject> getRoot() {
-        AbstractKTaskWrapper<KObject> task = new AbstractKTaskWrapper<KObject>();
+    public KDefer<KObject> getRoot() {
+        AbstractKDeferWrapper<KObject> task = new AbstractKDeferWrapper<KObject>();
         universe().model().manager().getRoot(this, task.initCallback());
         return task;
     }
 
     @Override
-    public KTask<KObject[]> select(final String query) {
-        AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
+    public KDefer<KObject[]> select(final String query) {
+        AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
         if (query == null) {
             task.initCallback().on(new KObject[0]);
         }
@@ -88,15 +88,15 @@ public abstract class AbstractKView implements KView {
     }
 
     @Override
-    public KTask<KObject> lookup(Long kid) {
-        AbstractKTaskWrapper<KObject> task = new AbstractKTaskWrapper<KObject>();
+    public KDefer<KObject> lookup(Long kid) {
+        AbstractKDeferWrapper<KObject> task = new AbstractKDeferWrapper<KObject>();
         universe().model().manager().lookup(this, kid, task.initCallback());
         return task;
     }
 
     @Override
-    public KTask<KObject[]> lookupAll(Long[] keys) {
-        AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
+    public KDefer<KObject[]> lookupAll(Long[] keys) {
+        AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
         universe().model().manager().lookupAll(this, keys, task.initCallback());
         return task;
     }

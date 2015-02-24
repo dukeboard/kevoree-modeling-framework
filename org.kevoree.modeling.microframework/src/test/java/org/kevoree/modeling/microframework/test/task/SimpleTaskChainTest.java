@@ -2,11 +2,11 @@ package org.kevoree.modeling.microframework.test.task;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.api.KCurrentTask;
+import org.kevoree.modeling.api.KCurrentDefer;
 import org.kevoree.modeling.api.KJob;
 import org.kevoree.modeling.api.KModel;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KTask;
+import org.kevoree.modeling.api.KDefer;
 import org.kevoree.modeling.api.meta.PrimitiveMetaTypes;
 import org.kevoree.modeling.api.reflexive.DynamicKModel;
 import org.kevoree.modeling.api.reflexive.DynamicMetaModel;
@@ -19,19 +19,19 @@ public class SimpleTaskChainTest {
     @Test
     public void chainTest() {
         DynamicKModel dynamicKModel = new DynamicKModel();
-        KTask rootTask = dynamicKModel.task();
-        KTask fakePromise1 = dynamicKModel.task();
+        KDefer rootTask = dynamicKModel.defer();
+        KDefer fakePromise1 = dynamicKModel.defer();
 
         fakePromise1.setJob(new KJob() {
             @Override
-            public void run(KCurrentTask currentTask) {
+            public void run(KCurrentDefer currentTask) {
                 currentTask.addTaskResult("Sample1");
             }
         });
-        KTask fakePromise2 = dynamicKModel.task();
+        KDefer fakePromise2 = dynamicKModel.defer();
         fakePromise2.setJob(new KJob() {
             @Override
-            public void run(KCurrentTask currentTask) {
+            public void run(KCurrentDefer currentTask) {
                 currentTask.addTaskResult("Sample2");
             }
         });
@@ -43,7 +43,7 @@ public class SimpleTaskChainTest {
 
         rootTask.setJob(new KJob() {
             @Override
-            public void run(KCurrentTask currentTask) {
+            public void run(KCurrentDefer currentTask) {
                 Assert.assertEquals(currentTask.resultByTask(fakePromise1), "Sample1");
                 Assert.assertEquals(currentTask.resultByTask(fakePromise2), "Sample2");
                 calls[0] = 1;
@@ -62,19 +62,19 @@ public class SimpleTaskChainTest {
     @Test
     public void chain2Test() {
         DynamicKModel dynamicKModel = new DynamicKModel();
-        KTask rootTask = dynamicKModel.task();
-        KTask fakePromise1 = dynamicKModel.task();
+        KDefer rootTask = dynamicKModel.defer();
+        KDefer fakePromise1 = dynamicKModel.defer();
 
         fakePromise1.setJob(new KJob() {
             @Override
-            public void run(KCurrentTask currentTask) {
+            public void run(KCurrentDefer currentTask) {
                 currentTask.addTaskResult("Sample1");
             }
         });
-        KTask fakePromise2 = dynamicKModel.task();
+        KDefer fakePromise2 = dynamicKModel.defer();
         fakePromise2.setJob(new KJob() {
             @Override
-            public void run(KCurrentTask currentTask) {
+            public void run(KCurrentDefer currentTask) {
                 currentTask.addTaskResult("Sample2");
             }
         });
@@ -86,7 +86,7 @@ public class SimpleTaskChainTest {
 
         rootTask.setJob(new KJob() {
             @Override
-            public void run(KCurrentTask currentTask) {
+            public void run(KCurrentDefer currentTask) {
                 Assert.assertEquals(currentTask.resultByTask(fakePromise1), "Sample1");
                 Assert.assertEquals(currentTask.resultByTask(fakePromise2), "Sample2");
                 calls[0] = 1;
@@ -113,16 +113,16 @@ public class SimpleTaskChainTest {
         root.set(root.metaClass().metaAttribute("name"), "MyRoot");
         dynamicKModel.universe(0).time(0).setRoot(root);
 
-        KTask rootTask = dynamicKModel.task();
-        KTask previousSelect = dynamicKModel.universe(0).time(0).select("/");
+        KDefer rootTask = dynamicKModel.defer();
+        KDefer previousSelect = dynamicKModel.universe(0).time(0).select("/");
         rootTask.wait(previousSelect);
-        KTask previousSelect2 = dynamicKModel.universe(0).time(0).select("/titi");
+        KDefer previousSelect2 = dynamicKModel.universe(0).time(0).select("/titi");
         rootTask.wait(previousSelect2);
         final int[] res = new int[1];
         final Object[] res2 = new Object[2];
         rootTask.setJob(new KJob() {
             @Override
-            public void run(KCurrentTask currentTask) {
+            public void run(KCurrentDefer currentTask) {
                 res[0] = currentTask.resultKeys().length;
                 res2[0] = currentTask.resultByTask(previousSelect);
                 res2[1] = currentTask.resultByTask(previousSelect2);

@@ -3,23 +3,23 @@ package org.kevoree.modeling.api;
 /**
  * Created by duke on 20/01/15.
  */
-public interface KTask<A> {
+public interface KDefer<A> {
 
-    public KTask<A> wait(KTask previous);
+    public KDefer<A> wait(KDefer previous);
 
     public A getResult() throws Exception;
 
     public boolean isDone();
 
-    public KTask<A> setJob(KJob kjob);
+    public KDefer<A> setJob(KJob kjob);
 
-    public KTask<A> ready();
+    public KDefer<A> ready();
 
-    public KTask<Object> next();
+    public KDefer<Object> next();
 
     public void then(Callback<A> callback);
 
-    public KTask<A> setName(String taskName);
+    public KDefer<A> setName(String taskName);
 
     public String getName();
 

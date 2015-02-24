@@ -2,18 +2,18 @@ package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KJob;
-import org.kevoree.modeling.api.KTask;
+import org.kevoree.modeling.api.KDefer;
 
 /**
  * Created by duke on 21/01/15.
  */
-public class AbstractKTaskWrapper<A> extends AbstractKTask<A> {
+public class AbstractKDeferWrapper<A> extends AbstractKDefer<A> {
 
     private Callback<A> _callback = null;
 
-    public AbstractKTaskWrapper() {
+    public AbstractKDeferWrapper() {
         super();
-        final AbstractKTaskWrapper<A> selfPointer = this;
+        final AbstractKDeferWrapper<A> selfPointer = this;
         _callback = new Callback<A>() {
             @Override
             public void on(A a) {
@@ -29,17 +29,17 @@ public class AbstractKTaskWrapper<A> extends AbstractKTask<A> {
     }
 
     @Override
-    public KTask<A> wait(KTask previous) {
-        throw new RuntimeException("Wait action is forbidden on wrapped tasks, please create a sub task");
+    public KDefer<A> wait(KDefer previous) {
+        throw new RuntimeException("Wait action is forbidden on wrapped tasks, please create a sub defer");
     }
 
     @Override
-    public KTask<A> setJob(KJob p_kjob) {
-        throw new RuntimeException("setJob action is forbidden on wrapped tasks, please create a sub task");
+    public KDefer<A> setJob(KJob p_kjob) {
+        throw new RuntimeException("setJob action is forbidden on wrapped tasks, please create a sub defer");
     }
 
     @Override
-    public KTask<A> ready() {
+    public KDefer<A> ready() {
         return this;
     }
 

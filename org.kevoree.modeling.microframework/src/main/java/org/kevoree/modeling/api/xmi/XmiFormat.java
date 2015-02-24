@@ -1,8 +1,7 @@
 package org.kevoree.modeling.api.xmi;
 
 import org.kevoree.modeling.api.*;
-import org.kevoree.modeling.api.abs.AbstractKTaskWrapper;
-import org.kevoree.modeling.api.util.Checker;
+import org.kevoree.modeling.api.abs.AbstractKDeferWrapper;
 
 /**
  * Created by duke on 11/5/14.
@@ -16,14 +15,14 @@ public class XmiFormat implements ModelFormat {
     }
 
     @Override
-    public KTask<String> save(KObject model) {
-        AbstractKTaskWrapper<String> wrapper = new AbstractKTaskWrapper<String>();
+    public KDefer<String> save(KObject model) {
+        AbstractKDeferWrapper<String> wrapper = new AbstractKDeferWrapper<String>();
         XMIModelSerializer.save(model, wrapper.initCallback());
         return wrapper;
     }
 
-    public KTask<String> saveRoot() {
-        AbstractKTaskWrapper<String> wrapper = new AbstractKTaskWrapper<String>();
+    public KDefer<String> saveRoot() {
+        AbstractKDeferWrapper<String> wrapper = new AbstractKDeferWrapper<String>();
         _view.universe().model().manager().getRoot(_view, new Callback<KObject>() {
             @Override
             public void on(KObject root) {
@@ -38,8 +37,8 @@ public class XmiFormat implements ModelFormat {
     }
 
     @Override
-    public KTask<Throwable> load(String payload) {
-        AbstractKTaskWrapper<Throwable> wrapper = new AbstractKTaskWrapper<Throwable>();
+    public KDefer<Throwable> load(String payload) {
+        AbstractKDeferWrapper<Throwable> wrapper = new AbstractKDeferWrapper<Throwable>();
         XMIModelLoader.load(this._view, payload, wrapper.initCallback());
         return wrapper;
     }

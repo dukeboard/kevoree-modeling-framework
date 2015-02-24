@@ -2,11 +2,10 @@ package org.kevoree.modeling.api.traversal;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KTask;
-import org.kevoree.modeling.api.abs.AbstractKTaskWrapper;
+import org.kevoree.modeling.api.KDefer;
+import org.kevoree.modeling.api.abs.AbstractKDeferWrapper;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.trace.TraceSequence;
 import org.kevoree.modeling.api.traversal.actions.*;
 
 /**
@@ -147,15 +146,15 @@ public class DefaultKTraversal implements KTraversal {
     }
 
     @Override
-    public KTask<KObject[]> taskThen() {
-        AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
+    public KDefer<KObject[]> taskThen() {
+        AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
         then(task.initCallback());
         return task;
     }
 
     @Override
-    public KTask<Object[]> taskMap(MetaAttribute attribute) {
-        AbstractKTaskWrapper<Object[]> task = new AbstractKTaskWrapper<Object[]>();
+    public KDefer<Object[]> taskMap(MetaAttribute attribute) {
+        AbstractKDeferWrapper<Object[]> task = new AbstractKDeferWrapper<Object[]>();
         map(attribute, task.initCallback());
         return task;
     }

@@ -31,14 +31,14 @@ public interface KModel<A extends KUniverse> {
 
     public MetaModel metaModel();
 
-    public KTask task();
+    public KDefer defer();
 
-    public KTask<Throwable> save();
+    public KDefer<Throwable> save();
 
-    public KTask<Throwable> discard();
+    public KDefer<Throwable> discard();
 
-    public KTask<Throwable> connect();
+    public KDefer<Throwable> connect();
 
-    public KTask<Throwable> close();
+    public KDefer<Throwable> close();
 
 }

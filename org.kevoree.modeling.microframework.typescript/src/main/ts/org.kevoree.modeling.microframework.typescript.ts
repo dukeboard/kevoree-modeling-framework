@@ -74,17 +74,39 @@ module org {
                     }
                 }
 
-                export interface KCurrentTask<A> extends org.kevoree.modeling.api.KTask<any> {
+                export interface KCurrentDefer<A> extends org.kevoree.modeling.api.KDefer<any> {
 
                     resultKeys(): string[];
 
                     resultByName(name: string): any;
 
-                    resultByTask(task: org.kevoree.modeling.api.KTask<any>): any;
+                    resultByTask(task: org.kevoree.modeling.api.KDefer<any>): any;
 
                     addTaskResult(result: A): void;
 
                     clearResults(): void;
+
+                }
+
+                export interface KDefer<A> {
+
+                    wait(previous: org.kevoree.modeling.api.KDefer<any>): org.kevoree.modeling.api.KDefer<any>;
+
+                    getResult(): A;
+
+                    isDone(): boolean;
+
+                    setJob(kjob: (p : org.kevoree.modeling.api.KCurrentDefer<any>) => void): org.kevoree.modeling.api.KDefer<any>;
+
+                    ready(): org.kevoree.modeling.api.KDefer<any>;
+
+                    next(): org.kevoree.modeling.api.KDefer<any>;
+
+                    then(callback: (p : A) => void): void;
+
+                    setName(taskName: string): org.kevoree.modeling.api.KDefer<any>;
+
+                    getName(): string;
 
                 }
 
@@ -128,7 +150,7 @@ module org {
 
                 export interface KJob {
 
-                    run(currentTask: org.kevoree.modeling.api.KCurrentTask<any>): void;
+                    run(currentTask: org.kevoree.modeling.api.KCurrentDefer<any>): void;
 
                 }
 
@@ -166,15 +188,15 @@ module org {
 
                     metaModel(): org.kevoree.modeling.api.meta.MetaModel;
 
-                    task(): org.kevoree.modeling.api.KTask<any>;
+                    defer(): org.kevoree.modeling.api.KDefer<any>;
 
-                    save(): org.kevoree.modeling.api.KTask<any>;
+                    save(): org.kevoree.modeling.api.KDefer<any>;
 
-                    discard(): org.kevoree.modeling.api.KTask<any>;
+                    discard(): org.kevoree.modeling.api.KDefer<any>;
 
-                    connect(): org.kevoree.modeling.api.KTask<any>;
+                    connect(): org.kevoree.modeling.api.KDefer<any>;
 
-                    close(): org.kevoree.modeling.api.KTask<any>;
+                    close(): org.kevoree.modeling.api.KDefer<any>;
 
                 }
 
@@ -184,27 +206,29 @@ module org {
 
                     uuid(): number;
 
-                    path(): org.kevoree.modeling.api.KTask<any>;
+                    path(): org.kevoree.modeling.api.KDefer<any>;
 
                     view(): org.kevoree.modeling.api.KView;
 
-                    delete(): org.kevoree.modeling.api.KTask<any>;
+                    delete(): org.kevoree.modeling.api.KDefer<any>;
 
-                    parent(): org.kevoree.modeling.api.KTask<any>;
+                    parent(): org.kevoree.modeling.api.KDefer<any>;
 
                     parentUuid(): number;
 
-                    select(query: string): org.kevoree.modeling.api.KTask<any>;
+                    select(query: string): org.kevoree.modeling.api.KDefer<any>;
 
                     listen(listener: (p : org.kevoree.modeling.api.KObject, p1 : org.kevoree.modeling.api.meta.Meta[]) => void): void;
 
                     visitAttributes(visitor: (p : org.kevoree.modeling.api.meta.MetaAttribute, p1 : any) => void): void;
 
-                    visit(visitor: (p : org.kevoree.modeling.api.KObject) => org.kevoree.modeling.api.VisitResult, request: org.kevoree.modeling.api.VisitRequest): org.kevoree.modeling.api.KTask<any>;
+                    visit(visitor: (p : org.kevoree.modeling.api.KObject) => org.kevoree.modeling.api.VisitResult, request: org.kevoree.modeling.api.VisitRequest): org.kevoree.modeling.api.KDefer<any>;
 
                     now(): number;
 
-                    universeTree(): org.kevoree.modeling.api.time.rbtree.LongRBTree;
+                    universeTree(): org.kevoree.modeling.api.rbtree.LongRBTree;
+
+                    timeWalker(): org.kevoree.modeling.api.util.TimeWalker;
 
                     referenceInParent(): org.kevoree.modeling.api.meta.MetaReference;
 
@@ -214,9 +238,9 @@ module org {
 
                     mutate(actionType: org.kevoree.modeling.api.KActionType, metaReference: org.kevoree.modeling.api.meta.MetaReference, param: org.kevoree.modeling.api.KObject): void;
 
-                    ref(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KTask<any>;
+                    ref(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KDefer<any>;
 
-                    inferRef(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KTask<any>;
+                    inferRef(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KDefer<any>;
 
                     traverse(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.traversal.KTraversal;
 
@@ -226,7 +250,7 @@ module org {
 
                     traverseParent(): org.kevoree.modeling.api.traversal.KTraversal;
 
-                    inbounds(): org.kevoree.modeling.api.KTask<any>;
+                    inbounds(): org.kevoree.modeling.api.KDefer<any>;
 
                     traces(request: org.kevoree.modeling.api.TraceRequest): org.kevoree.modeling.api.trace.ModelTrace[];
 
@@ -238,23 +262,23 @@ module org {
 
                     equals(other: any): boolean;
 
-                    diff(target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any>;
+                    diff(target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any>;
 
-                    merge(target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any>;
+                    merge(target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any>;
 
-                    intersection(target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any>;
+                    intersection(target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any>;
 
-                    jump<U extends org.kevoree.modeling.api.KObject> (time: number): org.kevoree.modeling.api.KTask<any>;
+                    jump<U extends org.kevoree.modeling.api.KObject> (time: number): org.kevoree.modeling.api.KDefer<any>;
 
                     referencesWith(o: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.meta.MetaReference[];
 
-                    inferObjects(): org.kevoree.modeling.api.KTask<any>;
+                    inferObjects(): org.kevoree.modeling.api.KDefer<any>;
 
                     inferAttribute(attribute: org.kevoree.modeling.api.meta.MetaAttribute): any;
 
-                    call(operation: org.kevoree.modeling.api.meta.MetaOperation, params: any[]): org.kevoree.modeling.api.KTask<any>;
+                    call(operation: org.kevoree.modeling.api.meta.MetaOperation, params: any[]): org.kevoree.modeling.api.KDefer<any>;
 
-                    inferCall(operation: org.kevoree.modeling.api.meta.MetaOperation, params: any[]): org.kevoree.modeling.api.KTask<any>;
+                    inferCall(operation: org.kevoree.modeling.api.meta.MetaOperation, params: any[]): org.kevoree.modeling.api.KDefer<any>;
 
                 }
 
@@ -269,28 +293,6 @@ module org {
                     dispatch(runnable: java.lang.Runnable): void;
 
                     stop(): void;
-
-                }
-
-                export interface KTask<A> {
-
-                    wait(previous: org.kevoree.modeling.api.KTask<any>): org.kevoree.modeling.api.KTask<any>;
-
-                    getResult(): A;
-
-                    isDone(): boolean;
-
-                    setJob(kjob: (p : org.kevoree.modeling.api.KCurrentTask<any>) => void): org.kevoree.modeling.api.KTask<any>;
-
-                    ready(): org.kevoree.modeling.api.KTask<any>;
-
-                    next(): org.kevoree.modeling.api.KTask<any>;
-
-                    then(callback: (p : A) => void): void;
-
-                    setName(taskName: string): org.kevoree.modeling.api.KTask<any>;
-
-                    getName(): string;
 
                 }
 
@@ -314,7 +316,7 @@ module org {
 
                     descendants(): java.util.List<B>;
 
-                    delete(): org.kevoree.modeling.api.KTask<any>;
+                    delete(): org.kevoree.modeling.api.KDefer<any>;
 
                 }
 
@@ -324,11 +326,11 @@ module org {
 
                     create(clazz: org.kevoree.modeling.api.meta.MetaClass): org.kevoree.modeling.api.KObject;
 
-                    select(query: string): org.kevoree.modeling.api.KTask<any>;
+                    select(query: string): org.kevoree.modeling.api.KDefer<any>;
 
-                    lookup(key: number): org.kevoree.modeling.api.KTask<any>;
+                    lookup(key: number): org.kevoree.modeling.api.KDefer<any>;
 
-                    lookupAll(keys: number[]): org.kevoree.modeling.api.KTask<any>;
+                    lookupAll(keys: number[]): org.kevoree.modeling.api.KDefer<any>;
 
                     universe(): org.kevoree.modeling.api.KUniverse<any, any, any>;
 
@@ -342,9 +344,9 @@ module org {
 
                     equals(other: any): boolean;
 
-                    setRoot(elem: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any>;
+                    setRoot(elem: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any>;
 
-                    getRoot(): org.kevoree.modeling.api.KTask<any>;
+                    getRoot(): org.kevoree.modeling.api.KDefer<any>;
 
                 }
 
@@ -356,11 +358,11 @@ module org {
 
                 export interface ModelFormat {
 
-                    save(model: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any>;
+                    save(model: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any>;
 
-                    saveRoot(): org.kevoree.modeling.api.KTask<any>;
+                    saveRoot(): org.kevoree.modeling.api.KDefer<any>;
 
-                    load(payload: string): org.kevoree.modeling.api.KTask<any>;
+                    load(payload: string): org.kevoree.modeling.api.KDefer<any>;
 
                 }
 
@@ -489,6 +491,180 @@ module org {
 
                     }
 
+                    export class AbstractKDefer<A> implements org.kevoree.modeling.api.KCurrentDefer<any> {
+
+                        private _name: string = null;
+                        private _isDone: boolean = false;
+                        public _isReady: boolean = false;
+                        private _nbRecResult: number = 0;
+                        private _nbExpectedResult: number = 0;
+                        private _results: java.util.Map<string, any> = new java.util.HashMap<string, any>();
+                        private _nextTasks: java.util.Set<org.kevoree.modeling.api.KDefer<any>> = new java.util.HashSet<org.kevoree.modeling.api.KDefer<any>>();
+                        private _job: (p : org.kevoree.modeling.api.KCurrentDefer<any>) => void;
+                        private _result: A = null;
+                        public setDoneOrRegister(next: org.kevoree.modeling.api.KDefer<any>): boolean {
+                            if (next != null) {
+                                this._nextTasks.add(next);
+                                return this._isDone;
+                            } else {
+                                this._isDone = true;
+                                var childrenTasks: org.kevoree.modeling.api.KDefer<any>[] = this._nextTasks.toArray(new Array());
+                                for (var i: number = 0; i < childrenTasks.length; i++) {
+                                    (<org.kevoree.modeling.api.abs.AbstractKDefer<any>>childrenTasks[i]).informParentEnd(this);
+                                }
+                                return this._isDone;
+                            }
+                        }
+
+                        private informParentEnd(end: org.kevoree.modeling.api.KDefer<any>): void {
+                            if (end == null) {
+                                this._nbRecResult = this._nbRecResult + this._nbExpectedResult;
+                            } else {
+                                if (end != this) {
+                                    var castedEnd: org.kevoree.modeling.api.abs.AbstractKDefer<any> = <org.kevoree.modeling.api.abs.AbstractKDefer<any>>end;
+                                    var keys: string[] = <string[]>castedEnd._results.keySet().toArray(new Array());
+                                    for (var i: number = 0; i < keys.length; i++) {
+                                        this._results.put(keys[i], castedEnd._results.get(keys[i]));
+                                    }
+                                    this._results.put(end.getName(), castedEnd._result);
+                                    this._nbRecResult--;
+                                }
+                            }
+                            if (this._nbRecResult == 0 && this._isReady) {
+                                if (this._job != null) {
+                                    this._job(this);
+                                }
+                                this.setDoneOrRegister(null);
+                            }
+                        }
+
+                        public wait(p_previous: org.kevoree.modeling.api.KDefer<any>): org.kevoree.modeling.api.KDefer<any> {
+                            if (p_previous != this) {
+                                if (!(<org.kevoree.modeling.api.abs.AbstractKDefer<any>>p_previous).setDoneOrRegister(this)) {
+                                    this._nbExpectedResult++;
+                                } else {
+                                    var castedEnd: org.kevoree.modeling.api.abs.AbstractKDefer<any> = <org.kevoree.modeling.api.abs.AbstractKDefer<any>>p_previous;
+                                    var keys: string[] = <string[]>castedEnd._results.keySet().toArray(new Array());
+                                    for (var i: number = 0; i < keys.length; i++) {
+                                        this._results.put(keys[i], castedEnd._results.get(keys[i]));
+                                    }
+                                    this._results.put(p_previous.getName(), castedEnd._result);
+                                }
+                            }
+                            return this;
+                        }
+
+                        public ready(): org.kevoree.modeling.api.KDefer<any> {
+                            if (!this._isReady) {
+                                this._isReady = true;
+                                this.informParentEnd(null);
+                            }
+                            return this;
+                        }
+
+                        public next(): org.kevoree.modeling.api.KDefer<any> {
+                            var nextTask: org.kevoree.modeling.api.abs.AbstractKDefer<any> = new org.kevoree.modeling.api.abs.AbstractKDefer<any>();
+                            nextTask.wait(this);
+                            return nextTask;
+                        }
+
+                        public then(p_callback: (p : A) => void): void {
+                            this.next().setJob( (currentTask : org.kevoree.modeling.api.KCurrentDefer<any>) => {
+                                try {
+                                    p_callback(this.getResult());
+                                } catch ($ex$) {
+                                    if ($ex$ instanceof java.lang.Exception) {
+                                        var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                        e.printStackTrace();
+                                        p_callback(null);
+                                    }
+                                 }
+                            }).ready();
+                        }
+
+                        public setName(p_taskName: string): org.kevoree.modeling.api.KDefer<any> {
+                            this._name = p_taskName;
+                            return this;
+                        }
+
+                        public getName(): string {
+                            if (this._name == null) {
+                                return this.toString();
+                            } else {
+                                return this._name;
+                            }
+                        }
+
+                        public resultKeys(): string[] {
+                            return this._results.keySet().toArray(new Array());
+                        }
+
+                        public resultByName(p_name: string): any {
+                            return this._results.get(p_name);
+                        }
+
+                        public resultByTask(p_task: org.kevoree.modeling.api.KDefer<any>): any {
+                            return this._results.get(p_task.getName());
+                        }
+
+                        public addTaskResult(p_result: A): void {
+                            this._result = p_result;
+                        }
+
+                        public clearResults(): void {
+                            this._results.clear();
+                        }
+
+                        public getResult(): A {
+                            if (this._isDone) {
+                                return this._result;
+                            } else {
+                                throw new java.lang.Exception("Task is not executed yet !");
+                            }
+                        }
+
+                        public isDone(): boolean {
+                            return this._isDone;
+                        }
+
+                        public setJob(p_kjob: (p : org.kevoree.modeling.api.KCurrentDefer<any>) => void): org.kevoree.modeling.api.KDefer<any> {
+                            this._job = p_kjob;
+                            return this;
+                        }
+
+                    }
+
+                    export class AbstractKDeferWrapper<A> extends org.kevoree.modeling.api.abs.AbstractKDefer<any> {
+
+                        private _callback: (p : A) => void = null;
+                        constructor() {
+                            super();
+                            var selfPointer: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = this;
+                            this._callback =  (a : A) => {
+                                selfPointer._isReady = true;
+                                selfPointer.addTaskResult(a);
+                                selfPointer.setDoneOrRegister(null);
+                            };
+                        }
+
+                        public initCallback(): (p : A) => void {
+                            return this._callback;
+                        }
+
+                        public wait(previous: org.kevoree.modeling.api.KDefer<any>): org.kevoree.modeling.api.KDefer<any> {
+                            throw new java.lang.RuntimeException("Wait action is forbidden on wrapped tasks, please create a sub defer");
+                        }
+
+                        public setJob(p_kjob: (p : org.kevoree.modeling.api.KCurrentDefer<any>) => void): org.kevoree.modeling.api.KDefer<any> {
+                            throw new java.lang.RuntimeException("setJob action is forbidden on wrapped tasks, please create a sub defer");
+                        }
+
+                        public ready(): org.kevoree.modeling.api.KDefer<any> {
+                            return this;
+                        }
+
+                    }
+
                     export class AbstractKModel<A extends org.kevoree.modeling.api.KUniverse<any, any, any>> implements org.kevoree.modeling.api.KModel<any> {
 
                         private _manager: org.kevoree.modeling.api.data.manager.KDataManager;
@@ -500,14 +676,14 @@ module org {
                             this._manager = new org.kevoree.modeling.api.data.manager.DefaultKDataManager(this);
                         }
 
-                        public connect(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public connect(): org.kevoree.modeling.api.KDefer<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             this._manager.connect(task.initCallback());
                             return task;
                         }
 
-                        public close(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public close(): org.kevoree.modeling.api.KDefer<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             this._manager.close(task.initCallback());
                             return task;
                         }
@@ -533,14 +709,14 @@ module org {
                             return newDimension;
                         }
 
-                        public save(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public save(): org.kevoree.modeling.api.KDefer<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             this._manager.save(task.initCallback());
                             return task;
                         }
 
-                        public discard(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public discard(): org.kevoree.modeling.api.KDefer<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             this._manager.discard(null, task.initCallback());
                             return task;
                         }
@@ -571,8 +747,8 @@ module org {
                             this.manager().operationManager().registerOperation(metaOperation, operation, target);
                         }
 
-                        public task(): org.kevoree.modeling.api.KTask<any> {
-                            return new org.kevoree.modeling.api.abs.AbstractKTask<any>();
+                        public defer(): org.kevoree.modeling.api.KDefer<any> {
+                            return new org.kevoree.modeling.api.abs.AbstractKDefer<any>();
                         }
 
                     }
@@ -581,9 +757,9 @@ module org {
 
                         private _view: org.kevoree.modeling.api.KView;
                         private _uuid: number;
-                        private _universeTree: org.kevoree.modeling.api.time.rbtree.LongRBTree;
+                        private _universeTree: org.kevoree.modeling.api.rbtree.LongRBTree;
                         private _metaClass: org.kevoree.modeling.api.meta.MetaClass;
-                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_universeTree: org.kevoree.modeling.api.time.rbtree.LongRBTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
+                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_universeTree: org.kevoree.modeling.api.rbtree.LongRBTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
                             this._view = p_view;
                             this._uuid = p_uuid;
                             this._metaClass = p_metaClass;
@@ -606,7 +782,7 @@ module org {
                             return this._view.now();
                         }
 
-                        public universeTree(): org.kevoree.modeling.api.time.rbtree.LongRBTree {
+                        public universeTree(): org.kevoree.modeling.api.rbtree.LongRBTree {
                             return this._universeTree;
                         }
 
@@ -614,8 +790,8 @@ module org {
                             return this._view.universe();
                         }
 
-                        public path(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public path(): org.kevoree.modeling.api.KDefer<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             this.parent().then( (parent : org.kevoree.modeling.api.KObject) => {
                                 if (parent == null) {
                                     task.initCallback()("/");
@@ -637,10 +813,14 @@ module org {
                             }
                         }
 
-                        public parent(): org.kevoree.modeling.api.KTask<any> {
+                        public timeWalker(): org.kevoree.modeling.api.util.TimeWalker {
+                            return new org.kevoree.modeling.api.util.TimeWalker(this);
+                        }
+
+                        public parent(): org.kevoree.modeling.api.KDefer<any> {
                             var parentKID: number = this.parentUuid();
                             if (parentKID == null) {
-                                var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                                var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                                 task.initCallback()(null);
                                 return task;
                             } else {
@@ -657,8 +837,8 @@ module org {
                             }
                         }
 
-                        public delete(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public delete(): org.kevoree.modeling.api.KDefer<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             var toRemove: org.kevoree.modeling.api.KObject = this;
                             var rawPayload: org.kevoree.modeling.api.data.cache.KCacheEntry = this._view.universe().model().manager().entry(this, org.kevoree.modeling.api.data.manager.AccessMode.DELETE);
                             if (rawPayload == null) {
@@ -686,8 +866,8 @@ module org {
                             return task;
                         }
 
-                        public select(query: string): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public select(query: string): org.kevoree.modeling.api.KDefer<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             if (!org.kevoree.modeling.api.util.Checker.isDefined(query)) {
                                 task.initCallback()(new Array());
                             } else {
@@ -991,14 +1171,14 @@ module org {
                             }
                         }
 
-                        public ref(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public ref(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KDefer<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             this.internal_ref(p_metaReference, task.initCallback());
                             return task;
                         }
 
-                        public inferRef(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public inferRef(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KDefer<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             return task;
                         }
 
@@ -1012,8 +1192,8 @@ module org {
                             }
                         }
 
-                        public visit(p_visitor: (p : org.kevoree.modeling.api.KObject) => org.kevoree.modeling.api.VisitResult, p_request: org.kevoree.modeling.api.VisitRequest): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public visit(p_visitor: (p : org.kevoree.modeling.api.KObject) => org.kevoree.modeling.api.VisitResult, p_request: org.kevoree.modeling.api.VisitRequest): org.kevoree.modeling.api.KDefer<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             if (p_request.equals(org.kevoree.modeling.api.VisitRequest.CHILDREN)) {
                                 this.internal_visit(p_visitor, task.initCallback(), false, false, null, null);
                             } else {
@@ -1177,7 +1357,7 @@ module org {
                             return traces.toArray(new Array());
                         }
 
-                        public inbounds(): org.kevoree.modeling.api.KTask<any> {
+                        public inbounds(): org.kevoree.modeling.api.KDefer<any> {
                             var rawPayload: org.kevoree.modeling.api.data.cache.KCacheEntry = this.view().universe().model().manager().entry(this, org.kevoree.modeling.api.data.manager.AccessMode.READ);
                             if (rawPayload != null) {
                                 var payload: any = rawPayload.get(org.kevoree.modeling.api.data.manager.Index.INBOUNDS_INDEX);
@@ -1186,12 +1366,12 @@ module org {
                                     var keysArr: number[] = inboundsKeys.toArray(new Array());
                                     return this._view.lookupAll(keysArr);
                                 } else {
-                                    var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                                    var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                                     task.initCallback()(new Array());
                                     return task;
                                 }
                             } else {
-                                var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                                var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                                 task.initCallback()(new Array());
                                 return task;
                             }
@@ -1219,26 +1399,26 @@ module org {
                             return hashString.hashCode();
                         }
 
-                        public diff(target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public diff(target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             org.kevoree.modeling.api.operation.DefaultModelCompare.diff(this, target, task.initCallback());
                             return task;
                         }
 
-                        public merge(target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public merge(target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             org.kevoree.modeling.api.operation.DefaultModelCompare.merge(this, target, task.initCallback());
                             return task;
                         }
 
-                        public intersection(target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public intersection(target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             org.kevoree.modeling.api.operation.DefaultModelCompare.intersection(this, target, task.initCallback());
                             return task;
                         }
 
-                        public jump<U extends org.kevoree.modeling.api.KObject> (time: number): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public jump<U extends org.kevoree.modeling.api.KObject> (time: number): org.kevoree.modeling.api.KDefer<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             this.view().universe().time(time).lookup(this._uuid).then( (kObject : org.kevoree.modeling.api.KObject) => {
                                 var casted: U = null;
                                 try {
@@ -1339,23 +1519,23 @@ module org {
                             }
                         }
 
-                        public inferObjects(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
-                            return task;
-                        }
-
-                        public call(p_operation: org.kevoree.modeling.api.meta.MetaOperation, p_params: any[]): org.kevoree.modeling.api.KTask<any> {
-                            var temp_task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public call(p_operation: org.kevoree.modeling.api.meta.MetaOperation, p_params: any[]): org.kevoree.modeling.api.KDefer<any> {
+                            var temp_task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             this.view().universe().model().manager().operationManager().call(this, p_operation, p_params, temp_task.initCallback());
                             return temp_task;
+                        }
+
+                        public inferObjects(): org.kevoree.modeling.api.KDefer<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
+                            return task;
                         }
 
                         public inferAttribute(attribute: org.kevoree.modeling.api.meta.MetaAttribute): any {
                             return null;
                         }
 
-                        public inferCall(operation: org.kevoree.modeling.api.meta.MetaOperation, params: any[]): org.kevoree.modeling.api.KTask<any> {
-                            var temp_task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public inferCall(operation: org.kevoree.modeling.api.meta.MetaOperation, params: any[]): org.kevoree.modeling.api.KDefer<any> {
+                            var temp_task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             return temp_task;
                         }
 
@@ -1363,7 +1543,7 @@ module org {
 
                     export class AbstractKObjectInfer extends org.kevoree.modeling.api.abs.AbstractKObject implements org.kevoree.modeling.api.KInfer {
 
-                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_universeTree: org.kevoree.modeling.api.time.rbtree.LongRBTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
+                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_universeTree: org.kevoree.modeling.api.rbtree.LongRBTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
                             super(p_view, p_uuid, p_universeTree, p_metaClass);
                         }
 
@@ -1421,180 +1601,6 @@ module org {
 
                     }
 
-                    export class AbstractKTask<A> implements org.kevoree.modeling.api.KCurrentTask<any> {
-
-                        private _name: string = null;
-                        private _isDone: boolean = false;
-                        public _isReady: boolean = false;
-                        private _nbRecResult: number = 0;
-                        private _nbExpectedResult: number = 0;
-                        private _results: java.util.Map<string, any> = new java.util.HashMap<string, any>();
-                        private _nextTasks: java.util.Set<org.kevoree.modeling.api.KTask<any>> = new java.util.HashSet<org.kevoree.modeling.api.KTask<any>>();
-                        private _job: (p : org.kevoree.modeling.api.KCurrentTask<any>) => void;
-                        private _result: A = null;
-                        public setDoneOrRegister(next: org.kevoree.modeling.api.KTask<any>): boolean {
-                            if (next != null) {
-                                this._nextTasks.add(next);
-                                return this._isDone;
-                            } else {
-                                this._isDone = true;
-                                var childrenTasks: org.kevoree.modeling.api.KTask<any>[] = this._nextTasks.toArray(new Array());
-                                for (var i: number = 0; i < childrenTasks.length; i++) {
-                                    (<org.kevoree.modeling.api.abs.AbstractKTask<any>>childrenTasks[i]).informParentEnd(this);
-                                }
-                                return this._isDone;
-                            }
-                        }
-
-                        private informParentEnd(end: org.kevoree.modeling.api.KTask<any>): void {
-                            if (end == null) {
-                                this._nbRecResult = this._nbRecResult + this._nbExpectedResult;
-                            } else {
-                                if (end != this) {
-                                    var castedEnd: org.kevoree.modeling.api.abs.AbstractKTask<any> = <org.kevoree.modeling.api.abs.AbstractKTask<any>>end;
-                                    var keys: string[] = <string[]>castedEnd._results.keySet().toArray(new Array());
-                                    for (var i: number = 0; i < keys.length; i++) {
-                                        this._results.put(keys[i], castedEnd._results.get(keys[i]));
-                                    }
-                                    this._results.put(end.getName(), castedEnd._result);
-                                    this._nbRecResult--;
-                                }
-                            }
-                            if (this._nbRecResult == 0 && this._isReady) {
-                                if (this._job != null) {
-                                    this._job(this);
-                                }
-                                this.setDoneOrRegister(null);
-                            }
-                        }
-
-                        public wait(p_previous: org.kevoree.modeling.api.KTask<any>): org.kevoree.modeling.api.KTask<any> {
-                            if (p_previous != this) {
-                                if (!(<org.kevoree.modeling.api.abs.AbstractKTask<any>>p_previous).setDoneOrRegister(this)) {
-                                    this._nbExpectedResult++;
-                                } else {
-                                    var castedEnd: org.kevoree.modeling.api.abs.AbstractKTask<any> = <org.kevoree.modeling.api.abs.AbstractKTask<any>>p_previous;
-                                    var keys: string[] = <string[]>castedEnd._results.keySet().toArray(new Array());
-                                    for (var i: number = 0; i < keys.length; i++) {
-                                        this._results.put(keys[i], castedEnd._results.get(keys[i]));
-                                    }
-                                    this._results.put(p_previous.getName(), castedEnd._result);
-                                }
-                            }
-                            return this;
-                        }
-
-                        public ready(): org.kevoree.modeling.api.KTask<any> {
-                            if (!this._isReady) {
-                                this._isReady = true;
-                                this.informParentEnd(null);
-                            }
-                            return this;
-                        }
-
-                        public next(): org.kevoree.modeling.api.KTask<any> {
-                            var nextTask: org.kevoree.modeling.api.abs.AbstractKTask<any> = new org.kevoree.modeling.api.abs.AbstractKTask<any>();
-                            nextTask.wait(this);
-                            return nextTask;
-                        }
-
-                        public then(p_callback: (p : A) => void): void {
-                            this.next().setJob( (currentTask : org.kevoree.modeling.api.KCurrentTask<any>) => {
-                                try {
-                                    p_callback(this.getResult());
-                                } catch ($ex$) {
-                                    if ($ex$ instanceof java.lang.Exception) {
-                                        var e: java.lang.Exception = <java.lang.Exception>$ex$;
-                                        e.printStackTrace();
-                                        p_callback(null);
-                                    }
-                                 }
-                            }).ready();
-                        }
-
-                        public setName(p_taskName: string): org.kevoree.modeling.api.KTask<any> {
-                            this._name = p_taskName;
-                            return this;
-                        }
-
-                        public getName(): string {
-                            if (this._name == null) {
-                                return this.toString();
-                            } else {
-                                return this._name;
-                            }
-                        }
-
-                        public resultKeys(): string[] {
-                            return this._results.keySet().toArray(new Array());
-                        }
-
-                        public resultByName(p_name: string): any {
-                            return this._results.get(p_name);
-                        }
-
-                        public resultByTask(p_task: org.kevoree.modeling.api.KTask<any>): any {
-                            return this._results.get(p_task.getName());
-                        }
-
-                        public addTaskResult(p_result: A): void {
-                            this._result = p_result;
-                        }
-
-                        public clearResults(): void {
-                            this._results.clear();
-                        }
-
-                        public getResult(): A {
-                            if (this._isDone) {
-                                return this._result;
-                            } else {
-                                throw new java.lang.Exception("Task is not executed yet !");
-                            }
-                        }
-
-                        public isDone(): boolean {
-                            return this._isDone;
-                        }
-
-                        public setJob(p_kjob: (p : org.kevoree.modeling.api.KCurrentTask<any>) => void): org.kevoree.modeling.api.KTask<any> {
-                            this._job = p_kjob;
-                            return this;
-                        }
-
-                    }
-
-                    export class AbstractKTaskWrapper<A> extends org.kevoree.modeling.api.abs.AbstractKTask<any> {
-
-                        private _callback: (p : A) => void = null;
-                        constructor() {
-                            super();
-                            var selfPointer: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = this;
-                            this._callback =  (a : A) => {
-                                selfPointer._isReady = true;
-                                selfPointer.addTaskResult(a);
-                                selfPointer.setDoneOrRegister(null);
-                            };
-                        }
-
-                        public initCallback(): (p : A) => void {
-                            return this._callback;
-                        }
-
-                        public wait(previous: org.kevoree.modeling.api.KTask<any>): org.kevoree.modeling.api.KTask<any> {
-                            throw new java.lang.RuntimeException("Wait action is forbidden on wrapped tasks, please create a sub task");
-                        }
-
-                        public setJob(p_kjob: (p : org.kevoree.modeling.api.KCurrentTask<any>) => void): org.kevoree.modeling.api.KTask<any> {
-                            throw new java.lang.RuntimeException("setJob action is forbidden on wrapped tasks, please create a sub task");
-                        }
-
-                        public ready(): org.kevoree.modeling.api.KTask<any> {
-                            return this;
-                        }
-
-                    }
-
                     export class AbstractKUniverse<A extends org.kevoree.modeling.api.KView, B extends org.kevoree.modeling.api.KUniverse<any, any, any>, C extends org.kevoree.modeling.api.KModel<any>> implements org.kevoree.modeling.api.KUniverse<any, any, any> {
 
                         private _model: org.kevoree.modeling.api.KModel<any>;
@@ -1612,8 +1618,8 @@ module org {
                             return <C>this._model;
                         }
 
-                        public delete(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public delete(): org.kevoree.modeling.api.KDefer<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             this.model().manager().delete(this, task.initCallback());
                             return task;
                         }
@@ -1687,21 +1693,21 @@ module org {
                             return this.create(this.universe().model().metaModel().metaClass(metaClassName));
                         }
 
-                        public setRoot(elem: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public setRoot(elem: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             (<org.kevoree.modeling.api.abs.AbstractKObject>elem).set_parent(null, null);
                             this.universe().model().manager().setRoot(elem, task.initCallback());
                             return task;
                         }
 
-                        public getRoot(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public getRoot(): org.kevoree.modeling.api.KDefer<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             this.universe().model().manager().getRoot(this, task.initCallback());
                             return task;
                         }
 
-                        public select(query: string): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public select(query: string): org.kevoree.modeling.api.KDefer<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             if (query == null) {
                                 task.initCallback()(new Array());
                             }
@@ -1725,14 +1731,14 @@ module org {
                             return task;
                         }
 
-                        public lookup(kid: number): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public lookup(kid: number): org.kevoree.modeling.api.KDefer<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             this.universe().model().manager().lookup(this, kid, task.initCallback());
                             return task;
                         }
 
-                        public lookupAll(keys: number[]): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public lookupAll(keys: number[]): org.kevoree.modeling.api.KDefer<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             this.universe().model().manager().lookupAll(this, keys, task.initCallback());
                             return task;
                         }
@@ -1741,7 +1747,7 @@ module org {
                             this.universe().model().manager().lookupAll(this, keys, callback);
                         }
 
-                        public createProxy(clazz: org.kevoree.modeling.api.meta.MetaClass, universeTree: org.kevoree.modeling.api.time.rbtree.LongRBTree, key: number): org.kevoree.modeling.api.KObject {
+                        public createProxy(clazz: org.kevoree.modeling.api.meta.MetaClass, universeTree: org.kevoree.modeling.api.rbtree.LongRBTree, key: number): org.kevoree.modeling.api.KObject {
                             return this.internalCreate(clazz, universeTree, key);
                         }
 
@@ -1749,7 +1755,7 @@ module org {
                             if (!org.kevoree.modeling.api.util.Checker.isDefined(clazz)) {
                                 return null;
                             }
-                            var newUniverseTree: org.kevoree.modeling.api.time.rbtree.LongRBTree = new org.kevoree.modeling.api.time.rbtree.LongRBTree();
+                            var newUniverseTree: org.kevoree.modeling.api.rbtree.LongRBTree = new org.kevoree.modeling.api.rbtree.LongRBTree();
                             newUniverseTree.insert(this.universe().key(), this.now());
                             var newObj: org.kevoree.modeling.api.KObject = this.internalCreate(clazz, newUniverseTree, this.universe().model().manager().nextObjectKey());
                             if (newObj != null) {
@@ -1762,7 +1768,7 @@ module org {
                             this.universe().model().manager().cdn().registerListener(this, listener, null);
                         }
 
-                        public internalCreate(clazz: org.kevoree.modeling.api.meta.MetaClass, universeTree: org.kevoree.modeling.api.time.rbtree.LongRBTree, key: number): org.kevoree.modeling.api.KObject {
+                        public internalCreate(clazz: org.kevoree.modeling.api.meta.MetaClass, universeTree: org.kevoree.modeling.api.rbtree.LongRBTree, key: number): org.kevoree.modeling.api.KObject {
                             throw "Abstract method";
                         }
 
@@ -2077,7 +2083,7 @@ module org {
 
                         export class KCacheEntry implements org.kevoree.modeling.api.data.cache.KCacheObject {
 
-                            public universeTree: org.kevoree.modeling.api.time.rbtree.LongRBTree;
+                            public universeTree: org.kevoree.modeling.api.rbtree.LongRBTree;
                             public metaClass: org.kevoree.modeling.api.meta.MetaClass;
                             public raw: any[];
                             public _modifiedIndexes: boolean[] = null;
@@ -2689,7 +2695,7 @@ module org {
                                 this._model = model;
                             }
 
-                            public getModel(): org.kevoree.modeling.api.KModel<any> {
+                            public model(): org.kevoree.modeling.api.KModel<any> {
                                 return this._model;
                             }
 
@@ -2718,7 +2724,7 @@ module org {
 
                             public initUniverse(p_universe: org.kevoree.modeling.api.KUniverse<any, any, any>, p_parent: org.kevoree.modeling.api.KUniverse<any, any, any>): void {
                                 var key: org.kevoree.modeling.api.data.cache.KContentKey = org.kevoree.modeling.api.data.cache.KContentKey.createGlobalUniverseTree();
-                                var cachedTree: org.kevoree.modeling.api.time.rbtree.LongRBTree = <org.kevoree.modeling.api.time.rbtree.LongRBTree>this._db.cache().get(key);
+                                var cachedTree: org.kevoree.modeling.api.rbtree.LongRBTree = <org.kevoree.modeling.api.rbtree.LongRBTree>this._db.cache().get(key);
                                 if (cachedTree != null && cachedTree.lookup(p_universe.key()) == null) {
                                     if (p_parent == null) {
                                         cachedTree.insert(p_universe.key(), p_universe.key());
@@ -2730,7 +2736,7 @@ module org {
 
                             public parentUniverseKey(currentUniverseKey: number): number {
                                 var key: org.kevoree.modeling.api.data.cache.KContentKey = org.kevoree.modeling.api.data.cache.KContentKey.createGlobalUniverseTree();
-                                var cachedTree: org.kevoree.modeling.api.time.rbtree.LongRBTree = <org.kevoree.modeling.api.time.rbtree.LongRBTree>this._db.cache().get(key);
+                                var cachedTree: org.kevoree.modeling.api.rbtree.LongRBTree = <org.kevoree.modeling.api.rbtree.LongRBTree>this._db.cache().get(key);
                                 if (cachedTree != null) {
                                     return cachedTree.lookup(currentUniverseKey);
                                 } else {
@@ -2740,10 +2746,10 @@ module org {
 
                             public descendantsUniverseKeys(currentUniverseKey: number): number[] {
                                 var key: org.kevoree.modeling.api.data.cache.KContentKey = org.kevoree.modeling.api.data.cache.KContentKey.createGlobalUniverseTree();
-                                var cachedTree: org.kevoree.modeling.api.time.rbtree.LongRBTree = <org.kevoree.modeling.api.time.rbtree.LongRBTree>this._db.cache().get(key);
+                                var cachedTree: org.kevoree.modeling.api.rbtree.LongRBTree = <org.kevoree.modeling.api.rbtree.LongRBTree>this._db.cache().get(key);
                                 if (cachedTree != null) {
                                     var nextElems: java.util.List<number> = new java.util.ArrayList<number>();
-                                    var elem: org.kevoree.modeling.api.time.rbtree.LongTreeNode = cachedTree.first();
+                                    var elem: org.kevoree.modeling.api.rbtree.LongTreeNode = cachedTree.first();
                                     while (elem != null){
                                         if (elem.value == currentUniverseKey && elem.key != currentUniverseKey) {
                                             nextElems.add(elem.key);
@@ -2797,7 +2803,7 @@ module org {
                                 cacheEntry._dirty = true;
                                 cacheEntry.metaClass = obj.metaClass();
                                 cacheEntry.universeTree = obj.universeTree();
-                                var timeTree: org.kevoree.modeling.api.time.rbtree.IndexRBTree = new org.kevoree.modeling.api.time.rbtree.IndexRBTree();
+                                var timeTree: org.kevoree.modeling.api.rbtree.IndexRBTree = new org.kevoree.modeling.api.rbtree.IndexRBTree();
                                 timeTree.insert(obj.now());
                                 this._db.cache().put(org.kevoree.modeling.api.data.cache.KContentKey.createTimeTree(obj.universe().key(), obj.uuid()), timeTree);
                                 this._db.cache().put(org.kevoree.modeling.api.data.cache.KContentKey.createUniverseTree(obj.uuid()), cacheEntry.universeTree);
@@ -2879,7 +2885,7 @@ module org {
                                                                         objIndexPayload = "0";
                                                                     }
                                                                     var globalUniverseTreePayload: string = strings[this.GLO_TREE_INDEX];
-                                                                    var globalUniverseTree: org.kevoree.modeling.api.time.rbtree.LongRBTree = new org.kevoree.modeling.api.time.rbtree.LongRBTree();
+                                                                    var globalUniverseTree: org.kevoree.modeling.api.rbtree.LongRBTree = new org.kevoree.modeling.api.rbtree.LongRBTree();
                                                                     if (globalUniverseTreePayload != null) {
                                                                         try {
                                                                             globalUniverseTree.unserialize(globalUniverseTreePayload);
@@ -2922,13 +2928,13 @@ module org {
                             }
 
                             public entry(origin: org.kevoree.modeling.api.KObject, accessMode: org.kevoree.modeling.api.data.manager.AccessMode): org.kevoree.modeling.api.data.cache.KCacheEntry {
-                                var dimensionTree: org.kevoree.modeling.api.time.rbtree.LongRBTree = origin.universeTree();
+                                var dimensionTree: org.kevoree.modeling.api.rbtree.LongRBTree = origin.universeTree();
                                 var resolvedUniverse: number = this.internal_resolve_universe(dimensionTree, origin.now(), origin.view().universe().key());
-                                var timeTree: org.kevoree.modeling.api.time.rbtree.IndexRBTree = <org.kevoree.modeling.api.time.rbtree.IndexRBTree>this._db.cache().get(org.kevoree.modeling.api.data.cache.KContentKey.createTimeTree(resolvedUniverse, origin.uuid()));
+                                var timeTree: org.kevoree.modeling.api.rbtree.IndexRBTree = <org.kevoree.modeling.api.rbtree.IndexRBTree>this._db.cache().get(org.kevoree.modeling.api.data.cache.KContentKey.createTimeTree(resolvedUniverse, origin.uuid()));
                                 if (timeTree == null) {
                                     throw new java.lang.RuntimeException(DefaultKDataManager.OUT_OF_CACHE_MESSAGE + " : TimeTree not found for " + org.kevoree.modeling.api.data.cache.KContentKey.createTimeTree(resolvedUniverse, origin.uuid()) + " from " + origin.universe().key() + "/" + resolvedUniverse);
                                 }
-                                var resolvedNode: org.kevoree.modeling.api.time.rbtree.TreeNode = timeTree.previousOrEqual(origin.now());
+                                var resolvedNode: org.kevoree.modeling.api.rbtree.TreeNode = timeTree.previousOrEqual(origin.now());
                                 var resolvedTime: number;
                                 if (resolvedNode != null) {
                                     resolvedTime = resolvedNode.getKey();
@@ -2964,7 +2970,7 @@ module org {
                                         if (!needUniverseCopy) {
                                             timeTree.insert(origin.now());
                                         } else {
-                                            var newTemporalTree: org.kevoree.modeling.api.time.rbtree.IndexRBTree = new org.kevoree.modeling.api.time.rbtree.IndexRBTree();
+                                            var newTemporalTree: org.kevoree.modeling.api.rbtree.IndexRBTree = new org.kevoree.modeling.api.rbtree.IndexRBTree();
                                             newTemporalTree.insert(origin.now());
                                             this._db.cache().put(org.kevoree.modeling.api.data.cache.KContentKey.createTimeTree(origin.universe().key(), origin.uuid()), newTemporalTree);
                                             dimensionTree.insert(origin.universe().key(), origin.now());
@@ -3033,7 +3039,7 @@ module org {
                                         tempResult[i] = new org.kevoree.modeling.api.data.manager.ResolutionResult();
                                     }
                                     var universeObjectTreeKey: org.kevoree.modeling.api.data.cache.KContentKey = org.kevoree.modeling.api.data.cache.KContentKey.createUniverseTree(uuids[i]);
-                                    var cachedUniverseTree: org.kevoree.modeling.api.time.rbtree.LongRBTree = <org.kevoree.modeling.api.time.rbtree.LongRBTree>this._db.cache().get(universeObjectTreeKey);
+                                    var cachedUniverseTree: org.kevoree.modeling.api.rbtree.LongRBTree = <org.kevoree.modeling.api.rbtree.LongRBTree>this._db.cache().get(universeObjectTreeKey);
                                     if (cachedUniverseTree != null) {
                                         tempResult[i].universeTree = cachedUniverseTree;
                                     } else {
@@ -3057,7 +3063,7 @@ module org {
                                             callback(tempResult);
                                         } else {
                                             for (var i: number = 0; i < resolvedContents.length; i++) {
-                                                var newLoadedTree: org.kevoree.modeling.api.time.rbtree.LongRBTree = new org.kevoree.modeling.api.time.rbtree.LongRBTree();
+                                                var newLoadedTree: org.kevoree.modeling.api.rbtree.LongRBTree = new org.kevoree.modeling.api.rbtree.LongRBTree();
                                                 if (resolvedContents[i] != null) {
                                                     try {
                                                         newLoadedTree.unserialize(resolvedContents[i]);
@@ -3088,10 +3094,10 @@ module org {
                                         if (closestUniverse != null) {
                                             tempResult[i].resolvedUniverse = closestUniverse;
                                             var timeObjectTreeKey: org.kevoree.modeling.api.data.cache.KContentKey = org.kevoree.modeling.api.data.cache.KContentKey.createTimeTree(closestUniverse, uuids[i]);
-                                            var cachedIndexTree: org.kevoree.modeling.api.time.rbtree.IndexRBTree = <org.kevoree.modeling.api.time.rbtree.IndexRBTree>this._db.cache().get(timeObjectTreeKey);
+                                            var cachedIndexTree: org.kevoree.modeling.api.rbtree.IndexRBTree = <org.kevoree.modeling.api.rbtree.IndexRBTree>this._db.cache().get(timeObjectTreeKey);
                                             if (cachedIndexTree != null) {
                                                 tempResult[i].timeTree = cachedIndexTree;
-                                                var resolvedNode: org.kevoree.modeling.api.time.rbtree.TreeNode = cachedIndexTree.previousOrEqual(originView.now());
+                                                var resolvedNode: org.kevoree.modeling.api.rbtree.TreeNode = cachedIndexTree.previousOrEqual(originView.now());
                                                 if (resolvedNode != null) {
                                                     tempResult[i].resolvedQuanta = resolvedNode.getKey();
                                                 }
@@ -3120,7 +3126,7 @@ module org {
                                             callback(tempResult);
                                         } else {
                                             for (var i: number = 0; i < resolvedContents.length; i++) {
-                                                var newLoadedTree: org.kevoree.modeling.api.time.rbtree.IndexRBTree = new org.kevoree.modeling.api.time.rbtree.IndexRBTree();
+                                                var newLoadedTree: org.kevoree.modeling.api.rbtree.IndexRBTree = new org.kevoree.modeling.api.rbtree.IndexRBTree();
                                                 if (resolvedContents[i] != null) {
                                                     try {
                                                         newLoadedTree.unserialize(resolvedContents[i]);
@@ -3133,7 +3139,7 @@ module org {
                                                 }
                                                 var initialIndex: number = finalToLoadIndexTimes.get(i);
                                                 tempResult[initialIndex].timeTree = newLoadedTree;
-                                                var resolvedNode: org.kevoree.modeling.api.time.rbtree.TreeNode = newLoadedTree.previousOrEqual(originView.now());
+                                                var resolvedNode: org.kevoree.modeling.api.rbtree.TreeNode = newLoadedTree.previousOrEqual(originView.now());
                                                 if (resolvedNode != null) {
                                                     tempResult[initialIndex].resolvedQuanta = resolvedNode.getKey();
                                                 }
@@ -3147,12 +3153,12 @@ module org {
                                 }
                             }
 
-                            private internal_resolve_universe(universeTree: org.kevoree.modeling.api.time.rbtree.LongRBTree, timeToResolve: number, currentUniverse: number): number {
+                            private internal_resolve_universe(universeTree: org.kevoree.modeling.api.rbtree.LongRBTree, timeToResolve: number, currentUniverse: number): number {
                                 return currentUniverse;
                             }
 
-                            public internal_root_load(contentKey: org.kevoree.modeling.api.data.cache.KContentKey, callback: (p : org.kevoree.modeling.api.time.rbtree.LongRBTree) => void): void {
-                                var rootUniverseTree: org.kevoree.modeling.api.time.rbtree.LongRBTree = <org.kevoree.modeling.api.time.rbtree.LongRBTree>this._db.cache().get(contentKey);
+                            public internal_root_load(contentKey: org.kevoree.modeling.api.data.cache.KContentKey, callback: (p : org.kevoree.modeling.api.rbtree.LongRBTree) => void): void {
+                                var rootUniverseTree: org.kevoree.modeling.api.rbtree.LongRBTree = <org.kevoree.modeling.api.rbtree.LongRBTree>this._db.cache().get(contentKey);
                                 if (rootUniverseTree == null) {
                                     var requestKeys: org.kevoree.modeling.api.data.cache.KContentKey[] = new Array();
                                     requestKeys[0] = contentKey;
@@ -3161,7 +3167,7 @@ module org {
                                             error.printStackTrace();
                                             callback(null);
                                         } else {
-                                            var newRootUniverseTree: org.kevoree.modeling.api.time.rbtree.LongRBTree = new org.kevoree.modeling.api.time.rbtree.LongRBTree();
+                                            var newRootUniverseTree: org.kevoree.modeling.api.rbtree.LongRBTree = new org.kevoree.modeling.api.rbtree.LongRBTree();
                                             try {
                                                 newRootUniverseTree.unserialize(strings[0]);
                                             } catch ($ex$) {
@@ -3181,7 +3187,7 @@ module org {
 
                             public getRoot(originView: org.kevoree.modeling.api.KView, callback: (p : org.kevoree.modeling.api.KObject) => void): void {
                                 var universeTreeRootKey: org.kevoree.modeling.api.data.cache.KContentKey = org.kevoree.modeling.api.data.cache.KContentKey.createRootUniverseTree();
-                                this.internal_root_load(universeTreeRootKey,  (longRBTree : org.kevoree.modeling.api.time.rbtree.LongRBTree) => {
+                                this.internal_root_load(universeTreeRootKey,  (longRBTree : org.kevoree.modeling.api.rbtree.LongRBTree) => {
                                     if (longRBTree == null) {
                                         callback(null);
                                     } else {
@@ -3190,11 +3196,11 @@ module org {
                                             callback(null);
                                         } else {
                                             var universeTreeRootKey: org.kevoree.modeling.api.data.cache.KContentKey = org.kevoree.modeling.api.data.cache.KContentKey.createRootTimeTree(closestUniverse);
-                                            this.internal_root_load(universeTreeRootKey,  (longRBTree : org.kevoree.modeling.api.time.rbtree.LongRBTree) => {
+                                            this.internal_root_load(universeTreeRootKey,  (longRBTree : org.kevoree.modeling.api.rbtree.LongRBTree) => {
                                                 if (longRBTree == null) {
                                                     callback(null);
                                                 } else {
-                                                    var resolvedNode: org.kevoree.modeling.api.time.rbtree.LongTreeNode = longRBTree.previousOrEqual(originView.now());
+                                                    var resolvedNode: org.kevoree.modeling.api.rbtree.LongTreeNode = longRBTree.previousOrEqual(originView.now());
                                                     if (resolvedNode == null) {
                                                         callback(null);
                                                     } else {
@@ -3209,14 +3215,14 @@ module org {
 
                             public setRoot(newRoot: org.kevoree.modeling.api.KObject, callback: (p : java.lang.Throwable) => void): void {
                                 var universeTreeRootKey: org.kevoree.modeling.api.data.cache.KContentKey = org.kevoree.modeling.api.data.cache.KContentKey.createRootUniverseTree();
-                                this.internal_root_load(universeTreeRootKey,  (longRBTree : org.kevoree.modeling.api.time.rbtree.LongRBTree) => {
+                                this.internal_root_load(universeTreeRootKey,  (longRBTree : org.kevoree.modeling.api.rbtree.LongRBTree) => {
                                     if (longRBTree == null) {
                                         callback(new java.lang.Exception("KMF ERROR, ROOT TREE CANNOT BE CREATED"));
                                     } else {
                                         var closestUniverse: number = this.internal_resolve_universe(longRBTree, newRoot.now(), newRoot.universe().key());
                                         if (closestUniverse != newRoot.universe().key()) {
                                             longRBTree.insert(newRoot.universe().key(), newRoot.now());
-                                            var newTimeTree: org.kevoree.modeling.api.time.rbtree.LongRBTree = new org.kevoree.modeling.api.time.rbtree.LongRBTree();
+                                            var newTimeTree: org.kevoree.modeling.api.rbtree.LongRBTree = new org.kevoree.modeling.api.rbtree.LongRBTree();
                                             newTimeTree.insert(newRoot.now(), newRoot.uuid());
                                             var universeTreeRootKey: org.kevoree.modeling.api.data.cache.KContentKey = org.kevoree.modeling.api.data.cache.KContentKey.createRootTimeTree(newRoot.universe().key());
                                             this._db.cache().put(universeTreeRootKey, newTimeTree);
@@ -3225,7 +3231,7 @@ module org {
                                             }
                                         } else {
                                             var universeTreeRootKey: org.kevoree.modeling.api.data.cache.KContentKey = org.kevoree.modeling.api.data.cache.KContentKey.createRootTimeTree(closestUniverse);
-                                            this.internal_root_load(universeTreeRootKey,  (longRBTree : org.kevoree.modeling.api.time.rbtree.LongRBTree) => {
+                                            this.internal_root_load(universeTreeRootKey,  (longRBTree : org.kevoree.modeling.api.rbtree.LongRBTree) => {
                                                 if (longRBTree == null) {
                                                     if (callback != null) {
                                                         callback(new java.lang.Exception("KMF ERROR, ROOT TREE CANNOT BE CREATED"));
@@ -3240,6 +3246,9 @@ module org {
                                         }
                                     }
                                 });
+                            }
+
+                            public timeTrees(origin: org.kevoree.modeling.api.KObject, start: number, end: number, callback: (p : org.kevoree.modeling.api.rbtree.IndexRBTree[]) => void): void {
                             }
 
                         }
@@ -3562,11 +3571,17 @@ module org {
 
                         export interface KDataManager {
 
+                            cdn(): org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
+
+                            model(): org.kevoree.modeling.api.KModel<any>;
+
                             lookup(originView: org.kevoree.modeling.api.KView, key: number, callback: (p : org.kevoree.modeling.api.KObject) => void): void;
 
                             lookupAll(originView: org.kevoree.modeling.api.KView, key: number[], callback: (p : org.kevoree.modeling.api.KObject[]) => void): void;
 
                             entry(origin: org.kevoree.modeling.api.KObject, accessMode: org.kevoree.modeling.api.data.manager.AccessMode): org.kevoree.modeling.api.data.cache.KCacheEntry;
+
+                            timeTrees(origin: org.kevoree.modeling.api.KObject, start: number, end: number, callback: (p : org.kevoree.modeling.api.rbtree.IndexRBTree[]) => void): void;
 
                             save(callback: (p : java.lang.Throwable) => void): void;
 
@@ -3586,8 +3601,6 @@ module org {
 
                             setRoot(newRoot: org.kevoree.modeling.api.KObject, callback: (p : java.lang.Throwable) => void): void;
 
-                            cdn(): org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
-
                             setContentDeliveryDriver(driver: org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver): void;
 
                             setScheduler(scheduler: org.kevoree.modeling.api.KScheduler): void;
@@ -3597,8 +3610,6 @@ module org {
                             connect(callback: (p : java.lang.Throwable) => void): void;
 
                             close(callback: (p : java.lang.Throwable) => void): void;
-
-                            getModel(): org.kevoree.modeling.api.KModel<any>;
 
                             parentUniverseKey(currentUniverseKey: number): number;
 
@@ -3705,9 +3716,9 @@ module org {
                         export class ResolutionResult {
 
                             public resolvedUniverse: number = null;
-                            public universeTree: org.kevoree.modeling.api.time.rbtree.LongRBTree = null;
+                            public universeTree: org.kevoree.modeling.api.rbtree.LongRBTree = null;
                             public resolvedQuanta: number = null;
-                            public timeTree: org.kevoree.modeling.api.time.rbtree.IndexRBTree = null;
+                            public timeTree: org.kevoree.modeling.api.rbtree.IndexRBTree = null;
                         }
 
                     }
@@ -3858,7 +3869,7 @@ module org {
                 export module infer {
                     export class AnalyticKInfer extends org.kevoree.modeling.api.abs.AbstractKObjectInfer {
 
-                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_universeTree: org.kevoree.modeling.api.time.rbtree.LongRBTree) {
+                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_universeTree: org.kevoree.modeling.api.rbtree.LongRBTree) {
                             super(p_view, p_uuid, p_universeTree, null);
                         }
 
@@ -3893,7 +3904,7 @@ module org {
                     export class GaussianClassificationKInfer extends org.kevoree.modeling.api.abs.AbstractKObjectInfer {
 
                         private alpha: number = 0.05;
-                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_universeTree: org.kevoree.modeling.api.time.rbtree.LongRBTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
+                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_universeTree: org.kevoree.modeling.api.rbtree.LongRBTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
                             super(p_view, p_uuid, p_universeTree, p_metaClass);
                         }
 
@@ -3962,7 +3973,7 @@ module org {
                             this.iterations = iterations;
                         }
 
-                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_universeTree: org.kevoree.modeling.api.time.rbtree.LongRBTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
+                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_universeTree: org.kevoree.modeling.api.rbtree.LongRBTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
                             super(p_view, p_uuid, p_universeTree, p_metaClass);
                         }
 
@@ -4049,7 +4060,7 @@ module org {
                             this.iterations = iterations;
                         }
 
-                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_universeTree: org.kevoree.modeling.api.time.rbtree.LongRBTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
+                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_universeTree: org.kevoree.modeling.api.rbtree.LongRBTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
                             super(p_view, p_uuid, p_universeTree, p_metaClass);
                         }
 
@@ -4147,7 +4158,7 @@ module org {
                             this.maxDegree = maxDegree;
                         }
 
-                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_universeTree: org.kevoree.modeling.api.time.rbtree.LongRBTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
+                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_universeTree: org.kevoree.modeling.api.rbtree.LongRBTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
                             super(p_view, p_uuid, p_universeTree, p_metaClass);
                         }
 
@@ -4245,7 +4256,7 @@ module org {
                             this.maxDegree = maxDegree;
                         }
 
-                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_universeTree: org.kevoree.modeling.api.time.rbtree.LongRBTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
+                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_universeTree: org.kevoree.modeling.api.rbtree.LongRBTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
                             super(p_view, p_uuid, p_universeTree, p_metaClass);
                         }
 
@@ -4343,7 +4354,7 @@ module org {
                             this.beta = beta;
                         }
 
-                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_universeTree: org.kevoree.modeling.api.time.rbtree.LongRBTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
+                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_universeTree: org.kevoree.modeling.api.rbtree.LongRBTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
                             super(p_view, p_uuid, p_universeTree, p_metaClass);
                         }
 
@@ -5216,9 +5227,9 @@ module org {
                             this._view = p_view;
                         }
 
-                        public save(model: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any> {
+                        public save(model: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any> {
                             if (org.kevoree.modeling.api.util.Checker.isDefined(model)) {
-                                var wrapper: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                                var wrapper: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                                 org.kevoree.modeling.api.json.JsonModelSerializer.serialize(model, wrapper.initCallback());
                                 return wrapper;
                             } else {
@@ -5226,8 +5237,8 @@ module org {
                             }
                         }
 
-                        public saveRoot(): org.kevoree.modeling.api.KTask<any> {
-                            var wrapper: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public saveRoot(): org.kevoree.modeling.api.KDefer<any> {
+                            var wrapper: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             this._view.universe().model().manager().getRoot(this._view,  (root : org.kevoree.modeling.api.KObject) => {
                                 if (root == null) {
                                     wrapper.initCallback()(null);
@@ -5238,9 +5249,9 @@ module org {
                             return wrapper;
                         }
 
-                        public load(payload: string): org.kevoree.modeling.api.KTask<any> {
+                        public load(payload: string): org.kevoree.modeling.api.KDefer<any> {
                             if (org.kevoree.modeling.api.util.Checker.isDefined(payload)) {
-                                var wrapper: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                                var wrapper: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                                 org.kevoree.modeling.api.json.JsonModelLoader.load(this._view, payload, wrapper.initCallback());
                                 return wrapper;
                             } else {
@@ -5320,7 +5331,7 @@ module org {
                                             var elem: java.util.Map<string, any> = alls.get(i);
                                             var kid: number = java.lang.Long.parseLong(elem.get(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_UUID).toString());
                                             var meta: string = elem.get(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_META).toString();
-                                            var universeTree: org.kevoree.modeling.api.time.rbtree.LongRBTree = new org.kevoree.modeling.api.time.rbtree.LongRBTree();
+                                            var universeTree: org.kevoree.modeling.api.rbtree.LongRBTree = new org.kevoree.modeling.api.rbtree.LongRBTree();
                                             universeTree.insert(factory.universe().key(), factory.now());
                                             var metaClass: org.kevoree.modeling.api.meta.MetaClass = metaModel.metaClass(meta);
                                             var current: org.kevoree.modeling.api.KObject = (<org.kevoree.modeling.api.abs.AbstractKView>factory).createProxy(metaClass, universeTree, mappedKeys.get(kid));
@@ -6013,7 +6024,8 @@ module org {
                         public objID: number;
                         public meta: number[];
                         public json(): string {
-                            return null;
+                            var builder: java.lang.StringBuilder = new java.lang.StringBuilder();
+                            return builder.toString();
                         }
 
                         public type(): number {
@@ -7353,6 +7365,1462 @@ module org {
 
                     }
                 }
+                export module rbtree {
+                    export class Color {
+
+                        public static RED: Color = new Color();
+                        public static BLACK: Color = new Color();
+                        public equals(other: any): boolean {
+                            return this == other;
+                        }
+                        public static _ColorVALUES : Color[] = [
+                            Color.RED
+                            ,Color.BLACK
+                        ];
+                        public static values():Color[]{
+                            return Color._ColorVALUES;
+                        }
+                    }
+
+                    export class IndexRBTree implements org.kevoree.modeling.api.data.cache.KCacheObject {
+
+                        public root: org.kevoree.modeling.api.rbtree.TreeNode = null;
+                        private _size: number = 0;
+                        private _dirty: boolean = false;
+                        public size(): number {
+                            return this._size;
+                        }
+
+                        public isDirty(): boolean {
+                            return this._dirty;
+                        }
+
+                        public serialize(): string {
+                            var builder: java.lang.StringBuilder = new java.lang.StringBuilder();
+                            builder.append(this._size);
+                            if (this.root != null) {
+                                this.root.serialize(builder);
+                            }
+                            return builder.toString();
+                        }
+
+                        public setClean(): void {
+                            this._dirty = false;
+                        }
+
+                        public toString(): string {
+                            return this.serialize();
+                        }
+
+                        public unserialize(payload: string): void {
+                            if (payload == null || payload.length == 0) {
+                                return;
+                            }
+                            var i: number = 0;
+                            var buffer: java.lang.StringBuilder = new java.lang.StringBuilder();
+                            var ch: string = payload.charAt(i);
+                            while (i < payload.length && ch != '|'){
+                                buffer.append(ch);
+                                i = i + 1;
+                                ch = payload.charAt(i);
+                            }
+                            this._size = java.lang.Integer.parseInt(buffer.toString());
+                            var ctx: org.kevoree.modeling.api.rbtree.TreeReaderContext = new org.kevoree.modeling.api.rbtree.TreeReaderContext();
+                            ctx.index = i;
+                            ctx.payload = payload;
+                            this.root = org.kevoree.modeling.api.rbtree.TreeNode.unserialize(ctx);
+                        }
+
+                        public previousOrEqual(key: number): org.kevoree.modeling.api.rbtree.TreeNode {
+                            var p: org.kevoree.modeling.api.rbtree.TreeNode = this.root;
+                            if (p == null) {
+                                return null;
+                            }
+                            while (p != null){
+                                if (key == p.key) {
+                                    return p;
+                                }
+                                if (key > p.key) {
+                                    if (p.getRight() != null) {
+                                        p = p.getRight();
+                                    } else {
+                                        return p;
+                                    }
+                                } else {
+                                    if (p.getLeft() != null) {
+                                        p = p.getLeft();
+                                    } else {
+                                        var parent: org.kevoree.modeling.api.rbtree.TreeNode = p.getParent();
+                                        var ch: org.kevoree.modeling.api.rbtree.TreeNode = p;
+                                        while (parent != null && ch == parent.getLeft()){
+                                            ch = parent;
+                                            parent = parent.getParent();
+                                        }
+                                        return parent;
+                                    }
+                                }
+                            }
+                            return null;
+                        }
+
+                        public nextOrEqual(key: number): org.kevoree.modeling.api.rbtree.TreeNode {
+                            var p: org.kevoree.modeling.api.rbtree.TreeNode = this.root;
+                            if (p == null) {
+                                return null;
+                            }
+                            while (p != null){
+                                if (key == p.key) {
+                                    return p;
+                                }
+                                if (key < p.key) {
+                                    if (p.getLeft() != null) {
+                                        p = p.getLeft();
+                                    } else {
+                                        return p;
+                                    }
+                                } else {
+                                    if (p.getRight() != null) {
+                                        p = p.getRight();
+                                    } else {
+                                        var parent: org.kevoree.modeling.api.rbtree.TreeNode = p.getParent();
+                                        var ch: org.kevoree.modeling.api.rbtree.TreeNode = p;
+                                        while (parent != null && ch == parent.getRight()){
+                                            ch = parent;
+                                            parent = parent.getParent();
+                                        }
+                                        return parent;
+                                    }
+                                }
+                            }
+                            return null;
+                        }
+
+                        public previous(key: number): org.kevoree.modeling.api.rbtree.TreeNode {
+                            var p: org.kevoree.modeling.api.rbtree.TreeNode = this.root;
+                            if (p == null) {
+                                return null;
+                            }
+                            while (p != null){
+                                if (key < p.key) {
+                                    if (p.getLeft() != null) {
+                                        p = p.getLeft();
+                                    } else {
+                                        return p.previous();
+                                    }
+                                } else {
+                                    if (key > p.key) {
+                                        if (p.getRight() != null) {
+                                            p = p.getRight();
+                                        } else {
+                                            return p;
+                                        }
+                                    } else {
+                                        return p.previous();
+                                    }
+                                }
+                            }
+                            return null;
+                        }
+
+                        public next(key: number): org.kevoree.modeling.api.rbtree.TreeNode {
+                            var p: org.kevoree.modeling.api.rbtree.TreeNode = this.root;
+                            if (p == null) {
+                                return null;
+                            }
+                            while (p != null){
+                                if (key < p.key) {
+                                    if (p.getLeft() != null) {
+                                        p = p.getLeft();
+                                    } else {
+                                        return p;
+                                    }
+                                } else {
+                                    if (key > p.key) {
+                                        if (p.getRight() != null) {
+                                            p = p.getRight();
+                                        } else {
+                                            return p.next();
+                                        }
+                                    } else {
+                                        return p.next();
+                                    }
+                                }
+                            }
+                            return null;
+                        }
+
+                        public first(): org.kevoree.modeling.api.rbtree.TreeNode {
+                            var p: org.kevoree.modeling.api.rbtree.TreeNode = this.root;
+                            if (p == null) {
+                                return null;
+                            }
+                            while (p != null){
+                                if (p.getLeft() != null) {
+                                    p = p.getLeft();
+                                } else {
+                                    return p;
+                                }
+                            }
+                            return null;
+                        }
+
+                        public last(): org.kevoree.modeling.api.rbtree.TreeNode {
+                            var p: org.kevoree.modeling.api.rbtree.TreeNode = this.root;
+                            if (p == null) {
+                                return null;
+                            }
+                            while (p != null){
+                                if (p.getRight() != null) {
+                                    p = p.getRight();
+                                } else {
+                                    return p;
+                                }
+                            }
+                            return null;
+                        }
+
+                        private lookupNode(key: number): org.kevoree.modeling.api.rbtree.TreeNode {
+                            var n: org.kevoree.modeling.api.rbtree.TreeNode = this.root;
+                            if (n == null) {
+                                return null;
+                            }
+                            while (n != null){
+                                if (key == n.key) {
+                                    return n;
+                                } else {
+                                    if (key < n.key) {
+                                        n = n.getLeft();
+                                    } else {
+                                        n = n.getRight();
+                                    }
+                                }
+                            }
+                            return n;
+                        }
+
+                        public lookup(key: number): number {
+                            var n: org.kevoree.modeling.api.rbtree.TreeNode = this.lookupNode(key);
+                            if (n == null) {
+                                return null;
+                            } else {
+                                return n.key;
+                            }
+                        }
+
+                        private rotateLeft(n: org.kevoree.modeling.api.rbtree.TreeNode): void {
+                            var r: org.kevoree.modeling.api.rbtree.TreeNode = n.getRight();
+                            this.replaceNode(n, r);
+                            n.setRight(r.getLeft());
+                            if (r.getLeft() != null) {
+                                r.getLeft().setParent(n);
+                            }
+                            r.setLeft(n);
+                            n.setParent(r);
+                        }
+
+                        private rotateRight(n: org.kevoree.modeling.api.rbtree.TreeNode): void {
+                            var l: org.kevoree.modeling.api.rbtree.TreeNode = n.getLeft();
+                            this.replaceNode(n, l);
+                            n.setLeft(l.getRight());
+                            if (l.getRight() != null) {
+                                l.getRight().setParent(n);
+                            }
+                            l.setRight(n);
+                            n.setParent(l);
+                        }
+
+                        private replaceNode(oldn: org.kevoree.modeling.api.rbtree.TreeNode, newn: org.kevoree.modeling.api.rbtree.TreeNode): void {
+                            if (oldn.getParent() == null) {
+                                this.root = newn;
+                            } else {
+                                if (oldn == oldn.getParent().getLeft()) {
+                                    oldn.getParent().setLeft(newn);
+                                } else {
+                                    oldn.getParent().setRight(newn);
+                                }
+                            }
+                            if (newn != null) {
+                                newn.setParent(oldn.getParent());
+                            }
+                        }
+
+                        public insert(key: number): void {
+                            this._dirty = true;
+                            var insertedNode: org.kevoree.modeling.api.rbtree.TreeNode = new org.kevoree.modeling.api.rbtree.TreeNode(key, org.kevoree.modeling.api.rbtree.Color.RED, null, null);
+                            if (this.root == null) {
+                                this._size++;
+                                this.root = insertedNode;
+                            } else {
+                                var n: org.kevoree.modeling.api.rbtree.TreeNode = this.root;
+                                while (true){
+                                    if (key == n.key) {
+                                        return;
+                                    } else {
+                                        if (key < n.key) {
+                                            if (n.getLeft() == null) {
+                                                n.setLeft(insertedNode);
+                                                this._size++;
+                                                break;
+                                            } else {
+                                                n = n.getLeft();
+                                            }
+                                        } else {
+                                            if (n.getRight() == null) {
+                                                n.setRight(insertedNode);
+                                                this._size++;
+                                                break;
+                                            } else {
+                                                n = n.getRight();
+                                            }
+                                        }
+                                    }
+                                }
+                                insertedNode.setParent(n);
+                            }
+                            this.insertCase1(insertedNode);
+                        }
+
+                        private insertCase1(n: org.kevoree.modeling.api.rbtree.TreeNode): void {
+                            if (n.getParent() == null) {
+                                n.color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            } else {
+                                this.insertCase2(n);
+                            }
+                        }
+
+                        private insertCase2(n: org.kevoree.modeling.api.rbtree.TreeNode): void {
+                            if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                return;
+                            } else {
+                                this.insertCase3(n);
+                            }
+                        }
+
+                        private insertCase3(n: org.kevoree.modeling.api.rbtree.TreeNode): void {
+                            if (this.nodeColor(n.uncle()) == org.kevoree.modeling.api.rbtree.Color.RED) {
+                                n.getParent().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                n.uncle().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                n.grandparent().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                this.insertCase1(n.grandparent());
+                            } else {
+                                this.insertCase4(n);
+                            }
+                        }
+
+                        private insertCase4(n_n: org.kevoree.modeling.api.rbtree.TreeNode): void {
+                            var n: org.kevoree.modeling.api.rbtree.TreeNode = n_n;
+                            if (n == n.getParent().getRight() && n.getParent() == n.grandparent().getLeft()) {
+                                this.rotateLeft(n.getParent());
+                                n = n.getLeft();
+                            } else {
+                                if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getRight()) {
+                                    this.rotateRight(n.getParent());
+                                    n = n.getRight();
+                                }
+                            }
+                            this.insertCase5(n);
+                        }
+
+                        private insertCase5(n: org.kevoree.modeling.api.rbtree.TreeNode): void {
+                            n.getParent().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            n.grandparent().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                            if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getLeft()) {
+                                this.rotateRight(n.grandparent());
+                            } else {
+                                this.rotateLeft(n.grandparent());
+                            }
+                        }
+
+                        public delete(key: number): void {
+                            var n: org.kevoree.modeling.api.rbtree.TreeNode = this.lookupNode(key);
+                            if (n == null) {
+                                return;
+                            } else {
+                                this._size--;
+                                if (n.getLeft() != null && n.getRight() != null) {
+                                    var pred: org.kevoree.modeling.api.rbtree.TreeNode = n.getLeft();
+                                    while (pred.getRight() != null){
+                                        pred = pred.getRight();
+                                    }
+                                    n.key = pred.key;
+                                    n = pred;
+                                }
+                                var child: org.kevoree.modeling.api.rbtree.TreeNode;
+                                if (n.getRight() == null) {
+                                    child = n.getLeft();
+                                } else {
+                                    child = n.getRight();
+                                }
+                                if (this.nodeColor(n) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                    n.color = this.nodeColor(child);
+                                    this.deleteCase1(n);
+                                }
+                                this.replaceNode(n, child);
+                            }
+                        }
+
+                        private deleteCase1(n: org.kevoree.modeling.api.rbtree.TreeNode): void {
+                            if (n.getParent() == null) {
+                                return;
+                            } else {
+                                this.deleteCase2(n);
+                            }
+                        }
+
+                        private deleteCase2(n: org.kevoree.modeling.api.rbtree.TreeNode): void {
+                            if (this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.RED) {
+                                n.getParent().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                n.sibling().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                if (n == n.getParent().getLeft()) {
+                                    this.rotateLeft(n.getParent());
+                                } else {
+                                    this.rotateRight(n.getParent());
+                                }
+                            }
+                            this.deleteCase3(n);
+                        }
+
+                        private deleteCase3(n: org.kevoree.modeling.api.rbtree.TreeNode): void {
+                            if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                n.sibling().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                this.deleteCase1(n.getParent());
+                            } else {
+                                this.deleteCase4(n);
+                            }
+                        }
+
+                        private deleteCase4(n: org.kevoree.modeling.api.rbtree.TreeNode): void {
+                            if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.rbtree.Color.RED && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                n.sibling().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                n.getParent().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            } else {
+                                this.deleteCase5(n);
+                            }
+                        }
+
+                        private deleteCase5(n: org.kevoree.modeling.api.rbtree.TreeNode): void {
+                            if (n == n.getParent().getLeft() && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.rbtree.Color.RED && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                n.sibling().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                n.sibling().getLeft().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                this.rotateRight(n.sibling());
+                            } else {
+                                if (n == n.getParent().getRight() && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.rbtree.Color.RED && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                    n.sibling().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                    n.sibling().getRight().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                    this.rotateLeft(n.sibling());
+                                }
+                            }
+                            this.deleteCase6(n);
+                        }
+
+                        private deleteCase6(n: org.kevoree.modeling.api.rbtree.TreeNode): void {
+                            n.sibling().color = this.nodeColor(n.getParent());
+                            n.getParent().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            if (n == n.getParent().getLeft()) {
+                                n.sibling().getRight().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                this.rotateLeft(n.getParent());
+                            } else {
+                                n.sibling().getLeft().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                this.rotateRight(n.getParent());
+                            }
+                        }
+
+                        private nodeColor(n: org.kevoree.modeling.api.rbtree.TreeNode): org.kevoree.modeling.api.rbtree.Color {
+                            if (n == null) {
+                                return org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            } else {
+                                return n.color;
+                            }
+                        }
+
+                    }
+
+                    export class LongRBTree implements org.kevoree.modeling.api.data.cache.KCacheObject {
+
+                        public root: org.kevoree.modeling.api.rbtree.LongTreeNode = null;
+                        private _size: number = 0;
+                        public _dirty: boolean = false;
+                        public size(): number {
+                            return this._size;
+                        }
+
+                        public toString(): string {
+                            return this.serialize();
+                        }
+
+                        public isDirty(): boolean {
+                            return this._dirty;
+                        }
+
+                        public serialize(): string {
+                            var builder: java.lang.StringBuilder = new java.lang.StringBuilder();
+                            builder.append(this._size);
+                            if (this.root != null) {
+                                this.root.serialize(builder);
+                            }
+                            return builder.toString();
+                        }
+
+                        public setClean(): void {
+                            this._dirty = false;
+                        }
+
+                        public unserialize(payload: string): void {
+                            if (payload == null || payload.length == 0) {
+                                return;
+                            }
+                            var i: number = 0;
+                            var buffer: java.lang.StringBuilder = new java.lang.StringBuilder();
+                            var ch: string = payload.charAt(i);
+                            while (i < payload.length && ch != '|'){
+                                buffer.append(ch);
+                                i = i + 1;
+                                ch = payload.charAt(i);
+                            }
+                            this._size = java.lang.Integer.parseInt(buffer.toString());
+                            var ctx: org.kevoree.modeling.api.rbtree.TreeReaderContext = new org.kevoree.modeling.api.rbtree.TreeReaderContext();
+                            ctx.index = i;
+                            ctx.payload = payload;
+                            ctx.buffer = new Array();
+                            this.root = org.kevoree.modeling.api.rbtree.LongTreeNode.unserialize(ctx);
+                            this._dirty = false;
+                        }
+
+                        public previousOrEqual(key: number): org.kevoree.modeling.api.rbtree.LongTreeNode {
+                            var p: org.kevoree.modeling.api.rbtree.LongTreeNode = this.root;
+                            if (p == null) {
+                                return null;
+                            }
+                            while (p != null){
+                                if (key == p.key) {
+                                    return p;
+                                }
+                                if (key > p.key) {
+                                    if (p.getRight() != null) {
+                                        p = p.getRight();
+                                    } else {
+                                        return p;
+                                    }
+                                } else {
+                                    if (p.getLeft() != null) {
+                                        p = p.getLeft();
+                                    } else {
+                                        var parent: org.kevoree.modeling.api.rbtree.LongTreeNode = p.getParent();
+                                        var ch: org.kevoree.modeling.api.rbtree.LongTreeNode = p;
+                                        while (parent != null && ch == parent.getLeft()){
+                                            ch = parent;
+                                            parent = parent.getParent();
+                                        }
+                                        return parent;
+                                    }
+                                }
+                            }
+                            return null;
+                        }
+
+                        public nextOrEqual(key: number): org.kevoree.modeling.api.rbtree.LongTreeNode {
+                            var p: org.kevoree.modeling.api.rbtree.LongTreeNode = this.root;
+                            if (p == null) {
+                                return null;
+                            }
+                            while (p != null){
+                                if (key == p.key) {
+                                    return p;
+                                }
+                                if (key < p.key) {
+                                    if (p.getLeft() != null) {
+                                        p = p.getLeft();
+                                    } else {
+                                        return p;
+                                    }
+                                } else {
+                                    if (p.getRight() != null) {
+                                        p = p.getRight();
+                                    } else {
+                                        var parent: org.kevoree.modeling.api.rbtree.LongTreeNode = p.getParent();
+                                        var ch: org.kevoree.modeling.api.rbtree.LongTreeNode = p;
+                                        while (parent != null && ch == parent.getRight()){
+                                            ch = parent;
+                                            parent = parent.getParent();
+                                        }
+                                        return parent;
+                                    }
+                                }
+                            }
+                            return null;
+                        }
+
+                        public previous(key: number): org.kevoree.modeling.api.rbtree.LongTreeNode {
+                            var p: org.kevoree.modeling.api.rbtree.LongTreeNode = this.root;
+                            if (p == null) {
+                                return null;
+                            }
+                            while (p != null){
+                                if (key < p.key) {
+                                    if (p.getLeft() != null) {
+                                        p = p.getLeft();
+                                    } else {
+                                        return p.previous();
+                                    }
+                                } else {
+                                    if (key > p.key) {
+                                        if (p.getRight() != null) {
+                                            p = p.getRight();
+                                        } else {
+                                            return p;
+                                        }
+                                    } else {
+                                        return p.previous();
+                                    }
+                                }
+                            }
+                            return null;
+                        }
+
+                        public previousWhileNot(key: number, until: number): org.kevoree.modeling.api.rbtree.LongTreeNode {
+                            var elm: org.kevoree.modeling.api.rbtree.LongTreeNode = this.previousOrEqual(key);
+                            if (elm.value == until) {
+                                return null;
+                            } else {
+                                if (elm.key == key) {
+                                    elm = elm.previous();
+                                }
+                            }
+                            if (elm == null || elm.value == until) {
+                                return null;
+                            } else {
+                                return elm;
+                            }
+                        }
+
+                        public next(key: number): org.kevoree.modeling.api.rbtree.LongTreeNode {
+                            var p: org.kevoree.modeling.api.rbtree.LongTreeNode = this.root;
+                            if (p == null) {
+                                return null;
+                            }
+                            while (p != null){
+                                if (key < p.key) {
+                                    if (p.getLeft() != null) {
+                                        p = p.getLeft();
+                                    } else {
+                                        return p;
+                                    }
+                                } else {
+                                    if (key > p.key) {
+                                        if (p.getRight() != null) {
+                                            p = p.getRight();
+                                        } else {
+                                            return p.next();
+                                        }
+                                    } else {
+                                        return p.next();
+                                    }
+                                }
+                            }
+                            return null;
+                        }
+
+                        public nextWhileNot(key: number, until: number): org.kevoree.modeling.api.rbtree.LongTreeNode {
+                            var elm: org.kevoree.modeling.api.rbtree.LongTreeNode = this.nextOrEqual(key);
+                            if (elm.value == until) {
+                                return null;
+                            } else {
+                                if (elm.key == key) {
+                                    elm = elm.next();
+                                }
+                            }
+                            if (elm == null || elm.value == until) {
+                                return null;
+                            } else {
+                                return elm;
+                            }
+                        }
+
+                        public first(): org.kevoree.modeling.api.rbtree.LongTreeNode {
+                            var p: org.kevoree.modeling.api.rbtree.LongTreeNode = this.root;
+                            if (p == null) {
+                                return null;
+                            }
+                            while (p != null){
+                                if (p.getLeft() != null) {
+                                    p = p.getLeft();
+                                } else {
+                                    return p;
+                                }
+                            }
+                            return null;
+                        }
+
+                        public last(): org.kevoree.modeling.api.rbtree.LongTreeNode {
+                            var p: org.kevoree.modeling.api.rbtree.LongTreeNode = this.root;
+                            if (p == null) {
+                                return null;
+                            }
+                            while (p != null){
+                                if (p.getRight() != null) {
+                                    p = p.getRight();
+                                } else {
+                                    return p;
+                                }
+                            }
+                            return null;
+                        }
+
+                        public firstWhileNot(key: number, until: number): org.kevoree.modeling.api.rbtree.LongTreeNode {
+                            var elm: org.kevoree.modeling.api.rbtree.LongTreeNode = this.previousOrEqual(key);
+                            if (elm == null) {
+                                return null;
+                            } else {
+                                if (elm.value == until) {
+                                    return null;
+                                }
+                            }
+                            var prev: org.kevoree.modeling.api.rbtree.LongTreeNode = null;
+                            do {
+                                prev = elm.previous();
+                                if (prev == null || prev.value == until) {
+                                    return elm;
+                                } else {
+                                    elm = prev;
+                                }
+                            } while (elm != null)
+                            return prev;
+                        }
+
+                        public lastWhileNot(key: number, until: number): org.kevoree.modeling.api.rbtree.LongTreeNode {
+                            var elm: org.kevoree.modeling.api.rbtree.LongTreeNode = this.previousOrEqual(key);
+                            if (elm == null) {
+                                return null;
+                            } else {
+                                if (elm.value == until) {
+                                    return null;
+                                }
+                            }
+                            var next: org.kevoree.modeling.api.rbtree.LongTreeNode;
+                            do {
+                                next = elm.next();
+                                if (next == null || next.value == until) {
+                                    return elm;
+                                } else {
+                                    elm = next;
+                                }
+                            } while (elm != null)
+                            return next;
+                        }
+
+                        private lookupNode(key: number): org.kevoree.modeling.api.rbtree.LongTreeNode {
+                            var n: org.kevoree.modeling.api.rbtree.LongTreeNode = this.root;
+                            if (n == null) {
+                                return null;
+                            }
+                            while (n != null){
+                                if (key == n.key) {
+                                    return n;
+                                } else {
+                                    if (key < n.key) {
+                                        n = n.getLeft();
+                                    } else {
+                                        n = n.getRight();
+                                    }
+                                }
+                            }
+                            return n;
+                        }
+
+                        public lookup(key: number): number {
+                            var n: org.kevoree.modeling.api.rbtree.LongTreeNode = this.lookupNode(key);
+                            if (n == null) {
+                                return null;
+                            } else {
+                                return n.value;
+                            }
+                        }
+
+                        private rotateLeft(n: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
+                            var r: org.kevoree.modeling.api.rbtree.LongTreeNode = n.getRight();
+                            this.replaceNode(n, r);
+                            n.setRight(r.getLeft());
+                            if (r.getLeft() != null) {
+                                r.getLeft().setParent(n);
+                            }
+                            r.setLeft(n);
+                            n.setParent(r);
+                        }
+
+                        private rotateRight(n: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
+                            var l: org.kevoree.modeling.api.rbtree.LongTreeNode = n.getLeft();
+                            this.replaceNode(n, l);
+                            n.setLeft(l.getRight());
+                            if (l.getRight() != null) {
+                                l.getRight().setParent(n);
+                            }
+                            l.setRight(n);
+                            n.setParent(l);
+                        }
+
+                        private replaceNode(oldn: org.kevoree.modeling.api.rbtree.LongTreeNode, newn: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
+                            if (oldn.getParent() == null) {
+                                this.root = newn;
+                            } else {
+                                if (oldn == oldn.getParent().getLeft()) {
+                                    oldn.getParent().setLeft(newn);
+                                } else {
+                                    oldn.getParent().setRight(newn);
+                                }
+                            }
+                            if (newn != null) {
+                                newn.setParent(oldn.getParent());
+                            }
+                        }
+
+                        public insert(key: number, value: number): void {
+                            this._dirty = true;
+                            var insertedNode: org.kevoree.modeling.api.rbtree.LongTreeNode = new org.kevoree.modeling.api.rbtree.LongTreeNode(key, value, org.kevoree.modeling.api.rbtree.Color.RED, null, null);
+                            if (this.root == null) {
+                                this._size++;
+                                this.root = insertedNode;
+                            } else {
+                                var n: org.kevoree.modeling.api.rbtree.LongTreeNode = this.root;
+                                while (true){
+                                    if (key == n.key) {
+                                        n.value = value;
+                                        return;
+                                    } else {
+                                        if (key < n.key) {
+                                            if (n.getLeft() == null) {
+                                                n.setLeft(insertedNode);
+                                                this._size++;
+                                                break;
+                                            } else {
+                                                n = n.getLeft();
+                                            }
+                                        } else {
+                                            if (n.getRight() == null) {
+                                                n.setRight(insertedNode);
+                                                this._size++;
+                                                break;
+                                            } else {
+                                                n = n.getRight();
+                                            }
+                                        }
+                                    }
+                                }
+                                insertedNode.setParent(n);
+                            }
+                            this.insertCase1(insertedNode);
+                        }
+
+                        private insertCase1(n: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
+                            if (n.getParent() == null) {
+                                n.color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            } else {
+                                this.insertCase2(n);
+                            }
+                        }
+
+                        private insertCase2(n: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
+                            if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                return;
+                            } else {
+                                this.insertCase3(n);
+                            }
+                        }
+
+                        private insertCase3(n: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
+                            if (this.nodeColor(n.uncle()) == org.kevoree.modeling.api.rbtree.Color.RED) {
+                                n.getParent().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                n.uncle().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                n.grandparent().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                this.insertCase1(n.grandparent());
+                            } else {
+                                this.insertCase4(n);
+                            }
+                        }
+
+                        private insertCase4(n_n: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
+                            var n: org.kevoree.modeling.api.rbtree.LongTreeNode = n_n;
+                            if (n == n.getParent().getRight() && n.getParent() == n.grandparent().getLeft()) {
+                                this.rotateLeft(n.getParent());
+                                n = n.getLeft();
+                            } else {
+                                if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getRight()) {
+                                    this.rotateRight(n.getParent());
+                                    n = n.getRight();
+                                }
+                            }
+                            this.insertCase5(n);
+                        }
+
+                        private insertCase5(n: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
+                            n.getParent().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            n.grandparent().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                            if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getLeft()) {
+                                this.rotateRight(n.grandparent());
+                            } else {
+                                this.rotateLeft(n.grandparent());
+                            }
+                        }
+
+                        public delete(key: number): void {
+                            var n: org.kevoree.modeling.api.rbtree.LongTreeNode = this.lookupNode(key);
+                            if (n == null) {
+                                return;
+                            } else {
+                                this._size--;
+                                if (n.getLeft() != null && n.getRight() != null) {
+                                    var pred: org.kevoree.modeling.api.rbtree.LongTreeNode = n.getLeft();
+                                    while (pred.getRight() != null){
+                                        pred = pred.getRight();
+                                    }
+                                    n.key = pred.key;
+                                    n.value = pred.value;
+                                    n = pred;
+                                }
+                                var child: org.kevoree.modeling.api.rbtree.LongTreeNode;
+                                if (n.getRight() == null) {
+                                    child = n.getLeft();
+                                } else {
+                                    child = n.getRight();
+                                }
+                                if (this.nodeColor(n) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                    n.color = this.nodeColor(child);
+                                    this.deleteCase1(n);
+                                }
+                                this.replaceNode(n, child);
+                            }
+                        }
+
+                        private deleteCase1(n: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
+                            if (n.getParent() == null) {
+                                return;
+                            } else {
+                                this.deleteCase2(n);
+                            }
+                        }
+
+                        private deleteCase2(n: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
+                            if (this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.RED) {
+                                n.getParent().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                n.sibling().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                if (n == n.getParent().getLeft()) {
+                                    this.rotateLeft(n.getParent());
+                                } else {
+                                    this.rotateRight(n.getParent());
+                                }
+                            }
+                            this.deleteCase3(n);
+                        }
+
+                        private deleteCase3(n: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
+                            if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                n.sibling().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                this.deleteCase1(n.getParent());
+                            } else {
+                                this.deleteCase4(n);
+                            }
+                        }
+
+                        private deleteCase4(n: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
+                            if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.rbtree.Color.RED && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                n.sibling().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                n.getParent().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            } else {
+                                this.deleteCase5(n);
+                            }
+                        }
+
+                        private deleteCase5(n: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
+                            if (n == n.getParent().getLeft() && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.rbtree.Color.RED && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                n.sibling().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                n.sibling().getLeft().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                this.rotateRight(n.sibling());
+                            } else {
+                                if (n == n.getParent().getRight() && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.rbtree.Color.RED && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                    n.sibling().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                    n.sibling().getRight().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                    this.rotateLeft(n.sibling());
+                                }
+                            }
+                            this.deleteCase6(n);
+                        }
+
+                        private deleteCase6(n: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
+                            n.sibling().color = this.nodeColor(n.getParent());
+                            n.getParent().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            if (n == n.getParent().getLeft()) {
+                                n.sibling().getRight().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                this.rotateLeft(n.getParent());
+                            } else {
+                                n.sibling().getLeft().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                this.rotateRight(n.getParent());
+                            }
+                        }
+
+                        private nodeColor(n: org.kevoree.modeling.api.rbtree.LongTreeNode): org.kevoree.modeling.api.rbtree.Color {
+                            if (n == null) {
+                                return org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            } else {
+                                return n.color;
+                            }
+                        }
+
+                    }
+
+                    export class LongTreeNode {
+
+                        public static BLACK: string = '0';
+                        public static RED: string = '2';
+                        public key: number;
+                        public value: number;
+                        public color: org.kevoree.modeling.api.rbtree.Color;
+                        private left: org.kevoree.modeling.api.rbtree.LongTreeNode;
+                        private right: org.kevoree.modeling.api.rbtree.LongTreeNode;
+                        private parent: org.kevoree.modeling.api.rbtree.LongTreeNode = null;
+                        constructor(key: number, value: number, color: org.kevoree.modeling.api.rbtree.Color, left: org.kevoree.modeling.api.rbtree.LongTreeNode, right: org.kevoree.modeling.api.rbtree.LongTreeNode) {
+                            this.key = key;
+                            this.value = value;
+                            this.color = color;
+                            this.left = left;
+                            this.right = right;
+                            if (left != null) {
+                                left.parent = this;
+                            }
+                            if (right != null) {
+                                right.parent = this;
+                            }
+                            this.parent = null;
+                        }
+
+                        public grandparent(): org.kevoree.modeling.api.rbtree.LongTreeNode {
+                            if (this.parent != null) {
+                                return this.parent.parent;
+                            } else {
+                                return null;
+                            }
+                        }
+
+                        public sibling(): org.kevoree.modeling.api.rbtree.LongTreeNode {
+                            if (this.parent == null) {
+                                return null;
+                            } else {
+                                if (this == this.parent.left) {
+                                    return this.parent.right;
+                                } else {
+                                    return this.parent.left;
+                                }
+                            }
+                        }
+
+                        public uncle(): org.kevoree.modeling.api.rbtree.LongTreeNode {
+                            if (this.parent != null) {
+                                return this.parent.sibling();
+                            } else {
+                                return null;
+                            }
+                        }
+
+                        public getLeft(): org.kevoree.modeling.api.rbtree.LongTreeNode {
+                            return this.left;
+                        }
+
+                        public setLeft(left: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
+                            this.left = left;
+                        }
+
+                        public getRight(): org.kevoree.modeling.api.rbtree.LongTreeNode {
+                            return this.right;
+                        }
+
+                        public setRight(right: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
+                            this.right = right;
+                        }
+
+                        public getParent(): org.kevoree.modeling.api.rbtree.LongTreeNode {
+                            return this.parent;
+                        }
+
+                        public setParent(parent: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
+                            this.parent = parent;
+                        }
+
+                        public serialize(builder: java.lang.StringBuilder): void {
+                            builder.append("|");
+                            if (this.color == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                builder.append(LongTreeNode.BLACK);
+                            } else {
+                                builder.append(LongTreeNode.RED);
+                            }
+                            builder.append(this.key);
+                            builder.append("@");
+                            builder.append(this.value);
+                            if (this.left == null && this.right == null) {
+                                builder.append("%");
+                            } else {
+                                if (this.left != null) {
+                                    this.left.serialize(builder);
+                                } else {
+                                    builder.append("#");
+                                }
+                                if (this.right != null) {
+                                    this.right.serialize(builder);
+                                } else {
+                                    builder.append("#");
+                                }
+                            }
+                        }
+
+                        public next(): org.kevoree.modeling.api.rbtree.LongTreeNode {
+                            var p: org.kevoree.modeling.api.rbtree.LongTreeNode = this;
+                            if (p.right != null) {
+                                p = p.right;
+                                while (p.left != null){
+                                    p = p.left;
+                                }
+                                return p;
+                            } else {
+                                if (p.parent != null) {
+                                    if (p == p.parent.left) {
+                                        return p.parent;
+                                    } else {
+                                        while (p.parent != null && p == p.parent.right){
+                                            p = p.parent;
+                                        }
+                                        return p.parent;
+                                    }
+                                } else {
+                                    return null;
+                                }
+                            }
+                        }
+
+                        public previous(): org.kevoree.modeling.api.rbtree.LongTreeNode {
+                            var p: org.kevoree.modeling.api.rbtree.LongTreeNode = this;
+                            if (p.left != null) {
+                                p = p.left;
+                                while (p.right != null){
+                                    p = p.right;
+                                }
+                                return p;
+                            } else {
+                                if (p.parent != null) {
+                                    if (p == p.parent.right) {
+                                        return p.parent;
+                                    } else {
+                                        while (p.parent != null && p == p.parent.left){
+                                            p = p.parent;
+                                        }
+                                        return p.parent;
+                                    }
+                                } else {
+                                    return null;
+                                }
+                            }
+                        }
+
+                        public static unserialize(ctx: org.kevoree.modeling.api.rbtree.TreeReaderContext): org.kevoree.modeling.api.rbtree.LongTreeNode {
+                            return org.kevoree.modeling.api.rbtree.LongTreeNode.internal_unserialize(true, ctx);
+                        }
+
+                        public static internal_unserialize(rightBranch: boolean, ctx: org.kevoree.modeling.api.rbtree.TreeReaderContext): org.kevoree.modeling.api.rbtree.LongTreeNode {
+                            if (ctx.index >= ctx.payload.length) {
+                                return null;
+                            }
+                            var ch: string = ctx.payload.charAt(ctx.index);
+                            if (ch == '%') {
+                                if (rightBranch) {
+                                    ctx.index = ctx.index + 1;
+                                }
+                                return null;
+                            }
+                            if (ch == '#') {
+                                ctx.index = ctx.index + 1;
+                                return null;
+                            }
+                            if (ch != '|') {
+                                throw new java.lang.Exception("Error while loading BTree");
+                            }
+                            ctx.index = ctx.index + 1;
+                            ch = ctx.payload.charAt(ctx.index);
+                            var color: org.kevoree.modeling.api.rbtree.Color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            if (ch == LongTreeNode.RED) {
+                                color = org.kevoree.modeling.api.rbtree.Color.RED;
+                            }
+                            ctx.index = ctx.index + 1;
+                            ch = ctx.payload.charAt(ctx.index);
+                            var i: number = 0;
+                            while (ctx.index + 1 < ctx.payload.length && ch != '|' && ch != '#' && ch != '%' && ch != '@'){
+                                ctx.buffer[i] = ch;
+                                i++;
+                                ctx.index = ctx.index + 1;
+                                ch = ctx.payload.charAt(ctx.index);
+                            }
+                            if (ch != '|' && ch != '#' && ch != '%' && ch != '@') {
+                                ctx.buffer[i] = ch;
+                                i++;
+                            }
+                            var key: number = java.lang.Long.parseLong(StringUtils.copyValueOf(ctx.buffer, 0, i));
+                            i = 0;
+                            ctx.index = ctx.index + 1;
+                            ch = ctx.payload.charAt(ctx.index);
+                            while (ctx.index + 1 < ctx.payload.length && ch != '|' && ch != '#' && ch != '%' && ch != '@'){
+                                ctx.buffer[i] = ch;
+                                i++;
+                                ctx.index = ctx.index + 1;
+                                ch = ctx.payload.charAt(ctx.index);
+                            }
+                            if (ch != '|' && ch != '#' && ch != '%' && ch != '@') {
+                                ctx.buffer[i] = ch;
+                                i++;
+                            }
+                            var value: number = java.lang.Long.parseLong(StringUtils.copyValueOf(ctx.buffer, 0, i));
+                            var p: org.kevoree.modeling.api.rbtree.LongTreeNode = new org.kevoree.modeling.api.rbtree.LongTreeNode(key, value, color, null, null);
+                            var left: org.kevoree.modeling.api.rbtree.LongTreeNode = org.kevoree.modeling.api.rbtree.LongTreeNode.internal_unserialize(false, ctx);
+                            if (left != null) {
+                                left.setParent(p);
+                            }
+                            var right: org.kevoree.modeling.api.rbtree.LongTreeNode = org.kevoree.modeling.api.rbtree.LongTreeNode.internal_unserialize(true, ctx);
+                            if (right != null) {
+                                right.setParent(p);
+                            }
+                            p.setLeft(left);
+                            p.setRight(right);
+                            return p;
+                        }
+
+                    }
+
+                    export interface RBTree {
+
+                        first(): number;
+
+                        last(): number;
+
+                        next(from: number): number;
+
+                        previous(from: number): number;
+
+                        resolve(time: number): number;
+
+                        size(): number;
+
+                    }
+
+                    export class TreeNode {
+
+                        public static BLACK: string = '0';
+                        public static RED: string = '1';
+                        public key: number;
+                        public color: org.kevoree.modeling.api.rbtree.Color;
+                        private left: org.kevoree.modeling.api.rbtree.TreeNode;
+                        private right: org.kevoree.modeling.api.rbtree.TreeNode;
+                        private parent: org.kevoree.modeling.api.rbtree.TreeNode = null;
+                        public getKey(): number {
+                            return this.key;
+                        }
+
+                        constructor(key: number, color: org.kevoree.modeling.api.rbtree.Color, left: org.kevoree.modeling.api.rbtree.TreeNode, right: org.kevoree.modeling.api.rbtree.TreeNode) {
+                            this.key = key;
+                            this.color = color;
+                            this.left = left;
+                            this.right = right;
+                            if (left != null) {
+                                left.parent = this;
+                            }
+                            if (right != null) {
+                                right.parent = this;
+                            }
+                            this.parent = null;
+                        }
+
+                        public grandparent(): org.kevoree.modeling.api.rbtree.TreeNode {
+                            if (this.parent != null) {
+                                return this.parent.parent;
+                            } else {
+                                return null;
+                            }
+                        }
+
+                        public sibling(): org.kevoree.modeling.api.rbtree.TreeNode {
+                            if (this.parent == null) {
+                                return null;
+                            } else {
+                                if (this == this.parent.left) {
+                                    return this.parent.right;
+                                } else {
+                                    return this.parent.left;
+                                }
+                            }
+                        }
+
+                        public uncle(): org.kevoree.modeling.api.rbtree.TreeNode {
+                            if (this.parent != null) {
+                                return this.parent.sibling();
+                            } else {
+                                return null;
+                            }
+                        }
+
+                        public getLeft(): org.kevoree.modeling.api.rbtree.TreeNode {
+                            return this.left;
+                        }
+
+                        public setLeft(left: org.kevoree.modeling.api.rbtree.TreeNode): void {
+                            this.left = left;
+                        }
+
+                        public getRight(): org.kevoree.modeling.api.rbtree.TreeNode {
+                            return this.right;
+                        }
+
+                        public setRight(right: org.kevoree.modeling.api.rbtree.TreeNode): void {
+                            this.right = right;
+                        }
+
+                        public getParent(): org.kevoree.modeling.api.rbtree.TreeNode {
+                            return this.parent;
+                        }
+
+                        public setParent(parent: org.kevoree.modeling.api.rbtree.TreeNode): void {
+                            this.parent = parent;
+                        }
+
+                        public serialize(builder: java.lang.StringBuilder): void {
+                            builder.append("|");
+                            if (this.color == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                builder.append(TreeNode.BLACK);
+                            } else {
+                                builder.append(TreeNode.RED);
+                            }
+                            builder.append(this.key);
+                            if (this.left == null && this.right == null) {
+                                builder.append("%");
+                            } else {
+                                if (this.left != null) {
+                                    this.left.serialize(builder);
+                                } else {
+                                    builder.append("#");
+                                }
+                                if (this.right != null) {
+                                    this.right.serialize(builder);
+                                } else {
+                                    builder.append("#");
+                                }
+                            }
+                        }
+
+                        public next(): org.kevoree.modeling.api.rbtree.TreeNode {
+                            var p: org.kevoree.modeling.api.rbtree.TreeNode = this;
+                            if (p.right != null) {
+                                p = p.right;
+                                while (p.left != null){
+                                    p = p.left;
+                                }
+                                return p;
+                            } else {
+                                if (p.parent != null) {
+                                    if (p == p.parent.left) {
+                                        return p.parent;
+                                    } else {
+                                        while (p.parent != null && p == p.parent.right){
+                                            p = p.parent;
+                                        }
+                                        return p.parent;
+                                    }
+                                } else {
+                                    return null;
+                                }
+                            }
+                        }
+
+                        public previous(): org.kevoree.modeling.api.rbtree.TreeNode {
+                            var p: org.kevoree.modeling.api.rbtree.TreeNode = this;
+                            if (p.left != null) {
+                                p = p.left;
+                                while (p.right != null){
+                                    p = p.right;
+                                }
+                                return p;
+                            } else {
+                                if (p.parent != null) {
+                                    if (p == p.parent.right) {
+                                        return p.parent;
+                                    } else {
+                                        while (p.parent != null && p == p.parent.left){
+                                            p = p.parent;
+                                        }
+                                        return p.parent;
+                                    }
+                                } else {
+                                    return null;
+                                }
+                            }
+                        }
+
+                        public static unserialize(ctx: org.kevoree.modeling.api.rbtree.TreeReaderContext): org.kevoree.modeling.api.rbtree.TreeNode {
+                            return org.kevoree.modeling.api.rbtree.TreeNode.internal_unserialize(true, ctx);
+                        }
+
+                        public static internal_unserialize(rightBranch: boolean, ctx: org.kevoree.modeling.api.rbtree.TreeReaderContext): org.kevoree.modeling.api.rbtree.TreeNode {
+                            if (ctx.index >= ctx.payload.length) {
+                                return null;
+                            }
+                            var tokenBuild: java.lang.StringBuilder = new java.lang.StringBuilder();
+                            var ch: string = ctx.payload.charAt(ctx.index);
+                            if (ch == '%') {
+                                if (rightBranch) {
+                                    ctx.index = ctx.index + 1;
+                                }
+                                return null;
+                            }
+                            if (ch == '#') {
+                                ctx.index = ctx.index + 1;
+                                return null;
+                            }
+                            if (ch != '|') {
+                                throw new java.lang.Exception("Error while loading BTree");
+                            }
+                            ctx.index = ctx.index + 1;
+                            ch = ctx.payload.charAt(ctx.index);
+                            var color: org.kevoree.modeling.api.rbtree.Color;
+                            if (ch == org.kevoree.modeling.api.rbtree.TreeNode.BLACK) {
+                                color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            } else {
+                                color = org.kevoree.modeling.api.rbtree.Color.RED;
+                            }
+                            ctx.index = ctx.index + 1;
+                            ch = ctx.payload.charAt(ctx.index);
+                            while (ctx.index + 1 < ctx.payload.length && ch != '|' && ch != '#' && ch != '%'){
+                                tokenBuild.append(ch);
+                                ctx.index = ctx.index + 1;
+                                ch = ctx.payload.charAt(ctx.index);
+                            }
+                            if (ch != '|' && ch != '#' && ch != '%') {
+                                tokenBuild.append(ch);
+                            }
+                            var p: org.kevoree.modeling.api.rbtree.TreeNode = new org.kevoree.modeling.api.rbtree.TreeNode(java.lang.Long.parseLong(tokenBuild.toString()), color, null, null);
+                            var left: org.kevoree.modeling.api.rbtree.TreeNode = org.kevoree.modeling.api.rbtree.TreeNode.internal_unserialize(false, ctx);
+                            if (left != null) {
+                                left.setParent(p);
+                            }
+                            var right: org.kevoree.modeling.api.rbtree.TreeNode = org.kevoree.modeling.api.rbtree.TreeNode.internal_unserialize(true, ctx);
+                            if (right != null) {
+                                right.setParent(p);
+                            }
+                            p.setLeft(left);
+                            p.setRight(right);
+                            return p;
+                        }
+
+                    }
+
+                    export class TreeReaderContext {
+
+                        public payload: string;
+                        public index: number;
+                        public buffer: string[];
+                    }
+
+                }
                 export module reflexive {
                     export class DynamicKModel extends org.kevoree.modeling.api.abs.AbstractKModel<any> {
 
@@ -7373,7 +8841,7 @@ module org {
 
                     export class DynamicKObject extends org.kevoree.modeling.api.abs.AbstractKObject {
 
-                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_universeTree: org.kevoree.modeling.api.time.rbtree.LongRBTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
+                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_universeTree: org.kevoree.modeling.api.rbtree.LongRBTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
                             super(p_view, p_uuid, p_universeTree, p_metaClass);
                         }
 
@@ -7397,7 +8865,7 @@ module org {
                             super(p_now, p_dimension);
                         }
 
-                        public internalCreate(clazz: org.kevoree.modeling.api.meta.MetaClass, p_universeTree: org.kevoree.modeling.api.time.rbtree.LongRBTree, key: number): org.kevoree.modeling.api.KObject {
+                        public internalCreate(clazz: org.kevoree.modeling.api.meta.MetaClass, p_universeTree: org.kevoree.modeling.api.rbtree.LongRBTree, key: number): org.kevoree.modeling.api.KObject {
                             return new org.kevoree.modeling.api.reflexive.DynamicKObject(this, key, p_universeTree, clazz);
                         }
 
@@ -7544,1548 +9012,6 @@ module org {
 
                 }
                 export module time {
-                    export interface TimeTree extends org.kevoree.modeling.api.data.cache.KCacheObject {
-
-                        walk(walker: org.kevoree.modeling.api.time.TimeWalker): void;
-
-                        first(): number;
-
-                        last(): number;
-
-                        next(from: number): number;
-
-                        previous(from: number): number;
-
-                        resolve(time: number): number;
-
-                        insert(time: number): org.kevoree.modeling.api.time.TimeTree;
-
-                        delete(time: number): org.kevoree.modeling.api.time.TimeTree;
-
-                        size(): number;
-
-                    }
-
-                    export class TimeWalker {
-
-                        private versionTree: org.kevoree.modeling.api.time.rbtree.IndexRBTree;
-                        public walk(walker: (p : number) => void): void {
-                            this.walkAsc(walker);
-                        }
-
-                        public walkAsc(walker: (p : number) => void): void {
-                            var elem: org.kevoree.modeling.api.time.rbtree.TreeNode = this.versionTree.first();
-                            while (elem != null){
-                                walker(elem.getKey());
-                                elem = elem.next();
-                            }
-                        }
-
-                        public walkDesc(walker: (p : number) => void): void {
-                            var elem: org.kevoree.modeling.api.time.rbtree.TreeNode = this.versionTree.last();
-                            while (elem != null){
-                                walker(elem.getKey());
-                                elem = elem.previous();
-                            }
-                        }
-
-                        public walkRangeAsc(walker: (p : number) => void, from: number, to: number): void {
-                            var from2: number = from;
-                            var to2: number = to;
-                            if (from > to) {
-                                from2 = to;
-                                to2 = from;
-                            }
-                            var elem: org.kevoree.modeling.api.time.rbtree.TreeNode = this.versionTree.previousOrEqual(from2);
-                            while (elem != null){
-                                walker(elem.getKey());
-                                elem = elem.next();
-                                if (elem != null) {
-                                    if (elem.getKey() >= to2) {
-                                        return;
-                                    }
-                                }
-                            }
-                        }
-
-                        public walkRangeDesc(walker: (p : number) => void, from: number, to: number): void {
-                            var from2: number = from;
-                            var to2: number = to;
-                            if (from > to) {
-                                from2 = to;
-                                to2 = from;
-                            }
-                            var elem: org.kevoree.modeling.api.time.rbtree.TreeNode = this.versionTree.previousOrEqual(to2);
-                            while (elem != null){
-                                walker(elem.getKey());
-                                elem = elem.previous();
-                                if (elem != null) {
-                                    if (elem.getKey() <= from2) {
-                                        walker(elem.getKey());
-                                        return;
-                                    }
-                                }
-                            }
-                        }
-
-                    }
-
-                    export module rbtree {
-                        export class Color {
-
-                            public static RED: Color = new Color();
-                            public static BLACK: Color = new Color();
-                            public equals(other: any): boolean {
-                                return this == other;
-                            }
-                            public static _ColorVALUES : Color[] = [
-                                Color.RED
-                                ,Color.BLACK
-                            ];
-                            public static values():Color[]{
-                                return Color._ColorVALUES;
-                            }
-                        }
-
-                        export class IndexRBTree implements org.kevoree.modeling.api.data.cache.KCacheObject {
-
-                            public root: org.kevoree.modeling.api.time.rbtree.TreeNode = null;
-                            private _size: number = 0;
-                            private _dirty: boolean = false;
-                            public size(): number {
-                                return this._size;
-                            }
-
-                            public isDirty(): boolean {
-                                return this._dirty;
-                            }
-
-                            public serialize(): string {
-                                var builder: java.lang.StringBuilder = new java.lang.StringBuilder();
-                                builder.append(this._size);
-                                if (this.root != null) {
-                                    this.root.serialize(builder);
-                                }
-                                return builder.toString();
-                            }
-
-                            public setClean(): void {
-                                this._dirty = false;
-                            }
-
-                            public toString(): string {
-                                return this.serialize();
-                            }
-
-                            public unserialize(payload: string): void {
-                                if (payload == null || payload.length == 0) {
-                                    return;
-                                }
-                                var i: number = 0;
-                                var buffer: java.lang.StringBuilder = new java.lang.StringBuilder();
-                                var ch: string = payload.charAt(i);
-                                while (i < payload.length && ch != '|'){
-                                    buffer.append(ch);
-                                    i = i + 1;
-                                    ch = payload.charAt(i);
-                                }
-                                this._size = java.lang.Integer.parseInt(buffer.toString());
-                                var ctx: org.kevoree.modeling.api.time.rbtree.TreeReaderContext = new org.kevoree.modeling.api.time.rbtree.TreeReaderContext();
-                                ctx.index = i;
-                                ctx.payload = payload;
-                                this.root = org.kevoree.modeling.api.time.rbtree.TreeNode.unserialize(ctx);
-                            }
-
-                            public previousOrEqual(key: number): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                var p: org.kevoree.modeling.api.time.rbtree.TreeNode = this.root;
-                                if (p == null) {
-                                    return null;
-                                }
-                                while (p != null){
-                                    if (key == p.key) {
-                                        return p;
-                                    }
-                                    if (key > p.key) {
-                                        if (p.getRight() != null) {
-                                            p = p.getRight();
-                                        } else {
-                                            return p;
-                                        }
-                                    } else {
-                                        if (p.getLeft() != null) {
-                                            p = p.getLeft();
-                                        } else {
-                                            var parent: org.kevoree.modeling.api.time.rbtree.TreeNode = p.getParent();
-                                            var ch: org.kevoree.modeling.api.time.rbtree.TreeNode = p;
-                                            while (parent != null && ch == parent.getLeft()){
-                                                ch = parent;
-                                                parent = parent.getParent();
-                                            }
-                                            return parent;
-                                        }
-                                    }
-                                }
-                                return null;
-                            }
-
-                            public nextOrEqual(key: number): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                var p: org.kevoree.modeling.api.time.rbtree.TreeNode = this.root;
-                                if (p == null) {
-                                    return null;
-                                }
-                                while (p != null){
-                                    if (key == p.key) {
-                                        return p;
-                                    }
-                                    if (key < p.key) {
-                                        if (p.getLeft() != null) {
-                                            p = p.getLeft();
-                                        } else {
-                                            return p;
-                                        }
-                                    } else {
-                                        if (p.getRight() != null) {
-                                            p = p.getRight();
-                                        } else {
-                                            var parent: org.kevoree.modeling.api.time.rbtree.TreeNode = p.getParent();
-                                            var ch: org.kevoree.modeling.api.time.rbtree.TreeNode = p;
-                                            while (parent != null && ch == parent.getRight()){
-                                                ch = parent;
-                                                parent = parent.getParent();
-                                            }
-                                            return parent;
-                                        }
-                                    }
-                                }
-                                return null;
-                            }
-
-                            public previous(key: number): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                var p: org.kevoree.modeling.api.time.rbtree.TreeNode = this.root;
-                                if (p == null) {
-                                    return null;
-                                }
-                                while (p != null){
-                                    if (key < p.key) {
-                                        if (p.getLeft() != null) {
-                                            p = p.getLeft();
-                                        } else {
-                                            return p.previous();
-                                        }
-                                    } else {
-                                        if (key > p.key) {
-                                            if (p.getRight() != null) {
-                                                p = p.getRight();
-                                            } else {
-                                                return p;
-                                            }
-                                        } else {
-                                            return p.previous();
-                                        }
-                                    }
-                                }
-                                return null;
-                            }
-
-                            public next(key: number): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                var p: org.kevoree.modeling.api.time.rbtree.TreeNode = this.root;
-                                if (p == null) {
-                                    return null;
-                                }
-                                while (p != null){
-                                    if (key < p.key) {
-                                        if (p.getLeft() != null) {
-                                            p = p.getLeft();
-                                        } else {
-                                            return p;
-                                        }
-                                    } else {
-                                        if (key > p.key) {
-                                            if (p.getRight() != null) {
-                                                p = p.getRight();
-                                            } else {
-                                                return p.next();
-                                            }
-                                        } else {
-                                            return p.next();
-                                        }
-                                    }
-                                }
-                                return null;
-                            }
-
-                            public first(): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                var p: org.kevoree.modeling.api.time.rbtree.TreeNode = this.root;
-                                if (p == null) {
-                                    return null;
-                                }
-                                while (p != null){
-                                    if (p.getLeft() != null) {
-                                        p = p.getLeft();
-                                    } else {
-                                        return p;
-                                    }
-                                }
-                                return null;
-                            }
-
-                            public last(): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                var p: org.kevoree.modeling.api.time.rbtree.TreeNode = this.root;
-                                if (p == null) {
-                                    return null;
-                                }
-                                while (p != null){
-                                    if (p.getRight() != null) {
-                                        p = p.getRight();
-                                    } else {
-                                        return p;
-                                    }
-                                }
-                                return null;
-                            }
-
-                            private lookupNode(key: number): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                var n: org.kevoree.modeling.api.time.rbtree.TreeNode = this.root;
-                                if (n == null) {
-                                    return null;
-                                }
-                                while (n != null){
-                                    if (key == n.key) {
-                                        return n;
-                                    } else {
-                                        if (key < n.key) {
-                                            n = n.getLeft();
-                                        } else {
-                                            n = n.getRight();
-                                        }
-                                    }
-                                }
-                                return n;
-                            }
-
-                            public lookup(key: number): number {
-                                var n: org.kevoree.modeling.api.time.rbtree.TreeNode = this.lookupNode(key);
-                                if (n == null) {
-                                    return null;
-                                } else {
-                                    return n.key;
-                                }
-                            }
-
-                            private rotateLeft(n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                var r: org.kevoree.modeling.api.time.rbtree.TreeNode = n.getRight();
-                                this.replaceNode(n, r);
-                                n.setRight(r.getLeft());
-                                if (r.getLeft() != null) {
-                                    r.getLeft().setParent(n);
-                                }
-                                r.setLeft(n);
-                                n.setParent(r);
-                            }
-
-                            private rotateRight(n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                var l: org.kevoree.modeling.api.time.rbtree.TreeNode = n.getLeft();
-                                this.replaceNode(n, l);
-                                n.setLeft(l.getRight());
-                                if (l.getRight() != null) {
-                                    l.getRight().setParent(n);
-                                }
-                                l.setRight(n);
-                                n.setParent(l);
-                            }
-
-                            private replaceNode(oldn: org.kevoree.modeling.api.time.rbtree.TreeNode, newn: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if (oldn.getParent() == null) {
-                                    this.root = newn;
-                                } else {
-                                    if (oldn == oldn.getParent().getLeft()) {
-                                        oldn.getParent().setLeft(newn);
-                                    } else {
-                                        oldn.getParent().setRight(newn);
-                                    }
-                                }
-                                if (newn != null) {
-                                    newn.setParent(oldn.getParent());
-                                }
-                            }
-
-                            public insert(key: number): void {
-                                this._dirty = true;
-                                var insertedNode: org.kevoree.modeling.api.time.rbtree.TreeNode = new org.kevoree.modeling.api.time.rbtree.TreeNode(key, org.kevoree.modeling.api.time.rbtree.Color.RED, null, null);
-                                if (this.root == null) {
-                                    this._size++;
-                                    this.root = insertedNode;
-                                } else {
-                                    var n: org.kevoree.modeling.api.time.rbtree.TreeNode = this.root;
-                                    while (true){
-                                        if (key == n.key) {
-                                            return;
-                                        } else {
-                                            if (key < n.key) {
-                                                if (n.getLeft() == null) {
-                                                    n.setLeft(insertedNode);
-                                                    this._size++;
-                                                    break;
-                                                } else {
-                                                    n = n.getLeft();
-                                                }
-                                            } else {
-                                                if (n.getRight() == null) {
-                                                    n.setRight(insertedNode);
-                                                    this._size++;
-                                                    break;
-                                                } else {
-                                                    n = n.getRight();
-                                                }
-                                            }
-                                        }
-                                    }
-                                    insertedNode.setParent(n);
-                                }
-                                this.insertCase1(insertedNode);
-                            }
-
-                            private insertCase1(n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if (n.getParent() == null) {
-                                    n.color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                } else {
-                                    this.insertCase2(n);
-                                }
-                            }
-
-                            private insertCase2(n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                    return;
-                                } else {
-                                    this.insertCase3(n);
-                                }
-                            }
-
-                            private insertCase3(n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if (this.nodeColor(n.uncle()) == org.kevoree.modeling.api.time.rbtree.Color.RED) {
-                                    n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                    n.uncle().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                    n.grandparent().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                    this.insertCase1(n.grandparent());
-                                } else {
-                                    this.insertCase4(n);
-                                }
-                            }
-
-                            private insertCase4(n_n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                var n: org.kevoree.modeling.api.time.rbtree.TreeNode = n_n;
-                                if (n == n.getParent().getRight() && n.getParent() == n.grandparent().getLeft()) {
-                                    this.rotateLeft(n.getParent());
-                                    n = n.getLeft();
-                                } else {
-                                    if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getRight()) {
-                                        this.rotateRight(n.getParent());
-                                        n = n.getRight();
-                                    }
-                                }
-                                this.insertCase5(n);
-                            }
-
-                            private insertCase5(n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                n.grandparent().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getLeft()) {
-                                    this.rotateRight(n.grandparent());
-                                } else {
-                                    this.rotateLeft(n.grandparent());
-                                }
-                            }
-
-                            public delete(key: number): void {
-                                var n: org.kevoree.modeling.api.time.rbtree.TreeNode = this.lookupNode(key);
-                                if (n == null) {
-                                    return;
-                                } else {
-                                    this._size--;
-                                    if (n.getLeft() != null && n.getRight() != null) {
-                                        var pred: org.kevoree.modeling.api.time.rbtree.TreeNode = n.getLeft();
-                                        while (pred.getRight() != null){
-                                            pred = pred.getRight();
-                                        }
-                                        n.key = pred.key;
-                                        n = pred;
-                                    }
-                                    var child: org.kevoree.modeling.api.time.rbtree.TreeNode;
-                                    if (n.getRight() == null) {
-                                        child = n.getLeft();
-                                    } else {
-                                        child = n.getRight();
-                                    }
-                                    if (this.nodeColor(n) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                        n.color = this.nodeColor(child);
-                                        this.deleteCase1(n);
-                                    }
-                                    this.replaceNode(n, child);
-                                }
-                            }
-
-                            private deleteCase1(n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if (n.getParent() == null) {
-                                    return;
-                                } else {
-                                    this.deleteCase2(n);
-                                }
-                            }
-
-                            private deleteCase2(n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if (this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.RED) {
-                                    n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                    n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                    if (n == n.getParent().getLeft()) {
-                                        this.rotateLeft(n.getParent());
-                                    } else {
-                                        this.rotateRight(n.getParent());
-                                    }
-                                }
-                                this.deleteCase3(n);
-                            }
-
-                            private deleteCase3(n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                    n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                    this.deleteCase1(n.getParent());
-                                } else {
-                                    this.deleteCase4(n);
-                                }
-                            }
-
-                            private deleteCase4(n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.time.rbtree.Color.RED && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                    n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                    n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                } else {
-                                    this.deleteCase5(n);
-                                }
-                            }
-
-                            private deleteCase5(n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                if (n == n.getParent().getLeft() && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.RED && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                    n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                    n.sibling().getLeft().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                    this.rotateRight(n.sibling());
-                                } else {
-                                    if (n == n.getParent().getRight() && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.RED && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                        n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                        n.sibling().getRight().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                        this.rotateLeft(n.sibling());
-                                    }
-                                }
-                                this.deleteCase6(n);
-                            }
-
-                            private deleteCase6(n: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                n.sibling().color = this.nodeColor(n.getParent());
-                                n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                if (n == n.getParent().getLeft()) {
-                                    n.sibling().getRight().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                    this.rotateLeft(n.getParent());
-                                } else {
-                                    n.sibling().getLeft().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                    this.rotateRight(n.getParent());
-                                }
-                            }
-
-                            private nodeColor(n: org.kevoree.modeling.api.time.rbtree.TreeNode): org.kevoree.modeling.api.time.rbtree.Color {
-                                if (n == null) {
-                                    return org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                } else {
-                                    return n.color;
-                                }
-                            }
-
-                        }
-
-                        export class LongRBTree implements org.kevoree.modeling.api.data.cache.KCacheObject {
-
-                            public root: org.kevoree.modeling.api.time.rbtree.LongTreeNode = null;
-                            private _size: number = 0;
-                            public _dirty: boolean = false;
-                            public size(): number {
-                                return this._size;
-                            }
-
-                            public toString(): string {
-                                return this.serialize();
-                            }
-
-                            public isDirty(): boolean {
-                                return this._dirty;
-                            }
-
-                            public serialize(): string {
-                                var builder: java.lang.StringBuilder = new java.lang.StringBuilder();
-                                builder.append(this._size);
-                                if (this.root != null) {
-                                    this.root.serialize(builder);
-                                }
-                                return builder.toString();
-                            }
-
-                            public setClean(): void {
-                                this._dirty = false;
-                            }
-
-                            public unserialize(payload: string): void {
-                                if (payload == null || payload.length == 0) {
-                                    return;
-                                }
-                                var i: number = 0;
-                                var buffer: java.lang.StringBuilder = new java.lang.StringBuilder();
-                                var ch: string = payload.charAt(i);
-                                while (i < payload.length && ch != '|'){
-                                    buffer.append(ch);
-                                    i = i + 1;
-                                    ch = payload.charAt(i);
-                                }
-                                this._size = java.lang.Integer.parseInt(buffer.toString());
-                                var ctx: org.kevoree.modeling.api.time.rbtree.TreeReaderContext = new org.kevoree.modeling.api.time.rbtree.TreeReaderContext();
-                                ctx.index = i;
-                                ctx.payload = payload;
-                                ctx.buffer = new Array();
-                                this.root = org.kevoree.modeling.api.time.rbtree.LongTreeNode.unserialize(ctx);
-                                this._dirty = false;
-                            }
-
-                            public previousOrEqual(key: number): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                var p: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.root;
-                                if (p == null) {
-                                    return null;
-                                }
-                                while (p != null){
-                                    if (key == p.key) {
-                                        return p;
-                                    }
-                                    if (key > p.key) {
-                                        if (p.getRight() != null) {
-                                            p = p.getRight();
-                                        } else {
-                                            return p;
-                                        }
-                                    } else {
-                                        if (p.getLeft() != null) {
-                                            p = p.getLeft();
-                                        } else {
-                                            var parent: org.kevoree.modeling.api.time.rbtree.LongTreeNode = p.getParent();
-                                            var ch: org.kevoree.modeling.api.time.rbtree.LongTreeNode = p;
-                                            while (parent != null && ch == parent.getLeft()){
-                                                ch = parent;
-                                                parent = parent.getParent();
-                                            }
-                                            return parent;
-                                        }
-                                    }
-                                }
-                                return null;
-                            }
-
-                            public nextOrEqual(key: number): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                var p: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.root;
-                                if (p == null) {
-                                    return null;
-                                }
-                                while (p != null){
-                                    if (key == p.key) {
-                                        return p;
-                                    }
-                                    if (key < p.key) {
-                                        if (p.getLeft() != null) {
-                                            p = p.getLeft();
-                                        } else {
-                                            return p;
-                                        }
-                                    } else {
-                                        if (p.getRight() != null) {
-                                            p = p.getRight();
-                                        } else {
-                                            var parent: org.kevoree.modeling.api.time.rbtree.LongTreeNode = p.getParent();
-                                            var ch: org.kevoree.modeling.api.time.rbtree.LongTreeNode = p;
-                                            while (parent != null && ch == parent.getRight()){
-                                                ch = parent;
-                                                parent = parent.getParent();
-                                            }
-                                            return parent;
-                                        }
-                                    }
-                                }
-                                return null;
-                            }
-
-                            public previous(key: number): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                var p: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.root;
-                                if (p == null) {
-                                    return null;
-                                }
-                                while (p != null){
-                                    if (key < p.key) {
-                                        if (p.getLeft() != null) {
-                                            p = p.getLeft();
-                                        } else {
-                                            return p.previous();
-                                        }
-                                    } else {
-                                        if (key > p.key) {
-                                            if (p.getRight() != null) {
-                                                p = p.getRight();
-                                            } else {
-                                                return p;
-                                            }
-                                        } else {
-                                            return p.previous();
-                                        }
-                                    }
-                                }
-                                return null;
-                            }
-
-                            public previousWhileNot(key: number, until: number): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                var elm: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.previousOrEqual(key);
-                                if (elm.value == until) {
-                                    return null;
-                                } else {
-                                    if (elm.key == key) {
-                                        elm = elm.previous();
-                                    }
-                                }
-                                if (elm == null || elm.value == until) {
-                                    return null;
-                                } else {
-                                    return elm;
-                                }
-                            }
-
-                            public next(key: number): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                var p: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.root;
-                                if (p == null) {
-                                    return null;
-                                }
-                                while (p != null){
-                                    if (key < p.key) {
-                                        if (p.getLeft() != null) {
-                                            p = p.getLeft();
-                                        } else {
-                                            return p;
-                                        }
-                                    } else {
-                                        if (key > p.key) {
-                                            if (p.getRight() != null) {
-                                                p = p.getRight();
-                                            } else {
-                                                return p.next();
-                                            }
-                                        } else {
-                                            return p.next();
-                                        }
-                                    }
-                                }
-                                return null;
-                            }
-
-                            public nextWhileNot(key: number, until: number): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                var elm: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.nextOrEqual(key);
-                                if (elm.value == until) {
-                                    return null;
-                                } else {
-                                    if (elm.key == key) {
-                                        elm = elm.next();
-                                    }
-                                }
-                                if (elm == null || elm.value == until) {
-                                    return null;
-                                } else {
-                                    return elm;
-                                }
-                            }
-
-                            public first(): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                var p: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.root;
-                                if (p == null) {
-                                    return null;
-                                }
-                                while (p != null){
-                                    if (p.getLeft() != null) {
-                                        p = p.getLeft();
-                                    } else {
-                                        return p;
-                                    }
-                                }
-                                return null;
-                            }
-
-                            public last(): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                var p: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.root;
-                                if (p == null) {
-                                    return null;
-                                }
-                                while (p != null){
-                                    if (p.getRight() != null) {
-                                        p = p.getRight();
-                                    } else {
-                                        return p;
-                                    }
-                                }
-                                return null;
-                            }
-
-                            public firstWhileNot(key: number, until: number): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                var elm: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.previousOrEqual(key);
-                                if (elm == null) {
-                                    return null;
-                                } else {
-                                    if (elm.value == until) {
-                                        return null;
-                                    }
-                                }
-                                var prev: org.kevoree.modeling.api.time.rbtree.LongTreeNode = null;
-                                do {
-                                    prev = elm.previous();
-                                    if (prev == null || prev.value == until) {
-                                        return elm;
-                                    } else {
-                                        elm = prev;
-                                    }
-                                } while (elm != null)
-                                return prev;
-                            }
-
-                            public lastWhileNot(key: number, until: number): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                var elm: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.previousOrEqual(key);
-                                if (elm == null) {
-                                    return null;
-                                } else {
-                                    if (elm.value == until) {
-                                        return null;
-                                    }
-                                }
-                                var next: org.kevoree.modeling.api.time.rbtree.LongTreeNode;
-                                do {
-                                    next = elm.next();
-                                    if (next == null || next.value == until) {
-                                        return elm;
-                                    } else {
-                                        elm = next;
-                                    }
-                                } while (elm != null)
-                                return next;
-                            }
-
-                            private lookupNode(key: number): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                var n: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.root;
-                                if (n == null) {
-                                    return null;
-                                }
-                                while (n != null){
-                                    if (key == n.key) {
-                                        return n;
-                                    } else {
-                                        if (key < n.key) {
-                                            n = n.getLeft();
-                                        } else {
-                                            n = n.getRight();
-                                        }
-                                    }
-                                }
-                                return n;
-                            }
-
-                            public lookup(key: number): number {
-                                var n: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.lookupNode(key);
-                                if (n == null) {
-                                    return null;
-                                } else {
-                                    return n.value;
-                                }
-                            }
-
-                            private rotateLeft(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                var r: org.kevoree.modeling.api.time.rbtree.LongTreeNode = n.getRight();
-                                this.replaceNode(n, r);
-                                n.setRight(r.getLeft());
-                                if (r.getLeft() != null) {
-                                    r.getLeft().setParent(n);
-                                }
-                                r.setLeft(n);
-                                n.setParent(r);
-                            }
-
-                            private rotateRight(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                var l: org.kevoree.modeling.api.time.rbtree.LongTreeNode = n.getLeft();
-                                this.replaceNode(n, l);
-                                n.setLeft(l.getRight());
-                                if (l.getRight() != null) {
-                                    l.getRight().setParent(n);
-                                }
-                                l.setRight(n);
-                                n.setParent(l);
-                            }
-
-                            private replaceNode(oldn: org.kevoree.modeling.api.time.rbtree.LongTreeNode, newn: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if (oldn.getParent() == null) {
-                                    this.root = newn;
-                                } else {
-                                    if (oldn == oldn.getParent().getLeft()) {
-                                        oldn.getParent().setLeft(newn);
-                                    } else {
-                                        oldn.getParent().setRight(newn);
-                                    }
-                                }
-                                if (newn != null) {
-                                    newn.setParent(oldn.getParent());
-                                }
-                            }
-
-                            public insert(key: number, value: number): void {
-                                this._dirty = true;
-                                var insertedNode: org.kevoree.modeling.api.time.rbtree.LongTreeNode = new org.kevoree.modeling.api.time.rbtree.LongTreeNode(key, value, org.kevoree.modeling.api.time.rbtree.Color.RED, null, null);
-                                if (this.root == null) {
-                                    this._size++;
-                                    this.root = insertedNode;
-                                } else {
-                                    var n: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.root;
-                                    while (true){
-                                        if (key == n.key) {
-                                            n.value = value;
-                                            return;
-                                        } else {
-                                            if (key < n.key) {
-                                                if (n.getLeft() == null) {
-                                                    n.setLeft(insertedNode);
-                                                    this._size++;
-                                                    break;
-                                                } else {
-                                                    n = n.getLeft();
-                                                }
-                                            } else {
-                                                if (n.getRight() == null) {
-                                                    n.setRight(insertedNode);
-                                                    this._size++;
-                                                    break;
-                                                } else {
-                                                    n = n.getRight();
-                                                }
-                                            }
-                                        }
-                                    }
-                                    insertedNode.setParent(n);
-                                }
-                                this.insertCase1(insertedNode);
-                            }
-
-                            private insertCase1(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if (n.getParent() == null) {
-                                    n.color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                } else {
-                                    this.insertCase2(n);
-                                }
-                            }
-
-                            private insertCase2(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                    return;
-                                } else {
-                                    this.insertCase3(n);
-                                }
-                            }
-
-                            private insertCase3(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if (this.nodeColor(n.uncle()) == org.kevoree.modeling.api.time.rbtree.Color.RED) {
-                                    n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                    n.uncle().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                    n.grandparent().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                    this.insertCase1(n.grandparent());
-                                } else {
-                                    this.insertCase4(n);
-                                }
-                            }
-
-                            private insertCase4(n_n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                var n: org.kevoree.modeling.api.time.rbtree.LongTreeNode = n_n;
-                                if (n == n.getParent().getRight() && n.getParent() == n.grandparent().getLeft()) {
-                                    this.rotateLeft(n.getParent());
-                                    n = n.getLeft();
-                                } else {
-                                    if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getRight()) {
-                                        this.rotateRight(n.getParent());
-                                        n = n.getRight();
-                                    }
-                                }
-                                this.insertCase5(n);
-                            }
-
-                            private insertCase5(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                n.grandparent().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getLeft()) {
-                                    this.rotateRight(n.grandparent());
-                                } else {
-                                    this.rotateLeft(n.grandparent());
-                                }
-                            }
-
-                            public delete(key: number): void {
-                                var n: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this.lookupNode(key);
-                                if (n == null) {
-                                    return;
-                                } else {
-                                    this._size--;
-                                    if (n.getLeft() != null && n.getRight() != null) {
-                                        var pred: org.kevoree.modeling.api.time.rbtree.LongTreeNode = n.getLeft();
-                                        while (pred.getRight() != null){
-                                            pred = pred.getRight();
-                                        }
-                                        n.key = pred.key;
-                                        n.value = pred.value;
-                                        n = pred;
-                                    }
-                                    var child: org.kevoree.modeling.api.time.rbtree.LongTreeNode;
-                                    if (n.getRight() == null) {
-                                        child = n.getLeft();
-                                    } else {
-                                        child = n.getRight();
-                                    }
-                                    if (this.nodeColor(n) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                        n.color = this.nodeColor(child);
-                                        this.deleteCase1(n);
-                                    }
-                                    this.replaceNode(n, child);
-                                }
-                            }
-
-                            private deleteCase1(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if (n.getParent() == null) {
-                                    return;
-                                } else {
-                                    this.deleteCase2(n);
-                                }
-                            }
-
-                            private deleteCase2(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if (this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.RED) {
-                                    n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                    n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                    if (n == n.getParent().getLeft()) {
-                                        this.rotateLeft(n.getParent());
-                                    } else {
-                                        this.rotateRight(n.getParent());
-                                    }
-                                }
-                                this.deleteCase3(n);
-                            }
-
-                            private deleteCase3(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                    n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                    this.deleteCase1(n.getParent());
-                                } else {
-                                    this.deleteCase4(n);
-                                }
-                            }
-
-                            private deleteCase4(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.time.rbtree.Color.RED && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                    n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                    n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                } else {
-                                    this.deleteCase5(n);
-                                }
-                            }
-
-                            private deleteCase5(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                if (n == n.getParent().getLeft() && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.RED && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                    n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                    n.sibling().getLeft().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                    this.rotateRight(n.sibling());
-                                } else {
-                                    if (n == n.getParent().getRight() && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.time.rbtree.Color.RED && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                        n.sibling().color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                        n.sibling().getRight().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                        this.rotateLeft(n.sibling());
-                                    }
-                                }
-                                this.deleteCase6(n);
-                            }
-
-                            private deleteCase6(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                n.sibling().color = this.nodeColor(n.getParent());
-                                n.getParent().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                if (n == n.getParent().getLeft()) {
-                                    n.sibling().getRight().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                    this.rotateLeft(n.getParent());
-                                } else {
-                                    n.sibling().getLeft().color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                    this.rotateRight(n.getParent());
-                                }
-                            }
-
-                            private nodeColor(n: org.kevoree.modeling.api.time.rbtree.LongTreeNode): org.kevoree.modeling.api.time.rbtree.Color {
-                                if (n == null) {
-                                    return org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                } else {
-                                    return n.color;
-                                }
-                            }
-
-                        }
-
-                        export class LongTreeNode {
-
-                            public static BLACK: string = '0';
-                            public static RED: string = '2';
-                            public key: number;
-                            public value: number;
-                            public color: org.kevoree.modeling.api.time.rbtree.Color;
-                            private left: org.kevoree.modeling.api.time.rbtree.LongTreeNode;
-                            private right: org.kevoree.modeling.api.time.rbtree.LongTreeNode;
-                            private parent: org.kevoree.modeling.api.time.rbtree.LongTreeNode = null;
-                            constructor(key: number, value: number, color: org.kevoree.modeling.api.time.rbtree.Color, left: org.kevoree.modeling.api.time.rbtree.LongTreeNode, right: org.kevoree.modeling.api.time.rbtree.LongTreeNode) {
-                                this.key = key;
-                                this.value = value;
-                                this.color = color;
-                                this.left = left;
-                                this.right = right;
-                                if (left != null) {
-                                    left.parent = this;
-                                }
-                                if (right != null) {
-                                    right.parent = this;
-                                }
-                                this.parent = null;
-                            }
-
-                            public grandparent(): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                if (this.parent != null) {
-                                    return this.parent.parent;
-                                } else {
-                                    return null;
-                                }
-                            }
-
-                            public sibling(): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                if (this.parent == null) {
-                                    return null;
-                                } else {
-                                    if (this == this.parent.left) {
-                                        return this.parent.right;
-                                    } else {
-                                        return this.parent.left;
-                                    }
-                                }
-                            }
-
-                            public uncle(): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                if (this.parent != null) {
-                                    return this.parent.sibling();
-                                } else {
-                                    return null;
-                                }
-                            }
-
-                            public getLeft(): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                return this.left;
-                            }
-
-                            public setLeft(left: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                this.left = left;
-                            }
-
-                            public getRight(): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                return this.right;
-                            }
-
-                            public setRight(right: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                this.right = right;
-                            }
-
-                            public getParent(): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                return this.parent;
-                            }
-
-                            public setParent(parent: org.kevoree.modeling.api.time.rbtree.LongTreeNode): void {
-                                this.parent = parent;
-                            }
-
-                            public serialize(builder: java.lang.StringBuilder): void {
-                                builder.append("|");
-                                if (this.color == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                    builder.append(LongTreeNode.BLACK);
-                                } else {
-                                    builder.append(LongTreeNode.RED);
-                                }
-                                builder.append(this.key);
-                                builder.append("@");
-                                builder.append(this.value);
-                                if (this.left == null && this.right == null) {
-                                    builder.append("%");
-                                } else {
-                                    if (this.left != null) {
-                                        this.left.serialize(builder);
-                                    } else {
-                                        builder.append("#");
-                                    }
-                                    if (this.right != null) {
-                                        this.right.serialize(builder);
-                                    } else {
-                                        builder.append("#");
-                                    }
-                                }
-                            }
-
-                            public next(): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                var p: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this;
-                                if (p.right != null) {
-                                    p = p.right;
-                                    while (p.left != null){
-                                        p = p.left;
-                                    }
-                                    return p;
-                                } else {
-                                    if (p.parent != null) {
-                                        if (p == p.parent.left) {
-                                            return p.parent;
-                                        } else {
-                                            while (p.parent != null && p == p.parent.right){
-                                                p = p.parent;
-                                            }
-                                            return p.parent;
-                                        }
-                                    } else {
-                                        return null;
-                                    }
-                                }
-                            }
-
-                            public previous(): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                var p: org.kevoree.modeling.api.time.rbtree.LongTreeNode = this;
-                                if (p.left != null) {
-                                    p = p.left;
-                                    while (p.right != null){
-                                        p = p.right;
-                                    }
-                                    return p;
-                                } else {
-                                    if (p.parent != null) {
-                                        if (p == p.parent.right) {
-                                            return p.parent;
-                                        } else {
-                                            while (p.parent != null && p == p.parent.left){
-                                                p = p.parent;
-                                            }
-                                            return p.parent;
-                                        }
-                                    } else {
-                                        return null;
-                                    }
-                                }
-                            }
-
-                            public static unserialize(ctx: org.kevoree.modeling.api.time.rbtree.TreeReaderContext): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                return org.kevoree.modeling.api.time.rbtree.LongTreeNode.internal_unserialize(true, ctx);
-                            }
-
-                            public static internal_unserialize(rightBranch: boolean, ctx: org.kevoree.modeling.api.time.rbtree.TreeReaderContext): org.kevoree.modeling.api.time.rbtree.LongTreeNode {
-                                if (ctx.index >= ctx.payload.length) {
-                                    return null;
-                                }
-                                var ch: string = ctx.payload.charAt(ctx.index);
-                                if (ch == '%') {
-                                    if (rightBranch) {
-                                        ctx.index = ctx.index + 1;
-                                    }
-                                    return null;
-                                }
-                                if (ch == '#') {
-                                    ctx.index = ctx.index + 1;
-                                    return null;
-                                }
-                                if (ch != '|') {
-                                    throw new java.lang.Exception("Error while loading BTree");
-                                }
-                                ctx.index = ctx.index + 1;
-                                ch = ctx.payload.charAt(ctx.index);
-                                var color: org.kevoree.modeling.api.time.rbtree.Color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                if (ch == LongTreeNode.RED) {
-                                    color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                }
-                                ctx.index = ctx.index + 1;
-                                ch = ctx.payload.charAt(ctx.index);
-                                var i: number = 0;
-                                while (ctx.index + 1 < ctx.payload.length && ch != '|' && ch != '#' && ch != '%' && ch != '@'){
-                                    ctx.buffer[i] = ch;
-                                    i++;
-                                    ctx.index = ctx.index + 1;
-                                    ch = ctx.payload.charAt(ctx.index);
-                                }
-                                if (ch != '|' && ch != '#' && ch != '%' && ch != '@') {
-                                    ctx.buffer[i] = ch;
-                                    i++;
-                                }
-                                var key: number = java.lang.Long.parseLong(StringUtils.copyValueOf(ctx.buffer, 0, i));
-                                i = 0;
-                                ctx.index = ctx.index + 1;
-                                ch = ctx.payload.charAt(ctx.index);
-                                while (ctx.index + 1 < ctx.payload.length && ch != '|' && ch != '#' && ch != '%' && ch != '@'){
-                                    ctx.buffer[i] = ch;
-                                    i++;
-                                    ctx.index = ctx.index + 1;
-                                    ch = ctx.payload.charAt(ctx.index);
-                                }
-                                if (ch != '|' && ch != '#' && ch != '%' && ch != '@') {
-                                    ctx.buffer[i] = ch;
-                                    i++;
-                                }
-                                var value: number = java.lang.Long.parseLong(StringUtils.copyValueOf(ctx.buffer, 0, i));
-                                var p: org.kevoree.modeling.api.time.rbtree.LongTreeNode = new org.kevoree.modeling.api.time.rbtree.LongTreeNode(key, value, color, null, null);
-                                var left: org.kevoree.modeling.api.time.rbtree.LongTreeNode = org.kevoree.modeling.api.time.rbtree.LongTreeNode.internal_unserialize(false, ctx);
-                                if (left != null) {
-                                    left.setParent(p);
-                                }
-                                var right: org.kevoree.modeling.api.time.rbtree.LongTreeNode = org.kevoree.modeling.api.time.rbtree.LongTreeNode.internal_unserialize(true, ctx);
-                                if (right != null) {
-                                    right.setParent(p);
-                                }
-                                p.setLeft(left);
-                                p.setRight(right);
-                                return p;
-                            }
-
-                        }
-
-                        export interface RBTree {
-
-                            first(): number;
-
-                            last(): number;
-
-                            next(from: number): number;
-
-                            previous(from: number): number;
-
-                            resolve(time: number): number;
-
-                            size(): number;
-
-                        }
-
-                        export class TreeNode {
-
-                            public static BLACK: string = '0';
-                            public static RED: string = '1';
-                            public key: number;
-                            public color: org.kevoree.modeling.api.time.rbtree.Color;
-                            private left: org.kevoree.modeling.api.time.rbtree.TreeNode;
-                            private right: org.kevoree.modeling.api.time.rbtree.TreeNode;
-                            private parent: org.kevoree.modeling.api.time.rbtree.TreeNode = null;
-                            public getKey(): number {
-                                return this.key;
-                            }
-
-                            constructor(key: number, color: org.kevoree.modeling.api.time.rbtree.Color, left: org.kevoree.modeling.api.time.rbtree.TreeNode, right: org.kevoree.modeling.api.time.rbtree.TreeNode) {
-                                this.key = key;
-                                this.color = color;
-                                this.left = left;
-                                this.right = right;
-                                if (left != null) {
-                                    left.parent = this;
-                                }
-                                if (right != null) {
-                                    right.parent = this;
-                                }
-                                this.parent = null;
-                            }
-
-                            public grandparent(): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                if (this.parent != null) {
-                                    return this.parent.parent;
-                                } else {
-                                    return null;
-                                }
-                            }
-
-                            public sibling(): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                if (this.parent == null) {
-                                    return null;
-                                } else {
-                                    if (this == this.parent.left) {
-                                        return this.parent.right;
-                                    } else {
-                                        return this.parent.left;
-                                    }
-                                }
-                            }
-
-                            public uncle(): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                if (this.parent != null) {
-                                    return this.parent.sibling();
-                                } else {
-                                    return null;
-                                }
-                            }
-
-                            public getLeft(): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                return this.left;
-                            }
-
-                            public setLeft(left: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                this.left = left;
-                            }
-
-                            public getRight(): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                return this.right;
-                            }
-
-                            public setRight(right: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                this.right = right;
-                            }
-
-                            public getParent(): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                return this.parent;
-                            }
-
-                            public setParent(parent: org.kevoree.modeling.api.time.rbtree.TreeNode): void {
-                                this.parent = parent;
-                            }
-
-                            public serialize(builder: java.lang.StringBuilder): void {
-                                builder.append("|");
-                                if (this.color == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                    builder.append(TreeNode.BLACK);
-                                } else {
-                                    builder.append(TreeNode.RED);
-                                }
-                                builder.append(this.key);
-                                if (this.left == null && this.right == null) {
-                                    builder.append("%");
-                                } else {
-                                    if (this.left != null) {
-                                        this.left.serialize(builder);
-                                    } else {
-                                        builder.append("#");
-                                    }
-                                    if (this.right != null) {
-                                        this.right.serialize(builder);
-                                    } else {
-                                        builder.append("#");
-                                    }
-                                }
-                            }
-
-                            public next(): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                var p: org.kevoree.modeling.api.time.rbtree.TreeNode = this;
-                                if (p.right != null) {
-                                    p = p.right;
-                                    while (p.left != null){
-                                        p = p.left;
-                                    }
-                                    return p;
-                                } else {
-                                    if (p.parent != null) {
-                                        if (p == p.parent.left) {
-                                            return p.parent;
-                                        } else {
-                                            while (p.parent != null && p == p.parent.right){
-                                                p = p.parent;
-                                            }
-                                            return p.parent;
-                                        }
-                                    } else {
-                                        return null;
-                                    }
-                                }
-                            }
-
-                            public previous(): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                var p: org.kevoree.modeling.api.time.rbtree.TreeNode = this;
-                                if (p.left != null) {
-                                    p = p.left;
-                                    while (p.right != null){
-                                        p = p.right;
-                                    }
-                                    return p;
-                                } else {
-                                    if (p.parent != null) {
-                                        if (p == p.parent.right) {
-                                            return p.parent;
-                                        } else {
-                                            while (p.parent != null && p == p.parent.left){
-                                                p = p.parent;
-                                            }
-                                            return p.parent;
-                                        }
-                                    } else {
-                                        return null;
-                                    }
-                                }
-                            }
-
-                            public static unserialize(ctx: org.kevoree.modeling.api.time.rbtree.TreeReaderContext): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                return org.kevoree.modeling.api.time.rbtree.TreeNode.internal_unserialize(true, ctx);
-                            }
-
-                            public static internal_unserialize(rightBranch: boolean, ctx: org.kevoree.modeling.api.time.rbtree.TreeReaderContext): org.kevoree.modeling.api.time.rbtree.TreeNode {
-                                if (ctx.index >= ctx.payload.length) {
-                                    return null;
-                                }
-                                var tokenBuild: java.lang.StringBuilder = new java.lang.StringBuilder();
-                                var ch: string = ctx.payload.charAt(ctx.index);
-                                if (ch == '%') {
-                                    if (rightBranch) {
-                                        ctx.index = ctx.index + 1;
-                                    }
-                                    return null;
-                                }
-                                if (ch == '#') {
-                                    ctx.index = ctx.index + 1;
-                                    return null;
-                                }
-                                if (ch != '|') {
-                                    throw new java.lang.Exception("Error while loading BTree");
-                                }
-                                ctx.index = ctx.index + 1;
-                                ch = ctx.payload.charAt(ctx.index);
-                                var color: org.kevoree.modeling.api.time.rbtree.Color;
-                                if (ch == org.kevoree.modeling.api.time.rbtree.TreeNode.BLACK) {
-                                    color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                } else {
-                                    color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                }
-                                ctx.index = ctx.index + 1;
-                                ch = ctx.payload.charAt(ctx.index);
-                                while (ctx.index + 1 < ctx.payload.length && ch != '|' && ch != '#' && ch != '%'){
-                                    tokenBuild.append(ch);
-                                    ctx.index = ctx.index + 1;
-                                    ch = ctx.payload.charAt(ctx.index);
-                                }
-                                if (ch != '|' && ch != '#' && ch != '%') {
-                                    tokenBuild.append(ch);
-                                }
-                                var p: org.kevoree.modeling.api.time.rbtree.TreeNode = new org.kevoree.modeling.api.time.rbtree.TreeNode(java.lang.Long.parseLong(tokenBuild.toString()), color, null, null);
-                                var left: org.kevoree.modeling.api.time.rbtree.TreeNode = org.kevoree.modeling.api.time.rbtree.TreeNode.internal_unserialize(false, ctx);
-                                if (left != null) {
-                                    left.setParent(p);
-                                }
-                                var right: org.kevoree.modeling.api.time.rbtree.TreeNode = org.kevoree.modeling.api.time.rbtree.TreeNode.internal_unserialize(true, ctx);
-                                if (right != null) {
-                                    right.setParent(p);
-                                }
-                                p.setLeft(left);
-                                p.setRight(right);
-                                return p;
-                            }
-
-                        }
-
-                        export class TreeReaderContext {
-
-                            public payload: string;
-                            public index: number;
-                            public buffer: string[];
-                        }
-
-                    }
                 }
                 export module trace {
                     export class ModelAddTrace implements org.kevoree.modeling.api.trace.ModelTrace {
@@ -9407,7 +9333,7 @@ module org {
                                                             }
                                                         } else {
                                                             if (trace instanceof org.kevoree.modeling.api.trace.ModelNewTrace) {
-                                                                var universeTree: org.kevoree.modeling.api.time.rbtree.LongRBTree = new org.kevoree.modeling.api.time.rbtree.LongRBTree();
+                                                                var universeTree: org.kevoree.modeling.api.rbtree.LongRBTree = new org.kevoree.modeling.api.rbtree.LongRBTree();
                                                                 universeTree.insert(this._targetModel.universe().key(), this._targetModel.now());
                                                                 var newCreated: org.kevoree.modeling.api.KObject = (<org.kevoree.modeling.api.abs.AbstractKView>this._targetModel.view()).createProxy(<org.kevoree.modeling.api.meta.MetaClass>trace.meta(), universeTree, trace.sourceUUID());
                                                                 this._targetModel.universe().model().manager().initKObject(newCreated, this._targetModel.view());
@@ -9655,14 +9581,14 @@ module org {
                             this._initAction.execute(this._initObjs);
                         }
 
-                        public taskThen(): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public taskThen(): org.kevoree.modeling.api.KDefer<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             this.then(task.initCallback());
                             return task;
                         }
 
-                        public taskMap(attribute: org.kevoree.modeling.api.meta.MetaAttribute): org.kevoree.modeling.api.KTask<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public taskMap(attribute: org.kevoree.modeling.api.meta.MetaAttribute): org.kevoree.modeling.api.KDefer<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             this.map(attribute, task.initCallback());
                             return task;
                         }
@@ -9693,9 +9619,9 @@ module org {
 
                         map(attribute: org.kevoree.modeling.api.meta.MetaAttribute, callback: (p : any[]) => void): void;
 
-                        taskThen(): org.kevoree.modeling.api.KTask<any>;
+                        taskThen(): org.kevoree.modeling.api.KDefer<any>;
 
-                        taskMap(attribute: org.kevoree.modeling.api.meta.MetaAttribute): org.kevoree.modeling.api.KTask<any>;
+                        taskMap(attribute: org.kevoree.modeling.api.meta.MetaAttribute): org.kevoree.modeling.api.KDefer<any>;
 
                     }
 
@@ -10903,6 +10829,70 @@ module org {
 
                     }
 
+                    export class TimeWalker {
+
+                        private _origin: org.kevoree.modeling.api.KObject = null;
+                        constructor(p_origin: org.kevoree.modeling.api.KObject) {
+                            this._origin = p_origin;
+                        }
+
+                        public walk(walker: (p : number) => void): org.kevoree.modeling.api.KDefer<any> {
+                            return this.walkAsc(walker);
+                        }
+
+                        public walkAsc(walker: (p : number) => void): org.kevoree.modeling.api.KDefer<any> {
+                            return this.internal_walk(walker, true, null, null);
+                        }
+
+                        public walkDesc(walker: (p : number) => void): org.kevoree.modeling.api.KDefer<any> {
+                            return this.internal_walk(walker, false, null, null);
+                        }
+
+                        private internal_walk(walker: (p : number) => void, asc: boolean, from: number, to: number): org.kevoree.modeling.api.KDefer<any> {
+                            var wrapper: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
+                            this._origin.view().universe().model().manager().timeTrees(this._origin, from, to,  (indexRBTrees : org.kevoree.modeling.api.rbtree.IndexRBTree[]) => {
+                                var from2: number = from;
+                                var to2: number = to;
+                                if (from > to) {
+                                    from2 = to;
+                                    to2 = from;
+                                }
+                                for (var i: number = 0; i < indexRBTrees.length; i++) {
+                                    var elem: org.kevoree.modeling.api.rbtree.TreeNode;
+                                    if (asc) {
+                                        elem = indexRBTrees[i].previousOrEqual(from2);
+                                    } else {
+                                        elem = indexRBTrees[i].previousOrEqual(to2);
+                                    }
+                                    while (elem != null){
+                                        walker(elem.getKey());
+                                        if (asc) {
+                                            elem = elem.next();
+                                        } else {
+                                            elem = elem.previous();
+                                        }
+                                        if (elem != null) {
+                                            if (elem.getKey() <= from2) {
+                                                walker(elem.getKey());
+                                            }
+                                        }
+                                    }
+                                }
+                                wrapper.initCallback()(null);
+                            });
+                            return wrapper;
+                        }
+
+                        public walkRangeAsc(walker: (p : number) => void, from: number, to: number): org.kevoree.modeling.api.KDefer<any> {
+                            return this.internal_walk(walker, true, from, to);
+                        }
+
+                        public walkRangeDesc(walker: (p : number) => void, from: number, to: number): org.kevoree.modeling.api.KDefer<any> {
+                            return this.internal_walk(walker, false, from, to);
+                        }
+
+                    }
+
                 }
                 export module xmi {
                     export class SerializationContext {
@@ -11162,7 +11152,7 @@ module org {
                             };
                             context.printer = new java.lang.StringBuilder();
                             context.addressTable.put(model.uuid(), "/");
-                            var addressCreationTask: org.kevoree.modeling.api.KTask<any> = context.model.visit( (elem : org.kevoree.modeling.api.KObject) => {
+                            var addressCreationTask: org.kevoree.modeling.api.KDefer<any> = context.model.visit( (elem : org.kevoree.modeling.api.KObject) => {
                                 var parentXmiAddress: string = context.addressTable.get(elem.parentUuid());
                                 var key: string = parentXmiAddress + "/@" + elem.referenceInParent().metaName();
                                 var i: number = context.elementsCount.get(key);
@@ -11178,9 +11168,9 @@ module org {
                                 }
                                 return org.kevoree.modeling.api.VisitResult.CONTINUE;
                             }, org.kevoree.modeling.api.VisitRequest.CONTAINED);
-                            var serializationTask: org.kevoree.modeling.api.KTask<any> = context.model.universe().model().task();
+                            var serializationTask: org.kevoree.modeling.api.KDefer<any> = context.model.universe().model().defer();
                             serializationTask.wait(addressCreationTask);
-                            serializationTask.setJob( (currentTask : org.kevoree.modeling.api.KCurrentTask<any>) => {
+                            serializationTask.setJob( (currentTask : org.kevoree.modeling.api.KCurrentDefer<any>) => {
                                 context.printer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
                                 context.printer.append("<" + org.kevoree.modeling.api.xmi.XMIModelSerializer.formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_"));
                                 context.printer.append(" xmlns:xsi=\"http://wwww.w3.org/2001/XMLSchema-instance\"");
@@ -11192,21 +11182,21 @@ module org {
                                     index++;
                                 }
                                 context.model.visitAttributes(context.attributesVisitor);
-                                var nonContainedRefsTasks: org.kevoree.modeling.api.KTask<any> = context.model.universe().model().task();
+                                var nonContainedRefsTasks: org.kevoree.modeling.api.KDefer<any> = context.model.universe().model().defer();
                                 for (var i: number = 0; i < context.model.metaClass().metaReferences().length; i++) {
                                     if (!context.model.metaClass().metaReferences()[i].contained()) {
                                         nonContainedRefsTasks.wait(org.kevoree.modeling.api.xmi.XMIModelSerializer.nonContainedReferenceTaskMaker(context.model.metaClass().metaReferences()[i], context, context.model));
                                     }
                                 }
-                                nonContainedRefsTasks.setJob( (currentTask : org.kevoree.modeling.api.KCurrentTask<any>) => {
+                                nonContainedRefsTasks.setJob( (currentTask : org.kevoree.modeling.api.KCurrentDefer<any>) => {
                                     context.printer.append(">\n");
-                                    var containedRefsTasks: org.kevoree.modeling.api.KTask<any> = context.model.universe().model().task();
+                                    var containedRefsTasks: org.kevoree.modeling.api.KDefer<any> = context.model.universe().model().defer();
                                     for (var i: number = 0; i < context.model.metaClass().metaReferences().length; i++) {
                                         if (context.model.metaClass().metaReferences()[i].contained()) {
                                             containedRefsTasks.wait(org.kevoree.modeling.api.xmi.XMIModelSerializer.containedReferenceTaskMaker(context.model.metaClass().metaReferences()[i], context, context.model));
                                         }
                                     }
-                                    containedRefsTasks.setJob( (currentTask : org.kevoree.modeling.api.KCurrentTask<any>) => {
+                                    containedRefsTasks.setJob( (currentTask : org.kevoree.modeling.api.KCurrentDefer<any>) => {
                                         context.printer.append("</" + org.kevoree.modeling.api.xmi.XMIModelSerializer.formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_") + ">\n");
                                         context.finishCallback(context.printer.toString());
                                     });
@@ -11257,11 +11247,11 @@ module org {
                             return pack + ":" + cls;
                         }
 
-                        private static nonContainedReferenceTaskMaker(ref: org.kevoree.modeling.api.meta.MetaReference, p_context: org.kevoree.modeling.api.xmi.SerializationContext, p_currentElement: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any> {
-                            var allTask: org.kevoree.modeling.api.KTask<any> = p_currentElement.ref(ref);
-                            var thisTask: org.kevoree.modeling.api.KTask<any> = p_context.model.universe().model().task();
+                        private static nonContainedReferenceTaskMaker(ref: org.kevoree.modeling.api.meta.MetaReference, p_context: org.kevoree.modeling.api.xmi.SerializationContext, p_currentElement: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any> {
+                            var allTask: org.kevoree.modeling.api.KDefer<any> = p_currentElement.ref(ref);
+                            var thisTask: org.kevoree.modeling.api.KDefer<any> = p_context.model.universe().model().defer();
                             thisTask.wait(allTask);
-                            thisTask.setJob( (currentTask : org.kevoree.modeling.api.KCurrentTask<any>) => {
+                            thisTask.setJob( (currentTask : org.kevoree.modeling.api.KCurrentDefer<any>) => {
                                 try {
                                     var objects: org.kevoree.modeling.api.KObject[] = (<org.kevoree.modeling.api.KObject[]>currentTask.resultByTask(allTask));
                                     for (var i: number = 0; i < objects.length; i++) {
@@ -11279,11 +11269,11 @@ module org {
                             return thisTask;
                         }
 
-                        private static containedReferenceTaskMaker(ref: org.kevoree.modeling.api.meta.MetaReference, context: org.kevoree.modeling.api.xmi.SerializationContext, currentElement: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any> {
-                            var allTask: org.kevoree.modeling.api.KTask<any> = currentElement.ref(ref);
-                            var thisTask: org.kevoree.modeling.api.KTask<any> = context.model.universe().model().task();
+                        private static containedReferenceTaskMaker(ref: org.kevoree.modeling.api.meta.MetaReference, context: org.kevoree.modeling.api.xmi.SerializationContext, currentElement: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any> {
+                            var allTask: org.kevoree.modeling.api.KDefer<any> = currentElement.ref(ref);
+                            var thisTask: org.kevoree.modeling.api.KDefer<any> = context.model.universe().model().defer();
                             thisTask.wait(allTask);
-                            thisTask.setJob( (currentTask : org.kevoree.modeling.api.KCurrentTask<any>) => {
+                            thisTask.setJob( (currentTask : org.kevoree.modeling.api.KCurrentDefer<any>) => {
                                 try {
                                     if (currentTask.resultByTask(allTask) != null) {
                                         var objs: org.kevoree.modeling.api.KObject[] = (<org.kevoree.modeling.api.KObject[]>currentTask.resultByTask(allTask));
@@ -11293,21 +11283,21 @@ module org {
                                             context.printer.append(ref.metaName());
                                             context.printer.append(" xsi:type=\"" + org.kevoree.modeling.api.xmi.XMIModelSerializer.formatMetaClassName(elem.metaClass().metaName()) + "\"");
                                             elem.visitAttributes(context.attributesVisitor);
-                                            var nonContainedRefsTasks: org.kevoree.modeling.api.KTask<any> = context.model.universe().model().task();
+                                            var nonContainedRefsTasks: org.kevoree.modeling.api.KDefer<any> = context.model.universe().model().defer();
                                             for (var j: number = 0; j < elem.metaClass().metaReferences().length; j++) {
                                                 if (!elem.metaClass().metaReferences()[i].contained()) {
                                                     nonContainedRefsTasks.wait(org.kevoree.modeling.api.xmi.XMIModelSerializer.nonContainedReferenceTaskMaker(elem.metaClass().metaReferences()[i], context, elem));
                                                 }
                                             }
-                                            nonContainedRefsTasks.setJob( (currentTask : org.kevoree.modeling.api.KCurrentTask<any>) => {
+                                            nonContainedRefsTasks.setJob( (currentTask : org.kevoree.modeling.api.KCurrentDefer<any>) => {
                                                 context.printer.append(">\n");
-                                                var containedRefsTasks: org.kevoree.modeling.api.KTask<any> = context.model.universe().model().task();
+                                                var containedRefsTasks: org.kevoree.modeling.api.KDefer<any> = context.model.universe().model().defer();
                                                 for (var i: number = 0; i < elem.metaClass().metaReferences().length; i++) {
                                                     if (elem.metaClass().metaReferences()[i].contained()) {
                                                         containedRefsTasks.wait(org.kevoree.modeling.api.xmi.XMIModelSerializer.containedReferenceTaskMaker(elem.metaClass().metaReferences()[i], context, elem));
                                                     }
                                                 }
-                                                containedRefsTasks.setJob( (currentTask : org.kevoree.modeling.api.KCurrentTask<any>) => {
+                                                containedRefsTasks.setJob( (currentTask : org.kevoree.modeling.api.KCurrentDefer<any>) => {
                                                     context.printer.append("</");
                                                     context.printer.append(ref.metaName());
                                                     context.printer.append('>');
@@ -11369,14 +11359,14 @@ module org {
                             this._view = p_view;
                         }
 
-                        public save(model: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KTask<any> {
-                            var wrapper: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public save(model: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any> {
+                            var wrapper: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             org.kevoree.modeling.api.xmi.XMIModelSerializer.save(model, wrapper.initCallback());
                             return wrapper;
                         }
 
-                        public saveRoot(): org.kevoree.modeling.api.KTask<any> {
-                            var wrapper: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public saveRoot(): org.kevoree.modeling.api.KDefer<any> {
+                            var wrapper: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             this._view.universe().model().manager().getRoot(this._view,  (root : org.kevoree.modeling.api.KObject) => {
                                 if (root == null) {
                                     wrapper.initCallback()(null);
@@ -11387,8 +11377,8 @@ module org {
                             return wrapper;
                         }
 
-                        public load(payload: string): org.kevoree.modeling.api.KTask<any> {
-                            var wrapper: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                        public load(payload: string): org.kevoree.modeling.api.KDefer<any> {
+                            var wrapper: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             org.kevoree.modeling.api.xmi.XMIModelLoader.load(this._view, payload, wrapper.initCallback());
                             return wrapper;
                         }

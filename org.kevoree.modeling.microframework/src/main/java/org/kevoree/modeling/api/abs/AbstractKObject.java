@@ -4,7 +4,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KInfer;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KTask;
+import org.kevoree.modeling.api.KDefer;
 import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ModelAttributeVisitor;
@@ -91,8 +91,8 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public KTask<String> path() {
-        AbstractKTaskWrapper<String> task = new AbstractKTaskWrapper<String>();
+    public KDefer<String> path() {
+        AbstractKDeferWrapper<String> task = new AbstractKDeferWrapper<String>();
         parent().then(new Callback<KObject>() {
             @Override
             public void on(KObject parent) {
@@ -127,10 +127,10 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public KTask<KObject> parent() {
+    public KDefer<KObject> parent() {
         Long parentKID = parentUuid();
         if (parentKID == null) {
-            AbstractKTaskWrapper<KObject> task = new AbstractKTaskWrapper<KObject>();
+            AbstractKDeferWrapper<KObject> task = new AbstractKDeferWrapper<KObject>();
             task.initCallback().on(null);
             return task;
         } else {
@@ -149,8 +149,8 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public KTask<Throwable> delete() {
-        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
+    public KDefer<Throwable> delete() {
+        AbstractKDeferWrapper<Throwable> task = new AbstractKDeferWrapper<Throwable>();
         KObject toRemove = this;
         KCacheEntry rawPayload = _view.universe().model().manager().entry(this, AccessMode.DELETE);
         if (rawPayload == null) {
@@ -182,8 +182,8 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public KTask<KObject[]> select(String query) {
-        AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
+    public KDefer<KObject[]> select(String query) {
+        AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
         if (!Checker.isDefined(query)) {
             task.initCallback().on(new KObject[0]);
         } else {
@@ -499,15 +499,15 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public KTask<KObject[]> ref(MetaReference p_metaReference) {
-        AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
+    public KDefer<KObject[]> ref(MetaReference p_metaReference) {
+        AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
         internal_ref(p_metaReference, task.initCallback());
         return task;
     }
 
     @Override
-    public KTask<KObject[]> inferRef(MetaReference p_metaReference) {
-        AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
+    public KDefer<KObject[]> inferRef(MetaReference p_metaReference) {
+        AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
         //TODO
         return task;
     }
@@ -524,8 +524,8 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public KTask<Throwable> visit(ModelVisitor p_visitor, VisitRequest p_request) {
-        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
+    public KDefer<Throwable> visit(ModelVisitor p_visitor, VisitRequest p_request) {
+        AbstractKDeferWrapper<Throwable> task = new AbstractKDeferWrapper<Throwable>();
         if (p_request.equals(VisitRequest.CHILDREN)) {
             internal_visit(p_visitor, task.initCallback(), false, false, null, null);
         } else if (p_request.equals(VisitRequest.ALL)) {
@@ -694,7 +694,7 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public KTask<KObject[]> inbounds() {
+    public KDefer<KObject[]> inbounds() {
         KCacheEntry rawPayload = view().universe().model().manager().entry(this, AccessMode.READ);
         if (rawPayload != null) {
             Object payload = rawPayload.get(Index.INBOUNDS_INDEX);
@@ -703,12 +703,12 @@ public abstract class AbstractKObject implements KObject {
                 Long[] keysArr = inboundsKeys.toArray(new Long[inboundsKeys.size()]);
                 return _view.lookupAll(keysArr);
             } else {
-                AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
+                AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
                 task.initCallback().on(new KObject[0]);
                 return task;
             }
         } else {
-            AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
+            AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
             task.initCallback().on(new KObject[0]);
             return task;
         }
@@ -740,29 +740,29 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public KTask<TraceSequence> diff(KObject target) {
-        AbstractKTaskWrapper<TraceSequence> task = new AbstractKTaskWrapper<TraceSequence>();
+    public KDefer<TraceSequence> diff(KObject target) {
+        AbstractKDeferWrapper<TraceSequence> task = new AbstractKDeferWrapper<TraceSequence>();
         DefaultModelCompare.diff(this, target, task.initCallback());
         return task;
     }
 
     @Override
-    public KTask<TraceSequence> merge(KObject target) {
-        AbstractKTaskWrapper<TraceSequence> task = new AbstractKTaskWrapper<TraceSequence>();
+    public KDefer<TraceSequence> merge(KObject target) {
+        AbstractKDeferWrapper<TraceSequence> task = new AbstractKDeferWrapper<TraceSequence>();
         DefaultModelCompare.merge(this, target, task.initCallback());
         return task;
     }
 
     @Override
-    public KTask<TraceSequence> intersection(KObject target) {
-        AbstractKTaskWrapper<TraceSequence> task = new AbstractKTaskWrapper<TraceSequence>();
+    public KDefer<TraceSequence> intersection(KObject target) {
+        AbstractKDeferWrapper<TraceSequence> task = new AbstractKDeferWrapper<TraceSequence>();
         DefaultModelCompare.intersection(this, target, task.initCallback());
         return task;
     }
 
     @Override
-    public <U extends KObject> KTask<U> jump(long time) {
-        AbstractKTaskWrapper<U> task = new AbstractKTaskWrapper<U>();
+    public <U extends KObject> KDefer<U> jump(long time) {
+        AbstractKDeferWrapper<U> task = new AbstractKDeferWrapper<U>();
         view().universe().time(time).lookup(_uuid).then(new Callback<KObject>() {
             @Override
             public void on(KObject kObject) {
@@ -857,15 +857,15 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public KTask<Object> call(MetaOperation p_operation, Object[] p_params) {
-        AbstractKTaskWrapper<Object> temp_task = new AbstractKTaskWrapper<Object>();
+    public KDefer<Object> call(MetaOperation p_operation, Object[] p_params) {
+        AbstractKDeferWrapper<Object> temp_task = new AbstractKDeferWrapper<Object>();
         view().universe().model().manager().operationManager().call(this, p_operation, p_params, temp_task.initCallback());
         return temp_task;
     }
 
     @Override
-    public KTask<KInfer[]> inferObjects() {
-        AbstractKTaskWrapper<KInfer[]> task = new AbstractKTaskWrapper<KInfer[]>();
+    public KDefer<KInfer[]> inferObjects() {
+        AbstractKDeferWrapper<KInfer[]> task = new AbstractKDeferWrapper<KInfer[]>();
         //TODO
         return task;
     }
@@ -877,8 +877,8 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public KTask<Object> inferCall(MetaOperation operation, Object[] params) {
-        AbstractKTaskWrapper<Object> temp_task = new AbstractKTaskWrapper<Object>();
+    public KDefer<Object> inferCall(MetaOperation operation, Object[] params) {
+        AbstractKDeferWrapper<Object> temp_task = new AbstractKDeferWrapper<Object>();
         //TODO
         return temp_task;
     }

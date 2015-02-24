@@ -1,11 +1,10 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KModel;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KOperation;
 import org.kevoree.modeling.api.KScheduler;
-import org.kevoree.modeling.api.KTask;
+import org.kevoree.modeling.api.KDefer;
 import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.KEventListener;
 import org.kevoree.modeling.api.data.manager.DefaultKDataManager;
@@ -28,15 +27,15 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
     }
 
     @Override
-    public KTask<Throwable> connect() {
-        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
+    public KDefer<Throwable> connect() {
+        AbstractKDeferWrapper<Throwable> task = new AbstractKDeferWrapper<Throwable>();
         _manager.connect(task.initCallback());
         return task;
     }
 
     @Override
-    public KTask<Throwable> close() {
-        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
+    public KDefer<Throwable> close() {
+        AbstractKDeferWrapper<Throwable> task = new AbstractKDeferWrapper<Throwable>();
         _manager.close(task.initCallback());
         return task;
     }
@@ -64,15 +63,15 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
     }
 
     @Override
-    public KTask<Throwable> save() {
-        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
+    public KDefer<Throwable> save() {
+        AbstractKDeferWrapper<Throwable> task = new AbstractKDeferWrapper<Throwable>();
         _manager.save(task.initCallback());
         return task;
     }
 
     @Override
-    public KTask<Throwable> discard() {
-        AbstractKTaskWrapper<Throwable> task = new AbstractKTaskWrapper<Throwable>();
+    public KDefer<Throwable> discard() {
+        AbstractKDeferWrapper<Throwable> task = new AbstractKDeferWrapper<Throwable>();
         _manager.discard(null,task.initCallback());
         return task;
     }
@@ -110,8 +109,8 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
     }
 
     @Override
-    public KTask task() {
-        return new AbstractKTask();
+    public KDefer defer() {
+        return new AbstractKDefer();
     }
 
 }
