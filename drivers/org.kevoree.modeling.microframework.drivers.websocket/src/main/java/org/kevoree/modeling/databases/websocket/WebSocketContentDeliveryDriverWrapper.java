@@ -42,37 +42,7 @@ public class WebSocketContentDeliveryDriverWrapper extends AbstractReceiveListen
 
     private static final String COMMIT_ACTION = "commit";
 
-    @Override
-    public void connect(Callback<Throwable> callback) {
-        if (wrapped != null) {
-            server = Undertow.builder().addHttpListener(port, "0.0.0.0").setHandler(websocket(this)).build();
-            server.start();
-            wrapped.connect(callback);
-        } else {
-            callback.on(null);
-        }
-    }
 
-    @Override
-    public void close(Callback<Throwable> callback) {
-        if (wrapped != null) {
-            wrapped.close(new Callback<Throwable>() {
-                @Override
-                public void on(Throwable throwable) {
-                    server.stop();
-                    callback.on(throwable);
-                }
-            });
-        } else {
-            callback.on(null);
-        }
-    }
-
-    @Override
-    public void onConnect(WebSocketHttpExchange webSocketHttpExchange, WebSocketChannel webSocketChannel) {
-        webSocketChannel.getReceiveSetter().set(this);
-        webSocketChannel.resumeReceives();
-    }
 
     @Override
     protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message) {
