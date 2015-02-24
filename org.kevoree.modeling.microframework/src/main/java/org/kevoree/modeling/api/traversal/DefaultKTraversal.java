@@ -28,10 +28,12 @@ public class DefaultKTraversal implements KTraversal {
         this._lastAction = _initAction;
     }
 
+    private static final String TERMINATED_MESSAGE = "Promise is terminated by the call of then method, please create another promise";
+
     @Override
     public KTraversal traverse(MetaReference p_metaReference) {
         if (_terminated) {
-            throw new RuntimeException("Promise is terminated by the call of then method, please create another promise");
+            throw new RuntimeException(TERMINATED_MESSAGE);
         }
         KTraverseAction tempAction = new KTraverseAction(p_metaReference);
         _lastAction.chain(tempAction);
@@ -42,7 +44,7 @@ public class DefaultKTraversal implements KTraversal {
     @Override
     public KTraversal traverseQuery(String p_metaReferenceQuery) {
         if (_terminated) {
-            throw new RuntimeException("Promise is terminated by the call of then method, please create another promise");
+            throw new RuntimeException(TERMINATED_MESSAGE);
         }
         KTraverseQueryAction tempAction = new KTraverseQueryAction(p_metaReferenceQuery);
         _lastAction.chain(tempAction);
@@ -53,7 +55,7 @@ public class DefaultKTraversal implements KTraversal {
     @Override
     public KTraversal withAttribute(MetaAttribute p_attribute, Object p_expectedValue) {
         if (_terminated) {
-            throw new RuntimeException("Promise is terminated by the call of then method, please create another promise");
+            throw new RuntimeException(TERMINATED_MESSAGE);
         }
         KFilterAttributeAction tempAction = new KFilterAttributeAction(p_attribute, p_expectedValue);
         _lastAction.chain(tempAction);
@@ -64,7 +66,7 @@ public class DefaultKTraversal implements KTraversal {
     @Override
     public KTraversal withoutAttribute(MetaAttribute p_attribute, Object p_expectedValue) {
         if (_terminated) {
-            throw new RuntimeException("Promise is terminated by the call of then method, please create another promise");
+            throw new RuntimeException(TERMINATED_MESSAGE);
         }
         KFilterNotAttributeAction tempAction = new KFilterNotAttributeAction(p_attribute, p_expectedValue);
         _lastAction.chain(tempAction);
@@ -75,7 +77,7 @@ public class DefaultKTraversal implements KTraversal {
     @Override
     public KTraversal attributeQuery(String p_attributeQuery) {
         if (_terminated) {
-            throw new RuntimeException("Promise is terminated by the call of then method, please create another promise");
+            throw new RuntimeException(TERMINATED_MESSAGE);
         }
         KFilterAttributeQueryAction tempAction = new KFilterAttributeQueryAction(p_attributeQuery);
         _lastAction.chain(tempAction);
@@ -86,7 +88,7 @@ public class DefaultKTraversal implements KTraversal {
     @Override
     public KTraversal filter(KTraversalFilter p_filter) {
         if (_terminated) {
-            throw new RuntimeException("Promise is terminated by the call of then method, please create another promise");
+            throw new RuntimeException(TERMINATED_MESSAGE);
         }
         KFilterAction tempAction = new KFilterAction(p_filter);
         _lastAction.chain(tempAction);
@@ -97,7 +99,7 @@ public class DefaultKTraversal implements KTraversal {
     @Override
     public KTraversal reverse(MetaReference p_metaReference) {
         if (_terminated) {
-            throw new RuntimeException("Promise is terminated by the call of then method, please create another promise");
+            throw new RuntimeException(TERMINATED_MESSAGE);
         }
         KReverseAction tempAction = new KReverseAction(p_metaReference);
         _lastAction.chain(tempAction);
@@ -108,7 +110,7 @@ public class DefaultKTraversal implements KTraversal {
     @Override
     public KTraversal reverseQuery(String p_metaReferenceQuery) {
         if (_terminated) {
-            throw new RuntimeException("Promise is terminated by the call of then method, please create another promise");
+            throw new RuntimeException(TERMINATED_MESSAGE);
         }
         KReverseQueryAction tempAction = new KReverseQueryAction(p_metaReferenceQuery);
         _lastAction.chain(tempAction);
@@ -119,7 +121,7 @@ public class DefaultKTraversal implements KTraversal {
     @Override
     public KTraversal parents() {
         if (_terminated) {
-            throw new RuntimeException("Promise is terminated by the call of then method, please create another promise");
+            throw new RuntimeException(TERMINATED_MESSAGE);
         }
         KParentsAction tempAction = new KParentsAction();
         _lastAction.chain(tempAction);

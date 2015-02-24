@@ -1092,9 +1092,15 @@ declare module org {
                         json(): string;
                         type(): number;
                     }
-                    class KGetKeysRequest implements KMessage {
+                    class KGetRequest implements KMessage {
                         id: number;
                         keys: data.cache.KContentKey[];
+                        json(): string;
+                        type(): number;
+                    }
+                    class KGetResult implements KMessage {
+                        id: number;
+                        values: string[];
                         json(): string;
                         type(): number;
                     }
@@ -1104,8 +1110,10 @@ declare module org {
                     }
                     class KMessageLoader {
                         static EVENT_TYPE: number;
-                        static GET_KEYS_TYPE: number;
-                        static PUT_TYPE: number;
+                        static GET_REQ_TYPE: number;
+                        static GET_RES_TYPE: number;
+                        static PUT_REQ_TYPE: number;
+                        static PUT_RES_TYPE: number;
                         static OPERATION_CALL_TYPE: number;
                         static OPERATION_RESULT_TYPE: number;
                         static load(payload: string): KMessage;
@@ -1125,6 +1133,11 @@ declare module org {
                     }
                     class KPutRequest implements KMessage {
                         request: data.cdn.KContentPutRequest;
+                        id: number;
+                        json(): string;
+                        type(): number;
+                    }
+                    class KPutResult implements KMessage {
                         id: number;
                         json(): string;
                         type(): number;
@@ -1513,8 +1526,6 @@ declare module org {
                         dispatch(p_runnable: java.lang.Runnable): void;
                         stop(): void;
                     }
-                }
-                module time {
                 }
                 module trace {
                     class ModelAddTrace implements ModelTrace {
