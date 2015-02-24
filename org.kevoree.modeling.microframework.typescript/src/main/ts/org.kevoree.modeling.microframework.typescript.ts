@@ -965,34 +965,36 @@ module org {
                             }
                         }
 
-                        public ref(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KTask<any> {
+                        public internal_ref(p_metaReference: org.kevoree.modeling.api.meta.MetaReference, callback: (p : org.kevoree.modeling.api.KObject[]) => void): void {
                             var transposed: org.kevoree.modeling.api.meta.MetaReference = this.internal_transpose_ref(p_metaReference);
                             if (transposed == null) {
                                 throw new java.lang.RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + this.metaClass().metaName());
                             } else {
                                 var raw: org.kevoree.modeling.api.data.cache.KCacheEntry = this.view().universe().model().manager().entry(this, org.kevoree.modeling.api.data.manager.AccessMode.READ);
                                 if (raw == null) {
-                                    var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
-                                    task.initCallback()(new Array());
-                                    return task;
+                                    callback(new Array());
                                 } else {
                                     var o: any = raw.get(transposed.index());
                                     if (o == null) {
-                                        var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
-                                        task.initCallback()(new Array());
-                                        return task;
+                                        callback(new Array());
                                     } else {
                                         if (o instanceof java.util.Set) {
                                             var objs: java.util.Set<number> = <java.util.Set<number>>o;
                                             var setContent: number[] = objs.toArray(new Array());
-                                            return this.view().lookupAll(setContent);
+                                            (<org.kevoree.modeling.api.abs.AbstractKView>this.view()).internalLookupAll(setContent, callback);
                                         } else {
                                             var content: number[] = [<number>o];
-                                            return this.view().lookupAll(content);
+                                            (<org.kevoree.modeling.api.abs.AbstractKView>this.view()).internalLookupAll(content, callback);
                                         }
                                     }
                                 }
                             }
+                        }
+
+                        public ref(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KTask<any> {
+                            var task: org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<any>();
+                            this.internal_ref(p_metaReference, task.initCallback());
+                            return task;
                         }
 
                         public inferRef(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KTask<any> {

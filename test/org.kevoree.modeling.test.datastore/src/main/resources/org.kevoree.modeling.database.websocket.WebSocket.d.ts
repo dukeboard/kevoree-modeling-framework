@@ -21,7 +21,7 @@ declare module org {
                         unregister(listener: (p: api.KEvent) => void): void;
                         notify(event: api.KEvent): void;
                         notifyOnly(event: api.KEvent): void;
-                        flush(dimensionKey: any): void;
+                        flush(): void;
                         sendOperationEvent(operationEvent: api.KEvent): void;
                     }
                     class WebSocketDataBaseClient implements api.data.KDataBase {

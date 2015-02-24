@@ -3,8 +3,8 @@ package ${classDeclaration.pack}.impl;
 
 public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.AbstractKObject implements ${classDeclaration.pack}.${classDeclaration.name} {
 
-    public ${classDeclaration.name}Impl(${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}View p_factory, long p_uuid, org.kevoree.modeling.api.time.TimeTree p_timeTree, org.kevoree.modeling.api.meta.MetaClass p_metaClass) {
-        super(p_factory, p_uuid, p_timeTree, p_metaClass);
+    public ${classDeclaration.name}Impl(${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}View p_factory, long p_uuid, org.kevoree.modeling.api.time.rbtree.LongRBTree p_universeTree, org.kevoree.modeling.api.meta.MetaClass p_metaClass) {
+        super(p_factory, p_uuid, p_universeTree, p_metaClass);
     }
 
 #foreach($attribute in $classDeclaration.attributes)
@@ -52,24 +52,18 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
     }
 
     @Override
-    public void get${context.generationContext.helper.toCamelCase(${ref.getName()})}(final org.kevoree.modeling.api.Callback<${ref.getType().fqn}> p_callback) {
-        this.ref(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject[]>() {
+    public org.kevoree.modeling.api.KTask<${ref.getType().fqn}> get${context.generationContext.helper.toCamelCase(${ref.getName()})}() {
+        org.kevoree.modeling.api.abs.AbstractKTaskWrapper<${ref.getType().fqn}> task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<${ref.getType().fqn}>();
+        this.internal_ref(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject[]>() {
             @Override
             public void on(org.kevoree.modeling.api.KObject[] kObjects) {
-                if(p_callback!=null){
-                    if(kObjects.length >0){
-                        p_callback.on((${ref.getType().fqn}) kObjects[0]);
-                    } else {
-                        p_callback.on(null);
-                    }
+                if(kObjects.length >0){
+                    task.initCallback().on((${ref.getType().fqn}) kObjects[0]);
+                } else {
+                    task.initCallback().on(null);
                 }
             }
         });
-    }
-
-    public org.kevoree.modeling.api.KTask<${ref.getType().fqn}> taskGet${context.generationContext.helper.toCamelCase(${ref.getName()})}() {
-        org.kevoree.modeling.api.abs.AbstractKTaskWrapper<${ref.getType().fqn}> task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<${ref.getType().fqn}>();
-        get${context.generationContext.helper.toCamelCase(${ref.getName()})}(task.initCallback());
         return task;
     }
 
@@ -88,24 +82,18 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
     }
 
     @Override
-    public void get${context.generationContext.helper.toCamelCase(${ref.getName()})}(final org.kevoree.modeling.api.Callback<${ref.getType().fqn}[]> p_callback) {
-       this.ref(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject[]>() {
+    public org.kevoree.modeling.api.KTask<${ref.getType().fqn}[]> get${context.generationContext.helper.toCamelCase(${ref.getName()})}() {
+        org.kevoree.modeling.api.abs.AbstractKTaskWrapper<${ref.getType().fqn}[]> task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<${ref.getType().fqn}[]>();
+        this.internal_ref(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject[]>() {
             @Override
             public void on(org.kevoree.modeling.api.KObject[] kObjects) {
-                if(p_callback != null){
-                    ${ref.getType().fqn}[] casted = new ${ref.getType().fqn}[kObjects.length];
-                    for(int i=0;i<kObjects.length;i++){
-                        casted[i] = (${ref.getType().fqn}) kObjects[i];
-                    }
-                    p_callback.on(casted);
+                ${ref.getType().fqn}[] casted = new ${ref.getType().fqn}[kObjects.length];
+                for(int i=0;i<kObjects.length;i++){
+                    casted[i] = (${ref.getType().fqn}) kObjects[i];
                 }
+                task.initCallback().on(casted);
             }
         });
-    }
-
-    public org.kevoree.modeling.api.KTask<${ref.getType().fqn}[]> taskGet${context.generationContext.helper.toCamelCase(${ref.getName()})}() {
-        org.kevoree.modeling.api.abs.AbstractKTaskWrapper<${ref.getType().fqn}[]> task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper<${ref.getType().fqn}[]>();
-        get${context.generationContext.helper.toCamelCase(${ref.getName()})}(task.initCallback());
         return task;
     }
 
@@ -123,7 +111,7 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
         ${operation.name}_params[$paramIndex] = p_$p.name;
 #set($paramIndex = $paramIndex + 1)
 #{end}
-        view().universe().model().storage().operationManager().call(this, ${classDeclaration.pack}.meta.Meta${classDeclaration.name}.OP_${operation.name.toUpperCase()}, ${operation.name}_params, new org.kevoree.modeling.api.Callback<Object>() {
+        view().universe().model().manager().operationManager().call(this, ${classDeclaration.pack}.meta.Meta${classDeclaration.name}.OP_${operation.name.toUpperCase()}, ${operation.name}_params, new org.kevoree.modeling.api.Callback<Object>() {
             public void on(Object o) {
                 p_result.on((#if(${operation.returnParam})$operation.returnParam.type#{else}Boolean#end)o);
             }

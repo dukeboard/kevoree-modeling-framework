@@ -666,7 +666,7 @@ var org;
                                 }
                             }
                         };
-                        AbstractKObject.prototype.ref = function (p_metaReference) {
+                        AbstractKObject.prototype.internal_ref = function (p_metaReference, callback) {
                             var transposed = this.internal_transpose_ref(p_metaReference);
                             if (transposed == null) {
                                 throw new java.lang.RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + this.metaClass().metaName());
@@ -674,30 +674,31 @@ var org;
                             else {
                                 var raw = this.view().universe().model().manager().entry(this, org.kevoree.modeling.api.data.manager.AccessMode.READ);
                                 if (raw == null) {
-                                    var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
-                                    task.initCallback()(new Array());
-                                    return task;
+                                    callback(new Array());
                                 }
                                 else {
                                     var o = raw.get(transposed.index());
                                     if (o == null) {
-                                        var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
-                                        task.initCallback()(new Array());
-                                        return task;
+                                        callback(new Array());
                                     }
                                     else {
                                         if (o instanceof java.util.Set) {
                                             var objs = o;
                                             var setContent = objs.toArray(new Array());
-                                            return this.view().lookupAll(setContent);
+                                            this.view().internalLookupAll(setContent, callback);
                                         }
                                         else {
                                             var content = [o];
-                                            return this.view().lookupAll(content);
+                                            this.view().internalLookupAll(content, callback);
                                         }
                                     }
                                 }
                             }
+                        };
+                        AbstractKObject.prototype.ref = function (p_metaReference) {
+                            var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();
+                            this.internal_ref(p_metaReference, task.initCallback());
+                            return task;
                         };
                         AbstractKObject.prototype.inferRef = function (p_metaReference) {
                             var task = new org.kevoree.modeling.api.abs.AbstractKTaskWrapper();

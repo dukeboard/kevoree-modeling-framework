@@ -1,18 +1,9 @@
 package org.kevoree.fsm.test;
 
 import fsmsample.*;
-import fsmsample.meta.MetaState;
 import org.junit.Test;
 import org.kevoree.modeling.api.*;
-import org.kevoree.modeling.api.data.MemoryKDataBase;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
 import java.util.concurrent.Semaphore;
 
 public class SaveXMITest {
@@ -22,13 +13,13 @@ public class SaveXMITest {
     public void saveXmiTest() {
 
         FSMModel fsmU = new FSMModel();
-        fsmU.connect(null);
+        fsmU.connect();
         FSMUniverse fsmDim = fsmU.newUniverse();
         FSMView localView = fsmDim.time(0L);
 
         FSM fsm = localView.createFSM();
         fsm.setName("NewFSM_1");
-        localView.setRoot(fsm, null);
+        localView.setRoot(fsm);
 
         State s1 = localView.createState();
         s1.setName("State1");
@@ -54,15 +45,14 @@ public class SaveXMITest {
         Semaphore sema = new Semaphore(0);
         String[] model = new String[1];
 
-        localView.lookup(fsm.uuid(), (root) -> {
+        localView.lookup(fsm.uuid()).then((root) -> {
             System.out.println("Serialize !");
-            localView.xmi().save(fsm, (result, error) -> {
-                if (error != null) {
-                    error.printStackTrace();
-                } else {
-                    model[0] = result;
+            localView.xmi().save(fsm).then(new Callback<String>() {
+                @Override
+                public void on(String s) {
+                    model[0] = s;
+                    sema.release();
                 }
-                sema.release();
             });
 
         });
@@ -78,14 +68,14 @@ public class SaveXMITest {
         System.out.println("Loading !");
         FSMUniverse fsmDim2 = fsmU.newUniverse();
         FSMView loadView = fsmDim2.time(0L);
-        loadView.xmi().load(model[0], new Callback<Throwable>() {
+        loadView.xmi().load(model[0]).then(new Callback<Throwable>() {
             @Override
             public void on(Throwable error) {
                 System.out.println("Loaded");
                 if (error != null) {
                     error.printStackTrace();
                 } else {
-                    loadView.select("/", new Callback<KObject[]>() {
+                    loadView.select("/").then(new Callback<KObject[]>() {
                         @Override
                         public void on(KObject[] kObjects) {
                             System.out.println("Roots:" + kObjects.length);
@@ -98,7 +88,6 @@ public class SaveXMITest {
                                         System.out.println(elem.uuid());
                                         return VisitResult.CONTINUE;
                                     }
-                                }, (end) -> {
                                 }, VisitRequest.CONTAINED);
                                 sema.release();
                             }

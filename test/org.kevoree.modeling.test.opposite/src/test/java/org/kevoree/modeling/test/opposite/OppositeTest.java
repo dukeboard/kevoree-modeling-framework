@@ -17,7 +17,7 @@ public class OppositeTest {
     @BeforeClass
     public static void setUp() {
         model = new OppositeModel();
-        model.connect(null);
+        model.connect();
         localUniverse = model.newUniverse();
         factory = localUniverse.time(0l);
     }
@@ -31,25 +31,25 @@ public class OppositeTest {
         B b2 = factory.createB();
 
         a.setSingleRef(b);
-        a.getSingleRef((b_cb) -> {
+        a.getSingleRef().then((b_cb) -> {
             assertNotNull(b_cb);
             assertEquals(b_cb, b);
         });
 
         a.setSingleRef(b);
-        a.getSingleRef((b_cb) -> {
+        a.getSingleRef().then((b_cb) -> {
             assertNotNull(b_cb);
             assertEquals(b_cb, b);
         });
 
         a.setSingleRef(b2);
-        a.getSingleRef((b2_cb) -> {
+        a.getSingleRef().then((b2_cb) -> {
             assertNotNull(b2_cb);
             assertEquals(b2_cb, b2);
         });
 
         a.setSingleRef(null);
-        a.getSingleRef(org.junit.Assert::assertNull);
+        a.getSingleRef().then(org.junit.Assert::assertNull);
 
     }
 
@@ -60,7 +60,7 @@ public class OppositeTest {
         B b2 = factory.createB();
 
         a.addMultiRef(b);
-        a.getMultiRef((refs) -> {
+        a.getMultiRef().then((refs) -> {
             for (int i = 0; i < refs.length; i++) {
                 assertEquals(refs[i], b);
             }
@@ -68,7 +68,7 @@ public class OppositeTest {
         assertEquals(1, a.sizeOfMultiRef());
 
         a.addMultiRef(b);
-        a.getMultiRef((refs) -> {
+        a.getMultiRef().then((refs) -> {
             for (int i = 0; i < refs.length; i++) {
                 assertEquals(refs[i], b);
             }
@@ -83,7 +83,7 @@ public class OppositeTest {
         assertEquals(2, a.sizeOfMultiRef());
 
         a.removeMultiRef(b);
-        a.getMultiRef((refs) -> {
+        a.getMultiRef().then((refs) -> {
             for (int i = 0; i < refs.length; i++) {
                 assertEquals(refs[i], b2);
             }
@@ -91,7 +91,7 @@ public class OppositeTest {
         assertEquals(1, a.sizeOfMultiRef());
 
         a.removeMultiRef(b);
-        a.getMultiRef((refs) -> {
+        a.getMultiRef().then((refs) -> {
             for (int i = 0; i < refs.length; i++) {
                 assertEquals(refs[i], b2);
             }
@@ -114,40 +114,40 @@ public class OppositeTest {
         A a2 = factory.createA();
 
         b.setSingleRef(a);
-        b.getSingleRef((a_cb) -> {
+        b.getSingleRef().then((a_cb) -> {
             assertNotNull(a_cb);
             assertEquals(a_cb, a);
-            a_cb.parent((parent) -> {
+            a_cb.parent().then((parent) -> {
                 assertNotNull(parent);
                 assertEquals(parent, b);
             });
         });
 
         b.setSingleRef(a);
-        b.getSingleRef((a_cb) -> {
+        b.getSingleRef().then((a_cb) -> {
             assertNotNull(a_cb);
             assertEquals(a_cb, a);
-            a_cb.parent((parent) -> {
+            a_cb.parent().then((parent) -> {
                 assertNotNull(parent);
                 assertEquals(parent, b);
             });
         });
 
         b.setSingleRef(a2);
-        b.getSingleRef((a_cb) -> {
+        b.getSingleRef().then((a_cb) -> {
             assertNotNull(a_cb);
             assertEquals(a_cb, a2);
-            a_cb.parent((parent) -> {
+            a_cb.parent().then((parent) -> {
                 assertNotNull(parent);
                 assertEquals(parent, b);
             });
-            a.parent(TestCase::assertNull);
+            a.parent().then(TestCase::assertNull);
         });
 
         b.setSingleRef(null);
-        b.getSingleRef(TestCase::assertNull);
-        a.parent(TestCase::assertNull);
-        a2.parent(TestCase::assertNull);
+        b.getSingleRef().then(TestCase::assertNull);
+        a.parent().then(TestCase::assertNull);
+        a2.parent().then(TestCase::assertNull);
 
     }
 
@@ -160,32 +160,32 @@ public class OppositeTest {
 
         b.addMultiRef(a);
 
-        b.getMultiRef(refs -> {
+        b.getMultiRef().then(refs -> {
             for (int i = 0; i < refs.length; i++) {
                 assertEquals(refs[i], a);
             }
         });
-        a.parent((parent) -> {
+        a.parent().then((parent) -> {
             assertEquals(parent, b);
         });
         assertEquals(1, b.sizeOfMultiRef());
 
 
         b.addMultiRef(a);
-        b.getMultiRef(refs -> {
+        b.getMultiRef().then(refs -> {
             for (int i = 0; i < refs.length; i++) {
                 assertEquals(refs[i], a);
             }
         });
-        a.parent((parent) -> {
+        a.parent().then((parent) -> {
             assertEquals(parent, b);
         });
         assertEquals(1, b.sizeOfMultiRef());
 
         b.addMultiRef(a2);
-        b.getMultiRef(refs -> {
+        b.getMultiRef().then(refs -> {
             for (int i = 0; i < refs.length; i++) {
-                refs[i].parent((parent) -> {
+                refs[i].parent().then((parent) -> {
                     assertEquals(parent, b);
                 });
             }
@@ -193,9 +193,9 @@ public class OppositeTest {
         assertEquals(2, b.sizeOfMultiRef());
 
         b.addMultiRef(a2);
-        b.getMultiRef(refs -> {
+        b.getMultiRef().then(refs -> {
             for (int i = 0; i < refs.length; i++) {
-                refs[i].parent((parent) -> {
+                refs[i].parent().then((parent) -> {
                     assertEquals(parent, b);
                 });
             }
@@ -203,38 +203,38 @@ public class OppositeTest {
         assertEquals(2, b.sizeOfMultiRef());
 
         b.removeMultiRef(a);
-        b.getMultiRef(refs -> {
+        b.getMultiRef().then(refs -> {
             for (int i = 0; i < refs.length; i++) {
                 assertEquals(refs[i], a2);
             }
         });
-        a2.parent((parent) -> {
+        a2.parent().then((parent) -> {
             assertEquals(parent, b);
         });
         assertEquals(1, b.sizeOfMultiRef());
-        a.parent(TestCase::assertNull);
+        a.parent().then(TestCase::assertNull);
 
         b.removeMultiRef(a);
-        b.getMultiRef(refs -> {
+        b.getMultiRef().then(refs -> {
             for (int i = 0; i < refs.length; i++) {
                 assertEquals(refs[i], a2);
             }
         });
-        a2.parent((parent) -> {
+        a2.parent().then((parent) -> {
             assertEquals(parent, b);
         });
         assertEquals(1, b.sizeOfMultiRef());
-        a.parent(TestCase::assertNull);
+        a.parent().then(TestCase::assertNull);
 
         b.removeMultiRef(a2);
         assertEquals(0, b.sizeOfMultiRef());
-        a.parent(TestCase::assertNull);
-        a2.parent(TestCase::assertNull);
+        a.parent().then(TestCase::assertNull);
+        a2.parent().then(TestCase::assertNull);
 
         b.removeMultiRef(a2);
         assertEquals(0, b.sizeOfMultiRef());
-        a.parent(TestCase::assertNull);
-        a2.parent(TestCase::assertNull);
+        a.parent().then(TestCase::assertNull);
+        a2.parent().then(TestCase::assertNull);
     }
 
 
@@ -246,49 +246,49 @@ public class OppositeTest {
 
         //Set a in B
         b.setSingleA_singleB(a);
-        b.getSingleA_singleB((a_cb) -> assertEquals(a_cb, a));
-        a.getSingleA_singleB((b_cb) -> {
+        b.getSingleA_singleB().then((a_cb) -> assertEquals(a_cb, a));
+        a.getSingleA_singleB().then((b_cb) -> {
             assertNotNull(b_cb);
             assertEquals(b_cb, b);
-            a.parent((parent) -> assertEquals(parent, b));
+            a.parent().then((parent) -> assertEquals(parent, b));
         });
 
         //Again, should be equivalent to noop
         b.setSingleA_singleB(a);
-        b.getSingleA_singleB((a_cb) -> assertEquals(a_cb, a));
-        a.getSingleA_singleB((b_cb) -> {
+        b.getSingleA_singleB().then((a_cb) -> assertEquals(a_cb, a));
+        a.getSingleA_singleB().then((b_cb) -> {
             assertNotNull(b_cb);
             assertEquals(b_cb, b);
-            a.parent((parent) -> assertEquals(parent, b));
+            a.parent().then((parent) -> assertEquals(parent, b));
         });
 
         //Remove A from B
         b.setSingleA_singleB(null);
-        a.getSingleA_singleB(TestCase::assertNull);
-        a.parent(TestCase::assertNull);
+        a.getSingleA_singleB().then(TestCase::assertNull);
+        a.parent().then(TestCase::assertNull);
 
         //Set B in A
         a.setSingleA_singleB(b);
-        a.getSingleA_singleB((b_cb) -> assertEquals(b_cb, b));
-        b.getSingleA_singleB((a_cb) -> {
+        a.getSingleA_singleB().then((b_cb) -> assertEquals(b_cb, b));
+        b.getSingleA_singleB().then((a_cb) -> {
             assertNotNull(a_cb);
             assertEquals(a_cb, a);
         });
-        a.parent((parent) -> assertEquals(parent, b));
+        a.parent().then((parent) -> assertEquals(parent, b));
 
         //Again, should be equivalent to noop
         a.setSingleA_singleB(b);
-        a.getSingleA_singleB((b_cb) -> assertEquals(b_cb, b));
-        b.getSingleA_singleB((a_cb) -> {
+        a.getSingleA_singleB().then((b_cb) -> assertEquals(b_cb, b));
+        b.getSingleA_singleB().then((a_cb) -> {
             assertNotNull(a_cb);
             assertEquals(a_cb, a);
         });
-        a.parent((parent) -> assertEquals(parent, b));
+        a.parent().then((parent) -> assertEquals(parent, b));
 
         //Remove B from A
         a.setSingleA_singleB(null);
-        b.getSingleA_singleB(TestCase::assertNull);
-        a.parent(TestCase::assertNull);
+        b.getSingleA_singleB().then(TestCase::assertNull);
+        a.parent().then(TestCase::assertNull);
     }
 
 
@@ -300,27 +300,27 @@ public class OppositeTest {
         A a2 = factory.createA();
 
         b.addSingleA_multiB(a);
-        b.getSingleA_multiB(refs -> {
+        b.getSingleA_multiB().then(refs -> {
             for (int i = 0; i < refs.length; i++) {
                 assertEquals(refs[i], a);
             }
         });
-        a.parent((parent) -> {
+        a.parent().then((parent) -> {
             assertEquals(parent, b);
         });
         assertEquals(1, b.sizeOfSingleA_multiB());
-        a.getSingleA_multiB((b_cb) -> {
+        a.getSingleA_multiB().then((b_cb) -> {
             assertNotNull(b_cb);
             assertEquals(b_cb, b);
         });
 
         b.addSingleA_multiB(a2);
-        b.getSingleA_multiB(refs -> {
+        b.getSingleA_multiB().then(refs -> {
             for (int i = 0; i < refs.length; i++) {
-                refs[i].parent((parent) -> {
+                refs[i].parent().then((parent) -> {
                     assertEquals(parent, b);
                 });
-                refs[i].getSingleA_multiB((b_cb) -> {
+                refs[i].getSingleA_multiB().then((b_cb) -> {
                     assertNotNull(b_cb);
                     assertEquals(b_cb, b);
                 });
@@ -330,12 +330,12 @@ public class OppositeTest {
         assertEquals(2, b.sizeOfSingleA_multiB());
 
         b.addSingleA_multiB(a2);
-        b.getSingleA_multiB(refs -> {
+        b.getSingleA_multiB().then(refs -> {
             for (int i = 0; i < refs.length; i++) {
-                refs[i].parent((parent) -> {
+                refs[i].parent().then((parent) -> {
                     assertEquals(parent, b);
                 });
-                refs[i].getSingleA_multiB((b_cb) -> {
+                refs[i].getSingleA_multiB().then((b_cb) -> {
                     assertNotNull(b_cb);
                     assertEquals(b_cb, b);
                 });
@@ -344,38 +344,38 @@ public class OppositeTest {
         assertEquals(2, b.sizeOfSingleA_multiB());
 
         b.removeSingleA_multiB(a);
-        b.getSingleA_multiB(refs -> {
+        b.getSingleA_multiB().then(refs -> {
             for (int i = 0; i < refs.length; i++) {
                 assertEquals(refs[i], a2);
             }
         });
-        a2.parent((parent) -> {
+        a2.parent().then((parent) -> {
             assertEquals(parent, b);
         });
         assertEquals(1, b.sizeOfSingleA_multiB());
-        a.getSingleA_multiB(TestCase::assertNull);
-        a.parent(TestCase::assertNull);
+        a.getSingleA_multiB().then(TestCase::assertNull);
+        a.parent().then(TestCase::assertNull);
 
         b.removeSingleA_multiB(a);
-        b.getSingleA_multiB(refs -> {
+        b.getSingleA_multiB().then(refs -> {
             for (int i = 0; i < refs.length; i++) {
                 assertEquals(refs[i], a2);
             }
         });
-        a2.parent((parent) -> {
+        a2.parent().then((parent) -> {
             assertEquals(parent, b);
         });
         assertEquals(1, b.sizeOfSingleA_multiB());
-        a.getSingleA_multiB(TestCase::assertNull);
-        a.parent(TestCase::assertNull);
+        a.getSingleA_multiB().then(TestCase::assertNull);
+        a.parent().then(TestCase::assertNull);
 
 
         b.removeSingleA_multiB(a2);
         assertEquals(0, b.sizeOfSingleA_multiB());
-        a.getSingleA_multiB(TestCase::assertNull);
-        a2.getSingleA_multiB(TestCase::assertNull);
-        a.parent(TestCase::assertNull);
-        a2.parent(TestCase::assertNull);
+        a.getSingleA_multiB().then(TestCase::assertNull);
+        a2.getSingleA_multiB().then(TestCase::assertNull);
+        a.parent().then(TestCase::assertNull);
+        a2.parent().then(TestCase::assertNull);
 
     }
 
@@ -391,7 +391,7 @@ public class OppositeTest {
         a.addMultiA_multiB(b);
         assert (b.sizeOfMultiA_multiB() == 1);
         assert (a.sizeOfMultiA_multiB() == 1);
-        a.parent((parent) -> {
+        a.parent().then((parent) -> {
             assertEquals(b, parent);
         });
 
@@ -399,7 +399,7 @@ public class OppositeTest {
         assert (b2.sizeOfMultiA_multiB() == 1);
         assert (b.sizeOfMultiA_multiB() == 0);
         assert (a.sizeOfMultiA_multiB() == 1);
-        a.parent((parent) -> {
+        a.parent().then((parent) -> {
             assertEquals(b2, parent);
         });
 
@@ -407,7 +407,7 @@ public class OppositeTest {
         assert (b.sizeOfMultiA_multiB() == 1);
         assert (b2.sizeOfMultiA_multiB() == 0);
         assert (a.sizeOfMultiA_multiB() == 1);
-        a.parent((parent) -> {
+        a.parent().then((parent) -> {
             assertEquals(b, parent);
         });
 
@@ -416,10 +416,10 @@ public class OppositeTest {
         assertEquals(0, b2.sizeOfMultiA_multiB());
         assertEquals(1, a.sizeOfMultiA_multiB());
         assertEquals(1, a2.sizeOfMultiA_multiB());
-        a.parent((parent) -> {
+        a.parent().then((parent) -> {
             assertEquals(b, parent);
         });
-        a2.parent((parent) -> {
+        a2.parent().then((parent) -> {
             assertEquals(b, parent);
         });
 
@@ -428,10 +428,10 @@ public class OppositeTest {
         assertEquals(1, b2.sizeOfMultiA_multiB());
         assertEquals(1, a.sizeOfMultiA_multiB());
         assertEquals(1, a2.sizeOfMultiA_multiB());
-        a.parent((parent) -> {
+        a.parent().then((parent) -> {
             assertEquals(b, parent);
         });
-        a2.parent((parent) -> {
+        a2.parent().then((parent) -> {
             assertEquals(b2, parent);
         });
 
@@ -440,10 +440,10 @@ public class OppositeTest {
         assertEquals(1, b2.sizeOfMultiA_multiB());
         assertEquals(1, a.sizeOfMultiA_multiB());
         assertEquals(1, a2.sizeOfMultiA_multiB());
-        a.parent((parent) -> {
+        a.parent().then((parent) -> {
             assertEquals(b, parent);
         });
-        a2.parent((parent) -> {
+        a2.parent().then((parent) -> {
             assertEquals(b2, parent);
         });
 
@@ -453,8 +453,8 @@ public class OppositeTest {
         assert (b2.sizeOfMultiA_multiB() == 1);
         assert (a.sizeOfMultiA_multiB() == 0);
         assert (a2.sizeOfMultiA_multiB() == 1);
-        a.parent(TestCase::assertNull);
-        a2.parent((parent) -> assertEquals(b2, parent));
+        a.parent().then(TestCase::assertNull);
+        a2.parent().then((parent) -> assertEquals(b2, parent));
 
     }
 

@@ -255,6 +255,7 @@ declare module org {
                         mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject): void;
                         internal_mutate(actionType: KActionType, metaReferenceP: meta.MetaReference, param: KObject, setOpposite: boolean, inDelete: boolean): void;
                         size(p_metaReference: meta.MetaReference): number;
+                        internal_ref(p_metaReference: meta.MetaReference, callback: (p: KObject[]) => void): void;
                         ref(p_metaReference: meta.MetaReference): KTask<any>;
                         inferRef(p_metaReference: meta.MetaReference): KTask<any>;
                         visitAttributes(visitor: (p: meta.MetaAttribute, p1: any) => void): void;

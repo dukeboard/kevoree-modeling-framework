@@ -468,33 +468,35 @@ public abstract class AbstractKObject implements KObject {
         }
     }
 
-    @Override
-    public KTask<KObject[]> ref(MetaReference p_metaReference) {
+    public void internal_ref(MetaReference p_metaReference, Callback<KObject[]> callback) {
         MetaReference transposed = internal_transpose_ref(p_metaReference);
         if (transposed == null) {
             throw new RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + metaClass().metaName());
         } else {
             KCacheEntry raw = view().universe().model().manager().entry(this, AccessMode.READ);
             if (raw == null) {
-                AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
-                task.initCallback().on(new KObject[0]);
-                return task;
+                callback.on(new KObject[0]);
             } else {
                 Object o = raw.get(transposed.index());
                 if (o == null) {
-                    AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
-                    task.initCallback().on(new KObject[0]);
-                    return task;
+                    callback.on(new KObject[0]);
                 } else if (o instanceof Set) {
                     Set<Long> objs = (Set<Long>) o;
                     Long[] setContent = objs.toArray(new Long[objs.size()]);
-                    return view().lookupAll(setContent);
+                    ((AbstractKView) view()).internalLookupAll(setContent, callback);
                 } else {
                     Long[] content = new Long[]{(Long) o};
-                    return view().lookupAll(content);
+                    ((AbstractKView) view()).internalLookupAll(content, callback);
                 }
             }
         }
+    }
+
+    @Override
+    public KTask<KObject[]> ref(MetaReference p_metaReference) {
+        AbstractKTaskWrapper<KObject[]> task = new AbstractKTaskWrapper<KObject[]>();
+        internal_ref(p_metaReference, task.initCallback());
+        return task;
     }
 
     @Override

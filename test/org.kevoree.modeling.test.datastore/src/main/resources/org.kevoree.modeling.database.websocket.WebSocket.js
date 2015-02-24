@@ -12,7 +12,7 @@ var org;
                 (function (websocket) {
                     var WebSocketBrokerClient = (function () {
                         function WebSocketBrokerClient(connectionUri) {
-                            this.storedEvents = new java.util.HashMap();
+                            this.storedEvents = new java.util.ArrayList();
                             this._baseBroker = new org.kevoree.modeling.api.event.DefaultKBroker();
                             this._connectionUri = connectionUri;
                         }
@@ -58,26 +58,18 @@ var org;
                         };
                         WebSocketBrokerClient.prototype.notify = function (event) {
                             this._baseBroker.notify(event);
-                            var dimEvents = this.storedEvents.get(event.universe());
-                            if (dimEvents == null) {
-                                dimEvents = new java.util.ArrayList();
-                                this.storedEvents.put(event.universe(), dimEvents);
-                            }
-                            dimEvents.add(event);
+                            this.storedEvents.add(event);
                         };
                         WebSocketBrokerClient.prototype.notifyOnly = function (event) {
                             this._baseBroker.notify(event);
                         };
-                        WebSocketBrokerClient.prototype.flush = function (dimensionKey) {
-                            var eventList = this.storedEvents.remove(dimensionKey);
-                            if (eventList != null) {
-                                var serializedEventList = [];
-                                for (var i = 0; i < eventList.size(); i++) {
-                                    serializedEventList.push(eventList.get(i).toJSON());
-                                }
-                                var jsonMessage = { "dimKey": dimensionKey, "events": serializedEventList };
-                                this.clientConnection.send(JSON.stringify(jsonMessage));
+                        WebSocketBrokerClient.prototype.flush = function () {
+                            var serializedEventList = [];
+                            for (var i = 0; i < this.storedEvents.size(); i++) {
+                                serializedEventList.push(this.storedEvents.get(i).toJSON());
                             }
+                            var jsonMessage = { "events": serializedEventList };
+                            this.clientConnection.send(JSON.stringify(jsonMessage));
                         };
                         WebSocketBrokerClient.prototype.sendOperationEvent = function (operationEvent) {
                             var serializedEventList = [];
