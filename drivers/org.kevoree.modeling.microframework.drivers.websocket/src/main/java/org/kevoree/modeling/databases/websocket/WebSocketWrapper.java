@@ -18,6 +18,9 @@ import org.kevoree.modeling.api.data.cdn.AtomicOperation;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
 import org.kevoree.modeling.api.data.manager.KDataManager;
+import org.kevoree.modeling.api.msg.KAtomicGetRequest;
+import org.kevoree.modeling.api.msg.KAtomicGetResult;
+import org.kevoree.modeling.api.msg.KEventMessage;
 import org.kevoree.modeling.api.msg.KGetRequest;
 import org.kevoree.modeling.api.msg.KGetResult;
 import org.kevoree.modeling.api.msg.KMessage;
@@ -93,7 +96,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
     protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message) throws IOException {
         String data = message.getData();
 
-        ArrayList<KMessage> _events = null;
+        ArrayList<KEventMessage> _events = null;
         JsonArray payload = null;
 
         // parse
@@ -128,6 +131,20 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
                         }
                     });
                 }break;
+                case KMessageLoader.ATOMIC_OPERATION_REQUEST_TYPE:{
+                    KAtomicGetRequest atomicGetRequest = (KAtomicGetRequest)msg;
+                    wrapped.atomicGetMutate(atomicGetRequest.key, atomicGetRequest.operation, new ThrowableCallback<String>() {
+                        @Override
+                        public void on(String s, Throwable error) {
+                            if (error == null) {
+                                KAtomicGetResult atomicGetResultMessage = new KAtomicGetResult();
+                                atomicGetResultMessage.id = atomicGetRequest.id;
+                                atomicGetResultMessage.value = s;
+                                WebSockets.sendText(atomicGetResultMessage.json(), channel, null);
+                            }
+                        }
+                    });
+                }break;
                 /*
                 case KMessageLoader.OPERATION_CALL_TYPE:{
 
@@ -141,7 +158,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
                         _events = new ArrayList<>();
                         payload = new JsonArray();
                     }
-                    _events.add(msg);
+                    _events.add((KEventMessage)msg);
                     payload.add(rawMessage);
                 }break;
                 default:{
@@ -151,7 +168,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
         }
 
         if(_events != null) {
-            KMessage[] msgs = _events.toArray(new KMessage[_events.size()]);
+            KEventMessage[] msgs = _events.toArray(new KEventMessage[_events.size()]);
             //send locally
             wrapped.send(msgs);
 
@@ -203,7 +220,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
     }
 
     @Override
-    public void send(KMessage[] msgs) {
+    public void send(KEventMessage[] msgs) {
 
         //send locally
         wrapped.send(msgs);

@@ -7,6 +7,7 @@ import org.kevoree.modeling.api.data.cache.KCache;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.cache.MultiLayeredMemoryCache;
 import org.kevoree.modeling.api.data.manager.KDataManager;
+import org.kevoree.modeling.api.msg.KEventMessage;
 import org.kevoree.modeling.api.msg.KMessage;
 import org.kevoree.modeling.api.util.LocalEventListeners;
 
@@ -102,8 +103,9 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void send(KMessage[] msgs) {
-        //NO REMOVE MANAGEMENT, NOOP OPERATION
+    public void send(KEventMessage[] msgs) {
+        //NO REMOVE MANAGEMENT
+        //TODO: CAll listeners
     }
 
     @Override

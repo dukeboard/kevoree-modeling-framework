@@ -6,6 +6,7 @@ import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.data.cache.KCache;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.manager.KDataManager;
+import org.kevoree.modeling.api.msg.KEventMessage;
 import org.kevoree.modeling.api.msg.KMessage;
 
 /**
@@ -35,7 +36,7 @@ public interface KContentDeliveryDriver {
 
     void unregister(KEventListener listener);
 
-    void send(KMessage[] msgs);
+    void send(KEventMessage[] msgs);
 
     void setManager(KDataManager manager);
 
