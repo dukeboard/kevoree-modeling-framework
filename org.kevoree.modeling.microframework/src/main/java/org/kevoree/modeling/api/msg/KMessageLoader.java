@@ -88,24 +88,22 @@ public class KMessageLoader {
                 String[] toFlatKeys = null;
                 String[] toFlatValues = null;
                 if (content.get("keys") != null) {
-                    HashSet<String> metaInt = (HashSet<String>) content.get("keys");
-                    toFlatKeys = metaInt.toArray(new String[metaInt.size()]);
+                    HashSet<String> metaKeys = (HashSet<String>) content.get("keys");
+                    toFlatKeys = metaKeys.toArray(new String[metaKeys.size()]);
                 }
                 if (content.get("values") != null) {
-                    HashSet<String> metaInt = (HashSet<String>) content.get("values");
-                    toFlatKeys = metaInt.toArray(new String[metaInt.size()]);
+                    HashSet<String> metaValues = (HashSet<String>) content.get("values");
+                    toFlatValues = metaValues.toArray(new String[metaValues.size()]);
                 }
+                if (toFlatKeys != null && toFlatValues != null && toFlatKeys.length == toFlatValues.length) {
                     if (putRequest.request == null) {
-                        putRequest.request = new KContentPutRequest(toFlat.length);
+                        putRequest.request = new KContentPutRequest(toFlatKeys.length);
                     }
-
-                    KContentKey[] keys = new KContentKey[toFlat.length];
-                    for (int i = 0; i < toFlat.length; i++) {
-                        keys[i] = KContentKey.create(toFlat[i]);
+                    for (int i = 0; i < toFlatKeys.length; i++) {
+                        putRequest.request.put(KContentKey.create(toFlatKeys[i]), toFlatValues[i]);
                     }
-                    putRequest. = keys;
                 }
-                return getKeysRequest;
+                return putRequest;
             } else if (parsedType == KMessage.OPERATION_CALL_TYPE) {
 
             } else if (parsedType == KMessage.OPERATION_RESULT_TYPE) {
