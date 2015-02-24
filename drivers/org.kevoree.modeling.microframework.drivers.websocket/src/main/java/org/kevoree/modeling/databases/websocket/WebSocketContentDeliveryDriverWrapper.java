@@ -20,7 +20,7 @@ import static io.undertow.Handlers.websocket;
  */
 
 //TODO REMOVE this class after merge
-
+/*
 public class WebSocketContentDeliveryDriverWrapper extends AbstractReceiveListener implements WebSocketConnectionCallback, KContentDeliveryDriver {
 
     private KContentDeliveryDriver wrapped = null;
@@ -149,3 +149,4 @@ public class WebSocketContentDeliveryDriverWrapper extends AbstractReceiveListen
     }
 
 }
+*/

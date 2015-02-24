@@ -7,12 +7,9 @@ import org.java_websocket.drafts.Draft_17;
 import org.java_websocket.handshake.ServerHandshake;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KActionType;
-import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.KEventListener;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.util.LocalEventListeners;
-import org.kevoree.modeling.api.abs.AbstractKEvent;
-import org.kevoree.modeling.api.event.KEventBroker;
 import org.kevoree.modeling.api.meta.MetaModel;
 
 import java.net.URI;
@@ -25,7 +22,7 @@ import java.util.List;
  */
 
 //TODO REMOVE this class after merge
-
+/*
 public class WebSocketBrokerClient implements KEventBroker {
 
     private WebSocketClient client;
@@ -148,3 +145,4 @@ public class WebSocketBrokerClient implements KEventBroker {
     }
 
 }
+*/

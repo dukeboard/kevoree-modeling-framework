@@ -12,12 +12,9 @@ import io.undertow.websockets.core.WebSockets;
 import io.undertow.websockets.spi.WebSocketHttpExchange;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KActionType;
-import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.KEventListener;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.util.LocalEventListeners;
-import org.kevoree.modeling.api.abs.AbstractKEvent;
-import org.kevoree.modeling.api.event.KEventBroker;
 import org.kevoree.modeling.api.meta.MetaModel;
 
 import java.io.IOException;
@@ -32,7 +29,7 @@ import static io.undertow.Handlers.websocket;
  */
 
 //TODO REMOVE this class after merge
-
+/*
 public class WebSocketBroker extends AbstractReceiveListener implements KEventBroker, WebSocketConnectionCallback {
 
     private KEventBroker _baseBroker;
@@ -185,3 +182,4 @@ public class WebSocketBroker extends AbstractReceiveListener implements KEventBr
         webSocketClients.remove(channel);
     }
 }
+*/

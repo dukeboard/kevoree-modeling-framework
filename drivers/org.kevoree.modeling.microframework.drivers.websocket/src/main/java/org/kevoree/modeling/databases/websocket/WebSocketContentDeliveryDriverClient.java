@@ -27,7 +27,7 @@ import java.util.function.IntUnaryOperator;
  */
 
 //TODO REMOVE this class after merge
-
+/*
 public class WebSocketContentDeliveryDriverClient implements KContentDeliveryDriver {
 
     private static XnioWorker worker = null;
@@ -220,3 +220,4 @@ public class WebSocketContentDeliveryDriverClient implements KContentDeliveryDri
         }
     }
 }
+*/
