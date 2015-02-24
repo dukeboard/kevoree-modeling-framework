@@ -1,16 +1,15 @@
 package org.kevoree.modeling.api.msg;
 
-import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
 import org.kevoree.modeling.api.json.JsonString;
 
 /**
  * Created by duke on 24/02/15.
  */
-public class KPutRequest implements KMessage {
-
-    public KContentPutRequest request;
+public class KGetResult implements KMessage {
 
     public Long id;
+
+    public String[] values;
 
     @Override
     public String json() {
@@ -24,24 +23,15 @@ public class KPutRequest implements KMessage {
             buffer.append(id.toString());
             buffer.append("\"\n");
         }
-        if (request != null) {
-            buffer.append(",\"keys\":[");
-            for (int i = 0; i < request.size(); i++) {
+        if (values != null) {
+            buffer.append(",");
+            buffer.append("\"values\":[");
+            for (int i = 0; i < values.length; i++) {
                 if (i != 0) {
                     buffer.append(",");
                 }
                 buffer.append("\"");
-                buffer.append(request.getKey(i));
-                buffer.append("\"");
-            }
-            buffer.append("]\n");
-            buffer.append(",\"values\":[");
-            for (int i = 0; i < request.size(); i++) {
-                if (i != 0) {
-                    buffer.append(",");
-                }
-                buffer.append("\"");
-                buffer.append(JsonString.encode(request.getContent(i)));
+                buffer.append(JsonString.encode(values[i]));
                 buffer.append("\"");
             }
             buffer.append("]\n");
@@ -52,6 +42,6 @@ public class KPutRequest implements KMessage {
 
     @Override
     public int type() {
-        return KMessageLoader.PUT_REQ_TYPE;
+        return KMessageLoader.GET_RES_TYPE;
     }
 }

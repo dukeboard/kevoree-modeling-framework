@@ -2,6 +2,7 @@ package org.kevoree.modeling.api.msg;
 
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
+import org.kevoree.modeling.api.json.JsonString;
 import org.kevoree.modeling.api.json.JsonToken;
 import org.kevoree.modeling.api.json.Lexer;
 import org.kevoree.modeling.api.json.Type;
@@ -18,13 +19,17 @@ public class KMessageLoader {
 
     public static final int EVENT_TYPE = 0;
 
-    public static final int GET_KEYS_TYPE = 1;
+    public static final int GET_REQ_TYPE = 1;
 
-    public static final int PUT_TYPE = 2;
+    public static final int GET_RES_TYPE = 2;
 
-    public static final int OPERATION_CALL_TYPE = 3;
+    public static final int PUT_REQ_TYPE = 3;
 
-    public static final int OPERATION_RESULT_TYPE = 4;
+    public static final int PUT_RES_TYPE = 4;
+
+    public static final int OPERATION_CALL_TYPE = 5;
+
+    public static final int OPERATION_RESULT_TYPE = 6;
 
     public static KMessage load(String payload) {
         Lexer lexer = new Lexer(payload);
@@ -75,8 +80,8 @@ public class KMessageLoader {
                     eventMessage.meta = nbElem;
                 }
                 return eventMessage;
-            } else if (parsedType == GET_KEYS_TYPE) {
-                KGetKeysRequest getKeysRequest = new KGetKeysRequest();
+            } else if (parsedType == GET_REQ_TYPE) {
+                KGetRequest getKeysRequest = new KGetRequest();
                 if (content.get("id") != null) {
                     getKeysRequest.id = Long.parseLong(content.get("id").toString());
                 }
@@ -90,7 +95,22 @@ public class KMessageLoader {
                     getKeysRequest.keys = keys;
                 }
                 return getKeysRequest;
-            } else if (parsedType == PUT_TYPE) {
+            } else if (parsedType == GET_RES_TYPE) {
+                KGetResult getResult = new KGetResult();
+                if (content.get("id") != null) {
+                    getResult.id = Long.parseLong(content.get("id").toString());
+                }
+                if (content.get("values") != null) {
+                    HashSet<String> metaInt = (HashSet<String>) content.get("values");
+                    String[] toFlat = metaInt.toArray(new String[metaInt.size()]);
+                    String[] values = new String[toFlat.length];
+                    for (int i = 0; i < toFlat.length; i++) {
+                        values[i] = JsonString.unescape(toFlat[i]);
+                    }
+                    getResult.values = values;
+                }
+                return getResult;
+            } else if (parsedType == PUT_REQ_TYPE) {
                 KPutRequest putRequest = new KPutRequest();
                 if (content.get("id") != null) {
                     putRequest.id = Long.parseLong(content.get("id").toString());
@@ -110,10 +130,16 @@ public class KMessageLoader {
                         putRequest.request = new KContentPutRequest(toFlatKeys.length);
                     }
                     for (int i = 0; i < toFlatKeys.length; i++) {
-                        putRequest.request.put(KContentKey.create(toFlatKeys[i]), toFlatValues[i]);
+                        putRequest.request.put(KContentKey.create(toFlatKeys[i]), JsonString.unescape(toFlatValues[i]));
                     }
                 }
                 return putRequest;
+            } else if (parsedType == PUT_RES_TYPE) {
+                KPutResult putResult = new KPutResult();
+                if (content.get("id") != null) {
+                    putResult.id = Long.parseLong(content.get("id").toString());
+                }
+                return putResult;
             } else if (parsedType == OPERATION_CALL_TYPE) {
                 KOperationCallMessage callMessage = new KOperationCallMessage();
                 if (content.get("id") != null) {

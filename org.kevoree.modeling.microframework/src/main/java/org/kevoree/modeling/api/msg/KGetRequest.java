@@ -5,7 +5,7 @@ import org.kevoree.modeling.api.data.cache.KContentKey;
 /**
  * Created by duke on 24/02/15.
  */
-public class KGetKeysRequest implements KMessage {
+public class KGetRequest implements KMessage {
 
     public Long id;
 
@@ -42,6 +42,6 @@ public class KGetKeysRequest implements KMessage {
 
     @Override
     public int type() {
-        return KMessageLoader.GET_KEYS_TYPE;
+        return KMessageLoader.GET_REQ_TYPE;
     }
 }

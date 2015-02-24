@@ -27,7 +27,7 @@ public class KMessageTest {
         KMessage parsed = KMessageLoader.load(event.json());
         Assert.assertEquals(parsed.json(), event.json());
 
-        KGetKeysRequest msgGet = new KGetKeysRequest();
+        KGetRequest msgGet = new KGetRequest();
         msgGet.id = 0l;
         msgGet.keys = new KContentKey[3];
         msgGet.keys[0] = KContentKey.createObject(0l, 1l, 2l);
@@ -47,7 +47,7 @@ public class KMessageTest {
         msgPut.request.put(KContentKey.createObject(0l, 1l, 2l),"hello0");
         msgPut.request.put(KContentKey.createObject(3l, 4l, 5l),"hello1");
         Assert.assertEquals("{\n" +
-                "\"type\":\"2\"\n" +
+                "\"type\":\"3\"\n" +
                 ",\"id\":\"0\"\n" +
                 ",\"keys\":[\"1/0/1/2\",\"1/3/4/5\"]\n" +
                 ",\"values\":[\"hello0\",\"hello1\"]\n" +
@@ -63,7 +63,7 @@ public class KMessageTest {
         msgCall.params[1] = "param1";
         msgCall.params[2] = "param2";
         Assert.assertEquals("{\n" +
-                "\"type\":\"3\"\n" +
+                "\"type\":\"5\"\n" +
                 ",\"id\":\"1\"\n" +
                 ",\"key\":\"1/0/1/2\"\n" +
                 ",\"values\":[\"param0\",\"param1\",\"param2\"]\n" +
@@ -76,7 +76,7 @@ public class KMessageTest {
         msgResult.id = 1l;
         msgResult.result = "hello";
         Assert.assertEquals("{\n" +
-                "\"type\":\"4\"\n" +
+                "\"type\":\"6\"\n" +
                 ",\"id\":\"1\"\n" +
                 ",\"result\":\"hello\"\n" +
                 "}\n", msgResult.json());
