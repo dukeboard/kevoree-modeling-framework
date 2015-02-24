@@ -23,20 +23,47 @@ public class TimeWalker {
     }
 
     public KDefer<Throwable> walkAsc(Callback<Long> walker) {
-        return internal_walk(walker, true, null, null);
+        return internal_walk(walker, true);
     }
 
     public KDefer<Throwable> walkDesc(Callback<Long> walker) {
-        return internal_walk(walker, false, null, null);
+        return internal_walk(walker, false);
     }
 
-    private KDefer<Throwable> internal_walk(Callback<Long> walker, boolean asc, Long from, Long to) {
+    private KDefer<Throwable> internal_walk(Callback<Long> walker, boolean asc) {
+        AbstractKDeferWrapper<Throwable> wrapper = new AbstractKDeferWrapper<Throwable>();
+        _origin.view().universe().model().manager().timeTrees(_origin, null, null, new Callback<IndexRBTree[]>() {
+            @Override
+            public void on(IndexRBTree[] indexRBTrees) {
+                for (int i = 0; i < indexRBTrees.length; i++) {
+                    TreeNode elem;
+                    if (asc) {
+                        elem = indexRBTrees[i].first();
+                    } else {
+                        elem = indexRBTrees[i].last();
+                    }
+                    while (elem != null) {
+                        walker.on(elem.getKey());
+                        if (asc) {
+                            elem = elem.next();
+                        } else {
+                            elem = elem.previous();
+                        }
+                    }
+                }
+                wrapper.initCallback().on(null);
+            }
+        });
+        return wrapper;
+    }
+
+    private KDefer<Throwable> internal_walk_range(Callback<Long> walker, boolean asc, Long from, Long to) {
         AbstractKDeferWrapper<Throwable> wrapper = new AbstractKDeferWrapper<Throwable>();
         _origin.view().universe().model().manager().timeTrees(_origin, from, to, new Callback<IndexRBTree[]>() {
             @Override
             public void on(IndexRBTree[] indexRBTrees) {
-                long from2 = from;
-                long to2 = to;
+                Long from2 = from;
+                Long to2 = to;
                 if (from > to) {
                     from2 = to;
                     to2 = from;
@@ -69,11 +96,11 @@ public class TimeWalker {
     }
 
     public KDefer<Throwable> walkRangeAsc(Callback<Long> walker, long from, long to) {
-        return internal_walk(walker, true, from, to);
+        return internal_walk_range(walker, true, from, to);
     }
 
     public KDefer<Throwable> walkRangeDesc(Callback<Long> walker, long from, long to) {
-        return internal_walk(walker, false, from, to);
+        return internal_walk_range(walker, false, from, to);
     }
 
 }
