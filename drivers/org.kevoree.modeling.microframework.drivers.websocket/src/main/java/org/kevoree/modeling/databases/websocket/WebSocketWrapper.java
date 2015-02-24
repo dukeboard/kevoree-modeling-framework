@@ -55,7 +55,9 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
             _server.start();
             wrapped.connect(callback);
         } else {
-            callback.on(null);
+            if(callback != null) {
+                callback.on(new Exception("Wrapped must not be null."));
+            }
         }
     }
 
@@ -70,7 +72,9 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
                 }
             });
         } else {
-            callback.on(null);
+            if(callback != null) {
+                callback.on(null);
+            }
         }
     }
 
@@ -116,7 +120,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
                     wrapped.put(putRequest.request, new Callback<Throwable>() {
                         @Override
                         public void on(Throwable throwable) {
-                            if(throwable == null) {
+                            if (throwable == null) {
                                 KPutResult putResultMessage = new KPutResult();
                                 putResultMessage.id = putRequest.id;
                                 WebSockets.sendText(putResultMessage.json(), channel, null);

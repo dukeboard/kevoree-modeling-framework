@@ -2,9 +2,6 @@ package org.kevoree.modeling.databases.websocket;
 
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.drafts.Draft_17;
-import org.java_websocket.handshake.ServerHandshake;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KEventListener;
