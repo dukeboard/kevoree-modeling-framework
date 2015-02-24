@@ -2778,9 +2778,7 @@ module org {
                                     if (dirtiesEntries[i].object instanceof org.kevoree.modeling.api.data.cache.KCacheEntry) {
                                         var newMessage: org.kevoree.modeling.api.msg.KEventMessage = new org.kevoree.modeling.api.msg.KEventMessage();
                                         newMessage.meta = (<org.kevoree.modeling.api.data.cache.KCacheEntry>dirtiesEntries[i].object).modifiedIndexes();
-                                        newMessage.universeID = dirtiesEntries[i].key.part1();
-                                        newMessage.timeID = dirtiesEntries[i].key.part2();
-                                        newMessage.objID = dirtiesEntries[i].key.part3();
+                                        newMessage.key = dirtiesEntries[i].key;
                                         notificationMessages[nbInsertedMsg] = newMessage;
                                         nbInsertedMsg = nbInsertedMsg + 1;
                                     }
@@ -6019,30 +6017,76 @@ module org {
                 export module msg {
                     export class KEventMessage implements org.kevoree.modeling.api.msg.KMessage {
 
-                        public universeID: number;
-                        public timeID: number;
-                        public objID: number;
+                        public key: org.kevoree.modeling.api.data.cache.KContentKey;
                         public meta: number[];
                         public json(): string {
-                            var builder: java.lang.StringBuilder = new java.lang.StringBuilder();
-                            return builder.toString();
+                            var buffer: java.lang.StringBuilder = new java.lang.StringBuilder();
+                            buffer.append("{\n\"type\":\"");
+                            buffer.append(this.type());
+                            buffer.append("\"\n");
+                            if (this.key != null) {
+                                buffer.append(",");
+                                buffer.append("\"key\":\"");
+                                buffer.append(this.key.toString());
+                                buffer.append("\"\n");
+                            }
+                            if (this.meta != null) {
+                                buffer.append(",");
+                                buffer.append("\"values\":[");
+                                for (var i: number = 0; i < this.meta.length; i++) {
+                                    if (i != 0) {
+                                        buffer.append(",");
+                                    }
+                                    buffer.append("\"");
+                                    buffer.append(this.meta[i]);
+                                    buffer.append("\"");
+                                }
+                                buffer.append("]\n");
+                            }
+                            buffer.append("}\n");
+                            return buffer.toString();
                         }
 
                         public type(): number {
-                            return 0;
+                            return org.kevoree.modeling.api.msg.KMessageLoader.EVENT_TYPE;
                         }
 
                     }
 
                     export class KGetKeysRequest implements org.kevoree.modeling.api.msg.KMessage {
 
+                        public id: number;
                         public keys: org.kevoree.modeling.api.data.cache.KContentKey[];
                         public json(): string {
-                            return null;
+                            var buffer: java.lang.StringBuilder = new java.lang.StringBuilder();
+                            buffer.append("{\n\"type\":\"");
+                            buffer.append(this.type());
+                            buffer.append("\"\n");
+                            if (this.id != null) {
+                                buffer.append(",");
+                                buffer.append("\"id\":\"");
+                                buffer.append(this.id.toString());
+                                buffer.append("\"\n");
+                            }
+                            if (this.keys != null) {
+                                buffer.append(",");
+                                buffer.append("\"keys\":[");
+                                for (var i: number = 0; i < this.keys.length; i++) {
+                                    if (i != 0) {
+                                        buffer.append(",");
+                                    }
+                                    buffer.append("\"");
+                                    buffer.append(this.keys[i].toString());
+                                    buffer.append("\"");
+                                }
+                                buffer.append("]\n");
+                            }
+                            buffer.append("}\n");
+                            return buffer.toString();
                         }
 
                         public type(): number {
-                            return 0;
+                            return org.kevoree.modeling.api.msg.KMessageLoader.GET_KEYS_TYPE;
                         }
 
                     }
@@ -6057,38 +6101,217 @@ module org {
 
                     export class KMessageLoader {
 
+                        public static EVENT_TYPE: number = 0;
+                        public static GET_KEYS_TYPE: number = 1;
+                        public static PUT_TYPE: number = 2;
+                        public static OPERATION_CALL_TYPE: number = 3;
+                        public static OPERATION_RESULT_TYPE: number = 4;
                         public static load(payload: string): org.kevoree.modeling.api.msg.KMessage {
-                            return null;
+                            var lexer: org.kevoree.modeling.api.json.Lexer = new org.kevoree.modeling.api.json.Lexer(payload);
+                            var content: java.util.Map<string, any> = new java.util.HashMap<string, any>();
+                            var currentAttributeName: string = null;
+                            var arrayPayload: java.util.Set<string> = null;
+                            var currentToken: org.kevoree.modeling.api.json.JsonToken = lexer.nextToken();
+                            while (currentToken.tokenType() != org.kevoree.modeling.api.json.Type.EOF){
+                                if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.LEFT_BRACKET)) {
+                                    arrayPayload = new java.util.HashSet<string>();
+                                } else {
+                                    if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.RIGHT_BRACKET)) {
+                                        content.put(currentAttributeName, arrayPayload);
+                                        arrayPayload = null;
+                                        currentAttributeName = null;
+                                    } else {
+                                        if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.LEFT_BRACE)) {
+                                            content = new java.util.HashMap<string, any>();
+                                        } else {
+                                            if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.RIGHT_BRACE)) {
+                                            } else {
+                                                if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.VALUE)) {
+                                                    if (currentAttributeName == null) {
+                                                        currentAttributeName = currentToken.value().toString();
+                                                    } else {
+                                                        if (arrayPayload == null) {
+                                                            content.put(currentAttributeName, currentToken.value().toString());
+                                                            currentAttributeName = null;
+                                                        } else {
+                                                            arrayPayload.add(currentToken.value().toString());
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                currentToken = lexer.nextToken();
+                            }
+                            try {
+                                var parsedType: number = java.lang.Integer.parseInt(content.get("type").toString());
+                                if (parsedType == KMessageLoader.EVENT_TYPE) {
+                                    var eventMessage: org.kevoree.modeling.api.msg.KEventMessage = new org.kevoree.modeling.api.msg.KEventMessage();
+                                    if (content.get("key") != null) {
+                                        eventMessage.key = org.kevoree.modeling.api.data.cache.KContentKey.create(content.get("key").toString());
+                                    }
+                                    if (content.get("values") != null) {
+                                        var metaInt: java.util.HashSet<string> = <java.util.HashSet<string>>content.get("values");
+                                        var toFlat: string[] = metaInt.toArray(new Array());
+                                        var nbElem: number[] = new Array();
+                                        for (var i: number = 0; i < toFlat.length; i++) {
+                                            nbElem[i] = java.lang.Integer.parseInt(toFlat[i]);
+                                        }
+                                        eventMessage.meta = nbElem;
+                                    }
+                                    return eventMessage;
+                                } else {
+                                    if (parsedType == KMessageLoader.GET_KEYS_TYPE) {
+                                        var getKeysRequest: org.kevoree.modeling.api.msg.KGetKeysRequest = new org.kevoree.modeling.api.msg.KGetKeysRequest();
+                                        if (content.get("id") != null) {
+                                            getKeysRequest.id = java.lang.Long.parseLong(content.get("id").toString());
+                                        }
+                                        if (content.get("keys") != null) {
+                                            var metaInt: java.util.HashSet<string> = <java.util.HashSet<string>>content.get("keys");
+                                            var toFlat: string[] = metaInt.toArray(new Array());
+                                            var keys: org.kevoree.modeling.api.data.cache.KContentKey[] = new Array();
+                                            for (var i: number = 0; i < toFlat.length; i++) {
+                                                keys[i] = org.kevoree.modeling.api.data.cache.KContentKey.create(toFlat[i]);
+                                            }
+                                            getKeysRequest.keys = keys;
+                                        }
+                                        return getKeysRequest;
+                                    } else {
+                                        if (parsedType == KMessageLoader.PUT_TYPE) {
+                                            var putRequest: org.kevoree.modeling.api.msg.KPutRequest = new org.kevoree.modeling.api.msg.KPutRequest();
+                                            if (content.get("id") != null) {
+                                                putRequest.id = java.lang.Long.parseLong(content.get("id").toString());
+                                            }
+                                            var toFlatKeys: string[] = null;
+                                            var toFlatValues: string[] = null;
+                                            if (content.get("keys") != null) {
+                                                var metaKeys: java.util.HashSet<string> = <java.util.HashSet<string>>content.get("keys");
+                                                toFlatKeys = metaKeys.toArray(new Array());
+                                            }
+                                            if (content.get("values") != null) {
+                                                var metaValues: java.util.HashSet<string> = <java.util.HashSet<string>>content.get("values");
+                                                toFlatValues = metaValues.toArray(new Array());
+                                            }
+                                            if (toFlatKeys != null && toFlatValues != null && toFlatKeys.length == toFlatValues.length) {
+                                                if (putRequest.request == null) {
+                                                    putRequest.request = new org.kevoree.modeling.api.data.cdn.KContentPutRequest(toFlatKeys.length);
+                                                }
+                                                for (var i: number = 0; i < toFlatKeys.length; i++) {
+                                                    putRequest.request.put(org.kevoree.modeling.api.data.cache.KContentKey.create(toFlatKeys[i]), toFlatValues[i]);
+                                                }
+                                            }
+                                            return putRequest;
+                                        } else {
+                                            if (parsedType == KMessageLoader.OPERATION_CALL_TYPE) {
+                                                var callMessage: org.kevoree.modeling.api.msg.KOperationCallMessage = new org.kevoree.modeling.api.msg.KOperationCallMessage();
+                                                if (content.get("id") != null) {
+                                                    callMessage.id = java.lang.Long.parseLong(content.get("id").toString());
+                                                }
+                                                if (content.get("key") != null) {
+                                                    callMessage.key = org.kevoree.modeling.api.data.cache.KContentKey.create(content.get("key").toString());
+                                                }
+                                                if (content.get("values") != null) {
+                                                    var metaParams: java.util.HashSet<string> = <java.util.HashSet<string>>content.get("values");
+                                                    var toFlat: string[] = metaParams.toArray(new Array());
+                                                    callMessage.params = toFlat;
+                                                }
+                                                return callMessage;
+                                            } else {
+                                                if (parsedType == KMessageLoader.OPERATION_RESULT_TYPE) {
+                                                    var resultMessage: org.kevoree.modeling.api.msg.KOperationResultMessage = new org.kevoree.modeling.api.msg.KOperationResultMessage();
+                                                    if (content.get("id") != null) {
+                                                        resultMessage.id = java.lang.Long.parseLong(content.get("id").toString());
+                                                    }
+                                                    if (content.get("result") != null) {
+                                                        resultMessage.result = content.get("result").toString();
+                                                    }
+                                                    return resultMessage;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                return null;
+                            } catch ($ex$) {
+                                if ($ex$ instanceof java.lang.Exception) {
+                                    var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                    e.printStackTrace();
+                                    return null;
+                                }
+                             }
                         }
 
                     }
 
                     export class KOperationCallMessage implements org.kevoree.modeling.api.msg.KMessage {
 
-                        public universeID: number;
-                        public timeID: number;
-                        public objID: number;
+                        public id: number;
+                        public key: org.kevoree.modeling.api.data.cache.KContentKey;
                         public params: string[];
                         public json(): string {
-                            return null;
+                            var buffer: java.lang.StringBuilder = new java.lang.StringBuilder();
+                            buffer.append("{\n\"type\":\"");
+                            buffer.append(this.type());
+                            buffer.append("\"\n");
+                            if (this.id != null) {
+                                buffer.append(",");
+                                buffer.append("\"id\":\"");
+                                buffer.append(this.id.toString());
+                                buffer.append("\"\n");
+                            }
+                            if (this.key != null) {
+                                buffer.append(",\"key\":\"");
+                                buffer.append(this.key.toString());
+                                buffer.append("\"\n");
+                            }
+                            if (this.params != null) {
+                                buffer.append(",\"values\":[");
+                                for (var i: number = 0; i < this.params.length; i++) {
+                                    if (i != 0) {
+                                        buffer.append(",");
+                                    }
+                                    buffer.append("\"");
+                                    buffer.append(this.params[i]);
+                                    buffer.append("\"");
+                                }
+                                buffer.append("]\n");
+                            }
+                            buffer.append("}\n");
+                            return buffer.toString();
                         }
 
                         public type(): number {
-                            return 0;
+                            return org.kevoree.modeling.api.msg.KMessageLoader.OPERATION_CALL_TYPE;
                         }
 
                     }
 
                     export class KOperationResultMessage implements org.kevoree.modeling.api.msg.KMessage {
 
-                        public listenerID: number;
+                        public id: number;
                         public result: string;
                         public json(): string {
-                            return null;
+                            var buffer: java.lang.StringBuilder = new java.lang.StringBuilder();
+                            buffer.append("{\n\"type\":\"");
+                            buffer.append(this.type());
+                            buffer.append("\"\n");
+                            if (this.id != null) {
+                                buffer.append(",\"id\":\"");
+                                buffer.append(this.id.toString());
+                                buffer.append("\"\n");
+                            }
+                            if (this.result != null) {
+                                buffer.append(",\"result\":\"");
+                                buffer.append(this.result);
+                                buffer.append("\"\n");
+                            }
+                            buffer.append("}\n");
+                            return buffer.toString();
                         }
 
                         public type(): number {
-                            return 0;
+                            return org.kevoree.modeling.api.msg.KMessageLoader.OPERATION_RESULT_TYPE;
                         }
 
                     }
@@ -6096,12 +6319,46 @@ module org {
                     export class KPutRequest implements org.kevoree.modeling.api.msg.KMessage {
 
                         public request: org.kevoree.modeling.api.data.cdn.KContentPutRequest;
+                        public id: number;
                         public json(): string {
-                            return null;
+                            var buffer: java.lang.StringBuilder = new java.lang.StringBuilder();
+                            buffer.append("{\n\"type\":\"");
+                            buffer.append(this.type());
+                            buffer.append("\"\n");
+                            if (this.id != null) {
+                                buffer.append(",");
+                                buffer.append("\"id\":\"");
+                                buffer.append(this.id.toString());
+                                buffer.append("\"\n");
+                            }
+                            if (this.request != null) {
+                                buffer.append(",\"keys\":[");
+                                for (var i: number = 0; i < this.request.size(); i++) {
+                                    if (i != 0) {
+                                        buffer.append(",");
+                                    }
+                                    buffer.append("\"");
+                                    buffer.append(this.request.getKey(i));
+                                    buffer.append("\"");
+                                }
+                                buffer.append("]\n");
+                                buffer.append(",\"values\":[");
+                                for (var i: number = 0; i < this.request.size(); i++) {
+                                    if (i != 0) {
+                                        buffer.append(",");
+                                    }
+                                    buffer.append("\"");
+                                    buffer.append(this.request.getContent(i));
+                                    buffer.append("\"");
+                                }
+                                buffer.append("]\n");
+                            }
+                            buffer.append("}\n");
+                            return buffer.toString();
                         }
 
                         public type(): number {
-                            return 0;
+                            return org.kevoree.modeling.api.msg.KMessageLoader.PUT_TYPE;
                         }
 
                     }

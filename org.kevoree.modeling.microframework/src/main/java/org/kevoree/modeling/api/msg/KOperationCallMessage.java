@@ -7,6 +7,8 @@ import org.kevoree.modeling.api.data.cache.KContentKey;
  */
 public class KOperationCallMessage implements KMessage {
 
+    public Long id;
+
     public KContentKey key;
 
     public String[] params;
@@ -16,22 +18,27 @@ public class KOperationCallMessage implements KMessage {
         StringBuilder buffer = new StringBuilder();
         buffer.append("{\n\"type\":\"");
         buffer.append(type());
+        buffer.append("\"\n");
+        if (id != null) {
+            buffer.append(",");
+            buffer.append("\"id\":\"");
+            buffer.append(id.toString());
+            buffer.append("\"\n");
+        }
         if (key != null) {
-            buffer.append("\",\n");
-            buffer.append("\"key\":\"");
+            buffer.append(",\"key\":\"");
             buffer.append(key.toString());
             buffer.append("\"\n");
         }
         if (params != null) {
-            buffer.append("\",\n");
-            buffer.append("\"values\":[");
+            buffer.append(",\"values\":[");
             for (int i = 0; i < params.length; i++) {
                 if (i != 0) {
                     buffer.append(",");
                 }
                 buffer.append("\"");
                 buffer.append(params[i]);
-                buffer.append("\"\n");
+                buffer.append("\"");
             }
             buffer.append("]\n");
         }
@@ -41,6 +48,6 @@ public class KOperationCallMessage implements KMessage {
 
     @Override
     public int type() {
-        return KMessage.OPERATION_CALL_TYPE;
+        return KMessageLoader.OPERATION_CALL_TYPE;
     }
 }

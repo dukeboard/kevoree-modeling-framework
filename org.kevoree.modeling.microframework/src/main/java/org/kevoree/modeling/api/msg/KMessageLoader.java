@@ -16,6 +16,16 @@ import java.util.Set;
  */
 public class KMessageLoader {
 
+    public static final int EVENT_TYPE = 0;
+
+    public static final int GET_KEYS_TYPE = 1;
+
+    public static final int PUT_TYPE = 2;
+
+    public static final int OPERATION_CALL_TYPE = 3;
+
+    public static final int OPERATION_RESULT_TYPE = 4;
+
     public static KMessage load(String payload) {
         Lexer lexer = new Lexer(payload);
         Map<String, Object> content = new HashMap<String, Object>();
@@ -50,7 +60,7 @@ public class KMessageLoader {
         }
         try {
             Integer parsedType = Integer.parseInt(content.get("type").toString());
-            if (parsedType == KMessage.EVENT_TYPE) {
+            if (parsedType == EVENT_TYPE) {
                 KEventMessage eventMessage = new KEventMessage();
                 if (content.get("key") != null) {
                     eventMessage.key = KContentKey.create(content.get("key").toString());
@@ -65,10 +75,10 @@ public class KMessageLoader {
                     eventMessage.meta = nbElem;
                 }
                 return eventMessage;
-            } else if (parsedType == KMessage.GET_KEYS_TYPE) {
+            } else if (parsedType == GET_KEYS_TYPE) {
                 KGetKeysRequest getKeysRequest = new KGetKeysRequest();
                 if (content.get("id") != null) {
-                    getKeysRequest.id = Integer.parseInt(content.get("id").toString());
+                    getKeysRequest.id = Long.parseLong(content.get("id").toString());
                 }
                 if (content.get("keys") != null) {
                     HashSet<String> metaInt = (HashSet<String>) content.get("keys");
@@ -80,10 +90,10 @@ public class KMessageLoader {
                     getKeysRequest.keys = keys;
                 }
                 return getKeysRequest;
-            } else if (parsedType == KMessage.PUT_TYPE) {
+            } else if (parsedType == PUT_TYPE) {
                 KPutRequest putRequest = new KPutRequest();
                 if (content.get("id") != null) {
-                    putRequest.id = Integer.parseInt(content.get("id").toString());
+                    putRequest.id = Long.parseLong(content.get("id").toString());
                 }
                 String[] toFlatKeys = null;
                 String[] toFlatValues = null;
@@ -104,10 +114,29 @@ public class KMessageLoader {
                     }
                 }
                 return putRequest;
-            } else if (parsedType == KMessage.OPERATION_CALL_TYPE) {
-
-            } else if (parsedType == KMessage.OPERATION_RESULT_TYPE) {
-
+            } else if (parsedType == OPERATION_CALL_TYPE) {
+                KOperationCallMessage callMessage = new KOperationCallMessage();
+                if (content.get("id") != null) {
+                    callMessage.id = Long.parseLong(content.get("id").toString());
+                }
+                if (content.get("key") != null) {
+                    callMessage.key = KContentKey.create(content.get("key").toString());
+                }
+                if (content.get("values") != null) {
+                    HashSet<String> metaParams = (HashSet<String>) content.get("values");
+                    String[] toFlat = metaParams.toArray(new String[metaParams.size()]);
+                    callMessage.params = toFlat;
+                }
+                return callMessage;
+            } else if (parsedType == OPERATION_RESULT_TYPE) {
+                KOperationResultMessage resultMessage = new KOperationResultMessage();
+                if (content.get("id") != null) {
+                    resultMessage.id = Long.parseLong(content.get("id").toString());
+                }
+                if (content.get("result") != null) {
+                    resultMessage.result = content.get("result").toString();
+                }
+                return resultMessage;
             }
             return null;
         } catch (Exception e) {

@@ -1087,14 +1087,13 @@ declare module org {
                 }
                 module msg {
                     class KEventMessage implements KMessage {
-                        universeID: number;
-                        timeID: number;
-                        objID: number;
+                        key: data.cache.KContentKey;
                         meta: number[];
                         json(): string;
                         type(): number;
                     }
                     class KGetKeysRequest implements KMessage {
+                        id: number;
                         keys: data.cache.KContentKey[];
                         json(): string;
                         type(): number;
@@ -1104,24 +1103,29 @@ declare module org {
                         type(): number;
                     }
                     class KMessageLoader {
+                        static EVENT_TYPE: number;
+                        static GET_KEYS_TYPE: number;
+                        static PUT_TYPE: number;
+                        static OPERATION_CALL_TYPE: number;
+                        static OPERATION_RESULT_TYPE: number;
                         static load(payload: string): KMessage;
                     }
                     class KOperationCallMessage implements KMessage {
-                        universeID: number;
-                        timeID: number;
-                        objID: number;
+                        id: number;
+                        key: data.cache.KContentKey;
                         params: string[];
                         json(): string;
                         type(): number;
                     }
                     class KOperationResultMessage implements KMessage {
-                        listenerID: number;
+                        id: number;
                         result: string;
                         json(): string;
                         type(): number;
                     }
                     class KPutRequest implements KMessage {
                         request: data.cdn.KContentPutRequest;
+                        id: number;
                         json(): string;
                         type(): number;
                     }

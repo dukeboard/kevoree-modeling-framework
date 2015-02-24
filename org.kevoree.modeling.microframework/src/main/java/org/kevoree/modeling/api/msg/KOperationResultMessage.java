@@ -14,15 +14,14 @@ public class KOperationResultMessage implements KMessage {
         StringBuilder buffer = new StringBuilder();
         buffer.append("{\n\"type\":\"");
         buffer.append(type());
+        buffer.append("\"\n");
         if (id != null) {
-            buffer.append("\",\n");
-            buffer.append("\"id\":\"");
+            buffer.append(",\"id\":\"");
             buffer.append(id.toString());
             buffer.append("\"\n");
         }
         if (result != null) {
-            buffer.append("\",\n");
-            buffer.append("\"result\":\"");
+            buffer.append(",\"result\":\"");
             buffer.append(result);
             buffer.append("\"\n");
         }
@@ -32,6 +31,6 @@ public class KOperationResultMessage implements KMessage {
 
     @Override
     public int type() {
-        return KMessage.OPERATION_RESULT_TYPE;
+        return KMessageLoader.OPERATION_RESULT_TYPE;
     }
 }

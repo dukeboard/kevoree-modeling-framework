@@ -9,7 +9,7 @@ public class KPutRequest implements KMessage {
 
     public KContentPutRequest request;
 
-    public Integer id;
+    public Long id;
 
     @Override
     public String json() {
@@ -51,6 +51,6 @@ public class KPutRequest implements KMessage {
 
     @Override
     public int type() {
-        return KMessage.PUT_TYPE;
+        return KMessageLoader.PUT_TYPE;
     }
 }

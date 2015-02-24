@@ -42,6 +42,6 @@ public class KEventMessage implements KMessage {
 
     @Override
     public int type() {
-        return KMessage.EVENT_TYPE;
+        return KMessageLoader.EVENT_TYPE;
     }
 }
