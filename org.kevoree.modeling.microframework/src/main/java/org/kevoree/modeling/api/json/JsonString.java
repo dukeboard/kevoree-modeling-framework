@@ -99,6 +99,21 @@ public class JsonString {
                     case 't':
                         builder.append('\t');
                         break;
+                    case '{':
+                        builder.append("\\{");
+                        break;
+                    case '}':
+                        builder.append("\\}");
+                        break;
+                    case '[':
+                        builder.append("\\[");
+                        break;
+                    case ']':
+                        builder.append("\\]");
+                        break;
+                    case ',':
+                        builder.append("\\,");
+                        break;
                 }
 
             } else {
