@@ -31,8 +31,8 @@ declare module org {
                 interface KCurrentDefer<A> extends KDefer<any> {
                     resultKeys(): string[];
                     resultByName(name: string): any;
-                    resultByTask(task: KDefer<any>): any;
-                    addTaskResult(result: A): void;
+                    resultByDefer(defer: KDefer<any>): any;
+                    addDeferResult(result: A): void;
                     clearResults(): void;
                 }
                 interface KDefer<A> {
@@ -230,8 +230,8 @@ declare module org {
                         getName(): string;
                         resultKeys(): string[];
                         resultByName(p_name: string): any;
-                        resultByTask(p_task: KDefer<any>): any;
-                        addTaskResult(p_result: A): void;
+                        resultByDefer(defer: KDefer<any>): any;
+                        addDeferResult(p_result: A): void;
                         clearResults(): void;
                         getResult(): A;
                         isDone(): boolean;
@@ -1617,6 +1617,7 @@ declare module org {
                         private _initAction;
                         private _lastAction;
                         private _terminated;
+                        private static TERMINATED_MESSAGE;
                         constructor(p_root: KObject, p_initAction: KTraversalAction);
                         traverse(p_metaReference: meta.MetaReference): KTraversal;
                         traverseQuery(p_metaReferenceQuery: string): KTraversal;
@@ -1627,10 +1628,8 @@ declare module org {
                         reverse(p_metaReference: meta.MetaReference): KTraversal;
                         reverseQuery(p_metaReferenceQuery: string): KTraversal;
                         parents(): KTraversal;
-                        then(callback: (p: KObject[]) => void): void;
-                        map(attribute: meta.MetaAttribute, callback: (p: any[]) => void): void;
-                        taskThen(): KDefer<any>;
-                        taskMap(attribute: meta.MetaAttribute): KDefer<any>;
+                        then(): KDefer<any>;
+                        map(attribute: meta.MetaAttribute): KDefer<any>;
                     }
                     interface KTraversal {
                         traverse(metaReference: meta.MetaReference): KTraversal;
@@ -1642,10 +1641,8 @@ declare module org {
                         reverse(metaReference: meta.MetaReference): KTraversal;
                         reverseQuery(metaReferenceQuery: string): KTraversal;
                         parents(): KTraversal;
-                        then(callback: (p: KObject[]) => void): void;
-                        map(attribute: meta.MetaAttribute, callback: (p: any[]) => void): void;
-                        taskThen(): KDefer<any>;
-                        taskMap(attribute: meta.MetaAttribute): KDefer<any>;
+                        then(): KDefer<any>;
+                        map(attribute: meta.MetaAttribute): KDefer<any>;
                     }
                     interface KTraversalAction {
                         chain(next: KTraversalAction): void;

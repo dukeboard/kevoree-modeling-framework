@@ -310,10 +310,10 @@ var org;
                         AbstractKDefer.prototype.resultByName = function (p_name) {
                             return this._results.get(p_name);
                         };
-                        AbstractKDefer.prototype.resultByTask = function (p_task) {
-                            return this._results.get(p_task.getName());
+                        AbstractKDefer.prototype.resultByDefer = function (defer) {
+                            return this._results.get(defer.getName());
                         };
-                        AbstractKDefer.prototype.addTaskResult = function (p_result) {
+                        AbstractKDefer.prototype.addDeferResult = function (p_result) {
                             this._result = p_result;
                         };
                         AbstractKDefer.prototype.clearResults = function () {
@@ -345,7 +345,7 @@ var org;
                             var selfPointer = this;
                             this._callback = function (a) {
                                 selfPointer._isReady = true;
-                                selfPointer.addTaskResult(a);
+                                selfPointer.addDeferResult(a);
                                 selfPointer.setDoneOrRegister(null);
                             };
                         }
@@ -9035,7 +9035,7 @@ var org;
                         }
                         DefaultKTraversal.prototype.traverse = function (p_metaReference) {
                             if (this._terminated) {
-                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
                             }
                             var tempAction = new org.kevoree.modeling.api.traversal.actions.KTraverseAction(p_metaReference);
                             this._lastAction.chain(tempAction);
@@ -9044,7 +9044,7 @@ var org;
                         };
                         DefaultKTraversal.prototype.traverseQuery = function (p_metaReferenceQuery) {
                             if (this._terminated) {
-                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
                             }
                             var tempAction = new org.kevoree.modeling.api.traversal.actions.KTraverseQueryAction(p_metaReferenceQuery);
                             this._lastAction.chain(tempAction);
@@ -9053,7 +9053,7 @@ var org;
                         };
                         DefaultKTraversal.prototype.withAttribute = function (p_attribute, p_expectedValue) {
                             if (this._terminated) {
-                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
                             }
                             var tempAction = new org.kevoree.modeling.api.traversal.actions.KFilterAttributeAction(p_attribute, p_expectedValue);
                             this._lastAction.chain(tempAction);
@@ -9062,7 +9062,7 @@ var org;
                         };
                         DefaultKTraversal.prototype.withoutAttribute = function (p_attribute, p_expectedValue) {
                             if (this._terminated) {
-                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
                             }
                             var tempAction = new org.kevoree.modeling.api.traversal.actions.KFilterNotAttributeAction(p_attribute, p_expectedValue);
                             this._lastAction.chain(tempAction);
@@ -9071,7 +9071,7 @@ var org;
                         };
                         DefaultKTraversal.prototype.attributeQuery = function (p_attributeQuery) {
                             if (this._terminated) {
-                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
                             }
                             var tempAction = new org.kevoree.modeling.api.traversal.actions.KFilterAttributeQueryAction(p_attributeQuery);
                             this._lastAction.chain(tempAction);
@@ -9080,7 +9080,7 @@ var org;
                         };
                         DefaultKTraversal.prototype.filter = function (p_filter) {
                             if (this._terminated) {
-                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
                             }
                             var tempAction = new org.kevoree.modeling.api.traversal.actions.KFilterAction(p_filter);
                             this._lastAction.chain(tempAction);
@@ -9089,7 +9089,7 @@ var org;
                         };
                         DefaultKTraversal.prototype.reverse = function (p_metaReference) {
                             if (this._terminated) {
-                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
                             }
                             var tempAction = new org.kevoree.modeling.api.traversal.actions.KReverseAction(p_metaReference);
                             this._lastAction.chain(tempAction);
@@ -9098,7 +9098,7 @@ var org;
                         };
                         DefaultKTraversal.prototype.reverseQuery = function (p_metaReferenceQuery) {
                             if (this._terminated) {
-                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
                             }
                             var tempAction = new org.kevoree.modeling.api.traversal.actions.KReverseQueryAction(p_metaReferenceQuery);
                             this._lastAction.chain(tempAction);
@@ -9107,33 +9107,28 @@ var org;
                         };
                         DefaultKTraversal.prototype.parents = function () {
                             if (this._terminated) {
-                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
                             }
                             var tempAction = new org.kevoree.modeling.api.traversal.actions.KParentsAction();
                             this._lastAction.chain(tempAction);
                             this._lastAction = tempAction;
                             return this;
                         };
-                        DefaultKTraversal.prototype.then = function (callback) {
-                            this._terminated = true;
-                            this._lastAction.chain(new org.kevoree.modeling.api.traversal.actions.KFinalAction(callback));
-                            this._initAction.execute(this._initObjs);
-                        };
-                        DefaultKTraversal.prototype.map = function (attribute, callback) {
-                            this._terminated = true;
-                            this._lastAction.chain(new org.kevoree.modeling.api.traversal.actions.KMapAction(attribute, callback));
-                            this._initAction.execute(this._initObjs);
-                        };
-                        DefaultKTraversal.prototype.taskThen = function () {
+                        DefaultKTraversal.prototype.then = function () {
                             var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
-                            this.then(task.initCallback());
+                            this._terminated = true;
+                            this._lastAction.chain(new org.kevoree.modeling.api.traversal.actions.KFinalAction(task.initCallback()));
+                            this._initAction.execute(this._initObjs);
                             return task;
                         };
-                        DefaultKTraversal.prototype.taskMap = function (attribute) {
+                        DefaultKTraversal.prototype.map = function (attribute) {
                             var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
-                            this.map(attribute, task.initCallback());
+                            this._terminated = true;
+                            this._lastAction.chain(new org.kevoree.modeling.api.traversal.actions.KMapAction(attribute, task.initCallback()));
+                            this._initAction.execute(this._initObjs);
                             return task;
                         };
+                        DefaultKTraversal.TERMINATED_MESSAGE = "Promise is terminated by the call of then method, please create another promise";
                         return DefaultKTraversal;
                     })();
                     traversal.DefaultKTraversal = DefaultKTraversal;
@@ -10079,7 +10074,7 @@ var org;
                                     current = current.attributeQuery(extracted.get(i).params);
                                 }
                                 if (current != null) {
-                                    current.then(callback);
+                                    current.then().then(callback);
                                 }
                                 else {
                                     callback(new Array());
@@ -10754,7 +10749,7 @@ var org;
                             thisTask.wait(allTask);
                             thisTask.setJob(function (currentTask) {
                                 try {
-                                    var objects = currentTask.resultByTask(allTask);
+                                    var objects = currentTask.resultByDefer(allTask);
                                     for (var i = 0; i < objects.length; i++) {
                                         var adjustedAddress = p_context.addressTable.get(objects[i].uuid());
                                         p_context.printer.append(" " + ref.metaName() + "=\"" + adjustedAddress + "\"");
@@ -10776,8 +10771,8 @@ var org;
                             thisTask.wait(allTask);
                             thisTask.setJob(function (currentTask) {
                                 try {
-                                    if (currentTask.resultByTask(allTask) != null) {
-                                        var objs = currentTask.resultByTask(allTask);
+                                    if (currentTask.resultByDefer(allTask) != null) {
+                                        var objs = currentTask.resultByDefer(allTask);
                                         for (var i = 0; i < objs.length; i++) {
                                             var elem = objs[i];
                                             context.printer.append("<");

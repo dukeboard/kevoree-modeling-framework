@@ -1,6 +1,5 @@
 package org.kevoree.modeling.api.traversal;
 
-import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KDefer;
 import org.kevoree.modeling.api.meta.MetaAttribute;
@@ -29,13 +28,9 @@ public interface KTraversal {
 
     public KTraversal parents();
 
-    public void then(Callback<KObject[]> callback);
+    public KDefer<KObject[]> then();
 
-    public void map(MetaAttribute attribute, Callback<Object[]> callback);
-
-    public KDefer<KObject[]> taskThen();
-
-    public KDefer<Object[]> taskMap(MetaAttribute attribute);
+    public KDefer<Object[]> map(MetaAttribute attribute);
 
 }
 

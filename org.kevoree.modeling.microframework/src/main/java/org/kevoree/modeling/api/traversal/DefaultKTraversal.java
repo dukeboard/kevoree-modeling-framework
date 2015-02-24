@@ -1,6 +1,5 @@
 package org.kevoree.modeling.api.traversal;
 
-import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KDefer;
 import org.kevoree.modeling.api.abs.AbstractKDeferWrapper;
@@ -130,36 +129,25 @@ public class DefaultKTraversal implements KTraversal {
     }
 
     @Override
-    public void then(Callback<KObject[]> callback) {
-        _terminated = true;
-        //set the terminal leaf action
-        _lastAction.chain(new KFinalAction(callback));
-        //execute the first element of the chain of actions
-        _initAction.execute(_initObjs);
-    }
-
-    @Override
-    public void map(MetaAttribute attribute, Callback<Object[]> callback) {
-        _terminated = true;
-        //set the terminal leaf action
-        _lastAction.chain(new KMapAction(attribute, callback));
-        //execute the first element of the chain of actions
-        _initAction.execute(_initObjs);
-    }
-
-    @Override
-    public KDefer<KObject[]> taskThen() {
+    public KDefer<KObject[]> then() {
         AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
-        then(task.initCallback());
+        _terminated = true;
+        //set the terminal leaf action
+        _lastAction.chain(new KFinalAction(task.initCallback()));
+        //execute the first element of the chain of actions
+        _initAction.execute(_initObjs);
         return task;
     }
 
     @Override
-    public KDefer<Object[]> taskMap(MetaAttribute attribute) {
+    public KDefer<Object[]> map(MetaAttribute attribute) {
         AbstractKDeferWrapper<Object[]> task = new AbstractKDeferWrapper<Object[]>();
-        map(attribute, task.initCallback());
+        _terminated = true;
+        //set the terminal leaf action
+        _lastAction.chain(new KMapAction(attribute, task.initCallback()));
+        //execute the first element of the chain of actions
+        _initAction.execute(_initObjs);
         return task;
     }
-
 
 }

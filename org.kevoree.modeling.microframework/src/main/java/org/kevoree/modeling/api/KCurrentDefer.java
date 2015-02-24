@@ -9,9 +9,9 @@ public interface KCurrentDefer<A> extends KDefer<A> {
 
     public Object resultByName(String name);
 
-    public Object resultByTask(KDefer task);
+    public Object resultByDefer(KDefer defer);
 
-    public void addTaskResult(A result);
+    public void addDeferResult(A result);
 
     public void clearResults();
 

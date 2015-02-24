@@ -42,7 +42,7 @@ public class KSelector {
             current = current.attributeQuery(extracted.get(i).params);
         }
         if (current != null) {
-            current.then(callback);
+            current.then().then(callback);
         } else {
             callback.on(new KObject[0]);
         }

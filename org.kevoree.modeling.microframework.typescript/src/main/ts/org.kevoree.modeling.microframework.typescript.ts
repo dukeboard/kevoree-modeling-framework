@@ -80,9 +80,9 @@ module org {
 
                     resultByName(name: string): any;
 
-                    resultByTask(task: org.kevoree.modeling.api.KDefer<any>): any;
+                    resultByDefer(defer: org.kevoree.modeling.api.KDefer<any>): any;
 
-                    addTaskResult(result: A): void;
+                    addDeferResult(result: A): void;
 
                     clearResults(): void;
 
@@ -603,11 +603,11 @@ module org {
                             return this._results.get(p_name);
                         }
 
-                        public resultByTask(p_task: org.kevoree.modeling.api.KDefer<any>): any {
-                            return this._results.get(p_task.getName());
+                        public resultByDefer(defer: org.kevoree.modeling.api.KDefer<any>): any {
+                            return this._results.get(defer.getName());
                         }
 
-                        public addTaskResult(p_result: A): void {
+                        public addDeferResult(p_result: A): void {
                             this._result = p_result;
                         }
 
@@ -642,7 +642,7 @@ module org {
                             var selfPointer: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = this;
                             this._callback =  (a : A) => {
                                 selfPointer._isReady = true;
-                                selfPointer.addTaskResult(a);
+                                selfPointer.addDeferResult(a);
                                 selfPointer.setDoneOrRegister(null);
                             };
                         }
@@ -9857,6 +9857,7 @@ module org {
                         private _initAction: org.kevoree.modeling.api.traversal.KTraversalAction;
                         private _lastAction: org.kevoree.modeling.api.traversal.KTraversalAction;
                         private _terminated: boolean = false;
+                        private static TERMINATED_MESSAGE: string = "Promise is terminated by the call of then method, please create another promise";
                         constructor(p_root: org.kevoree.modeling.api.KObject, p_initAction: org.kevoree.modeling.api.traversal.KTraversalAction) {
                             this._initAction = p_initAction;
                             this._initObjs = new Array();
@@ -9866,7 +9867,7 @@ module org {
 
                         public traverse(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.traversal.KTraversal {
                             if (this._terminated) {
-                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
                             }
                             var tempAction: org.kevoree.modeling.api.traversal.actions.KTraverseAction = new org.kevoree.modeling.api.traversal.actions.KTraverseAction(p_metaReference);
                             this._lastAction.chain(tempAction);
@@ -9876,7 +9877,7 @@ module org {
 
                         public traverseQuery(p_metaReferenceQuery: string): org.kevoree.modeling.api.traversal.KTraversal {
                             if (this._terminated) {
-                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
                             }
                             var tempAction: org.kevoree.modeling.api.traversal.actions.KTraverseQueryAction = new org.kevoree.modeling.api.traversal.actions.KTraverseQueryAction(p_metaReferenceQuery);
                             this._lastAction.chain(tempAction);
@@ -9886,7 +9887,7 @@ module org {
 
                         public withAttribute(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_expectedValue: any): org.kevoree.modeling.api.traversal.KTraversal {
                             if (this._terminated) {
-                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
                             }
                             var tempAction: org.kevoree.modeling.api.traversal.actions.KFilterAttributeAction = new org.kevoree.modeling.api.traversal.actions.KFilterAttributeAction(p_attribute, p_expectedValue);
                             this._lastAction.chain(tempAction);
@@ -9896,7 +9897,7 @@ module org {
 
                         public withoutAttribute(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_expectedValue: any): org.kevoree.modeling.api.traversal.KTraversal {
                             if (this._terminated) {
-                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
                             }
                             var tempAction: org.kevoree.modeling.api.traversal.actions.KFilterNotAttributeAction = new org.kevoree.modeling.api.traversal.actions.KFilterNotAttributeAction(p_attribute, p_expectedValue);
                             this._lastAction.chain(tempAction);
@@ -9906,7 +9907,7 @@ module org {
 
                         public attributeQuery(p_attributeQuery: string): org.kevoree.modeling.api.traversal.KTraversal {
                             if (this._terminated) {
-                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
                             }
                             var tempAction: org.kevoree.modeling.api.traversal.actions.KFilterAttributeQueryAction = new org.kevoree.modeling.api.traversal.actions.KFilterAttributeQueryAction(p_attributeQuery);
                             this._lastAction.chain(tempAction);
@@ -9916,7 +9917,7 @@ module org {
 
                         public filter(p_filter: (p : org.kevoree.modeling.api.KObject) => boolean): org.kevoree.modeling.api.traversal.KTraversal {
                             if (this._terminated) {
-                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
                             }
                             var tempAction: org.kevoree.modeling.api.traversal.actions.KFilterAction = new org.kevoree.modeling.api.traversal.actions.KFilterAction(p_filter);
                             this._lastAction.chain(tempAction);
@@ -9926,7 +9927,7 @@ module org {
 
                         public reverse(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.traversal.KTraversal {
                             if (this._terminated) {
-                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
                             }
                             var tempAction: org.kevoree.modeling.api.traversal.actions.KReverseAction = new org.kevoree.modeling.api.traversal.actions.KReverseAction(p_metaReference);
                             this._lastAction.chain(tempAction);
@@ -9936,7 +9937,7 @@ module org {
 
                         public reverseQuery(p_metaReferenceQuery: string): org.kevoree.modeling.api.traversal.KTraversal {
                             if (this._terminated) {
-                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
                             }
                             var tempAction: org.kevoree.modeling.api.traversal.actions.KReverseQueryAction = new org.kevoree.modeling.api.traversal.actions.KReverseQueryAction(p_metaReferenceQuery);
                             this._lastAction.chain(tempAction);
@@ -9946,7 +9947,7 @@ module org {
 
                         public parents(): org.kevoree.modeling.api.traversal.KTraversal {
                             if (this._terminated) {
-                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
                             }
                             var tempAction: org.kevoree.modeling.api.traversal.actions.KParentsAction = new org.kevoree.modeling.api.traversal.actions.KParentsAction();
                             this._lastAction.chain(tempAction);
@@ -9954,27 +9955,19 @@ module org {
                             return this;
                         }
 
-                        public then(callback: (p : org.kevoree.modeling.api.KObject[]) => void): void {
-                            this._terminated = true;
-                            this._lastAction.chain(new org.kevoree.modeling.api.traversal.actions.KFinalAction(callback));
-                            this._initAction.execute(this._initObjs);
-                        }
-
-                        public map(attribute: org.kevoree.modeling.api.meta.MetaAttribute, callback: (p : any[]) => void): void {
-                            this._terminated = true;
-                            this._lastAction.chain(new org.kevoree.modeling.api.traversal.actions.KMapAction(attribute, callback));
-                            this._initAction.execute(this._initObjs);
-                        }
-
-                        public taskThen(): org.kevoree.modeling.api.KDefer<any> {
+                        public then(): org.kevoree.modeling.api.KDefer<any> {
                             var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
-                            this.then(task.initCallback());
+                            this._terminated = true;
+                            this._lastAction.chain(new org.kevoree.modeling.api.traversal.actions.KFinalAction(task.initCallback()));
+                            this._initAction.execute(this._initObjs);
                             return task;
                         }
 
-                        public taskMap(attribute: org.kevoree.modeling.api.meta.MetaAttribute): org.kevoree.modeling.api.KDefer<any> {
+                        public map(attribute: org.kevoree.modeling.api.meta.MetaAttribute): org.kevoree.modeling.api.KDefer<any> {
                             var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
-                            this.map(attribute, task.initCallback());
+                            this._terminated = true;
+                            this._lastAction.chain(new org.kevoree.modeling.api.traversal.actions.KMapAction(attribute, task.initCallback()));
+                            this._initAction.execute(this._initObjs);
                             return task;
                         }
 
@@ -10000,13 +9993,9 @@ module org {
 
                         parents(): org.kevoree.modeling.api.traversal.KTraversal;
 
-                        then(callback: (p : org.kevoree.modeling.api.KObject[]) => void): void;
+                        then(): org.kevoree.modeling.api.KDefer<any>;
 
-                        map(attribute: org.kevoree.modeling.api.meta.MetaAttribute, callback: (p : any[]) => void): void;
-
-                        taskThen(): org.kevoree.modeling.api.KDefer<any>;
-
-                        taskMap(attribute: org.kevoree.modeling.api.meta.MetaAttribute): org.kevoree.modeling.api.KDefer<any>;
+                        map(attribute: org.kevoree.modeling.api.meta.MetaAttribute): org.kevoree.modeling.api.KDefer<any>;
 
                     }
 
@@ -10959,7 +10948,7 @@ module org {
                                     current = current.attributeQuery(extracted.get(i).params);
                                 }
                                 if (current != null) {
-                                    current.then(callback);
+                                    current.then().then(callback);
                                 } else {
                                     callback(new Array());
                                 }
@@ -11638,7 +11627,7 @@ module org {
                             thisTask.wait(allTask);
                             thisTask.setJob( (currentTask : org.kevoree.modeling.api.KCurrentDefer<any>) => {
                                 try {
-                                    var objects: org.kevoree.modeling.api.KObject[] = (<org.kevoree.modeling.api.KObject[]>currentTask.resultByTask(allTask));
+                                    var objects: org.kevoree.modeling.api.KObject[] = (<org.kevoree.modeling.api.KObject[]>currentTask.resultByDefer(allTask));
                                     for (var i: number = 0; i < objects.length; i++) {
                                         var adjustedAddress: string = p_context.addressTable.get(objects[i].uuid());
                                         p_context.printer.append(" " + ref.metaName() + "=\"" + adjustedAddress + "\"");
@@ -11660,8 +11649,8 @@ module org {
                             thisTask.wait(allTask);
                             thisTask.setJob( (currentTask : org.kevoree.modeling.api.KCurrentDefer<any>) => {
                                 try {
-                                    if (currentTask.resultByTask(allTask) != null) {
-                                        var objs: org.kevoree.modeling.api.KObject[] = (<org.kevoree.modeling.api.KObject[]>currentTask.resultByTask(allTask));
+                                    if (currentTask.resultByDefer(allTask) != null) {
+                                        var objs: org.kevoree.modeling.api.KObject[] = (<org.kevoree.modeling.api.KObject[]>currentTask.resultByDefer(allTask));
                                         for (var i: number = 0; i < objs.length; i++) {
                                             var elem: org.kevoree.modeling.api.KObject = objs[i];
                                             context.printer.append("<");

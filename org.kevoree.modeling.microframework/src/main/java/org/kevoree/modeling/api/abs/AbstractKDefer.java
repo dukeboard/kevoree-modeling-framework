@@ -139,12 +139,12 @@ public class AbstractKDefer<A> implements KCurrentDefer<A> {
     }
 
     @Override
-    public Object resultByTask(KDefer p_task) {
-        return _results.get(p_task.getName());
+    public Object resultByDefer(KDefer defer) {
+        return _results.get(defer.getName());
     }
 
     @Override
-    public void addTaskResult(A p_result) {
+    public void addDeferResult(A p_result) {
         _result = p_result;
     }
 

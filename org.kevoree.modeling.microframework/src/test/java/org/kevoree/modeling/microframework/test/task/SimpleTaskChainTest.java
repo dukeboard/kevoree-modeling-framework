@@ -25,14 +25,14 @@ public class SimpleTaskChainTest {
         fakePromise1.setJob(new KJob() {
             @Override
             public void run(KCurrentDefer currentTask) {
-                currentTask.addTaskResult("Sample1");
+                currentTask.addDeferResult("Sample1");
             }
         });
         KDefer fakePromise2 = dynamicKModel.defer();
         fakePromise2.setJob(new KJob() {
             @Override
             public void run(KCurrentDefer currentTask) {
-                currentTask.addTaskResult("Sample2");
+                currentTask.addDeferResult("Sample2");
             }
         });
 
@@ -44,8 +44,8 @@ public class SimpleTaskChainTest {
         rootTask.setJob(new KJob() {
             @Override
             public void run(KCurrentDefer currentTask) {
-                Assert.assertEquals(currentTask.resultByTask(fakePromise1), "Sample1");
-                Assert.assertEquals(currentTask.resultByTask(fakePromise2), "Sample2");
+                Assert.assertEquals(currentTask.resultByDefer(fakePromise1), "Sample1");
+                Assert.assertEquals(currentTask.resultByDefer(fakePromise2), "Sample2");
                 calls[0] = 1;
             }
         });
@@ -68,14 +68,14 @@ public class SimpleTaskChainTest {
         fakePromise1.setJob(new KJob() {
             @Override
             public void run(KCurrentDefer currentTask) {
-                currentTask.addTaskResult("Sample1");
+                currentTask.addDeferResult("Sample1");
             }
         });
         KDefer fakePromise2 = dynamicKModel.defer();
         fakePromise2.setJob(new KJob() {
             @Override
             public void run(KCurrentDefer currentTask) {
-                currentTask.addTaskResult("Sample2");
+                currentTask.addDeferResult("Sample2");
             }
         });
 
@@ -87,8 +87,8 @@ public class SimpleTaskChainTest {
         rootTask.setJob(new KJob() {
             @Override
             public void run(KCurrentDefer currentTask) {
-                Assert.assertEquals(currentTask.resultByTask(fakePromise1), "Sample1");
-                Assert.assertEquals(currentTask.resultByTask(fakePromise2), "Sample2");
+                Assert.assertEquals(currentTask.resultByDefer(fakePromise1), "Sample1");
+                Assert.assertEquals(currentTask.resultByDefer(fakePromise2), "Sample2");
                 calls[0] = 1;
             }
         });
@@ -124,8 +124,8 @@ public class SimpleTaskChainTest {
             @Override
             public void run(KCurrentDefer currentTask) {
                 res[0] = currentTask.resultKeys().length;
-                res2[0] = currentTask.resultByTask(previousSelect);
-                res2[1] = currentTask.resultByTask(previousSelect2);
+                res2[0] = currentTask.resultByDefer(previousSelect);
+                res2[1] = currentTask.resultByDefer(previousSelect2);
             }
         });
         rootTask.ready();

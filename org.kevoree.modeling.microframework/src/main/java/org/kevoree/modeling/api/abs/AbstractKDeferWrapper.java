@@ -18,7 +18,7 @@ public class AbstractKDeferWrapper<A> extends AbstractKDefer<A> {
             @Override
             public void on(A a) {
                 selfPointer._isReady = true;
-                selfPointer.addTaskResult(a);
+                selfPointer.addDeferResult(a);
                 selfPointer.setDoneOrRegister(null);
             }
         };
