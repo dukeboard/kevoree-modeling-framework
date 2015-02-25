@@ -10,6 +10,7 @@ import org.kevoree.modeling.api.data.cdn.AtomicOperation;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
 import org.kevoree.modeling.api.data.manager.KDataManager;
+import org.kevoree.modeling.api.msg.KEventMessage;
 import org.kevoree.modeling.api.msg.KMessage;
 import org.kevoree.modeling.api.util.LocalEventListeners;
 import org.rocksdb.*;
@@ -119,13 +120,6 @@ public class RocksDbContentDeliveryDriver implements KContentDeliveryDriver {
         }
     }
 
-    private MultiLayeredMemoryCache _cache = new MultiLayeredMemoryCache();
-
-    @Override
-    public KCache cache() {
-        return _cache;
-    }
-
     private LocalEventListeners localEventListeners = new LocalEventListeners();
 
     @Override
@@ -140,7 +134,7 @@ public class RocksDbContentDeliveryDriver implements KContentDeliveryDriver {
 
 
     @Override
-    public void send(KMessage[] msgs) {
+    public void send(KEventMessage[] msgs) {
 
     }
 

@@ -30,8 +30,6 @@ public interface KContentDeliveryDriver {
 
     public void close(Callback<Throwable> callback);
 
-    public KCache cache();
-
     void registerListener(Object origin, KEventListener listener, Object scope);
 
     void unregister(KEventListener listener);

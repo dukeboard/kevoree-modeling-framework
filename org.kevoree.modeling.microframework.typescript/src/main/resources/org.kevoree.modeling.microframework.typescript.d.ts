@@ -45,6 +45,10 @@ declare module org {
                     then(callback: (p: A) => void): void;
                     setName(taskName: string): KDefer<any>;
                     getName(): string;
+                    chain(block: (p: KDefer<any>) => KDefer<any>): KDefer<any>;
+                }
+                interface KDeferBlock {
+                    exec(previous: KDefer<any>): KDefer<any>;
                 }
                 interface KEventListener {
                     on(src: KObject, modifications: meta.Meta[]): void;
@@ -228,6 +232,7 @@ declare module org {
                         then(p_callback: (p: A) => void): void;
                         setName(p_taskName: string): KDefer<any>;
                         getName(): string;
+                        chain(p_block: (p: KDefer<any>) => KDefer<any>): KDefer<any>;
                         resultKeys(): string[];
                         resultByName(p_name: string): any;
                         resultByDefer(defer: KDefer<any>): any;
@@ -471,6 +476,7 @@ declare module org {
                             modifiedIndexes(): number[];
                             serialize(): string;
                             setClean(): void;
+                            unserialize(key: KContentKey, payload: string, metaModel: meta.MetaModel): void;
                             get(index: number): any;
                             set(index: number, content: any): void;
                             sizeRaw(): number;
@@ -489,6 +495,7 @@ declare module org {
                             isDirty(): boolean;
                             serialize(): string;
                             setClean(): void;
+                            unserialize(key: KContentKey, payload: string, metaModel: meta.MetaModel): void;
                         }
                         class KContentKey {
                             static ELEM_SIZE: number;
@@ -531,19 +538,24 @@ declare module org {
                     }
                     module cdn {
                         interface AtomicOperation {
+                            operationKey(): number;
                             mutate(previous: string): string;
                         }
+                        class AtomicOperationFactory {
+                            static PREFIX_MUTATE_OPERATION: number;
+                            static getMutatePrefixOperation(): AtomicOperation;
+                            static getOperationWithKey(key: number): AtomicOperation;
+                        }
                         interface KContentDeliveryDriver {
-                            atomicGetMutate(key: cache.KContentKey, operation: (p: string) => string, callback: (p: string, p1: java.lang.Throwable) => void): void;
+                            atomicGetMutate(key: cache.KContentKey, operation: AtomicOperation, callback: (p: string, p1: java.lang.Throwable) => void): void;
                             get(keys: cache.KContentKey[], callback: (p: string[], p1: java.lang.Throwable) => void): void;
                             put(request: KContentPutRequest, error: (p: java.lang.Throwable) => void): void;
                             remove(keys: string[], error: (p: java.lang.Throwable) => void): void;
                             connect(callback: (p: java.lang.Throwable) => void): void;
                             close(callback: (p: java.lang.Throwable) => void): void;
-                            cache(): cache.KCache;
                             registerListener(origin: any, listener: (p: KObject, p1: meta.Meta[]) => void, scope: any): void;
                             unregister(listener: (p: KObject, p1: meta.Meta[]) => void): void;
-                            send(msgs: msg.KMessage[]): void;
+                            send(msgs: msg.KEventMessage[]): void;
                             setManager(manager: manager.KDataManager): void;
                         }
                         class KContentPutRequest {
@@ -561,18 +573,16 @@ declare module org {
                         class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
                             private backend;
                             static DEBUG: boolean;
-                            private _cache;
                             private localEventListeners;
-                            atomicGetMutate(key: cache.KContentKey, operation: (p: string) => string, callback: (p: string, p1: java.lang.Throwable) => void): void;
+                            atomicGetMutate(key: cache.KContentKey, operation: AtomicOperation, callback: (p: string, p1: java.lang.Throwable) => void): void;
                             get(keys: cache.KContentKey[], callback: (p: string[], p1: java.lang.Throwable) => void): void;
                             put(p_request: KContentPutRequest, p_callback: (p: java.lang.Throwable) => void): void;
                             remove(keys: string[], callback: (p: java.lang.Throwable) => void): void;
                             connect(callback: (p: java.lang.Throwable) => void): void;
                             close(callback: (p: java.lang.Throwable) => void): void;
-                            cache(): cache.KCache;
                             registerListener(p_origin: any, p_listener: (p: KObject, p1: meta.Meta[]) => void, p_scope: any): void;
                             unregister(p_listener: (p: KObject, p1: meta.Meta[]) => void): void;
-                            send(msgs: msg.KMessage[]): void;
+                            send(msgs: msg.KEventMessage[]): void;
                             setManager(manager: manager.KDataManager): void;
                         }
                     }
@@ -598,6 +608,7 @@ declare module org {
                             private UNIVERSE_INDEX;
                             private OBJ_INDEX;
                             private GLO_TREE_INDEX;
+                            private _cache;
                             constructor(model: KModel<any>);
                             model(): KModel<any>;
                             close(callback: (p: java.lang.Throwable) => void): void;
@@ -620,11 +631,14 @@ declare module org {
                             operationManager(): util.KOperationManager;
                             internal_resolve_universe_time(originView: KView, uuids: number[], callback: (p: ResolutionResult[]) => void): void;
                             private internal_resolve_times(originView, uuids, tempResult, callback);
-                            private internal_resolve_universe(universeTree, timeToResolve, currentUniverse);
                             internal_root_load(contentKey: cache.KContentKey, callback: (p: rbtree.LongRBTree) => void): void;
                             getRoot(originView: KView, callback: (p: KObject) => void): void;
                             setRoot(newRoot: KObject, callback: (p: java.lang.Throwable) => void): void;
-                            timeTrees(origin: KObject, start: number, end: number, callback: (p: rbtree.IndexRBTree[]) => void): void;
+                            cache(): cache.KCache;
+                            reload(keys: cache.KContentKey[]): void;
+                            timeTrees(p_origin: KObject, start: number, end: number, callback: (p: rbtree.IndexRBTree[]) => void): void;
+                            private internal_resolve_universe(universeTree, timeToResolve, currentUniverse);
+                            private internal_load(key, payload);
                         }
                         class Index {
                             static PARENT_INDEX: number;
@@ -635,12 +649,13 @@ declare module org {
                         }
                         class JsonRaw {
                             static SEP: string;
-                            static decode(payload: string, currentView: KView, now: number): cache.KCacheEntry;
+                            static decode(payload: string, now: number, metaModel: meta.MetaModel, entry: cache.KCacheEntry): void;
                             static encode(raw: cache.KCacheEntry, uuid: number, p_metaClass: meta.MetaClass, endline: boolean, isRoot: boolean): string;
                         }
                         interface KDataManager {
                             cdn(): cdn.KContentDeliveryDriver;
                             model(): KModel<any>;
+                            cache(): cache.KCache;
                             lookup(originView: KView, key: number, callback: (p: KObject) => void): void;
                             lookupAll(originView: KView, key: number[], callback: (p: KObject[]) => void): void;
                             entry(origin: KObject, accessMode: AccessMode): cache.KCacheEntry;
@@ -661,6 +676,7 @@ declare module org {
                             close(callback: (p: java.lang.Throwable) => void): void;
                             parentUniverseKey(currentUniverseKey: number): number;
                             descendantsUniverseKeys(currentUniverseKey: number): number[];
+                            reload(keys: cache.KContentKey[]): void;
                         }
                         class KeyCalculator {
                             static LONG_LIMIT_JS: number;
@@ -1086,6 +1102,19 @@ declare module org {
                     }
                 }
                 module msg {
+                    class KAtomicGetRequest implements KMessage {
+                        id: number;
+                        key: data.cache.KContentKey;
+                        operation: data.cdn.AtomicOperation;
+                        json(): string;
+                        type(): number;
+                    }
+                    class KAtomicGetResult implements KMessage {
+                        id: number;
+                        value: string;
+                        json(): string;
+                        type(): number;
+                    }
                     class KEventMessage implements KMessage {
                         key: data.cache.KContentKey;
                         meta: number[];
@@ -1116,6 +1145,8 @@ declare module org {
                         static PUT_RES_TYPE: number;
                         static OPERATION_CALL_TYPE: number;
                         static OPERATION_RESULT_TYPE: number;
+                        static ATOMIC_OPERATION_REQUEST_TYPE: number;
+                        static ATOMIC_OPERATION_RESULT_TYPE: number;
                         static load(payload: string): KMessage;
                     }
                     class KOperationCallMessage implements KMessage {
@@ -1345,7 +1376,7 @@ declare module org {
                         serialize(): string;
                         setClean(): void;
                         toString(): string;
-                        unserialize(payload: string): void;
+                        unserialize(key: data.cache.KContentKey, payload: string, metaModel: meta.MetaModel): void;
                         previousOrEqual(key: number): TreeNode;
                         nextOrEqual(key: number): TreeNode;
                         previous(key: number): TreeNode;
@@ -1381,7 +1412,7 @@ declare module org {
                         isDirty(): boolean;
                         serialize(): string;
                         setClean(): void;
-                        unserialize(payload: string): void;
+                        unserialize(key: data.cache.KContentKey, payload: string, metaModel: meta.MetaModel): void;
                         previousOrEqual(key: number): LongTreeNode;
                         nextOrEqual(key: number): LongTreeNode;
                         previous(key: number): LongTreeNode;
@@ -1809,7 +1840,8 @@ declare module org {
                         walk(walker: (p: number) => void): KDefer<any>;
                         walkAsc(walker: (p: number) => void): KDefer<any>;
                         walkDesc(walker: (p: number) => void): KDefer<any>;
-                        private internal_walk(walker, asc, from, to);
+                        private internal_walk(walker, asc);
+                        private internal_walk_range(walker, asc, from, to);
                         walkRangeAsc(walker: (p: number) => void, from: number, to: number): KDefer<any>;
                         walkRangeDesc(walker: (p: number) => void, from: number, to: number): KDefer<any>;
                     }

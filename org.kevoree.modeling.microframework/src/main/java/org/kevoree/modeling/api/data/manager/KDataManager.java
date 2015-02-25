@@ -6,7 +6,9 @@ import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KScheduler;
 import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.data.cache.KCache;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
+import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.api.rbtree.IndexRBTree;
 import org.kevoree.modeling.api.util.KOperationManager;
@@ -21,6 +23,8 @@ public interface KDataManager {
     public KContentDeliveryDriver cdn();
 
     public KModel model();
+
+    public KCache cache();
 
     void lookup(KView originView, Long key, Callback<KObject> callback);
 
@@ -61,5 +65,7 @@ public interface KDataManager {
     public Long parentUniverseKey(Long currentUniverseKey);
 
     public Long[] descendantsUniverseKeys(Long currentUniverseKey);
+
+    public void reload(KContentKey[] keys);
 
 }

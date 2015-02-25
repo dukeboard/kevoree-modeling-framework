@@ -18,7 +18,7 @@ public class LongRBTreeTest {
             tree.insert(i);
         }
         IndexRBTree treeBis = new IndexRBTree();
-        treeBis.unserialize(tree.serialize());
+        treeBis.unserialize(null,tree.serialize(),null);
         Assert.assertEquals(tree.size(), treeBis.size());
     }
 
@@ -29,7 +29,7 @@ public class LongRBTreeTest {
             tree.insert(i, i);
         }
         LongRBTree treeBis = new LongRBTree();
-        treeBis.unserialize(tree.serialize());
+        treeBis.unserialize(null,tree.serialize(),null);
         Assert.assertEquals(tree.size(), treeBis.size());
         for (int i = 0; i < tree.size(); i++) {
             Long resolved = tree.lookup(i);

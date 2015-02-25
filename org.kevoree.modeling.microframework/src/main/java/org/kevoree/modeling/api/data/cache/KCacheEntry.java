@@ -3,6 +3,7 @@ package org.kevoree.modeling.api.data.cache;
 import org.kevoree.modeling.api.KInferState;
 import org.kevoree.modeling.api.data.manager.JsonRaw;
 import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaModel;
 import org.kevoree.modeling.api.rbtree.LongRBTree;
 
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class KCacheEntry implements KCacheObject {
             for (int i = 0; i < _modifiedIndexes.length; i++) {
                 if (_modifiedIndexes[i]) {
                     result[inserted] = i;
-                    inserted = inserted +1;
+                    inserted = inserted + 1;
                 }
             }
             return result;
@@ -61,6 +62,11 @@ public class KCacheEntry implements KCacheObject {
     public void setClean() {
         _dirty = false;
         _modifiedIndexes = null;
+    }
+
+    @Override
+    public void unserialize(KContentKey key, String payload, MetaModel metaModel) throws Exception {
+        JsonRaw.decode(payload, key.part2(), metaModel, this);
     }
 
     public Object get(int index) {

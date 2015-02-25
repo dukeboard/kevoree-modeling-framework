@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.kevoree.modeling.api.data.cache.KCacheObject;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.cache.MultiLayeredMemoryCache;
+import org.kevoree.modeling.api.meta.MetaModel;
 
 /**
  * Created by duke on 20/02/15.
@@ -27,6 +28,11 @@ public class MultiLayeredCacheTest {
 
             @Override
             public void setClean() {
+
+            }
+
+            @Override
+            public void unserialize(KContentKey key, String payload, MetaModel metaModel) throws Exception {
 
             }
         };

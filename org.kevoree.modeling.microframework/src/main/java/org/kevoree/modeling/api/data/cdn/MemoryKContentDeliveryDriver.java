@@ -82,13 +82,6 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
         backend.clear();
     }
 
-    private MultiLayeredMemoryCache _cache = new MultiLayeredMemoryCache();
-
-    @Override
-    public KCache cache() {
-        return _cache;
-    }
-
     /* Events management */
     private LocalEventListeners localEventListeners = new LocalEventListeners();
 

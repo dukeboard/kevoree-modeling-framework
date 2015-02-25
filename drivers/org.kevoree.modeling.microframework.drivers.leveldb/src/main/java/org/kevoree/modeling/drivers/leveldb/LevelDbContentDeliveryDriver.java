@@ -7,9 +7,7 @@ import org.iq80.leveldb.WriteBatch;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KEventListener;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.data.cache.KCache;
 import org.kevoree.modeling.api.data.cache.KContentKey;
-import org.kevoree.modeling.api.data.cache.MultiLayeredMemoryCache;
 import org.kevoree.modeling.api.data.cdn.AtomicOperation;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
@@ -138,13 +136,6 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
                 error.on(e);
             }
         }
-    }
-
-    private MultiLayeredMemoryCache _cache = new MultiLayeredMemoryCache();
-
-    @Override
-    public KCache cache() {
-        return _cache;
     }
 
     private LocalEventListeners localEventListeners = new LocalEventListeners();

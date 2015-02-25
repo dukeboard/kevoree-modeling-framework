@@ -1,6 +1,5 @@
 package org.kevoree.modeling.api.data.manager;
 
-import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.json.*;
 import org.kevoree.modeling.api.meta.*;
@@ -17,9 +16,9 @@ public class JsonRaw {
 
     public static final String SEP = "@";
 
-    public static KCacheEntry decode(String payload, KView currentView, long now) {
+    public static void decode(String payload, long now, MetaModel metaModel, final KCacheEntry entry) {
         if (payload == null) {
-            return null;
+            return;
         }
         Lexer lexer = new Lexer(payload);
         String currentAttributeName = null;
@@ -53,10 +52,8 @@ public class JsonRaw {
         }
         //Consistency check
         if (content.get(JsonModelSerializer.KEY_META) == null) {
-            return null;
+            return;
         } else {
-            KCacheEntry entry = new KCacheEntry();
-            MetaModel metaModel = currentView.universe().model().metaModel();
             //Init metaClass before everything
             entry.metaClass = metaModel.metaClass(content.get(JsonModelSerializer.KEY_META).toString());
             //Init the Raw manager
@@ -156,7 +153,6 @@ public class JsonRaw {
                     }
                 }
             }
-            return entry;
         }
     }
 
