@@ -1,4 +1,4 @@
-package org.kevoree.modeling.databases.leveldb;
+package org.kevoree.modeling.drivers.leveldb;
 
 import org.fusesource.leveldbjni.JniDBFactory;
 import org.iq80.leveldb.DB;
@@ -14,7 +14,7 @@ import org.kevoree.modeling.api.data.cdn.AtomicOperation;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
 import org.kevoree.modeling.api.data.manager.KDataManager;
-import org.kevoree.modeling.api.msg.KMessage;
+import org.kevoree.modeling.api.msg.KEventMessage;
 import org.kevoree.modeling.api.util.LocalEventListeners;
 
 import java.io.File;
@@ -33,17 +33,41 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
 
     private final Lock lock = new ReentrantLock();
 
-    public LevelDbContentDeliveryDriver(String storagePath) throws IOException {
-        File location = new File(storagePath);
+    private String _storagePath = null;
+
+    private boolean _isConnected = false;
+
+    @Override
+    public void connect(Callback<Throwable> callback) {
+        File location = new File(_storagePath);
         if (!location.exists()) {
             location.mkdirs();
         }
         File targetDB = new File(location, "data");
-        db = JniDBFactory.factory.open(targetDB, options);
+        Exception exception = null;
+        try {
+            db = JniDBFactory.factory.open(targetDB, options);
+            _isConnected = true;
+        } catch (Exception e) {
+            exception = e;
+        }
+        //noop
+        if (callback != null) {
+            callback.on(exception);
+        }
     }
+
+    public LevelDbContentDeliveryDriver(String p_storagePath) throws IOException {
+        this._storagePath = p_storagePath;
+    }
+
+    private String _connectedError = "PLEASE CONNECT YOUR DATABASE FIRST";
 
     @Override
     public void atomicGetMutate(KContentKey key, AtomicOperation operation, ThrowableCallback<String> callback) {
+        if (!_isConnected) {
+            throw new RuntimeException(_connectedError);
+        }
         String result = JniDBFactory.asString(db.get(JniDBFactory.bytes(key.toString())));
         String mutated = operation.mutate(result);
         WriteBatch batch = db.createWriteBatch();
@@ -54,6 +78,9 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
 
     @Override
     public void get(KContentKey[] keys, ThrowableCallback<String[]> callback) {
+        if (!_isConnected) {
+            throw new RuntimeException(_connectedError);
+        }
         String[] result = new String[keys.length];
         for (int i = 0; i < keys.length; i++) {
             result[i] = JniDBFactory.asString(db.get(JniDBFactory.bytes(keys[i].toString())));
@@ -65,7 +92,9 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
 
     @Override
     public void put(KContentPutRequest request, Callback<Throwable> error) {
-
+        if (!_isConnected) {
+            throw new RuntimeException(_connectedError);
+        }
         WriteBatch batch = db.createWriteBatch();
         for (int i = 0; i < request.size(); i++) {
             batch.put(JniDBFactory.bytes(request.getKey(i).toString()), JniDBFactory.bytes(request.getContent(i)));
@@ -78,6 +107,9 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
 
     @Override
     public void remove(String[] keys, Callback<Throwable> error) {
+        if (!_isConnected) {
+            throw new RuntimeException(_connectedError);
+        }
         try {
             for (int i = 0; i < keys.length; i++) {
                 db.delete(JniDBFactory.bytes(keys[i]));
@@ -97,6 +129,7 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
         db.write(db.createWriteBatch());
         try {
             db.close();
+            _isConnected = false;
             if (error != null) {
                 error.on(null);
             }
@@ -128,21 +161,13 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
 
 
     @Override
-    public void send(KMessage[] msgs) {
+    public void send(KEventMessage[] msgs) {
 
     }
 
     @Override
     public void setManager(KDataManager manager) {
 
-    }
-
-    @Override
-    public void connect(Callback<Throwable> callback) {
-        //noop
-        if (callback != null) {
-            callback.on(null);
-        }
     }
 
 }

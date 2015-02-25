@@ -23,4 +23,6 @@ public interface KDefer<A> {
 
     public String getName();
 
+    public KDefer<Object> chain(KDeferBlock block);
+
 }

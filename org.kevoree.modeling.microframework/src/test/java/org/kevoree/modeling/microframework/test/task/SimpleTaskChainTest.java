@@ -2,11 +2,7 @@ package org.kevoree.modeling.microframework.test.task;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.api.KCurrentDefer;
-import org.kevoree.modeling.api.KJob;
-import org.kevoree.modeling.api.KModel;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KDefer;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.meta.PrimitiveMetaTypes;
 import org.kevoree.modeling.api.reflexive.DynamicKModel;
 import org.kevoree.modeling.api.reflexive.DynamicMetaModel;
@@ -104,6 +100,36 @@ public class SimpleTaskChainTest {
     }
 
     @Test
+    public void chainInternalTest() {
+        DynamicMetaModel metaModel = new DynamicMetaModel("DynamicMM");
+        metaModel.createMetaClass("Sensor").addAttribute("name", PrimitiveMetaTypes.STRING);
+        KModel dynamicKModel = metaModel.model();
+        dynamicKModel.connect();
+        KObject root = dynamicKModel.universe(0).time(0).create(metaModel.metaClass("Sensor"));
+        root.set(root.metaClass().metaAttribute("name"), "MyRoot");
+        dynamicKModel.universe(0).time(0).setRoot(root);
+
+        final String[] results = new String[2];
+
+        root.select("/").chain(new KDeferBlock() {
+            @Override
+            public KDefer exec(KDefer previous) {
+                results[0] = "T1";
+                return root.select("/");
+            }
+        }).then(new Callback<Object>() {
+            @Override
+            public void on(Object o) {
+                results[1] = "T2";
+            }
+        });
+
+        Assert.assertEquals(results[0],"T1");
+        Assert.assertEquals(results[1],"T2");
+
+    }
+
+    @Test
     public void promiseTest() {
         DynamicMetaModel metaModel = new DynamicMetaModel("DynamicMM");
         metaModel.createMetaClass("Sensor").addAttribute("name", PrimitiveMetaTypes.STRING);
@@ -134,8 +160,8 @@ public class SimpleTaskChainTest {
         Assert.assertTrue(res2[0] != null);
         Assert.assertTrue(res2[1] != null);
 
-        Assert.assertTrue(((KObject[])res2[0]).length == 1);
-        Assert.assertTrue(((KObject[])res2[1]).length == 0);
+        Assert.assertTrue(((KObject[]) res2[0]).length == 1);
+        Assert.assertTrue(((KObject[]) res2[1]).length == 0);
 
 
     }

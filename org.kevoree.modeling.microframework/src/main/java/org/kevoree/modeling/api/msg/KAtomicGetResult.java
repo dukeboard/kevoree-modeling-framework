@@ -1,7 +1,5 @@
 package org.kevoree.modeling.api.msg;
 
-import org.kevoree.modeling.api.data.cache.KContentKey;
-
 /**
  * Created by duke on 24/02/15.
  */

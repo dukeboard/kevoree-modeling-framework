@@ -1,9 +1,6 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KCurrentDefer;
-import org.kevoree.modeling.api.KJob;
-import org.kevoree.modeling.api.KDefer;
+import org.kevoree.modeling.api.*;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -103,11 +100,13 @@ public class AbstractKDefer<A> implements KCurrentDefer<A> {
         next().setJob(new KJob() {
             @Override
             public void run(KCurrentDefer currentTask) {
-                try {
-                    p_callback.on(getResult());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    p_callback.on(null);
+                if (p_callback != null) {
+                    try {
+                        p_callback.on(getResult());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        p_callback.on(null);
+                    }
                 }
             }
         }).ready();
@@ -126,6 +125,23 @@ public class AbstractKDefer<A> implements KCurrentDefer<A> {
         } else {
             return _name;
         }
+    }
+
+    @Override
+    public KDefer<Object> chain(KDeferBlock p_block) {
+        KDefer<Object> nextDefer = next();
+        KDefer<Object> potentialNext = new AbstractKDefer<Object>();
+        nextDefer.setJob(new KJob() {
+            @Override
+            public void run(KCurrentDefer currentTask) {
+                KDefer nextNextDefer = p_block.exec(currentTask);
+                potentialNext.wait(nextNextDefer);
+                potentialNext.ready();
+                nextNextDefer.ready();
+            }
+        });
+        nextDefer.ready();
+        return potentialNext;
     }
 
     @Override
