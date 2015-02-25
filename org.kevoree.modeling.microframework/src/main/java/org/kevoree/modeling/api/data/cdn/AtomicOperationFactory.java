@@ -12,7 +12,7 @@ public class AtomicOperationFactory {
         return new AtomicOperation() {
 
             @Override
-            public int getOperationKey() {
+            public int operationKey() {
                 return PREFIX_MUTATE_OPERATION;
             }
 

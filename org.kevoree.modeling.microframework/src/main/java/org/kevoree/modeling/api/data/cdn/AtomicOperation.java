@@ -5,7 +5,7 @@ package org.kevoree.modeling.api.data.cdn;
  */
 public interface AtomicOperation {
 
-    public int getOperationKey();
+    public int operationKey();
 
     public String mutate(String previous);
 

@@ -36,7 +36,7 @@ public class KAtomicGetRequest implements KMessage {
         if (operation != null) {
             buffer.append(",");
             buffer.append("\"operation\":\"");
-            buffer.append(operation.getOperationKey());
+            buffer.append(operation.operationKey());
             buffer.append("\"\n");
         }
         buffer.append("}\n");
