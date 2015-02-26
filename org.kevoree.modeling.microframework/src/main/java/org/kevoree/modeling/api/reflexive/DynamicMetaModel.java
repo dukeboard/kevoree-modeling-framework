@@ -3,6 +3,7 @@ package org.kevoree.modeling.api.reflexive;
 import org.kevoree.modeling.api.KModel;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaModel;
+import org.kevoree.modeling.api.meta.MetaType;
 
 import java.util.HashMap;
 
@@ -38,6 +39,11 @@ public class DynamicMetaModel implements MetaModel {
     @Override
     public String metaName() {
         return _metaName;
+    }
+
+    @Override
+    public MetaType metaType() {
+        return MetaType.MODEL;
     }
 
     @Override

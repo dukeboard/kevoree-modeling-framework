@@ -18,9 +18,9 @@ public class MetaNode extends AbstractMetaClass {
         return INSTANCE;
     }
 
-    public static final MetaAttribute ATT_NAME = new AbstractMetaAttribute("name", 4, 5, true, PrimitiveMetaTypes.STRING, DiscreteExtrapolation.instance());
+    public static final MetaAttribute ATT_NAME = new AbstractMetaAttribute("name", 4, 5, true, PrimitiveTypes.STRING, DiscreteExtrapolation.instance());
 
-    public static final MetaAttribute ATT_VALUE = new AbstractMetaAttribute("value", 5, 5, false, PrimitiveMetaTypes.STRING, DiscreteExtrapolation.instance());
+    public static final MetaAttribute ATT_VALUE = new AbstractMetaAttribute("value", 5, 5, false, PrimitiveTypes.STRING, DiscreteExtrapolation.instance());
 
     public static final MetaReference REF_CHILDREN = new AbstractMetaReference("children", 6, true, false, new LazyResolver() {
         @Override

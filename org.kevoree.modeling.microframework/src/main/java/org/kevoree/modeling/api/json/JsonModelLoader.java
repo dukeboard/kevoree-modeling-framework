@@ -151,7 +151,7 @@ public class JsonModelLoader {
                             } else {
                                 Meta metaElement = metaClass.metaByName(metaKey);
                                 if (payload_content != null) {
-                                    if (metaElement != null && metaElement instanceof AbstractMetaAttribute) {
+                                    if (metaElement != null && metaElement.metaType().equals(MetaType.ATTRIBUTE)) {
                                         raw.set(metaElement.index(), ((MetaAttribute) metaElement).strategy().load(payload_content.toString(), (MetaAttribute) metaElement, factory.now()));
                                     } else if (metaElement != null && metaElement instanceof AbstractMetaReference) {
                                         if (((MetaReference) metaElement).single()) {

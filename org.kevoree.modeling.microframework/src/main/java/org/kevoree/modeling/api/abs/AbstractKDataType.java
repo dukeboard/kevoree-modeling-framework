@@ -1,14 +1,13 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.KMetaType;
+import org.kevoree.modeling.api.KType;
 import org.kevoree.modeling.api.json.JsonString;
-import org.kevoree.modeling.api.json.JsonToken;
-import org.kevoree.modeling.api.meta.PrimitiveMetaTypes;
+import org.kevoree.modeling.api.meta.PrimitiveTypes;
 
 /**
  * Created by duke on 12/01/15.
  */
-public class AbstractKDataType implements KMetaType {
+public class AbstractKDataType implements KType {
 
     private String _name;
 
@@ -31,8 +30,8 @@ public class AbstractKDataType implements KMetaType {
 
     @Override
     public String save(Object src) {
-        if (src != null && this != PrimitiveMetaTypes.TRANSIENT) {
-            if (this == PrimitiveMetaTypes.STRING) {
+        if (src != null && this != PrimitiveTypes.TRANSIENT) {
+            if (this == PrimitiveTypes.STRING) {
                 return JsonString.encode(src.toString());
             } else {
                 return src.toString();
@@ -43,28 +42,28 @@ public class AbstractKDataType implements KMetaType {
 
     @Override
     public Object load(String payload) {
-        if (this == PrimitiveMetaTypes.TRANSIENT) {
+        if (this == PrimitiveTypes.TRANSIENT) {
             return null;
         }
-        if (this == PrimitiveMetaTypes.STRING) {
+        if (this == PrimitiveTypes.STRING) {
             return JsonString.unescape(payload);
         }
-        if (this == PrimitiveMetaTypes.LONG) {
+        if (this == PrimitiveTypes.LONG) {
             return Long.parseLong(payload);
         }
-        if (this == PrimitiveMetaTypes.INT) {
+        if (this == PrimitiveTypes.INT) {
             return Integer.parseInt(payload);
         }
-        if (this == PrimitiveMetaTypes.BOOL) {
+        if (this == PrimitiveTypes.BOOL) {
             return payload.equals("true");
         }
-        if (this == PrimitiveMetaTypes.SHORT) {
+        if (this == PrimitiveTypes.SHORT) {
             return Short.parseShort(payload);
         }
-        if (this == PrimitiveMetaTypes.DOUBLE) {
+        if (this == PrimitiveTypes.DOUBLE) {
             return Double.parseDouble(payload);
         }
-        if (this == PrimitiveMetaTypes.FLOAT) {
+        if (this == PrimitiveTypes.FLOAT) {
             return Float.parseFloat(payload);
         }
         return null;

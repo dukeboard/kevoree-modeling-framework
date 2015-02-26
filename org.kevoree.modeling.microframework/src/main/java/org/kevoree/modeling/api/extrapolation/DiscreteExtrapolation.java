@@ -42,7 +42,7 @@ public class DiscreteExtrapolation implements Extrapolation {
     @Override
     public String save(Object cache, MetaAttribute attribute) {
         if (cache != null) {
-            return attribute.metaType().save(cache);
+            return attribute.attributeType().save(cache);
         } else {
             return null;
         }
@@ -51,7 +51,7 @@ public class DiscreteExtrapolation implements Extrapolation {
     @Override
     public Object load(String payload, MetaAttribute attribute, long now) {
         if (payload != null) {
-            return attribute.metaType().load(payload);
+            return attribute.attributeType().load(payload);
         }
         return null;
     }

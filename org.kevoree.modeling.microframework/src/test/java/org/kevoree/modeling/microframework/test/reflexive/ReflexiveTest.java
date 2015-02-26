@@ -4,7 +4,7 @@ import org.junit.Test;
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.meta.PrimitiveMetaTypes;
+import org.kevoree.modeling.api.meta.PrimitiveTypes;
 import org.kevoree.modeling.api.reflexive.DynamicMetaClass;
 import org.kevoree.modeling.api.reflexive.DynamicMetaModel;
 
@@ -21,13 +21,13 @@ public class ReflexiveTest {
         DynamicMetaClass sensorMetaClass = dynamicMetaModel.createMetaClass("Sensor");
 
         sensorMetaClass
-                .addAttribute("name", PrimitiveMetaTypes.STRING)
-                .addAttribute("value", PrimitiveMetaTypes.FLOAT)
+                .addAttribute("name", PrimitiveTypes.STRING)
+                .addAttribute("value", PrimitiveTypes.FLOAT)
                 .addReference("siblings", sensorMetaClass, false);
 
         DynamicMetaClass homeMetaClass = dynamicMetaModel.createMetaClass("Home");
         homeMetaClass
-                .addAttribute("name", PrimitiveMetaTypes.STRING)
+                .addAttribute("name", PrimitiveTypes.STRING)
                 .addReference("sensors", sensorMetaClass, true);
 
         KModel universe = dynamicMetaModel.model();

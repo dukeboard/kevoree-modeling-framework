@@ -122,7 +122,7 @@ public class JsonRaw {
                     Meta metaElement = entry.metaClass.metaByName(metaKeys[i]);
                     Object insideContent = content.get(metaKeys[i]);
                     if (insideContent != null) {
-                        if (metaElement != null && metaElement instanceof AbstractMetaAttribute) {
+                        if (metaElement != null && metaElement.metaType().equals(MetaType.ATTRIBUTE)) {
                             entry.raw[metaElement.index()] = ((AbstractMetaAttribute) metaElement).strategy().load(insideContent.toString(), (AbstractMetaAttribute) metaElement, now);
                         } else if (metaElement != null && metaElement instanceof AbstractMetaReference) {
                             if (((MetaReference) metaElement).single()) {
@@ -222,10 +222,10 @@ public class JsonRaw {
         }
         int nbElemPrinted = 0;
         for (int i = 0; i < metaElements.length; i++) {
-            if (metaElements[i] instanceof AbstractMetaAttribute) {
+            if (metaElements[i] != null && metaElements[i].metaType().equals(MetaType.ATTRIBUTE)) {
                 Object payload_res = raw.get(metaElements[i].index());
                 if (payload_res != null) {
-                    if (((MetaAttribute) metaElements[i]).metaType() != PrimitiveMetaTypes.TRANSIENT) {
+                    if (((MetaAttribute) metaElements[i]).attributeType() != PrimitiveTypes.TRANSIENT) {
                         String attrsPayload = ((MetaAttribute) metaElements[i]).strategy().save(payload_res, (MetaAttribute) metaElements[i]);
                         if (attrsPayload != null) {
                             builder.append("\t\t");
@@ -242,7 +242,7 @@ public class JsonRaw {
                         }
                     }
                 }
-            } else if (metaElements[i] instanceof AbstractMetaReference) {
+            } else if (metaElements[i]!=null && metaElements[i].metaType().equals(MetaType.REFERENCE)) {
                 Object refPayload = raw.get(metaElements[i].index());
                 if (refPayload != null) {
                     builder.append("\t\t");

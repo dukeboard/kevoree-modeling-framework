@@ -68,12 +68,6 @@ declare module org {
                 interface KJob {
                     run(currentTask: KCurrentDefer<any>): void;
                 }
-                interface KMetaType {
-                    name(): string;
-                    isEnum(): boolean;
-                    save(src: any): string;
-                    load(payload: string): any;
-                }
                 interface KModel<A extends KUniverse<any, any, any>> {
                     newUniverse(): A;
                     universe(key: number): A;
@@ -138,6 +132,12 @@ declare module org {
                 interface KScheduler {
                     dispatch(runnable: java.lang.Runnable): void;
                     stop(): void;
+                }
+                interface KType {
+                    name(): string;
+                    isEnum(): boolean;
+                    save(src: any): string;
+                    load(payload: string): any;
                 }
                 interface KUniverse<A extends KView, B extends KUniverse<any, any, any>, C extends KModel<any>> {
                     key(): number;
@@ -205,7 +205,7 @@ declare module org {
                     static values(): VisitResult[];
                 }
                 module abs {
-                    class AbstractKDataType implements KMetaType {
+                    class AbstractKDataType implements KType {
                         private _name;
                         private _isEnum;
                         constructor(p_name: string, p_isEnum: boolean);
@@ -382,34 +382,33 @@ declare module org {
                         private _key;
                         private _metaType;
                         private _extrapolation;
-                        metaType(): KMetaType;
+                        attributeType(): KType;
                         index(): number;
                         metaName(): string;
+                        metaType(): meta.MetaType;
                         precision(): number;
                         key(): boolean;
                         strategy(): extrapolation.Extrapolation;
                         setExtrapolation(extrapolation: extrapolation.Extrapolation): void;
-                        constructor(p_name: string, p_index: number, p_precision: number, p_key: boolean, p_metaType: KMetaType, p_extrapolation: extrapolation.Extrapolation);
+                        constructor(p_name: string, p_index: number, p_precision: number, p_key: boolean, p_metaType: KType, p_extrapolation: extrapolation.Extrapolation);
                     }
                     class AbstractMetaClass implements meta.MetaClass {
                         private _name;
                         private _index;
+                        private _meta;
                         private _atts;
                         private _refs;
-                        private _operations;
-                        private _atts_indexes;
-                        private _refs_indexes;
-                        private _ops_indexes;
+                        private _indexes;
+                        metaByName(name: string): meta.Meta;
+                        metaElements(): meta.Meta[];
                         index(): number;
                         metaName(): string;
+                        metaType(): meta.MetaType;
                         constructor(p_name: string, p_index: number);
-                        init(p_atts: meta.MetaAttribute[], p_refs: meta.MetaReference[], p_operations: meta.MetaOperation[]): void;
+                        init(p_meta: meta.Meta[]): void;
+                        meta(index: number): meta.Meta;
                         metaAttributes(): meta.MetaAttribute[];
                         metaReferences(): meta.MetaReference[];
-                        metaOperations(): meta.MetaOperation[];
-                        metaAttribute(name: string): meta.MetaAttribute;
-                        metaReference(name: string): meta.MetaReference;
-                        metaOperation(name: string): meta.MetaOperation;
                     }
                     class AbstractMetaModel implements meta.MetaModel {
                         private _name;
@@ -418,6 +417,7 @@ declare module org {
                         private _metaClasses_indexes;
                         index(): number;
                         metaName(): string;
+                        metaType(): meta.MetaType;
                         constructor(p_name: string, p_index: number);
                         metaClasses(): meta.MetaClass[];
                         metaClass(name: string): meta.MetaClass;
@@ -429,6 +429,7 @@ declare module org {
                         private _lazyMetaClass;
                         index(): number;
                         metaName(): string;
+                        metaType(): meta.MetaType;
                         constructor(p_name: string, p_index: number, p_lazyMetaClass: () => meta.Meta);
                         origin(): meta.MetaClass;
                     }
@@ -441,11 +442,12 @@ declare module org {
                         private _lazyMetaOpposite;
                         private _lazyMetaOrigin;
                         single(): boolean;
-                        metaType(): meta.MetaClass;
+                        attributeType(): meta.MetaClass;
                         opposite(): meta.MetaReference;
                         origin(): meta.MetaClass;
                         index(): number;
                         metaName(): string;
+                        metaType(): meta.MetaType;
                         contained(): boolean;
                         constructor(p_name: string, p_index: number, p_contained: boolean, p_single: boolean, p_lazyMetaType: () => meta.Meta, p_lazyMetaOpposite: () => meta.Meta, p_lazyMetaOrigin: () => meta.Meta);
                     }
@@ -1040,40 +1042,39 @@ declare module org {
                 }
                 module meta {
                     interface Meta {
-                        metaName(): string;
                         index(): number;
+                        metaName(): string;
+                        metaType(): MetaType;
                     }
                     interface MetaAttribute extends Meta {
                         key(): boolean;
-                        metaType(): KMetaType;
+                        attributeType(): KType;
                         strategy(): extrapolation.Extrapolation;
                         precision(): number;
                         setExtrapolation(extrapolation: extrapolation.Extrapolation): void;
                     }
                     interface MetaClass extends Meta {
+                        metaElements(): Meta[];
+                        meta(index: number): Meta;
                         metaAttributes(): MetaAttribute[];
                         metaReferences(): MetaReference[];
-                        metaOperations(): MetaOperation[];
-                        metaAttribute(name: string): MetaAttribute;
-                        metaReference(name: string): MetaReference;
-                        metaOperation(name: string): MetaOperation;
+                        metaByName(name: string): Meta;
                     }
                     class MetaInferClass implements MetaClass {
                         private static _INSTANCE;
                         private _attributes;
-                        private _references;
-                        private _operations;
+                        private _metaReferences;
                         static getInstance(): MetaInferClass;
                         getRaw(): MetaAttribute;
                         getCache(): MetaAttribute;
                         constructor();
+                        metaElements(): Meta[];
+                        meta(index: number): Meta;
                         metaAttributes(): MetaAttribute[];
                         metaReferences(): MetaReference[];
-                        metaOperations(): MetaOperation[];
-                        metaAttribute(name: string): MetaAttribute;
-                        metaReference(name: string): MetaReference;
-                        metaOperation(name: string): MetaOperation;
+                        metaByName(name: string): Meta;
                         metaName(): string;
+                        metaType(): MetaType;
                         index(): number;
                     }
                     interface MetaModel extends Meta {
@@ -1086,19 +1087,29 @@ declare module org {
                     interface MetaReference extends Meta {
                         contained(): boolean;
                         single(): boolean;
-                        metaType(): MetaClass;
+                        attributeType(): MetaClass;
                         opposite(): MetaReference;
                         origin(): MetaClass;
                     }
-                    class PrimitiveMetaTypes {
-                        static STRING: KMetaType;
-                        static LONG: KMetaType;
-                        static INT: KMetaType;
-                        static BOOL: KMetaType;
-                        static SHORT: KMetaType;
-                        static DOUBLE: KMetaType;
-                        static FLOAT: KMetaType;
-                        static TRANSIENT: KMetaType;
+                    class MetaType {
+                        static ATTRIBUTE: MetaType;
+                        static REFERENCE: MetaType;
+                        static OPERATION: MetaType;
+                        static CLASS: MetaType;
+                        static MODEL: MetaType;
+                        equals(other: any): boolean;
+                        static _MetaTypeVALUES: MetaType[];
+                        static values(): MetaType[];
+                    }
+                    class PrimitiveTypes {
+                        static STRING: KType;
+                        static LONG: KType;
+                        static INT: KType;
+                        static BOOL: KType;
+                        static SHORT: KType;
+                        static DOUBLE: KType;
+                        static FLOAT: KType;
+                        static TRANSIENT: KType;
                     }
                 }
                 module msg {
@@ -1526,12 +1537,10 @@ declare module org {
                         internalCreate(clazz: meta.MetaClass, p_universeTree: rbtree.LongRBTree, key: number): KObject;
                     }
                     class DynamicMetaClass extends abs.AbstractMetaClass {
-                        private cached_attributes;
-                        private cached_references;
-                        private cached_methods;
+                        private cached_meta;
                         private _globalIndex;
                         constructor(p_name: string, p_index: number);
-                        addAttribute(p_name: string, p_type: KMetaType): DynamicMetaClass;
+                        addAttribute(p_name: string, p_type: KType): DynamicMetaClass;
                         addReference(p_name: string, p_metaClass: meta.MetaClass, contained: boolean): DynamicMetaClass;
                         addOperation(p_name: string): DynamicMetaClass;
                         private internalInit();
@@ -1543,6 +1552,7 @@ declare module org {
                         metaClasses(): meta.MetaClass[];
                         metaClass(name: string): meta.MetaClass;
                         metaName(): string;
+                        metaType(): meta.MetaType;
                         index(): number;
                         createMetaClass(name: string): DynamicMetaClass;
                         model(): KModel<any>;

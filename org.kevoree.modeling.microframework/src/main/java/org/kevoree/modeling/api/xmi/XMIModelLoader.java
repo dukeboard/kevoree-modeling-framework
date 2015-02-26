@@ -9,6 +9,7 @@ import org.kevoree.modeling.api.abs.AbstractMetaReference;
 import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
+import org.kevoree.modeling.api.meta.MetaType;
 
 import java.util.HashMap;
 
@@ -165,7 +166,7 @@ public class XMIModelLoader {
                 String valueAtt = ctx.xmiReader.getAttributeValue(i).trim();
                 if (valueAtt != null) {
                     Meta metaElement = modelElem.metaClass().metaByName(attrName);
-                    if (metaElement != null && metaElement instanceof AbstractMetaAttribute) {
+                    if (metaElement != null && metaElement.metaType().equals(MetaType.ATTRIBUTE)) {
                         modelElem.set((MetaAttribute) metaElement, unescapeXml(valueAtt));
                     } else {
                         if (metaElement != null && metaElement instanceof AbstractMetaReference) {

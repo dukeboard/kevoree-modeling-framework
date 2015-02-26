@@ -2,6 +2,7 @@ package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaOperation;
+import org.kevoree.modeling.api.meta.MetaType;
 
 /**
  * Created by duke on 07/12/14.
@@ -22,6 +23,11 @@ public class AbstractMetaOperation implements MetaOperation {
     @Override
     public String metaName() {
         return _name;
+    }
+
+    @Override
+    public MetaType metaType() {
+        return MetaType.OPERATION;
     }
 
     public AbstractMetaOperation(String p_name, int p_index,LazyResolver p_lazyMetaClass) {

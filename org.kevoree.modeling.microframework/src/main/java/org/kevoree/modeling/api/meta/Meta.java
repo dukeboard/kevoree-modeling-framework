@@ -5,8 +5,10 @@ package org.kevoree.modeling.api.meta;
  */
 public interface Meta {
 
+    public int index();
+
     public String metaName();
 
-    public int index();
+    public MetaType metaType();
 
 }

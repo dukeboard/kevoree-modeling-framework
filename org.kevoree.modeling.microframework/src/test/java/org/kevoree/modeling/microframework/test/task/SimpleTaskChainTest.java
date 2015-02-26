@@ -4,7 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.meta.MetaAttribute;
-import org.kevoree.modeling.api.meta.PrimitiveMetaTypes;
+import org.kevoree.modeling.api.meta.PrimitiveTypes;
 import org.kevoree.modeling.api.reflexive.DynamicKModel;
 import org.kevoree.modeling.api.reflexive.DynamicMetaModel;
 
@@ -103,7 +103,7 @@ public class SimpleTaskChainTest {
     @Test
     public void chainInternalTest() {
         DynamicMetaModel metaModel = new DynamicMetaModel("DynamicMM");
-        metaModel.createMetaClass("Sensor").addAttribute("name", PrimitiveMetaTypes.STRING);
+        metaModel.createMetaClass("Sensor").addAttribute("name", PrimitiveTypes.STRING);
         KModel dynamicKModel = metaModel.model();
         dynamicKModel.connect();
         KObject root = dynamicKModel.universe(0).time(0).create(metaModel.metaClass("Sensor"));
@@ -133,7 +133,7 @@ public class SimpleTaskChainTest {
     @Test
     public void promiseTest() {
         DynamicMetaModel metaModel = new DynamicMetaModel("DynamicMM");
-        metaModel.createMetaClass("Sensor").addAttribute("name", PrimitiveMetaTypes.STRING);
+        metaModel.createMetaClass("Sensor").addAttribute("name", PrimitiveTypes.STRING);
         KModel dynamicKModel = metaModel.model();
         dynamicKModel.connect();
         KObject root = dynamicKModel.universe(0).time(0).create(metaModel.metaClass("Sensor"));

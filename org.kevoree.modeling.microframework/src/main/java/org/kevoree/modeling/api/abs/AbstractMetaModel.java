@@ -2,6 +2,7 @@ package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaModel;
+import org.kevoree.modeling.api.meta.MetaType;
 
 import java.util.HashMap;
 
@@ -26,6 +27,11 @@ public class AbstractMetaModel implements MetaModel {
     @Override
     public String metaName() {
         return _name;
+    }
+
+    @Override
+    public MetaType metaType() {
+        return MetaType.MODEL;
     }
 
     public AbstractMetaModel(String p_name, int p_index) {

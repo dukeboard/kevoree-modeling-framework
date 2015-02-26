@@ -1,6 +1,6 @@
 package org.kevoree.modeling.api.reflexive;
 
-import org.kevoree.modeling.api.KMetaType;
+import org.kevoree.modeling.api.KType;
 import org.kevoree.modeling.api.abs.*;
 import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation;
@@ -21,7 +21,7 @@ public class DynamicMetaClass extends AbstractMetaClass {
         _globalIndex = Index.RESERVED_INDEXES;
     }
 
-    public DynamicMetaClass addAttribute(String p_name, KMetaType p_type) {
+    public DynamicMetaClass addAttribute(String p_name, KType p_type) {
         AbstractMetaAttribute tempAttribute = new AbstractMetaAttribute(p_name, _globalIndex, -1, false, p_type, DiscreteExtrapolation.instance());
         cached_meta.put(tempAttribute.metaName(), tempAttribute);
         _globalIndex = _globalIndex + 1;

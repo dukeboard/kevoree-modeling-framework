@@ -9,7 +9,7 @@ public interface MetaReference extends Meta {
 
     boolean single();
 
-    MetaClass metaType();
+    MetaClass attributeType();
 
     MetaReference opposite();
 

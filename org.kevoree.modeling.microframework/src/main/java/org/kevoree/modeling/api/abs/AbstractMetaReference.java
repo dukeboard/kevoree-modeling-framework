@@ -2,6 +2,7 @@ package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
+import org.kevoree.modeling.api.meta.MetaType;
 
 /**
  * Created by duke on 07/12/14.
@@ -26,7 +27,7 @@ public class AbstractMetaReference implements MetaReference {
         return _single;
     }
 
-    public MetaClass metaType() {
+    public MetaClass attributeType() {
         if (_lazyMetaType != null) {
             return (MetaClass) _lazyMetaType.meta();
         } else {
@@ -55,6 +56,11 @@ public class AbstractMetaReference implements MetaReference {
 
     public String metaName() {
         return _name;
+    }
+
+    @Override
+    public MetaType metaType() {
+        return MetaType.REFERENCE;
     }
 
     public boolean contained() {

@@ -1,8 +1,9 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.KMetaType;
+import org.kevoree.modeling.api.KType;
 import org.kevoree.modeling.api.extrapolation.Extrapolation;
 import org.kevoree.modeling.api.meta.MetaAttribute;
+import org.kevoree.modeling.api.meta.MetaType;
 
 /**
  * Created by duke on 07/12/14.
@@ -17,12 +18,12 @@ public class AbstractMetaAttribute implements MetaAttribute {
 
     private boolean _key;
 
-    private KMetaType _metaType;
+    private KType _metaType;
 
     private Extrapolation _extrapolation;
 
     @Override
-    public KMetaType metaType() {
+    public KType attributeType() {
         return _metaType;
     }
 
@@ -34,6 +35,11 @@ public class AbstractMetaAttribute implements MetaAttribute {
     @Override
     public String metaName() {
         return _name;
+    }
+
+    @Override
+    public MetaType metaType() {
+        return MetaType.ATTRIBUTE;
     }
 
     @Override
@@ -56,7 +62,7 @@ public class AbstractMetaAttribute implements MetaAttribute {
         this._extrapolation = extrapolation;
     }
 
-    public AbstractMetaAttribute(String p_name, int p_index, double p_precision, boolean p_key, KMetaType p_metaType, Extrapolation p_extrapolation) {
+    public AbstractMetaAttribute(String p_name, int p_index, double p_precision, boolean p_key, KType p_metaType, Extrapolation p_extrapolation) {
         this._name = p_name;
         this._index = p_index;
         this._precision = p_precision;

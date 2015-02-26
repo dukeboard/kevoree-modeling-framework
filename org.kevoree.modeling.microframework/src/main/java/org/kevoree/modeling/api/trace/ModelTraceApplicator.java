@@ -8,6 +8,7 @@ import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
+import org.kevoree.modeling.api.meta.MetaType;
 import org.kevoree.modeling.api.rbtree.LongRBTree;
 
 import java.util.HashMap;
@@ -41,7 +42,7 @@ public class ModelTraceApplicator {
                     dependencies.add(traces[i].sourceUUID());
                 }
                 if (traces[i] instanceof ModelSetTrace) {
-                    if (traces[i].meta() instanceof AbstractMetaAttribute) {
+                    if (traces[i].meta() != null && traces[i].meta().metaType().equals(MetaType.ATTRIBUTE)) {
                         dependencies.add(traces[i].sourceUUID());
                     } else {
                         try {
@@ -78,7 +79,7 @@ public class ModelTraceApplicator {
                                     }
                                 } else if (trace instanceof ModelSetTrace) {
                                     ModelSetTrace setTrace = (ModelSetTrace) trace;
-                                    if (trace.meta() instanceof AbstractMetaAttribute) {
+                                    if (trace.meta() != null && trace.meta().metaType().equals(MetaType.ATTRIBUTE)) {
                                         sourceObject.set((MetaAttribute) trace.meta(), setTrace.content());
                                     } else {
                                         try {

@@ -40,6 +40,11 @@ public class AbstractMetaClass implements MetaClass {
         return _name;
     }
 
+    @Override
+    public MetaType metaType() {
+        return MetaType.CLASS;
+    }
+
     protected AbstractMetaClass(String p_name, int p_index) {
         this._name = p_name;
         this._index = p_index;
@@ -50,9 +55,9 @@ public class AbstractMetaClass implements MetaClass {
         int nbAtt = 0;
         int nbRef = 0;
         for (int i = 0; i < p_meta.length; i++) {
-            if (p_meta[i] instanceof AbstractMetaAttribute) {
+            if (p_meta[i].metaType().equals(MetaType.ATTRIBUTE)) {
                 nbAtt++;
-            } else if (p_meta[i] instanceof AbstractMetaReference) {
+            } else if (p_meta[i].metaType().equals(MetaType.REFERENCE)) {
                 nbRef++;
             }
             _indexes.put(p_meta[i].metaName(), p_meta[i]);
@@ -62,10 +67,10 @@ public class AbstractMetaClass implements MetaClass {
         nbAtt = 0;
         nbRef = 0;
         for (int i = 0; i < p_meta.length; i++) {
-            if (p_meta[i] instanceof AbstractMetaAttribute) {
+            if (p_meta[i].metaType().equals(MetaType.ATTRIBUTE)) {
                 _atts[nbAtt] = (MetaAttribute) p_meta[i];
                 nbAtt++;
-            } else if (p_meta[i] instanceof AbstractMetaReference) {
+            } else if (p_meta[i].metaType().equals(MetaType.REFERENCE)) {
                 _refs[nbRef] = (MetaReference) p_meta[i];
                 nbRef++;
             }

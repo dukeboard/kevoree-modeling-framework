@@ -32,8 +32,8 @@ public class MetaInferClass implements MetaClass {
 
     private MetaInferClass() {
         _attributes = new MetaAttribute[2];
-        _attributes[0] = new AbstractMetaAttribute("RAW", Index.RESERVED_INDEXES, -1, false, PrimitiveMetaTypes.STRING, new DiscreteExtrapolation());
-        _attributes[1] = new AbstractMetaAttribute("CACHE", Index.RESERVED_INDEXES + 1, -1, false, PrimitiveMetaTypes.TRANSIENT, new DiscreteExtrapolation());
+        _attributes[0] = new AbstractMetaAttribute("RAW", Index.RESERVED_INDEXES, -1, false, PrimitiveTypes.STRING, new DiscreteExtrapolation());
+        _attributes[1] = new AbstractMetaAttribute("CACHE", Index.RESERVED_INDEXES + 1, -1, false, PrimitiveTypes.TRANSIENT, new DiscreteExtrapolation());
     }
 
     @Override
@@ -69,6 +69,11 @@ public class MetaInferClass implements MetaClass {
     @Override
     public String metaName() {
         return "KInfer";
+    }
+
+    @Override
+    public MetaType metaType() {
+        return MetaType.CLASS;
     }
 
     @Override

@@ -14,7 +14,7 @@ public static Meta${classDeclaration.name} getInstance() {
 
 #foreach($attribute in $classDeclaration.attributes)
 #if(${context.generationContext.getHelper().getInstance().isPrimitive(${attribute.getType()})})
-    #set($attTypeValue = "org.kevoree.modeling.api.meta.PrimitiveMetaTypes.$attribute.getType().toUpperCase()")
+    #set($attTypeValue = "org.kevoree.modeling.api.meta.PrimitiveTypes.$attribute.getType().toUpperCase()")
 #else
     #set($substringIndex = ${attribute.getType().lastIndexOf('.')} + 1)
     #set($attTypeValue = "${classDeclaration.pack}.meta.Meta${attribute.getType().substring($substringIndex)}.getInstance()")
@@ -40,19 +40,23 @@ public static final org.kevoree.modeling.api.meta.MetaOperation OP_${operation.n
 
     private Meta${classDeclaration.name}() {
         super("${classDeclaration.fqn}", ${classDeclaration.index});
-        org.kevoree.modeling.api.meta.MetaAttribute[] temp_attributes = new org.kevoree.modeling.api.meta.MetaAttribute[${classDeclaration.attributes.size()}];
+        org.kevoree.modeling.api.meta.Meta[] temp_all = new org.kevoree.modeling.api.meta.Meta[${classDeclaration.attributes.size()}+${classDeclaration.references.size()}+${classDeclaration.operations.size()}];
+#set($i = 0)
 #foreach($attribute in $classDeclaration.attributes)
-        temp_attributes[${attribute.attIndex}] = ATT_${attribute.name.toUpperCase()};
+        temp_all[${i}] = ATT_${attribute.name.toUpperCase()};
+    #set($i = $i +1)
 #end
         org.kevoree.modeling.api.meta.MetaReference[] temp_references = new org.kevoree.modeling.api.meta.MetaReference[${classDeclaration.references.size()}];
 #foreach($reference in $classDeclaration.references)
-        temp_references[${reference.refIndex}] = REF_${reference.name.toUpperCase()};
+        temp_all[${i}] = REF_${reference.name.toUpperCase()};
+    #set($i = $i +1)
 #end
         org.kevoree.modeling.api.meta.MetaOperation[] temp_operations = new org.kevoree.modeling.api.meta.MetaOperation[${classDeclaration.operations.size()}];
 #foreach($operation in $classDeclaration.operations)
-        temp_operations[${operation.opIndex}] = OP_${operation.name.toUpperCase()};
+        temp_all[${i}] = OP_${operation.name.toUpperCase()};
+    #set($i = $i +1)
 #end
-        init(temp_attributes, temp_references, temp_operations);
+        init(temp_all);
     }
 
 }
