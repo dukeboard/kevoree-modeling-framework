@@ -8,6 +8,7 @@ import org.kevoree.modeling.api.json.JsonToken;
 import org.kevoree.modeling.api.json.Lexer;
 import org.kevoree.modeling.api.json.Type;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -48,11 +49,11 @@ public class KMessageLoader {
         Lexer lexer = new Lexer(payload);
         Map<String, Object> content = new HashMap<String, Object>();
         String currentAttributeName = null;
-        Set<String> arrayPayload = null;
+        ArrayList<String> arrayPayload = null;
         JsonToken currentToken = lexer.nextToken();
         while (currentToken.tokenType() != Type.EOF) {
             if (currentToken.tokenType().equals(Type.LEFT_BRACKET)) {
-                arrayPayload = new HashSet<String>();
+                arrayPayload = new ArrayList<String>();
             } else if (currentToken.tokenType().equals(Type.RIGHT_BRACKET)) {
                 content.put(currentAttributeName, arrayPayload);
                 arrayPayload = null;
@@ -84,7 +85,7 @@ public class KMessageLoader {
                     eventMessage.key = KContentKey.create(content.get(KEY_NAME).toString());
                 }
                 if (content.get(VALUES_NAME) != null) {
-                    HashSet<String> metaInt = (HashSet<String>) content.get(VALUES_NAME);
+                    ArrayList<String> metaInt = (ArrayList<String>) content.get(VALUES_NAME);
                     String[] toFlat = metaInt.toArray(new String[metaInt.size()]);
                     int[] nbElem = new int[metaInt.size()];
                     for (int i = 0; i < toFlat.length; i++) {
@@ -99,7 +100,7 @@ public class KMessageLoader {
                     getKeysRequest.id = Long.parseLong(content.get(ID_NAME).toString());
                 }
                 if (content.get(KEYS_NAME) != null) {
-                    HashSet<String> metaInt = (HashSet<String>) content.get(KEYS_NAME);
+                    ArrayList<String> metaInt = (ArrayList<String>) content.get(KEYS_NAME);
                     String[] toFlat = metaInt.toArray(new String[metaInt.size()]);
                     KContentKey[] keys = new KContentKey[toFlat.length];
                     for (int i = 0; i < toFlat.length; i++) {
@@ -114,7 +115,7 @@ public class KMessageLoader {
                     getResult.id = Long.parseLong(content.get(ID_NAME).toString());
                 }
                 if (content.get(VALUES_NAME) != null) {
-                    HashSet<String> metaInt = (HashSet<String>) content.get(VALUES_NAME);
+                    ArrayList<String> metaInt = (ArrayList<String>) content.get(VALUES_NAME);
                     String[] toFlat = metaInt.toArray(new String[metaInt.size()]);
                     String[] values = new String[toFlat.length];
                     for (int i = 0; i < toFlat.length; i++) {
@@ -131,11 +132,11 @@ public class KMessageLoader {
                 String[] toFlatKeys = null;
                 String[] toFlatValues = null;
                 if (content.get(KEYS_NAME) != null) {
-                    HashSet<String> metaKeys = (HashSet<String>) content.get(KEYS_NAME);
+                    ArrayList<String> metaKeys = (ArrayList<String>) content.get(KEYS_NAME);
                     toFlatKeys = metaKeys.toArray(new String[metaKeys.size()]);
                 }
                 if (content.get(VALUES_NAME) != null) {
-                    HashSet<String> metaValues = (HashSet<String>) content.get(VALUES_NAME);
+                    ArrayList<String> metaValues = (ArrayList<String>) content.get(VALUES_NAME);
                     toFlatValues = metaValues.toArray(new String[metaValues.size()]);
                 }
                 if (toFlatKeys != null && toFlatValues != null && toFlatKeys.length == toFlatValues.length) {
@@ -162,7 +163,7 @@ public class KMessageLoader {
                     callMessage.key = KContentKey.create(content.get(KEY_NAME).toString());
                 }
                 if (content.get(VALUES_NAME) != null) {
-                    HashSet<String> metaParams = (HashSet<String>) content.get(VALUES_NAME);
+                    ArrayList<String> metaParams = (ArrayList<String>) content.get(VALUES_NAME);
                     String[] toFlat = metaParams.toArray(new String[metaParams.size()]);
                     callMessage.params = toFlat;
                 }
