@@ -29,8 +29,9 @@ module org {
                         public connect(callback:(p:java.lang.Throwable) => void):void {
                             this._clientConnection = new WebSocket(this._connectionUri);
                             this._clientConnection.onmessage = (message) => {
-
                                 var parsed = JSON.parse(message.data);
+                                var messagesToSendLocally = [];
+                                var keysToReload = [];
                                 for(var i = 0; i < parsed.length; i++) {
                                     var rawMessage = parsed[i];
                                     var msg = org.kevoree.modeling.api.msg.KMessageLoader.load(JSON.stringify(rawMessage));
@@ -47,31 +48,19 @@ module org {
                                             var atomicGetResult = <org.kevoree.modeling.api.msg.KAtomicGetResult>msg;
                                             this._atomicGetCallbacks.remove(atomicGetResult.id)(atomicGetResult.value, null);
                                         }break;
+                                        case org.kevoree.modeling.api.msg.KMessageLoader.EVENT_TYPE:{
+                                            keysToReload.push((<org.kevoree.modeling.api.msg.KEventMessage>msg).key);
+                                            messagesToSendLocally.push(msg);
+                                        }break;
                                         default:{
                                             console.log("MessageType not supported:" + msg.type())
                                         }
                                     }
-                                    /*
-                                     String rawMessage = messages.get(i).asString();
-                                     KMessage msg = KMessageLoader.load(rawMessage);
-                                     case KMessageLoader.GET_RES_TYPE:{
-
-                                     }break;
-                                     case KMessageLoader.PUT_RES_TYPE:{
-                                     KPutResult putResult = (KPutResult) msg;
-                                     _putCallbacks.remove(putResult.id).on(null);
-                                     }break;
-                                     case KMessageLoader.ATOMIC_OPERATION_RESULT_TYPE:{
-                                     KAtomicGetResult atomicGetResult = (KAtomicGetResult) msg;
-                                     _atomicGetCallbacks.remove(atomicGetResult.id).on(atomicGetResult.value, null);
-                                     }break;
-                                     default:{
-                                     System.err.println();
-                                     }
-                                     }*/
+                                    if(messagesToSendLocally.length > 0) {
+                                        this._manager.reload(keysToReload);
+                                        this.fireLocalMessages(messagesToSendLocally);
+                                    }
                                 }
-
-
                             };
                             this._clientConnection.onerror = function (error) {
                                 console.error(error);
@@ -164,7 +153,7 @@ module org {
                         private fireLocalMessages(msgs : org.kevoree.modeling.api.msg.KEventMessage[]) {
                             var _previousKey : org.kevoree.modeling.api.data.cache.KContentKey = null;
                             var _currentView : org.kevoree.modeling.api.KView = null;
-
+                            var self = this;
                             for(var i = 0; i < msgs.length; i++) {
                                 var sourceKey = msgs[i].key;
                                 if(_previousKey == null || sourceKey.part1() != _previousKey.part1() || sourceKey.part2() != _previousKey.part2()) {
@@ -178,7 +167,7 @@ module org {
                                         for(var j = 0; j < msgs[tempIndex].meta.length; j++) {
                                             modifiedMetas.push(kObject.metaClass().meta(msgs[tempIndex].meta[j]));
                                         }
-                                        this._localEventListeners.dispatch(kObject, modifiedMetas);
+                                        self._localEventListeners.dispatch(kObject, modifiedMetas);
                                     }
                                 });
                             }

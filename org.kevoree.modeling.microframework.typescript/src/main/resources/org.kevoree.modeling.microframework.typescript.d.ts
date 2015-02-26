@@ -574,8 +574,9 @@ declare module org {
                         }
                         class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
                             private backend;
+                            private _localEventListeners;
+                            private _manager;
                             static DEBUG: boolean;
-                            private localEventListeners;
                             atomicGetMutate(key: cache.KContentKey, operation: AtomicOperation, callback: (p: string, p1: java.lang.Throwable) => void): void;
                             get(keys: cache.KContentKey[], callback: (p: string[], p1: java.lang.Throwable) => void): void;
                             put(p_request: KContentPutRequest, p_callback: (p: java.lang.Throwable) => void): void;
@@ -586,6 +587,7 @@ declare module org {
                             unregister(p_listener: (p: KObject, p1: meta.Meta[]) => void): void;
                             send(msgs: msg.KEventMessage[]): void;
                             setManager(manager: manager.KDataManager): void;
+                            private fireLocalMessages(msgs);
                         }
                     }
                     module manager {

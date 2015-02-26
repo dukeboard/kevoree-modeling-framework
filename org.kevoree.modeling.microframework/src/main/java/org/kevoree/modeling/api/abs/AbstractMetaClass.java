@@ -83,7 +83,7 @@ public class AbstractMetaClass implements MetaClass {
     public Meta meta(int index) {
         int transposedIndex = index - Index.RESERVED_INDEXES;
         if (transposedIndex >= 0 && transposedIndex < this._meta.length) {
-            return this._meta[index];
+            return this._meta[transposedIndex];
         } else {
             return null;
         }

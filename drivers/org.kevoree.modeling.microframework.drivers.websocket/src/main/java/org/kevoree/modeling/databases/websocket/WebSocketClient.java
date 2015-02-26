@@ -15,6 +15,7 @@ import org.kevoree.modeling.api.data.cache.MultiLayeredMemoryCache;
 import org.kevoree.modeling.api.data.cdn.AtomicOperation;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
+import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.meta.MetaAttribute;
@@ -95,6 +96,8 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
         for(int i = 0; i < messages.size(); i++) {
             String rawMessage = messages.get(i).asString();
             KMessage msg = KMessageLoader.load(rawMessage);
+            ArrayList<KEventMessage> messagesToSendLocally = new ArrayList<>();
+            ArrayList<KContentKey> keysToReload = new ArrayList<>();
             switch (msg.type()) {
                 case KMessageLoader.GET_RES_TYPE:{
                     KGetResult getResult = (KGetResult) msg;
@@ -108,9 +111,17 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
                     KAtomicGetResult atomicGetResult = (KAtomicGetResult) msg;
                     _atomicGetCallbacks.remove(atomicGetResult.id).on(atomicGetResult.value, null);
                 }break;
+                case KMessageLoader.EVENT_TYPE:{
+                    keysToReload.add(((KEventMessage)msg).key);
+                    messagesToSendLocally.add((KEventMessage)msg);
+                }break;
                 default:{
                     System.err.println("MessageType not supported:" + msg.type());
                 }
+            }
+            if(messagesToSendLocally.size()>0) {
+                this._manager.reload(keysToReload.toArray(new KContentKey[keysToReload.size()]));
+                this.fireLocalMessages(messagesToSendLocally.toArray(new KEventMessage[messagesToSendLocally.size()]));
             }
         }
 
@@ -193,11 +204,15 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
             _currentView.lookup(sourceKey.part3()).then(new Callback<KObject>() {
                 public void on(KObject kObject) {
                     if (kObject != null) {
-                        Meta[] modifiedMetas = new Meta[msgs[tempIndex].meta.length];
+                        ArrayList<Meta> modifiedMetas = new ArrayList<Meta>();
                         for(int j = 0; j < msgs[tempIndex].meta.length; j++) {
-                            modifiedMetas[tempIndex] = kObject.metaClass().meta(msgs[tempIndex].meta[j]);
+                            if(msgs[tempIndex].meta[j] >= Index.RESERVED_INDEXES) {
+                                modifiedMetas.add(kObject.metaClass().meta(msgs[tempIndex].meta[j]));
+                            }
                         }
-                        _localEventListeners.dispatch(kObject, modifiedMetas);
+                        if(modifiedMetas.size() >0) {
+                            _localEventListeners.dispatch(kObject, modifiedMetas.toArray(new Meta[modifiedMetas.size()]));
+                        }
                     }
                 }
             });

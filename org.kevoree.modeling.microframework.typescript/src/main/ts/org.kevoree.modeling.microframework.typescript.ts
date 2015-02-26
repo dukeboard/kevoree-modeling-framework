@@ -1936,7 +1936,7 @@ module org {
                         public meta(index: number): org.kevoree.modeling.api.meta.Meta {
                             var transposedIndex: number = index - org.kevoree.modeling.api.data.manager.Index.RESERVED_INDEXES;
                             if (transposedIndex >= 0 && transposedIndex < this._meta.length) {
-                                return this._meta[index];
+                                return this._meta[transposedIndex];
                             } else {
                                 return null;
                             }
@@ -2664,8 +2664,9 @@ module org {
                         export class MemoryKContentDeliveryDriver implements org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver {
 
                             private backend: java.util.HashMap<string, string> = new java.util.HashMap<string, string>();
+                            private _localEventListeners: org.kevoree.modeling.api.util.LocalEventListeners = new org.kevoree.modeling.api.util.LocalEventListeners();
+                            private _manager: org.kevoree.modeling.api.data.manager.KDataManager;
                             public static DEBUG: boolean = false;
-                            private localEventListeners: org.kevoree.modeling.api.util.LocalEventListeners = new org.kevoree.modeling.api.util.LocalEventListeners();
                             public atomicGetMutate(key: org.kevoree.modeling.api.data.cache.KContentKey, operation: org.kevoree.modeling.api.data.cdn.AtomicOperation, callback: (p : string, p1 : java.lang.Throwable) => void): void {
                                 var result: string = this.backend.get(key.toString());
                                 var mutated: string = operation.mutate(result);
@@ -2718,22 +2719,50 @@ module org {
                             }
 
                             public close(callback: (p : java.lang.Throwable) => void): void {
-                                this.localEventListeners.clear();
+                                this._localEventListeners.clear();
                                 this.backend.clear();
                             }
 
                             public registerListener(p_origin: any, p_listener: (p : org.kevoree.modeling.api.KObject, p1 : org.kevoree.modeling.api.meta.Meta[]) => void, p_scope: any): void {
-                                this.localEventListeners.registerListener(p_origin, p_listener, p_scope);
+                                this._localEventListeners.registerListener(p_origin, p_listener, p_scope);
                             }
 
                             public unregister(p_listener: (p : org.kevoree.modeling.api.KObject, p1 : org.kevoree.modeling.api.meta.Meta[]) => void): void {
-                                this.localEventListeners.unregister(p_listener);
+                                this._localEventListeners.unregister(p_listener);
                             }
 
                             public send(msgs: org.kevoree.modeling.api.msg.KEventMessage[]): void {
+                                this.fireLocalMessages(msgs);
                             }
 
                             public setManager(manager: org.kevoree.modeling.api.data.manager.KDataManager): void {
+                                this._manager = manager;
+                            }
+
+                            private fireLocalMessages(msgs: org.kevoree.modeling.api.msg.KEventMessage[]): void {
+                                var _previousKey: org.kevoree.modeling.api.data.cache.KContentKey = null;
+                                var _currentView: org.kevoree.modeling.api.KView = null;
+                                for (var i: number = 0; i < msgs.length; i++) {
+                                    var sourceKey: org.kevoree.modeling.api.data.cache.KContentKey = msgs[i].key;
+                                    if (_previousKey == null || sourceKey.part1() != _previousKey.part1() || sourceKey.part2() != _previousKey.part2()) {
+                                        _currentView = this._manager.model().universe(sourceKey.part1()).time(sourceKey.part2());
+                                        _previousKey = sourceKey;
+                                    }
+                                    var tempIndex: number = i;
+                                    _currentView.lookup(sourceKey.part3()).then( (kObject : org.kevoree.modeling.api.KObject) => {
+                                        if (kObject != null) {
+                                            var modifiedMetas: java.util.ArrayList<org.kevoree.modeling.api.meta.Meta> = new java.util.ArrayList<org.kevoree.modeling.api.meta.Meta>();
+                                            for (var j: number = 0; j < msgs[tempIndex].meta.length; j++) {
+                                                if (msgs[tempIndex].meta[j] >= org.kevoree.modeling.api.data.manager.Index.RESERVED_INDEXES) {
+                                                    modifiedMetas.add(kObject.metaClass().meta(msgs[tempIndex].meta[j]));
+                                                }
+                                            }
+                                            if (modifiedMetas.size() > 0) {
+                                                this._localEventListeners.dispatch(kObject, modifiedMetas.toArray(new Array()));
+                                            }
+                                        }
+                                    });
+                                }
                             }
 
                         }
@@ -2775,6 +2804,7 @@ module org {
                             private _cache: org.kevoree.modeling.api.data.cache.MultiLayeredMemoryCache = new org.kevoree.modeling.api.data.cache.MultiLayeredMemoryCache();
                             constructor(model: org.kevoree.modeling.api.KModel<any>) {
                                 this._db = new org.kevoree.modeling.api.data.cdn.MemoryKContentDeliveryDriver();
+                                this._db.setManager(this);
                                 this._operationManager = new org.kevoree.modeling.api.util.DefaultOperationManager(this);
                                 this._scheduler = new org.kevoree.modeling.api.scheduler.DirectScheduler();
                                 this._model = model;
@@ -2873,7 +2903,7 @@ module org {
                                 request.put(org.kevoree.modeling.api.data.cache.KContentKey.createLastObjectIndexFromPrefix(this._objectKeyCalculator.prefix()), "" + this._objectKeyCalculator.lastComputedIndex());
                                 request.put(org.kevoree.modeling.api.data.cache.KContentKey.createLastUniverseIndexFromPrefix(this._universeKeyCalculator.prefix()), "" + this._universeKeyCalculator.lastComputedIndex());
                                 this._db.put(request,  (throwable : java.lang.Throwable) => {
-                                    if (throwable != null) {
+                                    if (throwable == null) {
                                         this._db.send(notificationMessages);
                                     }
                                     callback(throwable);
@@ -3081,6 +3111,7 @@ module org {
 
                             public setContentDeliveryDriver(p_dataBase: org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver): void {
                                 this._db = p_dataBase;
+                                p_dataBase.setManager(this);
                             }
 
                             public setScheduler(p_scheduler: org.kevoree.modeling.api.KScheduler): void {
@@ -6193,7 +6224,7 @@ module org {
                         }
 
                         public type(): number {
-                            return org.kevoree.modeling.api.msg.KMessageLoader.GET_REQ_TYPE;
+                            return org.kevoree.modeling.api.msg.KMessageLoader.ATOMIC_OPERATION_REQUEST_TYPE;
                         }
 
                     }
@@ -6213,7 +6244,7 @@ module org {
                         }
 
                         public type(): number {
-                            return org.kevoree.modeling.api.msg.KMessageLoader.GET_REQ_TYPE;
+                            return org.kevoree.modeling.api.msg.KMessageLoader.ATOMIC_OPERATION_RESULT_TYPE;
                         }
 
                     }
@@ -6378,11 +6409,11 @@ module org {
                             var lexer: org.kevoree.modeling.api.json.Lexer = new org.kevoree.modeling.api.json.Lexer(payload);
                             var content: java.util.Map<string, any> = new java.util.HashMap<string, any>();
                             var currentAttributeName: string = null;
-                            var arrayPayload: java.util.Set<string> = null;
+                            var arrayPayload: java.util.ArrayList<string> = null;
                             var currentToken: org.kevoree.modeling.api.json.JsonToken = lexer.nextToken();
                             while (currentToken.tokenType() != org.kevoree.modeling.api.json.Type.EOF){
                                 if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.LEFT_BRACKET)) {
-                                    arrayPayload = new java.util.HashSet<string>();
+                                    arrayPayload = new java.util.ArrayList<string>();
                                 } else {
                                     if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.RIGHT_BRACKET)) {
                                         content.put(currentAttributeName, arrayPayload);
@@ -6420,7 +6451,7 @@ module org {
                                         eventMessage.key = org.kevoree.modeling.api.data.cache.KContentKey.create(content.get(KMessageLoader.KEY_NAME).toString());
                                     }
                                     if (content.get(KMessageLoader.VALUES_NAME) != null) {
-                                        var metaInt: java.util.HashSet<string> = <java.util.HashSet<string>>content.get(KMessageLoader.VALUES_NAME);
+                                        var metaInt: java.util.ArrayList<string> = <java.util.ArrayList<string>>content.get(KMessageLoader.VALUES_NAME);
                                         var toFlat: string[] = metaInt.toArray(new Array());
                                         var nbElem: number[] = new Array();
                                         for (var i: number = 0; i < toFlat.length; i++) {
@@ -6436,7 +6467,7 @@ module org {
                                             getKeysRequest.id = java.lang.Long.parseLong(content.get(KMessageLoader.ID_NAME).toString());
                                         }
                                         if (content.get(KMessageLoader.KEYS_NAME) != null) {
-                                            var metaInt: java.util.HashSet<string> = <java.util.HashSet<string>>content.get(KMessageLoader.KEYS_NAME);
+                                            var metaInt: java.util.ArrayList<string> = <java.util.ArrayList<string>>content.get(KMessageLoader.KEYS_NAME);
                                             var toFlat: string[] = metaInt.toArray(new Array());
                                             var keys: org.kevoree.modeling.api.data.cache.KContentKey[] = new Array();
                                             for (var i: number = 0; i < toFlat.length; i++) {
@@ -6452,7 +6483,7 @@ module org {
                                                 getResult.id = java.lang.Long.parseLong(content.get(KMessageLoader.ID_NAME).toString());
                                             }
                                             if (content.get(KMessageLoader.VALUES_NAME) != null) {
-                                                var metaInt: java.util.HashSet<string> = <java.util.HashSet<string>>content.get(KMessageLoader.VALUES_NAME);
+                                                var metaInt: java.util.ArrayList<string> = <java.util.ArrayList<string>>content.get(KMessageLoader.VALUES_NAME);
                                                 var toFlat: string[] = metaInt.toArray(new Array());
                                                 var values: string[] = new Array();
                                                 for (var i: number = 0; i < toFlat.length; i++) {
@@ -6470,11 +6501,11 @@ module org {
                                                 var toFlatKeys: string[] = null;
                                                 var toFlatValues: string[] = null;
                                                 if (content.get(KMessageLoader.KEYS_NAME) != null) {
-                                                    var metaKeys: java.util.HashSet<string> = <java.util.HashSet<string>>content.get(KMessageLoader.KEYS_NAME);
+                                                    var metaKeys: java.util.ArrayList<string> = <java.util.ArrayList<string>>content.get(KMessageLoader.KEYS_NAME);
                                                     toFlatKeys = metaKeys.toArray(new Array());
                                                 }
                                                 if (content.get(KMessageLoader.VALUES_NAME) != null) {
-                                                    var metaValues: java.util.HashSet<string> = <java.util.HashSet<string>>content.get(KMessageLoader.VALUES_NAME);
+                                                    var metaValues: java.util.ArrayList<string> = <java.util.ArrayList<string>>content.get(KMessageLoader.VALUES_NAME);
                                                     toFlatValues = metaValues.toArray(new Array());
                                                 }
                                                 if (toFlatKeys != null && toFlatValues != null && toFlatKeys.length == toFlatValues.length) {
@@ -6503,7 +6534,7 @@ module org {
                                                             callMessage.key = org.kevoree.modeling.api.data.cache.KContentKey.create(content.get(KMessageLoader.KEY_NAME).toString());
                                                         }
                                                         if (content.get(KMessageLoader.VALUES_NAME) != null) {
-                                                            var metaParams: java.util.HashSet<string> = <java.util.HashSet<string>>content.get(KMessageLoader.VALUES_NAME);
+                                                            var metaParams: java.util.ArrayList<string> = <java.util.ArrayList<string>>content.get(KMessageLoader.VALUES_NAME);
                                                             var toFlat: string[] = metaParams.toArray(new Array());
                                                             callMessage.params = toFlat;
                                                         }

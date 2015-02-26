@@ -40,6 +40,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
 
     private KContentDeliveryDriver wrapped = null;
     private ArrayList<WebSocketChannel> _connectedChannels = new ArrayList<>();
+    private KDataManager _manager ;
 
     private Undertow _server = null;
     private String _address = "0.0.0.0";
@@ -97,6 +98,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
         String data = message.getData();
 
         ArrayList<KEventMessage> _events = null;
+        ArrayList<KContentKey> _keysToReload = null;
         JsonArray payload = null;
 
         // parse
@@ -156,9 +158,11 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
                 case KMessageLoader.EVENT_TYPE:{
                     if(_events == null) {
                         _events = new ArrayList<>();
+                        _keysToReload = new ArrayList<>();
                         payload = new JsonArray();
                     }
                     _events.add((KEventMessage)msg);
+                    _keysToReload.add(((KEventMessage)msg).key);
                     payload.add(rawMessage);
                 }break;
                 default:{
@@ -168,6 +172,9 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
         }
 
         if(_events != null) {
+
+            _manager.reload(_keysToReload.toArray(new KContentKey[_keysToReload.size()]));
+
             KEventMessage[] msgs = _events.toArray(new KEventMessage[_events.size()]);
             //send locally
             wrapped.send(msgs);
@@ -216,30 +223,27 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
 
     @Override
     public void send(KEventMessage[] msgs) {
-
         //send locally
-        System.out.println("Send locally");
         wrapped.send(msgs);
 
 
         //Send to remotes
-        final JsonArray payload = new JsonArray();
+        final String[] payload = new String[msgs.length];
         for(int i = 0; i < msgs.length; i++) {
-            payload.add(msgs[i].json());
+            payload[i] = msgs[i].json();
         }
-
-        System.out.println("Send to remotes");
 
         ArrayList<WebSocketChannel> channels = new ArrayList<>(_connectedChannels);
         for(int i = 0; i < channels.size();i++) {
             WebSocketChannel channel = channels.get(i);
-            WebSockets.sendText(payload.toString(), channel, null);
+            WebSockets.sendText("[" + String.join(",",payload) + "]", channel, null);
         }
 
     }
 
     @Override
     public void setManager(KDataManager manager) {
+        this._manager = manager;
         wrapped.setManager(manager);
     }
 

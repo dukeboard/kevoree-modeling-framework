@@ -100,6 +100,6 @@ public class MainServerTest {
                 turn++;
             }
         };
-        executor.scheduleWithFixedDelay(task, 8000, 10000, TimeUnit.MILLISECONDS);
+        executor.scheduleWithFixedDelay(task, 8000, 2000, TimeUnit.MILLISECONDS);
     }
 }
