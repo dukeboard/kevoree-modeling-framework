@@ -5,7 +5,7 @@ import org.kevoree.modeling.api.data.cache.KContentKey;
 /**
  * Created by duke on 23/02/15.
  */
-public class KOperationCallMessage implements KMessage {
+public class KOperationCallMessage extends KMessage {
 
     public Long id;
 
@@ -16,22 +16,13 @@ public class KOperationCallMessage implements KMessage {
     @Override
     public String json() {
         StringBuilder buffer = new StringBuilder();
-        buffer.append("{\n\"type\":\"");
-        buffer.append(type());
-        buffer.append("\"\n");
-        if (id != null) {
-            buffer.append(",");
-            buffer.append("\"id\":\"");
-            buffer.append(id.toString());
-            buffer.append("\"\n");
-        }
-        if (key != null) {
-            buffer.append(",\"key\":\"");
-            buffer.append(key.toString());
-            buffer.append("\"\n");
-        }
+        printJsonStart(buffer);
+        printType(buffer);
+        printElem(id, ID_NAME, buffer);
+        printElem(key, KEY_NAME, buffer);
         if (params != null) {
-            buffer.append(",\"values\":[");
+            buffer.append(",\"");
+            buffer.append(VALUES_NAME).append("\":[");
             for (int i = 0; i < params.length; i++) {
                 if (i != 0) {
                     buffer.append(",");
@@ -42,7 +33,7 @@ public class KOperationCallMessage implements KMessage {
             }
             buffer.append("]\n");
         }
-        buffer.append("}\n");
+        printJsonEnd(buffer);
         return buffer.toString();
     }
 

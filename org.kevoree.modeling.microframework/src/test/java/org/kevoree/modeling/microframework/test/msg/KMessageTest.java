@@ -74,11 +74,11 @@ public class KMessageTest {
 
         KOperationResultMessage msgResult = new KOperationResultMessage();
         msgResult.id = 1l;
-        msgResult.result = "hello";
+        msgResult.value = "hello";
         Assert.assertEquals("{\n" +
                 "\"type\":\"6\"\n" +
                 ",\"id\":\"1\"\n" +
-                ",\"result\":\"hello\"\n" +
+                ",\"value\":\"hello\"\n" +
                 "}\n", msgResult.json());
 
         KMessage parsedResult = KMessageLoader.load(msgResult.json());

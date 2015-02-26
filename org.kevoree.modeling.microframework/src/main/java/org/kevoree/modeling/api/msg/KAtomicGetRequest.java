@@ -6,7 +6,7 @@ import org.kevoree.modeling.api.data.cdn.AtomicOperation;
 /**
  * Created by duke on 24/02/15.
  */
-public class KAtomicGetRequest implements KMessage {
+public class KAtomicGetRequest extends KMessage {
 
     public Long id;
 
@@ -17,29 +17,14 @@ public class KAtomicGetRequest implements KMessage {
     @Override
     public String json() {
         StringBuilder buffer = new StringBuilder();
-        buffer.append("{\n\"type\":\"");
-        buffer.append(type());
-        buffer.append("\"\n");
-        if (id != null) {
-            buffer.append(",");
-            buffer.append("\"id\":\"");
-            buffer.append(id.toString());
-            buffer.append("\"\n");
-        }
-        if (key != null) {
-            buffer.append(",");
-            buffer.append("\"key\":\"");
-            buffer.append(key.toString());
-            buffer.append("\"\n");
-
-        }
+        printJsonStart(buffer);
+        printType(buffer);
+        printElem(id, ID_NAME, buffer);
+        printElem(key, KEY_NAME, buffer);
         if (operation != null) {
-            buffer.append(",");
-            buffer.append("\"operation\":\"");
-            buffer.append(operation.operationKey());
-            buffer.append("\"\n");
+            printElem(operation.operationKey(), OPERATION_NAME, buffer);
         }
-        buffer.append("}\n");
+        printJsonEnd(buffer);
         return buffer.toString();
     }
 

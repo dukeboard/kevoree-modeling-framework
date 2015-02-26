@@ -69,14 +69,14 @@ public class KMessageLoader {
             currentToken = lexer.nextToken();
         }
         try {
-            Integer parsedType = Integer.parseInt(content.get("type").toString());
+            Integer parsedType = Integer.parseInt(content.get(KMessage.TYPE_NAME).toString());
             if (parsedType == EVENT_TYPE) {
                 KEventMessage eventMessage = new KEventMessage();
-                if (content.get("key") != null) {
-                    eventMessage.key = KContentKey.create(content.get("key").toString());
+                if (content.get(KMessage.KEY_NAME) != null) {
+                    eventMessage.key = KContentKey.create(content.get(KMessage.KEY_NAME).toString());
                 }
-                if (content.get("values") != null) {
-                    HashSet<String> metaInt = (HashSet<String>) content.get("values");
+                if (content.get(KMessage.VALUES_NAME) != null) {
+                    HashSet<String> metaInt = (HashSet<String>) content.get(KMessage.VALUES_NAME);
                     String[] toFlat = metaInt.toArray(new String[metaInt.size()]);
                     int[] nbElem = new int[metaInt.size()];
                     for (int i = 0; i < toFlat.length; i++) {
@@ -87,11 +87,11 @@ public class KMessageLoader {
                 return eventMessage;
             } else if (parsedType == GET_REQ_TYPE) {
                 KGetRequest getKeysRequest = new KGetRequest();
-                if (content.get("id") != null) {
-                    getKeysRequest.id = Long.parseLong(content.get("id").toString());
+                if (content.get(KMessage.ID_NAME) != null) {
+                    getKeysRequest.id = Long.parseLong(content.get(KMessage.ID_NAME).toString());
                 }
-                if (content.get("keys") != null) {
-                    HashSet<String> metaInt = (HashSet<String>) content.get("keys");
+                if (content.get(KMessage.KEYS_NAME) != null) {
+                    HashSet<String> metaInt = (HashSet<String>) content.get(KMessage.KEYS_NAME);
                     String[] toFlat = metaInt.toArray(new String[metaInt.size()]);
                     KContentKey[] keys = new KContentKey[toFlat.length];
                     for (int i = 0; i < toFlat.length; i++) {
@@ -102,11 +102,11 @@ public class KMessageLoader {
                 return getKeysRequest;
             } else if (parsedType == GET_RES_TYPE) {
                 KGetResult getResult = new KGetResult();
-                if (content.get("id") != null) {
-                    getResult.id = Long.parseLong(content.get("id").toString());
+                if (content.get(KMessage.ID_NAME) != null) {
+                    getResult.id = Long.parseLong(content.get(KMessage.ID_NAME).toString());
                 }
-                if (content.get("values") != null) {
-                    HashSet<String> metaInt = (HashSet<String>) content.get("values");
+                if (content.get(KMessage.VALUES_NAME) != null) {
+                    HashSet<String> metaInt = (HashSet<String>) content.get(KMessage.VALUES_NAME);
                     String[] toFlat = metaInt.toArray(new String[metaInt.size()]);
                     String[] values = new String[toFlat.length];
                     for (int i = 0; i < toFlat.length; i++) {
@@ -117,17 +117,17 @@ public class KMessageLoader {
                 return getResult;
             } else if (parsedType == PUT_REQ_TYPE) {
                 KPutRequest putRequest = new KPutRequest();
-                if (content.get("id") != null) {
-                    putRequest.id = Long.parseLong(content.get("id").toString());
+                if (content.get(KMessage.ID_NAME) != null) {
+                    putRequest.id = Long.parseLong(content.get(KMessage.ID_NAME).toString());
                 }
                 String[] toFlatKeys = null;
                 String[] toFlatValues = null;
-                if (content.get("keys") != null) {
-                    HashSet<String> metaKeys = (HashSet<String>) content.get("keys");
+                if (content.get(KMessage.KEYS_NAME) != null) {
+                    HashSet<String> metaKeys = (HashSet<String>) content.get(KMessage.KEYS_NAME);
                     toFlatKeys = metaKeys.toArray(new String[metaKeys.size()]);
                 }
-                if (content.get("values") != null) {
-                    HashSet<String> metaValues = (HashSet<String>) content.get("values");
+                if (content.get(KMessage.VALUES_NAME) != null) {
+                    HashSet<String> metaValues = (HashSet<String>) content.get(KMessage.VALUES_NAME);
                     toFlatValues = metaValues.toArray(new String[metaValues.size()]);
                 }
                 if (toFlatKeys != null && toFlatValues != null && toFlatKeys.length == toFlatValues.length) {
@@ -141,52 +141,52 @@ public class KMessageLoader {
                 return putRequest;
             } else if (parsedType == PUT_RES_TYPE) {
                 KPutResult putResult = new KPutResult();
-                if (content.get("id") != null) {
-                    putResult.id = Long.parseLong(content.get("id").toString());
+                if (content.get(KMessage.ID_NAME) != null) {
+                    putResult.id = Long.parseLong(content.get(KMessage.ID_NAME).toString());
                 }
                 return putResult;
             } else if (parsedType == OPERATION_CALL_TYPE) {
                 KOperationCallMessage callMessage = new KOperationCallMessage();
-                if (content.get("id") != null) {
-                    callMessage.id = Long.parseLong(content.get("id").toString());
+                if (content.get(KMessage.ID_NAME) != null) {
+                    callMessage.id = Long.parseLong(content.get(KMessage.ID_NAME).toString());
                 }
-                if (content.get("key") != null) {
-                    callMessage.key = KContentKey.create(content.get("key").toString());
+                if (content.get(KMessage.KEY_NAME) != null) {
+                    callMessage.key = KContentKey.create(content.get(KMessage.KEY_NAME).toString());
                 }
-                if (content.get("values") != null) {
-                    HashSet<String> metaParams = (HashSet<String>) content.get("values");
+                if (content.get(KMessage.VALUES_NAME) != null) {
+                    HashSet<String> metaParams = (HashSet<String>) content.get(KMessage.VALUES_NAME);
                     String[] toFlat = metaParams.toArray(new String[metaParams.size()]);
                     callMessage.params = toFlat;
                 }
                 return callMessage;
             } else if (parsedType == OPERATION_RESULT_TYPE) {
                 KOperationResultMessage resultMessage = new KOperationResultMessage();
-                if (content.get("id") != null) {
-                    resultMessage.id = Long.parseLong(content.get("id").toString());
+                if (content.get(KMessage.ID_NAME) != null) {
+                    resultMessage.id = Long.parseLong(content.get(KMessage.ID_NAME).toString());
                 }
-                if (content.get("result") != null) {
-                    resultMessage.result = content.get("result").toString();
+                if (content.get(KMessage.VALUE_NAME) != null) {
+                    resultMessage.value = content.get(KMessage.VALUE_NAME).toString();
                 }
                 return resultMessage;
             } else if (parsedType == ATOMIC_OPERATION_REQUEST_TYPE) {
                 KAtomicGetRequest atomicGetMessage = new KAtomicGetRequest();
-                if (content.get("id") != null) {
-                    atomicGetMessage.id = Long.parseLong(content.get("id").toString());
+                if (content.get(KMessage.ID_NAME) != null) {
+                    atomicGetMessage.id = Long.parseLong(content.get(KMessage.ID_NAME).toString());
                 }
-                if (content.get("key") != null) {
-                    atomicGetMessage.key = KContentKey.create(content.get("key").toString());
+                if (content.get(KMessage.KEY_NAME) != null) {
+                    atomicGetMessage.key = KContentKey.create(content.get(KMessage.KEY_NAME).toString());
                 }
-                if (content.get("operation") != null) {
-                    atomicGetMessage.operation = AtomicOperationFactory.getOperationWithKey(Integer.parseInt((String) content.get("operation")));
+                if (content.get(KMessage.OPERATION_NAME) != null) {
+                    atomicGetMessage.operation = AtomicOperationFactory.getOperationWithKey(Integer.parseInt((String) content.get(KMessage.OPERATION_NAME)));
                 }
                 return atomicGetMessage;
             } else if (parsedType == ATOMIC_OPERATION_RESULT_TYPE) {
                 KAtomicGetResult atomicGetResultMessage = new KAtomicGetResult();
-                if (content.get("id") != null) {
-                    atomicGetResultMessage.id = Long.parseLong(content.get("id").toString());
+                if (content.get(KMessage.ID_NAME) != null) {
+                    atomicGetResultMessage.id = Long.parseLong(content.get(KMessage.ID_NAME).toString());
                 }
-                if (content.get("value") != null) {
-                    atomicGetResultMessage.value = content.get("value").toString();
+                if (content.get(KMessage.VALUE_NAME) != null) {
+                    atomicGetResultMessage.value = content.get(KMessage.VALUE_NAME).toString();
                 }
                 return atomicGetResultMessage;
             }

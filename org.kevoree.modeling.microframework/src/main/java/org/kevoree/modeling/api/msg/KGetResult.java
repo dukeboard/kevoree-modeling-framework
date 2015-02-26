@@ -5,7 +5,7 @@ import org.kevoree.modeling.api.json.JsonString;
 /**
  * Created by duke on 24/02/15.
  */
-public class KGetResult implements KMessage {
+public class KGetResult extends KMessage {
 
     public Long id;
 
@@ -14,18 +14,13 @@ public class KGetResult implements KMessage {
     @Override
     public String json() {
         StringBuilder buffer = new StringBuilder();
-        buffer.append("{\n\"type\":\"");
-        buffer.append(type());
-        buffer.append("\"\n");
-        if (id != null) {
-            buffer.append(",");
-            buffer.append("\"id\":\"");
-            buffer.append(id.toString());
-            buffer.append("\"\n");
-        }
+        printJsonStart(buffer);
+        printType(buffer);
+        printElem(id, ID_NAME, buffer);
         if (values != null) {
             buffer.append(",");
-            buffer.append("\"values\":[");
+            buffer.append("\"");
+            buffer.append(VALUES_NAME).append("\":[");
             for (int i = 0; i < values.length; i++) {
                 if (i != 0) {
                     buffer.append(",");
@@ -36,7 +31,7 @@ public class KGetResult implements KMessage {
             }
             buffer.append("]\n");
         }
-        buffer.append("}\n");
+        printJsonEnd(buffer);
         return buffer.toString();
     }
 

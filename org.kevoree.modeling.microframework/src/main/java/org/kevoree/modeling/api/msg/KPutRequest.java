@@ -6,7 +6,7 @@ import org.kevoree.modeling.api.json.JsonString;
 /**
  * Created by duke on 24/02/15.
  */
-public class KPutRequest implements KMessage {
+public class KPutRequest extends KMessage {
 
     public KContentPutRequest request;
 
@@ -15,17 +15,12 @@ public class KPutRequest implements KMessage {
     @Override
     public String json() {
         StringBuilder buffer = new StringBuilder();
-        buffer.append("{\n\"type\":\"");
-        buffer.append(type());
-        buffer.append("\"\n");
-        if (id != null) {
-            buffer.append(",");
-            buffer.append("\"id\":\"");
-            buffer.append(id.toString());
-            buffer.append("\"\n");
-        }
+        printJsonStart(buffer);
+        printType(buffer);
+        printElem(id, ID_NAME, buffer);
         if (request != null) {
-            buffer.append(",\"keys\":[");
+            buffer.append(",\"");
+            buffer.append(KEYS_NAME).append("\":[");
             for (int i = 0; i < request.size(); i++) {
                 if (i != 0) {
                     buffer.append(",");
@@ -35,7 +30,8 @@ public class KPutRequest implements KMessage {
                 buffer.append("\"");
             }
             buffer.append("]\n");
-            buffer.append(",\"values\":[");
+            buffer.append(",\"");
+            buffer.append(VALUES_NAME).append("\":[");
             for (int i = 0; i < request.size(); i++) {
                 if (i != 0) {
                     buffer.append(",");
@@ -46,7 +42,7 @@ public class KPutRequest implements KMessage {
             }
             buffer.append("]\n");
         }
-        buffer.append("}\n");
+        printJsonEnd(buffer);
         return buffer.toString();
     }
 
