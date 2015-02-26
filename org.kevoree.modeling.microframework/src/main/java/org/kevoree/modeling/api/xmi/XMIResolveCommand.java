@@ -2,6 +2,7 @@ package org.kevoree.modeling.api.xmi;
 
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KActionType;
+import org.kevoree.modeling.api.meta.MetaReference;
 
 public class XMIResolveCommand {
 
@@ -22,12 +23,12 @@ public class XMIResolveCommand {
     void run() throws Exception {
         KObject referencedElement = context.map.get(ref);
         if (referencedElement != null) {
-            target.mutate(mutatorType, target.metaClass().metaReference(refName), referencedElement);
+            target.mutate(mutatorType, (MetaReference) target.metaClass().metaByName(refName), referencedElement);
             return;
         }
         referencedElement = context.map.get("/");
         if (referencedElement != null) {
-            target.mutate(mutatorType, target.metaClass().metaReference(refName), referencedElement);
+            target.mutate(mutatorType, (MetaReference) target.metaClass().metaByName(refName), referencedElement);
             return;
         }
         throw new Exception("KMF Load error : reference " + ref + " not found in map when trying to  " + mutatorType + " " + refName + "  on " + target.metaClass().metaName() + "(uuid:" + target.uuid() + ")");

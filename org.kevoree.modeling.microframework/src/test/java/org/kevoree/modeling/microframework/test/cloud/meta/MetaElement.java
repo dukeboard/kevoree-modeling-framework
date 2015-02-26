@@ -26,12 +26,10 @@ public class MetaElement extends AbstractMetaClass {
 
     public MetaElement() {
         super("org.kevoree.modeling.microframework.test.cloud.Element", 1);
-        MetaAttribute[] temp_attributes = new MetaAttribute[2];
-        temp_attributes[0] = ATT_NAME;
-        temp_attributes[1] = ATT_VALUE;
-        MetaReference[] temp_references = new MetaReference[0];
-        MetaOperation[] temp_operations = new MetaOperation[0];
-        init(temp_attributes, temp_references, temp_operations);
+        Meta[] temp = new Meta[2];
+        temp[0] = ATT_NAME;
+        temp[1] = ATT_VALUE;
+        init(temp);
     }
 
 }

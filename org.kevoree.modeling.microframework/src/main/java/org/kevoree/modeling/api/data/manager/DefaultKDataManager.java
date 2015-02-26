@@ -166,7 +166,7 @@ public class DefaultKDataManager implements KDataManager {
     @Override
     public void initKObject(KObject obj, KView originView) {
         KCacheEntry cacheEntry = new KCacheEntry();
-        cacheEntry.raw = new Object[Index.RESERVED_INDEXES + obj.metaClass().metaAttributes().length + obj.metaClass().metaReferences().length];
+        cacheEntry.raw = new Object[Index.RESERVED_INDEXES + obj.metaClass().metaElements().length];
         cacheEntry._dirty = true;
         cacheEntry.metaClass = obj.metaClass();
         cacheEntry.universeTree = obj.universeTree();
@@ -244,7 +244,7 @@ public class DefaultKDataManager implements KDataManager {
                                                                 LongRBTree globalUniverseTree = new LongRBTree();
                                                                 if (globalUniverseTreePayload != null) {
                                                                     try {
-                                                                        globalUniverseTree.unserialize(KContentKey.createGlobalUniverseTree(),globalUniverseTreePayload,model().metaModel());
+                                                                        globalUniverseTree.unserialize(KContentKey.createGlobalUniverseTree(), globalUniverseTreePayload, model().metaModel());
                                                                     } catch (Exception e) {
                                                                         e.printStackTrace();
                                                                     }
@@ -436,7 +436,7 @@ public class DefaultKDataManager implements KDataManager {
                             LongRBTree newLoadedTree = new LongRBTree();
                             if (resolvedContents[i] != null) {
                                 try {
-                                    newLoadedTree.unserialize(finalToLoadUniverseTrees.get(i),resolvedContents[i],model().metaModel());
+                                    newLoadedTree.unserialize(finalToLoadUniverseTrees.get(i), resolvedContents[i], model().metaModel());
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -501,7 +501,7 @@ public class DefaultKDataManager implements KDataManager {
                             IndexRBTree newLoadedTree = new IndexRBTree();
                             if (resolvedContents[i] != null) {
                                 try {
-                                    newLoadedTree.unserialize(finalToLoadTimeTrees.get(i),resolvedContents[i],model().metaModel());
+                                    newLoadedTree.unserialize(finalToLoadTimeTrees.get(i), resolvedContents[i], model().metaModel());
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -540,7 +540,7 @@ public class DefaultKDataManager implements KDataManager {
                     } else {
                         LongRBTree newRootUniverseTree = new LongRBTree();
                         try {
-                            newRootUniverseTree.unserialize(contentKey,strings[0],model().metaModel());
+                            newRootUniverseTree.unserialize(contentKey, strings[0], model().metaModel());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

@@ -20,9 +20,7 @@ public class MetaInferClass implements MetaClass {
 
     private MetaAttribute[] _attributes = null;
 
-    private MetaReference[] _references = new MetaReference[0];
-
-    private MetaOperation[] _operations = new MetaOperation[0];
+    private MetaReference[] _metaReferences = new MetaReference[0];
 
     public MetaAttribute getRaw() {
         return _attributes[0];
@@ -39,32 +37,32 @@ public class MetaInferClass implements MetaClass {
     }
 
     @Override
+    public Meta[] metaElements() {
+        return new Meta[0];
+    }
+
+    @Override
+    public Meta meta(int index) {
+        int offset = index - Index.RESERVED_INDEXES;
+        if (offset == 0 || offset == 1) {
+            return _attributes[offset];
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public MetaAttribute[] metaAttributes() {
         return _attributes;
     }
 
     @Override
     public MetaReference[] metaReferences() {
-        return _references;
+        return _metaReferences;
     }
 
     @Override
-    public MetaOperation[] metaOperations() {
-        return _operations;
-    }
-
-    @Override
-    public MetaAttribute metaAttribute(String name) {
-        return null;
-    }
-
-    @Override
-    public MetaReference metaReference(String name) {
-        return null;
-    }
-
-    @Override
-    public MetaOperation metaOperation(String name) {
+    public Meta metaByName(String name) {
         return null;
     }
 

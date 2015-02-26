@@ -13,9 +13,7 @@ import java.util.HashMap;
  */
 public class DynamicMetaClass extends AbstractMetaClass {
 
-    private HashMap<String, MetaAttribute> cached_attributes = new HashMap<String, MetaAttribute>();
-    private HashMap<String, MetaReference> cached_references = new HashMap<String, MetaReference>();
-    private HashMap<String, MetaOperation> cached_methods = new HashMap<String, MetaOperation>();
+    private HashMap<String, Meta> cached_meta = new HashMap<String, Meta>();
     private int _globalIndex = -1;
 
     public DynamicMetaClass(String p_name, int p_index) {
@@ -25,7 +23,7 @@ public class DynamicMetaClass extends AbstractMetaClass {
 
     public DynamicMetaClass addAttribute(String p_name, KMetaType p_type) {
         AbstractMetaAttribute tempAttribute = new AbstractMetaAttribute(p_name, _globalIndex, -1, false, p_type, DiscreteExtrapolation.instance());
-        cached_attributes.put(tempAttribute.metaName(), tempAttribute);
+        cached_meta.put(tempAttribute.metaName(), tempAttribute);
         _globalIndex = _globalIndex + 1;
         internalInit();
         return this;
@@ -44,7 +42,7 @@ public class DynamicMetaClass extends AbstractMetaClass {
                 return tempOrigin;
             }
         });
-        cached_references.put(tempReference.metaName(), tempReference);
+        cached_meta.put(tempReference.metaName(), tempReference);
         _globalIndex = _globalIndex + 1;
         internalInit();
         return this;
@@ -58,32 +56,20 @@ public class DynamicMetaClass extends AbstractMetaClass {
                 return tempOrigin;
             }
         });
-        cached_methods.put(tempOperation.metaName(), tempOperation);
+        cached_meta.put(tempOperation.metaName(), tempOperation);
         _globalIndex = _globalIndex + 1;
         internalInit();
         return this;
     }
 
     private void internalInit() {
-        MetaAttribute[] tempAttributes = new MetaAttribute[cached_attributes.size()];
-        MetaReference[] tempReference = new MetaReference[cached_references.size()];
-        MetaOperation[] tempOperation = new MetaOperation[cached_methods.size()];
-        String[] keysAttributes = cached_attributes.keySet().toArray(new String[cached_attributes.keySet().size()]);
-        for (int i = 0; i < keysAttributes.length; i++) {
-            MetaAttribute resAtt = cached_attributes.get(keysAttributes[i]);
-            tempAttributes[i] = resAtt;
+        Meta[] tempMeta = new Meta[cached_meta.size()];
+        String[] keysMeta = cached_meta.keySet().toArray(new String[cached_meta.keySet().size()]);
+        for (int i = 0; i < keysMeta.length; i++) {
+            Meta resAtt = cached_meta.get(keysMeta[i]);
+            tempMeta[i] = resAtt;
         }
-        String[] keysReferences = cached_references.keySet().toArray(new String[cached_references.keySet().size()]);
-        for (int i = 0; i < keysReferences.length; i++) {
-            MetaReference resRef = cached_references.get(keysReferences[i]);
-            tempReference[i] = resRef;
-        }
-        String[] keysOperations = cached_methods.keySet().toArray(new String[cached_methods.keySet().size()]);
-        for (int i = 0; i < keysOperations.length; i++) {
-            MetaOperation resOp = cached_methods.get(keysOperations[i]);
-            tempOperation[i] = resOp;
-        }
-        init(tempAttributes, tempReference, tempOperation);
+        init(tempMeta);
     }
 
 }

@@ -1,9 +1,7 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.meta.MetaAttribute;
-import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.meta.MetaOperation;
-import org.kevoree.modeling.api.meta.MetaReference;
+import org.kevoree.modeling.api.data.manager.Index;
+import org.kevoree.modeling.api.meta.*;
 
 import java.util.HashMap;
 
@@ -16,17 +14,23 @@ public class AbstractMetaClass implements MetaClass {
 
     private int _index;
 
+    private Meta[] _meta;
+
     private MetaAttribute[] _atts;
 
     private MetaReference[] _refs;
 
-    private MetaOperation[] _operations;
+    private HashMap<String, Meta> _indexes = new HashMap<String, Meta>();
 
-    private HashMap<String, Integer> _atts_indexes = new HashMap<String, Integer>();
+    @Override
+    public Meta metaByName(String name) {
+        return _indexes.get(name);
+    }
 
-    private HashMap<String, Integer> _refs_indexes = new HashMap<String, Integer>();
-
-    private HashMap<String, Integer> _ops_indexes = new HashMap<String, Integer>();
+    @Override
+    public Meta[] metaElements() {
+        return _meta;
+    }
 
     public int index() {
         return _index;
@@ -41,21 +45,44 @@ public class AbstractMetaClass implements MetaClass {
         this._index = p_index;
     }
 
-    protected void init(MetaAttribute[] p_atts, MetaReference[] p_refs, MetaOperation[] p_operations) {
-        this._atts = p_atts;
-        for (int i = 0; i < _atts.length; i++) {
-            _atts_indexes.put(_atts[i].metaName(), i);
+    protected void init(Meta[] p_meta) {
+        this._meta = p_meta;
+        int nbAtt = 0;
+        int nbRef = 0;
+        for (int i = 0; i < p_meta.length; i++) {
+            if (p_meta[i] instanceof AbstractMetaAttribute) {
+                nbAtt++;
+            } else if (p_meta[i] instanceof AbstractMetaReference) {
+                nbRef++;
+            }
+            _indexes.put(p_meta[i].metaName(), p_meta[i]);
         }
-        this._refs = p_refs;
-        for (int i = 0; i < _refs.length; i++) {
-            _refs_indexes.put(_refs[i].metaName(), i);
+        _atts = new MetaAttribute[nbAtt];
+        _refs = new MetaReference[nbRef];
+        nbAtt = 0;
+        nbRef = 0;
+        for (int i = 0; i < p_meta.length; i++) {
+            if (p_meta[i] instanceof AbstractMetaAttribute) {
+                _atts[nbAtt] = (MetaAttribute) p_meta[i];
+                nbAtt++;
+            } else if (p_meta[i] instanceof AbstractMetaReference) {
+                _refs[nbRef] = (MetaReference) p_meta[i];
+                nbRef++;
+            }
+            _indexes.put(p_meta[i].metaName(), p_meta[i]);
         }
-        this._operations = p_operations;
-        for (int i = 0; i < _operations.length; i++) {
-            _ops_indexes.put(_operations[i].metaName(), i);
-        }
+
     }
 
+    @Override
+    public Meta meta(int index) {
+        int transposedIndex = index - Index.RESERVED_INDEXES;
+        if (transposedIndex >= 0 && transposedIndex < this._meta.length) {
+            return this._meta[index];
+        } else {
+            return null;
+        }
+    }
 
     @Override
     public MetaAttribute[] metaAttributes() {
@@ -65,41 +92,6 @@ public class AbstractMetaClass implements MetaClass {
     @Override
     public MetaReference[] metaReferences() {
         return this._refs;
-    }
-
-    @Override
-    public MetaOperation[] metaOperations() {
-        return this._operations;
-    }
-
-    @Override
-    public MetaAttribute metaAttribute(String name) {
-        Integer resolved = _atts_indexes.get(name);
-        if (resolved == null) {
-            return null;
-        } else {
-            return _atts[resolved];
-        }
-    }
-
-    @Override
-    public MetaReference metaReference(String name) {
-        Integer resolved = _refs_indexes.get(name);
-        if (resolved == null) {
-            return null;
-        } else {
-            return _refs[resolved];
-        }
-    }
-
-    @Override
-    public MetaOperation metaOperation(String name) {
-        Integer resolved = _ops_indexes.get(name);
-        if (resolved == null) {
-            return null;
-        } else {
-            return _operations[resolved];
-        }
     }
 
 }

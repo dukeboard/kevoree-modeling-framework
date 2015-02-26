@@ -5,16 +5,15 @@ package org.kevoree.modeling.api.meta;
  */
 public interface MetaClass extends Meta {
 
-    MetaAttribute[] metaAttributes();
+    public Meta[] metaElements();
 
-    MetaReference[] metaReferences();
+    public Meta meta(int index);
 
-    MetaOperation[] metaOperations();
+    public MetaAttribute[] metaAttributes();
 
-    public MetaAttribute metaAttribute(String name);
+    public MetaReference[] metaReferences();
 
-    public MetaReference metaReference(String name);
+    public Meta metaByName(String name);
 
-    public MetaOperation metaOperation(String name);
 
 }

@@ -4,14 +4,13 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKView;
+import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
+import org.kevoree.modeling.api.abs.AbstractMetaReference;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.data.manager.JsonRaw;
-import org.kevoree.modeling.api.meta.MetaAttribute;
-import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.meta.MetaModel;
-import org.kevoree.modeling.api.meta.MetaReference;
+import org.kevoree.modeling.api.meta.*;
 import org.kevoree.modeling.api.rbtree.LongRBTree;
 
 import java.util.ArrayList;
@@ -134,8 +133,8 @@ public class JsonModelLoader {
                                     if (elems.length == 2) {
                                         MetaClass foundMeta = metaModel.metaClass(elems[0].trim());
                                         if (foundMeta != null) {
-                                            MetaReference metaReference = foundMeta.metaReference(elems[1].trim());
-                                            if (metaReference != null) {
+                                            Meta metaReference = foundMeta.metaByName(elems[1].trim());
+                                            if (metaReference != null && metaReference instanceof AbstractMetaReference) {
                                                 raw.set(Index.REF_IN_PARENT_INDEX, metaReference);
                                             }
                                         }
@@ -150,19 +149,18 @@ public class JsonModelLoader {
                             } else if (metaKey.equals(JsonModelSerializer.KEY_META)) {
                                 //nothing metaClass is already set
                             } else {
-                                MetaAttribute metaAttribute = metaClass.metaAttribute(metaKey);
-                                MetaReference metaReference = metaClass.metaReference(metaKey);
+                                Meta metaElement = metaClass.metaByName(metaKey);
                                 if (payload_content != null) {
-                                    if (metaAttribute != null) {
-                                        raw.set(metaAttribute.index(), metaAttribute.strategy().load(payload_content.toString(), metaAttribute, factory.now()));
-                                    } else if (metaReference != null) {
-                                        if (metaReference.single()) {
+                                    if (metaElement != null && metaElement instanceof AbstractMetaAttribute) {
+                                        raw.set(metaElement.index(), ((MetaAttribute) metaElement).strategy().load(payload_content.toString(), (MetaAttribute) metaElement, factory.now()));
+                                    } else if (metaElement != null && metaElement instanceof AbstractMetaReference) {
+                                        if (((MetaReference) metaElement).single()) {
                                             try {
                                                 Long converted = Long.parseLong(payload_content.toString());
                                                 if (mappedKeys.containsKey(converted)) {
                                                     converted = mappedKeys.get(converted);
                                                 }
-                                                raw.set(metaReference.index(), converted);
+                                                raw.set(metaElement.index(), converted);
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
@@ -183,7 +181,7 @@ public class JsonModelLoader {
                                                         e.printStackTrace();
                                                     }
                                                 }
-                                                raw.set(metaReference.index(), convertedRaw);
+                                                raw.set(metaElement.index(), convertedRaw);
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }

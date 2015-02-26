@@ -4,6 +4,9 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
+import org.kevoree.modeling.api.abs.AbstractMetaReference;
+import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
 
@@ -161,12 +164,11 @@ public class XMIModelLoader {
                 String attrName = ctx.xmiReader.getAttributeLocalName(i).trim();
                 String valueAtt = ctx.xmiReader.getAttributeValue(i).trim();
                 if (valueAtt != null) {
-                    MetaAttribute kAttribute = modelElem.metaClass().metaAttribute(attrName);
-                    if (kAttribute != null) {
-                        modelElem.set(kAttribute, unescapeXml(valueAtt));
+                    Meta metaElement = modelElem.metaClass().metaByName(attrName);
+                    if (metaElement != null && metaElement instanceof AbstractMetaAttribute) {
+                        modelElem.set((MetaAttribute) metaElement, unescapeXml(valueAtt));
                     } else {
-                        MetaReference kreference = modelElem.metaClass().metaReference(attrName);
-                        if (kreference != null) {
+                        if (metaElement != null && metaElement instanceof AbstractMetaReference) {
                             String[] referenceArray = valueAtt.split(" ");
                             for (int j = 0; j < referenceArray.length; j++) {
                                 String xmiRef = referenceArray[j];
@@ -175,7 +177,7 @@ public class XMIModelLoader {
                                 adjustedRef = adjustedRef.replace(".0", "");
                                 KObject ref = ctx.map.get(adjustedRef);
                                 if (ref != null) {
-                                    modelElem.mutate(KActionType.ADD, kreference, ref);
+                                    modelElem.mutate(KActionType.ADD, (MetaReference) metaElement, ref);
                                 } else {
                                     ctx.resolvers.add(new XMIResolveCommand(ctx, modelElem, KActionType.ADD, attrName, adjustedRef));
                                 }
@@ -202,7 +204,7 @@ public class XMIModelLoader {
                     }
                     String subElementId = xmiAddress + "/@" + subElemName + (i != 0 ? "." + i : "");
                     KObject containedElement = loadObject(p_view, ctx, subElementId, subElemName);
-                    modelElem.mutate(KActionType.ADD, modelElem.metaClass().metaReference(subElemName), containedElement);
+                    modelElem.mutate(KActionType.ADD, (MetaReference) modelElem.metaClass().metaByName(subElemName), containedElement);
                     ctx.elementsCount.put(xmiAddress + "/@" + subElemName, i + 1);
                 } else if (tok.equals(XmlToken.END_TAG)) {
                     if (ctx.xmiReader.getLocalName().equals(elementTagName)) {

@@ -782,7 +782,7 @@ public abstract class AbstractKObject implements KObject {
         if (!Checker.isDefined(p)) {
             return null;
         } else {
-            return metaClass().metaReference(p.metaName());
+            return (MetaReference) metaClass().metaByName(p.metaName());
         }
     }
 
@@ -790,7 +790,7 @@ public abstract class AbstractKObject implements KObject {
         if (!Checker.isDefined(p)) {
             return null;
         } else {
-            return metaClass().metaAttribute(p.metaName());
+            return (MetaAttribute) metaClass().metaByName(p.metaName());
         }
     }
 
@@ -798,7 +798,7 @@ public abstract class AbstractKObject implements KObject {
         if (!Checker.isDefined(p)) {
             return null;
         } else {
-            return metaClass().metaOperation(p.metaName());
+            return (MetaOperation) metaClass().metaByName(p.metaName());
         }
     }
 

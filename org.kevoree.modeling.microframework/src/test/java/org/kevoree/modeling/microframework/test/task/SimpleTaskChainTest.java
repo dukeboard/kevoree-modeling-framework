@@ -3,6 +3,7 @@ package org.kevoree.modeling.microframework.test.task;
 import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.PrimitiveMetaTypes;
 import org.kevoree.modeling.api.reflexive.DynamicKModel;
 import org.kevoree.modeling.api.reflexive.DynamicMetaModel;
@@ -106,7 +107,7 @@ public class SimpleTaskChainTest {
         KModel dynamicKModel = metaModel.model();
         dynamicKModel.connect();
         KObject root = dynamicKModel.universe(0).time(0).create(metaModel.metaClass("Sensor"));
-        root.set(root.metaClass().metaAttribute("name"), "MyRoot");
+        root.set((MetaAttribute) root.metaClass().metaByName("name"), "MyRoot");
         dynamicKModel.universe(0).time(0).setRoot(root);
 
         final String[] results = new String[2];
@@ -124,8 +125,8 @@ public class SimpleTaskChainTest {
             }
         });
 
-        Assert.assertEquals(results[0],"T1");
-        Assert.assertEquals(results[1],"T2");
+        Assert.assertEquals(results[0], "T1");
+        Assert.assertEquals(results[1], "T2");
 
     }
 
@@ -136,7 +137,7 @@ public class SimpleTaskChainTest {
         KModel dynamicKModel = metaModel.model();
         dynamicKModel.connect();
         KObject root = dynamicKModel.universe(0).time(0).create(metaModel.metaClass("Sensor"));
-        root.set(root.metaClass().metaAttribute("name"), "MyRoot");
+        root.set((MetaAttribute) root.metaClass().metaByName("name"), "MyRoot");
         dynamicKModel.universe(0).time(0).setRoot(root);
 
         KDefer rootTask = dynamicKModel.defer();

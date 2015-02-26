@@ -50,15 +50,13 @@ public class MetaNode extends AbstractMetaClass {
 
     public MetaNode() {
         super("org.kevoree.modeling.microframework.test.cloud.Node", 0);
-        MetaAttribute[] temp_attributes = new MetaAttribute[2];
-        temp_attributes[0] = ATT_NAME;
-        temp_attributes[1] = ATT_VALUE;
-        MetaReference[] temp_references = new MetaReference[2];
-        temp_references[0] = REF_CHILDREN;
-        temp_references[1] = REF_ELEMENT;
-        MetaOperation[] temp_operations = new MetaOperation[1];
-        temp_operations[0] = OP_TRIGGER;
-        init(temp_attributes, temp_references, temp_operations);
+        Meta[] temp = new Meta[5];
+        temp[0] = ATT_NAME;
+        temp[1] = ATT_VALUE;
+        temp[2] = REF_CHILDREN;
+        temp[3] = REF_ELEMENT;
+        temp[4] = OP_TRIGGER;
+        init(temp);
     }
 
 }

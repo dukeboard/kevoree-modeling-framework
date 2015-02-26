@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.traversal.KTraversalFilter;
 import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
@@ -46,21 +47,21 @@ public class PromiseTest {
                 node0.addChildren(node2);
 
                 // traversal promise
-                node0.traverse(node0.metaClass().metaReference("children")).then().then(new Callback<KObject[]>() {
+                node0.traverse((MetaReference) node0.metaClass().metaByName("children")).then().then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(kObjects.length, 2);
                     }
                 });
 
-                node0.traverse(node0.metaClass().metaReference("children")).withAttribute(MetaNode.ATT_NAME, "child*").map(MetaNode.ATT_NAME).then(new Callback<Object[]>() {
+                node0.traverse((MetaReference) node0.metaClass().metaByName("children")).withAttribute(MetaNode.ATT_NAME, "child*").map(MetaNode.ATT_NAME).then(new Callback<Object[]>() {
                     @Override
                     public void on(Object[] objects) {
                         Assert.assertEquals(objects.length, 2);
                     }
                 });
 
-                node0.traverse(node0.metaClass().metaReference("children")).withAttribute(MetaNode.ATT_NAME, "child1").map(MetaNode.ATT_NAME).then(new Callback<Object[]>() {
+                node0.traverse((MetaReference) node0.metaClass().metaByName("children")).withAttribute(MetaNode.ATT_NAME, "child1").map(MetaNode.ATT_NAME).then(new Callback<Object[]>() {
                     @Override
                     public void on(Object[] objects) {
                         Assert.assertEquals(objects.length, 1);
@@ -68,7 +69,7 @@ public class PromiseTest {
                     }
                 });
 
-                node0.traverse(node0.metaClass().metaReference("children")).withoutAttribute(MetaNode.ATT_NAME, "child1").map(MetaNode.ATT_NAME).then(new Callback<Object[]>() {
+                node0.traverse((MetaReference) node0.metaClass().metaByName("children")).withoutAttribute(MetaNode.ATT_NAME, "child1").map(MetaNode.ATT_NAME).then(new Callback<Object[]>() {
                     @Override
                     public void on(Object[] objects) {
                         Assert.assertEquals(objects.length, 1);
@@ -76,28 +77,28 @@ public class PromiseTest {
                     }
                 });
 
-                node0.traverse(node0.metaClass().metaReference("children")).withAttribute(MetaNode.ATT_NAME, null).map(MetaNode.ATT_NAME).then(new Callback<Object[]>() {
+                node0.traverse((MetaReference) node0.metaClass().metaByName("children")).withAttribute(MetaNode.ATT_NAME, null).map(MetaNode.ATT_NAME).then(new Callback<Object[]>() {
                     @Override
                     public void on(Object[] objects) {
                         Assert.assertEquals(objects.length, 0);
                     }
                 });
 
-                node0.traverse(node0.metaClass().metaReference("children")).withAttribute(MetaNode.ATT_NAME, "*").map(MetaNode.ATT_NAME).then(new Callback<Object[]>() {
+                node0.traverse((MetaReference) node0.metaClass().metaByName("children")).withAttribute(MetaNode.ATT_NAME, "*").map(MetaNode.ATT_NAME).then(new Callback<Object[]>() {
                     @Override
                     public void on(Object[] objects) {
                         Assert.assertEquals(objects.length, 2);
                     }
                 });
 
-                node0.traverse(node0.metaClass().metaReference("children")).withoutAttribute(MetaNode.ATT_NAME, null).map(MetaNode.ATT_NAME).then(new Callback<Object[]>() {
+                node0.traverse((MetaReference) node0.metaClass().metaByName("children")).withoutAttribute(MetaNode.ATT_NAME, null).map(MetaNode.ATT_NAME).then(new Callback<Object[]>() {
                     @Override
                     public void on(Object[] objects) {
                         Assert.assertEquals(objects.length, 2);
                     }
                 });
 
-                node0.traverse(node0.metaClass().metaReference("children")).withoutAttribute(MetaNode.ATT_NAME, "*").map(MetaNode.ATT_NAME).then(new Callback<Object[]>() {
+                node0.traverse((MetaReference) node0.metaClass().metaByName("children")).withoutAttribute(MetaNode.ATT_NAME, "*").map(MetaNode.ATT_NAME).then(new Callback<Object[]>() {
                     @Override
                     public void on(Object[] objects) {
                         Assert.assertEquals(objects.length, 0);
@@ -139,7 +140,7 @@ public class PromiseTest {
                 node0.addChildren(node2);
 
                 // chained traversal promise
-                node0.traverse(node0.metaClass().metaReference("children")).traverse(node0.metaClass().metaReference("element")).then().then(new Callback<KObject[]>() {
+                node0.traverse((MetaReference) node0.metaClass().metaByName("children")).traverse((MetaReference) node0.metaClass().metaByName("element")).then().then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(kObjects.length, 2);
@@ -181,7 +182,7 @@ public class PromiseTest {
                 node0.addChildren(node2);
 
                 // chained traversal promise
-                node0.traverse(node0.metaClass().metaReference("children")).filter(new KTraversalFilter() {
+                node0.traverse((MetaReference) node0.metaClass().metaByName("children")).filter(new KTraversalFilter() {
                     @Override
                     public boolean filter(KObject obj) {
                         return ((Node) obj).getName().equals("child1");
@@ -226,7 +227,7 @@ public class PromiseTest {
                         node0.addChildren(node1);
                         node0.addChildren(node2);
                         // chained traversal promise
-                        node0.traverse(node0.metaClass().metaReference("children")).parents().then().then(new Callback<KObject[]>() {
+                        node0.traverse((MetaReference) node0.metaClass().metaByName("children")).parents().then().then(new Callback<KObject[]>() {
                             @Override
                             public void on(KObject[] kObjects) {
                                 Assert.assertEquals(kObjects.length, 1);
@@ -234,7 +235,7 @@ public class PromiseTest {
                             }
                         });
                         // reverse
-                        node0.traverse(node0.metaClass().metaReference("children")).reverse(node0.metaClass().metaReference("children")).then().then(new Callback<KObject[]>() {
+                        node0.traverse((MetaReference) node0.metaClass().metaByName("children")).reverse((MetaReference) node0.metaClass().metaByName("children")).then().then(new Callback<KObject[]>() {
                             @Override
                             public void on(KObject[] kObjects) {
                                 Assert.assertEquals(kObjects.length, 1);
@@ -370,7 +371,7 @@ public class PromiseTest {
                 node0.addChildren(node1);
                 node0.addChildren(node2);
 
-                
+
                 node0.traverseQuery("children").attributeQuery("name=*").then().then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {

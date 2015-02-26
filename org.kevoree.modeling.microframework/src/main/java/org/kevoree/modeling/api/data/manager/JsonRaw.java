@@ -1,5 +1,7 @@
 package org.kevoree.modeling.api.data.manager;
 
+import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
+import org.kevoree.modeling.api.abs.AbstractMetaReference;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.json.*;
 import org.kevoree.modeling.api.meta.*;
@@ -57,7 +59,7 @@ public class JsonRaw {
             //Init metaClass before everything
             entry.metaClass = metaModel.metaClass(content.get(JsonModelSerializer.KEY_META).toString());
             //Init the Raw manager
-            entry.raw = new Object[Index.RESERVED_INDEXES + entry.metaClass.metaAttributes().length + entry.metaClass.metaReferences().length];
+            entry.raw = new Object[Index.RESERVED_INDEXES + entry.metaClass.metaElements().length];
             entry._dirty = false;
             //Now Fill the Raw Storage
             String[] metaKeys = content.keySet().toArray(new String[content.size()]);
@@ -93,8 +95,8 @@ public class JsonRaw {
                         if (elemsRefs.length == 2) {
                             MetaClass foundMeta = metaModel.metaClass(elemsRefs[0].trim());
                             if (foundMeta != null) {
-                                MetaReference metaReference = foundMeta.metaReference(elemsRefs[1].trim());
-                                if (metaReference != null) {
+                                Meta metaReference = foundMeta.metaByName(elemsRefs[1].trim());
+                                if (metaReference != null && metaReference instanceof AbstractMetaReference) {
                                     entry.raw[Index.REF_IN_PARENT_INDEX] = metaReference;
                                 }
                             }
@@ -117,16 +119,15 @@ public class JsonRaw {
                 } else if (metaKeys[i].equals(JsonModelSerializer.KEY_META)) {
                     //nothing metaClass is already set
                 } else {
-                    MetaAttribute metaAttribute = entry.metaClass.metaAttribute(metaKeys[i]);
-                    MetaReference metaReference = entry.metaClass.metaReference(metaKeys[i]);
+                    Meta metaElement = entry.metaClass.metaByName(metaKeys[i]);
                     Object insideContent = content.get(metaKeys[i]);
                     if (insideContent != null) {
-                        if (metaAttribute != null) {
-                            entry.raw[metaAttribute.index()] = metaAttribute.strategy().load(insideContent.toString(), metaAttribute, now);
-                        } else if (metaReference != null) {
-                            if (metaReference.single()) {
+                        if (metaElement != null && metaElement instanceof AbstractMetaAttribute) {
+                            entry.raw[metaElement.index()] = ((AbstractMetaAttribute) metaElement).strategy().load(insideContent.toString(), (AbstractMetaAttribute) metaElement, now);
+                        } else if (metaElement != null && metaElement instanceof AbstractMetaReference) {
+                            if (((MetaReference) metaElement).single()) {
                                 try {
-                                    entry.raw[metaReference.index()] = Long.parseLong(insideContent.toString());
+                                    entry.raw[metaElement.index()] = Long.parseLong(insideContent.toString());
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -144,7 +145,7 @@ public class JsonRaw {
                                             e.printStackTrace();
                                         }
                                     }
-                                    entry.raw[metaReference.index()] = convertedRaw;
+                                    entry.raw[metaElement.index()] = convertedRaw;
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -157,8 +158,7 @@ public class JsonRaw {
     }
 
     public static String encode(KCacheEntry raw, Long uuid, MetaClass p_metaClass, boolean endline, boolean isRoot) {
-        MetaReference[] metaReferences = p_metaClass.metaReferences();
-        MetaAttribute[] metaAttributes = p_metaClass.metaAttributes();
+        Meta[] metaElements = p_metaClass.metaElements();
         StringBuilder builder = new StringBuilder();
         builder.append("\t{\n");
         builder.append("\t\t\"" + JsonModelSerializer.KEY_META + "\": \"");
@@ -220,60 +220,59 @@ public class JsonRaw {
                 nbElemToPrint++;
             }
         }
-
-
         int nbElemPrinted = 0;
-        for (int i = 0; i < metaAttributes.length; i++) {
-            Object payload_res = raw.get(metaAttributes[i].index());
-            if (payload_res != null) {
-                if (metaAttributes[i].metaType() != PrimitiveMetaTypes.TRANSIENT) {
-                    String attrsPayload = metaAttributes[i].strategy().save(payload_res, metaAttributes[i]);
-                    if (attrsPayload != null) {
-                        builder.append("\t\t");
-                        builder.append("\"");
-                        builder.append(metaAttributes[i].metaName());
-                        builder.append("\": \"");
-                        builder.append(attrsPayload);
-                        builder.append("\"");
-                        nbElemPrinted++;
-                        if (nbElemPrinted < nbElemToPrint) {
-                            builder.append(",");
-                        }
-                        builder.append("\n");
-                    }
-                }
-            }
-        }
-        for (int i = 0; i < metaReferences.length; i++) {
-            Object refPayload = raw.get(metaReferences[i].index());
-            if (refPayload != null) {
-                builder.append("\t\t");
-                builder.append("\"");
-                builder.append(metaReferences[i].metaName());
-                builder.append("\":");
-                if (metaReferences[i].single()) {
-                    builder.append("\"");
-                    builder.append(refPayload);
-                    builder.append("\"");
-                } else {
-                    Set<Long> elems = (Set<Long>) refPayload;
-                    Long[] elemsArr = elems.toArray(new Long[elems.size()]);
-                    builder.append(" [");
-                    for (int j = 0; j < elemsArr.length; j++) {
-                        builder.append("\"");
-                        builder.append(elemsArr[j]);
-                        builder.append("\"");
-                        if (j != elemsArr.length - 1) {
-                            builder.append(",");
+        for (int i = 0; i < metaElements.length; i++) {
+            if (metaElements[i] instanceof AbstractMetaAttribute) {
+                Object payload_res = raw.get(metaElements[i].index());
+                if (payload_res != null) {
+                    if (((MetaAttribute) metaElements[i]).metaType() != PrimitiveMetaTypes.TRANSIENT) {
+                        String attrsPayload = ((MetaAttribute) metaElements[i]).strategy().save(payload_res, (MetaAttribute) metaElements[i]);
+                        if (attrsPayload != null) {
+                            builder.append("\t\t");
+                            builder.append("\"");
+                            builder.append(metaElements[i].metaName());
+                            builder.append("\": \"");
+                            builder.append(attrsPayload);
+                            builder.append("\"");
+                            nbElemPrinted++;
+                            if (nbElemPrinted < nbElemToPrint) {
+                                builder.append(",");
+                            }
+                            builder.append("\n");
                         }
                     }
-                    builder.append("]");
                 }
-                nbElemPrinted++;
-                if (nbElemPrinted < nbElemToPrint) {
-                    builder.append(",");
+            } else if (metaElements[i] instanceof AbstractMetaReference) {
+                Object refPayload = raw.get(metaElements[i].index());
+                if (refPayload != null) {
+                    builder.append("\t\t");
+                    builder.append("\"");
+                    builder.append(metaElements[i].metaName());
+                    builder.append("\":");
+                    if (((MetaReference) metaElements[i]).single()) {
+                        builder.append("\"");
+                        builder.append(refPayload);
+                        builder.append("\"");
+                    } else {
+                        Set<Long> elems = (Set<Long>) refPayload;
+                        Long[] elemsArr = elems.toArray(new Long[elems.size()]);
+                        builder.append(" [");
+                        for (int j = 0; j < elemsArr.length; j++) {
+                            builder.append("\"");
+                            builder.append(elemsArr[j]);
+                            builder.append("\"");
+                            if (j != elemsArr.length - 1) {
+                                builder.append(",");
+                            }
+                        }
+                        builder.append("]");
+                    }
+                    nbElemPrinted++;
+                    if (nbElemPrinted < nbElemToPrint) {
+                        builder.append(",");
+                    }
+                    builder.append("\n");
                 }
-                builder.append("\n");
             }
         }
         if (endline) {
