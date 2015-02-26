@@ -11,6 +11,8 @@ import io.undertow.websockets.core.WebSockets;
 import io.undertow.websockets.spi.WebSocketHttpExchange;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KEventListener;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.data.cache.KCache;
 import org.kevoree.modeling.api.data.cache.KContentKey;
@@ -18,6 +20,7 @@ import org.kevoree.modeling.api.data.cdn.AtomicOperation;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
 import org.kevoree.modeling.api.data.manager.KDataManager;
+import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.msg.KAtomicGetRequest;
 import org.kevoree.modeling.api.msg.KAtomicGetResult;
 import org.kevoree.modeling.api.msg.KEventMessage;
@@ -102,7 +105,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
         // parse
         JsonArray messages = JsonArray.readFrom(data);
         for(int i = 0; i < messages.size(); i++) {
-            String rawMessage = messages.get(i).asString();
+            String rawMessage = messages.get(i).toString();
             KMessage msg = KMessageLoader.load(rawMessage);
             switch (msg.type()) {
                 case KMessageLoader.GET_REQ_TYPE:{
@@ -205,11 +208,6 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
     }
 
     @Override
-    public KCache cache() {
-        return wrapped.cache();
-    }
-
-    @Override
     public void registerListener(Object origin, KEventListener listener, Object scope) {
         wrapped.registerListener(origin, listener, scope);
     }
@@ -244,4 +242,5 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
     public void setManager(KDataManager manager) {
         wrapped.setManager(manager);
     }
+
 }

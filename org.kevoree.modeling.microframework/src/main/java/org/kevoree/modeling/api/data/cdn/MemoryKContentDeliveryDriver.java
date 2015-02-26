@@ -2,11 +2,14 @@ package org.kevoree.modeling.api.data.cdn;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KEventListener;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.data.cache.KCache;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.cache.MultiLayeredMemoryCache;
 import org.kevoree.modeling.api.data.manager.KDataManager;
+import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.msg.KEventMessage;
 import org.kevoree.modeling.api.msg.KMessage;
 import org.kevoree.modeling.api.util.LocalEventListeners;
@@ -16,7 +19,8 @@ import java.util.HashMap;
 public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
 
     private final HashMap<String, String> backend = new HashMap<String, String>();
-
+    private LocalEventListeners _localEventListeners = new LocalEventListeners();
+    private KDataManager _manager;
     public static boolean DEBUG = false;
 
     //TODO implement a lock
@@ -78,32 +82,57 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
 
     @Override
     public void close(Callback<Throwable> callback) {
-        localEventListeners.clear();
+        _localEventListeners.clear();
         backend.clear();
     }
 
-    /* Events management */
-    private LocalEventListeners localEventListeners = new LocalEventListeners();
+
 
     @Override
     public void registerListener(Object p_origin, KEventListener p_listener, Object p_scope) {
-        localEventListeners.registerListener(p_origin, p_listener, p_scope);
+        _localEventListeners.registerListener(p_origin, p_listener, p_scope);
     }
 
     @Override
     public void unregister(KEventListener p_listener) {
-        localEventListeners.unregister(p_listener);
+        _localEventListeners.unregister(p_listener);
     }
 
     @Override
     public void send(KEventMessage[] msgs) {
         //NO REMOVE MANAGEMENT
-        //TODO: CAll listeners
+        fireLocalMessages(msgs);
     }
 
     @Override
     public void setManager(KDataManager manager) {
+        this._manager = manager;
+    }
 
+
+    private void fireLocalMessages(KEventMessage[] msgs) {
+        KContentKey _previousKey = null;
+        KView _currentView = null;
+
+        for(int i = 0; i < msgs.length; i++) {
+            KContentKey sourceKey = msgs[i].key;
+            if(_previousKey == null || sourceKey.part1() != _previousKey.part1() || sourceKey.part2() != _previousKey.part2()) {
+                _currentView = _manager.model().universe(sourceKey.part1()).time(sourceKey.part2());
+                _previousKey = sourceKey;
+            }
+            final int tempIndex = i;
+            _currentView.lookup(sourceKey.part3()).then(new Callback<KObject>() {
+                public void on(KObject kObject) {
+                    if (kObject != null) {
+                        Meta[] modifiedMetas = new Meta[msgs[tempIndex].meta.length];
+                        for(int j = 0; j < msgs[tempIndex].meta.length; j++) {
+                            modifiedMetas[tempIndex] = kObject.metaClass().meta(msgs[tempIndex].meta[j]);
+                        }
+                        _localEventListeners.dispatch(kObject, modifiedMetas);
+                    }
+                }
+            });
+        }
     }
 
 }
