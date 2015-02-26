@@ -5,41 +5,30 @@ declare module org {
         module modeling {
             module database {
                 module websocket {
-                    class WebSocketBrokerClient implements api.event.KEventBroker {
-                        private _baseBroker;
-                        private storedEvents;
+                    class WebSocketClient implements api.data.cdn.KContentDeliveryDriver {
+                        private _callbackId;
+                        private _clientConnection;
                         private _connectionUri;
-                        private clientConnection;
-                        private _metaModel;
-                        private _store;
-                        constructor(connectionUri: string);
-                        setKStore(st: api.data.KStore): void;
-                        connect(callback: (p: java.lang.Throwable) => void): void;
-                        close(callback: (p: java.lang.Throwable) => void): void;
-                        setMetaModel(metaModel: api.meta.MetaModel): void;
-                        registerListener(origin: any, listener: (p: api.KEvent) => void, scope: any): void;
-                        unregister(listener: (p: api.KEvent) => void): void;
-                        notify(event: api.KEvent): void;
-                        notifyOnly(event: api.KEvent): void;
-                        flush(): void;
-                        sendOperationEvent(operationEvent: api.KEvent): void;
-                    }
-                    class WebSocketDataBaseClient implements api.data.KDataBase {
-                        private callbackId;
-                        private clientConnection;
-                        private connectionUri;
-                        private getCallbacks;
-                        private putCallbacks;
-                        private removeCallbacks;
-                        private commitCallbacks;
+                        private _manager;
+                        private _localEventListeners;
+                        private _getCallbacks;
+                        private _putCallbacks;
+                        private _atomicGetCallbacks;
+                        private _removeCallbacks;
+                        private _commitCallbacks;
                         constructor(connectionUri: any);
                         connect(callback: (p: java.lang.Throwable) => void): void;
                         close(callback: (p: java.lang.Throwable) => void): void;
-                        private getCallbackId();
-                        get(keys: string[], callback: (p1: string[], p2: java.lang.Throwable) => void): void;
-                        put(payloads: string[][], error: (p1: java.lang.Throwable) => void): void;
-                        remove(keys: string[], error: (p1: java.lang.Throwable) => void): void;
-                        commit(error: (p1: java.lang.Throwable) => void): void;
+                        private nextKey();
+                        put(request: api.data.cdn.KContentPutRequest, error: (p: java.lang.Throwable) => void): void;
+                        get(keys: api.data.cache.KContentKey[], callback: (p: string[], p1: java.lang.Throwable) => void): void;
+                        atomicGetMutate(key: api.data.cache.KContentKey, operation: api.data.cdn.AtomicOperation, callback: (p: string, p1: java.lang.Throwable) => void): void;
+                        remove(keys: string[], error: (p: java.lang.Throwable) => void): void;
+                        registerListener(origin: any, listener: (p: api.KObject, p1: api.meta.Meta[]) => void, scope: any): void;
+                        unregister(listener: (p: api.KObject, p1: api.meta.Meta[]) => void): void;
+                        setManager(manager: api.data.manager.KDataManager): void;
+                        send(msgs: api.msg.KEventMessage[]): void;
+                        private fireLocalMessages(msgs);
                     }
                 }
             }

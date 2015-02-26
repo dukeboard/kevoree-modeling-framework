@@ -10,185 +10,151 @@ var org;
             (function (database) {
                 var websocket;
                 (function (websocket) {
-                    var WebSocketBrokerClient = (function () {
-                        function WebSocketBrokerClient(connectionUri) {
-                            this.storedEvents = new java.util.ArrayList();
-                            this._baseBroker = new org.kevoree.modeling.api.event.DefaultKBroker();
+                    var WebSocketClient = (function () {
+                        function WebSocketClient(connectionUri) {
+                            this._callbackId = 0;
+                            this._localEventListeners = new org.kevoree.modeling.api.util.LocalEventListeners();
+                            this._getCallbacks = new java.util.HashMap();
+                            this._putCallbacks = new java.util.HashMap();
+                            this._atomicGetCallbacks = new java.util.HashMap();
+                            this._removeCallbacks = new java.util.HashMap();
+                            this._commitCallbacks = new java.util.HashMap();
                             this._connectionUri = connectionUri;
                         }
-                        WebSocketBrokerClient.prototype.setKStore = function (st) {
-                            this._store = st;
-                        };
-                        WebSocketBrokerClient.prototype.connect = function (callback) {
+                        WebSocketClient.prototype.connect = function (callback) {
                             var _this = this;
-                            this.clientConnection = new WebSocket(this._connectionUri);
-                            this.clientConnection.onmessage = function (message) {
-                                var json = JSON.parse(message.data);
-                                for (var i = 0; i < json.events.length; i++) {
-                                    var kEvent = org.kevoree.modeling.api.event.DefaultKEvent.fromJSON(json.events[i], _this._metaModel);
-                                    if (kEvent.actionType() == org.kevoree.modeling.api.KActionType.CALL || kEvent.actionType() == org.kevoree.modeling.api.KActionType.CALL_RESPONSE) {
-                                        _this._store.operationManager().operationEventReceived(kEvent);
-                                    }
-                                    else {
-                                        _this.notifyOnly(kEvent);
+                            this._clientConnection = new WebSocket(this._connectionUri);
+                            this._clientConnection.onmessage = function (message) {
+                                var parsed = JSON.parse(message.data);
+                                for (var i = 0; i < parsed.length; i++) {
+                                    var rawMessage = parsed[i];
+                                    var msg = org.kevoree.modeling.api.msg.KMessageLoader.load(JSON.stringify(rawMessage));
+                                    switch (msg.type()) {
+                                        case org.kevoree.modeling.api.msg.KMessageLoader.GET_RES_TYPE:
+                                            {
+                                                var getResult = msg;
+                                                _this._getCallbacks.remove(getResult.id)(getResult.values, null);
+                                            }
+                                            break;
+                                        case org.kevoree.modeling.api.msg.KMessageLoader.PUT_RES_TYPE:
+                                            {
+                                                var putResult = msg;
+                                                _this._putCallbacks.remove(putResult.id)(null);
+                                            }
+                                            break;
+                                        case org.kevoree.modeling.api.msg.KMessageLoader.ATOMIC_OPERATION_RESULT_TYPE:
+                                            {
+                                                var atomicGetResult = msg;
+                                                _this._atomicGetCallbacks.remove(atomicGetResult.id)(atomicGetResult.value, null);
+                                            }
+                                            break;
+                                        default:
+                                            {
+                                                console.log("MessageType not supported:" + msg.type());
+                                            }
                                     }
                                 }
                             };
-                            if (callback != null) {
-                                callback(null);
-                            }
-                        };
-                        WebSocketBrokerClient.prototype.close = function (callback) {
-                            var _this = this;
-                            this._baseBroker.close(function (e) {
-                                _this.clientConnection.close();
-                                if (callback != null) {
-                                    callback(e);
-                                }
-                            });
-                        };
-                        WebSocketBrokerClient.prototype.setMetaModel = function (metaModel) {
-                            this._metaModel = metaModel;
-                        };
-                        WebSocketBrokerClient.prototype.registerListener = function (origin, listener, scope) {
-                            this._baseBroker.registerListener(origin, listener, scope);
-                        };
-                        WebSocketBrokerClient.prototype.unregister = function (listener) {
-                            this._baseBroker.unregister(listener);
-                        };
-                        WebSocketBrokerClient.prototype.notify = function (event) {
-                            this._baseBroker.notify(event);
-                            this.storedEvents.add(event);
-                        };
-                        WebSocketBrokerClient.prototype.notifyOnly = function (event) {
-                            this._baseBroker.notify(event);
-                        };
-                        WebSocketBrokerClient.prototype.flush = function () {
-                            var serializedEventList = [];
-                            for (var i = 0; i < this.storedEvents.size(); i++) {
-                                serializedEventList.push(this.storedEvents.get(i).toJSON());
-                            }
-                            var jsonMessage = { "events": serializedEventList };
-                            this.clientConnection.send(JSON.stringify(jsonMessage));
-                        };
-                        WebSocketBrokerClient.prototype.sendOperationEvent = function (operationEvent) {
-                            var serializedEventList = [];
-                            serializedEventList.push(operationEvent.toJSON());
-                            var jsonMessage = { "events": serializedEventList };
-                            this.clientConnection.send(JSON.stringify(jsonMessage));
-                        };
-                        return WebSocketBrokerClient;
-                    })();
-                    websocket.WebSocketBrokerClient = WebSocketBrokerClient;
-                    var WebSocketDataBaseClient = (function () {
-                        function WebSocketDataBaseClient(connectionUri) {
-                            this.callbackId = 0;
-                            this.getCallbacks = new java.util.HashMap();
-                            this.putCallbacks = new java.util.HashMap();
-                            this.removeCallbacks = new java.util.HashMap();
-                            this.commitCallbacks = new java.util.HashMap();
-                            this.connectionUri = connectionUri;
-                        }
-                        WebSocketDataBaseClient.prototype.connect = function (callback) {
-                            var _this = this;
-                            this.clientConnection = new WebSocket(this.connectionUri);
-                            this.clientConnection.onmessage = function (message) {
-                                var json = JSON.parse(message.data);
-                                if (json.action == "get") {
-                                    var getCallback = _this.getCallbacks.get(json.id);
-                                    if (getCallback !== undefined && getCallback != null) {
-                                        if (json.status == "success") {
-                                            getCallback(json.value, null);
-                                        }
-                                        else if (json.status == "error") {
-                                            getCallback(null, new java.lang.Exception(json.value));
-                                        }
-                                        else {
-                                            console.error("WebSocketDatabase: Status '" + json.action + "' of not supported yet.");
-                                        }
-                                    }
-                                    else {
-                                        console.error("No callback registered for message:", json);
-                                    }
-                                }
-                                else if (json.action == "put") {
-                                    var putCallback = _this.putCallbacks.get(json.id);
-                                    if (putCallback !== undefined && putCallback != null) {
-                                        if (json.status == "success") {
-                                            putCallback(null);
-                                        }
-                                        else if (json.status == "error") {
-                                            putCallback(new java.lang.Exception(json.value));
-                                        }
-                                        else {
-                                            console.error("WebSocketDatabase: Status '" + json.action + "' of not supported yet.");
-                                        }
-                                    }
-                                    else {
-                                        console.error("No callback registered for message:", json);
-                                    }
-                                }
-                                else {
-                                    console.error("WebSocketDatabase: Frame of type'" + json.action + "' not supported yet.");
-                                }
-                            };
-                            this.clientConnection.onerror = function (error) {
+                            this._clientConnection.onerror = function (error) {
                                 console.error(error);
                             };
-                            this.clientConnection.onclose = function (error) {
+                            this._clientConnection.onclose = function (error) {
                                 console.error(error);
                             };
-                            this.clientConnection.onopen = function () {
+                            this._clientConnection.onopen = function () {
                                 if (callback != null) {
                                     callback(null);
                                 }
                             };
                         };
-                        WebSocketDataBaseClient.prototype.close = function (callback) {
-                            this.clientConnection.close();
+                        WebSocketClient.prototype.close = function (callback) {
+                            this._clientConnection.close();
                             if (callback != null) {
                                 callback(null);
                             }
                         };
-                        WebSocketDataBaseClient.prototype.getCallbackId = function () {
-                            if (this.callbackId == 1000) {
-                                this.callbackId = 0;
+                        WebSocketClient.prototype.nextKey = function () {
+                            if (this._callbackId == 1000) {
+                                this._callbackId = 0;
                             }
                             else {
-                                this.callbackId = this.callbackId + 1;
+                                this._callbackId = this._callbackId + 1;
                             }
-                            return this.callbackId;
+                            return this._callbackId;
                         };
-                        WebSocketDataBaseClient.prototype.get = function (keys, callback) {
-                            var value = [];
-                            for (var i = 0; i < keys.length; i++) {
-                                value.push(keys[i]);
+                        WebSocketClient.prototype.put = function (request, error) {
+                            var putRequest = new org.kevoree.modeling.api.msg.KPutRequest();
+                            putRequest.id = this.nextKey();
+                            putRequest.request = request;
+                            this._putCallbacks.put(putRequest.id, error);
+                            var payload = [];
+                            payload.push(putRequest.json());
+                            this._clientConnection.send(JSON.stringify(payload));
+                        };
+                        WebSocketClient.prototype.get = function (keys, callback) {
+                            var getRequest = new org.kevoree.modeling.api.msg.KGetRequest();
+                            getRequest.id = this.nextKey();
+                            getRequest.keys = keys;
+                            this._getCallbacks.put(getRequest.id, callback);
+                            var payload = [];
+                            payload.push(getRequest.json());
+                            this._clientConnection.send(JSON.stringify(payload));
+                        };
+                        WebSocketClient.prototype.atomicGetMutate = function (key, operation, callback) {
+                            var atomicGetRequest = new org.kevoree.modeling.api.msg.KAtomicGetRequest();
+                            atomicGetRequest.id = this.nextKey();
+                            atomicGetRequest.key = key;
+                            atomicGetRequest.operation = operation;
+                            this._atomicGetCallbacks.put(atomicGetRequest.id, callback);
+                            var payload = [];
+                            payload.push(atomicGetRequest.json());
+                            this._clientConnection.send(JSON.stringify(payload));
+                        };
+                        WebSocketClient.prototype.remove = function (keys, error) {
+                            console.error("Not implemented yet");
+                        };
+                        WebSocketClient.prototype.registerListener = function (origin, listener, scope) {
+                            this._localEventListeners.registerListener(origin, listener, scope);
+                        };
+                        WebSocketClient.prototype.unregister = function (listener) {
+                            this._localEventListeners.unregister(listener);
+                        };
+                        WebSocketClient.prototype.setManager = function (manager) {
+                            this._manager = manager;
+                        };
+                        WebSocketClient.prototype.send = function (msgs) {
+                            this.fireLocalMessages(msgs);
+                            //Send to remote
+                            var payload = [];
+                            for (var i = 0; i < msgs.length; i++) {
+                                payload.push(msgs[i].json());
                             }
-                            var jsonMessage = { "action": "get", "value": value, "id": this.getCallbackId() };
-                            this.getCallbacks.put(jsonMessage.id, callback);
-                            var stringified = JSON.stringify(jsonMessage);
-                            this.clientConnection.send(stringified);
+                            this._clientConnection.send(JSON.stringify(payload));
                         };
-                        WebSocketDataBaseClient.prototype.put = function (payloads, error) {
-                            var payloadList = [];
-                            for (var i = 0; i < payloads.length; i++) {
-                                var keyValue = [];
-                                keyValue[0] = payloads[i][0];
-                                keyValue[1] = payloads[i][1];
-                                payloadList.push(keyValue);
+                        WebSocketClient.prototype.fireLocalMessages = function (msgs) {
+                            var _previousKey = null;
+                            var _currentView = null;
+                            for (var i = 0; i < msgs.length; i++) {
+                                var sourceKey = msgs[i].key;
+                                if (_previousKey == null || sourceKey.part1() != _previousKey.part1() || sourceKey.part2() != _previousKey.part2()) {
+                                    _currentView = this._manager.model().universe(sourceKey.part1()).time(sourceKey.part2());
+                                    _previousKey = sourceKey;
+                                }
+                                var tempIndex = i;
+                                _currentView.lookup(sourceKey.part3()).then(function (kObject) {
+                                    if (kObject != null) {
+                                        var modifiedMetas = [];
+                                        for (var j = 0; j < msgs[tempIndex].meta.length; j++) {
+                                            modifiedMetas.push(kObject.metaClass().meta(msgs[tempIndex].meta[j]));
+                                        }
+                                        this._localEventListeners.dispatch(kObject, modifiedMetas);
+                                    }
+                                });
                             }
-                            var jsonMessage = { "action": "put", "value": payloadList, "id": this.getCallbackId() };
-                            this.putCallbacks.put(jsonMessage.id, error);
-                            var stringified = JSON.stringify(jsonMessage);
-                            this.clientConnection.send(stringified);
                         };
-                        WebSocketDataBaseClient.prototype.remove = function (keys, error) {
-                        };
-                        WebSocketDataBaseClient.prototype.commit = function (error) {
-                        };
-                        return WebSocketDataBaseClient;
+                        return WebSocketClient;
                     })();
-                    websocket.WebSocketDataBaseClient = WebSocketDataBaseClient;
+                    websocket.WebSocketClient = WebSocketClient;
                 })(websocket = database.websocket || (database.websocket = {}));
             })(database = modeling.database || (modeling.database = {}));
         })(modeling = kevoree.modeling || (kevoree.modeling = {}));

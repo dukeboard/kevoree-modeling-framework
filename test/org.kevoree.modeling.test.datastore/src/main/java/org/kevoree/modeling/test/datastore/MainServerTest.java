@@ -3,6 +3,7 @@ package org.kevoree.modeling.test.datastore;
 import geometry.*;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.data.cdn.MemoryKContentDeliveryDriver;
 import org.kevoree.modeling.databases.websocket.WebSocketWrapper;
 
 import java.util.concurrent.Executors;
@@ -20,6 +21,7 @@ public class MainServerTest {
         Long originOfTime = 0L;
 
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+       // MemoryKContentDeliveryDriver.DEBUG = true;
 
         GeometryModel geoModel = new GeometryModel();
         geoModel.setContentDeliveryDriver(new WebSocketWrapper(geoModel.manager().cdn(), 23664));
@@ -98,6 +100,6 @@ public class MainServerTest {
                 turn++;
             }
         };
-        executor.scheduleWithFixedDelay(task, 8000, 2000, TimeUnit.MILLISECONDS);
+        executor.scheduleWithFixedDelay(task, 8000, 10000, TimeUnit.MILLISECONDS);
     }
 }

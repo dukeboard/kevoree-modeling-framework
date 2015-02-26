@@ -20,7 +20,10 @@
     var geometryModel  = new geometry.GeometryModel();
     geometryModel.setContentDeliveryDriver(dataBaseConnection);
 
+    console.log("Connecting");
+
     geometryModel.connect().then(function(err){
+        console.log("Connected:", err);
         if(err == null) {
             console.log("Looking for the dimension");
             var dimension = geometryModel.universe(0);
