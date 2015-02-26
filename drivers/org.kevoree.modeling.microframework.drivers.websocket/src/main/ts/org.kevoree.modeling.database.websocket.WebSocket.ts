@@ -28,7 +28,49 @@ module org {
 
                         public connect(callback:(p:java.lang.Throwable) => void):void {
                             this._clientConnection = new WebSocket(this._connectionUri);
-                            this._clientConnection.onmessage = (message:MessageEvent) => {
+                            this._clientConnection.onmessage = (message) => {
+
+                                var parsed = JSON.parse(message.data);
+                                for(var i = 0; i < parsed.length; i++) {
+                                    var rawMessage = parsed[i];
+                                    var msg = org.kevoree.modeling.api.msg.KMessageLoader.load(JSON.stringify(rawMessage));
+                                    switch (msg.type()) {
+                                        case org.kevoree.modeling.api.msg.KMessageLoader.GET_RES_TYPE:{
+                                            var getResult = <org.kevoree.modeling.api.msg.KGetResult>msg;
+                                            this._getCallbacks.remove(getResult.id)(getResult.values, null);
+                                        }break;
+                                        case org.kevoree.modeling.api.msg.KMessageLoader.PUT_RES_TYPE:{
+                                            var putResult = <org.kevoree.modeling.api.msg.KPutResult>msg;
+                                            this._putCallbacks.remove(putResult.id)(null);
+                                        }break;
+                                        case org.kevoree.modeling.api.msg.KMessageLoader.ATOMIC_OPERATION_RESULT_TYPE:{
+                                            var atomicGetResult = <org.kevoree.modeling.api.msg.KAtomicGetResult>msg;
+                                            this._atomicGetCallbacks.remove(atomicGetResult.id)(atomicGetResult.value, null);
+                                        }break;
+                                        default:{
+                                            console.log("MessageType not supported:" + msg.type())
+                                        }
+                                    }
+                                    /*
+                                     String rawMessage = messages.get(i).asString();
+                                     KMessage msg = KMessageLoader.load(rawMessage);
+                                     case KMessageLoader.GET_RES_TYPE:{
+
+                                     }break;
+                                     case KMessageLoader.PUT_RES_TYPE:{
+                                     KPutResult putResult = (KPutResult) msg;
+                                     _putCallbacks.remove(putResult.id).on(null);
+                                     }break;
+                                     case KMessageLoader.ATOMIC_OPERATION_RESULT_TYPE:{
+                                     KAtomicGetResult atomicGetResult = (KAtomicGetResult) msg;
+                                     _atomicGetCallbacks.remove(atomicGetResult.id).on(atomicGetResult.value, null);
+                                     }break;
+                                     default:{
+                                     System.err.println();
+                                     }
+                                     }*/
+                                }
+
 
                             };
                             this._clientConnection.onerror = function (error) {

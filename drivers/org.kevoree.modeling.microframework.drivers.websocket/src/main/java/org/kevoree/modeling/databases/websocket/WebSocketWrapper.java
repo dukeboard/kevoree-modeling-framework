@@ -12,16 +12,12 @@ import io.undertow.websockets.core.WebSockets;
 import io.undertow.websockets.spi.WebSocketHttpExchange;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KEventListener;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.data.cache.KCache;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.cdn.AtomicOperation;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
 import org.kevoree.modeling.api.data.manager.KDataManager;
-import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.msg.KAtomicGetRequest;
 import org.kevoree.modeling.api.msg.KAtomicGetResult;
 import org.kevoree.modeling.api.msg.KEventMessage;
@@ -117,7 +113,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
                                 KGetResult getResultMessage = new KGetResult();
                                 getResultMessage.id = getRequest.id;
                                 getResultMessage.values = strings;
-                                WebSockets.sendText(getResultMessage.json(), channel, null);
+                                WebSockets.sendText("[" + getResultMessage.json() + "]", channel, null);
                             }
                         }
                     });
@@ -130,7 +126,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
                             if (throwable == null) {
                                 KPutResult putResultMessage = new KPutResult();
                                 putResultMessage.id = putRequest.id;
-                                WebSockets.sendText(putResultMessage.json(), channel, null);
+                                WebSockets.sendText("[" + putResultMessage.json() + "]", channel, null);
                             }
                         }
                     });
@@ -144,7 +140,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
                                 KAtomicGetResult atomicGetResultMessage = new KAtomicGetResult();
                                 atomicGetResultMessage.id = atomicGetRequest.id;
                                 atomicGetResultMessage.value = s;
-                                WebSockets.sendText(atomicGetResultMessage.json(), channel, null);
+                                WebSockets.sendText("[" + atomicGetResultMessage.json() + "]", channel, null);
                             }
                         }
                     });
