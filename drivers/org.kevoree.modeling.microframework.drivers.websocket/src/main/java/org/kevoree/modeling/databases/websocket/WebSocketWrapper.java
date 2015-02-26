@@ -1,6 +1,7 @@
 package org.kevoree.modeling.databases.websocket;
 
 import com.eclipsesource.json.JsonArray;
+import com.eclipsesource.json.JsonObject;
 import io.undertow.Undertow;
 import io.undertow.websockets.WebSocketConnectionCallback;
 import io.undertow.websockets.core.AbstractReceiveListener;
@@ -105,7 +106,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
         // parse
         JsonArray messages = JsonArray.readFrom(data);
         for(int i = 0; i < messages.size(); i++) {
-            String rawMessage = messages.get(i).toString();
+            String rawMessage = JsonObject.readFrom(messages.get(i).asString()).toString();
             KMessage msg = KMessageLoader.load(rawMessage);
             switch (msg.type()) {
                 case KMessageLoader.GET_REQ_TYPE:{
@@ -221,6 +222,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
     public void send(KEventMessage[] msgs) {
 
         //send locally
+        System.out.println("Send locally");
         wrapped.send(msgs);
 
 
@@ -229,6 +231,8 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
         for(int i = 0; i < msgs.length; i++) {
             payload.add(msgs[i].json());
         }
+
+        System.out.println("Send to remotes");
 
         ArrayList<WebSocketChannel> channels = new ArrayList<>(_connectedChannels);
         for(int i = 0; i < channels.size();i++) {
