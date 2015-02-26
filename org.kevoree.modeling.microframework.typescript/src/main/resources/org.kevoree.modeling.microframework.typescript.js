@@ -5495,28 +5495,14 @@ var org;
                         }
                         KAtomicGetRequest.prototype.json = function () {
                             var buffer = new java.lang.StringBuilder();
-                            buffer.append("{\n\"type\":\"");
-                            buffer.append(this.type());
-                            buffer.append("\"\n");
-                            if (this.id != null) {
-                                buffer.append(",");
-                                buffer.append("\"id\":\"");
-                                buffer.append(this.id.toString());
-                                buffer.append("\"\n");
-                            }
-                            if (this.key != null) {
-                                buffer.append(",");
-                                buffer.append("\"key\":\"");
-                                buffer.append(this.key.toString());
-                                buffer.append("\"\n");
-                            }
+                            org.kevoree.modeling.api.msg.KMessageHelper.printJsonStart(buffer);
+                            org.kevoree.modeling.api.msg.KMessageHelper.printType(buffer, this.type());
+                            org.kevoree.modeling.api.msg.KMessageHelper.printElem(this.id, org.kevoree.modeling.api.msg.KMessageLoader.ID_NAME, buffer);
+                            org.kevoree.modeling.api.msg.KMessageHelper.printElem(this.key, org.kevoree.modeling.api.msg.KMessageLoader.KEY_NAME, buffer);
                             if (this.operation != null) {
-                                buffer.append(",");
-                                buffer.append("\"operation\":\"");
-                                buffer.append(this.operation.operationKey());
-                                buffer.append("\"\n");
+                                org.kevoree.modeling.api.msg.KMessageHelper.printElem(this.operation.operationKey(), org.kevoree.modeling.api.msg.KMessageLoader.OPERATION_NAME, buffer);
                             }
-                            buffer.append("}\n");
+                            org.kevoree.modeling.api.msg.KMessageHelper.printJsonEnd(buffer);
                             return buffer.toString();
                         };
                         KAtomicGetRequest.prototype.type = function () {
@@ -5530,22 +5516,11 @@ var org;
                         }
                         KAtomicGetResult.prototype.json = function () {
                             var buffer = new java.lang.StringBuilder();
-                            buffer.append("{\n\"type\":\"");
-                            buffer.append(this.type());
-                            buffer.append("\"\n");
-                            if (this.id != null) {
-                                buffer.append(",");
-                                buffer.append("\"id\":\"");
-                                buffer.append(this.id.toString());
-                                buffer.append("\"\n");
-                            }
-                            if (this.value != null) {
-                                buffer.append(",");
-                                buffer.append("\"value\":\"");
-                                buffer.append(this.value);
-                                buffer.append("\"\n");
-                            }
-                            buffer.append("}\n");
+                            org.kevoree.modeling.api.msg.KMessageHelper.printJsonStart(buffer);
+                            org.kevoree.modeling.api.msg.KMessageHelper.printType(buffer, this.type());
+                            org.kevoree.modeling.api.msg.KMessageHelper.printElem(this.id, org.kevoree.modeling.api.msg.KMessageLoader.ID_NAME, buffer);
+                            org.kevoree.modeling.api.msg.KMessageHelper.printElem(this.value, org.kevoree.modeling.api.msg.KMessageLoader.VALUE_NAME, buffer);
+                            org.kevoree.modeling.api.msg.KMessageHelper.printJsonEnd(buffer);
                             return buffer.toString();
                         };
                         KAtomicGetResult.prototype.type = function () {
@@ -5559,18 +5534,13 @@ var org;
                         }
                         KEventMessage.prototype.json = function () {
                             var buffer = new java.lang.StringBuilder();
-                            buffer.append("{\n\"type\":\"");
-                            buffer.append(this.type());
-                            buffer.append("\"\n");
-                            if (this.key != null) {
-                                buffer.append(",");
-                                buffer.append("\"key\":\"");
-                                buffer.append(this.key.toString());
-                                buffer.append("\"\n");
-                            }
+                            org.kevoree.modeling.api.msg.KMessageHelper.printJsonStart(buffer);
+                            org.kevoree.modeling.api.msg.KMessageHelper.printType(buffer, this.type());
+                            org.kevoree.modeling.api.msg.KMessageHelper.printElem(this.key, org.kevoree.modeling.api.msg.KMessageLoader.KEY_NAME, buffer);
                             if (this.meta != null) {
                                 buffer.append(",");
-                                buffer.append("\"values\":[");
+                                buffer.append("\"");
+                                buffer.append(org.kevoree.modeling.api.msg.KMessageLoader.VALUES_NAME).append("\":[");
                                 for (var i = 0; i < this.meta.length; i++) {
                                     if (i != 0) {
                                         buffer.append(",");
@@ -5581,7 +5551,7 @@ var org;
                                 }
                                 buffer.append("]\n");
                             }
-                            buffer.append("}\n");
+                            org.kevoree.modeling.api.msg.KMessageHelper.printJsonEnd(buffer);
                             return buffer.toString();
                         };
                         KEventMessage.prototype.type = function () {
@@ -5595,18 +5565,13 @@ var org;
                         }
                         KGetRequest.prototype.json = function () {
                             var buffer = new java.lang.StringBuilder();
-                            buffer.append("{\n\"type\":\"");
-                            buffer.append(this.type());
-                            buffer.append("\"\n");
-                            if (this.id != null) {
-                                buffer.append(",");
-                                buffer.append("\"id\":\"");
-                                buffer.append(this.id.toString());
-                                buffer.append("\"\n");
-                            }
+                            org.kevoree.modeling.api.msg.KMessageHelper.printJsonStart(buffer);
+                            org.kevoree.modeling.api.msg.KMessageHelper.printType(buffer, this.type());
+                            org.kevoree.modeling.api.msg.KMessageHelper.printElem(this.id, org.kevoree.modeling.api.msg.KMessageLoader.ID_NAME, buffer);
                             if (this.keys != null) {
                                 buffer.append(",");
-                                buffer.append("\"keys\":[");
+                                buffer.append("\"");
+                                buffer.append(org.kevoree.modeling.api.msg.KMessageLoader.KEYS_NAME).append("\":[");
                                 for (var i = 0; i < this.keys.length; i++) {
                                     if (i != 0) {
                                         buffer.append(",");
@@ -5617,7 +5582,7 @@ var org;
                                 }
                                 buffer.append("]\n");
                             }
-                            buffer.append("}\n");
+                            org.kevoree.modeling.api.msg.KMessageHelper.printJsonEnd(buffer);
                             return buffer.toString();
                         };
                         KGetRequest.prototype.type = function () {
@@ -5631,18 +5596,13 @@ var org;
                         }
                         KGetResult.prototype.json = function () {
                             var buffer = new java.lang.StringBuilder();
-                            buffer.append("{\n\"type\":\"");
-                            buffer.append(this.type());
-                            buffer.append("\"\n");
-                            if (this.id != null) {
-                                buffer.append(",");
-                                buffer.append("\"id\":\"");
-                                buffer.append(this.id.toString());
-                                buffer.append("\"\n");
-                            }
+                            org.kevoree.modeling.api.msg.KMessageHelper.printJsonStart(buffer);
+                            org.kevoree.modeling.api.msg.KMessageHelper.printType(buffer, this.type());
+                            org.kevoree.modeling.api.msg.KMessageHelper.printElem(this.id, org.kevoree.modeling.api.msg.KMessageLoader.ID_NAME, buffer);
                             if (this.values != null) {
                                 buffer.append(",");
-                                buffer.append("\"values\":[");
+                                buffer.append("\"");
+                                buffer.append(org.kevoree.modeling.api.msg.KMessageLoader.VALUES_NAME).append("\":[");
                                 for (var i = 0; i < this.values.length; i++) {
                                     if (i != 0) {
                                         buffer.append(",");
@@ -5653,7 +5613,7 @@ var org;
                                 }
                                 buffer.append("]\n");
                             }
-                            buffer.append("}\n");
+                            org.kevoree.modeling.api.msg.KMessageHelper.printJsonEnd(buffer);
                             return buffer.toString();
                         };
                         KGetResult.prototype.type = function () {
@@ -5662,6 +5622,35 @@ var org;
                         return KGetResult;
                     })();
                     msg.KGetResult = KGetResult;
+                    var KMessageHelper = (function () {
+                        function KMessageHelper() {
+                        }
+                        KMessageHelper.printJsonStart = function (builder) {
+                            builder.append("{\n");
+                        };
+                        KMessageHelper.printJsonEnd = function (builder) {
+                            builder.append("}\n");
+                        };
+                        KMessageHelper.printType = function (builder, type) {
+                            builder.append("\"");
+                            builder.append(org.kevoree.modeling.api.msg.KMessageLoader.TYPE_NAME);
+                            builder.append("\":\"");
+                            builder.append(type);
+                            builder.append("\"\n");
+                        };
+                        KMessageHelper.printElem = function (elem, name, builder) {
+                            if (elem != null) {
+                                builder.append(",");
+                                builder.append("\"");
+                                builder.append(name);
+                                builder.append("\":\"");
+                                builder.append(elem.toString());
+                                builder.append("\"\n");
+                            }
+                        };
+                        return KMessageHelper;
+                    })();
+                    msg.KMessageHelper = KMessageHelper;
                     var KMessageLoader = (function () {
                         function KMessageLoader() {
                         }
@@ -5710,14 +5699,14 @@ var org;
                                 currentToken = lexer.nextToken();
                             }
                             try {
-                                var parsedType = java.lang.Integer.parseInt(content.get("type").toString());
+                                var parsedType = java.lang.Integer.parseInt(content.get(KMessageLoader.TYPE_NAME).toString());
                                 if (parsedType == KMessageLoader.EVENT_TYPE) {
                                     var eventMessage = new org.kevoree.modeling.api.msg.KEventMessage();
-                                    if (content.get("key") != null) {
-                                        eventMessage.key = org.kevoree.modeling.api.data.cache.KContentKey.create(content.get("key").toString());
+                                    if (content.get(KMessageLoader.KEY_NAME) != null) {
+                                        eventMessage.key = org.kevoree.modeling.api.data.cache.KContentKey.create(content.get(KMessageLoader.KEY_NAME).toString());
                                     }
-                                    if (content.get("values") != null) {
-                                        var metaInt = content.get("values");
+                                    if (content.get(KMessageLoader.VALUES_NAME) != null) {
+                                        var metaInt = content.get(KMessageLoader.VALUES_NAME);
                                         var toFlat = metaInt.toArray(new Array());
                                         var nbElem = new Array();
                                         for (var i = 0; i < toFlat.length; i++) {
@@ -5730,11 +5719,11 @@ var org;
                                 else {
                                     if (parsedType == KMessageLoader.GET_REQ_TYPE) {
                                         var getKeysRequest = new org.kevoree.modeling.api.msg.KGetRequest();
-                                        if (content.get("id") != null) {
-                                            getKeysRequest.id = java.lang.Long.parseLong(content.get("id").toString());
+                                        if (content.get(KMessageLoader.ID_NAME) != null) {
+                                            getKeysRequest.id = java.lang.Long.parseLong(content.get(KMessageLoader.ID_NAME).toString());
                                         }
-                                        if (content.get("keys") != null) {
-                                            var metaInt = content.get("keys");
+                                        if (content.get(KMessageLoader.KEYS_NAME) != null) {
+                                            var metaInt = content.get(KMessageLoader.KEYS_NAME);
                                             var toFlat = metaInt.toArray(new Array());
                                             var keys = new Array();
                                             for (var i = 0; i < toFlat.length; i++) {
@@ -5747,11 +5736,11 @@ var org;
                                     else {
                                         if (parsedType == KMessageLoader.GET_RES_TYPE) {
                                             var getResult = new org.kevoree.modeling.api.msg.KGetResult();
-                                            if (content.get("id") != null) {
-                                                getResult.id = java.lang.Long.parseLong(content.get("id").toString());
+                                            if (content.get(KMessageLoader.ID_NAME) != null) {
+                                                getResult.id = java.lang.Long.parseLong(content.get(KMessageLoader.ID_NAME).toString());
                                             }
-                                            if (content.get("values") != null) {
-                                                var metaInt = content.get("values");
+                                            if (content.get(KMessageLoader.VALUES_NAME) != null) {
+                                                var metaInt = content.get(KMessageLoader.VALUES_NAME);
                                                 var toFlat = metaInt.toArray(new Array());
                                                 var values = new Array();
                                                 for (var i = 0; i < toFlat.length; i++) {
@@ -5764,17 +5753,17 @@ var org;
                                         else {
                                             if (parsedType == KMessageLoader.PUT_REQ_TYPE) {
                                                 var putRequest = new org.kevoree.modeling.api.msg.KPutRequest();
-                                                if (content.get("id") != null) {
-                                                    putRequest.id = java.lang.Long.parseLong(content.get("id").toString());
+                                                if (content.get(KMessageLoader.ID_NAME) != null) {
+                                                    putRequest.id = java.lang.Long.parseLong(content.get(KMessageLoader.ID_NAME).toString());
                                                 }
                                                 var toFlatKeys = null;
                                                 var toFlatValues = null;
-                                                if (content.get("keys") != null) {
-                                                    var metaKeys = content.get("keys");
+                                                if (content.get(KMessageLoader.KEYS_NAME) != null) {
+                                                    var metaKeys = content.get(KMessageLoader.KEYS_NAME);
                                                     toFlatKeys = metaKeys.toArray(new Array());
                                                 }
-                                                if (content.get("values") != null) {
-                                                    var metaValues = content.get("values");
+                                                if (content.get(KMessageLoader.VALUES_NAME) != null) {
+                                                    var metaValues = content.get(KMessageLoader.VALUES_NAME);
                                                     toFlatValues = metaValues.toArray(new Array());
                                                 }
                                                 if (toFlatKeys != null && toFlatValues != null && toFlatKeys.length == toFlatValues.length) {
@@ -5790,22 +5779,22 @@ var org;
                                             else {
                                                 if (parsedType == KMessageLoader.PUT_RES_TYPE) {
                                                     var putResult = new org.kevoree.modeling.api.msg.KPutResult();
-                                                    if (content.get("id") != null) {
-                                                        putResult.id = java.lang.Long.parseLong(content.get("id").toString());
+                                                    if (content.get(KMessageLoader.ID_NAME) != null) {
+                                                        putResult.id = java.lang.Long.parseLong(content.get(KMessageLoader.ID_NAME).toString());
                                                     }
                                                     return putResult;
                                                 }
                                                 else {
                                                     if (parsedType == KMessageLoader.OPERATION_CALL_TYPE) {
                                                         var callMessage = new org.kevoree.modeling.api.msg.KOperationCallMessage();
-                                                        if (content.get("id") != null) {
-                                                            callMessage.id = java.lang.Long.parseLong(content.get("id").toString());
+                                                        if (content.get(KMessageLoader.ID_NAME) != null) {
+                                                            callMessage.id = java.lang.Long.parseLong(content.get(KMessageLoader.ID_NAME).toString());
                                                         }
-                                                        if (content.get("key") != null) {
-                                                            callMessage.key = org.kevoree.modeling.api.data.cache.KContentKey.create(content.get("key").toString());
+                                                        if (content.get(KMessageLoader.KEY_NAME) != null) {
+                                                            callMessage.key = org.kevoree.modeling.api.data.cache.KContentKey.create(content.get(KMessageLoader.KEY_NAME).toString());
                                                         }
-                                                        if (content.get("values") != null) {
-                                                            var metaParams = content.get("values");
+                                                        if (content.get(KMessageLoader.VALUES_NAME) != null) {
+                                                            var metaParams = content.get(KMessageLoader.VALUES_NAME);
                                                             var toFlat = metaParams.toArray(new Array());
                                                             callMessage.params = toFlat;
                                                         }
@@ -5814,36 +5803,36 @@ var org;
                                                     else {
                                                         if (parsedType == KMessageLoader.OPERATION_RESULT_TYPE) {
                                                             var resultMessage = new org.kevoree.modeling.api.msg.KOperationResultMessage();
-                                                            if (content.get("id") != null) {
-                                                                resultMessage.id = java.lang.Long.parseLong(content.get("id").toString());
+                                                            if (content.get(KMessageLoader.ID_NAME) != null) {
+                                                                resultMessage.id = java.lang.Long.parseLong(content.get(KMessageLoader.ID_NAME).toString());
                                                             }
-                                                            if (content.get("result") != null) {
-                                                                resultMessage.result = content.get("result").toString();
+                                                            if (content.get(KMessageLoader.VALUE_NAME) != null) {
+                                                                resultMessage.value = content.get(KMessageLoader.VALUE_NAME).toString();
                                                             }
                                                             return resultMessage;
                                                         }
                                                         else {
                                                             if (parsedType == KMessageLoader.ATOMIC_OPERATION_REQUEST_TYPE) {
                                                                 var atomicGetMessage = new org.kevoree.modeling.api.msg.KAtomicGetRequest();
-                                                                if (content.get("id") != null) {
-                                                                    atomicGetMessage.id = java.lang.Long.parseLong(content.get("id").toString());
+                                                                if (content.get(KMessageLoader.ID_NAME) != null) {
+                                                                    atomicGetMessage.id = java.lang.Long.parseLong(content.get(KMessageLoader.ID_NAME).toString());
                                                                 }
-                                                                if (content.get("key") != null) {
-                                                                    atomicGetMessage.key = org.kevoree.modeling.api.data.cache.KContentKey.create(content.get("key").toString());
+                                                                if (content.get(KMessageLoader.KEY_NAME) != null) {
+                                                                    atomicGetMessage.key = org.kevoree.modeling.api.data.cache.KContentKey.create(content.get(KMessageLoader.KEY_NAME).toString());
                                                                 }
-                                                                if (content.get("operation") != null) {
-                                                                    atomicGetMessage.operation = org.kevoree.modeling.api.data.cdn.AtomicOperationFactory.getOperationWithKey(java.lang.Integer.parseInt(content.get("operation")));
+                                                                if (content.get(KMessageLoader.OPERATION_NAME) != null) {
+                                                                    atomicGetMessage.operation = org.kevoree.modeling.api.data.cdn.AtomicOperationFactory.getOperationWithKey(java.lang.Integer.parseInt(content.get(KMessageLoader.OPERATION_NAME)));
                                                                 }
                                                                 return atomicGetMessage;
                                                             }
                                                             else {
                                                                 if (parsedType == KMessageLoader.ATOMIC_OPERATION_RESULT_TYPE) {
                                                                     var atomicGetResultMessage = new org.kevoree.modeling.api.msg.KAtomicGetResult();
-                                                                    if (content.get("id") != null) {
-                                                                        atomicGetResultMessage.id = java.lang.Long.parseLong(content.get("id").toString());
+                                                                    if (content.get(KMessageLoader.ID_NAME) != null) {
+                                                                        atomicGetResultMessage.id = java.lang.Long.parseLong(content.get(KMessageLoader.ID_NAME).toString());
                                                                     }
-                                                                    if (content.get("value") != null) {
-                                                                        atomicGetResultMessage.value = content.get("value").toString();
+                                                                    if (content.get(KMessageLoader.VALUE_NAME) != null) {
+                                                                        atomicGetResultMessage.value = content.get(KMessageLoader.VALUE_NAME).toString();
                                                                     }
                                                                     return atomicGetResultMessage;
                                                                 }
@@ -5865,6 +5854,13 @@ var org;
                                 }
                             }
                         };
+                        KMessageLoader.TYPE_NAME = "type";
+                        KMessageLoader.OPERATION_NAME = "op";
+                        KMessageLoader.KEY_NAME = "key";
+                        KMessageLoader.KEYS_NAME = "keys";
+                        KMessageLoader.ID_NAME = "id";
+                        KMessageLoader.VALUE_NAME = "value";
+                        KMessageLoader.VALUES_NAME = "values";
                         KMessageLoader.EVENT_TYPE = 0;
                         KMessageLoader.GET_REQ_TYPE = 1;
                         KMessageLoader.GET_RES_TYPE = 2;
@@ -5882,22 +5878,13 @@ var org;
                         }
                         KOperationCallMessage.prototype.json = function () {
                             var buffer = new java.lang.StringBuilder();
-                            buffer.append("{\n\"type\":\"");
-                            buffer.append(this.type());
-                            buffer.append("\"\n");
-                            if (this.id != null) {
-                                buffer.append(",");
-                                buffer.append("\"id\":\"");
-                                buffer.append(this.id.toString());
-                                buffer.append("\"\n");
-                            }
-                            if (this.key != null) {
-                                buffer.append(",\"key\":\"");
-                                buffer.append(this.key.toString());
-                                buffer.append("\"\n");
-                            }
+                            org.kevoree.modeling.api.msg.KMessageHelper.printJsonStart(buffer);
+                            org.kevoree.modeling.api.msg.KMessageHelper.printType(buffer, this.type());
+                            org.kevoree.modeling.api.msg.KMessageHelper.printElem(this.id, org.kevoree.modeling.api.msg.KMessageLoader.ID_NAME, buffer);
+                            org.kevoree.modeling.api.msg.KMessageHelper.printElem(this.key, org.kevoree.modeling.api.msg.KMessageLoader.KEY_NAME, buffer);
                             if (this.params != null) {
-                                buffer.append(",\"values\":[");
+                                buffer.append(",\"");
+                                buffer.append(org.kevoree.modeling.api.msg.KMessageLoader.VALUES_NAME).append("\":[");
                                 for (var i = 0; i < this.params.length; i++) {
                                     if (i != 0) {
                                         buffer.append(",");
@@ -5908,7 +5895,7 @@ var org;
                                 }
                                 buffer.append("]\n");
                             }
-                            buffer.append("}\n");
+                            org.kevoree.modeling.api.msg.KMessageHelper.printJsonEnd(buffer);
                             return buffer.toString();
                         };
                         KOperationCallMessage.prototype.type = function () {
@@ -5922,20 +5909,11 @@ var org;
                         }
                         KOperationResultMessage.prototype.json = function () {
                             var buffer = new java.lang.StringBuilder();
-                            buffer.append("{\n\"type\":\"");
-                            buffer.append(this.type());
-                            buffer.append("\"\n");
-                            if (this.id != null) {
-                                buffer.append(",\"id\":\"");
-                                buffer.append(this.id.toString());
-                                buffer.append("\"\n");
-                            }
-                            if (this.result != null) {
-                                buffer.append(",\"result\":\"");
-                                buffer.append(this.result);
-                                buffer.append("\"\n");
-                            }
-                            buffer.append("}\n");
+                            org.kevoree.modeling.api.msg.KMessageHelper.printJsonStart(buffer);
+                            org.kevoree.modeling.api.msg.KMessageHelper.printType(buffer, this.type());
+                            org.kevoree.modeling.api.msg.KMessageHelper.printElem(this.id, org.kevoree.modeling.api.msg.KMessageLoader.ID_NAME, buffer);
+                            org.kevoree.modeling.api.msg.KMessageHelper.printElem(this.value, org.kevoree.modeling.api.msg.KMessageLoader.VALUE_NAME, buffer);
+                            org.kevoree.modeling.api.msg.KMessageHelper.printJsonEnd(buffer);
                             return buffer.toString();
                         };
                         KOperationResultMessage.prototype.type = function () {
@@ -5949,17 +5927,12 @@ var org;
                         }
                         KPutRequest.prototype.json = function () {
                             var buffer = new java.lang.StringBuilder();
-                            buffer.append("{\n\"type\":\"");
-                            buffer.append(this.type());
-                            buffer.append("\"\n");
-                            if (this.id != null) {
-                                buffer.append(",");
-                                buffer.append("\"id\":\"");
-                                buffer.append(this.id.toString());
-                                buffer.append("\"\n");
-                            }
+                            org.kevoree.modeling.api.msg.KMessageHelper.printJsonStart(buffer);
+                            org.kevoree.modeling.api.msg.KMessageHelper.printType(buffer, this.type());
+                            org.kevoree.modeling.api.msg.KMessageHelper.printElem(this.id, org.kevoree.modeling.api.msg.KMessageLoader.ID_NAME, buffer);
                             if (this.request != null) {
-                                buffer.append(",\"keys\":[");
+                                buffer.append(",\"");
+                                buffer.append(org.kevoree.modeling.api.msg.KMessageLoader.KEYS_NAME).append("\":[");
                                 for (var i = 0; i < this.request.size(); i++) {
                                     if (i != 0) {
                                         buffer.append(",");
@@ -5969,7 +5942,8 @@ var org;
                                     buffer.append("\"");
                                 }
                                 buffer.append("]\n");
-                                buffer.append(",\"values\":[");
+                                buffer.append(",\"");
+                                buffer.append(org.kevoree.modeling.api.msg.KMessageLoader.VALUES_NAME).append("\":[");
                                 for (var i = 0; i < this.request.size(); i++) {
                                     if (i != 0) {
                                         buffer.append(",");
@@ -5980,7 +5954,7 @@ var org;
                                 }
                                 buffer.append("]\n");
                             }
-                            buffer.append("}\n");
+                            org.kevoree.modeling.api.msg.KMessageHelper.printJsonEnd(buffer);
                             return buffer.toString();
                         };
                         KPutRequest.prototype.type = function () {
@@ -5994,16 +5968,10 @@ var org;
                         }
                         KPutResult.prototype.json = function () {
                             var buffer = new java.lang.StringBuilder();
-                            buffer.append("{\n\"type\":\"");
-                            buffer.append(this.type());
-                            buffer.append("\"\n");
-                            if (this.id != null) {
-                                buffer.append(",");
-                                buffer.append("\"id\":\"");
-                                buffer.append(this.id.toString());
-                                buffer.append("\"\n");
-                            }
-                            buffer.append("}\n");
+                            org.kevoree.modeling.api.msg.KMessageHelper.printJsonStart(buffer);
+                            org.kevoree.modeling.api.msg.KMessageHelper.printType(buffer, this.type());
+                            org.kevoree.modeling.api.msg.KMessageHelper.printElem(this.id, org.kevoree.modeling.api.msg.KMessageLoader.ID_NAME, buffer);
+                            org.kevoree.modeling.api.msg.KMessageHelper.printJsonEnd(buffer);
                             return buffer.toString();
                         };
                         KPutResult.prototype.type = function () {

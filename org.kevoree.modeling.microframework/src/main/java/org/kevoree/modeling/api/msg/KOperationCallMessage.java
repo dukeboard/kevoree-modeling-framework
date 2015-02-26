@@ -5,7 +5,7 @@ import org.kevoree.modeling.api.data.cache.KContentKey;
 /**
  * Created by duke on 23/02/15.
  */
-public class KOperationCallMessage extends KMessage {
+public class KOperationCallMessage implements KMessage {
 
     public Long id;
 
@@ -16,13 +16,13 @@ public class KOperationCallMessage extends KMessage {
     @Override
     public String json() {
         StringBuilder buffer = new StringBuilder();
-        printJsonStart(buffer);
-        printType(buffer);
-        printElem(id, ID_NAME, buffer);
-        printElem(key, KEY_NAME, buffer);
+        KMessageHelper.printJsonStart(buffer);
+        KMessageHelper.printType(buffer,type());
+        KMessageHelper.printElem(id, KMessageLoader.ID_NAME, buffer);
+        KMessageHelper.printElem(key, KMessageLoader.KEY_NAME, buffer);
         if (params != null) {
             buffer.append(",\"");
-            buffer.append(VALUES_NAME).append("\":[");
+            buffer.append(KMessageLoader.VALUES_NAME).append("\":[");
             for (int i = 0; i < params.length; i++) {
                 if (i != 0) {
                     buffer.append(",");
@@ -33,7 +33,7 @@ public class KOperationCallMessage extends KMessage {
             }
             buffer.append("]\n");
         }
-        printJsonEnd(buffer);
+        KMessageHelper.printJsonEnd(buffer);
         return buffer.toString();
     }
 

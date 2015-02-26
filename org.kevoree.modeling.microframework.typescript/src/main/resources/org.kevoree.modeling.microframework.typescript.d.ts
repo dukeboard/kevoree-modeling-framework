@@ -1148,7 +1148,20 @@ declare module org {
                         json(): string;
                         type(): number;
                     }
+                    class KMessageHelper {
+                        static printJsonStart(builder: java.lang.StringBuilder): void;
+                        static printJsonEnd(builder: java.lang.StringBuilder): void;
+                        static printType(builder: java.lang.StringBuilder, type: number): void;
+                        static printElem(elem: any, name: string, builder: java.lang.StringBuilder): void;
+                    }
                     class KMessageLoader {
+                        static TYPE_NAME: string;
+                        static OPERATION_NAME: string;
+                        static KEY_NAME: string;
+                        static KEYS_NAME: string;
+                        static ID_NAME: string;
+                        static VALUE_NAME: string;
+                        static VALUES_NAME: string;
                         static EVENT_TYPE: number;
                         static GET_REQ_TYPE: number;
                         static GET_RES_TYPE: number;
@@ -1169,7 +1182,7 @@ declare module org {
                     }
                     class KOperationResultMessage implements KMessage {
                         id: number;
-                        result: string;
+                        value: string;
                         json(): string;
                         type(): number;
                     }

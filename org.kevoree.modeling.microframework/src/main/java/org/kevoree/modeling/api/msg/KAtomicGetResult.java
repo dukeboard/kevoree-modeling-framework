@@ -3,7 +3,7 @@ package org.kevoree.modeling.api.msg;
 /**
  * Created by duke on 24/02/15.
  */
-public class KAtomicGetResult extends KMessage {
+public class KAtomicGetResult implements KMessage {
 
     public Long id;
 
@@ -12,11 +12,11 @@ public class KAtomicGetResult extends KMessage {
     @Override
     public String json() {
         StringBuilder buffer = new StringBuilder();
-        printJsonStart(buffer);
-        printType(buffer);
-        printElem(id, ID_NAME, buffer);
-        printElem(value, VALUE_NAME, buffer);
-        printJsonEnd(buffer);
+        KMessageHelper.printJsonStart(buffer);
+        KMessageHelper.printType(buffer,type());
+        KMessageHelper.printElem(id, KMessageLoader.ID_NAME, buffer);
+        KMessageHelper.printElem(value, KMessageLoader.VALUE_NAME, buffer);
+        KMessageHelper.printJsonEnd(buffer);
         return buffer.toString();
     }
 

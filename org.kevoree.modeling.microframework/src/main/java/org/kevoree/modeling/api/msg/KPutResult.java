@@ -3,17 +3,17 @@ package org.kevoree.modeling.api.msg;
 /**
  * Created by duke on 24/02/15.
  */
-public class KPutResult extends KMessage {
+public class KPutResult implements KMessage {
 
     public Long id;
 
     @Override
     public String json() {
         StringBuilder buffer = new StringBuilder();
-        printJsonStart(buffer);
-        printType(buffer);
-        printElem(id, ID_NAME, buffer);
-        printJsonEnd(buffer);
+        KMessageHelper.printJsonStart(buffer);
+        KMessageHelper.printType(buffer,type());
+        KMessageHelper.printElem(id, KMessageLoader.ID_NAME, buffer);
+        KMessageHelper.printJsonEnd(buffer);
         return buffer.toString();
     }
 
