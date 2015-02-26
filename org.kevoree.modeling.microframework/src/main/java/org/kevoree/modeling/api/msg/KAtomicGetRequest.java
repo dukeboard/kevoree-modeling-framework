@@ -30,6 +30,6 @@ public class KAtomicGetRequest implements KMessage {
 
     @Override
     public int type() {
-        return KMessageLoader.GET_REQ_TYPE;
+        return KMessageLoader.ATOMIC_OPERATION_REQUEST_TYPE;
     }
 }

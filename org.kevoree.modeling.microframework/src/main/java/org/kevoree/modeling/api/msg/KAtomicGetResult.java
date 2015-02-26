@@ -22,6 +22,6 @@ public class KAtomicGetResult implements KMessage {
 
     @Override
     public int type() {
-        return KMessageLoader.GET_REQ_TYPE;
+        return KMessageLoader.ATOMIC_OPERATION_RESULT_TYPE;
     }
 }
