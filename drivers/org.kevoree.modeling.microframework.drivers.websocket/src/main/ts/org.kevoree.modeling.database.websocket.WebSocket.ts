@@ -6,149 +6,38 @@ module org {
         export module modeling {
             export module database {
                 export module websocket {
-                    export class WebSocketBrokerClient implements org.kevoree.modeling.api.event.KEventBroker {
+                    export class WebSocketClient implements org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver {
 
-
-                        private  _baseBroker:org.kevoree.modeling.api.event.KEventBroker;
-                        private storedEvents = new java.util.ArrayList<org.kevoree.modeling.api.KEvent>();
+                        private _callbackId = 0;
+                        private _clientConnection:WebSocket;
                         private _connectionUri:string;
-                        private clientConnection:WebSocket;
-                        private _metaModel:org.kevoree.modeling.api.meta.MetaModel;
-                        private _store:org.kevoree.modeling.api.data.KStore;
+                        private _manager: org.kevoree.modeling.api.data.manager.KDataManager;
+                        private _localEventListeners = new org.kevoree.modeling.api.util.LocalEventListeners();
 
-                        constructor(connectionUri:string) {
-                            this._baseBroker = new org.kevoree.modeling.api.event.DefaultKBroker();
+                        private _getCallbacks:java.util.HashMap<number, (p1:string[], p2:java.lang.Throwable) => void> = new java.util.HashMap<number, (p1:string[], p2:java.lang.Throwable) => void>();
+                        private _putCallbacks:java.util.HashMap<number, (p: java.lang.Throwable) => void> = new java.util.HashMap<number, (p1:java.lang.Throwable) => void>();
+                        private _atomicGetCallbacks:java.util.HashMap<number, (p: string, p1: java.lang.Throwable) => void> = new java.util.HashMap<number, (p: string, p1: java.lang.Throwable) => void>();
+
+
+                        private _removeCallbacks:java.util.HashMap<string, (p1:java.lang.Throwable) => void> = new java.util.HashMap<string, (p1:java.lang.Throwable) => void>();
+                        private _commitCallbacks:java.util.HashMap<string, (p1:java.lang.Throwable) => void> = new java.util.HashMap<string, (p1:java.lang.Throwable) => void>();
+
+                        constructor(connectionUri) {
                             this._connectionUri = connectionUri;
                         }
 
-                        public setKStore(st:org.kevoree.modeling.api.data.KStore) {
-                            this._store = st;
-                        }
-
                         public connect(callback:(p:java.lang.Throwable) => void):void {
-                            this.clientConnection = new WebSocket(this._connectionUri);
-                            this.clientConnection.onmessage = (message:MessageEvent) => {
-                                var json = JSON.parse(message.data);
-                                for (var i = 0; i < json.events.length; i++) {
-                                    var kEvent = org.kevoree.modeling.api.event.DefaultKEvent.fromJSON(json.events[i], this._metaModel);
+                            this._clientConnection = new WebSocket(this._connectionUri);
+                            this._clientConnection.onmessage = (message:MessageEvent) => {
 
-                                    if (kEvent.actionType() == org.kevoree.modeling.api.KActionType.CALL
-                                        || kEvent.actionType() == org.kevoree.modeling.api.KActionType.CALL_RESPONSE) {
-                                        this._store.operationManager().operationEventReceived(kEvent);
-                                    } else {
-                                        this.notifyOnly(kEvent);
-                                    }
-                                }
                             };
-                            if (callback != null) {
-                                callback(null);
-                            }
-                        }
-
-                        public close(callback:(p:java.lang.Throwable) => void):void {
-                            this._baseBroker.close((e)=> {
-                                this.clientConnection.close();
-                                if (callback != null) {
-                                    callback(e);
-                                }
-                            })
-                        }
-
-                        public setMetaModel(metaModel:org.kevoree.modeling.api.meta.MetaModel):void {
-                            this._metaModel = metaModel;
-                        }
-
-                        public registerListener(origin:any, listener:(p:org.kevoree.modeling.api.KEvent) => void, scope:any):void {
-                            this._baseBroker.registerListener(origin, listener, scope);
-                        }
-
-                        public unregister(listener:(p:org.kevoree.modeling.api.KEvent) => void):void {
-                            this._baseBroker.unregister(listener);
-                        }
-
-                        public  notify(event:org.kevoree.modeling.api.KEvent):void {
-                            this._baseBroker.notify(event);
-                            this.storedEvents.add(event);
-                        }
-
-                        public notifyOnly(event:org.kevoree.modeling.api.KEvent) {
-                            this._baseBroker.notify(event);
-                        }
-
-                        public flush() {
-                            var serializedEventList = [];
-                            for (var i = 0; i < this.storedEvents.size(); i++) {
-                                serializedEventList.push(this.storedEvents.get(i).toJSON());
-                            }
-                            var jsonMessage = {"events": serializedEventList};
-                            this.clientConnection.send(JSON.stringify(jsonMessage));
-                        }
-
-                        public sendOperationEvent(operationEvent:org.kevoree.modeling.api.KEvent) {
-                            var serializedEventList = [];
-                            serializedEventList.push(operationEvent.toJSON());
-
-                            var jsonMessage = {"events": serializedEventList};
-                            this.clientConnection.send(JSON.stringify(jsonMessage));
-
-                        }
-                    }
-
-                    export class WebSocketDataBaseClient implements org.kevoree.modeling.api.data.KDataBase {
-
-                        private callbackId = 0;
-                        private clientConnection:WebSocket;
-                        private connectionUri:string;
-                        private getCallbacks:java.util.HashMap<number, (p1:string[], p2:java.lang.Throwable) => void> = new java.util.HashMap<number, (p1:string[], p2:java.lang.Throwable) => void>();
-                        private putCallbacks:java.util.HashMap<number, (p1:java.lang.Throwable) => void> = new java.util.HashMap<number, (p1:java.lang.Throwable) => void>();
-                        private removeCallbacks:java.util.HashMap<string, (p1:java.lang.Throwable) => void> = new java.util.HashMap<string, (p1:java.lang.Throwable) => void>();
-                        private commitCallbacks:java.util.HashMap<string, (p1:java.lang.Throwable) => void> = new java.util.HashMap<string, (p1:java.lang.Throwable) => void>();
-
-                        constructor(connectionUri) {
-                            this.connectionUri = connectionUri;
-                        }
-
-                        public connect(callback:(p:java.lang.Throwable) => void):void {
-                            this.clientConnection = new WebSocket(this.connectionUri);
-                            this.clientConnection.onmessage = (message:MessageEvent) => {
-                                var json = JSON.parse(message.data);
-                                if (json.action == "get") {
-                                    var getCallback = this.getCallbacks.get(json.id);
-                                    if (getCallback !== undefined && getCallback != null) {
-                                        if (json.status == "success") {
-                                            getCallback(json.value, null);
-                                        } else if (json.status == "error") {
-                                            getCallback(null, new java.lang.Exception(json.value));
-                                        } else {
-                                            console.error("WebSocketDatabase: Status '" + json.action + "' of not supported yet.")
-                                        }
-                                    } else {
-                                        console.error("No callback registered for message:", json);
-                                    }
-                                } else if (json.action == "put") {
-                                    var putCallback = this.putCallbacks.get(json.id);
-                                    if (putCallback !== undefined && putCallback != null) {
-                                        if (json.status == "success") {
-                                            putCallback(null);
-                                        } else if (json.status == "error") {
-                                            putCallback(new java.lang.Exception(json.value));
-                                        } else {
-                                            console.error("WebSocketDatabase: Status '" + json.action + "' of not supported yet.")
-                                        }
-                                    } else {
-                                        console.error("No callback registered for message:", json);
-                                    }
-                                } else {
-                                    console.error("WebSocketDatabase: Frame of type'" + json.action + "' not supported yet.")
-                                }
-                            };
-                            this.clientConnection.onerror = function (error) {
+                            this._clientConnection.onerror = function (error) {
                                 console.error(error);
                             };
-                            this.clientConnection.onclose = function (error) {
+                            this._clientConnection.onclose = function (error) {
                                 console.error(error);
                             };
-                            this.clientConnection.onopen = function () {
+                            this._clientConnection.onopen = function () {
                                 if (callback != null) {
                                     callback(null);
                                 }
@@ -156,54 +45,102 @@ module org {
                         }
 
                         public close(callback:(p:java.lang.Throwable) => void):void {
-                            this.clientConnection.close();
+                            this._clientConnection.close();
                             if (callback != null) {
                                 callback(null);
                             }
                         }
 
-                        private getCallbackId():number {
-                            if (this.callbackId == 1000) {
-                                this.callbackId = 0;
+                        private nextKey():number {
+                            if (this._callbackId == 1000) {
+                                this._callbackId = 0;
                             } else {
-                                this.callbackId = this.callbackId + 1;
+                                this._callbackId = this._callbackId + 1;
                             }
-                            return this.callbackId;
+                            return this._callbackId;
                         }
 
-                        public get(keys:string[], callback:(p1:string[], p2:java.lang.Throwable) => void):void {
-                            var value = [];
-                            for (var i = 0; i < keys.length; i++) {
-                                value.push(keys[i]);
+                        public put(request: org.kevoree.modeling.api.data.cdn.KContentPutRequest, error: (p: java.lang.Throwable) => void): void {
+                            var putRequest = new org.kevoree.modeling.api.msg.KPutRequest();
+                            putRequest.id = this.nextKey();
+                            putRequest.request = request;
+                            this._putCallbacks.put(putRequest.id, error);
+                            var payload = [];
+                            payload.push(putRequest.json());
+                            this._clientConnection.send(payload);
+                        }
+
+                        public get(keys: org.kevoree.modeling.api.data.cache.KContentKey[], callback: (p: string[], p1: java.lang.Throwable) => void): void {
+                            var getRequest = new org.kevoree.modeling.api.msg.KGetRequest();
+                            getRequest.id = this.nextKey();
+                            getRequest.keys = keys;
+                            this._getCallbacks.put(getRequest.id, callback);
+                            var payload = [];
+                            payload.push(getRequest.json());
+                            this._clientConnection.send(payload);
+                        }
+
+                        public atomicGetMutate(key: org.kevoree.modeling.api.data.cache.KContentKey, operation: org.kevoree.modeling.api.data.cdn.AtomicOperation, callback: (p: string, p1: java.lang.Throwable) => void): void {
+                            var atomicGetRequest = new org.kevoree.modeling.api.msg.KAtomicGetRequest();
+                            atomicGetRequest.id = this.nextKey();
+                            atomicGetRequest.key = key;
+                            atomicGetRequest.operation = operation;
+                            this._atomicGetCallbacks.put(atomicGetRequest.id, callback);
+                            var payload = [];
+                            payload.push(atomicGetRequest.json());
+                            this._clientConnection.send(payload);
+                        }
+
+                        public remove(keys: string[], error: (p: java.lang.Throwable) => void): void {
+                            console.error("Not implemented yet");
+                        }
+
+
+                        public registerListener(origin: any, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void, scope: any): void{
+                            this._localEventListeners.registerListener(origin, listener, scope);
+                        }
+                        public unregister(listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void {
+                            this._localEventListeners.unregister(listener);
+                        }
+
+                        public setManager(manager: org.kevoree.modeling.api.data.manager.KDataManager): void {
+                            this._manager = manager;
+                        }
+
+                        public send(msgs: org.kevoree.modeling.api.msg.KEventMessage[]): void {
+
+                            this.fireLocalMessages(msgs);
+
+                            //Send to remote
+                            var payload = [];
+                            for(var i = 0; i < msgs.length; i++) {
+                                payload.push(msgs[i].json());
                             }
-                            var jsonMessage = {"action": "get", "value": value, "id": this.getCallbackId()};
-                            this.getCallbacks.put(jsonMessage.id, callback);
-                            var stringified = JSON.stringify(jsonMessage);
-                            this.clientConnection.send(stringified);
+                            this._clientConnection.send(payload);
                         }
 
-                        public put(payloads:string[][], error:(p1:java.lang.Throwable) => void):void {
-                            var payloadList = [];
-                            for (var i = 0; i < payloads.length; i++) {
-                                var keyValue = [];
-                                keyValue[0] = payloads[i][0];
-                                keyValue[1] = payloads[i][1];
-                                payloadList.push(keyValue);
+                        private fireLocalMessages(msgs : org.kevoree.modeling.api.msg.KEventMessage[]) {
+                            var _previousKey : org.kevoree.modeling.api.data.cache.KContentKey = null;
+                            var _currentView : org.kevoree.modeling.api.KView = null;
+
+                            for(var i = 0; i < msgs.length; i++) {
+                                var sourceKey = msgs[i].key;
+                                if(_previousKey == null || sourceKey.part1() != _previousKey.part1() || sourceKey.part2() != _previousKey.part2()) {
+                                    _currentView = this._manager.model().universe(sourceKey.part1()).time(sourceKey.part2());
+                                    _previousKey = sourceKey;
+                                }
+                                var tempIndex = i;
+                                _currentView.lookup(sourceKey.part3()).then(function(kObject) {
+                                    if (kObject != null) {
+                                        var modifiedMetas  = [];
+                                        for(var j = 0; j < msgs[tempIndex].meta.length; j++) {
+                                            modifiedMetas.push(kObject.metaClass().meta(msgs[tempIndex].meta[j]));
+                                        }
+                                        this._localEventListeners.dispatch(kObject, modifiedMetas);
+                                    }
+                                });
                             }
-                            var jsonMessage = {"action": "put", "value": payloadList, "id": this.getCallbackId()};
-                            this.putCallbacks.put(jsonMessage.id, error);
-                            var stringified = JSON.stringify(jsonMessage);
-                            this.clientConnection.send(stringified);
                         }
-
-                        public remove(keys:string[], error:(p1:java.lang.Throwable) => void):void {
-
-                        }
-
-                        public commit(error:(p1:java.lang.Throwable) => void):void {
-
-                        }
-
                     }
                 }
             }
