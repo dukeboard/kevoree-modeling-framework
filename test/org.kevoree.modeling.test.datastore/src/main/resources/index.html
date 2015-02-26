@@ -16,24 +16,21 @@
 
 <script>
 
-    var dataBaseConnection = new org.kevoree.modeling.database.websocket.WebSocketDataBaseClient("ws://localhost:23664");
-    var broker = new org.kevoree.modeling.database.websocket.WebSocketBrokerClient("ws://localhost:23665");
+    var dataBaseConnection = new org.kevoree.modeling.database.websocket.WebSocketClient("ws://localhost:23664");
     var geometryModel  = new geometry.GeometryModel();
-    //broker.setMetaModel(geometryUniverse.metaModel());
-    geometryModel.setDataBase(dataBaseConnection);
-    geometryModel.setEventBroker(broker);
+    geometryModel.setContentDeliveryDriver(dataBaseConnection);
 
-    geometryModel.connect(function(err){
+    geometryModel.connect().then(function(err){
         if(err == null) {
             console.log("Looking for the dimension");
             var dimension = geometryModel.universe(0);
             var view = dimension.time(0);
-            view.select("/", function(results){
-                if(results === undefined || results.length == 0) {
+            view.getRoot().then(function(root){
+                if(root === undefined) {
                     console.error("No root found.", results)
                 } else {
-                    var lib = results[0];
-                    lib.getShapes(function(shapes){
+                    var lib = root;
+                    lib.getShapes().then(function(shapes){
                         if(shapes != null) {
                             for(var i in shapes) {
                                 addShapeToDisplay(shapes[i]);
@@ -43,10 +40,13 @@
                         }});
 
                     dimension.listen(function(event){
+                        console.log(event);
+                        /*
                         if(event.actionType() == org.kevoree.modeling.api.KActionType.ADD && event.metaClass() == lib.metaClass() && event.metaElement() == lib.metaClass().metaReference("shapes")) {
                             console.log(event.value());
                             addShapeToDisplay(event.value());
                         }
+                        */
                     });
                     console.log("Yeah go ahead !")
                 }
@@ -60,6 +60,7 @@
     function addShapeToDisplay(shape) {
         $('<div id="'+shape.getName()+'" style="height:50px;width:50px;display: inline-block; margin: 10px;background-color: '+shape.getColor()+';"></div>').appendTo($('body'));
         shape.listen(function(event){
+            console.log(event);
             if(event.metaElement() == shape.metaClass().metaAttribute("color")) {
                 $('div#' + shape.getName()).css('background-color', event.value());
             }
@@ -71,18 +72,18 @@
     function addNewShape() {
         var dimension = geometryModel.universe(0);
         var view = dimension.time(0);
-        view.select("/", function (results) {
-            if (results === undefined || results.length == 0) {
-                console.error("No root found.", results)
+        view.getRoot().then(function (root) {
+            if (root === undefined) {
+                console.error("No root found.", root)
             } else {
-                var lib = results[0];
+                var lib = root;
                 var index = lib.sizeOfShapes();
                 index = index +1;
                 var newShape = view.createShape();
                 newShape.setName("Shape"+index);
                 newShape.setColor("grey");
                 lib.addShapes(newShape);
-                dimension.save(function(err){if(err){console.error(err);}});
+                geometryModel.save().then(function(err){if(err){console.error(err);}});
             }
         });
     }

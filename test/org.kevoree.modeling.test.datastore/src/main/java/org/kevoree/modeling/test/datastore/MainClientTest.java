@@ -1,11 +1,12 @@
 package org.kevoree.modeling.test.datastore;
 
 import geometry.GeometryModel;
-import geometry.GeometryUniverse;
-import org.kevoree.modeling.api.KEvent;
-import org.kevoree.modeling.api.ModelListener;
-import org.kevoree.modeling.databases.websocket.WebSocketBroker;
+import org.kevoree.modeling.api.KEventListener;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.meta.Meta;
+import org.kevoree.modeling.databases.websocket.WebSocketWrapper;
 
+import java.util.Arrays;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -19,23 +20,17 @@ public class MainClientTest {
         Semaphore s = new Semaphore(0);
 
         GeometryModel geoModel = new GeometryModel();
-        geoModel.storage().setEventBroker(new WebSocketBroker("localhost", 23665));
-
-        geoModel.listen(new ModelListener() {
+        geoModel.setContentDeliveryDriver(new WebSocketWrapper(geoModel.manager().cdn(), 23665));
+        geoModel.listen(new KEventListener() {
             @Override
-            public void on(KEvent evt) {
-                System.out.println("Event:" + evt.toJSON());
+            public void on(KObject src, Meta[] modifications) {
+                System.out.println("Event:" + src.metaClass().metaName() + " => " + Arrays.deepToString(modifications));
             }
         });
-        try {
-            s.acquire();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
-                s.release();
             }
         }));
 

@@ -2,15 +2,11 @@ package org.kevoree.modeling.test.datastore;
 
 import geometry.*;
 import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KEvent;
-import org.kevoree.modeling.api.ModelListener;
-import org.kevoree.modeling.api.event.DefaultKEvent;
-import org.kevoree.modeling.databases.websocket.WebSocketBroker;
-import org.kevoree.modeling.databases.websocket.WebSocketDataBaseWrapper;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.databases.websocket.WebSocketWrapper;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -26,12 +22,9 @@ public class MainServerTest {
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
         GeometryModel geoModel = new GeometryModel();
-        WebSocketDataBaseWrapper wsDbWrapper = new WebSocketDataBaseWrapper(geoModel.storage().dataBase(), 23664);
-        geoModel.setDataBase(wsDbWrapper);
-        WebSocketBroker wsb = new WebSocketBroker("0.0.0.0", 23665);
-        geoModel.setEventBroker(wsb);
+        geoModel.setContentDeliveryDriver(new WebSocketWrapper(geoModel.manager().cdn(), 23664));
 
-        geoModel.connect(new Callback<Throwable>() {
+        geoModel.connect().then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
@@ -39,25 +32,26 @@ public class MainServerTest {
                 } else {
                     GeometryUniverse dimension = geoModel.universe(0);
                     GeometryView geoFactory = dimension.time(originOfTime);
-                    geoFactory.select("/", results -> {
-                        if (results == null || results.length == 0) {
-                            Library lib = geoFactory.createLibrary();
-                            geoFactory.setRoot(lib, new Callback<Throwable>() {
-                                @Override
-                                public void on(Throwable throwable) {
-                                    if (throwable != null) {
-                                        throwable.printStackTrace();
+                    geoFactory.getRoot().then(new Callback<KObject>() {
+                        @Override
+                        public void on(KObject kObject) {
+                            if (kObject == null) {
+                                Library lib = geoFactory.createLibrary();
+                                geoFactory.setRoot(lib).then(new Callback<Throwable>() {
+                                    @Override
+                                    public void on(Throwable throwable) {
+                                        if(throwable != null) {
+                                            throwable.printStackTrace();
+                                        }
                                     }
+                                });
+                                for (int i = 0; i < 3; i++) {
+                                    lib.addShapes(geoFactory.createShape().setName("ShapeO" + i).setColor(colors[i % 3]));
                                 }
-                            });
-                            for (int i = 0; i < 3; i++) {
-                                lib.addShapes(geoFactory.createShape().setName("ShapeO" + i).setColor(colors[i % 3]));
+                                geoModel.save().then(Utils.DefaultPrintStackTraceCallback);
 
+                                System.out.println("Base model committed");
                             }
-
-                            dimension.save(Utils.DefaultPrintStackTraceCallback);
-
-                            System.out.println("Base model committed");
                         }
                     });
                 }
@@ -82,20 +76,23 @@ public class MainServerTest {
             public void run() {
                 GeometryUniverse dimension = geoModel.universe(0);
                 GeometryView geoFactory = dimension.time(originOfTime);
-                geoFactory.select("/", results -> {
-                    if (results == null || results.length == 0) {
-                        System.err.println("Root not found");
-                    } else {
-                        Library root = (Library) results[0];
-                        root.getShapes((shapes) -> {
-                            if (shapes != null) {
-                                for (Shape shape : shapes) {
-                                    i++;
-                                    shape.setColor(colors[(turn + i) % 3]);
+                geoFactory.getRoot().then(new Callback<KObject>() {
+                    @Override
+                    public void on(KObject kObject) {
+                        if (kObject == null) {
+                            System.err.println("Root not found");
+                        } else {
+                            Library root = (Library) kObject;
+                            root.getShapes().then((shapes) -> {
+                                if (shapes != null) {
+                                    for (Shape shape : shapes) {
+                                        i++;
+                                        shape.setColor(colors[(turn + i) % 3]);
+                                    }
                                 }
-                            }
-                        });
-                        dimension.unload(Utils.DefaultPrintStackTraceCallback);
+                            });
+                            geoModel.save().then(Utils.DefaultPrintStackTraceCallback);
+                        }
                     }
                 });
                 turn++;

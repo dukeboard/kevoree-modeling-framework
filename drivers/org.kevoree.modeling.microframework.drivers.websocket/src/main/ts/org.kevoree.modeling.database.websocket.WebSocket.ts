@@ -67,7 +67,7 @@ module org {
                             this._putCallbacks.put(putRequest.id, error);
                             var payload = [];
                             payload.push(putRequest.json());
-                            this._clientConnection.send(payload);
+                            this._clientConnection.send(JSON.stringify(payload));
                         }
 
                         public get(keys: org.kevoree.modeling.api.data.cache.KContentKey[], callback: (p: string[], p1: java.lang.Throwable) => void): void {
@@ -77,7 +77,7 @@ module org {
                             this._getCallbacks.put(getRequest.id, callback);
                             var payload = [];
                             payload.push(getRequest.json());
-                            this._clientConnection.send(payload);
+                            this._clientConnection.send(JSON.stringify(payload));
                         }
 
                         public atomicGetMutate(key: org.kevoree.modeling.api.data.cache.KContentKey, operation: org.kevoree.modeling.api.data.cdn.AtomicOperation, callback: (p: string, p1: java.lang.Throwable) => void): void {
@@ -88,7 +88,7 @@ module org {
                             this._atomicGetCallbacks.put(atomicGetRequest.id, callback);
                             var payload = [];
                             payload.push(atomicGetRequest.json());
-                            this._clientConnection.send(payload);
+                            this._clientConnection.send(JSON.stringify(payload));
                         }
 
                         public remove(keys: string[], error: (p: java.lang.Throwable) => void): void {
@@ -116,7 +116,7 @@ module org {
                             for(var i = 0; i < msgs.length; i++) {
                                 payload.push(msgs[i].json());
                             }
-                            this._clientConnection.send(payload);
+                            this._clientConnection.send(JSON.stringify(payload));
                         }
 
                         private fireLocalMessages(msgs : org.kevoree.modeling.api.msg.KEventMessage[]) {
