@@ -144,8 +144,8 @@ public class DefaultKDataManager implements KDataManager {
             }
             newMessage.key = dirtiesEntries[i].key;
             notificationMessages[i] = newMessage;
-            cachedObject.setClean();
             request.put(dirtiesEntries[i].key, cachedObject.serialize());
+            cachedObject.setClean();
         }
         request.put(KContentKey.createLastObjectIndexFromPrefix(_objectKeyCalculator.prefix()), "" + _objectKeyCalculator.lastComputedIndex());
         request.put(KContentKey.createLastUniverseIndexFromPrefix(_universeKeyCalculator.prefix()), "" + _universeKeyCalculator.lastComputedIndex());
@@ -596,7 +596,7 @@ public class DefaultKDataManager implements KDataManager {
                     callback.on(new Exception("KMF ERROR, ROOT TREE CANNOT BE CREATED"));
                 } else {
                     Long closestUniverse = internal_resolve_universe(longRBTree, newRoot.now(), newRoot.universe().key());
-                    if (closestUniverse != newRoot.universe().key()) {
+                    if (closestUniverse == null || closestUniverse != newRoot.universe().key()) {
                         longRBTree.insert(newRoot.universe().key(), newRoot.now());
                         LongRBTree newTimeTree = new LongRBTree();
                         newTimeTree.insert(newRoot.now(), newRoot.uuid());
@@ -689,7 +689,13 @@ public class DefaultKDataManager implements KDataManager {
 
     private Long internal_resolve_universe(LongRBTree universeTree, long timeToResolve, long currentUniverse) {
         //TODO :( uch
-        return currentUniverse;
+        if (universeTree.lookup(currentUniverse) == null) {
+            return null;
+        } else {
+            return currentUniverse;
+        }
+
+
     }
 
     private KCacheObject internal_load(KContentKey key, String payload) {
