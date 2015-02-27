@@ -20,7 +20,7 @@ public class LookupTest {
 
 
 
-        MemoryKContentDeliveryDriver.DEBUG = true;
+       // MemoryKContentDeliveryDriver.DEBUG = true;
 
         final CloudModel cloudModel = new CloudModel();
         cloudModel.connect();
