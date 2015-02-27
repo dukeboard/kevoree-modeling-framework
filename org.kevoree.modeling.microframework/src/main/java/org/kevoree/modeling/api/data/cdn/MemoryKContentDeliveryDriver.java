@@ -7,6 +7,7 @@ import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.msg.KEventMessage;
+import org.kevoree.modeling.api.rbtree.LongRBTree;
 import org.kevoree.modeling.api.util.LocalEventListeners;
 
 import java.util.HashMap;
@@ -111,6 +112,7 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
             if (key.universe() != null && key.time() != null && key.obj() != null) {
                 //this is a KObject key...
                 KCacheObject relevantEntry = _manager.cache().get(key);
+                KCacheObject universeTree = _manager.cache().get(KContentKey.createUniverseTree(key.obj()));
                 if (relevantEntry instanceof KCacheEntry) {
                     KCacheEntry entry = (KCacheEntry) relevantEntry;
                     //Ok we have to create the corresponding proxy...
@@ -125,7 +127,7 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
                         tempView = universeSelected.time(key.time());
                         views.put(key.universe() + "/" + key.time(), tempView);
                     }
-                    KObject resolved = ((AbstractKView) tempView).createProxy(entry.metaClass, entry.universeTree, key.obj());
+                    KObject resolved = ((AbstractKView) tempView).createProxy(entry.metaClass, (LongRBTree) universeTree, key.obj());
                     Meta[] metas = new Meta[msgs[i].meta.length];
                     for (int j = 0; j < msgs[i].meta.length; j++) {
                         if (msgs[i].meta[j] >= Index.RESERVED_INDEXES) {

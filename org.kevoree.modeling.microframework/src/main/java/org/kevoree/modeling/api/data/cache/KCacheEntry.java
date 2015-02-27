@@ -16,8 +16,6 @@ import java.util.Set;
  */
 public class KCacheEntry implements KCacheObject {
 
-    public LongRBTree universeTree;
-
     public MetaClass metaClass;
 
     public Object[] raw;
@@ -114,7 +112,6 @@ public class KCacheEntry implements KCacheObject {
         clonedEntry._dirty = true;
         clonedEntry.raw = cloned;
         clonedEntry.metaClass = this.metaClass;
-        clonedEntry.universeTree = this.universeTree;
         return clonedEntry;
     }
 

@@ -166,11 +166,10 @@ public class DefaultKDataManager implements KDataManager {
         cacheEntry.raw = new Object[Index.RESERVED_INDEXES + obj.metaClass().metaElements().length];
         cacheEntry._dirty = true;
         cacheEntry.metaClass = obj.metaClass();
-        cacheEntry.universeTree = obj.universeTree();
         IndexRBTree timeTree = new IndexRBTree();
         timeTree.insert(obj.now());
         _cache.put(KContentKey.createTimeTree(obj.universe().key(), obj.uuid()), timeTree);
-        _cache.put(KContentKey.createUniverseTree(obj.uuid()), cacheEntry.universeTree);
+        _cache.put(KContentKey.createUniverseTree(obj.uuid()), obj.universeTree());
         _cache.put(KContentKey.createObject(obj.universe().key(), obj.now(), obj.uuid()), cacheEntry);
     }
 
@@ -478,8 +477,6 @@ public class DefaultKDataManager implements KDataManager {
                         toLoadIndexTimes.add(i);
                         toLoadTimeTrees.add(timeObjectTreeKey);
                     }
-                } else {
-                    System.err.println("KMF ERROR on object:" + uuids[i]);
                 }
             }
         }
