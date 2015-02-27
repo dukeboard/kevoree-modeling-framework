@@ -133,23 +133,13 @@ public class DefaultKDataManager implements KDataManager {
     public synchronized void save(Callback<Throwable> callback) {
         KCacheDirty[] dirtiesEntries = _cache.dirties();
         KContentPutRequest request = new KContentPutRequest(dirtiesEntries.length + 2);
-        int nbCacheEntry = 0;
-        for (int i = 0; i < dirtiesEntries.length; i++) {
-            if (dirtiesEntries[i].object instanceof KCacheEntry) {
-                nbCacheEntry = nbCacheEntry + 1;
-            }
-        }
-        KEventMessage[] notificationMessages = new KEventMessage[nbCacheEntry];
-        int nbInsertedMsg = 0;
+        KEventMessage[] notificationMessages = new KEventMessage[dirtiesEntries.length];
         for (int i = 0; i < dirtiesEntries.length; i++) {
             KCacheObject cachedObject = dirtiesEntries[i].object;
-            if (dirtiesEntries[i].object instanceof KCacheEntry) {
-                KEventMessage newMessage = new KEventMessage();
-                newMessage.meta = ((KCacheEntry) dirtiesEntries[i].object).modifiedIndexes();
-                newMessage.key = dirtiesEntries[i].key;
-                notificationMessages[nbInsertedMsg] = newMessage;
-                nbInsertedMsg = nbInsertedMsg + 1;
-            }
+            KEventMessage newMessage = new KEventMessage();
+            newMessage.meta = ((KCacheEntry) dirtiesEntries[i].object).modifiedIndexes();
+            newMessage.key = dirtiesEntries[i].key;
+            notificationMessages[i] = newMessage;
             cachedObject.setClean();
             request.put(dirtiesEntries[i].key, cachedObject.serialize());
         }
@@ -643,20 +633,31 @@ public class DefaultKDataManager implements KDataManager {
     }
 
     @Override
-    public void reload(KContentKey[] keys) {
+    public void reload(KContentKey[] keys, Callback<Object[]> callback) {
         _db.get(keys, new ThrowableCallback<String[]>() {
             @Override
             public void on(String[] strings, Throwable error) {
+                Object[] result = null;
+                if (callback != null) {
+                    result = new Object[strings.length];
+                }
                 if (error != null) {
                     error.printStackTrace();
+                    if (callback != null) {
+                        callback.on(null);
+                    }
                 } else {
                     for (int i = 0; i < strings.length; i++) {
                         if (strings[i] != null) {
                             KCacheObject cachedObject = internal_load(keys[i], strings[i]);
                             if (cachedObject != null) {
                                 _cache.put(keys[i], cachedObject);
+                                result[i] = cachedObject;
                             }
                         }
+                    }
+                    if (callback != null) {
+                        callback.on(result);
                     }
                 }
             }

@@ -1,12 +1,7 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.KModel;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KOperation;
-import org.kevoree.modeling.api.KScheduler;
-import org.kevoree.modeling.api.KDefer;
-import org.kevoree.modeling.api.KUniverse;
-import org.kevoree.modeling.api.KEventListener;
+import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.manager.DefaultKDataManager;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.api.data.manager.KDataManager;
@@ -72,7 +67,7 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
     @Override
     public KDefer<Throwable> discard() {
         AbstractKDeferWrapper<Throwable> task = new AbstractKDeferWrapper<Throwable>();
-        _manager.discard(null,task.initCallback());
+        _manager.discard(null, task.initCallback());
         return task;
     }
 
