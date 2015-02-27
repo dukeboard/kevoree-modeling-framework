@@ -19,11 +19,11 @@ public class KContentKey {
 
     public static long GLOBAL_SEGMENT_DATA_LONG_INDEX = 3;
 
-    private static long GLOBAL_SEGMENT_UNIVERSE_TREE = 4;
+    public static long GLOBAL_SEGMENT_DATA_ROOT = 4;
 
-    private static long GLOBAL_SEGMENT_PREFIX = 5;
+    private static long GLOBAL_SEGMENT_UNIVERSE_TREE = 5;
 
-    private static long GLOBAL_SEGMENT_ROOT = 6;
+    private static long GLOBAL_SEGMENT_PREFIX = 6;
 
     private static long GLOBAL_SUB_SEGMENT_PREFIX_OBJ = 0;
 
@@ -73,11 +73,11 @@ public class KContentKey {
     }
 
     public static KContentKey createRootUniverseTree() {
-        return new KContentKey(GLOBAL_SEGMENT_ROOT, null, null, null);
+        return new KContentKey(GLOBAL_SEGMENT_DATA_ROOT, null, null, null);
     }
 
     public static KContentKey createRootTimeTree(Long universeID) {
-        return new KContentKey(GLOBAL_SEGMENT_ROOT, universeID, null, null);
+        return new KContentKey(GLOBAL_SEGMENT_DATA_ROOT, universeID, null, null);
     }
 
     public static KContentKey createTimeTree(Long p_universeID, Long p_objectID) {

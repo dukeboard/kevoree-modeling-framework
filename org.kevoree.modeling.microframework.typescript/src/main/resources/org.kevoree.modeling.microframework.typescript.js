@@ -1726,7 +1726,7 @@ var org;
                                 this._modifiedIndexes = null;
                             };
                             KCacheEntry.prototype.unserialize = function (key, payload, metaModel) {
-                                org.kevoree.modeling.api.data.manager.JsonRaw.decode(payload, key.part2(), metaModel, this);
+                                org.kevoree.modeling.api.data.manager.JsonRaw.decode(payload, key.time(), metaModel, this);
                             };
                             KCacheEntry.prototype.get = function (index) {
                                 if (this.raw != null) {
@@ -1898,16 +1898,16 @@ var org;
                                 this.elem[2] = p_timeID;
                                 this.elem[3] = p_objID;
                             }
-                            KContentKey.prototype.part0 = function () {
+                            KContentKey.prototype.segment = function () {
                                 return this.elem[0];
                             };
-                            KContentKey.prototype.part1 = function () {
+                            KContentKey.prototype.universe = function () {
                                 return this.elem[1];
                             };
-                            KContentKey.prototype.part2 = function () {
+                            KContentKey.prototype.time = function () {
                                 return this.elem[2];
                             };
-                            KContentKey.prototype.part3 = function () {
+                            KContentKey.prototype.obj = function () {
                                 return this.elem[3];
                             };
                             KContentKey.prototype.part = function (i) {
@@ -1925,7 +1925,7 @@ var org;
                                 return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_UNIVERSE_TREE, null, null, null);
                             };
                             KContentKey.createUniverseTree = function (p_objectID) {
-                                return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_DATA, null, null, p_objectID);
+                                return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_DATA_LONG_INDEX, null, null, p_objectID);
                             };
                             KContentKey.createRootUniverseTree = function () {
                                 return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_ROOT, null, null, null);
@@ -1934,10 +1934,10 @@ var org;
                                 return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_ROOT, universeID, null, null);
                             };
                             KContentKey.createTimeTree = function (p_universeID, p_objectID) {
-                                return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_DATA, p_universeID, null, p_objectID);
+                                return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_DATA_INDEX, p_universeID, null, p_objectID);
                             };
                             KContentKey.createObject = function (p_universeID, p_quantaID, p_objectID) {
-                                return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_DATA, p_universeID, p_quantaID, p_objectID);
+                                return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_DATA_RAW, p_universeID, p_quantaID, p_objectID);
                             };
                             KContentKey.createLastPrefix = function () {
                                 return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_PREFIX, null, null, null);
@@ -2008,10 +2008,12 @@ var org;
                             KContentKey.ELEM_SIZE = 4;
                             KContentKey.KEY_SEP = '/';
                             KContentKey.GLOBAL_SEGMENT_META = 0;
-                            KContentKey.GLOBAL_SEGMENT_DATA = 1;
-                            KContentKey.GLOBAL_SEGMENT_UNIVERSE_TREE = 2;
-                            KContentKey.GLOBAL_SEGMENT_PREFIX = 3;
-                            KContentKey.GLOBAL_SEGMENT_ROOT = 4;
+                            KContentKey.GLOBAL_SEGMENT_DATA_RAW = 1;
+                            KContentKey.GLOBAL_SEGMENT_DATA_INDEX = 2;
+                            KContentKey.GLOBAL_SEGMENT_DATA_LONG_INDEX = 3;
+                            KContentKey.GLOBAL_SEGMENT_UNIVERSE_TREE = 4;
+                            KContentKey.GLOBAL_SEGMENT_PREFIX = 5;
+                            KContentKey.GLOBAL_SEGMENT_ROOT = 6;
                             KContentKey.GLOBAL_SUB_SEGMENT_PREFIX_OBJ = 0;
                             KContentKey.GLOBAL_SUB_SEGMENT_PREFIX_UNI = 1;
                             return KContentKey;
@@ -2080,7 +2082,9 @@ var org;
                                 return result.toArray(new Array());
                             };
                             MultiLayeredMemoryCache.prototype.clearDataSegment = function () {
-                                this._nestedLayers.remove(org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA);
+                                this._nestedLayers.remove(org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_RAW);
+                                this._nestedLayers.remove(org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_INDEX);
+                                this._nestedLayers.remove(org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_LONG_INDEX);
                             };
                             MultiLayeredMemoryCache.DEBUG = false;
                             return MultiLayeredMemoryCache;
@@ -2240,22 +2244,22 @@ var org;
                                 var views = new java.util.HashMap();
                                 for (var i = 0; i < msgs.length; i++) {
                                     var key = msgs[i].key;
-                                    if (key.part1() != null && key.part2() != null && key.part3() != null) {
+                                    if (key.universe() != null && key.time() != null && key.obj() != null) {
                                         var relevantEntry = this._manager.cache().get(key);
                                         if (relevantEntry instanceof org.kevoree.modeling.api.data.cache.KCacheEntry) {
                                             var entry = relevantEntry;
                                             var universeSelected = null;
-                                            universeSelected = universe.get(key.part1());
+                                            universeSelected = universe.get(key.universe());
                                             if (universeSelected == null) {
-                                                universeSelected = this._manager.model().universe(key.part1());
-                                                universe.put(key.part1(), universeSelected);
+                                                universeSelected = this._manager.model().universe(key.universe());
+                                                universe.put(key.universe(), universeSelected);
                                             }
-                                            var tempView = views.get(key.part1() + "/" + key.part2());
+                                            var tempView = views.get(key.universe() + "/" + key.time());
                                             if (tempView == null) {
-                                                tempView = universeSelected.time(key.part2());
-                                                views.put(key.part1() + "/" + key.part2(), tempView);
+                                                tempView = universeSelected.time(key.time());
+                                                views.put(key.universe() + "/" + key.time(), tempView);
                                             }
-                                            var resolved = tempView.createProxy(entry.metaClass, entry.universeTree, key.part3());
+                                            var resolved = tempView.createProxy(entry.metaClass, entry.universeTree, key.obj());
                                             var metas = new Array();
                                             for (var j = 0; j < msgs[i].meta.length; j++) {
                                                 if (msgs[i].meta[j] >= org.kevoree.modeling.api.data.manager.Index.RESERVED_INDEXES) {
@@ -2873,7 +2877,9 @@ var org;
                                                 var cachedObject = _this.internal_load(keys[i], strings[i]);
                                                 if (cachedObject != null) {
                                                     _this._cache.put(keys[i], cachedObject);
-                                                    result[i] = cachedObject;
+                                                    if (callback != null) {
+                                                        result[i] = cachedObject;
+                                                    }
                                                 }
                                             }
                                         }
@@ -2897,20 +2903,30 @@ var org;
                             };
                             DefaultKDataManager.prototype.internal_load = function (key, payload) {
                                 var result;
-                                if (key.part2() == null) {
+                                if (key.segment().equals(org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_INDEX)) {
                                     result = new org.kevoree.modeling.api.rbtree.IndexRBTree();
                                 }
                                 else {
-                                    if (key.part3() != null && key.part1() != null) {
+                                    if (key.segment().equals(org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_RAW)) {
                                         result = new org.kevoree.modeling.api.data.cache.KCacheEntry();
                                     }
                                     else {
-                                        result = new org.kevoree.modeling.api.rbtree.LongRBTree();
+                                        if (key.segment().equals(org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_LONG_INDEX)) {
+                                            result = new org.kevoree.modeling.api.rbtree.LongRBTree();
+                                        }
+                                        else {
+                                            result = null;
+                                        }
                                     }
                                 }
                                 try {
-                                    result.unserialize(key, payload, this.model().metaModel());
-                                    return result;
+                                    if (result == null) {
+                                        return null;
+                                    }
+                                    else {
+                                        result.unserialize(key, payload, this.model().metaModel());
+                                        return result;
+                                    }
                                 }
                                 catch ($ex$) {
                                     if ($ex$ instanceof java.lang.Exception) {

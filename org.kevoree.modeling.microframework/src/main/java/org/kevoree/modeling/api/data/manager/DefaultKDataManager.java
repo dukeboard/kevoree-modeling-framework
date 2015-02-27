@@ -698,7 +698,7 @@ public class DefaultKDataManager implements KDataManager {
             result = new IndexRBTree();
         } else if (key.segment().equals(KContentKey.GLOBAL_SEGMENT_DATA_RAW)) {
             result = new KCacheEntry();
-        } else if (key.segment().equals(KContentKey.GLOBAL_SEGMENT_DATA_LONG_INDEX)) {
+        } else if (key.segment().equals(KContentKey.GLOBAL_SEGMENT_DATA_LONG_INDEX) || key.segment().equals(KContentKey.GLOBAL_SEGMENT_DATA_ROOT)) {
             result = new LongRBTree();
         } else {
             result = null;

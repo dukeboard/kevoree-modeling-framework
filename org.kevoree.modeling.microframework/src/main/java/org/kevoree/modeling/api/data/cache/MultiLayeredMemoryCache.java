@@ -68,8 +68,8 @@ public class MultiLayeredMemoryCache implements KCache {
                 layer.dirties(result, prefixKey, 1);
             }
         }
-        if(DEBUG){
-            System.out.println("KMF_DEBUG_CACHE_DIRTIES:"+result.size());
+        if (DEBUG) {
+            System.out.println("KMF_DEBUG_CACHE_DIRTIES:" + result.size());
         }
         return result.toArray(new KCacheDirty[result.size()]);
     }
@@ -79,6 +79,7 @@ public class MultiLayeredMemoryCache implements KCache {
         _nestedLayers.remove(KContentKey.GLOBAL_SEGMENT_DATA_RAW);
         _nestedLayers.remove(KContentKey.GLOBAL_SEGMENT_DATA_INDEX);
         _nestedLayers.remove(KContentKey.GLOBAL_SEGMENT_DATA_LONG_INDEX);
+        _nestedLayers.remove(KContentKey.GLOBAL_SEGMENT_DATA_ROOT);
     }
 
 }
