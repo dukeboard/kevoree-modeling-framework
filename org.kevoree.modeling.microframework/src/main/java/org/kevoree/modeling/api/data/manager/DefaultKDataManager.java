@@ -137,7 +137,11 @@ public class DefaultKDataManager implements KDataManager {
         for (int i = 0; i < dirtiesEntries.length; i++) {
             KCacheObject cachedObject = dirtiesEntries[i].object;
             KEventMessage newMessage = new KEventMessage();
-            newMessage.meta = ((KCacheEntry) dirtiesEntries[i].object).modifiedIndexes();
+            if(dirtiesEntries[i].object instanceof KCacheEntry) {
+                newMessage.meta = ((KCacheEntry)dirtiesEntries[i].object).modifiedIndexes();
+            } else {
+                newMessage.meta = null;
+            }
             newMessage.key = dirtiesEntries[i].key;
             notificationMessages[i] = newMessage;
             cachedObject.setClean();
