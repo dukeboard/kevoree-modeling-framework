@@ -694,16 +694,22 @@ public class DefaultKDataManager implements KDataManager {
 
     private KCacheObject internal_load(KContentKey key, String payload) {
         KCacheObject result;
-        if (key.part2() == null && key.part1() == null) {
+        if (key.segment().equals(KContentKey.GLOBAL_SEGMENT_DATA_INDEX)) {
             result = new IndexRBTree();
-        } else if (key.part3() != null && key.part1() != null) {
+        } else if (key.segment().equals(KContentKey.GLOBAL_SEGMENT_DATA_RAW)) {
             result = new KCacheEntry();
-        } else {
+        } else if (key.segment().equals(KContentKey.GLOBAL_SEGMENT_DATA_LONG_INDEX)) {
             result = new LongRBTree();
+        } else {
+            result = null;
         }
         try {
-            result.unserialize(key, payload, model().metaModel());
-            return result;
+            if (result == null) {
+                return null;
+            } else {
+                result.unserialize(key, payload, model().metaModel());
+                return result;
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return null;

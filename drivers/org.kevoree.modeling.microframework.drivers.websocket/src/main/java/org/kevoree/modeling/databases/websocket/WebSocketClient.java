@@ -15,14 +15,12 @@ import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.cache.KCacheObject;
 import org.kevoree.modeling.api.data.cache.KContentKey;
-import org.kevoree.modeling.api.data.cache.MultiLayeredMemoryCache;
 import org.kevoree.modeling.api.data.cdn.AtomicOperation;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
 import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.meta.Meta;
-import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.msg.KAtomicGetRequest;
 import org.kevoree.modeling.api.msg.KAtomicGetResult;
 import org.kevoree.modeling.api.msg.KEventMessage;
@@ -193,7 +191,7 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
         for(int i = 0; i < msgs.length; i++) {
             payload.add(msgs[i].json());
             KContentKey key = msgs[i].key;
-            if (key.part1() != null && key.part2() != null && key.part3() != null) {
+            if (key.universe() != null && key.time() != null && key.obj() != null) {
                 //this is a KObject key...
                 KCacheObject relevantEntry = _manager.cache().get(key);
                 if (relevantEntry instanceof KCacheEntry) {
@@ -218,17 +216,17 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
             KCacheEntry entry = cacheEntries[i];
             //Ok we have to create the corresponding proxy...
             KUniverse universeSelected = null;
-            universeSelected = universe.get(key.part1());
+            universeSelected = universe.get(key.universe());
             if (universeSelected == null) {
-                universeSelected = _manager.model().universe(key.part1());
-                universe.put(key.part1(), universeSelected);
+                universeSelected = _manager.model().universe(key.universe());
+                universe.put(key.universe(), universeSelected);
             }
-            KView tempView = views.get(key.part1() + "/" + key.part2());
+            KView tempView = views.get(key.universe() + "/" + key.time());
             if (tempView == null) {
-                tempView = universeSelected.time(key.part2());
-                views.put(key.part1() + "/" + key.part2(), tempView);
+                tempView = universeSelected.time(key.time());
+                views.put(key.universe() + "/" + key.time(), tempView);
             }
-            KObject resolved = ((AbstractKView) tempView).createProxy(entry.metaClass, entry.universeTree, key.part3());
+            KObject resolved = ((AbstractKView) tempView).createProxy(entry.metaClass, entry.universeTree, key.obj());
             Meta[] metas = new Meta[msgs[i].meta.length];
             for (int j = 0; j < msgs[i].meta.length; j++) {
                 if (msgs[i].meta[j] >= Index.RESERVED_INDEXES) {

@@ -76,7 +76,9 @@ public class MultiLayeredMemoryCache implements KCache {
 
     @Override
     public void clearDataSegment() {
-        _nestedLayers.remove(KContentKey.GLOBAL_SEGMENT_DATA);
+        _nestedLayers.remove(KContentKey.GLOBAL_SEGMENT_DATA_RAW);
+        _nestedLayers.remove(KContentKey.GLOBAL_SEGMENT_DATA_INDEX);
+        _nestedLayers.remove(KContentKey.GLOBAL_SEGMENT_DATA_LONG_INDEX);
     }
 
 }

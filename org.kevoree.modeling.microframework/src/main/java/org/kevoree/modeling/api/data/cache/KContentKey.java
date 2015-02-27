@@ -13,13 +13,17 @@ public class KContentKey {
 
     private static long GLOBAL_SEGMENT_META = 0;
 
-    public static long GLOBAL_SEGMENT_DATA = 1;
+    public static long GLOBAL_SEGMENT_DATA_RAW = 1;
 
-    private static long GLOBAL_SEGMENT_UNIVERSE_TREE = 2;
+    public static long GLOBAL_SEGMENT_DATA_INDEX = 2;
 
-    private static long GLOBAL_SEGMENT_PREFIX = 3;
+    public static long GLOBAL_SEGMENT_DATA_LONG_INDEX = 3;
 
-    private static long GLOBAL_SEGMENT_ROOT = 4;
+    private static long GLOBAL_SEGMENT_UNIVERSE_TREE = 4;
+
+    private static long GLOBAL_SEGMENT_PREFIX = 5;
+
+    private static long GLOBAL_SEGMENT_ROOT = 6;
 
     private static long GLOBAL_SUB_SEGMENT_PREFIX_OBJ = 0;
 
@@ -32,19 +36,19 @@ public class KContentKey {
         elem[3] = p_objID;
     }
 
-    public Long part0() {
+    public Long segment() {
         return elem[0];
     }
 
-    public Long part1() {
+    public Long universe() {
         return elem[1];
     }
 
-    public Long part2() {
+    public Long time() {
         return elem[2];
     }
 
-    public Long part3() {
+    public Long obj() {
         return elem[3];
     }
 
@@ -65,7 +69,7 @@ public class KContentKey {
     }
 
     public static KContentKey createUniverseTree(Long p_objectID) {
-        return new KContentKey(GLOBAL_SEGMENT_DATA, null, null, p_objectID);
+        return new KContentKey(GLOBAL_SEGMENT_DATA_LONG_INDEX, null, null, p_objectID);
     }
 
     public static KContentKey createRootUniverseTree() {
@@ -77,11 +81,11 @@ public class KContentKey {
     }
 
     public static KContentKey createTimeTree(Long p_universeID, Long p_objectID) {
-        return new KContentKey(GLOBAL_SEGMENT_DATA, p_universeID, null, p_objectID);
+        return new KContentKey(GLOBAL_SEGMENT_DATA_INDEX, p_universeID, null, p_objectID);
     }
 
     public static KContentKey createObject(Long p_universeID, Long p_quantaID, Long p_objectID) {
-        return new KContentKey(GLOBAL_SEGMENT_DATA, p_universeID, p_quantaID, p_objectID);
+        return new KContentKey(GLOBAL_SEGMENT_DATA_RAW, p_universeID, p_quantaID, p_objectID);
     }
 
     public static KContentKey createLastPrefix() {
