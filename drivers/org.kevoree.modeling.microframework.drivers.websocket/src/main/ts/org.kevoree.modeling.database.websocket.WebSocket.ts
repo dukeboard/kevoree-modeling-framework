@@ -57,8 +57,16 @@ module org {
                                         }
                                     }
                                     if(messagesToSendLocally.length > 0) {
-                                        this._manager.reload(keysToReload);
-                                        this.fireLocalMessages(messagesToSendLocally);
+                                        var self = this;
+                                        this._manager.reload(keysToReload, function(objects) {
+                                            var messagesToFire = new java.util.HashMap<org.kevoree.modeling.api.msg.KEventMessage, org.kevoree.modeling.api.data.cache.KCacheEntry>();
+                                            for (var i = 0; i < objects.length; i++) {
+                                                if (objects[i] instanceof org.kevoree.modeling.api.data.cache.KCacheEntry) {
+                                                    messagesToFire.put(messagesToSendLocally[i], <org.kevoree.modeling.api.data.cache.KCacheEntry>objects[i]);
+                                                }
+                                            }
+                                            self.fireLocalMessages(messagesToFire.keySet().toArray([]), messagesToFire.values().toArray([]));
+                                        });
                                     }
                                 }
                             };
@@ -140,37 +148,56 @@ module org {
 
                         public send(msgs: org.kevoree.modeling.api.msg.KEventMessage[]): void {
 
-                            this.fireLocalMessages(msgs);
-
                             //Send to remote
                             var payload = [];
+                            var messagesToFire = new java.util.HashMap<org.kevoree.modeling.api.msg.KEventMessage, org.kevoree.modeling.api.data.cache.KCacheEntry>();
+
                             for(var i = 0; i < msgs.length; i++) {
                                 payload.push(msgs[i].json());
+                                var key = msgs[i].key;
+                                if (key.part1() != null && key.part2() != null && key.part3() != null) {
+                                    //this is a KObject key...
+                                    var relevantEntry = this._manager.cache().get(key);
+                                    if (relevantEntry instanceof org.kevoree.modeling.api.data.cache.KCacheEntry) {
+                                        messagesToFire.put(msgs[i], <org.kevoree.modeling.api.data.cache.KCacheEntry>relevantEntry);
+                                    }
+                                }
                             }
+                            var size = messagesToFire.keySet().size();
+                            this.fireLocalMessages(messagesToFire.keySet().toArray([]), messagesToFire.values().toArray([]));
                             this._clientConnection.send(JSON.stringify(payload));
+
                         }
 
-                        private fireLocalMessages(msgs : org.kevoree.modeling.api.msg.KEventMessage[]) {
-                            var _previousKey : org.kevoree.modeling.api.data.cache.KContentKey = null;
-                            var _currentView : org.kevoree.modeling.api.KView = null;
-                            var self = this;
-                            for(var i = 0; i < msgs.length; i++) {
-                                var sourceKey = msgs[i].key;
-                                if(_previousKey == null || sourceKey.part1() != _previousKey.part1() || sourceKey.part2() != _previousKey.part2()) {
-                                    _currentView = this._manager.model().universe(sourceKey.part1()).time(sourceKey.part2());
-                                    _previousKey = sourceKey;
+                        private fireLocalMessages(msgs : org.kevoree.modeling.api.msg.KEventMessage[], cacheEntries : org.kevoree.modeling.api.data.cache.KCacheEntry[]) {
+
+                            var universe = new java.util.HashMap<java.lang.Long, org.kevoree.modeling.api.KUniverse<any, any, any>>();
+                            var  views = new java.util.HashMap<string, org.kevoree.modeling.api.KView>();
+                            for (var i = 0; i < msgs.length; i++) {
+                                var key = msgs[i].key;
+                                var entry = cacheEntries[i];
+                                //Ok we have to create the corresponding proxy...
+                                var universeSelected : org.kevoree.modeling.api.KUniverse<any, any, any> = null;
+                                universeSelected = universe.get(key.part1());
+                                if (universeSelected == null) {
+                                    universeSelected = this._manager.model().universe(key.part1());
+                                    universe.put(key.part1(), universeSelected);
                                 }
-                                var tempIndex = i;
-                                _currentView.lookup(sourceKey.part3()).then(function(kObject) {
-                                    if (kObject != null) {
-                                        var modifiedMetas  = [];
-                                        for(var j = 0; j < msgs[tempIndex].meta.length; j++) {
-                                            modifiedMetas.push(kObject.metaClass().meta(msgs[tempIndex].meta[j]));
-                                        }
-                                        self._localEventListeners.dispatch(kObject, modifiedMetas);
+                                var tempView = views.get(key.part1() + "/" + key.part2());
+                                if (tempView == null) {
+                                    tempView = universeSelected.time(key.part2());
+                                    views.put(key.part1() + "/" + key.part2(), tempView);
+                                }
+                                var resolved = (<org.kevoree.modeling.api.abs.AbstractKView>tempView).createProxy(entry.metaClass, entry.universeTree, key.part3());
+                                var metas = [];
+                                for (var j = 0; j < msgs[i].meta.length; j++) {
+                                    if (msgs[i].meta[j] >= org.kevoree.modeling.api.data.manager.Index.RESERVED_INDEXES) {
+                                        metas[j] = resolved.metaClass().meta(msgs[i].meta[j]);
                                     }
-                                });
+                                }
+                                this._localEventListeners.dispatch(resolved, metas);
                             }
+
                         }
                     }
                 }

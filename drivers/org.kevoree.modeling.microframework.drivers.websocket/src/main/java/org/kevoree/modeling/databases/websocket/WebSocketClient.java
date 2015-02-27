@@ -8,8 +8,12 @@ import io.undertow.websockets.core.WebSockets;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KEventListener;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ThrowableCallback;
+import org.kevoree.modeling.api.abs.AbstractKView;
+import org.kevoree.modeling.api.data.cache.KCacheEntry;
+import org.kevoree.modeling.api.data.cache.KCacheObject;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.cache.MultiLayeredMemoryCache;
 import org.kevoree.modeling.api.data.cdn.AtomicOperation;
@@ -119,9 +123,19 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
                     System.err.println("MessageType not supported:" + msg.type());
                 }
             }
-            if(messagesToSendLocally.size()>0) {
-                this._manager.reload(keysToReload.toArray(new KContentKey[keysToReload.size()]));
-                this.fireLocalMessages(messagesToSendLocally.toArray(new KEventMessage[messagesToSendLocally.size()]));
+            if(messagesToSendLocally.size() > 0) {
+                this._manager.reload(keysToReload.toArray(new KContentKey[keysToReload.size()]), new Callback<Object[]>() {
+                    @Override
+                    public void on(Object[] objects) {
+                        HashMap<KEventMessage, KCacheEntry> messagesToFire = new HashMap<>();
+                        for (int i = 0; i < objects.length; i++) {
+                            if (objects[i] instanceof KCacheEntry) {
+                                messagesToFire.put(messagesToSendLocally.get(i), (KCacheEntry) objects[i]);
+                            }
+                        }
+                        WebSocketClient.this.fireLocalMessages(messagesToFire.keySet().toArray(new KEventMessage[messagesToFire.size()]), messagesToFire.values().toArray(new KCacheEntry[messagesToFire.size()]));
+                    }
+                });
             }
         }
 
@@ -174,14 +188,20 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
     @Override
     public void send(KEventMessage[] msgs) {
 
-        //sendLocal
-        fireLocalMessages(msgs);
-
-        //Preparing for remotes
         final JsonArray payload = new JsonArray();
+        HashMap<KEventMessage, KCacheEntry> messagesToFire = new HashMap<>();
         for(int i = 0; i < msgs.length; i++) {
             payload.add(msgs[i].json());
+            KContentKey key = msgs[i].key;
+            if (key.part1() != null && key.part2() != null && key.part3() != null) {
+                //this is a KObject key...
+                KCacheObject relevantEntry = _manager.cache().get(key);
+                if (relevantEntry instanceof KCacheEntry) {
+                    messagesToFire.put(msgs[i], (KCacheEntry)relevantEntry);
+                }
+            }
         }
+        fireLocalMessages(messagesToFire.keySet().toArray(new KEventMessage[messagesToFire.size()]), messagesToFire.values().toArray(new KCacheEntry[messagesToFire.size()]));
         WebSockets.sendText(payload.toString(), _client.getChannel(), null);
     }
 
@@ -190,32 +210,32 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
         this._manager = p_manager;
     }
 
-    private void fireLocalMessages(KEventMessage[] msgs) {
-        KContentKey _previousKey = null;
-        KView _currentView = null;
-
-        for(int i = 0; i < msgs.length; i++) {
-            KContentKey sourceKey = msgs[i].key;
-            if(_previousKey == null || sourceKey.part1() != _previousKey.part1() || sourceKey.part2() != _previousKey.part2()) {
-                _currentView = _manager.model().universe(sourceKey.part1()).time(sourceKey.part2());
-                _previousKey = sourceKey;
+    private void fireLocalMessages(KEventMessage[] msgs, KCacheEntry[] cacheEntries) {
+        HashMap<Long, KUniverse> universe = new HashMap<Long, KUniverse>();
+        HashMap<String, KView> views = new HashMap<String, KView>();
+        for (int i = 0; i < msgs.length; i++) {
+            KContentKey key = msgs[i].key;
+            KCacheEntry entry = cacheEntries[i];
+            //Ok we have to create the corresponding proxy...
+            KUniverse universeSelected = null;
+            universeSelected = universe.get(key.part1());
+            if (universeSelected == null) {
+                universeSelected = _manager.model().universe(key.part1());
+                universe.put(key.part1(), universeSelected);
             }
-            final int tempIndex = i;
-            _currentView.lookup(sourceKey.part3()).then(new Callback<KObject>() {
-                public void on(KObject kObject) {
-                    if (kObject != null) {
-                        ArrayList<Meta> modifiedMetas = new ArrayList<Meta>();
-                        for(int j = 0; j < msgs[tempIndex].meta.length; j++) {
-                            if(msgs[tempIndex].meta[j] >= Index.RESERVED_INDEXES) {
-                                modifiedMetas.add(kObject.metaClass().meta(msgs[tempIndex].meta[j]));
-                            }
-                        }
-                        if(modifiedMetas.size() >0) {
-                            _localEventListeners.dispatch(kObject, modifiedMetas.toArray(new Meta[modifiedMetas.size()]));
-                        }
-                    }
+            KView tempView = views.get(key.part1() + "/" + key.part2());
+            if (tempView == null) {
+                tempView = universeSelected.time(key.part2());
+                views.put(key.part1() + "/" + key.part2(), tempView);
+            }
+            KObject resolved = ((AbstractKView) tempView).createProxy(entry.metaClass, entry.universeTree, key.part3());
+            Meta[] metas = new Meta[msgs[i].meta.length];
+            for (int j = 0; j < msgs[i].meta.length; j++) {
+                if (msgs[i].meta[j] >= Index.RESERVED_INDEXES) {
+                    metas[j] = resolved.metaClass().meta(msgs[i].meta[j]);
                 }
-            });
+            }
+            _localEventListeners.dispatch(resolved, metas);
         }
     }
 

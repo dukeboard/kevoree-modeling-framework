@@ -172,8 +172,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
         }
 
         if(_events != null) {
-
-            _manager.reload(_keysToReload.toArray(new KContentKey[_keysToReload.size()]));
+            _manager.reload(_keysToReload.toArray(new KContentKey[_keysToReload.size()]), null);
 
             KEventMessage[] msgs = _events.toArray(new KEventMessage[_events.size()]);
             //send locally
