@@ -2236,29 +2236,35 @@ var org;
                                 this._manager = manager;
                             };
                             MemoryKContentDeliveryDriver.prototype.fireLocalMessages = function (msgs) {
-                                var _this = this;
-                                var _previousKey = null;
-                                var _currentView = null;
+                                var universe = new java.util.HashMap();
+                                var views = new java.util.HashMap();
                                 for (var i = 0; i < msgs.length; i++) {
-                                    var sourceKey = msgs[i].key;
-                                    if (_previousKey == null || sourceKey.part1() != _previousKey.part1() || sourceKey.part2() != _previousKey.part2()) {
-                                        _currentView = this._manager.model().universe(sourceKey.part1()).time(sourceKey.part2());
-                                        _previousKey = sourceKey;
-                                    }
-                                    var tempIndex = i;
-                                    _currentView.lookup(sourceKey.part3()).then(function (kObject) {
-                                        if (kObject != null) {
-                                            var modifiedMetas = new java.util.ArrayList();
-                                            for (var j = 0; j < msgs[tempIndex].meta.length; j++) {
-                                                if (msgs[tempIndex].meta[j] >= org.kevoree.modeling.api.data.manager.Index.RESERVED_INDEXES) {
-                                                    modifiedMetas.add(kObject.metaClass().meta(msgs[tempIndex].meta[j]));
+                                    var key = msgs[i].key;
+                                    if (key.part1() != null && key.part2() != null && key.part3() != null) {
+                                        var relevantEntry = this._manager.cache().get(key);
+                                        if (relevantEntry instanceof org.kevoree.modeling.api.data.cache.KCacheEntry) {
+                                            var entry = relevantEntry;
+                                            var universeSelected = null;
+                                            universeSelected = universe.get(key.part1());
+                                            if (universeSelected == null) {
+                                                universeSelected = this._manager.model().universe(key.part1());
+                                                universe.put(key.part1(), universeSelected);
+                                            }
+                                            var tempView = views.get(key.part1() + "/" + key.part2());
+                                            if (tempView == null) {
+                                                tempView = universeSelected.time(key.part2());
+                                                views.put(key.part1() + "/" + key.part2(), tempView);
+                                            }
+                                            var resolved = tempView.createProxy(entry.metaClass, entry.universeTree, key.part3());
+                                            var metas = new Array();
+                                            for (var j = 0; j < msgs[i].meta.length; j++) {
+                                                if (msgs[i].meta[j] >= org.kevoree.modeling.api.data.manager.Index.RESERVED_INDEXES) {
+                                                    metas[j] = resolved.metaClass().meta(msgs[i].meta[j]);
                                                 }
                                             }
-                                            if (modifiedMetas.size() > 0) {
-                                                _this._localEventListeners.dispatch(kObject, modifiedMetas.toArray(new Array()));
-                                            }
+                                            this._localEventListeners.dispatch(resolved, metas);
                                         }
-                                    });
+                                    }
                                 }
                             };
                             MemoryKContentDeliveryDriver.DEBUG = false;
@@ -2371,23 +2377,18 @@ var org;
                                 var _this = this;
                                 var dirtiesEntries = this._cache.dirties();
                                 var request = new org.kevoree.modeling.api.data.cdn.KContentPutRequest(dirtiesEntries.length + 2);
-                                var nbCacheEntry = 0;
-                                for (var i = 0; i < dirtiesEntries.length; i++) {
-                                    if (dirtiesEntries[i].object instanceof org.kevoree.modeling.api.data.cache.KCacheEntry) {
-                                        nbCacheEntry = nbCacheEntry + 1;
-                                    }
-                                }
                                 var notificationMessages = new Array();
-                                var nbInsertedMsg = 0;
                                 for (var i = 0; i < dirtiesEntries.length; i++) {
                                     var cachedObject = dirtiesEntries[i].object;
+                                    var newMessage = new org.kevoree.modeling.api.msg.KEventMessage();
                                     if (dirtiesEntries[i].object instanceof org.kevoree.modeling.api.data.cache.KCacheEntry) {
-                                        var newMessage = new org.kevoree.modeling.api.msg.KEventMessage();
                                         newMessage.meta = dirtiesEntries[i].object.modifiedIndexes();
-                                        newMessage.key = dirtiesEntries[i].key;
-                                        notificationMessages[nbInsertedMsg] = newMessage;
-                                        nbInsertedMsg = nbInsertedMsg + 1;
                                     }
+                                    else {
+                                        newMessage.meta = null;
+                                    }
+                                    newMessage.key = dirtiesEntries[i].key;
+                                    notificationMessages[i] = newMessage;
                                     cachedObject.setClean();
                                     request.put(dirtiesEntries[i].key, cachedObject.serialize());
                                 }
@@ -2853,11 +2854,18 @@ var org;
                             DefaultKDataManager.prototype.cache = function () {
                                 return this._cache;
                             };
-                            DefaultKDataManager.prototype.reload = function (keys) {
+                            DefaultKDataManager.prototype.reload = function (keys, callback) {
                                 var _this = this;
                                 this._db.get(keys, function (strings, error) {
+                                    var result = null;
+                                    if (callback != null) {
+                                        result = new Array();
+                                    }
                                     if (error != null) {
                                         error.printStackTrace();
+                                        if (callback != null) {
+                                            callback(null);
+                                        }
                                     }
                                     else {
                                         for (var i = 0; i < strings.length; i++) {
@@ -2865,8 +2873,12 @@ var org;
                                                 var cachedObject = _this.internal_load(keys[i], strings[i]);
                                                 if (cachedObject != null) {
                                                     _this._cache.put(keys[i], cachedObject);
+                                                    result[i] = cachedObject;
                                                 }
                                             }
+                                        }
+                                        if (callback != null) {
+                                            callback(result);
                                         }
                                     }
                                 });

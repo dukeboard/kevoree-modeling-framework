@@ -639,7 +639,7 @@ declare module org {
                             getRoot(originView: KView, callback: (p: KObject) => void): void;
                             setRoot(newRoot: KObject, callback: (p: java.lang.Throwable) => void): void;
                             cache(): cache.KCache;
-                            reload(keys: cache.KContentKey[]): void;
+                            reload(keys: cache.KContentKey[], callback: (p: any[]) => void): void;
                             timeTrees(p_origin: KObject, start: number, end: number, callback: (p: rbtree.IndexRBTree[]) => void): void;
                             private internal_resolve_universe(universeTree, timeToResolve, currentUniverse);
                             private internal_load(key, payload);
@@ -680,7 +680,7 @@ declare module org {
                             close(callback: (p: java.lang.Throwable) => void): void;
                             parentUniverseKey(currentUniverseKey: number): number;
                             descendantsUniverseKeys(currentUniverseKey: number): number[];
-                            reload(keys: cache.KContentKey[]): void;
+                            reload(keys: cache.KContentKey[], callback: (p: any[]) => void): void;
                         }
                         class KeyCalculator {
                             static LONG_LIMIT_JS: number;

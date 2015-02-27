@@ -1,13 +1,8 @@
 package org.kevoree.modeling.api.data.cdn;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KEventListener;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.data.cache.KCache;
-import org.kevoree.modeling.api.data.cache.KContentKey;
-import org.kevoree.modeling.api.data.cache.MultiLayeredMemoryCache;
+import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.abs.AbstractKView;
+import org.kevoree.modeling.api.data.cache.*;
 import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.meta.Meta;
@@ -89,7 +84,6 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
 
-
     @Override
     public void registerListener(Object p_origin, KEventListener p_listener, Object p_scope) {
         _localEventListeners.registerListener(p_origin, p_listener, p_scope);
@@ -111,34 +105,38 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
         this._manager = manager;
     }
 
-
     private void fireLocalMessages(KEventMessage[] msgs) {
-        KContentKey _previousKey = null;
-        KView _currentView = null;
-
-        for(int i = 0; i < msgs.length; i++) {
-            KContentKey sourceKey = msgs[i].key;
-
-            if(_previousKey == null || sourceKey.part1() != _previousKey.part1() || sourceKey.part2() != _previousKey.part2()) {
-                _currentView = _manager.model().universe(sourceKey.part1()).time(sourceKey.part2());
-                _previousKey = sourceKey;
-            }
-            final int tempIndex = i;
-            _currentView.lookup(sourceKey.part3()).then(new Callback<KObject>() {
-                public void on(KObject kObject) {
-                    if (kObject != null) {
-                        ArrayList<Meta> modifiedMetas = new ArrayList<Meta>();
-                        for(int j = 0; j < msgs[tempIndex].meta.length; j++) {
-                            if(msgs[tempIndex].meta[j] >= Index.RESERVED_INDEXES) {
-                                modifiedMetas.add(kObject.metaClass().meta(msgs[tempIndex].meta[j]));
-                            }
-                        }
-                        if(modifiedMetas.size() >0) {
-                            _localEventListeners.dispatch(kObject, modifiedMetas.toArray(new Meta[modifiedMetas.size()]));
+        HashMap<Long, KUniverse> universe = new HashMap<Long, KUniverse>();
+        HashMap<String, KView> views = new HashMap<String, KView>();
+        for (int i = 0; i < msgs.length; i++) {
+            KContentKey key = msgs[i].key;
+            if (key.part1() != null && key.part2() != null && key.part3() != null) {
+                //this is a KObject key...
+                KCacheObject relevantEntry = _manager.cache().get(key);
+                if (relevantEntry instanceof KCacheEntry) {
+                    KCacheEntry entry = (KCacheEntry) relevantEntry;
+                    //Ok we have to create the corresponding proxy...
+                    KUniverse universeSelected = null;
+                    universeSelected = universe.get(key.part1());
+                    if (universeSelected == null) {
+                        universeSelected = _manager.model().universe(key.part1());
+                        universe.put(key.part1(), universeSelected);
+                    }
+                    KView tempView = views.get(key.part1() + "/" + key.part2());
+                    if (tempView == null) {
+                        tempView = universeSelected.time(key.part2());
+                        views.put(key.part1() + "/" + key.part2(), tempView);
+                    }
+                    KObject resolved = ((AbstractKView) tempView).createProxy(entry.metaClass, entry.universeTree, key.part3());
+                    Meta[] metas = new Meta[msgs[i].meta.length];
+                    for (int j = 0; j < msgs[i].meta.length; j++) {
+                        if (msgs[i].meta[j] >= Index.RESERVED_INDEXES) {
+                            metas[j] = resolved.metaClass().meta(msgs[i].meta[j]);
                         }
                     }
+                    _localEventListeners.dispatch(resolved, metas);
                 }
-            });
+            }
         }
     }
 
