@@ -18,9 +18,9 @@ public class JsonRaw {
 
     public static final String SEP = "@";
 
-    public static void decode(String payload, long now, MetaModel metaModel, final KCacheEntry entry) {
+    public static boolean decode(String payload, long now, MetaModel metaModel, final KCacheEntry entry) {
         if (payload == null) {
-            return;
+            return false;
         }
         Lexer lexer = new Lexer(payload);
         String currentAttributeName = null;
@@ -54,19 +54,18 @@ public class JsonRaw {
         }
         //Consistency check
         if (content.get(JsonModelSerializer.KEY_META) == null) {
-            return;
+            return false;
         } else {
             //Init metaClass before everything
             entry.metaClass = metaModel.metaClass(content.get(JsonModelSerializer.KEY_META).toString());
             //Init the Raw manager
-            entry.raw = new Object[Index.RESERVED_INDEXES + entry.metaClass.metaElements().length];
-            entry._dirty = false;
+            entry.initRaw(Index.RESERVED_INDEXES + entry.metaClass.metaElements().length);
             //Now Fill the Raw Storage
             String[] metaKeys = content.keySet().toArray(new String[content.size()]);
             for (int i = 0; i < metaKeys.length; i++) {
                 if (metaKeys[i].equals(JsonModelSerializer.INBOUNDS_META)) {
                     Set<Long> inbounds = new HashSet<Long>();
-                    entry.raw[Index.INBOUNDS_INDEX] = inbounds;
+                    entry.set(Index.INBOUNDS_INDEX, inbounds);
                     Object raw_payload = content.get(metaKeys[i]);
                     try {
                         HashSet<String> raw_keys = (HashSet<String>) raw_payload;
@@ -84,7 +83,7 @@ public class JsonRaw {
                     }
                 } else if (metaKeys[i].equals(JsonModelSerializer.PARENT_META)) {
                     try {
-                        entry.raw[Index.PARENT_INDEX] = Long.parseLong(content.get(metaKeys[i]).toString());
+                        entry.set(Index.PARENT_INDEX, Long.parseLong(content.get(metaKeys[i]).toString()));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -97,7 +96,7 @@ public class JsonRaw {
                             if (foundMeta != null) {
                                 Meta metaReference = foundMeta.metaByName(elemsRefs[1].trim());
                                 if (metaReference != null && metaReference instanceof AbstractMetaReference) {
-                                    entry.raw[Index.REF_IN_PARENT_INDEX] = metaReference;
+                                    entry.set(Index.REF_IN_PARENT_INDEX, metaReference);
                                 }
                             }
                         }
@@ -123,11 +122,11 @@ public class JsonRaw {
                     Object insideContent = content.get(metaKeys[i]);
                     if (insideContent != null) {
                         if (metaElement != null && metaElement.metaType().equals(MetaType.ATTRIBUTE)) {
-                            entry.raw[metaElement.index()] = ((AbstractMetaAttribute) metaElement).strategy().load(insideContent.toString(), (AbstractMetaAttribute) metaElement, now);
+                            entry.set(metaElement.index(), ((AbstractMetaAttribute) metaElement).strategy().load(insideContent.toString(), (AbstractMetaAttribute) metaElement, now));
                         } else if (metaElement != null && metaElement instanceof AbstractMetaReference) {
                             if (((MetaReference) metaElement).single()) {
                                 try {
-                                    entry.raw[metaElement.index()] = Long.parseLong(insideContent.toString());
+                                    entry.set(metaElement.index(), Long.parseLong(insideContent.toString()));
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -145,7 +144,7 @@ public class JsonRaw {
                                             e.printStackTrace();
                                         }
                                     }
-                                    entry.raw[metaElement.index()] = convertedRaw;
+                                    entry.set(metaElement.index(), convertedRaw);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -154,6 +153,8 @@ public class JsonRaw {
                     }
                 }
             }
+            entry._dirty = false;
+            return true;
         }
     }
 
@@ -242,7 +243,7 @@ public class JsonRaw {
                         }
                     }
                 }
-            } else if (metaElements[i]!=null && metaElements[i].metaType().equals(MetaType.REFERENCE)) {
+            } else if (metaElements[i] != null && metaElements[i].metaType().equals(MetaType.REFERENCE)) {
                 Object refPayload = raw.get(metaElements[i].index());
                 if (refPayload != null) {
                     builder.append("\t\t");

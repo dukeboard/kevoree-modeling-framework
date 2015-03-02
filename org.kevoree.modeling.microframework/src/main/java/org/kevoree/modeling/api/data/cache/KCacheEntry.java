@@ -18,11 +18,19 @@ public class KCacheEntry implements KCacheObject {
 
     public MetaClass metaClass;
 
-    public Object[] raw;
+    private Object[] raw;
 
     public boolean[] _modifiedIndexes = null;
 
     public boolean _dirty = false;
+
+    public void initRaw(int p_size) {
+        this.raw = new Object[p_size];
+    }
+
+    public void clearRaw() {
+        this.raw = null;
+    }
 
     @Override
     public boolean isDirty() {
@@ -85,34 +93,42 @@ public class KCacheEntry implements KCacheObject {
     }
 
     public int sizeRaw() {
-        return raw.length;
+        if (raw != null) {
+            return raw.length;
+        } else {
+            return 0;
+        }
     }
 
     public KCacheEntry clone() {
-        Object[] cloned = new Object[raw.length];
-        for (int i = 0; i < raw.length; i++) {
-            Object resolved = raw[i];
-            if (resolved != null) {
-                if (resolved instanceof Set) {
-                    HashSet<Long> clonedSet = new HashSet<Long>();
-                    clonedSet.addAll((Set<Long>) resolved);
-                    cloned[i] = clonedSet;
-                } else if (resolved instanceof List) {
-                    ArrayList<Long> clonedList = new ArrayList<Long>();
-                    clonedList.addAll((List<Long>) resolved);
-                    cloned[i] = clonedList;
-                } else if (resolved instanceof KInferState) {
-                    cloned[i] = ((KInferState) resolved).cloneState();
-                } else {
-                    cloned[i] = resolved;
+        if (raw == null) {
+            return new KCacheEntry();
+        } else {
+            Object[] cloned = new Object[raw.length];
+            for (int i = 0; i < raw.length; i++) {
+                Object resolved = raw[i];
+                if (resolved != null) {
+                    if (resolved instanceof Set) {
+                        HashSet<Long> clonedSet = new HashSet<Long>();
+                        clonedSet.addAll((Set<Long>) resolved);
+                        cloned[i] = clonedSet;
+                    } else if (resolved instanceof List) {
+                        ArrayList<Long> clonedList = new ArrayList<Long>();
+                        clonedList.addAll((List<Long>) resolved);
+                        cloned[i] = clonedList;
+                    } else if (resolved instanceof KInferState) {
+                        cloned[i] = ((KInferState) resolved).cloneState();
+                    } else {
+                        cloned[i] = resolved;
+                    }
                 }
             }
+            KCacheEntry clonedEntry = new KCacheEntry();
+            clonedEntry._dirty = true;
+            clonedEntry.raw = cloned;
+            clonedEntry.metaClass = this.metaClass;
+            return clonedEntry;
         }
-        KCacheEntry clonedEntry = new KCacheEntry();
-        clonedEntry._dirty = true;
-        clonedEntry.raw = cloned;
-        clonedEntry.metaClass = this.metaClass;
-        return clonedEntry;
     }
 
 }

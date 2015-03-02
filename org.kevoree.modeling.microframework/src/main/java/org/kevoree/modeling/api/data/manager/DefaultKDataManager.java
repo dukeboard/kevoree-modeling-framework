@@ -172,7 +172,7 @@ public class DefaultKDataManager implements KDataManager {
     @Override
     public void initKObject(KObject obj, KView originView) {
         KCacheEntry cacheEntry = new KCacheEntry();
-        cacheEntry.raw = new Object[Index.RESERVED_INDEXES + obj.metaClass().metaElements().length];
+        cacheEntry.initRaw(Index.RESERVED_INDEXES + obj.metaClass().metaElements().length);
         cacheEntry._dirty = true;
         cacheEntry.metaClass = obj.metaClass();
         IndexRBTree timeTree = new IndexRBTree();
@@ -301,36 +301,33 @@ public class DefaultKDataManager implements KDataManager {
                 System.err.println(OUT_OF_CACHE_MESSAGE);
                 return null;
             }
-            Object[] payload = entry.raw;
             if (accessMode.equals(AccessMode.DELETE)) {
                 timeTree.delete(origin.now());
                 KCacheEntry clonedEntry = entry.clone();
-                entry.raw = null;
+                entry.clearRaw();
                 return clonedEntry;
             }
-            if (payload == null) {
-                //System.err.println(DELETED_MESSAGE);
+            if(entry.sizeRaw() == 0){
                 return null;
-            } else {
-                if (!needTimeCopy && !needUniverseCopy) {
-                    if (accessMode.equals(AccessMode.WRITE)) {
-                        entry._dirty = true;
-                    }
-                    return entry;
-                } else {
-                    KCacheEntry clonedEntry = entry.clone();
-                    clonedEntry._dirty = true;
-                    if (!needUniverseCopy) {
-                        timeTree.insert(origin.now());
-                    } else {
-                        IndexRBTree newTemporalTree = new IndexRBTree();
-                        newTemporalTree.insert(origin.now());
-                        _cache.put(KContentKey.createTimeTree(origin.universe().key(), origin.uuid()), newTemporalTree);
-                        dimensionTree.insert(origin.universe().key(), origin.now());//insert this time as a divergence point for this object
-                    }
-                    _cache.put(KContentKey.createObject(origin.universe().key(), origin.now(), origin.uuid()), clonedEntry);
-                    return clonedEntry;
+            }
+            if (!needTimeCopy && !needUniverseCopy) {
+                if (accessMode.equals(AccessMode.WRITE)) {
+                    entry._dirty = true;
                 }
+                return entry;
+            } else {
+                KCacheEntry clonedEntry = entry.clone();
+                clonedEntry._dirty = true;
+                if (!needUniverseCopy) {
+                    timeTree.insert(origin.now());
+                } else {
+                    IndexRBTree newTemporalTree = new IndexRBTree();
+                    newTemporalTree.insert(origin.now());
+                    _cache.put(KContentKey.createTimeTree(origin.universe().key(), origin.uuid()), newTemporalTree);
+                    dimensionTree.insert(origin.universe().key(), origin.now());//insert this time as a divergence point for this object
+                }
+                _cache.put(KContentKey.createObject(origin.universe().key(), origin.now(), origin.uuid()), clonedEntry);
+                return clonedEntry;
             }
         } else {
             System.err.println(OUT_OF_CACHE_MESSAGE + " Time not resolved " + origin.now());
@@ -677,32 +674,6 @@ public class DefaultKDataManager implements KDataManager {
         });
     }
 
-    /* TODO MultiUniverse */
-
-    @Override
-    public void timeTrees(KObject p_origin, Long start, Long end, Callback<IndexRBTree[]> callback) {
-        //TODO enhance for multiVerse
-        Long[] uuid = new Long[1];
-        uuid[0] = p_origin.uuid();
-        internal_resolve_universe_time(p_origin.view(), uuid, new Callback<ResolutionResult[]>() {
-            @Override
-            public void on(ResolutionResult[] resolutionResults) {
-                IndexRBTree[] trees = new IndexRBTree[1];
-                trees[0] = resolutionResults[0].timeTree;
-                callback.on(trees);
-            }
-        });
-    }
-
-    private Long internal_resolve_universe(LongRBTree universeTree, long timeToResolve, long currentUniverse) {
-        //TODO :( uch
-        if (universeTree.lookup(currentUniverse) == null) {
-            return null;
-        } else {
-            return currentUniverse;
-        }
-    }
-
     private KCacheObject internal_load(KContentKey key, String payload) {
         KCacheObject result;
         if (key.segment().equals(KContentKey.GLOBAL_SEGMENT_DATA_INDEX)) {
@@ -724,6 +695,31 @@ public class DefaultKDataManager implements KDataManager {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    /* TODO MultiUniverse */
+    @Override
+    public void timeTrees(KObject p_origin, Long start, Long end, Callback<IndexRBTree[]> callback) {
+        //TODO enhance for multiVerse
+        Long[] uuid = new Long[1];
+        uuid[0] = p_origin.uuid();
+        internal_resolve_universe_time(p_origin.view(), uuid, new Callback<ResolutionResult[]>() {
+            @Override
+            public void on(ResolutionResult[] resolutionResults) {
+                IndexRBTree[] trees = new IndexRBTree[1];
+                trees[0] = resolutionResults[0].timeTree;
+                callback.on(trees);
+            }
+        });
+    }
+
+    private Long internal_resolve_universe(LongRBTree universeTree, long timeToResolve, long currentUniverse) {
+        //TODO :( uch
+        if (universeTree.lookup(currentUniverse) == null) {
+            return null;
+        } else {
+            return currentUniverse;
         }
     }
 

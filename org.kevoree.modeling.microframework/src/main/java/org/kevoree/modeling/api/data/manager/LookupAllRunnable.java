@@ -68,12 +68,11 @@ public class LookupAllRunnable implements Runnable {
                                         int index = toLoadIndexes.get(i);
                                         //Create the raw CacheEntry
                                         KCacheEntry entry = new KCacheEntry();
-                                        JsonRaw.decode(strings[i], objects[i].resolvedQuanta, _originView.universe().model().metaModel(), entry);
-                                        if (entry.raw != null) {
+                                        if (JsonRaw.decode(strings[i], objects[i].resolvedQuanta, _originView.universe().model().metaModel(), entry)) {
                                             //Create and Add the proxy
                                             resolved[index] = ((AbstractKView) _originView).createProxy(entry.metaClass, objects[i].universeTree, _keys[i]);
                                             //Save the cache value
-                                            _store.cache().put(KContentKey.createObject(objects[i].resolvedUniverse, (Long) objects[i].resolvedQuanta, _keys[i]), entry);
+                                            _store.cache().put(KContentKey.createObject(objects[i].resolvedUniverse, objects[i].resolvedQuanta, _keys[i]), entry);
                                         }
                                     }
                                 }
