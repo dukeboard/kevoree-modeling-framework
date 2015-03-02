@@ -1,9 +1,12 @@
 package org.kevoree.modeling.test.datastore;
 
 import geometry.*;
+import geometry.meta.MetaLibrary;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.cdn.MemoryKContentDeliveryDriver;
+import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.databases.websocket.WebSocketWrapper;
 
 import java.util.concurrent.Executors;
@@ -21,7 +24,7 @@ public class MainServerTest {
         Long originOfTime = 0L;
 
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-       // MemoryKContentDeliveryDriver.DEBUG = true;
+        //MemoryKContentDeliveryDriver.DEBUG = true;
 
         GeometryModel geoModel = new GeometryModel();
         geoModel.setContentDeliveryDriver(new WebSocketWrapper(geoModel.manager().cdn(), 23664));
@@ -47,7 +50,7 @@ public class MainServerTest {
                                         }
                                     }
                                 });
-                                for (int i = 0; i < 3; i++) {
+                                for (int i = 0; i < 5000; i++) {
                                     lib.addShapes(geoFactory.createShape().setName("ShapeO" + i).setColor(colors[i % 3]));
                                 }
                                 geoModel.save().then(Utils.DefaultPrintStackTraceCallback);
@@ -76,30 +79,36 @@ public class MainServerTest {
             int turn = 0, i = 0;
 
             public void run() {
-                GeometryUniverse dimension = geoModel.universe(0);
-                GeometryView geoFactory = dimension.time(originOfTime);
-                geoFactory.getRoot().then(new Callback<KObject>() {
-                    @Override
-                    public void on(KObject kObject) {
-                        if (kObject == null) {
-                            System.err.println("Root not found");
-                        } else {
-                            Library root = (Library) kObject;
-                            root.getShapes().then((shapes) -> {
-                                if (shapes != null) {
-                                    for (Shape shape : shapes) {
-                                        i++;
-                                        shape.setColor(colors[(turn + i) % 3]);
+                try {
+                    GeometryUniverse dimension = geoModel.universe(0);
+                    GeometryView geoFactory = dimension.time(originOfTime);
+                    geoFactory.getRoot().then(new Callback<KObject>() {
+                        @Override
+                        public void on(KObject kObject) {
+                            if (kObject == null) {
+                                System.err.println("Root not found");
+                            } else {
+                                Library root = (Library) kObject;
+                                KCacheEntry entry = root.view().universe().model().manager().entry(root, AccessMode.READ);
+                                root.getShapes().then((shapes) -> {
+                                    if (shapes != null) {
+                                        for (Shape shape : shapes) {
+                                            i++;
+                                            shape.setColor(colors[(turn + i) % 3]);
+                                        }
                                     }
-                                }
-                            });
-                            geoModel.save().then(Utils.DefaultPrintStackTraceCallback);
+                                });
+                                i = 0;
+                                geoModel.save().then(Utils.DefaultPrintStackTraceCallback);
+                            }
                         }
-                    }
-                });
-                turn++;
+                    });
+                    turn++;
+                }catch(Throwable e) {
+                    e.printStackTrace();
+                }
             }
         };
-        executor.scheduleWithFixedDelay(task, 8000, 2000, TimeUnit.MILLISECONDS);
+        executor.scheduleWithFixedDelay(task, 3000, 2000, TimeUnit.MILLISECONDS);
     }
 }

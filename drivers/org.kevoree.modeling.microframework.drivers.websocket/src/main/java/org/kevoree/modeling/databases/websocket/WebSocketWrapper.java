@@ -224,7 +224,6 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
     public void send(KEventMessage[] msgs) {
         //send locally
         wrapped.send(msgs);
-        System.out.println("Messages:" + msgs.length);
 
 
         //Send to remotes

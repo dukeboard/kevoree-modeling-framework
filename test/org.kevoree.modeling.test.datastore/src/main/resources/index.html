@@ -26,12 +26,11 @@
     geometryModel.connect().then(function(err){
         console.log("Connected:", err);
         if(err == null) {
-            console.log("Looking for the dimension");
             var dimension = geometryModel.universe(0);
             var view = dimension.time(0);
             view.getRoot().then(function(root){
-                if(root === undefined) {
-                    console.error("No root found.", results)
+                if(root == null) {
+                    console.error("No root found.", root)
                 } else {
                     var lib = root;
                     displayShapes(lib);
@@ -57,16 +56,18 @@
 
     function displayShapes(lib) {
 
-        var shapesContainer = $('#shapesContainer');
 
+        var shapesContainer = $('#shapesContainer');
         lib.getShapes().then(function(shapes){
             if(shapes != null) {
-                for(var i in shapes) {
+                for(var i = 0; i < shapes.length; i++) {
                     if(shapesContainer.find('div#'+ shapes[i].getName()).length == 0) {
                         $('<div id="'+shapes[i].getName()+'" style="height:50px;width:50px;display: inline-block; margin: 10px;background-color: '+shapes[i].getColor()+';"></div>').appendTo(shapesContainer);
+                        /*
                         shapes[i].listen(function(newShape){
                             $('div#' + newShape.getName()).css('background-color', newShape.getColor());
                         });
+                        */
                     }
                 }
             } else {
@@ -89,8 +90,16 @@
                 var newShape = view.createShape();
                 newShape.setName("Shape"+index);
                 newShape.setColor("grey");
-                lib.addShapes(newShape);
-                geometryModel.save().then(function(err){if(err){console.error(err);}});
+                try {
+                    lib.addShapes(newShape);
+                    geometryModel.save().then(function (err) {
+                        if (err) {
+                            console.error(err);
+                        }
+                    });
+                }catch( e ) {
+                    console.error(e);
+                }
             }
         });
     }
