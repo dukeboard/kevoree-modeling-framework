@@ -637,7 +637,7 @@ public class DefaultKDataManager implements KDataManager {
         List<KContentKey> toReload = new ArrayList<KContentKey>();
         for (int i = 0; i < keys.length; i++) {
             KCacheObject cached = _cache.get(keys[i]);
-            if (!cached.isDirty()) {
+            if (cached == null || !cached.isDirty()) {
                 toReload.add(keys[i]);
             }
         }
@@ -655,7 +655,7 @@ public class DefaultKDataManager implements KDataManager {
                         if (strings[i] != null) {
                             KContentKey correspondingKey = toReload_flat[i];
                             KCacheObject cachedObj = _cache.get(correspondingKey);
-                            if (!cachedObj.isDirty()) {
+                            if (cachedObj == null || !cachedObj.isDirty()) {
                                 cachedObj = internal_load(correspondingKey, strings[i]);
                                 if (cachedObj != null) {
                                     //replace the cache value

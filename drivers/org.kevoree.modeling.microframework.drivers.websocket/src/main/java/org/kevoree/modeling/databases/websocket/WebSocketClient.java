@@ -117,7 +117,9 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
                 }break;
                 case KMessageLoader.EVENT_TYPE:{
                     keysToReload.add(((KEventMessage)msg).key);
-                    messagesToSendLocally.add((KEventMessage)msg);
+                    if(((KEventMessage)msg).key.segment() == KContentKey.GLOBAL_SEGMENT_DATA_RAW) {
+                        messagesToSendLocally.add((KEventMessage) msg);
+                    }
                 }break;
                 default:{
                     System.err.println("MessageType not supported:" + msg.type());
@@ -126,16 +128,11 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
         }
 
         if(messagesToSendLocally.size() > 0) {
-            this._manager.reload(keysToReload.toArray(new KContentKey[keysToReload.size()]), new Callback<Object[]>() {
+
+            this._manager.reload(keysToReload.toArray(new KContentKey[keysToReload.size()]), new Callback<Throwable>() {
                 @Override
-                public void on(Object[] objects) {
-                    HashMap<KEventMessage, KCacheEntry> messagesToFire = new HashMap<>();
-                    for (int i = 0; i < objects.length; i++) {
-                        if (objects[i] instanceof KCacheEntry) {
-                            messagesToFire.put(messagesToSendLocally.get(i), (KCacheEntry) objects[i]);
-                        }
-                    }
-                    WebSocketClient.this.fireLocalMessages(messagesToFire.keySet().toArray(new KEventMessage[messagesToFire.size()]), messagesToFire.values().toArray(new KCacheEntry[messagesToFire.size()]));
+                public void on(Throwable throwable) {
+                    WebSocketClient.this.fireLocalMessages(messagesToSendLocally.toArray(new KEventMessage[messagesToSendLocally.size()]));
                 }
             });
         }
@@ -190,19 +187,16 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
     public void send(KEventMessage[] msgs) {
 
         final JsonArray payload = new JsonArray();
-        HashMap<KEventMessage, KCacheEntry> messagesToFire = new HashMap<>();
+
+        ArrayList<KEventMessage> messagesToFire = new ArrayList<>();
         for(int i = 0; i < msgs.length; i++) {
             payload.add(msgs[i].json());
             KContentKey key = msgs[i].key;
-            if (key.universe() != null && key.time() != null && key.obj() != null) {
-                //this is a KObject key...
-                KCacheObject relevantEntry = _manager.cache().get(key);
-                if (relevantEntry instanceof KCacheEntry) {
-                    messagesToFire.put(msgs[i], (KCacheEntry)relevantEntry);
-                }
+            if(key.segment() == KContentKey.GLOBAL_SEGMENT_DATA_RAW) {
+                messagesToFire.add(msgs[i]);
             }
         }
-        fireLocalMessages(messagesToFire.keySet().toArray(new KEventMessage[messagesToFire.size()]), messagesToFire.values().toArray(new KCacheEntry[messagesToFire.size()]));
+        fireLocalMessages(messagesToFire.toArray(new KEventMessage[messagesToFire.size()]));
         WebSockets.sendText(payload.toString(), _client.getChannel(), null);
     }
 
@@ -211,12 +205,12 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
         this._manager = p_manager;
     }
 
-    private void fireLocalMessages(KEventMessage[] msgs, KCacheEntry[] cacheEntries) {
+    private void fireLocalMessages(KEventMessage[] msgs) {
         HashMap<Long, KUniverse> universe = new HashMap<Long, KUniverse>();
         HashMap<String, KView> views = new HashMap<String, KView>();
         for (int i = 0; i < msgs.length; i++) {
             KContentKey key = msgs[i].key;
-            KCacheEntry entry = cacheEntries[i];
+            KCacheEntry entry = (KCacheEntry)_manager.cache().get(key);
             LongRBTree universeTree = (LongRBTree) _manager.cache().get(KContentKey.createUniverseTree(key.obj()));
             //Ok we have to create the corresponding proxy...
             KUniverse universeSelected = null;
