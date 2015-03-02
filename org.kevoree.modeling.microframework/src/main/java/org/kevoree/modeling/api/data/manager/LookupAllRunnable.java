@@ -56,7 +56,7 @@ public class LookupAllRunnable implements Runnable {
                     final KContentKey[] toLoadKeys = new KContentKey[toLoadIndexes.size()];
                     for (int i = 0; i < toLoadIndexes.size(); i++) {
                         int toLoadIndex = toLoadIndexes.get(i);
-                        toLoadKeys[i] = KContentKey.createObject(objects[toLoadIndex].resolvedUniverse, objects[toLoadIndex].resolvedQuanta, _keys[i]);
+                        toLoadKeys[i] = KContentKey.createObject(objects[toLoadIndex].resolvedUniverse, objects[toLoadIndex].resolvedQuanta, _keys[toLoadIndex]);
                     }
                     _store.cdn().get(toLoadKeys, new ThrowableCallback<String[]>() {
                         @Override
