@@ -625,7 +625,6 @@ public class DefaultKDataManager implements KDataManager {
         });
     }
 
-
     private MultiLayeredMemoryCache _cache = new MultiLayeredMemoryCache();
 
     @Override
@@ -634,14 +633,18 @@ public class DefaultKDataManager implements KDataManager {
     }
 
     @Override
-    public void reload(KContentKey[] keys, Callback<Object[]> callback) {
-        _db.get(keys, new ThrowableCallback<String[]>() {
+    public void reload(KContentKey[] keys, Callback<Throwable> callback) {
+        List<KContentKey> toReload = new ArrayList<KContentKey>();
+        for (int i = 0; i < keys.length; i++) {
+            KCacheObject cached = _cache.get(keys[i]);
+            if (!cached.isDirty()) {
+                toReload.add(keys[i]);
+            }
+        }
+        final KContentKey[] toReload_flat = toReload.toArray(new KContentKey[toReload.size()]);
+        _db.get(toReload_flat, new ThrowableCallback<String[]>() {
             @Override
             public void on(String[] strings, Throwable error) {
-                Object[] result = null;
-                if (callback != null) {
-                    result = new Object[strings.length];
-                }
                 if (error != null) {
                     error.printStackTrace();
                     if (callback != null) {
@@ -650,17 +653,19 @@ public class DefaultKDataManager implements KDataManager {
                 } else {
                     for (int i = 0; i < strings.length; i++) {
                         if (strings[i] != null) {
-                            KCacheObject cachedObject = internal_load(keys[i], strings[i]);
-                            if (cachedObject != null) {
-                                _cache.put(keys[i], cachedObject);
-                                if (callback != null) {
-                                    result[i] = cachedObject;
+                            KContentKey correspondingKey = toReload_flat[i];
+                            KCacheObject cachedObj = _cache.get(correspondingKey);
+                            if (!cachedObj.isDirty()) {
+                                cachedObj = internal_load(correspondingKey, strings[i]);
+                                if (cachedObj != null) {
+                                    //replace the cache value
+                                    _cache.put(correspondingKey, cachedObj);
                                 }
                             }
                         }
                     }
                     if (callback != null) {
-                        callback.on(result);
+                        callback.on(null);
                     }
                 }
             }
@@ -691,8 +696,6 @@ public class DefaultKDataManager implements KDataManager {
         } else {
             return currentUniverse;
         }
-
-
     }
 
     private KCacheObject internal_load(KContentKey key, String payload) {
