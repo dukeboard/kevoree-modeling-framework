@@ -45,7 +45,7 @@ public class IndexRBTree implements KCacheObject {
         _nextCacheElem = 0;
     }
 
-    private void putInPreviousOrEqualsCache(long key, TreeNode resolved) {
+    private synchronized void putInPreviousOrEqualsCache(long key, TreeNode resolved) {
         if (_previousOrEqualsCacheKeys == null || _previousOrEqualsCacheValues == null) {
             _previousOrEqualsCacheKeys = new Long[LOOKUP_CACHE_SIZE];
             _previousOrEqualsCacheValues = new TreeNode[LOOKUP_CACHE_SIZE];
@@ -311,7 +311,7 @@ public class IndexRBTree implements KCacheObject {
         }
     }
 
-    public void insert(long key) {
+    public synchronized void insert(long key) {
         resetCache();
         this._dirty = true;
         TreeNode insertedNode = new TreeNode(key, Color.RED, null, null);

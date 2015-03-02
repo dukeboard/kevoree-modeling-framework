@@ -45,10 +45,10 @@ public class LongRBTree implements KCacheObject {
     private int _nextCacheElem;
 
     /* Cache management */
-    private LongTreeNode tryPreviousOrEqualsCache(long key) {
+    private synchronized LongTreeNode tryPreviousOrEqualsCache(long key) {
         if (_previousOrEqualsCacheKeys != null && _previousOrEqualsCacheValues != null) {
             for (int i = 0; i < LOOKUP_CACHE_SIZE; i++) {
-                if (_previousOrEqualsCacheKeys[i]!=null && key == _previousOrEqualsCacheKeys[i]) {
+                if (_previousOrEqualsCacheKeys[i] != null && key == _previousOrEqualsCacheKeys[i]) {
                     return _previousOrEqualsCacheValues[i];
                 }
             }
@@ -394,6 +394,7 @@ public class LongRBTree implements KCacheObject {
     }
 
     public synchronized void insert(long key, long value) {
+        resetCache();
         _dirty = true;
         LongTreeNode insertedNode = new LongTreeNode(key, value, Color.RED, null, null);
         if (root == null) {
