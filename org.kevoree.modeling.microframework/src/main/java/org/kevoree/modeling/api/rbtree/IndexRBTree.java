@@ -9,19 +9,63 @@ import org.kevoree.modeling.api.meta.MetaModel;
  */
 public class IndexRBTree implements KCacheObject {
 
-    public TreeNode root = null;
+    private TreeNode root = null;
 
     private int _size = 0;
+
+    private boolean _dirty = false;
+
+    private static int LOOKUP_CACHE_SIZE = 3;
+
+    private Long[] _previousOrEqualsCacheKeys = null;
+    private TreeNode[] _previousOrEqualsCacheValues = null;
+    private int _nextCacheElem;
 
     public int size() {
         return _size;
     }
 
-    private boolean _dirty = false;
+    /* Cache management */
+    private TreeNode tryPreviousOrEqualsCache(long key) {
+        if (_previousOrEqualsCacheKeys != null && _previousOrEqualsCacheValues != null) {
+            for (int i = 0; i < LOOKUP_CACHE_SIZE; i++) {
+                if (_previousOrEqualsCacheKeys[i]!=null && key == _previousOrEqualsCacheKeys[i]) {
+                    return _previousOrEqualsCacheValues[i];
+                }
+            }
+            return null;
+        } else {
+            return null;
+        }
+    }
+
+    private void resetCache() {
+        _previousOrEqualsCacheKeys = null;
+        _previousOrEqualsCacheValues = null;
+        _nextCacheElem = 0;
+    }
+
+    private void putInPreviousOrEqualsCache(long key, TreeNode resolved) {
+        if (_previousOrEqualsCacheKeys == null || _previousOrEqualsCacheValues == null) {
+            _previousOrEqualsCacheKeys = new Long[LOOKUP_CACHE_SIZE];
+            _previousOrEqualsCacheValues = new TreeNode[LOOKUP_CACHE_SIZE];
+            _nextCacheElem = 0;
+        } else if (_nextCacheElem == LOOKUP_CACHE_SIZE) {
+            _nextCacheElem = 0;
+        }
+        _previousOrEqualsCacheKeys[_nextCacheElem] = key;
+        _previousOrEqualsCacheValues[_nextCacheElem] = resolved;
+        _nextCacheElem++;
+    }
 
     @Override
     public boolean isDirty() {
         return this._dirty;
+    }
+
+    @Override
+    public void setClean() {
+        this._dirty = false;
     }
 
     public String serialize() {
@@ -31,11 +75,6 @@ public class IndexRBTree implements KCacheObject {
             root.serialize(builder);
         }
         return builder.toString();
-    }
-
-    @Override
-    public void setClean() {
-        this._dirty = false;
     }
 
     @Override
@@ -61,21 +100,28 @@ public class IndexRBTree implements KCacheObject {
         ctx.index = i;
         ctx.payload = payload;
         root = TreeNode.unserialize(ctx);
+        resetCache();
     }
 
     public TreeNode previousOrEqual(long key) {
+        TreeNode cachedVal = tryPreviousOrEqualsCache(key);
+        if (cachedVal != null) {
+            return cachedVal;
+        }
         TreeNode p = root;
         if (p == null) {
             return null;
         }
         while (p != null) {
             if (key == p.key) {
+                putInPreviousOrEqualsCache(key, p);
                 return p;
             }
             if (key > p.key) {
                 if (p.getRight() != null) {
                     p = p.getRight();
                 } else {
+                    putInPreviousOrEqualsCache(key, p);
                     return p;
                 }
             } else {
@@ -88,6 +134,7 @@ public class IndexRBTree implements KCacheObject {
                         ch = parent;
                         parent = parent.getParent();
                     }
+                    putInPreviousOrEqualsCache(key, parent);
                     return parent;
                 }
             }
@@ -226,15 +273,6 @@ public class IndexRBTree implements KCacheObject {
         return n;
     }
 
-    public Long lookup(long key) {
-        TreeNode n = lookupNode(key);
-        if (n == null) {
-            return null;
-        } else {
-            return n.key;
-        }
-    }
-
     private void rotateLeft(TreeNode n) {
         TreeNode r = n.getRight();
         replaceNode(n, r);
@@ -274,6 +312,7 @@ public class IndexRBTree implements KCacheObject {
     }
 
     public void insert(long key) {
+        resetCache();
         this._dirty = true;
         TreeNode insertedNode = new TreeNode(key, Color.RED, null, null);
         if (root == null) {

@@ -15,6 +15,7 @@ import java.util.LinkedList;
 
 public class IndexRBTreeTest {
 
+
     @Test
     public void printTest() {
         long MIN = 0L;
@@ -172,6 +173,30 @@ public class IndexRBTreeTest {
         Assert.assertTrue(tree.nextOrEqual(13).getKey() == 13L);
         Assert.assertNull(tree.nextOrEqual(14));
     }
+
+    @Test
+    public void cacheEffectTest() {
+        IndexRBTree tree = new IndexRBTree();
+        for (long i = 0; i <= 6; i++) {
+            tree.insert(i);
+        }
+        Assert.assertTrue(tree.previousOrEqual(-1) == null);
+        Assert.assertTrue(tree.previousOrEqual(0).getKey() == 0l);
+        Assert.assertTrue(tree.previousOrEqual(1).getKey() == 1l);
+        Assert.assertTrue(tree.previousOrEqual(0).getKey() == 0l);
+
+        tree.insert(7);
+        Assert.assertTrue(tree.previousOrEqual(7).getKey() == 7l);
+        Assert.assertTrue(tree.previousOrEqual(7).getKey() == 7l);
+        Assert.assertTrue(tree.previousOrEqual(8).getKey() == 7l);
+        Assert.assertTrue(tree.previousOrEqual(9).getKey() == 7l);
+        //Assert.assertTrue(tree.previousOrEqual(7).getKey() == 7l);
+        Assert.assertTrue(tree.previousOrEqual(10).getKey() == 7l);
+        Assert.assertTrue(tree.previousOrEqual(7).getKey() == 7l);
+
+
+    }
+
 
 }
 
