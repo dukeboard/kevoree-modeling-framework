@@ -15,21 +15,21 @@ public class IndexRBTree implements KCacheObject {
 
     private boolean _dirty = false;
 
-    private static int LOOKUP_CACHE_SIZE = 3;
-
-    private Long[] _previousOrEqualsCacheKeys = null;
-    private TreeNode[] _previousOrEqualsCacheValues = null;
-    private int _nextCacheElem;
+    private static final int LOOKUP_CACHE_SIZE = 3;
 
     public int size() {
         return _size;
     }
 
+    private Long[] _previousOrEqualsCacheKeys = null;
+    private TreeNode[] _previousOrEqualsCacheValues = null;
+    private int _nextCacheElem;
+
     /* Cache management */
     private TreeNode tryPreviousOrEqualsCache(long key) {
         if (_previousOrEqualsCacheKeys != null && _previousOrEqualsCacheValues != null) {
             for (int i = 0; i < LOOKUP_CACHE_SIZE; i++) {
-                if (_previousOrEqualsCacheKeys[i]!=null && key == _previousOrEqualsCacheKeys[i]) {
+                if (_previousOrEqualsCacheKeys[i] != null && key == _previousOrEqualsCacheKeys[i]) {
                     return _previousOrEqualsCacheValues[i];
                 }
             }

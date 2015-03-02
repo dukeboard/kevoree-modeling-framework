@@ -9,9 +9,11 @@ import org.kevoree.modeling.api.meta.MetaModel;
  */
 public class LongRBTree implements KCacheObject {
 
-    public LongTreeNode root = null;
+    private LongTreeNode root = null;
 
     private int _size = 0;
+
+    private static final int LOOKUP_CACHE_SIZE = 3;
 
     public int size() {
         return _size;
@@ -36,6 +38,43 @@ public class LongRBTree implements KCacheObject {
             root.serialize(builder);
         }
         return builder.toString();
+    }
+
+    private Long[] _previousOrEqualsCacheKeys = null;
+    private LongTreeNode[] _previousOrEqualsCacheValues = null;
+    private int _nextCacheElem;
+
+    /* Cache management */
+    private LongTreeNode tryPreviousOrEqualsCache(long key) {
+        if (_previousOrEqualsCacheKeys != null && _previousOrEqualsCacheValues != null) {
+            for (int i = 0; i < LOOKUP_CACHE_SIZE; i++) {
+                if (_previousOrEqualsCacheKeys[i]!=null && key == _previousOrEqualsCacheKeys[i]) {
+                    return _previousOrEqualsCacheValues[i];
+                }
+            }
+            return null;
+        } else {
+            return null;
+        }
+    }
+
+    private void resetCache() {
+        _previousOrEqualsCacheKeys = null;
+        _previousOrEqualsCacheValues = null;
+        _nextCacheElem = 0;
+    }
+
+    private void putInPreviousOrEqualsCache(long key, LongTreeNode resolved) {
+        if (_previousOrEqualsCacheKeys == null || _previousOrEqualsCacheValues == null) {
+            _previousOrEqualsCacheKeys = new Long[LOOKUP_CACHE_SIZE];
+            _previousOrEqualsCacheValues = new LongTreeNode[LOOKUP_CACHE_SIZE];
+            _nextCacheElem = 0;
+        } else if (_nextCacheElem == LOOKUP_CACHE_SIZE) {
+            _nextCacheElem = 0;
+        }
+        _previousOrEqualsCacheKeys[_nextCacheElem] = key;
+        _previousOrEqualsCacheValues[_nextCacheElem] = resolved;
+        _nextCacheElem++;
     }
 
     @Override
@@ -63,21 +102,28 @@ public class LongRBTree implements KCacheObject {
         ctx.buffer = new char[20];
         root = LongTreeNode.unserialize(ctx);
         _dirty = false;
+        resetCache();
     }
 
     public LongTreeNode previousOrEqual(long key) {
+        LongTreeNode cachedVal = tryPreviousOrEqualsCache(key);
+        if (cachedVal != null) {
+            return cachedVal;
+        }
         LongTreeNode p = root;
         if (p == null) {
             return null;
         }
         while (p != null) {
             if (key == p.key) {
+                putInPreviousOrEqualsCache(key, p);
                 return p;
             }
             if (key > p.key) {
                 if (p.getRight() != null) {
                     p = p.getRight();
                 } else {
+                    putInPreviousOrEqualsCache(key, p);
                     return p;
                 }
             } else {
@@ -90,6 +136,7 @@ public class LongRBTree implements KCacheObject {
                         ch = parent;
                         parent = parent.getParent();
                     }
+                    putInPreviousOrEqualsCache(key, parent);
                     return parent;
                 }
             }

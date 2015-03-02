@@ -194,7 +194,6 @@ public class IndexRBTreeTest {
         Assert.assertTrue(tree.previousOrEqual(10).getKey() == 7l);
         Assert.assertTrue(tree.previousOrEqual(7).getKey() == 7l);
 
-
     }
 
 
