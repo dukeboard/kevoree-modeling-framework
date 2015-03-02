@@ -469,7 +469,6 @@ declare module org {
                             constructor(key: KContentKey, object: KCacheObject);
                         }
                         class KCacheEntry implements KCacheObject {
-                            universeTree: rbtree.LongRBTree;
                             metaClass: meta.MetaClass;
                             raw: any[];
                             _modifiedIndexes: boolean[];
@@ -507,9 +506,9 @@ declare module org {
                             static GLOBAL_SEGMENT_DATA_RAW: number;
                             static GLOBAL_SEGMENT_DATA_INDEX: number;
                             static GLOBAL_SEGMENT_DATA_LONG_INDEX: number;
+                            static GLOBAL_SEGMENT_DATA_ROOT: number;
                             private static GLOBAL_SEGMENT_UNIVERSE_TREE;
                             private static GLOBAL_SEGMENT_PREFIX;
-                            private static GLOBAL_SEGMENT_ROOT;
                             private static GLOBAL_SUB_SEGMENT_PREFIX_OBJ;
                             private static GLOBAL_SUB_SEGMENT_PREFIX_UNI;
                             constructor(p_prefixID: number, p_universeID: number, p_timeID: number, p_objID: number);
@@ -641,7 +640,7 @@ declare module org {
                             getRoot(originView: KView, callback: (p: KObject) => void): void;
                             setRoot(newRoot: KObject, callback: (p: java.lang.Throwable) => void): void;
                             cache(): cache.KCache;
-                            reload(keys: cache.KContentKey[], callback: (p: any[]) => void): void;
+                            reload(keys: cache.KContentKey[], callback: (p: java.lang.Throwable) => void): void;
                             timeTrees(p_origin: KObject, start: number, end: number, callback: (p: rbtree.IndexRBTree[]) => void): void;
                             private internal_resolve_universe(universeTree, timeToResolve, currentUniverse);
                             private internal_load(key, payload);
@@ -682,7 +681,7 @@ declare module org {
                             close(callback: (p: java.lang.Throwable) => void): void;
                             parentUniverseKey(currentUniverseKey: number): number;
                             descendantsUniverseKeys(currentUniverseKey: number): number[];
-                            reload(keys: cache.KContentKey[], callback: (p: any[]) => void): void;
+                            reload(keys: cache.KContentKey[], callback: (p: java.lang.Throwable) => void): void;
                         }
                         class KeyCalculator {
                             static LONG_LIMIT_JS: number;

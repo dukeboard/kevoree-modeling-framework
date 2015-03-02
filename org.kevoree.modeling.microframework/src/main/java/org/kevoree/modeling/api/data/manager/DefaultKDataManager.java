@@ -43,6 +43,8 @@ public class DefaultKDataManager implements KDataManager {
     private boolean isConnected = false;
 
     private static final String OUT_OF_CACHE_MESSAGE = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
+    private static final String UNIVERSE_NOT_CONNECTED_ERROR = "Please connect your model prior to create a universe or an object";
+
     //private static final String DELETED_MESSAGE = "KMF Error: your object has been deleted. Please do not use object pointer after a call to delete method";
 
     public DefaultKDataManager(KModel model) {
@@ -76,7 +78,6 @@ public class DefaultKDataManager implements KDataManager {
         return _universeKeyCalculator.nextKey();
     }
 
-    private static final String UNIVERSE_NOT_CONNECTED_ERROR = "Please connect your model prior to create a universe or an object";
 
     @Override
     public synchronized long nextObjectKey() {
