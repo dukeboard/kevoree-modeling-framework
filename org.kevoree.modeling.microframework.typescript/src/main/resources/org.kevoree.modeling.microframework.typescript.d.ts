@@ -470,9 +470,11 @@ declare module org {
                         }
                         class KCacheEntry implements KCacheObject {
                             metaClass: meta.MetaClass;
-                            raw: any[];
+                            private raw;
                             _modifiedIndexes: boolean[];
                             _dirty: boolean;
+                            initRaw(p_size: number): void;
+                            clearRaw(): void;
                             isDirty(): boolean;
                             modifiedIndexes(): number[];
                             serialize(): string;
@@ -576,7 +578,6 @@ declare module org {
                         class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
                             private backend;
                             private _localEventListeners;
-                            private _manager;
                             static DEBUG: boolean;
                             atomicGetMutate(key: cache.KContentKey, operation: AtomicOperation, callback: (p: string, p1: java.lang.Throwable) => void): void;
                             get(keys: cache.KContentKey[], callback: (p: string[], p1: java.lang.Throwable) => void): void;
@@ -588,7 +589,6 @@ declare module org {
                             unregister(p_listener: (p: KObject, p1: meta.Meta[]) => void): void;
                             send(msgs: msg.KEventMessage[]): void;
                             setManager(manager: manager.KDataManager): void;
-                            private fireLocalMessages(msgs);
                         }
                     }
                     module manager {
@@ -641,9 +641,9 @@ declare module org {
                             setRoot(newRoot: KObject, callback: (p: java.lang.Throwable) => void): void;
                             cache(): cache.KCache;
                             reload(keys: cache.KContentKey[], callback: (p: java.lang.Throwable) => void): void;
+                            private internal_load(key, payload);
                             timeTrees(p_origin: KObject, start: number, end: number, callback: (p: rbtree.IndexRBTree[]) => void): void;
                             private internal_resolve_universe(universeTree, timeToResolve, currentUniverse);
-                            private internal_load(key, payload);
                         }
                         class Index {
                             static PARENT_INDEX: number;
@@ -654,7 +654,7 @@ declare module org {
                         }
                         class JsonRaw {
                             static SEP: string;
-                            static decode(payload: string, now: number, metaModel: meta.MetaModel, entry: cache.KCacheEntry): void;
+                            static decode(payload: string, now: number, metaModel: meta.MetaModel, entry: cache.KCacheEntry): boolean;
                             static encode(raw: cache.KCacheEntry, uuid: number, p_metaClass: meta.MetaClass, endline: boolean, isRoot: boolean): string;
                         }
                         interface KDataManager {
@@ -1395,13 +1395,20 @@ declare module org {
                         static values(): Color[];
                     }
                     class IndexRBTree implements data.cache.KCacheObject {
-                        root: TreeNode;
+                        private root;
                         private _size;
                         private _dirty;
+                        private static LOOKUP_CACHE_SIZE;
+                        private _previousOrEqualsCacheKeys;
+                        private _previousOrEqualsCacheValues;
+                        private _nextCacheElem;
                         size(): number;
+                        private tryPreviousOrEqualsCache(key);
+                        private resetCache();
+                        private putInPreviousOrEqualsCache(key, resolved);
                         isDirty(): boolean;
-                        serialize(): string;
                         setClean(): void;
+                        serialize(): string;
                         toString(): string;
                         unserialize(key: data.cache.KContentKey, payload: string, metaModel: meta.MetaModel): void;
                         previousOrEqual(key: number): TreeNode;
@@ -1410,8 +1417,7 @@ declare module org {
                         next(key: number): TreeNode;
                         first(): TreeNode;
                         last(): TreeNode;
-                        private lookupNode(key);
-                        lookup(key: number): number;
+                        private lookup(key);
                         private rotateLeft(n);
                         private rotateRight(n);
                         private replaceNode(oldn, newn);
@@ -1431,27 +1437,34 @@ declare module org {
                         private nodeColor(n);
                     }
                     class LongRBTree implements data.cache.KCacheObject {
-                        root: LongTreeNode;
+                        private root;
                         private _size;
+                        private static LOOKUP_CACHE_SIZE;
                         _dirty: boolean;
+                        private _previousOrEqualsCacheKeys;
+                        private _previousOrEqualsCacheValues;
+                        private _nextCacheElem;
+                        private _lookupCacheKeys;
+                        private _lookupCacheValues;
+                        private _lookupCacheElem;
                         size(): number;
                         toString(): string;
                         isDirty(): boolean;
                         serialize(): string;
+                        private tryPreviousOrEqualsCache(key);
+                        private tryLookupCache(key);
+                        private resetCache();
+                        private putInPreviousOrEqualsCache(key, resolved);
+                        private putInLookupCache(key, resolved);
                         setClean(): void;
                         unserialize(key: data.cache.KContentKey, payload: string, metaModel: meta.MetaModel): void;
+                        lookup(key: number): LongTreeNode;
                         previousOrEqual(key: number): LongTreeNode;
                         nextOrEqual(key: number): LongTreeNode;
                         previous(key: number): LongTreeNode;
-                        previousWhileNot(key: number, until: number): LongTreeNode;
                         next(key: number): LongTreeNode;
-                        nextWhileNot(key: number, until: number): LongTreeNode;
                         first(): LongTreeNode;
                         last(): LongTreeNode;
-                        firstWhileNot(key: number, until: number): LongTreeNode;
-                        lastWhileNot(key: number, until: number): LongTreeNode;
-                        private lookupNode(key);
-                        lookup(key: number): number;
                         private rotateLeft(n);
                         private rotateRight(n);
                         private replaceNode(oldn, newn);
@@ -1494,14 +1507,6 @@ declare module org {
                         previous(): LongTreeNode;
                         static unserialize(ctx: TreeReaderContext): LongTreeNode;
                         static internal_unserialize(rightBranch: boolean, ctx: TreeReaderContext): LongTreeNode;
-                    }
-                    interface RBTree {
-                        first(): number;
-                        last(): number;
-                        next(from: number): number;
-                        previous(from: number): number;
-                        resolve(time: number): number;
-                        size(): number;
                     }
                     class TreeNode {
                         static BLACK: string;
@@ -1846,8 +1851,11 @@ declare module org {
                         private static UUID_INDEX;
                         private static TUPLE_SIZE;
                         private listeners;
+                        private _manager;
                         registerListener(origin: any, listener: (p: KObject, p1: meta.Meta[]) => void, scope: any): void;
-                        dispatch(src: KObject, modications: meta.Meta[]): void;
+                        setManager(manager: data.manager.KDataManager): void;
+                        dispatch(messages: msg.KEventMessage[]): void;
+                        private resolveKObject(key, universeCache, viewsCache, callback);
                         unregister(listener: (p: KObject, p1: meta.Meta[]) => void): void;
                         clear(): void;
                     }
