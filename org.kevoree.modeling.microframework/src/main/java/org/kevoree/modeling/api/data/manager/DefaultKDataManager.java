@@ -305,13 +305,11 @@ public class DefaultKDataManager implements KDataManager {
             }
             if (accessMode.equals(AccessMode.DELETE)) {
                 timeTree.delete(origin.now());
-                KCacheEntry clonedEntry = entry.clone();
-                entry.clearRaw();
-                return clonedEntry;
+                return entry;
             }
-            if (entry.sizeRaw() == 0) {
-                return null;
-            }
+//            if (entry.sizeRaw() == 0) {
+//                return null;
+            //           }
             if (!needTimeCopy && !needUniverseCopy) {
                 if (accessMode.equals(AccessMode.WRITE)) {
                     entry._dirty = true;

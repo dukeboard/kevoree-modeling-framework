@@ -28,10 +28,6 @@ public class KCacheEntry implements KCacheObject {
         this.raw = new Object[p_size];
     }
 
-    public void clearRaw() {
-        this.raw = null;
-    }
-    
     @Override
     public boolean isDirty() {
         return _dirty;
