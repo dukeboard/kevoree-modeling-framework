@@ -474,13 +474,13 @@ declare module org {
                             _modifiedIndexes: boolean[];
                             _dirty: boolean;
                             initRaw(p_size: number): void;
-                            clearRaw(): void;
                             isDirty(): boolean;
                             modifiedIndexes(): number[];
                             serialize(): string;
                             setClean(): void;
                             unserialize(key: KContentKey, payload: string, metaModel: meta.MetaModel): void;
                             get(index: number): any;
+                            getRef(index: number): number[];
                             set(index: number, content: any): void;
                             sizeRaw(): number;
                             clone(): KCacheEntry;
@@ -613,6 +613,7 @@ declare module org {
                             private UNIVERSE_INDEX;
                             private OBJ_INDEX;
                             private GLO_TREE_INDEX;
+                            static NULL_KEY: number;
                             private _cache;
                             constructor(model: KModel<any>);
                             model(): KModel<any>;
@@ -694,6 +695,7 @@ declare module org {
                             prefix(): number;
                         }
                         class LookupAllRunnable implements java.lang.Runnable {
+                            static DEBUG: boolean;
                             private _originView;
                             private _keys;
                             private _callback;
@@ -991,8 +993,6 @@ declare module org {
                         static PARENT_META: string;
                         static PARENT_REF_META: string;
                         static INBOUNDS_META: string;
-                        static TIME_META: string;
-                        static DIM_META: string;
                         static serialize(model: KObject, callback: (p: string) => void): void;
                         static printJSON(elem: KObject, builder: java.lang.StringBuilder, isRoot: boolean): void;
                     }
@@ -1675,11 +1675,11 @@ declare module org {
                 }
                 module traversal {
                     class DefaultKTraversal implements KTraversal {
+                        private static TERMINATED_MESSAGE;
                         private _initObjs;
                         private _initAction;
                         private _lastAction;
                         private _terminated;
-                        private static TERMINATED_MESSAGE;
                         constructor(p_root: KObject, p_initAction: KTraversalAction);
                         traverse(p_metaReference: meta.MetaReference): KTraversal;
                         traverseQuery(p_metaReferenceQuery: string): KTraversal;
@@ -1820,6 +1820,13 @@ declare module org {
                     }
                 }
                 module util {
+                    class ArrayUtils {
+                        static add(previous: number[], toAdd: number): number[];
+                        static remove(previous: number[], toAdd: number): number[];
+                        static clone(previous: number[]): number[];
+                        static contains(previous: number[], value: number): number;
+                        static flatSet(keys: java.util.Set<number>): number[];
+                    }
                     class Checker {
                         static isDefined(param: any): boolean;
                     }
@@ -1897,18 +1904,12 @@ declare module org {
                         resolvers: java.util.ArrayList<XMIResolveCommand>;
                         map: java.util.HashMap<string, KObject>;
                         elementsCount: java.util.HashMap<string, number>;
-                        stats: java.util.HashMap<string, number>;
-                        oppositesAlreadySet: java.util.HashMap<string, boolean>;
                         successCallback: (p: java.lang.Throwable) => void;
-                        isOppositeAlreadySet(localRef: string, oppositeRef: string): boolean;
-                        storeOppositeRelation(localRef: string, oppositeRef: string): void;
                     }
                     class XMIModelLoader {
-                        private _factory;
                         static LOADER_XMI_LOCAL_NAME: string;
                         static LOADER_XMI_XSI: string;
                         static LOADER_XMI_NS_URI: string;
-                        constructor(p_factory: KView);
                         static unescapeXml(src: string): string;
                         static load(p_view: KView, str: string, callback: (p: java.lang.Throwable) => void): void;
                         private static deserialize(p_view, context);

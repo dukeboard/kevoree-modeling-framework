@@ -20,11 +20,11 @@ public class LookupAllRunnable implements Runnable {
     public static boolean DEBUG = false;
 
     private KView _originView;
-    private Long[] _keys;
+    private long[] _keys;
     private Callback<KObject[]> _callback;
     private DefaultKDataManager _store;
 
-    public LookupAllRunnable(KView p_originView, Long[] p_keys, Callback<KObject[]> p_callback, DefaultKDataManager p_store) {
+    public LookupAllRunnable(KView p_originView, long[] p_keys, Callback<KObject[]> p_callback, DefaultKDataManager p_store) {
         this._originView = p_originView;
         this._keys = p_keys;
         this._callback = p_callback;

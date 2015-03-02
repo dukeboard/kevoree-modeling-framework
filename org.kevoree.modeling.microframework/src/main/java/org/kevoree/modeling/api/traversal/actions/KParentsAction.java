@@ -9,6 +9,7 @@ import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
+import org.kevoree.modeling.api.util.ArrayUtils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -43,7 +44,7 @@ public class KParentsAction implements KTraversalAction {
                     Object resolved = raw.get(Index.PARENT_INDEX);
                     if (resolved != null) {
                         try {
-                            nextIds.add((Long) resolved);
+                            nextIds.add((long) resolved);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -53,7 +54,7 @@ public class KParentsAction implements KTraversalAction {
                 }
             }
             //call
-            currentView.internalLookupAll(nextIds.toArray(new Long[nextIds.size()]),new Callback<KObject[]>() {
+            currentView.internalLookupAll(ArrayUtils.flatSet(nextIds),new Callback<KObject[]>() {
                 @Override
                 public void on(KObject[] kObjects) {
                     _next.execute(kObjects);

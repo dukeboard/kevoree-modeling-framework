@@ -50,6 +50,9 @@ public class DefaultKDataManager implements KDataManager {
     private final int OBJ_INDEX = 1;
     private final int GLO_TREE_INDEX = 2;
 
+
+    public static final long NULL_KEY = -1;
+
     public DefaultKDataManager(KModel model) {
         this._db = new MemoryKContentDeliveryDriver();
         this._db.setManager(this);
@@ -78,16 +81,23 @@ public class DefaultKDataManager implements KDataManager {
         if (_universeKeyCalculator == null) {
             throw new RuntimeException(UNIVERSE_NOT_CONNECTED_ERROR);
         }
-        return _universeKeyCalculator.nextKey();
+        long nextGeneratedKey = _universeKeyCalculator.nextKey();
+        if (nextGeneratedKey == NULL_KEY) {
+            nextGeneratedKey = _universeKeyCalculator.nextKey();
+        }
+        return nextGeneratedKey;
     }
-
 
     @Override
     public synchronized long nextObjectKey() {
         if (_objectKeyCalculator == null) {
             throw new RuntimeException(UNIVERSE_NOT_CONNECTED_ERROR);
         }
-        return _objectKeyCalculator.nextKey();
+        long nextGeneratedKey = _objectKeyCalculator.nextKey();
+        if (nextGeneratedKey == NULL_KEY) {
+            nextGeneratedKey = _objectKeyCalculator.nextKey();
+        }
+        return nextGeneratedKey;
     }
 
     @Override
@@ -307,9 +317,6 @@ public class DefaultKDataManager implements KDataManager {
                 timeTree.delete(origin.now());
                 return entry;
             }
-//            if (entry.sizeRaw() == 0) {
-//                return null;
-            //           }
             if (!needTimeCopy && !needUniverseCopy) {
                 if (accessMode.equals(AccessMode.WRITE)) {
                     entry._dirty = true;
@@ -348,8 +355,8 @@ public class DefaultKDataManager implements KDataManager {
     }
 
     @Override
-    public void lookup(final KView originView, final Long key, final Callback<KObject> callback) {
-        Long[] keys = new Long[1];
+    public void lookup(final KView originView, final long key, final Callback<KObject> callback) {
+        long[] keys = new long[1];
         keys[0] = key;
         lookupAll(originView, keys, new Callback<KObject[]>() {
             @Override
@@ -368,7 +375,7 @@ public class DefaultKDataManager implements KDataManager {
     }
 
     @Override
-    public void lookupAll(final KView originView, Long[] keys, final Callback<KObject[]> callback) {
+    public void lookupAll(final KView originView, long[] keys, final Callback<KObject[]> callback) {
         this._scheduler.dispatch(new LookupAllRunnable(originView, keys, callback, this));
     }
 
@@ -394,7 +401,7 @@ public class DefaultKDataManager implements KDataManager {
         return _operationManager;
     }
 
-    void internal_resolve_universe_time(KView originView, Long[] uuids, Callback<ResolutionResult[]> callback) {
+    void internal_resolve_universe_time(KView originView, long[] uuids, Callback<ResolutionResult[]> callback) {
         final ResolutionResult[] tempResult = new ResolutionResult[uuids.length];
         //step 0: try to hit the cache layer for dimensions
         List<Integer> toLoadIndexUniverse = null;
@@ -451,7 +458,7 @@ public class DefaultKDataManager implements KDataManager {
         }
     }
 
-    private void internal_resolve_times(KView originView, Long[] uuids, ResolutionResult[] tempResult, Callback<ResolutionResult[]> callback) {
+    private void internal_resolve_times(KView originView, long[] uuids, ResolutionResult[] tempResult, Callback<ResolutionResult[]> callback) {
         //step 1.0: try to hit the cache layer for times
         List<Integer> toLoadIndexTimes = null;
         List<KContentKey> toLoadTimeTrees = null;
@@ -701,7 +708,7 @@ public class DefaultKDataManager implements KDataManager {
     @Override
     public void timeTrees(KObject p_origin, Long start, Long end, Callback<IndexRBTree[]> callback) {
         //TODO enhance for multiVerse
-        Long[] uuid = new Long[1];
+        long[] uuid = new long[1];
         uuid[0] = p_origin.uuid();
         internal_resolve_universe_time(p_origin.view(), uuid, new Callback<ResolutionResult[]>() {
             @Override

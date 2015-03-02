@@ -1,13 +1,11 @@
 package org.kevoree.modeling.api.data.cdn;
 
-import org.kevoree.modeling.api.*;
-import org.kevoree.modeling.api.abs.AbstractKView;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KEventListener;
+import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.data.cache.*;
-import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.data.manager.KDataManager;
-import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.msg.KEventMessage;
-import org.kevoree.modeling.api.rbtree.LongRBTree;
 import org.kevoree.modeling.api.util.LocalEventListeners;
 
 import java.util.HashMap;

@@ -1,7 +1,11 @@
 package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.data.manager.Index;
-import org.kevoree.modeling.api.meta.*;
+import org.kevoree.modeling.api.meta.Meta;
+import org.kevoree.modeling.api.meta.MetaAttribute;
+import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaReference;
+import org.kevoree.modeling.api.meta.MetaType;
 
 import java.util.HashMap;
 

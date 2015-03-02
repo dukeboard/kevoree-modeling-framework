@@ -26,9 +26,9 @@ public interface KDataManager {
 
     public KCache cache();
 
-    void lookup(KView originView, Long key, Callback<KObject> callback);
+    void lookup(KView originView, long key, Callback<KObject> callback);
 
-    void lookupAll(KView originView, Long[] key, Callback<KObject[]> callback);
+    void lookupAll(KView originView, long[] key, Callback<KObject[]> callback);
 
     KCacheEntry entry(KObject origin, AccessMode accessMode);
 

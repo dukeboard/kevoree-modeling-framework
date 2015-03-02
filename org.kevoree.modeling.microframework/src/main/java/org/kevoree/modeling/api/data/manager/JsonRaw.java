@@ -3,13 +3,21 @@ package org.kevoree.modeling.api.data.manager;
 import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
 import org.kevoree.modeling.api.abs.AbstractMetaReference;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
-import org.kevoree.modeling.api.json.*;
-import org.kevoree.modeling.api.meta.*;
+import org.kevoree.modeling.api.json.JsonModelSerializer;
+import org.kevoree.modeling.api.json.JsonToken;
+import org.kevoree.modeling.api.json.Lexer;
+import org.kevoree.modeling.api.json.Type;
+import org.kevoree.modeling.api.meta.Meta;
+import org.kevoree.modeling.api.meta.MetaAttribute;
+import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaModel;
+import org.kevoree.modeling.api.meta.MetaReference;
+import org.kevoree.modeling.api.meta.MetaType;
+import org.kevoree.modeling.api.meta.PrimitiveTypes;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by duke on 11/25/14.
@@ -24,12 +32,13 @@ public class JsonRaw {
         }
         Lexer lexer = new Lexer(payload);
         String currentAttributeName = null;
-        Set<String> arrayPayload = null;
+        ArrayList<String> arrayPayload = null;
+        //TODO replace by indexBaseStructure
         Map<String, Object> content = new HashMap<String, Object>();
         JsonToken currentToken = lexer.nextToken();
         while (currentToken.tokenType() != Type.EOF) {
             if (currentToken.tokenType().equals(Type.LEFT_BRACKET)) {
-                arrayPayload = new HashSet<String>();
+                arrayPayload = new ArrayList<String>();
             } else if (currentToken.tokenType().equals(Type.RIGHT_BRACKET)) {
                 content.put(currentAttributeName, arrayPayload);
                 arrayPayload = null;
@@ -64,20 +73,18 @@ public class JsonRaw {
             String[] metaKeys = content.keySet().toArray(new String[content.size()]);
             for (int i = 0; i < metaKeys.length; i++) {
                 if (metaKeys[i].equals(JsonModelSerializer.INBOUNDS_META)) {
-                    Set<Long> inbounds = new HashSet<Long>();
-                    entry.set(Index.INBOUNDS_INDEX, inbounds);
-                    Object raw_payload = content.get(metaKeys[i]);
                     try {
-                        HashSet<String> raw_keys = (HashSet<String>) raw_payload;
-                        String[] raw_keys_p = raw_keys.toArray(new String[raw_keys.size()]);
-                        for (int j = 0; j < raw_keys_p.length; j++) {
+                        Object raw_payload = content.get(metaKeys[i]);
+                        ArrayList<String> raw_keys = (ArrayList<String>) raw_payload;
+                        long[] inbounds = new long[raw_keys.size()];
+                        for (int j = 0; j < raw_keys.size(); j++) {
                             try {
-                                Long parsed = Long.parseLong(raw_keys_p[j]);
-                                inbounds.add(parsed);
+                                inbounds[j] = Long.parseLong(raw_keys.get(j));
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
                         }
+                        entry.set(Index.INBOUNDS_INDEX, inbounds);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -103,20 +110,6 @@ public class JsonRaw {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                } else if (metaKeys[i].equals(JsonModelSerializer.KEY_ROOT)) {
-                    try {
-                        /*
-                        if ("true".equals(content.get(metaKeys[i]))) {
-                            entry.raw[Index.IS_ROOT_INDEX] = true;
-                        } else {
-                            entry.raw[Index.IS_ROOT_INDEX] = false;
-                        }
-                        */
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else if (metaKeys[i].equals(JsonModelSerializer.KEY_META)) {
-                    //nothing metaClass is already set
                 } else {
                     Meta metaElement = entry.metaClass.metaByName(metaKeys[i]);
                     Object insideContent = content.get(metaKeys[i]);
@@ -124,30 +117,19 @@ public class JsonRaw {
                         if (metaElement != null && metaElement.metaType().equals(MetaType.ATTRIBUTE)) {
                             entry.set(metaElement.index(), ((AbstractMetaAttribute) metaElement).strategy().load(insideContent.toString(), (AbstractMetaAttribute) metaElement, now));
                         } else if (metaElement != null && metaElement instanceof AbstractMetaReference) {
-                            if (((MetaReference) metaElement).single()) {
-                                try {
-                                    entry.set(metaElement.index(), Long.parseLong(insideContent.toString()));
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            } else {
-                                try {
-                                    Set<Long> convertedRaw = new HashSet<Long>();
-                                    Set<String> plainRawSet = (Set<String>) insideContent;
-                                    String[] plainRawList = plainRawSet.toArray(new String[plainRawSet.size()]);
-                                    for (int l = 0; l < plainRawList.length; l++) {
-                                        String plainRaw = plainRawList[l];
-                                        try {
-                                            Long converted = Long.parseLong(plainRaw);
-                                            convertedRaw.add(converted);
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
+                            try {
+                                ArrayList<String> plainRawSet = (ArrayList<String>) insideContent;
+                                long[] convertedRaw = new long[plainRawSet.size()];
+                                for (int l = 0; l < plainRawSet.size(); l++) {
+                                    try {
+                                        convertedRaw[l] = Long.parseLong(plainRawSet.get(l));
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
                                     }
-                                    entry.set(metaElement.index(), convertedRaw);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
                                 }
+                                entry.set(metaElement.index(), convertedRaw);
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
                         }
                     }
@@ -194,15 +176,14 @@ public class JsonRaw {
             builder.append("\",\n");
             builder.append("\t\t\"" + JsonModelSerializer.INBOUNDS_META + "\": [");
             try {
-                Set<Long> elemsInRaw = (Set<Long>) raw.get(Index.INBOUNDS_INDEX);
-                Long[] elemsArr = elemsInRaw.toArray(new Long[elemsInRaw.size()]);
+                long[] elemsInRaw = (long[]) raw.get(Index.INBOUNDS_INDEX);
                 boolean isFirst = true;
-                for (int j = 0; j < elemsArr.length; j++) {
+                for (int j = 0; j < elemsInRaw.length; j++) {
                     if (!isFirst) {
                         builder.append(",");
                     }
                     builder.append("\"");
-                    builder.append(elemsArr[j]);
+                    builder.append(elemsInRaw[j]);
                     builder.append("\"");
                     isFirst = false;
                 }
@@ -250,24 +231,17 @@ public class JsonRaw {
                     builder.append("\"");
                     builder.append(metaElements[i].metaName());
                     builder.append("\":");
-                    if (((MetaReference) metaElements[i]).single()) {
+                    long[] elems = (long[]) refPayload;
+                    builder.append(" [");
+                    for (int j = 0; j < elems.length; j++) {
                         builder.append("\"");
-                        builder.append(refPayload);
+                        builder.append(elems[j]);
                         builder.append("\"");
-                    } else {
-                        Set<Long> elems = (Set<Long>) refPayload;
-                        Long[] elemsArr = elems.toArray(new Long[elems.size()]);
-                        builder.append(" [");
-                        for (int j = 0; j < elemsArr.length; j++) {
-                            builder.append("\"");
-                            builder.append(elemsArr[j]);
-                            builder.append("\"");
-                            if (j != elemsArr.length - 1) {
-                                builder.append(",");
-                            }
+                        if (j != elems.length - 1) {
+                            builder.append(",");
                         }
-                        builder.append("]");
                     }
+                    builder.append("]");
                     nbElemPrinted++;
                     if (nbElemPrinted < nbElemToPrint) {
                         builder.append(",");

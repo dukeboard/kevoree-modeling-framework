@@ -4,12 +4,12 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.abs.AbstractKView;
-import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.meta.MetaType;
 import org.kevoree.modeling.api.rbtree.LongRBTree;
+import org.kevoree.modeling.api.util.ArrayUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,8 +55,7 @@ public class ModelTraceApplicator {
                     }
                 }
             }
-            Long[] dependenciesArray = dependencies.toArray(new Long[dependencies.size()]);
-            _targetModel.view().lookupAll(dependenciesArray).then(new Callback<KObject[]>() {
+            _targetModel.view().lookupAll(ArrayUtils.flatSet(dependencies)).then(new Callback<KObject[]>() {
                 @Override
                 public void on(KObject[] kObjects) {
                     HashMap<Long, KObject> cached = new HashMap<Long, KObject>();

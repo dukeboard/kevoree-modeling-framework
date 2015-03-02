@@ -4,21 +4,22 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKView;
-import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
 import org.kevoree.modeling.api.abs.AbstractMetaReference;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.data.manager.JsonRaw;
-import org.kevoree.modeling.api.meta.*;
+import org.kevoree.modeling.api.meta.Meta;
+import org.kevoree.modeling.api.meta.MetaAttribute;
+import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaModel;
+import org.kevoree.modeling.api.meta.MetaType;
 import org.kevoree.modeling.api.rbtree.LongRBTree;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -42,11 +43,11 @@ public class JsonModelLoader {
                 final List<Map<String, Object>> alls = new ArrayList<Map<String, Object>>();
                 Map<String, Object> content = new HashMap<String, Object>();
                 String currentAttributeName = null;
-                Set<String> arrayPayload = null;
+                ArrayList<String> arrayPayload = null;
                 currentToken = lexer.nextToken();
                 while (currentToken.tokenType() != Type.EOF) {
                     if (currentToken.tokenType().equals(Type.LEFT_BRACKET)) {
-                        arrayPayload = new HashSet<String>();
+                        arrayPayload = new ArrayList<String>();
                     } else if (currentToken.tokenType().equals(Type.RIGHT_BRACKET)) {
                         content.put(currentAttributeName, arrayPayload);
                         arrayPayload = null;
@@ -97,22 +98,21 @@ public class JsonModelLoader {
                             String metaKey = metaKeys[h];
                             Object payload_content = elem.get(metaKey);
                             if (metaKey.equals(JsonModelSerializer.INBOUNDS_META)) {
-                                Set<Long> inbounds = new HashSet<Long>();
-                                raw.set(Index.INBOUNDS_INDEX, inbounds);
                                 try {
-                                    HashSet<String> raw_keys = (HashSet<String>) payload_content;
-                                    String[] raw_keys_p = raw_keys.toArray(new String[raw_keys.size()]);
-                                    for (int hh = 0; hh < raw_keys_p.length; hh++) {
+                                    ArrayList<String> raw_keys = (ArrayList<String>) payload_content;
+                                    long[] inbounds = new long[raw_keys.size()];
+                                    for (int hh = 0; hh < raw_keys.size(); hh++) {
                                         try {
-                                            Long converted = Long.parseLong(raw_keys_p[hh]);
+                                            Long converted = Long.parseLong(raw_keys.get(hh));
                                             if (mappedKeys.containsKey(converted)) {
                                                 converted = mappedKeys.get(converted);
                                             }
-                                            inbounds.add(converted);
+                                            inbounds[hh] = converted;
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
                                     }
+                                    raw.set(Index.INBOUNDS_INDEX, inbounds);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -146,46 +146,31 @@ public class JsonModelLoader {
                                 if ("true".equals(payload_content)) {
                                     rootElem = current;
                                 }
-                            } else if (metaKey.equals(JsonModelSerializer.KEY_META)) {
-                                //nothing metaClass is already set
                             } else {
                                 Meta metaElement = metaClass.metaByName(metaKey);
                                 if (payload_content != null) {
                                     if (metaElement != null && metaElement.metaType().equals(MetaType.ATTRIBUTE)) {
                                         raw.set(metaElement.index(), ((MetaAttribute) metaElement).strategy().load(payload_content.toString(), (MetaAttribute) metaElement, factory.now()));
                                     } else if (metaElement != null && metaElement instanceof AbstractMetaReference) {
-                                        if (((MetaReference) metaElement).single()) {
-                                            try {
-                                                Long converted = Long.parseLong(payload_content.toString());
-                                                if (mappedKeys.containsKey(converted)) {
-                                                    converted = mappedKeys.get(converted);
-                                                }
-                                                raw.set(metaElement.index(), converted);
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
-                                        } else {
-                                            try {
-                                                Set<Long> convertedRaw = new HashSet<Long>();
-                                                Set<String> plainRawSet = (Set<String>) payload_content;
-                                                String[] plainRawList = plainRawSet.toArray(new String[plainRawSet.size()]);
-                                                for (int l = 0; l < plainRawList.length; l++) {
-                                                    String plainRaw = plainRawList[l];
-                                                    try {
-                                                        Long converted = Long.parseLong(plainRaw);
-                                                        if (mappedKeys.containsKey(converted)) {
-                                                            converted = mappedKeys.get(converted);
-                                                        }
-                                                        convertedRaw.add(converted);
-                                                    } catch (Exception e) {
-                                                        e.printStackTrace();
+                                        try {
+                                            ArrayList<String> plainRawSet = (ArrayList<String>) payload_content;
+                                            long[] convertedRaw = new long[plainRawSet.size()];
+                                            for (int l = 0; l < convertedRaw.length; l++) {
+                                                try {
+                                                    Long converted = Long.parseLong(plainRawSet.get(l));
+                                                    if (mappedKeys.containsKey(converted)) {
+                                                        converted = mappedKeys.get(converted);
                                                     }
+                                                    convertedRaw[l] = converted;
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
                                                 }
-                                                raw.set(metaElement.index(), convertedRaw);
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
                                             }
+                                            raw.set(metaElement.index(), convertedRaw);
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
                                         }
+
                                     }
                                 }
                             }

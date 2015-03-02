@@ -2,7 +2,6 @@ package org.kevoree.modeling.api.traversal.actions;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
@@ -10,6 +9,7 @@ import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
+import org.kevoree.modeling.api.util.ArrayUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,20 +50,15 @@ public class KReverseQueryAction implements KTraversalAction {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
                     KCacheEntry raw = currentView.universe().model().manager().entry(loopObj, AccessMode.READ);
                     if (raw != null) {
-                        if (_referenceQuery == null) {
-                            if (raw.get(Index.INBOUNDS_INDEX) != null && raw.get(Index.INBOUNDS_INDEX) instanceof Set) {
-                                Set<Long> casted = (Set<Long>) raw.get(Index.INBOUNDS_INDEX);
-                                Long[] castedArr = casted.toArray(new Long[casted.size()]);
-                                for (int j = 0; j < castedArr.length; j++) {
-                                    nextIds.add(castedArr[j]);
+                        long[] inboundsKeys = raw.getRef(Index.INBOUNDS_INDEX);
+                        if (inboundsKeys != null) {
+                            if (_referenceQuery == null) {
+                                for (int j = 0; j < inboundsKeys.length; j++) {
+                                    nextIds.add(inboundsKeys[j]);
                                 }
-                            }
-                        } else {
-                            if (raw.get(Index.INBOUNDS_INDEX) != null && raw.get(Index.INBOUNDS_INDEX) instanceof Set) {
-                                Set<Long> casted = (Set<Long>) raw.get(Index.INBOUNDS_INDEX);
-                                Long[] castedArr = casted.toArray(new Long[casted.size()]);
-                                for (int j = 0; j < castedArr.length; j++) {
-                                    toFilter.put(castedArr[j], p_inputs[i]);
+                            } else {
+                                for (int j = 0; j < inboundsKeys.length; j++) {
+                                    toFilter.put(inboundsKeys[j], p_inputs[i]);
                                 }
                             }
                         }
@@ -73,7 +68,7 @@ public class KReverseQueryAction implements KTraversalAction {
                 }
             }
             if (toFilter.keySet().size() == 0) {
-                currentView.internalLookupAll(nextIds.toArray(new Long[nextIds.size()]), new Callback<KObject[]>() {
+                currentView.internalLookupAll(ArrayUtils.flatSet(nextIds), new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         _next.execute(kObjects);
@@ -81,7 +76,7 @@ public class KReverseQueryAction implements KTraversalAction {
                 });
             } else {
                 Long[] toFilterKeys = toFilter.keySet().toArray(new Long[toFilter.keySet().size()]);
-                currentView.internalLookupAll(toFilterKeys, new Callback<KObject[]>() {
+                currentView.internalLookupAll(ArrayUtils.flatSet(toFilter.keySet()), new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         for (int i = 0; i < toFilterKeys.length; i++) {
@@ -94,7 +89,7 @@ public class KReverseQueryAction implements KTraversalAction {
                                 }
                             }
                         }
-                        currentView.internalLookupAll(nextIds.toArray(new Long[nextIds.size()]),new Callback<KObject[]>() {
+                        currentView.internalLookupAll(ArrayUtils.flatSet(nextIds), new Callback<KObject[]>() {
                             @Override
                             public void on(KObject[] kObjects) {
                                 _next.execute(kObjects);

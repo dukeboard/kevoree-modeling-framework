@@ -4,12 +4,9 @@ import org.kevoree.modeling.api.KInferState;
 import org.kevoree.modeling.api.data.manager.JsonRaw;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaModel;
-import org.kevoree.modeling.api.rbtree.LongRBTree;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by duke on 26/11/14.
@@ -79,6 +76,25 @@ public class KCacheEntry implements KCacheObject {
         }
     }
 
+    public long[] getRef(int index) {
+        if (raw != null) {
+            Object previousObj = raw[index];
+            if (previousObj != null) {
+                try {
+                    return (long[]) previousObj;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    raw[index] = null;
+                    return null;
+                }
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
     public synchronized void set(int index, Object content) {
         raw[index] = content;
         _dirty = true;
@@ -104,11 +120,7 @@ public class KCacheEntry implements KCacheObject {
             for (int i = 0; i < raw.length; i++) {
                 Object resolved = raw[i];
                 if (resolved != null) {
-                    if (resolved instanceof Set) {
-                        HashSet<Long> clonedSet = new HashSet<Long>();
-                        clonedSet.addAll((Set<Long>) resolved);
-                        cloned[i] = clonedSet;
-                    } else if (resolved instanceof List) {
+                    if (resolved instanceof List) {
                         ArrayList<Long> clonedList = new ArrayList<Long>();
                         clonedList.addAll((List<Long>) resolved);
                         cloned[i] = clonedList;

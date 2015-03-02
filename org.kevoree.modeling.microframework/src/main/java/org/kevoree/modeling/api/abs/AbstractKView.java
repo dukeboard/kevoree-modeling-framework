@@ -71,7 +71,7 @@ public abstract class AbstractKView implements KView {
                     task.initCallback().on(new KObject[0]);
                 } else {
                     String cleanedQuery = query;
-                    if (cleanedQuery.equals("/")) {
+                    if (query.equals("/")) {
                         KObject[] param = new KObject[1];
                         param[0] = rootObj;
                         task.initCallback().on(param);
@@ -88,20 +88,20 @@ public abstract class AbstractKView implements KView {
     }
 
     @Override
-    public KDefer<KObject> lookup(Long kid) {
+    public KDefer<KObject> lookup(long kid) {
         AbstractKDeferWrapper<KObject> task = new AbstractKDeferWrapper<KObject>();
         universe().model().manager().lookup(this, kid, task.initCallback());
         return task;
     }
 
     @Override
-    public KDefer<KObject[]> lookupAll(Long[] keys) {
+    public KDefer<KObject[]> lookupAll(long[] keys) {
         AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
         universe().model().manager().lookupAll(this, keys, task.initCallback());
         return task;
     }
 
-    public void internalLookupAll(Long[] keys, Callback<KObject[]> callback){
+    public void internalLookupAll(long[] keys, Callback<KObject[]> callback) {
         universe().model().manager().lookupAll(this, keys, callback);
     }
 

@@ -2,13 +2,13 @@ package org.kevoree.modeling.api.traversal.actions;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
+import org.kevoree.modeling.api.util.ArrayUtils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -51,21 +51,10 @@ public class KTraverseQueryAction implements KTraversalAction {
                                 MetaReference ref = loopObj.metaClass().metaReferences()[j];
                                 Object resolved = raw.get(ref.index());
                                 if (resolved != null) {
-                                    if (resolved instanceof Set) {
-                                        Set<Long> resolvedCasted = (Set<Long>) resolved;
-                                        Long[] resolvedArr = resolvedCasted.toArray(new Long[resolvedCasted.size()]);
-                                        for (int k = 0; k < resolvedArr.length; k++) {
-                                            Long idResolved = resolvedArr[k];
-                                            if (idResolved != null) {
-                                                nextIds.add(idResolved);
-                                            }
-                                        }
-                                    } else {
-                                        try {
-                                            nextIds.add((Long) resolved);
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
+                                    long[] resolvedArr = (long[]) resolved;
+                                    for (int k = 0; k < resolvedArr.length; k++) {
+                                        Long idResolved = resolvedArr[k];
+                                        nextIds.add(idResolved);
                                     }
                                 }
                             }
@@ -87,21 +76,9 @@ public class KTraverseQueryAction implements KTraversalAction {
                                 if (selected) {
                                     Object resolved = raw.get(ref.index());
                                     if (resolved != null) {
-                                        if (resolved instanceof Set) {
-                                            Set<Long> resolvedCasted = (Set<Long>) resolved;
-                                            Long[] resolvedArr = resolvedCasted.toArray(new Long[resolvedCasted.size()]);
-                                            for (int j = 0; j < resolvedArr.length; j++) {
-                                                Long idResolved = resolvedArr[j];
-                                                if (idResolved != null) {
-                                                    nextIds.add(idResolved);
-                                                }
-                                            }
-                                        } else {
-                                            try {
-                                                nextIds.add((Long) resolved);
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
+                                        long[] resolvedCasted = (long[]) resolved;
+                                        for (int j = 0; j < resolvedCasted.length; j++) {
+                                            nextIds.add(resolvedCasted[j]);
                                         }
                                     }
                                 }
@@ -113,7 +90,7 @@ public class KTraverseQueryAction implements KTraversalAction {
                 }
             }
             //call
-            currentView.internalLookupAll(nextIds.toArray(new Long[nextIds.size()]),new Callback<KObject[]>() {
+            currentView.internalLookupAll(ArrayUtils.flatSet(nextIds), new Callback<KObject[]>() {
                 @Override
                 public void on(KObject[] kObjects) {
                     _next.execute(kObjects);

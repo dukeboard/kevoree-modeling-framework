@@ -5,12 +5,24 @@ import org.kevoree.modeling.api.KDefer;
 import org.kevoree.modeling.api.abs.AbstractKDeferWrapper;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.traversal.actions.*;
+import org.kevoree.modeling.api.traversal.actions.KFilterAction;
+import org.kevoree.modeling.api.traversal.actions.KFilterAttributeAction;
+import org.kevoree.modeling.api.traversal.actions.KFilterAttributeQueryAction;
+import org.kevoree.modeling.api.traversal.actions.KFilterNotAttributeAction;
+import org.kevoree.modeling.api.traversal.actions.KFinalAction;
+import org.kevoree.modeling.api.traversal.actions.KMapAction;
+import org.kevoree.modeling.api.traversal.actions.KParentsAction;
+import org.kevoree.modeling.api.traversal.actions.KReverseAction;
+import org.kevoree.modeling.api.traversal.actions.KReverseQueryAction;
+import org.kevoree.modeling.api.traversal.actions.KTraverseAction;
+import org.kevoree.modeling.api.traversal.actions.KTraverseQueryAction;
 
 /**
  * Created by duke on 18/12/14.
  */
 public class DefaultKTraversal implements KTraversal {
+
+    private static final String TERMINATED_MESSAGE = "Promise is terminated by the call of then method, please create another promise";
 
     private KObject[] _initObjs;
 
@@ -26,8 +38,6 @@ public class DefaultKTraversal implements KTraversal {
         this._initObjs[0] = p_root;
         this._lastAction = _initAction;
     }
-
-    private static final String TERMINATED_MESSAGE = "Promise is terminated by the call of then method, please create another promise";
 
     @Override
     public KTraversal traverse(MetaReference p_metaReference) {

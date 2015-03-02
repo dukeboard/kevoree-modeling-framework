@@ -13,9 +13,9 @@ public interface KView {
 
     public KDefer<KObject[]> select(String query);
 
-    public KDefer<KObject> lookup(Long key);
+    public KDefer<KObject> lookup(long key);
 
-    public KDefer<KObject[]> lookupAll(Long[] keys);
+    public KDefer<KObject[]> lookupAll(long[] keys);
 
     public KUniverse universe();
 

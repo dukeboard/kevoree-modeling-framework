@@ -1,6 +1,10 @@
 package org.kevoree.modeling.api.json;
 
-import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.ModelVisitor;
+import org.kevoree.modeling.api.VisitRequest;
+import org.kevoree.modeling.api.VisitResult;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.data.manager.JsonRaw;
@@ -25,10 +29,6 @@ public class JsonModelSerializer {
     public static final String PARENT_REF_META = "@ref";
 
     public static final String INBOUNDS_META = "@inbounds";
-
-    public static final String TIME_META = "@time";
-
-    public static final String DIM_META = "@universe";
 
     public static void serialize(KObject model, final Callback<String> callback) {
         model.view().getRoot().then(new Callback<KObject>() {

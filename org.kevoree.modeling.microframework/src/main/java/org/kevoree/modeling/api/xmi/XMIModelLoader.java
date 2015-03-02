@@ -4,7 +4,6 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
 import org.kevoree.modeling.api.abs.AbstractMetaReference;
 import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.meta.MetaAttribute;
@@ -20,15 +19,9 @@ import java.util.HashMap;
 
 public class XMIModelLoader {
 
-    private KView _factory;
-
     public static final String LOADER_XMI_LOCAL_NAME = "type";
     public static final String LOADER_XMI_XSI = "xsi";
     public static final String LOADER_XMI_NS_URI = "nsURI";
-
-    public XMIModelLoader(KView p_factory) {
-        this._factory = p_factory;
-    }
 
     public static String unescapeXml(String src) {
         StringBuilder builder = null;
