@@ -17,6 +17,8 @@ import java.util.List;
  */
 public class LookupAllRunnable implements Runnable {
 
+    public static boolean DEBUG = false;
+
     private KView _originView;
     private Long[] _keys;
     private Callback<KObject[]> _callback;
@@ -51,7 +53,7 @@ public class LookupAllRunnable implements Runnable {
                 if (toLoadIndexes.isEmpty()) {
                     _callback.on(resolved);
                 } else {
-                    KContentKey[] toLoadKeys = new KContentKey[toLoadIndexes.size()];
+                    final KContentKey[] toLoadKeys = new KContentKey[toLoadIndexes.size()];
                     for (int i = 0; i < toLoadIndexes.size(); i++) {
                         int toLoadIndex = toLoadIndexes.get(i);
                         toLoadKeys[i] = KContentKey.createObject(objects[toLoadIndex].resolvedUniverse, objects[toLoadIndex].resolvedQuanta, _keys[i]);
@@ -73,6 +75,14 @@ public class LookupAllRunnable implements Runnable {
                                             resolved[index] = ((AbstractKView) _originView).createProxy(entry.metaClass, objects[i].universeTree, _keys[i]);
                                             //Save the cache value
                                             _store.cache().put(KContentKey.createObject(objects[i].resolvedUniverse, objects[i].resolvedQuanta, _keys[i]), entry);
+                                        } else {
+                                            if (DEBUG) {
+                                                System.err.println("Bad decoding for Key : " + toLoadKeys[i]);
+                                            }
+                                        }
+                                    } else {
+                                        if (DEBUG) {
+                                            System.err.println("No value for Key : " + toLoadKeys[i]);
                                         }
                                     }
                                 }
