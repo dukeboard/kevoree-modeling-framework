@@ -44,8 +44,11 @@ public class DefaultKDataManager implements KDataManager {
 
     private static final String OUT_OF_CACHE_MESSAGE = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
     private static final String UNIVERSE_NOT_CONNECTED_ERROR = "Please connect your model prior to create a universe or an object";
-
     //private static final String DELETED_MESSAGE = "KMF Error: your object has been deleted. Please do not use object pointer after a call to delete method";
+
+    private final int UNIVERSE_INDEX = 0;
+    private final int OBJ_INDEX = 1;
+    private final int GLO_TREE_INDEX = 2;
 
     public DefaultKDataManager(KModel model) {
         this._db = new MemoryKContentDeliveryDriver();
@@ -174,10 +177,6 @@ public class DefaultKDataManager implements KDataManager {
         _cache.put(KContentKey.createObject(obj.universe().key(), obj.now(), obj.uuid()), cacheEntry);
     }
 
-    private final int UNIVERSE_INDEX = 0;
-    private final int OBJ_INDEX = 1;
-    private final int GLO_TREE_INDEX = 2;
-
     @Override
     public void connect(Callback<Throwable> connectCallback) {
         if (isConnected) {
@@ -270,7 +269,9 @@ public class DefaultKDataManager implements KDataManager {
                                     }
                                 });
                     } else {
-                        connectCallback.on(throwable);
+                        if (connectCallback != null) {
+                            connectCallback.on(throwable);
+                        }
                     }
                 }
             });
@@ -286,60 +287,58 @@ public class DefaultKDataManager implements KDataManager {
             throw new RuntimeException(OUT_OF_CACHE_MESSAGE + " : TimeTree not found for " + KContentKey.createTimeTree(resolvedUniverse, origin.uuid()) + " from " + origin.universe().key() + "/" + resolvedUniverse);
         }
         TreeNode resolvedNode = timeTree.previousOrEqual(origin.now());
-        Long resolvedTime;
         if (resolvedNode != null) {
-            resolvedTime = resolvedNode.getKey();
+            long resolvedTime = resolvedNode.getKey();
+            boolean needTimeCopy = accessMode.equals(AccessMode.WRITE) && (resolvedTime != origin.now());
+            boolean needUniverseCopy = accessMode.equals(AccessMode.WRITE) && (resolvedUniverse != origin.universe().key());
+            KCacheEntry entry = (KCacheEntry) _cache.get(KContentKey.createObject(resolvedUniverse, resolvedTime, origin.uuid()));
+            if (entry == null) {
+                System.err.println(OUT_OF_CACHE_MESSAGE);
+                return null;
+            }
+            Object[] payload = entry.raw;
+            if (accessMode.equals(AccessMode.DELETE)) {
+                timeTree.delete(origin.now());
+                KCacheEntry clonedEntry = entry.clone();
+                entry.raw = null;
+                return clonedEntry;
+            }
+            if (payload == null) {
+                //System.err.println(DELETED_MESSAGE);
+                return null;
+            } else {
+                if (!needTimeCopy && !needUniverseCopy) {
+                    if (accessMode.equals(AccessMode.WRITE)) {
+                        entry._dirty = true;
+                    }
+                    return entry;
+                } else {
+                    KCacheEntry clonedEntry = entry.clone();
+                    clonedEntry._dirty = true;
+                    if (!needUniverseCopy) {
+                        timeTree.insert(origin.now());
+                    } else {
+                        IndexRBTree newTemporalTree = new IndexRBTree();
+                        newTemporalTree.insert(origin.now());
+                        _cache.put(KContentKey.createTimeTree(origin.universe().key(), origin.uuid()), newTemporalTree);
+                        dimensionTree.insert(origin.universe().key(), origin.now());//insert this time as a divergence point for this object
+                    }
+                    _cache.put(KContentKey.createObject(origin.universe().key(), origin.now(), origin.uuid()), clonedEntry);
+                    return clonedEntry;
+                }
+            }
         } else {
             System.err.println(OUT_OF_CACHE_MESSAGE + " Time not resolved " + origin.now());
             return null;
-        }
-        boolean needTimeCopy = accessMode.equals(AccessMode.WRITE) && (resolvedTime != origin.now());
-        boolean needUniverseCopy = accessMode.equals(AccessMode.WRITE) && (resolvedUniverse != origin.universe().key());
-        KCacheEntry entry = (KCacheEntry) _cache.get(KContentKey.createObject(resolvedUniverse, resolvedTime, origin.uuid()));
-        if (entry == null) {
-            System.err.println(OUT_OF_CACHE_MESSAGE);
-            return null;
-        }
-        Object[] payload = entry.raw;
-        if (accessMode.equals(AccessMode.DELETE)) {
-            timeTree.delete(origin.now());
-            KCacheEntry clonedEntry = entry.clone();
-            entry.raw = null;
-            return clonedEntry;
-        }
-        if (payload == null) {
-            //System.err.println(DELETED_MESSAGE);
-            return null;
-        } else {
-            if (!needTimeCopy && !needUniverseCopy) {
-                if (accessMode.equals(AccessMode.WRITE)) {
-                    entry._dirty = true;
-                }
-                return entry;
-            } else {
-                KCacheEntry clonedEntry = entry.clone();
-                clonedEntry._dirty = true;
-                if (!needUniverseCopy) {
-                    timeTree.insert(origin.now());
-                } else {
-                    IndexRBTree newTemporalTree = new IndexRBTree();
-                    newTemporalTree.insert(origin.now());
-                    _cache.put(KContentKey.createTimeTree(origin.universe().key(), origin.uuid()), newTemporalTree);
-                    dimensionTree.insert(origin.universe().key(), origin.now());//insert this time as a divergence point for this object
-                }
-                _cache.put(KContentKey.createObject(origin.universe().key(), origin.now(), origin.uuid()), clonedEntry);
-                return clonedEntry;
-            }
         }
     }
 
     @Override
     public void discard(KUniverse p_universe, Callback<Throwable> callback) {
         _cache.clearDataSegment();
-        //TODO REVERT UNIVERSE_TREE
-        if (callback != null) {
-            callback.on(null);
-        }
+        KContentKey[] globalUniverseTree = new KContentKey[1];
+        globalUniverseTree[0] = KContentKey.createGlobalUniverseTree();
+        reload(globalUniverseTree, callback);
     }
 
     @Override

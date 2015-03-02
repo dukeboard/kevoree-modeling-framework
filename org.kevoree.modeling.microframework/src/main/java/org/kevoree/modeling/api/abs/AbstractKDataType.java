@@ -37,7 +37,7 @@ public class AbstractKDataType implements KType {
                 return src.toString();
             }
         }
-        return "";
+        return null;
     }
 
     @Override
