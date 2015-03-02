@@ -16,7 +16,7 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
 
     private final HashMap<String, String> backend = new HashMap<String, String>();
     private LocalEventListeners _localEventListeners = new LocalEventListeners();
-    private KDataManager _manager;
+
     public static boolean DEBUG = false;
 
     //TODO implement a lock
@@ -95,49 +95,14 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
 
     @Override
     public void send(KEventMessage[] msgs) {
-        //NO REMOVE MANAGEMENT
-        fireLocalMessages(msgs);
+        //NO REMOTE MANAGEMENT
+        _localEventListeners.dispatch(msgs);
     }
 
     @Override
     public void setManager(KDataManager manager) {
-        this._manager = manager;
+        _localEventListeners.setManager(manager);
     }
 
-    private void fireLocalMessages(KEventMessage[] msgs) {
-        HashMap<Long, KUniverse> universe = new HashMap<Long, KUniverse>();
-        HashMap<String, KView> views = new HashMap<String, KView>();
-        for (int i = 0; i < msgs.length; i++) {
-            KContentKey key = msgs[i].key;
-            if (key.universe() != null && key.time() != null && key.obj() != null) {
-                //this is a KObject key...
-                KCacheObject relevantEntry = _manager.cache().get(key);
-                KCacheObject universeTree = _manager.cache().get(KContentKey.createUniverseTree(key.obj()));
-                if (relevantEntry instanceof KCacheEntry) {
-                    KCacheEntry entry = (KCacheEntry) relevantEntry;
-                    //Ok we have to create the corresponding proxy...
-                    KUniverse universeSelected = null;
-                    universeSelected = universe.get(key.universe());
-                    if (universeSelected == null) {
-                        universeSelected = _manager.model().universe(key.universe());
-                        universe.put(key.universe(), universeSelected);
-                    }
-                    KView tempView = views.get(key.universe() + "/" + key.time());
-                    if (tempView == null) {
-                        tempView = universeSelected.time(key.time());
-                        views.put(key.universe() + "/" + key.time(), tempView);
-                    }
-                    KObject resolved = ((AbstractKView) tempView).createProxy(entry.metaClass, (LongRBTree) universeTree, key.obj());
-                    Meta[] metas = new Meta[msgs[i].meta.length];
-                    for (int j = 0; j < msgs[i].meta.length; j++) {
-                        if (msgs[i].meta[j] >= Index.RESERVED_INDEXES) {
-                            metas[j] = resolved.metaClass().meta(msgs[i].meta[j]);
-                        }
-                    }
-                    _localEventListeners.dispatch(resolved, metas);
-                }
-            }
-        }
-    }
 
 }

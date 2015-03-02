@@ -65,7 +65,7 @@ module org {
                                         if(error != null) {
                                             error.printStackTrace();
                                         } else {
-                                            this.fireLocalMessages(messagesToSendLocally);
+                                            this._localEventListeners.dispatch(messagesToSendLocally);
                                         }
                                     }).bind(this));
                                 }
@@ -144,6 +144,7 @@ module org {
 
                         public setManager(manager: org.kevoree.modeling.api.data.manager.KDataManager): void {
                             this._manager = manager;
+                            this._localEventListeners.setManager(manager);
                         }
 
                         public send(msgs: org.kevoree.modeling.api.msg.KEventMessage[]): void {
@@ -159,40 +160,8 @@ module org {
                                     messagesToFire.push(msgs[i]);
                                 }
                             }
-                            this.fireLocalMessages(messagesToFire);
+                            this._localEventListeners.dispatch(messagesToFire);
                             this._clientConnection.send(JSON.stringify(payload));
-
-                        }
-
-                        private fireLocalMessages(msgs : org.kevoree.modeling.api.msg.KEventMessage[]) {
-
-                            var universe = new java.util.HashMap<java.lang.Long, org.kevoree.modeling.api.KUniverse<any, any, any>>();
-                            var  views = new java.util.HashMap<string, org.kevoree.modeling.api.KView>();
-                            for (var i = 0; i < msgs.length; i++) {
-                                var key = msgs[i].key;
-                                var entry = <org.kevoree.modeling.api.data.cache.KCacheEntry>this._manager.cache().get(key);
-                                //Ok we have to create the corresponding proxy...
-                                var universeSelected : org.kevoree.modeling.api.KUniverse<any, any, any> = null;
-                                var universeTree = <org.kevoree.modeling.api.rbtree.LongRBTree>this._manager.cache().get(org.kevoree.modeling.api.data.cache.KContentKey.createUniverseTree(key.obj()));
-                                universeSelected = universe.get(key.universe());
-                                if (universeSelected == null) {
-                                    universeSelected = this._manager.model().universe(key.universe());
-                                    universe.put(key.universe(), universeSelected);
-                                }
-                                var tempView = views.get(key.universe() + "/" + key.time());
-                                if (tempView == null) {
-                                    tempView = universeSelected.time(key.time());
-                                    views.put(key.universe() + "/" + key.time(), tempView);
-                                }
-                                var resolved = (<org.kevoree.modeling.api.abs.AbstractKView>tempView).createProxy(entry.metaClass, universeTree, key.obj());
-                                var metas = [];
-                                for (var j = 0; j < msgs[i].meta.length; j++) {
-                                    if (msgs[i].meta[j] >= org.kevoree.modeling.api.data.manager.Index.RESERVED_INDEXES) {
-                                        metas[j] = resolved.metaClass().meta(msgs[i].meta[j]);
-                                    }
-                                }
-                                this._localEventListeners.dispatch(resolved, metas);
-                            }
 
                         }
                     }

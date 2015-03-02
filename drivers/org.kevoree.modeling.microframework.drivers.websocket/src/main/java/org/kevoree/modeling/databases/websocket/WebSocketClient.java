@@ -132,7 +132,7 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
             this._manager.reload(keysToReload.toArray(new KContentKey[keysToReload.size()]), new Callback<Throwable>() {
                 @Override
                 public void on(Throwable throwable) {
-                    WebSocketClient.this.fireLocalMessages(messagesToSendLocally.toArray(new KEventMessage[messagesToSendLocally.size()]));
+                    WebSocketClient.this._localEventListeners.dispatch(messagesToSendLocally.toArray(new KEventMessage[messagesToSendLocally.size()]));
                 }
             });
         }
@@ -196,43 +196,14 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
                 messagesToFire.add(msgs[i]);
             }
         }
-        fireLocalMessages(messagesToFire.toArray(new KEventMessage[messagesToFire.size()]));
+        _localEventListeners.dispatch(messagesToFire.toArray(new KEventMessage[messagesToFire.size()]));
         WebSockets.sendText(payload.toString(), _client.getChannel(), null);
     }
 
     @Override
     public void setManager(KDataManager p_manager) {
-        this._manager = p_manager;
-    }
-
-    private void fireLocalMessages(KEventMessage[] msgs) {
-        HashMap<Long, KUniverse> universe = new HashMap<Long, KUniverse>();
-        HashMap<String, KView> views = new HashMap<String, KView>();
-        for (int i = 0; i < msgs.length; i++) {
-            KContentKey key = msgs[i].key;
-            KCacheEntry entry = (KCacheEntry)_manager.cache().get(key);
-            LongRBTree universeTree = (LongRBTree) _manager.cache().get(KContentKey.createUniverseTree(key.obj()));
-            //Ok we have to create the corresponding proxy...
-            KUniverse universeSelected = null;
-            universeSelected = universe.get(key.universe());
-            if (universeSelected == null) {
-                universeSelected = _manager.model().universe(key.universe());
-                universe.put(key.universe(), universeSelected);
-            }
-            KView tempView = views.get(key.universe() + "/" + key.time());
-            if (tempView == null) {
-                tempView = universeSelected.time(key.time());
-                views.put(key.universe() + "/" + key.time(), tempView);
-            }
-            KObject resolved = ((AbstractKView) tempView).createProxy(entry.metaClass, universeTree, key.obj());
-            Meta[] metas = new Meta[msgs[i].meta.length];
-            for (int j = 0; j < msgs[i].meta.length; j++) {
-                if (msgs[i].meta[j] >= Index.RESERVED_INDEXES) {
-                    metas[j] = resolved.metaClass().meta(msgs[i].meta[j]);
-                }
-            }
-            _localEventListeners.dispatch(resolved, metas);
-        }
+        _manager = p_manager;
+        _localEventListeners.setManager(p_manager);
     }
 
 }
