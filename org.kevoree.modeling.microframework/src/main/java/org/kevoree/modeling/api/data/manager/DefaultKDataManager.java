@@ -319,7 +319,6 @@ public class DefaultKDataManager implements KDataManager {
                 return entry;
             } else {
                 KCacheEntry clonedEntry = entry.clone();
-                clonedEntry._dirty = true;
                 if (!needUniverseCopy) {
                     timeTree.insert(origin.now());
                 } else {

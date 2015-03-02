@@ -153,7 +153,7 @@ public class JsonRaw {
                     }
                 }
             }
-            entry._dirty = false;
+            entry.setClean();
             return true;
         }
     }
