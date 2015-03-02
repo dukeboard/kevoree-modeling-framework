@@ -108,7 +108,12 @@ public class DefaultKDataManager implements KDataManager {
         KContentKey key = KContentKey.createGlobalUniverseTree();
         LongRBTree cachedTree = (LongRBTree) _cache.get(key);
         if (cachedTree != null) {
-            return cachedTree.lookup(currentUniverseKey);
+            LongTreeNode lookupNode = cachedTree.lookup(currentUniverseKey);
+            if (lookupNode != null) {
+                return lookupNode.value;
+            } else {
+                return null;
+            }
         } else {
             return null;
         }

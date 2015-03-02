@@ -105,6 +105,25 @@ public class LongRBTree implements KCacheObject {
         resetCache();
     }
 
+    public LongTreeNode lookup(long key) {
+        LongTreeNode n = root;
+        if (n == null) {
+            return null;
+        }
+        while (n != null) {
+            if (key == n.key) {
+                return n;
+            } else {
+                if (key < n.key) {
+                    n = n.getLeft();
+                } else {
+                    n = n.getRight();
+                }
+            }
+        }
+        return n;
+    }
+
     public LongTreeNode previousOrEqual(long key) {
         LongTreeNode cachedVal = tryPreviousOrEqualsCache(key);
         if (cachedVal != null) {
@@ -201,23 +220,6 @@ public class LongRBTree implements KCacheObject {
         return null;
     }
 
-
-    public LongTreeNode previousWhileNot(long key, long until) {
-        LongTreeNode elm = previousOrEqual(key);
-        if (elm.value == until) {
-            return null;
-        } else {
-            if (elm.key == key) {
-                elm = elm.previous();
-            }
-        }
-        if (elm == null || elm.value == until) {
-            return null;
-        } else {
-            return elm;
-        }
-    }
-
     public LongTreeNode next(long key) {
         LongTreeNode p = root;
         if (p == null) {
@@ -241,22 +243,6 @@ public class LongRBTree implements KCacheObject {
             }
         }
         return null;
-    }
-
-    public LongTreeNode nextWhileNot(long key, long until) {
-        LongTreeNode elm = nextOrEqual(key);
-        if (elm.value == until) {
-            return null;
-        } else {
-            if (elm.key == key) {
-                elm = elm.next();
-            }
-        }
-        if (elm == null || elm.value == until) {
-            return null;
-        } else {
-            return elm;
-        }
     }
 
     public LongTreeNode first() {
@@ -287,72 +273,6 @@ public class LongRBTree implements KCacheObject {
             }
         }
         return null;
-    }
-
-    public LongTreeNode firstWhileNot(long key, long until) {
-        LongTreeNode elm = previousOrEqual(key);
-        if (elm == null) {
-            return null;
-        } else if (elm.value == until) {
-            return null;
-        }
-        LongTreeNode prev = null;
-        do {
-            prev = elm.previous();
-            if (prev == null || prev.value == until) {
-                return elm;
-            } else {
-                elm = prev;
-            }
-        } while (elm != null);
-        return prev;
-    }
-
-    public LongTreeNode lastWhileNot(long key, long until) {
-        LongTreeNode elm = previousOrEqual(key);
-        if (elm == null) {
-            return null;
-        } else if (elm.value == until) {
-            return null;
-        }
-        LongTreeNode next;
-        do {
-            next = elm.next();
-            if (next == null || next.value == until) {
-                return elm;
-            } else {
-                elm = next;
-            }
-        } while (elm != null);
-        return next;
-    }
-
-    private LongTreeNode lookupNode(long key) {
-        LongTreeNode n = root;
-        if (n == null) {
-            return null;
-        }
-        while (n != null) {
-            if (key == n.key) {
-                return n;
-            } else {
-                if (key < n.key) {
-                    n = n.getLeft();
-                } else {
-                    n = n.getRight();
-                }
-            }
-        }
-        return n;
-    }
-
-    public Long lookup(long key) {
-        LongTreeNode n = lookupNode(key);
-        if (n == null) {
-            return null;
-        } else {
-            return n.value;
-        }
     }
 
     private void rotateLeft(LongTreeNode n) {
@@ -482,7 +402,7 @@ public class LongRBTree implements KCacheObject {
     }
 
     public void delete(long key) {
-        LongTreeNode n = lookupNode(key);
+        LongTreeNode n = lookup(key);
         if (n == null) {
             return;
         } else {

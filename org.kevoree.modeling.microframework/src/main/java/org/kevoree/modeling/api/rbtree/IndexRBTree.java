@@ -254,7 +254,8 @@ public class IndexRBTree implements KCacheObject {
         return null;
     }
 
-    private TreeNode lookupNode(long key) {
+    /* Time never use direct lookup, sadly for performance, anyway this method is private to ensure the correctness of caching mechanism */
+    private TreeNode lookup(long key) {
         TreeNode n = root;
         if (n == null) {
             return null;
@@ -399,7 +400,7 @@ public class IndexRBTree implements KCacheObject {
     }
 
     public void delete(long key) {
-        TreeNode n = lookupNode(key);
+        TreeNode n = lookup(key);
         if (n == null) {
             return;
         } else {

@@ -32,8 +32,8 @@ public class LongRBTreeTest {
         treeBis.unserialize(null, tree.serialize(), null);
         Assert.assertEquals(tree.size(), treeBis.size());
         for (int i = 0; i < tree.size(); i++) {
-            Long resolved = tree.lookup(i);
-            Long resolvedBis = treeBis.lookup(i);
+            Long resolved = tree.lookup(i).value;
+            Long resolvedBis = treeBis.lookup(i).value;
             Assert.assertEquals(resolved, resolvedBis);
         }
     }
