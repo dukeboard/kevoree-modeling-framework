@@ -56,18 +56,17 @@ module org {
                                             console.log("MessageType not supported:" + msg.type())
                                         }
                                     }
-                                    if(messagesToSendLocally.length > 0) {
-                                        var self = this;
-                                        this._manager.reload(keysToReload, function(objects) {
-                                            var messagesToFire = new java.util.HashMap<org.kevoree.modeling.api.msg.KEventMessage, org.kevoree.modeling.api.data.cache.KCacheEntry>();
-                                            for (var i = 0; i < objects.length; i++) {
-                                                if (objects[i] instanceof org.kevoree.modeling.api.data.cache.KCacheEntry) {
-                                                    messagesToFire.put(messagesToSendLocally[i], <org.kevoree.modeling.api.data.cache.KCacheEntry>objects[i]);
-                                                }
+                                }
+                                if(messagesToSendLocally.length > 0) {
+                                    this._manager.reload(keysToReload, (function(objects) {
+                                        var messagesToFire = new java.util.HashMap<org.kevoree.modeling.api.msg.KEventMessage, org.kevoree.modeling.api.data.cache.KCacheEntry>();
+                                        for (var i = 0; i < objects.length; i++) {
+                                            if (objects[i] instanceof org.kevoree.modeling.api.data.cache.KCacheEntry) {
+                                                messagesToFire.put(messagesToSendLocally[i], <org.kevoree.modeling.api.data.cache.KCacheEntry>objects[i]);
                                             }
-                                            self.fireLocalMessages(messagesToFire.keySet().toArray([]), messagesToFire.values().toArray([]));
-                                        });
-                                    }
+                                        }
+                                        this.fireLocalMessages(messagesToFire.keySet().toArray([]), messagesToFire.values().toArray([]));
+                                    }).bind(this));
                                 }
                             };
                             this._clientConnection.onerror = function (error) {
@@ -155,7 +154,7 @@ module org {
                             for(var i = 0; i < msgs.length; i++) {
                                 payload.push(msgs[i].json());
                                 var key = msgs[i].key;
-                                if (key.part1() != null && key.part2() != null && key.part3() != null) {
+                                if (key.universe() != null && key.time() != null && key.obj() != null) {
                                     //this is a KObject key...
                                     var relevantEntry = this._manager.cache().get(key);
                                     if (relevantEntry instanceof org.kevoree.modeling.api.data.cache.KCacheEntry) {
@@ -178,17 +177,18 @@ module org {
                                 var entry = cacheEntries[i];
                                 //Ok we have to create the corresponding proxy...
                                 var universeSelected : org.kevoree.modeling.api.KUniverse<any, any, any> = null;
-                                universeSelected = universe.get(key.part1());
+                                var universeTree = <org.kevoree.modeling.api.rbtree.LongRBTree>this._manager.cache().get(org.kevoree.modeling.api.data.cache.KContentKey.createUniverseTree(key.obj()));
+                                universeSelected = universe.get(key.universe());
                                 if (universeSelected == null) {
-                                    universeSelected = this._manager.model().universe(key.part1());
-                                    universe.put(key.part1(), universeSelected);
+                                    universeSelected = this._manager.model().universe(key.universe());
+                                    universe.put(key.universe(), universeSelected);
                                 }
-                                var tempView = views.get(key.part1() + "/" + key.part2());
+                                var tempView = views.get(key.universe() + "/" + key.time());
                                 if (tempView == null) {
-                                    tempView = universeSelected.time(key.part2());
-                                    views.put(key.part1() + "/" + key.part2(), tempView);
+                                    tempView = universeSelected.time(key.time());
+                                    views.put(key.universe() + "/" + key.time(), tempView);
                                 }
-                                var resolved = (<org.kevoree.modeling.api.abs.AbstractKView>tempView).createProxy(entry.metaClass, entry.universeTree, key.part3());
+                                var resolved = (<org.kevoree.modeling.api.abs.AbstractKView>tempView).createProxy(entry.metaClass, universeTree, key.obj());
                                 var metas = [];
                                 for (var j = 0; j < msgs[i].meta.length; j++) {
                                     if (msgs[i].meta[j] >= org.kevoree.modeling.api.data.manager.Index.RESERVED_INDEXES) {

@@ -30,6 +30,7 @@ import org.kevoree.modeling.api.msg.KMessage;
 import org.kevoree.modeling.api.msg.KMessageLoader;
 import org.kevoree.modeling.api.msg.KPutRequest;
 import org.kevoree.modeling.api.msg.KPutResult;
+import org.kevoree.modeling.api.rbtree.LongRBTree;
 import org.kevoree.modeling.api.util.LocalEventListeners;
 
 import java.io.IOException;
@@ -93,13 +94,14 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
         ArrayList<KEventMessage> _events = null;
         JsonArray payload = null;
 
+        ArrayList<KEventMessage> messagesToSendLocally = new ArrayList<>();
+        ArrayList<KContentKey> keysToReload = new ArrayList<>();
+
         // parse
         JsonArray messages = JsonArray.readFrom(data);
         for(int i = 0; i < messages.size(); i++) {
             String rawMessage = messages.get(i).asString();
             KMessage msg = KMessageLoader.load(rawMessage);
-            ArrayList<KEventMessage> messagesToSendLocally = new ArrayList<>();
-            ArrayList<KContentKey> keysToReload = new ArrayList<>();
             switch (msg.type()) {
                 case KMessageLoader.GET_RES_TYPE:{
                     KGetResult getResult = (KGetResult) msg;
@@ -121,20 +123,21 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
                     System.err.println("MessageType not supported:" + msg.type());
                 }
             }
-            if(messagesToSendLocally.size() > 0) {
-                this._manager.reload(keysToReload.toArray(new KContentKey[keysToReload.size()]), new Callback<Object[]>() {
-                    @Override
-                    public void on(Object[] objects) {
-                        HashMap<KEventMessage, KCacheEntry> messagesToFire = new HashMap<>();
-                        for (int i = 0; i < objects.length; i++) {
-                            if (objects[i] instanceof KCacheEntry) {
-                                messagesToFire.put(messagesToSendLocally.get(i), (KCacheEntry) objects[i]);
-                            }
+        }
+
+        if(messagesToSendLocally.size() > 0) {
+            this._manager.reload(keysToReload.toArray(new KContentKey[keysToReload.size()]), new Callback<Object[]>() {
+                @Override
+                public void on(Object[] objects) {
+                    HashMap<KEventMessage, KCacheEntry> messagesToFire = new HashMap<>();
+                    for (int i = 0; i < objects.length; i++) {
+                        if (objects[i] instanceof KCacheEntry) {
+                            messagesToFire.put(messagesToSendLocally.get(i), (KCacheEntry) objects[i]);
                         }
-                        WebSocketClient.this.fireLocalMessages(messagesToFire.keySet().toArray(new KEventMessage[messagesToFire.size()]), messagesToFire.values().toArray(new KCacheEntry[messagesToFire.size()]));
                     }
-                });
-            }
+                    WebSocketClient.this.fireLocalMessages(messagesToFire.keySet().toArray(new KEventMessage[messagesToFire.size()]), messagesToFire.values().toArray(new KCacheEntry[messagesToFire.size()]));
+                }
+            });
         }
 
     }
@@ -214,6 +217,7 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
         for (int i = 0; i < msgs.length; i++) {
             KContentKey key = msgs[i].key;
             KCacheEntry entry = cacheEntries[i];
+            LongRBTree universeTree = (LongRBTree) _manager.cache().get(KContentKey.createUniverseTree(key.obj()));
             //Ok we have to create the corresponding proxy...
             KUniverse universeSelected = null;
             universeSelected = universe.get(key.universe());
@@ -226,7 +230,7 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
                 tempView = universeSelected.time(key.time());
                 views.put(key.universe() + "/" + key.time(), tempView);
             }
-            KObject resolved = ((AbstractKView) tempView).createProxy(entry.metaClass, entry.universeTree, key.obj());
+            KObject resolved = ((AbstractKView) tempView).createProxy(entry.metaClass, universeTree, key.obj());
             Meta[] metas = new Meta[msgs[i].meta.length];
             for (int j = 0; j < msgs[i].meta.length; j++) {
                 if (msgs[i].meta[j] >= Index.RESERVED_INDEXES) {
