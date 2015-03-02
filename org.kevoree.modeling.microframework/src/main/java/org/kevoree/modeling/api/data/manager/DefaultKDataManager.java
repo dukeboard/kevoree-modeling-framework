@@ -164,7 +164,9 @@ public class DefaultKDataManager implements KDataManager {
                 if (throwable == null) {
                     _db.send(notificationMessages);
                 }
-                callback.on(throwable);
+                if (callback != null) {
+                    callback.on(throwable);
+                }
             }
         });
     }
@@ -307,7 +309,7 @@ public class DefaultKDataManager implements KDataManager {
                 entry.clearRaw();
                 return clonedEntry;
             }
-            if(entry.sizeRaw() == 0){
+            if (entry.sizeRaw() == 0) {
                 return null;
             }
             if (!needTimeCopy && !needUniverseCopy) {

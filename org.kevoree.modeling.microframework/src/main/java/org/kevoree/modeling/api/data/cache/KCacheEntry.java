@@ -31,7 +31,7 @@ public class KCacheEntry implements KCacheObject {
     public void clearRaw() {
         this.raw = null;
     }
-
+    
     @Override
     public boolean isDirty() {
         return _dirty;

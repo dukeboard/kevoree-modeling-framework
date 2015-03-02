@@ -583,11 +583,13 @@ public abstract class AbstractKObject implements KObject {
                     for (int i = 0; i < resolvedArr.length; i++) {
                         final KObject resolved = resolvedArr[i];
                         VisitResult result = VisitResult.CONTINUE;
-                        if (visitor != null && (visited == null || !visited.contains(resolved.uuid()))) {
-                            result = visitor.visit(resolved);
-                        }
-                        if (visited != null) {
-                            visited.add(resolved.uuid());
+                        if(resolved != null){
+                            if (visitor != null && (visited == null || !visited.contains(resolved.uuid()))) {
+                                result = visitor.visit(resolved);
+                            }
+                            if (visited != null) {
+                                visited.add(resolved.uuid());
+                            }
                         }
                         if (result != null && result.equals(VisitResult.STOP)) {
                             if (Checker.isDefined(end)) {
