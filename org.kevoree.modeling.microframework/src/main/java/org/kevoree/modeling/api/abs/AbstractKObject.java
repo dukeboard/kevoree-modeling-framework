@@ -411,12 +411,11 @@ public abstract class AbstractKObject implements KObject {
                 }
             } else {
                 KCacheEntry payload = view().universe().model().manager().entry(this, AccessMode.WRITE);
-                Object previous = payload.get(metaReference.index());
+                long[] previous = payload.getRef(metaReference.index());
                 if (previous != null) {
                     try {
-                        long[] previousList = (long[]) previous;
-                        previousList = ArrayUtils.remove(previousList, param.uuid());
-                        payload.set(metaReference.index(), previousList);
+                        previous = ArrayUtils.remove(previous, param.uuid());
+                        payload.set(metaReference.index(), previous);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

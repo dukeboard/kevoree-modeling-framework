@@ -696,7 +696,7 @@ var org;
                                         }
                                         else {
                                             var payload = this.view().universe().model().manager().entry(this, org.kevoree.modeling.api.data.manager.AccessMode.WRITE);
-                                            var previous = payload.get(metaReference.index());
+                                            var previous = payload.getRef(metaReference.index());
                                             if (previous != null) {
                                                 this.internal_mutate(org.kevoree.modeling.api.KActionType.REMOVE, metaReference, null, setOpposite, inDelete);
                                             }
@@ -720,8 +720,10 @@ var org;
                                             var self = this;
                                             if (metaReference.opposite() != null && setOpposite) {
                                                 if (previous != null) {
-                                                    this.view().lookup(previous).then(function (resolved) {
-                                                        resolved.internal_mutate(org.kevoree.modeling.api.KActionType.REMOVE, metaReference.opposite(), self, false, inDelete);
+                                                    this.view().internalLookupAll(previous, function (kObjects) {
+                                                        for (var i = 0; i < kObjects.length; i++) {
+                                                            kObjects[i].internal_mutate(org.kevoree.modeling.api.KActionType.REMOVE, metaReference.opposite(), self, false, inDelete);
+                                                        }
                                                     });
                                                 }
                                                 param.internal_mutate(org.kevoree.modeling.api.KActionType.ADD, metaReference.opposite(), this, false, inDelete);
@@ -764,12 +766,11 @@ var org;
                                         }
                                         else {
                                             var payload = this.view().universe().model().manager().entry(this, org.kevoree.modeling.api.data.manager.AccessMode.WRITE);
-                                            var previous = payload.get(metaReference.index());
+                                            var previous = payload.getRef(metaReference.index());
                                             if (previous != null) {
                                                 try {
-                                                    var previousList = previous;
-                                                    previousList = org.kevoree.modeling.api.util.ArrayUtils.remove(previousList, param.uuid());
-                                                    payload.set(metaReference.index(), previousList);
+                                                    previous = org.kevoree.modeling.api.util.ArrayUtils.remove(previous, param.uuid());
+                                                    payload.set(metaReference.index(), previous);
                                                 }
                                                 catch ($ex$) {
                                                     if ($ex$ instanceof java.lang.Exception) {
@@ -10492,178 +10493,15 @@ var org;
                     util.LocalEventListeners = LocalEventListeners;
                     var LongHashMap = (function () {
                         function LongHashMap() {
-                            this.modCount = 0;
-                            this.reuseAfterDelete = null;
-                            this.elementCount = 0;
-                            this.elementData = this.newElementArray(LongHashMap.DEFAULT_SIZE == 0 ? 1 : LongHashMap.DEFAULT_SIZE);
-                            this.loadFactor = new number(0.75);
-                            this.computeMaxSize();
                         }
-                        LongHashMap.prototype.newElementArray = function (s) {
-                            return new Array();
-                        };
-                        LongHashMap.prototype.clear = function () {
-                            if (this.elementCount > 0) {
-                                this.elementCount = 0;
-                                java.util.java.util.Arrays.fill(this.elementData, null);
-                                this.modCount++;
-                            }
-                        };
-                        LongHashMap.prototype.computeMaxSize = function () {
-                            this.threshold = (this.elementData.length * this.loadFactor);
-                        };
-                        LongHashMap.prototype.containsKey = function (key) {
-                            var hash = (key);
-                            var index = (hash & 0x7FFFFFFF) % this.elementData.length;
-                            var m = this.findNonNullKeyEntry(key, index, hash);
-                            return m != null;
-                        };
-                        LongHashMap.prototype.get = function (key) {
-                            var m;
-                            var hash = (key);
-                            var index = (hash & 0x7FFFFFFF) % this.elementData.length;
-                            m = this.findNonNullKeyEntry(key, index, hash);
-                            if (m != null) {
-                                return m.value;
-                            }
-                            return null;
-                        };
-                        LongHashMap.prototype.findNonNullKeyEntry = function (key, index, keyHash) {
-                            var m = this.elementData[index];
-                            while (m != null) {
-                                if (key == m.key) {
-                                    return m;
-                                }
-                                m = m.next;
-                            }
-                            return null;
-                        };
-                        LongHashMap.prototype.put = function (key, value) {
-                            var entry;
-                            var hash = (key);
-                            var index = (hash & 0x7FFFFFFF) % this.elementData.length;
-                            entry = this.findNonNullKeyEntry(key, index, hash);
-                            if (entry == null) {
-                                this.modCount++;
-                                if (++this.elementCount > this.threshold) {
-                                    this.rehash();
-                                    index = (hash & 0x7FFFFFFF) % this.elementData.length;
-                                }
-                                entry = this.createHashedEntry(key, index);
-                            }
-                            var result = entry.value;
-                            entry.value = value;
-                            return result;
-                        };
-                        LongHashMap.prototype.createEntry = function (key, index, value) {
-                            var entry = this.reuseAfterDelete;
-                            if (entry == null) {
-                                entry = new org.kevoree.modeling.api.util.LongHashMap.Entry(key, value);
-                            }
-                            else {
-                                this.reuseAfterDelete = null;
-                                entry.key = key;
-                                entry.value = value;
-                            }
-                            entry.next = this.elementData[index];
-                            this.elementData[index] = entry;
-                            return entry;
-                        };
-                        LongHashMap.prototype.createHashedEntry = function (key, index) {
-                            var entry = this.reuseAfterDelete;
-                            if (entry == null) {
-                                entry = new org.kevoree.modeling.api.util.LongHashMap.Entry(key, null);
-                            }
-                            else {
-                                this.reuseAfterDelete = null;
-                                entry.key = key;
-                                entry.value = null;
-                            }
-                            entry.next = this.elementData[index];
-                            this.elementData[index] = entry;
-                            return entry;
-                        };
-                        LongHashMap.prototype.rehash = function (capacity) {
-                            var length = (capacity == 0 ? 1 : capacity << 1);
-                            var newData = this.newElementArray(length);
-                            for (var i = 0; i < this.elementData.length; i++) {
-                                var entry = this.elementData[i];
-                                while (entry != null) {
-                                    var index = (entry.key & 0x7FFFFFFF) % length;
-                                    var next = entry.next;
-                                    entry.next = newData[index];
-                                    newData[index] = entry;
-                                    entry = next;
-                                }
-                            }
-                            this.elementData = newData;
-                            this.computeMaxSize();
-                        };
-                        LongHashMap.prototype.rehash = function () {
-                            this.rehash(this.elementData.length);
-                        };
-                        LongHashMap.prototype.remove = function (key) {
-                            var entry = this.removeEntry(key);
-                            if (entry == null) {
-                                return null;
-                            }
-                            var ret = entry.value;
-                            entry.value = null;
-                            entry.key = java.lang.Long.MIN_VALUE;
-                            this.reuseAfterDelete = entry;
-                            return ret;
-                        };
-                        LongHashMap.prototype.removeEntry = function (key) {
-                            var index = 0;
-                            var entry;
-                            var last = null;
-                            var hash = (key);
-                            index = (hash & 0x7FFFFFFF) % this.elementData.length;
-                            entry = this.elementData[index];
-                            while (entry != null && !(key == entry.key)) {
-                                last = entry;
-                                entry = entry.next;
-                            }
-                            if (entry == null) {
-                                return null;
-                            }
-                            if (last == null) {
-                                this.elementData[index] = entry.next;
-                            }
-                            else {
-                                last.next = entry.next;
-                            }
-                            this.modCount++;
-                            this.elementCount--;
-                            return entry;
-                        };
-                        LongHashMap.prototype.size = function () {
-                            return this.elementCount;
-                        };
-                        LongHashMap.DEFAULT_SIZE = 16;
                         return LongHashMap;
                     })();
                     util.LongHashMap = LongHashMap;
                     var LongHashMap;
                     (function (LongHashMap) {
                         var Entry = (function () {
-                            function Entry(theKey, theValue) {
-                                this.key = theKey;
-                                this.value = theValue;
+                            function Entry() {
                             }
-                            Entry.prototype.equals = function (object) {
-                                if (this == object) {
-                                    return true;
-                                }
-                                if (object instanceof org.kevoree.modeling.api.util.LongHashMap.Entry) {
-                                    var entry = object;
-                                    return (this.key == entry.key) && (this.value == null ? entry.value == null : this.value.equals(entry.value));
-                                }
-                                return false;
-                            };
-                            Entry.prototype.hashCode = function () {
-                                return (this.key) ^ (this.value == null ? 0 : this.value.hashCode());
-                            };
                             return Entry;
                         })();
                         LongHashMap.Entry = Entry;

@@ -2,6 +2,13 @@
 package org.kevoree.modeling.api.util;
 
 /* From an original idea https://code.google.com/p/jdbm2/ */
+
+/**
+ * @native:ts
+ * {@code
+ *
+ * }
+ */
 public class LongHashMap<V> {
 
     protected int elementCount;
@@ -18,6 +25,12 @@ public class LongHashMap<V> {
 
     transient Entry<V> reuseAfterDelete = null;
 
+    /**
+     * @native:ts
+     * {@code
+     *
+     * }
+     */
     static final class Entry<V> {
 
         Entry<V> next;
@@ -118,21 +131,6 @@ public class LongHashMap<V> {
         V result = entry.value;
         entry.value = value;
         return result;
-    }
-
-    Entry<V> createEntry(long key, int index, V value) {
-        Entry<V> entry = reuseAfterDelete;
-        if (entry == null) {
-            entry = new Entry<V>(key, value);
-        } else {
-            reuseAfterDelete = null;
-            entry.key = key;
-            entry.value = value;
-        }
-
-        entry.next = elementData[index];
-        elementData[index] = entry;
-        return entry;
     }
 
     Entry<V> createHashedEntry(long key, int index) {

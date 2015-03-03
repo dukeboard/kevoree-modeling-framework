@@ -9,6 +9,12 @@ import org.kevoree.modeling.api.util.LongHashMap;
  */
 public class LongMapTest {
 
+    /**
+     * @native:ts
+     * {@code
+     *
+     * }
+     */
     @Test
     public void test(){
         LongHashMap<String> map = new LongHashMap<String>();
