@@ -118,15 +118,20 @@ public class JsonModelLoader {
                                 }
                             } else if (metaKey.equals(JsonModelSerializer.PARENT_META)) {
                                 try {
-                                    Long raw_k = Long.parseLong(payload_content.toString());
-                                    if (mappedKeys.containsKey(raw_k)) {
-                                        raw_k = mappedKeys.get(raw_k);
+                                    ArrayList<String> parentKeys = (ArrayList<String>) payload_content;
+                                    for (int l = 0; l < parentKeys.size(); l++) {
+                                        Long raw_k = Long.parseLong(parentKeys.get(l));
+                                        if (mappedKeys.containsKey(raw_k)) {
+                                            raw_k = mappedKeys.get(raw_k);
+                                        }
+                                        if (raw_k != null) {
+                                            long[] parentKey = new long[1];
+                                            parentKey[0] = raw_k;
+                                            raw.set(Index.PARENT_INDEX, parentKey);
+                                        }
                                     }
-                                    if (raw_k != null) {
-                                        long[] parentKey = new long[1];
-                                        parentKey[0] = raw_k;
-                                        raw.set(Index.PARENT_INDEX, parentKey);
-                                    }
+
+
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }

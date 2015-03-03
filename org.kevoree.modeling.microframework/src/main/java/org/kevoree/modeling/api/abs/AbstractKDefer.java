@@ -1,6 +1,10 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KCurrentDefer;
+import org.kevoree.modeling.api.KDefer;
+import org.kevoree.modeling.api.KDeferBlock;
+import org.kevoree.modeling.api.KJob;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,6 +14,7 @@ import java.util.Set;
 /**
  * Created by duke on 20/01/15.
  */
+//TODO OPTIMIZE THIS CLASS
 public class AbstractKDefer<A> implements KCurrentDefer<A> {
 
     private String _name = null;
