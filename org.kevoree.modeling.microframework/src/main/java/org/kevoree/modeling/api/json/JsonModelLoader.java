@@ -122,7 +122,11 @@ public class JsonModelLoader {
                                     if (mappedKeys.containsKey(raw_k)) {
                                         raw_k = mappedKeys.get(raw_k);
                                     }
-                                    raw.set(Index.PARENT_INDEX, raw_k);
+                                    if (raw_k != null) {
+                                        long[] parentKey = new long[1];
+                                        parentKey[0] = raw_k;
+                                        raw.set(Index.PARENT_INDEX, parentKey);
+                                    }
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }

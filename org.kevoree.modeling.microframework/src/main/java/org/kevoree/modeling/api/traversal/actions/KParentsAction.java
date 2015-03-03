@@ -41,12 +41,10 @@ public class KParentsAction implements KTraversalAction {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
                     KCacheEntry raw = currentView.universe().model().manager().entry(loopObj, AccessMode.READ);
-                    Object resolved = raw.get(Index.PARENT_INDEX);
+                    long[] resolved = raw.getRef(Index.PARENT_INDEX);
                     if (resolved != null) {
-                        try {
-                            nextIds.add((long) resolved);
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                        for (int j = 0; j < resolved.length; j++) {
+                            nextIds.add(resolved[j]);
                         }
                     }
                 } catch (Exception e) {
@@ -54,7 +52,7 @@ public class KParentsAction implements KTraversalAction {
                 }
             }
             //call
-            currentView.internalLookupAll(ArrayUtils.flatSet(nextIds),new Callback<KObject[]>() {
+            currentView.internalLookupAll(ArrayUtils.flatSet(nextIds), new Callback<KObject[]>() {
                 @Override
                 public void on(KObject[] kObjects) {
                     _next.execute(kObjects);

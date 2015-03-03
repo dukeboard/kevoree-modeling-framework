@@ -114,11 +114,13 @@ public abstract class AbstractKObject implements KObject {
     @Override
     public Long parentUuid() {
         KCacheEntry raw = _view.universe().model().manager().entry(this, AccessMode.READ);
-        if (raw == null) {
-            return null;
-        } else {
-            return (Long) raw.get(Index.PARENT_INDEX);
+        if (raw != null) {
+            long[] parentKey = raw.getRef(Index.PARENT_INDEX);
+            if (parentKey != null && parentKey.length > 0) {
+                return parentKey[0];
+            }
         }
+        return null;
     }
 
     @Override
@@ -704,7 +706,13 @@ public abstract class AbstractKObject implements KObject {
     public void set_parent(Long p_parentKID, MetaReference p_metaReference) {
         KCacheEntry raw = _view.universe().model().manager().entry(this, AccessMode.WRITE);
         if (raw != null) {
-            raw.set(Index.PARENT_INDEX, p_parentKID);
+            if(p_parentKID!=null){
+                long[] parentKey = new long[1];
+                parentKey[0] = p_parentKID;
+                raw.set(Index.PARENT_INDEX, parentKey);
+            } else {
+                raw.set(Index.PARENT_INDEX, null);
+            }
             raw.set(Index.REF_IN_PARENT_INDEX, p_metaReference);
         }
     }

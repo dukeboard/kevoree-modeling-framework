@@ -109,7 +109,7 @@ public class JSONSaveTest {
                 "\t{\n" +
                 "\t\t\"@meta\": \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
                 "\t\t\"@uuid\": \"2\",\n" +
-                "\t\t\"@parent\": \"1\",\n" +
+                "\t\t\"@parent\": [\"1\"],\n" +
                 "\t\t\"@ref\": \"org.kevoree.modeling.microframework.test.cloud.Node@children\",\n" +
                 "\t\t\"@inbounds\": [\"1\"],\n" +
                 "\t\t\"name\": \"n1\"\n" +
@@ -117,7 +117,7 @@ public class JSONSaveTest {
                 "\t{\n" +
                 "\t\t\"@meta\": \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
                 "\t\t\"@uuid\": \"3\",\n" +
-                "\t\t\"@parent\": \"1\",\n" +
+                "\t\t\"@parent\": [\"1\"],\n" +
                 "\t\t\"@ref\": \"org.kevoree.modeling.microframework.test.cloud.Node@children\",\n" +
                 "\t\t\"@inbounds\": [\"1\"],\n" +
                 "\t\t\"name\": \"n2\"\n" +

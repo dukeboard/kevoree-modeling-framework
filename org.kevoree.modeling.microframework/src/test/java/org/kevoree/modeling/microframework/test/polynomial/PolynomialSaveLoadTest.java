@@ -90,8 +90,7 @@ public class PolynomialSaveLoadTest {
         }
         //TODO reinsert following test
         //Assert.assertEquals(element.timeTree().size(), 2);
-
-
+        
         model.save().then(new Callback<Throwable>() {
             @Override
             public void on(Throwable aBoolean) {

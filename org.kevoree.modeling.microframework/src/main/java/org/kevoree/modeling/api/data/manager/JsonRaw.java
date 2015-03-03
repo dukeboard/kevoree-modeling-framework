@@ -90,7 +90,12 @@ public class JsonRaw {
                     }
                 } else if (metaKeys[i].equals(JsonModelSerializer.PARENT_META)) {
                     try {
-                        entry.set(Index.PARENT_INDEX, Long.parseLong(content.get(metaKeys[i]).toString()));
+                        ArrayList<String> parentKeyStrings = (ArrayList<String>) content.get(metaKeys[i]);
+                        long[] parentKey = new long[1];
+                        for (int k = 0; k < parentKeyStrings.size(); k++) {
+                            parentKey[0] = Long.parseLong(parentKeyStrings.get(k));
+                        }
+                        entry.set(Index.PARENT_INDEX, parentKey);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -156,13 +161,24 @@ public class JsonRaw {
             builder.append("\t\t\"" + JsonModelSerializer.KEY_ROOT + "\": \"");
             builder.append("true");
         }
-        if (raw.get(Index.PARENT_INDEX) != null) {
+        long[] parentKey = raw.getRef(Index.PARENT_INDEX);
+        if (parentKey != null) {
             builder.append("\",\n");
-            builder.append("\t\t\"" + JsonModelSerializer.PARENT_META + "\": \"");
-            builder.append(raw.get(Index.PARENT_INDEX).toString());
+            builder.append("\t\t\"" + JsonModelSerializer.PARENT_META + "\": [");
+            boolean isFirst = true;
+            for (int j = 0; j < parentKey.length; j++) {
+                if (!isFirst) {
+                    builder.append(",");
+                }
+                builder.append("\"");
+                builder.append(parentKey[j]);
+                builder.append("\"");
+                isFirst = false;
+            }
+            builder.append("]");
         }
         if (raw.get(Index.REF_IN_PARENT_INDEX) != null) {
-            builder.append("\",\n");
+            builder.append(",\n");
             builder.append("\t\t\"" + JsonModelSerializer.PARENT_REF_META + "\": \"");
             try {
                 builder.append(((MetaReference) raw.get(Index.REF_IN_PARENT_INDEX)).origin().metaName());
