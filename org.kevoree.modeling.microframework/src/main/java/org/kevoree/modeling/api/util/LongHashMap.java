@@ -3,10 +3,11 @@ package org.kevoree.modeling.api.util;
 
 /* From an original idea https://code.google.com/p/jdbm2/ */
 
+import org.kevoree.modeling.api.Callback;
+
 /**
- * @native:ts
- * {@code
- *
+ * @native:ts {@code
+ * 
  * }
  */
 public class LongHashMap<V> {
@@ -26,15 +27,12 @@ public class LongHashMap<V> {
     transient Entry<V> reuseAfterDelete = null;
 
     /**
-     * @native:ts
-     * {@code
-     *
+     * @native:ts {@code
+     * <p>
      * }
      */
     static final class Entry<V> {
-
         Entry<V> next;
-
         long key;
         V value;
 
@@ -113,6 +111,14 @@ public class LongHashMap<V> {
             m = m.next;
         }
         return null;
+    }
+
+    public void values(Callback<V> callback) {
+        for (int i = 0; i < elementData.length; i++) {
+            if (elementData[i] != null) {
+                callback.on(elementData[i].value);
+            }
+        }
     }
 
     public V put(long key, V value) {

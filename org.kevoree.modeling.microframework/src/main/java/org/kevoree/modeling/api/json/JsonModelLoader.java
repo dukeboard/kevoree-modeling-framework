@@ -177,7 +177,6 @@ public class JsonModelLoader {
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
-
                                     }
                                 }
                             }
