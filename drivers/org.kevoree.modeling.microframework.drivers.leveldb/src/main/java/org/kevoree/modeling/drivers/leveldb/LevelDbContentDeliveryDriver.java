@@ -153,12 +153,17 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
 
     @Override
     public void send(KEventMessage[] msgs) {
+        //No Remote send since LevelDB do not provide message brokering
+        localEventListeners.dispatch(msgs);
+    }
 
+    @Override
+    public void sendOperation(KEventMessage operationMessage) {
+        //NOOP since LevelDB do not provide message brokering
     }
 
     @Override
     public void setManager(KDataManager manager) {
-
     }
 
 }

@@ -48,6 +48,10 @@ module org {
                                             var atomicGetResult = <org.kevoree.modeling.api.msg.KAtomicGetResult>msg;
                                             this._atomicGetCallbacks.remove(atomicGetResult.id)(atomicGetResult.value, null);
                                         }break;
+                                        case org.kevoree.modeling.api.msg.KMessageLoader.OPERATION_CALL_TYPE:
+                                        case org.kevoree.modeling.api.msg.KMessageLoader.OPERATION_RESULT_TYPE:{
+                                            this._manager.operationManager().operationEventReceived(<org.kevoree.modeling.api.msg.KEventMessage>msg);
+                                        }break;
                                         case org.kevoree.modeling.api.msg.KMessageLoader.EVENT_TYPE:{
                                             var key = (<org.kevoree.modeling.api.msg.KEventMessage>msg).key;
                                             keysToReload.push(key);
@@ -157,12 +161,21 @@ module org {
                                 payload.push(msgs[i].json());
                                 var key = msgs[i].key;
                                 if(key.segment() == org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_RAW) {
-                                    messagesToFire.push(msgs[i]);
+                                    if(msgs[i].type() != org.kevoree.modeling.api.msg.KMessageLoader.OPERATION_CALL_TYPE ||
+                                        msgs[i].type() != org.kevoree.modeling.api.msg.KMessageLoader.OPERATION_RESULT_TYPE)
+                                        messagesToFire.push(msgs[i]);
                                 }
                             }
                             this._localEventListeners.dispatch(messagesToFire);
                             this._clientConnection.send(JSON.stringify(payload));
 
+                        }
+
+                        public sendOperation(operation: org.kevoree.modeling.api.msg.KEventMessage): void {
+                            //Send to remote
+                            var payload = [];
+                            payload.push(operation.json());
+                            this._clientConnection.send(JSON.stringify(payload));
                         }
                     }
                 }

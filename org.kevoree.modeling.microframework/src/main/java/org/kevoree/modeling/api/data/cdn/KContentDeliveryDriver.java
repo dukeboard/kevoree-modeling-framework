@@ -36,6 +36,8 @@ public interface KContentDeliveryDriver {
 
     void send(KEventMessage[] msgs);
 
+    void sendOperation(KEventMessage operationMessage);
+
     void setManager(KDataManager manager);
 
 }

@@ -1,14 +1,16 @@
 package org.kevoree.modeling.api.util;
 
 import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KOperation;
 import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.meta.MetaOperation;
-
-import java.util.ArrayList;
+import org.kevoree.modeling.api.msg.KEventMessage;
+import org.kevoree.modeling.api.msg.KMessageLoader;
+import org.kevoree.modeling.api.msg.KOperationCallMessage;
+import org.kevoree.modeling.api.msg.KOperationResultMessage;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,15 +22,9 @@ public class DefaultOperationManager implements KOperationManager {
     private Map<Integer, Map<Integer, KOperation>> staticOperations = new HashMap<Integer, Map<Integer, KOperation>>();
     private Map<Long, Map<Integer, KOperation>> instanceOperations = new HashMap<Long, Map<Integer, KOperation>>();
     private KDataManager _manager;
+    private int _callbackId = 0;
 
-    private static int DIM_INDEX = 0;
-    private static int TIME_INDEX = 1;
-    private static int UUID_INDEX = 2;
-    private static int OPERATION_INDEX = 3;
-    private static int TUPLE_SIZE = 4;
-
-    private HashMap<Long[], Callback<Object>> remoteCallCallbacks = new HashMap<Long[], Callback<Object>>();
-
+    private HashMap<Long, Callback<Object>> remoteCallCallbacks = new HashMap<Long, Callback<Object>>();
 
     public DefaultOperationManager(KDataManager p_manager) {
         this._manager = p_manager;
@@ -77,113 +73,67 @@ public class DefaultOperationManager implements KOperationManager {
 
     private void sendToRemote(KObject source, MetaOperation operation, Object[] param, Callback<Object> callback) {
 
-        Long[] tuple = new Long[TUPLE_SIZE];
-        tuple[DIM_INDEX] = source.universe().key();
-        tuple[TIME_INDEX] = source.now();
-        tuple[UUID_INDEX] = source.uuid();
-        tuple[OPERATION_INDEX] = (long) operation.index();
-
-        remoteCallCallbacks.put(tuple, callback);
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        if (param.length > 0) {
-            sb.append("\"").append(protectString(param[0].toString())).append("\"");
-            for (int i = 1; i < param.length; i++) {
-                sb.append(",").append("\"").append(protectString(param[i].toString())).append("\"");
-            }
-        }
-        sb.append("]");
-        //AbstractKEvent operationCallEvent = new AbstractKEvent(KActionType.CALL, source, operation, sb.toString());
-        //_manager.cdn().sendOperationEvent(operationCallEvent);
-    }
-
-    private String protectString(String input) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < input.length(); i++) {
-            char c = input.charAt(i);
-            if (c == '{' || c == '}' || c == '[' || c == ']' || c == ',' || c == '\\' || c == '"') {
-                sb.append('\\');
-            }
-            sb.append(c);
-        }
-        return sb.toString();
-    }
-
-    private Object[] parseParams(String inParams) {
-        ArrayList<Object> params = new ArrayList<Object>();
-        StringBuilder sb = new StringBuilder();
-        if (inParams.length() > 2) {
-            if (inParams.charAt(0) == '[') {
-                int i = 1;
-                char c = inParams.charAt(i);
-                boolean inParam = false;
-                while (i < inParams.length() && c != ']') {
-                    if (c == '\\') { //despecialize
-                        i++;
-                        sb.append(inParams.charAt(i));
-                    } else if (c == '"') {
-                        if (inParam) {
-                            //END of param
-                            params.add(sb.toString());
-                            sb = new StringBuilder();
-                        }
-                        inParam = !inParam;
-                    } else {
-                        if (inParam) {
-                            sb.append(c);
-                        }
-                    }
-                    i++;
-                    c = inParams.charAt(i);
-                }
-            }
+        String[] stringParams = new String[param.length];
+        for (int i = 0; i < param.length; i++) {
+            stringParams[i] = param[i].toString();
         }
 
-        return params.toArray(new Object[params.size()]);
+        KContentKey contentKey = new KContentKey(KContentKey.GLOBAL_SEGMENT_DATA_RAW, source.universe().key(), source.now(), source.uuid());
+
+        KOperationCallMessage operationCall = new KOperationCallMessage();
+        operationCall.id = nextKey();
+        operationCall.key = contentKey;
+        operationCall.classIndex = source.metaClass().index();
+        operationCall.opIndex = operation.index();
+        operationCall.params = stringParams;
+
+        remoteCallCallbacks.put(operationCall.id, callback);
+
+        _manager.cdn().sendOperation(operationCall);
     }
 
-    /*
-    public void operationEventReceived(KEvent operationEvent) {
-        if (operationEvent.actionType() == KActionType.CALL_RESPONSE) {
-            Long[][] keys = remoteCallCallbacks.keySet().toArray(new Long[remoteCallCallbacks.size()][]);
-            for (int i = 0; i < keys.length; i++) {
-                Long[] tuple = keys[i];
-                if (tuple[DIM_INDEX].equals(operationEvent.universe())) {
-                    if (tuple[TIME_INDEX].equals(operationEvent.time())) {
-                        if (tuple[UUID_INDEX].equals(operationEvent.uuid())) {
-                            if (tuple[OPERATION_INDEX].equals((long) operationEvent.metaElement().index())) {
-                                Object[] returnParam = parseParams((String) operationEvent.value());
-                                Callback<Object> cb = remoteCallCallbacks.get(tuple);
-                                remoteCallCallbacks.remove(tuple);
-                                cb.on(returnParam);
-                            }
-                        }
-                    }
-                }
+    public long nextKey() {
+        if (_callbackId == 9999) {
+            _callbackId = 0;
+        } else {
+            _callbackId++;
+        }
+        return _callbackId;
+    }
+
+    public void operationEventReceived(KEventMessage operationEvent) {
+        if (operationEvent.type() == KMessageLoader.OPERATION_RESULT_TYPE) {
+            KOperationResultMessage operationResult = (KOperationResultMessage)operationEvent;
+            Callback<Object> cb = remoteCallCallbacks.get(operationResult.id);
+            if(cb != null) {
+                cb.on(operationResult.value);
             }
-        } else if (operationEvent.actionType() == KActionType.CALL) {
-            KOperation operationCore = searchOperation(operationEvent.uuid(), operationEvent.metaClass().index(), operationEvent.metaElement().index());
+        } else if (operationEvent.type() == KMessageLoader.OPERATION_CALL_TYPE) {
+            KOperationCallMessage operationCall = (KOperationCallMessage) operationEvent;
+            KContentKey sourceKey = operationCall.key;
+            KOperation operationCore = searchOperation(sourceKey.obj(), operationCall.classIndex, operationCall.opIndex);
             if (operationCore != null) {
-                KView view = _manager.model().universe(operationEvent.universe()).time(operationEvent.time());
-                view.lookup(operationEvent.uuid(), new Callback<KObject>() {
+                KView view = _manager.model().universe(sourceKey.universe()).time(sourceKey.time());
+                view.lookup(sourceKey.obj()).then(new Callback<KObject>() {
                     public void on(KObject kObject) {
                         if (kObject != null) {
-                            Object[] params = parseParams((String) operationEvent.value());
-                            operationCore.on(kObject, params, new Callback<Object>() {
+                            operationCore.on(kObject, operationCall.params, new Callback<Object>() {
                                 public void on(Object o) {
-                                    AbstractKEvent operationCallResponseEvent = new AbstractKEvent(KActionType.CALL_RESPONSE, kObject, operationEvent.metaElement(), "[\"" + protectString(o.toString()) + "\"]");
-                                    _manager.cdn().sendOperationEvent(operationCallResponseEvent);
+                                    KOperationResultMessage operationResultMessage = new KOperationResultMessage();
+                                    operationResultMessage.key = operationCall.key;
+                                    operationResultMessage.id = operationCall.id;
+                                    operationResultMessage.value = o.toString();
+                                    _manager.cdn().sendOperation(operationResultMessage);
                                 }
                             });
                         }
-
                     }
                 });
             }
         } else {
+            System.err.println("BAD ROUTING !");
             //Wrong routing.
         }
-    }*/
+    }
 
 }

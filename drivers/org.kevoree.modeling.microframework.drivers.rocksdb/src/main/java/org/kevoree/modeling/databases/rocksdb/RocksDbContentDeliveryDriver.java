@@ -135,12 +135,18 @@ public class RocksDbContentDeliveryDriver implements KContentDeliveryDriver {
 
     @Override
     public void send(KEventMessage[] msgs) {
+        //NO Remote op
+        localEventListeners.dispatch(msgs);
+    }
 
+    @Override
+    public void sendOperation(KEventMessage operationMessage) {
+        //NOOP
     }
 
     @Override
     public void setManager(KDataManager manager) {
-
+//NOOP
     }
 
     @Override

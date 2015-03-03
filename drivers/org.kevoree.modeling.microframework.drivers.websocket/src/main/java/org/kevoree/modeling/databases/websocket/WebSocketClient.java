@@ -1,6 +1,7 @@
 package org.kevoree.modeling.databases.websocket;
 
 import com.eclipsesource.json.JsonArray;
+import com.eclipsesource.json.JsonObject;
 import io.undertow.websockets.core.AbstractReceiveListener;
 import io.undertow.websockets.core.BufferedTextMessage;
 import io.undertow.websockets.core.WebSocketChannel;
@@ -20,6 +21,7 @@ import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
 import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.data.manager.KDataManager;
+import org.kevoree.modeling.api.json.JsonString;
 import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.msg.KAtomicGetRequest;
 import org.kevoree.modeling.api.msg.KAtomicGetResult;
@@ -30,7 +32,6 @@ import org.kevoree.modeling.api.msg.KMessage;
 import org.kevoree.modeling.api.msg.KMessageLoader;
 import org.kevoree.modeling.api.msg.KPutRequest;
 import org.kevoree.modeling.api.msg.KPutResult;
-import org.kevoree.modeling.api.rbtree.LongRBTree;
 import org.kevoree.modeling.api.util.LocalEventListeners;
 
 import java.io.IOException;
@@ -65,7 +66,9 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
     @Override
     public void connect(Callback<Throwable> callback) {
         _client.connect(this);
+        _atomicInteger = new AtomicInteger();
         callback.on(null);
+
     }
 
     @Override
@@ -100,8 +103,8 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
         // parse
         JsonArray messages = JsonArray.readFrom(data);
         for(int i = 0; i < messages.size(); i++) {
-            String rawMessage = messages.get(i).asString();
-            KMessage msg = KMessageLoader.load(rawMessage);
+            JsonObject rawMessage = messages.get(i).asObject();
+            KMessage msg = KMessageLoader.load(rawMessage.toString());
             switch (msg.type()) {
                 case KMessageLoader.GET_RES_TYPE:{
                     KGetResult getResult = (KGetResult) msg;
@@ -146,7 +149,7 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
         atomicGetRequest.key = key;
         atomicGetRequest.operation = operation;
         _atomicGetCallbacks.put(atomicGetRequest.id, callback);
-        WebSockets.sendText("[" + atomicGetRequest.json() + "]", _client.getChannel(), null);
+        WebSockets.sendText("[\"" + JsonString.encode(atomicGetRequest.json()) + "\"]", _client.getChannel(), null);
     }
 
     @Override
@@ -155,7 +158,7 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
         getRequest.keys = keys;
         getRequest.id = nextKey();
         _getCallbacks.put(getRequest.id, callback);
-        WebSockets.sendText("[" + getRequest.json() + "]", _client.getChannel(), null);
+        WebSockets.sendText("[\"" + JsonString.encode(getRequest.json()) + "\"]", _client.getChannel(), null);
     }
 
     @Override
@@ -164,7 +167,7 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
         putRequest.request = request;
         putRequest.id = nextKey();
         _putCallbacks.put(putRequest.id, error);
-        WebSockets.sendText("[" + putRequest.json() + "]", _client.getChannel(), null);
+        WebSockets.sendText("[\"" + JsonString.encode(putRequest.json()) + "\"]", _client.getChannel(), null);
     }
 
     @Override
@@ -198,6 +201,15 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
         }
         _localEventListeners.dispatch(messagesToFire.toArray(new KEventMessage[messagesToFire.size()]));
         WebSockets.sendText(payload.toString(), _client.getChannel(), null);
+    }
+
+    @Override
+    public void sendOperation(KEventMessage operation) {
+        //Send to remote
+        final JsonArray payload = new JsonArray();
+        payload.add(operation.json());
+        WebSockets.sendText(payload.toString(), _client.getChannel(), null);
+
     }
 
     @Override

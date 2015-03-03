@@ -26,6 +26,8 @@ public class KMessageLoader {
     public static String ID_NAME = "id";
     public static String VALUE_NAME = "value";
     public static String VALUES_NAME = "values";
+    public static String CLASS_IDX_NAME = "class";
+    public static String PARAMETERS_NAME = "params";
 
     public static final int EVENT_TYPE = 0;
 
@@ -162,9 +164,18 @@ public class KMessageLoader {
                 if (content.get(KEY_NAME) != null) {
                     callMessage.key = KContentKey.create(content.get(KEY_NAME).toString());
                 }
-                if (content.get(VALUES_NAME) != null) {
-                    ArrayList<String> metaParams = (ArrayList<String>) content.get(VALUES_NAME);
-                    String[] toFlat = metaParams.toArray(new String[metaParams.size()]);
+                if (content.get(CLASS_IDX_NAME) != null) {
+                    callMessage.classIndex = Integer.parseInt(content.get(CLASS_IDX_NAME).toString());
+                }
+                if (content.get(OPERATION_NAME) != null) {
+                    callMessage.opIndex = Integer.parseInt(content.get(OPERATION_NAME).toString());
+                }
+                if (content.get(PARAMETERS_NAME) != null) {
+                    ArrayList<String> params = (ArrayList<String>) content.get(PARAMETERS_NAME);
+                    String[] toFlat = new String[params.size()];
+                    for (int i = 0; i < params.size(); i++) {
+                        toFlat[i] = JsonString.unescape(params.get(i));
+                    }
                     callMessage.params = toFlat;
                 }
                 return callMessage;
@@ -172,6 +183,9 @@ public class KMessageLoader {
                 KOperationResultMessage resultMessage = new KOperationResultMessage();
                 if (content.get(ID_NAME) != null) {
                     resultMessage.id = Long.parseLong(content.get(ID_NAME).toString());
+                }
+                if (content.get(KEY_NAME) != null) {
+                    resultMessage.key = KContentKey.create(content.get(KEY_NAME).toString());
                 }
                 if (content.get(VALUE_NAME) != null) {
                     resultMessage.value = content.get(VALUE_NAME).toString();

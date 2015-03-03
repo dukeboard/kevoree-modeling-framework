@@ -1,12 +1,13 @@
 package org.kevoree.modeling.api.msg;
 
+import org.kevoree.modeling.api.data.cache.KContentKey;
+
 /**
  * Created by duke on 23/02/15.
  */
-public class KOperationResultMessage implements KMessage {
+public class KOperationResultMessage extends KEventMessage{
 
     public Long id;
-
     public String value;
 
     @Override
@@ -15,6 +16,7 @@ public class KOperationResultMessage implements KMessage {
         KMessageHelper.printJsonStart(buffer);
         KMessageHelper.printType(buffer,type());
         KMessageHelper.printElem(id, KMessageLoader.ID_NAME, buffer);
+        KMessageHelper.printElem(key, KMessageLoader.KEY_NAME, buffer);
         KMessageHelper.printElem(value, KMessageLoader.VALUE_NAME, buffer);
         KMessageHelper.printJsonEnd(buffer);
         return buffer.toString();

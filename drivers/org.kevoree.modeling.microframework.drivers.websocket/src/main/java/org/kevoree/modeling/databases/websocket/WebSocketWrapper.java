@@ -147,14 +147,10 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
                         }
                     });
                 }break;
-                /*
-                case KMessageLoader.OPERATION_CALL_TYPE:{
-
-                }break;
+                case KMessageLoader.OPERATION_CALL_TYPE:
                 case KMessageLoader.OPERATION_RESULT_TYPE:{
-
+                    _manager.operationManager().operationEventReceived((KEventMessage)msg);
                 }break;
-                */
                 case KMessageLoader.EVENT_TYPE:{
                     if(_events == null) {
                         _events = new ArrayList<>();
@@ -236,6 +232,20 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
         for(int i = 0; i < channels.size();i++) {
             WebSocketChannel channel = channels.get(i);
             WebSockets.sendText("[" + String.join(",",payload) + "]", channel, null);
+        }
+
+    }
+
+    @Override
+    public void sendOperation(KEventMessage operation) {
+        //send locally
+        wrapped.sendOperation(operation);
+
+        //Send to remotes
+        ArrayList<WebSocketChannel> channels = new ArrayList<>(_connectedChannels);
+        for(int i = 0; i < channels.size();i++) {
+            WebSocketChannel channel = channels.get(i);
+            WebSockets.sendText("[" + operation.json() + "]", channel, null);
         }
 
     }

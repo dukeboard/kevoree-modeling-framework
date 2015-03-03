@@ -98,6 +98,11 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
+    public void sendOperation(KEventMessage operation) {
+        //NO REMOTE MANAGEMENT
+    }
+
+    @Override
     public void setManager(KDataManager manager) {
         _localEventListeners.setManager(manager);
     }

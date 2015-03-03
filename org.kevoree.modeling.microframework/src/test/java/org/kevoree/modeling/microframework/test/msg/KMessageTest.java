@@ -63,23 +63,25 @@ public class KMessageTest {
         msgCall.params[1] = "param1";
         msgCall.params[2] = "param2";
         Assert.assertEquals("{\n" +
-                "\"type\":\"5\"\n" +
-                ",\"id\":\"1\"\n" +
-                ",\"key\":\"1/0/1/2\"\n" +
-                ",\"values\":[\"param0\",\"param1\",\"param2\"]\n" +
-                "}\n", msgCall.json());
+            "\"type\":\"5\"\n" +
+            ",\"id\":\"1\"\n" +
+            ",\"key\":\"1/0/1/2\"\n" +
+            ",\"class\":\"0\",\"op\":\"0\",\"params\":[\"param0\",\"param1\",\"param2\"]\n" +
+            "}\n", msgCall.json());
 
         KMessage parsedCall = KMessageLoader.load(msgCall.json());
         Assert.assertEquals(parsedCall.json(), msgCall.json());
 
         KOperationResultMessage msgResult = new KOperationResultMessage();
         msgResult.id = 1l;
+        msgResult.key = KContentKey.createObject(0l, 1l, 2l);
         msgResult.value = "hello";
         Assert.assertEquals("{\n" +
-                "\"type\":\"6\"\n" +
-                ",\"id\":\"1\"\n" +
-                ",\"value\":\"hello\"\n" +
-                "}\n", msgResult.json());
+            "\"type\":\"6\"\n" +
+            ",\"id\":\"1\"\n" +
+            ",\"key\":\"1/0/1/2\"\n" +
+            ",\"value\":\"hello\"\n" +
+            "}\n", msgResult.json());
 
         KMessage parsedResult = KMessageLoader.load(msgResult.json());
         Assert.assertEquals(parsedResult.json(), msgResult.json());

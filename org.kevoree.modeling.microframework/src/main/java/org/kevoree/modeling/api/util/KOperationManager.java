@@ -4,6 +4,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KOperation;
 import org.kevoree.modeling.api.meta.MetaOperation;
+import org.kevoree.modeling.api.msg.KEventMessage;
 
 
 /**
@@ -15,7 +16,5 @@ public interface KOperationManager {
 
     void call(KObject source, MetaOperation operation, Object[] param, Callback<Object> callback);
 
-
-
-    //public void operationEventReceived(KEvent operationEvent);
+    public void operationEventReceived(KEventMessage operationEvent);
 }
