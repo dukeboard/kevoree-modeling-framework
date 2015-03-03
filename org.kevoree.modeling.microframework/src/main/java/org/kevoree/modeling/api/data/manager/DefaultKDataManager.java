@@ -298,7 +298,7 @@ public class DefaultKDataManager implements KDataManager {
     @Override
     public KCacheEntry entry(KObject origin, AccessMode accessMode) {
         LongRBTree dimensionTree = origin.universeTree();
-        Long resolvedUniverse = internal_resolve_universe(dimensionTree, origin.now(), origin.view().universe().key());
+        Long resolvedUniverse = ResolutionHelper.resolve_universe((LongRBTree) _cache.get(KContentKey.createGlobalUniverseTree()), dimensionTree, origin.now(), origin.view().universe().key());
         IndexRBTree timeTree = (IndexRBTree) _cache.get(KContentKey.createTimeTree(resolvedUniverse, origin.uuid()));
         if (timeTree == null) {
             throw new RuntimeException(OUT_OF_CACHE_MESSAGE + " : TimeTree not found for " + KContentKey.createTimeTree(resolvedUniverse, origin.uuid()) + " from " + origin.universe().key() + "/" + resolvedUniverse);
@@ -464,7 +464,7 @@ public class DefaultKDataManager implements KDataManager {
         List<KContentKey> toLoadTimeTrees = null;
         for (int i = 0; i < uuids.length; i++) {
             if (tempResult[i].universeTree != null) {
-                Long closestUniverse = internal_resolve_universe(tempResult[i].universeTree, originView.now(), originView.universe().key());
+                Long closestUniverse = ResolutionHelper.resolve_universe((LongRBTree) _cache.get(KContentKey.createGlobalUniverseTree()), tempResult[i].universeTree, originView.now(), originView.universe().key());
                 if (closestUniverse != null) {
                     tempResult[i].resolvedUniverse = closestUniverse;
                     KContentKey timeObjectTreeKey = KContentKey.createTimeTree(closestUniverse, uuids[i]);
@@ -569,7 +569,7 @@ public class DefaultKDataManager implements KDataManager {
                 if (longRBTree == null) {
                     callback.on(null);
                 } else {
-                    long closestUniverse = internal_resolve_universe(longRBTree, originView.now(), originView.universe().key());
+                    long closestUniverse = ResolutionHelper.resolve_universe((LongRBTree) _cache.get(KContentKey.createGlobalUniverseTree()), longRBTree, originView.now(), originView.universe().key());
                     KContentKey universeTreeRootKey = KContentKey.createRootTimeTree(closestUniverse);
                     internal_root_load(universeTreeRootKey, new Callback<LongRBTree>() {
                         @Override
@@ -602,7 +602,7 @@ public class DefaultKDataManager implements KDataManager {
                     cleanedTree = new LongRBTree();
                     _cache.put(universeTreeRootKey, cleanedTree);
                 }
-                long closestUniverse = internal_resolve_universe(cleanedTree, newRoot.now(), newRoot.universe().key());
+                long closestUniverse = ResolutionHelper.resolve_universe((LongRBTree) _cache.get(KContentKey.createGlobalUniverseTree()), cleanedTree, newRoot.now(), newRoot.universe().key());
                 cleanedTree.insert(newRoot.universe().key(), newRoot.now());
                 if (closestUniverse != newRoot.universe().key()) {
                     LongRBTree newTimeTree = new LongRBTree();
@@ -719,39 +719,6 @@ public class DefaultKDataManager implements KDataManager {
                 callback.on(trees);
             }
         });
-    }
-
-    private long internal_resolve_universe(LongRBTree objUniverseTree, long timeToResolve, long currentUniverse) {
-        LongRBTree globalTree = (LongRBTree) _cache.get(KContentKey.createGlobalUniverseTree());
-        //TODO do the lookup and the test before
-        if (globalTree == null) {
-            return currentUniverse;
-        }
-        LongTreeNode currentUniverseNode = globalTree.lookup(currentUniverse);
-        if (currentUniverseNode == null) {
-            return currentUniverse;
-        }
-        LongTreeNode resolved = objUniverseTree.lookup(currentUniverse);
-        while (resolved == null && currentUniverseNode.key != currentUniverseNode.value) {
-            currentUniverseNode = globalTree.lookup(currentUniverseNode.value);
-            resolved = objUniverseTree.lookup(currentUniverseNode.key);
-        }
-        if (resolved == null) {
-            return currentUniverse;
-        }
-        while (resolved != null && resolved.value > timeToResolve && resolved.key != resolved.value) {
-            LongTreeNode resolvedCurrent = globalTree.lookup(resolved.key);
-            resolved = objUniverseTree.lookup(resolvedCurrent.value);
-            while (resolved == null && resolvedCurrent != null && resolvedCurrent.key != resolvedCurrent.value) {
-                resolved = objUniverseTree.lookup(resolvedCurrent.value);
-                resolvedCurrent = globalTree.lookup(resolvedCurrent.value);
-            }
-        }
-        if (resolved != null) {
-            return resolved.key;
-        } else {
-            return currentUniverse;
-        }
     }
 
 }
