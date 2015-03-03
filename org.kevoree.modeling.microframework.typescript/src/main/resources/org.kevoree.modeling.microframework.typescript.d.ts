@@ -509,7 +509,7 @@ declare module org {
                             static GLOBAL_SEGMENT_DATA_INDEX: number;
                             static GLOBAL_SEGMENT_DATA_LONG_INDEX: number;
                             static GLOBAL_SEGMENT_DATA_ROOT: number;
-                            private static GLOBAL_SEGMENT_UNIVERSE_TREE;
+                            static GLOBAL_SEGMENT_UNIVERSE_TREE: number;
                             private static GLOBAL_SEGMENT_PREFIX;
                             private static GLOBAL_SUB_SEGMENT_PREFIX_OBJ;
                             private static GLOBAL_SUB_SEGMENT_PREFIX_UNI;
@@ -644,7 +644,7 @@ declare module org {
                             reload(keys: cache.KContentKey[], callback: (p: java.lang.Throwable) => void): void;
                             private internal_load(key, payload);
                             timeTrees(p_origin: KObject, start: number, end: number, callback: (p: rbtree.IndexRBTree[]) => void): void;
-                            private internal_resolve_universe(universeTree, timeToResolve, currentUniverse);
+                            private internal_resolve_universe(objUniverseTree, timeToResolve, currentUniverse);
                         }
                         class Index {
                             static PARENT_INDEX: number;

@@ -2353,7 +2353,7 @@ module org {
                             public static GLOBAL_SEGMENT_DATA_INDEX: number = 2;
                             public static GLOBAL_SEGMENT_DATA_LONG_INDEX: number = 3;
                             public static GLOBAL_SEGMENT_DATA_ROOT: number = 4;
-                            private static GLOBAL_SEGMENT_UNIVERSE_TREE: number = 5;
+                            public static GLOBAL_SEGMENT_UNIVERSE_TREE: number = 5;
                             private static GLOBAL_SEGMENT_PREFIX: number = 6;
                             private static GLOBAL_SUB_SEGMENT_PREFIX_OBJ: number = 0;
                             private static GLOBAL_SUB_SEGMENT_PREFIX_UNI: number = 1;
@@ -3239,16 +3239,20 @@ module org {
                                             error.printStackTrace();
                                             callback(null);
                                         } else {
-                                            var newRootUniverseTree: org.kevoree.modeling.api.rbtree.LongRBTree = new org.kevoree.modeling.api.rbtree.LongRBTree();
-                                            try {
-                                                newRootUniverseTree.unserialize(contentKey, strings[0], this.model().metaModel());
-                                            } catch ($ex$) {
-                                                if ($ex$ instanceof java.lang.Exception) {
-                                                    var e: java.lang.Exception = <java.lang.Exception>$ex$;
-                                                    e.printStackTrace();
-                                                }
-                                             }
-                                            this._cache.put(contentKey, newRootUniverseTree);
+                                            var newRootUniverseTree: org.kevoree.modeling.api.rbtree.LongRBTree = null;
+                                            if (strings[0] != null) {
+                                                try {
+                                                    newRootUniverseTree = new org.kevoree.modeling.api.rbtree.LongRBTree();
+                                                    newRootUniverseTree.unserialize(contentKey, strings[0], this.model().metaModel());
+                                                    this._cache.put(contentKey, newRootUniverseTree);
+                                                } catch ($ex$) {
+                                                    if ($ex$ instanceof java.lang.Exception) {
+                                                        var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                                        e.printStackTrace();
+                                                        newRootUniverseTree = null;
+                                                    }
+                                                 }
+                                            }
                                             callback(newRootUniverseTree);
                                         }
                                     });
@@ -3264,23 +3268,19 @@ module org {
                                         callback(null);
                                     } else {
                                         var closestUniverse: number = this.internal_resolve_universe(longRBTree, originView.now(), originView.universe().key());
-                                        if (closestUniverse == null) {
-                                            callback(null);
-                                        } else {
-                                            var universeTreeRootKey: org.kevoree.modeling.api.data.cache.KContentKey = org.kevoree.modeling.api.data.cache.KContentKey.createRootTimeTree(closestUniverse);
-                                            this.internal_root_load(universeTreeRootKey,  (longRBTree : org.kevoree.modeling.api.rbtree.LongRBTree) => {
-                                                if (longRBTree == null) {
+                                        var universeTreeRootKey: org.kevoree.modeling.api.data.cache.KContentKey = org.kevoree.modeling.api.data.cache.KContentKey.createRootTimeTree(closestUniverse);
+                                        this.internal_root_load(universeTreeRootKey,  (longRBTree : org.kevoree.modeling.api.rbtree.LongRBTree) => {
+                                            if (longRBTree == null) {
+                                                callback(null);
+                                            } else {
+                                                var resolvedNode: org.kevoree.modeling.api.rbtree.LongTreeNode = longRBTree.previousOrEqual(originView.now());
+                                                if (resolvedNode == null) {
                                                     callback(null);
                                                 } else {
-                                                    var resolvedNode: org.kevoree.modeling.api.rbtree.LongTreeNode = longRBTree.previousOrEqual(originView.now());
-                                                    if (resolvedNode == null) {
-                                                        callback(null);
-                                                    } else {
-                                                        this.lookup(originView, resolvedNode.value, callback);
-                                                    }
+                                                    this.lookup(originView, resolvedNode.value, callback);
                                                 }
-                                            });
-                                        }
+                                            }
+                                        });
                                     }
                                 });
                             }
@@ -3288,34 +3288,34 @@ module org {
                             public setRoot(newRoot: org.kevoree.modeling.api.KObject, callback: (p : java.lang.Throwable) => void): void {
                                 var universeTreeRootKey: org.kevoree.modeling.api.data.cache.KContentKey = org.kevoree.modeling.api.data.cache.KContentKey.createRootUniverseTree();
                                 this.internal_root_load(universeTreeRootKey,  (longRBTree : org.kevoree.modeling.api.rbtree.LongRBTree) => {
-                                    if (longRBTree == null) {
-                                        callback(new java.lang.Exception("KMF ERROR, ROOT TREE CANNOT BE CREATED"));
+                                    var cleanedTree: org.kevoree.modeling.api.rbtree.LongRBTree = longRBTree;
+                                    if (cleanedTree == null) {
+                                        cleanedTree = new org.kevoree.modeling.api.rbtree.LongRBTree();
+                                        this._cache.put(universeTreeRootKey, cleanedTree);
+                                    }
+                                    var closestUniverse: number = this.internal_resolve_universe(cleanedTree, newRoot.now(), newRoot.universe().key());
+                                    cleanedTree.insert(newRoot.universe().key(), newRoot.now());
+                                    if (closestUniverse != newRoot.universe().key()) {
+                                        var newTimeTree: org.kevoree.modeling.api.rbtree.LongRBTree = new org.kevoree.modeling.api.rbtree.LongRBTree();
+                                        newTimeTree.insert(newRoot.now(), newRoot.uuid());
+                                        var universeTreeRootKey: org.kevoree.modeling.api.data.cache.KContentKey = org.kevoree.modeling.api.data.cache.KContentKey.createRootTimeTree(newRoot.universe().key());
+                                        this._cache.put(universeTreeRootKey, newTimeTree);
+                                        if (callback != null) {
+                                            callback(null);
+                                        }
                                     } else {
-                                        var closestUniverse: number = this.internal_resolve_universe(longRBTree, newRoot.now(), newRoot.universe().key());
-                                        if (closestUniverse == null || closestUniverse != newRoot.universe().key()) {
-                                            longRBTree.insert(newRoot.universe().key(), newRoot.now());
-                                            var newTimeTree: org.kevoree.modeling.api.rbtree.LongRBTree = new org.kevoree.modeling.api.rbtree.LongRBTree();
-                                            newTimeTree.insert(newRoot.now(), newRoot.uuid());
-                                            var universeTreeRootKey: org.kevoree.modeling.api.data.cache.KContentKey = org.kevoree.modeling.api.data.cache.KContentKey.createRootTimeTree(newRoot.universe().key());
-                                            this._cache.put(universeTreeRootKey, newTimeTree);
+                                        var universeTreeRootKey: org.kevoree.modeling.api.data.cache.KContentKey = org.kevoree.modeling.api.data.cache.KContentKey.createRootTimeTree(closestUniverse);
+                                        this.internal_root_load(universeTreeRootKey,  (resolvedRootTimeTree : org.kevoree.modeling.api.rbtree.LongRBTree) => {
+                                            var initializedTree: org.kevoree.modeling.api.rbtree.LongRBTree = resolvedRootTimeTree;
+                                            if (initializedTree == null) {
+                                                initializedTree = new org.kevoree.modeling.api.rbtree.LongRBTree();
+                                                this._cache.put(universeTreeRootKey, initializedTree);
+                                            }
+                                            initializedTree.insert(newRoot.now(), newRoot.uuid());
                                             if (callback != null) {
                                                 callback(null);
                                             }
-                                        } else {
-                                            var universeTreeRootKey: org.kevoree.modeling.api.data.cache.KContentKey = org.kevoree.modeling.api.data.cache.KContentKey.createRootTimeTree(closestUniverse);
-                                            this.internal_root_load(universeTreeRootKey,  (longRBTree : org.kevoree.modeling.api.rbtree.LongRBTree) => {
-                                                if (longRBTree == null) {
-                                                    if (callback != null) {
-                                                        callback(new java.lang.Exception("KMF ERROR, ROOT TREE CANNOT BE CREATED"));
-                                                    }
-                                                } else {
-                                                    longRBTree.insert(newRoot.now(), newRoot.uuid());
-                                                    if (callback != null) {
-                                                        callback(null);
-                                                    }
-                                                }
-                                            });
-                                        }
+                                        });
                                     }
                                 });
                             }
@@ -3367,7 +3367,7 @@ module org {
                                     if (key.segment().equals(org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_RAW)) {
                                         result = new org.kevoree.modeling.api.data.cache.KCacheEntry();
                                     } else {
-                                        if (key.segment().equals(org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_LONG_INDEX) || key.segment().equals(org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_ROOT)) {
+                                        if (key.segment().equals(org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_LONG_INDEX) || key.segment().equals(org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_ROOT) || key.segment().equals(org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_UNIVERSE_TREE)) {
                                             result = new org.kevoree.modeling.api.rbtree.LongRBTree();
                                         } else {
                                             result = null;
@@ -3400,9 +3400,33 @@ module org {
                                 });
                             }
 
-                            private internal_resolve_universe(universeTree: org.kevoree.modeling.api.rbtree.LongRBTree, timeToResolve: number, currentUniverse: number): number {
-                                if (universeTree.lookup(currentUniverse) == null) {
-                                    return null;
+                            private internal_resolve_universe(objUniverseTree: org.kevoree.modeling.api.rbtree.LongRBTree, timeToResolve: number, currentUniverse: number): number {
+                                var globalTree: org.kevoree.modeling.api.rbtree.LongRBTree = <org.kevoree.modeling.api.rbtree.LongRBTree>this._cache.get(org.kevoree.modeling.api.data.cache.KContentKey.createGlobalUniverseTree());
+                                if (globalTree == null) {
+                                    return currentUniverse;
+                                }
+                                var currentUniverseNode: org.kevoree.modeling.api.rbtree.LongTreeNode = globalTree.lookup(currentUniverse);
+                                if (currentUniverseNode == null) {
+                                    return currentUniverse;
+                                }
+                                var resolved: org.kevoree.modeling.api.rbtree.LongTreeNode = objUniverseTree.lookup(currentUniverse);
+                                while (resolved == null && currentUniverseNode.key != currentUniverseNode.value){
+                                    currentUniverseNode = globalTree.lookup(currentUniverseNode.value);
+                                    resolved = objUniverseTree.lookup(currentUniverseNode.key);
+                                }
+                                if (resolved == null) {
+                                    return currentUniverse;
+                                }
+                                while (resolved != null && resolved.value > timeToResolve && resolved.key != resolved.value){
+                                    var resolvedCurrent: org.kevoree.modeling.api.rbtree.LongTreeNode = globalTree.lookup(resolved.key);
+                                    resolved = objUniverseTree.lookup(resolvedCurrent.value);
+                                    while (resolved == null && resolvedCurrent != null && resolvedCurrent.key != resolvedCurrent.value){
+                                        resolved = objUniverseTree.lookup(resolvedCurrent.value);
+                                        resolvedCurrent = globalTree.lookup(resolvedCurrent.value);
+                                    }
+                                }
+                                if (resolved != null) {
+                                    return resolved.key;
                                 } else {
                                     return currentUniverse;
                                 }
@@ -11412,11 +11436,13 @@ module org {
 
                     export class LongHashMap<V> {
 
+                     //noJS
                     }
 
                     export module LongHashMap { 
                         export class Entry<V> {
 
+                         //noJS
                         }
 
 
