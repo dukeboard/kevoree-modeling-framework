@@ -20,9 +20,6 @@ public class MultiUniverseTest {
     private KModel model;
     private KObject object;
 
-    private long[] uIds = new long[4];
-    int count=0;
-
 
     @Test
     public void testMultiVerse() {
@@ -56,10 +53,14 @@ public class MultiUniverseTest {
         assert(get(1,timeOrigine+unit)==5);
 
         assert(get(0,timeOrigine+5*unit)==8);
-        assert(get(1,timeOrigine+5*unit)==5);
+      //  assert(get(1,timeOrigine+5*unit)==5);
+        assert(get(1,timeOrigine+5*unit)==8);
+
         insert(0,timeOrigine+3*unit,-2);
         assert(get(0,timeOrigine+3*unit)==-2);
-        assert(get(1,timeOrigine+3*unit)==5);
+        assert(get(1,timeOrigine+3*unit)==-2);
+        //assert(get(1,timeOrigine+3*unit)==5);
+
         insert(1,timeOrigine+3*unit,7);
         assert(get(0,timeOrigine+3*unit)==-2);
         assert(get(1,timeOrigine+3*unit)==7);
@@ -95,7 +96,8 @@ public class MultiUniverseTest {
 
         assert(get(0,timeOrigine+40*unit)==-20);
         assert(get(1,timeOrigine+40*unit)==100);
-        assert(get(2,timeOrigine+40*unit)==7);
+        assert(get(2,timeOrigine+40*unit)==100);
+        //assert(get(2,timeOrigine+40*unit)==7);
         assert(get(3,timeOrigine+40*unit)==78);
 
 
@@ -122,15 +124,13 @@ public class MultiUniverseTest {
 
     private void split(int parent, long splitTime){
         KUniverse uni= model.universe(parent).diverge();
-        double val = get(parent,splitTime);
-        count++;
-        uIds[count]=uni.key();
-        insert(count,splitTime,val);
+        //double val = get(parent,splitTime);
+        //insert(uni.key(),splitTime,val);
     }
 
-    private void insert(int uId, long time, double value){
+    private void insert(long uId, long time, double value){
 
-        model.universe(uIds[uId]).time(time).lookup(object.uuid()).then(new Callback<KObject>() {
+        model.universe(uId).time(time).lookup(object.uuid()).then(new Callback<KObject>() {
             @Override
             public void on(KObject kObject) {
                 kObject.set((MetaAttribute)kObject.metaClass().metaByName("value"),value);
@@ -140,9 +140,9 @@ public class MultiUniverseTest {
 
     }
 
-    public double get(int uId, long time){
+    public double get(long uId, long time){
         final Object[] myvalue = {null};
-        model.universe(uIds[uId]).time(time).lookup(object.uuid()).then(new Callback<KObject>() {
+        model.universe(uId).time(time).lookup(object.uuid()).then(new Callback<KObject>() {
 
             @Override
             public void on(KObject kObject) {
