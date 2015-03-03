@@ -43,10 +43,6 @@ public class JsonRaw {
                 content.put(currentAttributeName, arrayPayload);
                 arrayPayload = null;
                 currentAttributeName = null;
-            } else if (currentToken.tokenType().equals(Type.LEFT_BRACE)) {
-                //content = new HashMap<String, Object>();
-            } else if (currentToken.tokenType().equals(Type.RIGHT_BRACE)) {
-                //content = new HashMap<String, Object>(); //RESET should not appear here //
             } else if (currentToken.tokenType().equals(Type.VALUE)) {
                 if (currentAttributeName == null) {
                     currentAttributeName = currentToken.value().toString();

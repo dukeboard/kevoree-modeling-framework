@@ -18,6 +18,42 @@ import org.kevoree.modeling.microframework.test.cloud.Element;
  */
 public class HelloTest {
 
+
+    @Test
+    public void badLookupTest() {
+        CloudModel model = new CloudModel();
+        model.connect().then(new Callback<Throwable>() {
+            @Override
+            public void on(Throwable throwable) {
+                if (throwable != null) {
+                    throwable.printStackTrace();
+                } else {
+                    CloudUniverse universe = model.newUniverse();
+                    CloudView time0 = universe.time(0l);
+                    Node root = time0.createNode();
+                    time0.setRoot(root);
+                    root.setName("root");
+                    Assert.assertEquals("root", root.getName());
+                    Node n1 = time0.createNode();
+                    n1.setName("n1");
+                    Node n2 = time0.createNode();
+                    n2.setName("n2");
+                    root.addChildren(n1);
+                    root.addChildren(n2);
+
+
+                    time0.lookup(42).then(new Callback<KObject>() {
+                        @Override
+                        public void on(KObject kObject) {
+                            Assert.assertNull(kObject);
+                        }
+                    });
+
+                }
+            }
+        });
+    }
+
     @Test
     public void simpleTest() {
         CloudModel model = new CloudModel();
@@ -132,7 +168,7 @@ public class HelloTest {
                 i[0]++;
                 return VisitResult.CONTINUE;
             }
-        },VisitRequest.CHILDREN).then(new Callback<Throwable>() {
+        }, VisitRequest.CHILDREN).then(new Callback<Throwable>() {
             @Override
             public void on(Throwable t) {
                 j[0]++;
@@ -183,7 +219,7 @@ public class HelloTest {
                 i[0]++;
                 return VisitResult.CONTINUE;
             }
-        },VisitRequest.CONTAINED).then(new Callback<Throwable>() {
+        }, VisitRequest.CONTAINED).then(new Callback<Throwable>() {
             @Override
             public void on(Throwable t) {
                 j[0]++;

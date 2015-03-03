@@ -335,7 +335,7 @@ public abstract class AbstractKObject implements KObject {
                 } else {
                     //Actual add
                     KCacheEntry payload = view().universe().model().manager().entry(this, AccessMode.WRITE);
-                    Object previous = payload.get(metaReference.index());
+                    long[] previous = payload.getRef(metaReference.index());
                     if (previous != null) {
                         internal_mutate(KActionType.REMOVE, metaReference, null, setOpposite, inDelete);
                     }
@@ -361,10 +361,12 @@ public abstract class AbstractKObject implements KObject {
                     final KObject self = this;
                     if (metaReference.opposite() != null && setOpposite) {
                         if (previous != null) {
-                            view().lookup((Long) previous).then(new Callback<KObject>() {
+                            ((AbstractKView) view()).internalLookupAll(previous, new Callback<KObject[]>() {
                                 @Override
-                                public void on(KObject resolved) {
-                                    ((AbstractKObject) resolved).internal_mutate(KActionType.REMOVE, metaReference.opposite(), self, false, inDelete);
+                                public void on(KObject[] kObjects) {
+                                    for (int i = 0; i < kObjects.length; i++) {
+                                        ((AbstractKObject) kObjects[i]).internal_mutate(KActionType.REMOVE, metaReference.opposite(), self, false, inDelete);
+                                    }
                                 }
                             });
                         }
@@ -706,7 +708,7 @@ public abstract class AbstractKObject implements KObject {
     public void set_parent(Long p_parentKID, MetaReference p_metaReference) {
         KCacheEntry raw = _view.universe().model().manager().entry(this, AccessMode.WRITE);
         if (raw != null) {
-            if(p_parentKID!=null){
+            if (p_parentKID != null) {
                 long[] parentKey = new long[1];
                 parentKey[0] = p_parentKID;
                 raw.set(Index.PARENT_INDEX, parentKey);
