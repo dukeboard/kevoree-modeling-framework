@@ -7,7 +7,7 @@ import org.kevoree.modeling.api.Callback;
 
 /**
  * @native:ts {@code
- * 
+ *
  * }
  */
 public class LongHashMap<V> {
@@ -28,7 +28,7 @@ public class LongHashMap<V> {
 
     /**
      * @native:ts {@code
-     * <p>
+     *
      * }
      */
     static final class Entry<V> {

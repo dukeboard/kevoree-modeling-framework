@@ -4879,14 +4879,17 @@ var org;
                                                 else {
                                                     if (metaKey.equals(org.kevoree.modeling.api.json.JsonModelSerializer.PARENT_META)) {
                                                         try {
-                                                            var raw_k = java.lang.Long.parseLong(payload_content.toString());
-                                                            if (mappedKeys.containsKey(raw_k)) {
-                                                                raw_k = mappedKeys.get(raw_k);
-                                                            }
-                                                            if (raw_k != null) {
-                                                                var parentKey = new Array();
-                                                                parentKey[0] = raw_k;
-                                                                raw.set(org.kevoree.modeling.api.data.manager.Index.PARENT_INDEX, parentKey);
+                                                            var parentKeys = payload_content;
+                                                            for (var l = 0; l < parentKeys.size(); l++) {
+                                                                var raw_k = java.lang.Long.parseLong(parentKeys.get(l));
+                                                                if (mappedKeys.containsKey(raw_k)) {
+                                                                    raw_k = mappedKeys.get(raw_k);
+                                                                }
+                                                                if (raw_k != null) {
+                                                                    var parentKey = new Array();
+                                                                    parentKey[0] = raw_k;
+                                                                    raw.set(org.kevoree.modeling.api.data.manager.Index.PARENT_INDEX, parentKey);
+                                                                }
                                                             }
                                                         }
                                                         catch ($ex$) {
@@ -4935,7 +4938,7 @@ var org;
                                                                             try {
                                                                                 var plainRawSet = payload_content;
                                                                                 var convertedRaw = new Array();
-                                                                                for (var l = 0; l < convertedRaw.length; l++) {
+                                                                                for (var l = 0; l < plainRawSet.size(); l++) {
                                                                                     try {
                                                                                         var converted = java.lang.Long.parseLong(plainRawSet.get(l));
                                                                                         if (mappedKeys.containsKey(converted)) {

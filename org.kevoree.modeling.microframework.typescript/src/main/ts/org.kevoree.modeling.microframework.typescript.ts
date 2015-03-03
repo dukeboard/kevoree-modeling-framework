@@ -5511,14 +5511,17 @@ module org {
                                                 } else {
                                                     if (metaKey.equals(org.kevoree.modeling.api.json.JsonModelSerializer.PARENT_META)) {
                                                         try {
-                                                            var raw_k: number = java.lang.Long.parseLong(payload_content.toString());
-                                                            if (mappedKeys.containsKey(raw_k)) {
-                                                                raw_k = mappedKeys.get(raw_k);
-                                                            }
-                                                            if (raw_k != null) {
-                                                                var parentKey: number[] = new Array();
-                                                                parentKey[0] = raw_k;
-                                                                raw.set(org.kevoree.modeling.api.data.manager.Index.PARENT_INDEX, parentKey);
+                                                            var parentKeys: java.util.ArrayList<string> = <java.util.ArrayList<string>>payload_content;
+                                                            for (var l: number = 0; l < parentKeys.size(); l++) {
+                                                                var raw_k: number = java.lang.Long.parseLong(parentKeys.get(l));
+                                                                if (mappedKeys.containsKey(raw_k)) {
+                                                                    raw_k = mappedKeys.get(raw_k);
+                                                                }
+                                                                if (raw_k != null) {
+                                                                    var parentKey: number[] = new Array();
+                                                                    parentKey[0] = raw_k;
+                                                                    raw.set(org.kevoree.modeling.api.data.manager.Index.PARENT_INDEX, parentKey);
+                                                                }
                                                             }
                                                         } catch ($ex$) {
                                                             if ($ex$ instanceof java.lang.Exception) {
@@ -5561,7 +5564,7 @@ module org {
                                                                             try {
                                                                                 var plainRawSet: java.util.ArrayList<string> = <java.util.ArrayList<string>>payload_content;
                                                                                 var convertedRaw: number[] = new Array();
-                                                                                for (var l: number = 0; l < convertedRaw.length; l++) {
+                                                                                for (var l: number = 0; l < plainRawSet.size(); l++) {
                                                                                     try {
                                                                                         var converted: number = java.lang.Long.parseLong(plainRawSet.get(l));
                                                                                         if (mappedKeys.containsKey(converted)) {
