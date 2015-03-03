@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.data.cache.MultiLayeredMemoryCache;
 import org.kevoree.modeling.api.data.cdn.MemoryKContentDeliveryDriver;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudModel;
@@ -18,9 +19,8 @@ public class LookupTest {
     @Test
     public void lookupTest() throws Exception {
 
-
-
-       // MemoryKContentDeliveryDriver.DEBUG = true;
+        // MemoryKContentDeliveryDriver.DEBUG = true;
+        //  MultiLayeredMemoryCache.DEBUG = true;
 
         final CloudModel cloudModel = new CloudModel();
         cloudModel.connect();
@@ -56,7 +56,6 @@ public class LookupTest {
                                 Assert.assertEquals(node.uuid(), resolvedRoot.uuid());
                             }
                         });
-
                         t0_2.lookup(node.uuid()).then(new Callback<KObject>() {
                             @Override
                             public void on(final KObject resolved) {
@@ -67,7 +66,6 @@ public class LookupTest {
                                         Assert.assertEquals(resolved, resolved2);
                                     }
                                 });
-
                                 //Assert.assertTrue(resolved.isRoot());
                             }
                         });

@@ -541,13 +541,17 @@ public class DefaultKDataManager implements KDataManager {
                         error.printStackTrace();
                         callback.on(null);
                     } else {
-                        LongRBTree newRootUniverseTree = new LongRBTree();
-                        try {
-                            newRootUniverseTree.unserialize(contentKey, strings[0], model().metaModel());
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                        LongRBTree newRootUniverseTree = null;
+                        if (strings[0] != null) {
+                            try {
+                                newRootUniverseTree = new LongRBTree();
+                                newRootUniverseTree.unserialize(contentKey, strings[0], model().metaModel());
+                                _cache.put(contentKey, newRootUniverseTree);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                newRootUniverseTree = null;
+                            }
                         }
-                        _cache.put(contentKey, newRootUniverseTree);
                         callback.on(newRootUniverseTree);
                     }
                 }
@@ -565,27 +569,23 @@ public class DefaultKDataManager implements KDataManager {
                 if (longRBTree == null) {
                     callback.on(null);
                 } else {
-                    Long closestUniverse = internal_resolve_universe(longRBTree, originView.now(), originView.universe().key());
-                    if (closestUniverse == null) {
-                        callback.on(null);
-                    } else {
-                        KContentKey universeTreeRootKey = KContentKey.createRootTimeTree(closestUniverse);
-                        internal_root_load(universeTreeRootKey, new Callback<LongRBTree>() {
-                            @Override
-                            public void on(LongRBTree longRBTree) {
-                                if (longRBTree == null) {
+                    long closestUniverse = internal_resolve_universe(longRBTree, originView.now(), originView.universe().key());
+                    KContentKey universeTreeRootKey = KContentKey.createRootTimeTree(closestUniverse);
+                    internal_root_load(universeTreeRootKey, new Callback<LongRBTree>() {
+                        @Override
+                        public void on(LongRBTree longRBTree) {
+                            if (longRBTree == null) {
+                                callback.on(null);
+                            } else {
+                                LongTreeNode resolvedNode = longRBTree.previousOrEqual(originView.now());
+                                if (resolvedNode == null) {
                                     callback.on(null);
                                 } else {
-                                    LongTreeNode resolvedNode = longRBTree.previousOrEqual(originView.now());
-                                    if (resolvedNode == null) {
-                                        callback.on(null);
-                                    } else {
-                                        lookup(originView, resolvedNode.value, callback);
-                                    }
+                                    lookup(originView, resolvedNode.value, callback);
                                 }
                             }
-                        });
-                    }
+                        }
+                    });
                 }
             }
         });
@@ -597,38 +597,39 @@ public class DefaultKDataManager implements KDataManager {
         internal_root_load(universeTreeRootKey, new Callback<LongRBTree>() {
             @Override
             public void on(LongRBTree longRBTree) {
-                if (longRBTree == null) {
-                    callback.on(new Exception("KMF ERROR, ROOT TREE CANNOT BE CREATED"));
-                } else {
-                    Long closestUniverse = internal_resolve_universe(longRBTree, newRoot.now(), newRoot.universe().key());
-                    if (closestUniverse == null || closestUniverse != newRoot.universe().key()) {
-                        longRBTree.insert(newRoot.universe().key(), newRoot.now());
-                        LongRBTree newTimeTree = new LongRBTree();
-                        newTimeTree.insert(newRoot.now(), newRoot.uuid());
-                        KContentKey universeTreeRootKey = KContentKey.createRootTimeTree(newRoot.universe().key());
-                        _cache.put(universeTreeRootKey, newTimeTree);
-                        if (callback != null) {
-                            callback.on(null);
-                        }
-                    } else {
-                        KContentKey universeTreeRootKey = KContentKey.createRootTimeTree(closestUniverse);
-                        internal_root_load(universeTreeRootKey, new Callback<LongRBTree>() {
-                            @Override
-                            public void on(LongRBTree longRBTree) {
-                                if (longRBTree == null) {
-                                    if (callback != null) {
-                                        callback.on(new Exception("KMF ERROR, ROOT TREE CANNOT BE CREATED"));
-                                    }
-                                } else {
-                                    longRBTree.insert(newRoot.now(), newRoot.uuid());
-                                    if (callback != null) {
-                                        callback.on(null);
-                                    }
-                                }
-                            }
-                        });
-                    }
+                LongRBTree cleanedTree = longRBTree;
+                if (cleanedTree == null) {
+                    cleanedTree = new LongRBTree();
+                    _cache.put(universeTreeRootKey, cleanedTree);
                 }
+                long closestUniverse = internal_resolve_universe(cleanedTree, newRoot.now(), newRoot.universe().key());
+                cleanedTree.insert(newRoot.universe().key(), newRoot.now());
+                if (closestUniverse != newRoot.universe().key()) {
+                    LongRBTree newTimeTree = new LongRBTree();
+                    newTimeTree.insert(newRoot.now(), newRoot.uuid());
+                    KContentKey universeTreeRootKey = KContentKey.createRootTimeTree(newRoot.universe().key());
+                    _cache.put(universeTreeRootKey, newTimeTree);
+                    if (callback != null) {
+                        callback.on(null);
+                    }
+                } else {
+                    KContentKey universeTreeRootKey = KContentKey.createRootTimeTree(closestUniverse);
+                    internal_root_load(universeTreeRootKey, new Callback<LongRBTree>() {
+                        @Override
+                        public void on(LongRBTree resolvedRootTimeTree) {
+                            LongRBTree initializedTree = resolvedRootTimeTree;
+                            if (initializedTree == null) {
+                                initializedTree = new LongRBTree();
+                                _cache.put(universeTreeRootKey, initializedTree);
+                            }
+                            initializedTree.insert(newRoot.now(), newRoot.uuid());
+                            if (callback != null) {
+                                callback.on(null);
+                            }
+                        }
+                    });
+                }
+
             }
         });
     }
@@ -686,7 +687,7 @@ public class DefaultKDataManager implements KDataManager {
             result = new IndexRBTree();
         } else if (key.segment().equals(KContentKey.GLOBAL_SEGMENT_DATA_RAW)) {
             result = new KCacheEntry();
-        } else if (key.segment().equals(KContentKey.GLOBAL_SEGMENT_DATA_LONG_INDEX) || key.segment().equals(KContentKey.GLOBAL_SEGMENT_DATA_ROOT)) {
+        } else if (key.segment().equals(KContentKey.GLOBAL_SEGMENT_DATA_LONG_INDEX) || key.segment().equals(KContentKey.GLOBAL_SEGMENT_DATA_ROOT) || key.segment().equals(KContentKey.GLOBAL_SEGMENT_UNIVERSE_TREE)) {
             result = new LongRBTree();
         } else {
             result = null;
@@ -720,10 +721,34 @@ public class DefaultKDataManager implements KDataManager {
         });
     }
 
-    private Long internal_resolve_universe(LongRBTree universeTree, long timeToResolve, long currentUniverse) {
-        //TODO :( uch
-        if (universeTree.lookup(currentUniverse) == null) {
-            return null;
+    private long internal_resolve_universe(LongRBTree objUniverseTree, long timeToResolve, long currentUniverse) {
+        LongRBTree globalTree = (LongRBTree) _cache.get(KContentKey.createGlobalUniverseTree());
+        //TODO do the lookup and the test before
+        if (globalTree == null) {
+            return currentUniverse;
+        }
+        LongTreeNode currentUniverseNode = globalTree.lookup(currentUniverse);
+        if (currentUniverseNode == null) {
+            return currentUniverse;
+        }
+        LongTreeNode resolved = objUniverseTree.lookup(currentUniverse);
+        while (resolved == null && currentUniverseNode.key != currentUniverseNode.value) {
+            currentUniverseNode = globalTree.lookup(currentUniverseNode.value);
+            resolved = objUniverseTree.lookup(currentUniverseNode.key);
+        }
+        if (resolved == null) {
+            return currentUniverse;
+        }
+        while (resolved != null && resolved.value > timeToResolve && resolved.key != resolved.value) {
+            LongTreeNode resolvedCurrent = globalTree.lookup(resolved.key);
+            resolved = objUniverseTree.lookup(resolvedCurrent.value);
+            while (resolved == null && resolvedCurrent != null && resolvedCurrent.key != resolvedCurrent.value) {
+                resolved = objUniverseTree.lookup(resolvedCurrent.value);
+                resolvedCurrent = globalTree.lookup(resolvedCurrent.value);
+            }
+        }
+        if (resolved != null) {
+            return resolved.key;
         } else {
             return currentUniverse;
         }

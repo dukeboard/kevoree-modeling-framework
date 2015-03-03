@@ -3,6 +3,8 @@ package org.kevoree.modeling.api.data.cache;
 /**
  * Created by duke on 18/02/15.
  */
+
+//TODO inject singleton for some Keys
 public class KContentKey {
 
     public static final int ELEM_SIZE = 4;
@@ -21,7 +23,7 @@ public class KContentKey {
 
     public static long GLOBAL_SEGMENT_DATA_ROOT = 4;
 
-    private static long GLOBAL_SEGMENT_UNIVERSE_TREE = 5;
+    public static long GLOBAL_SEGMENT_UNIVERSE_TREE = 5;
 
     private static long GLOBAL_SEGMENT_PREFIX = 6;
 
