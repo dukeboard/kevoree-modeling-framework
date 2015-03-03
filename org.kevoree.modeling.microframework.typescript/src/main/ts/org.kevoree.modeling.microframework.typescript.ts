@@ -2625,6 +2625,8 @@ module org {
 
                             send(msgs: org.kevoree.modeling.api.msg.KEventMessage[]): void;
 
+                            sendOperation(operationMessage: org.kevoree.modeling.api.msg.KEventMessage): void;
+
                             setManager(manager: org.kevoree.modeling.api.data.manager.KDataManager): void;
 
                         }
@@ -2741,6 +2743,9 @@ module org {
 
                             public send(msgs: org.kevoree.modeling.api.msg.KEventMessage[]): void {
                                 this._localEventListeners.dispatch(msgs);
+                            }
+
+                            public sendOperation(operation: org.kevoree.modeling.api.msg.KEventMessage): void {
                             }
 
                             public setManager(manager: org.kevoree.modeling.api.data.manager.KDataManager): void {
@@ -3015,7 +3020,7 @@ module org {
 
                             public entry(origin: org.kevoree.modeling.api.KObject, accessMode: org.kevoree.modeling.api.data.manager.AccessMode): org.kevoree.modeling.api.data.cache.KCacheEntry {
                                 var dimensionTree: org.kevoree.modeling.api.rbtree.LongRBTree = origin.universeTree();
-                                var resolvedUniverse: number = this.internal_resolve_universe(dimensionTree, origin.now(), origin.view().universe().key());
+                                var resolvedUniverse: number = org.kevoree.modeling.api.data.manager.ResolutionHelper.resolve_universe(<org.kevoree.modeling.api.rbtree.LongRBTree>this._cache.get(org.kevoree.modeling.api.data.cache.KContentKey.createGlobalUniverseTree()), dimensionTree, origin.now(), origin.view().universe().key());
                                 var timeTree: org.kevoree.modeling.api.rbtree.IndexRBTree = <org.kevoree.modeling.api.rbtree.IndexRBTree>this._cache.get(org.kevoree.modeling.api.data.cache.KContentKey.createTimeTree(resolvedUniverse, origin.uuid()));
                                 if (timeTree == null) {
                                     throw new java.lang.RuntimeException(DefaultKDataManager.OUT_OF_CACHE_MESSAGE + " : TimeTree not found for " + org.kevoree.modeling.api.data.cache.KContentKey.createTimeTree(resolvedUniverse, origin.uuid()) + " from " + origin.universe().key() + "/" + resolvedUniverse);
@@ -3168,7 +3173,7 @@ module org {
                                 var toLoadTimeTrees: java.util.List<org.kevoree.modeling.api.data.cache.KContentKey> = null;
                                 for (var i: number = 0; i < uuids.length; i++) {
                                     if (tempResult[i].universeTree != null) {
-                                        var closestUniverse: number = this.internal_resolve_universe(tempResult[i].universeTree, originView.now(), originView.universe().key());
+                                        var closestUniverse: number = org.kevoree.modeling.api.data.manager.ResolutionHelper.resolve_universe(<org.kevoree.modeling.api.rbtree.LongRBTree>this._cache.get(org.kevoree.modeling.api.data.cache.KContentKey.createGlobalUniverseTree()), tempResult[i].universeTree, originView.now(), originView.universe().key());
                                         if (closestUniverse != null) {
                                             tempResult[i].resolvedUniverse = closestUniverse;
                                             var timeObjectTreeKey: org.kevoree.modeling.api.data.cache.KContentKey = org.kevoree.modeling.api.data.cache.KContentKey.createTimeTree(closestUniverse, uuids[i]);
@@ -3267,7 +3272,7 @@ module org {
                                     if (longRBTree == null) {
                                         callback(null);
                                     } else {
-                                        var closestUniverse: number = this.internal_resolve_universe(longRBTree, originView.now(), originView.universe().key());
+                                        var closestUniverse: number = org.kevoree.modeling.api.data.manager.ResolutionHelper.resolve_universe(<org.kevoree.modeling.api.rbtree.LongRBTree>this._cache.get(org.kevoree.modeling.api.data.cache.KContentKey.createGlobalUniverseTree()), longRBTree, originView.now(), originView.universe().key());
                                         var universeTreeRootKey: org.kevoree.modeling.api.data.cache.KContentKey = org.kevoree.modeling.api.data.cache.KContentKey.createRootTimeTree(closestUniverse);
                                         this.internal_root_load(universeTreeRootKey,  (longRBTree : org.kevoree.modeling.api.rbtree.LongRBTree) => {
                                             if (longRBTree == null) {
@@ -3293,7 +3298,7 @@ module org {
                                         cleanedTree = new org.kevoree.modeling.api.rbtree.LongRBTree();
                                         this._cache.put(universeTreeRootKey, cleanedTree);
                                     }
-                                    var closestUniverse: number = this.internal_resolve_universe(cleanedTree, newRoot.now(), newRoot.universe().key());
+                                    var closestUniverse: number = org.kevoree.modeling.api.data.manager.ResolutionHelper.resolve_universe(<org.kevoree.modeling.api.rbtree.LongRBTree>this._cache.get(org.kevoree.modeling.api.data.cache.KContentKey.createGlobalUniverseTree()), cleanedTree, newRoot.now(), newRoot.universe().key());
                                     cleanedTree.insert(newRoot.universe().key(), newRoot.now());
                                     if (closestUniverse != newRoot.universe().key()) {
                                         var newTimeTree: org.kevoree.modeling.api.rbtree.LongRBTree = new org.kevoree.modeling.api.rbtree.LongRBTree();
@@ -3398,38 +3403,6 @@ module org {
                                     trees[0] = resolutionResults[0].timeTree;
                                     callback(trees);
                                 });
-                            }
-
-                            private internal_resolve_universe(objUniverseTree: org.kevoree.modeling.api.rbtree.LongRBTree, timeToResolve: number, currentUniverse: number): number {
-                                var globalTree: org.kevoree.modeling.api.rbtree.LongRBTree = <org.kevoree.modeling.api.rbtree.LongRBTree>this._cache.get(org.kevoree.modeling.api.data.cache.KContentKey.createGlobalUniverseTree());
-                                if (globalTree == null) {
-                                    return currentUniverse;
-                                }
-                                var currentUniverseNode: org.kevoree.modeling.api.rbtree.LongTreeNode = globalTree.lookup(currentUniverse);
-                                if (currentUniverseNode == null) {
-                                    return currentUniverse;
-                                }
-                                var resolved: org.kevoree.modeling.api.rbtree.LongTreeNode = objUniverseTree.lookup(currentUniverse);
-                                while (resolved == null && currentUniverseNode.key != currentUniverseNode.value){
-                                    currentUniverseNode = globalTree.lookup(currentUniverseNode.value);
-                                    resolved = objUniverseTree.lookup(currentUniverseNode.key);
-                                }
-                                if (resolved == null) {
-                                    return currentUniverse;
-                                }
-                                while (resolved != null && resolved.value > timeToResolve && resolved.key != resolved.value){
-                                    var resolvedCurrent: org.kevoree.modeling.api.rbtree.LongTreeNode = globalTree.lookup(resolved.key);
-                                    resolved = objUniverseTree.lookup(resolvedCurrent.value);
-                                    while (resolved == null && resolvedCurrent != null && resolvedCurrent.key != resolvedCurrent.value){
-                                        resolved = objUniverseTree.lookup(resolvedCurrent.value);
-                                        resolvedCurrent = globalTree.lookup(resolvedCurrent.value);
-                                    }
-                                }
-                                if (resolved != null) {
-                                    return resolved.key;
-                                } else {
-                                    return currentUniverse;
-                                }
                             }
 
                         }
@@ -3875,6 +3848,41 @@ module org {
                                         });
                                     }
                                 });
+                            }
+
+                        }
+
+                        export class ResolutionHelper {
+
+                            public static resolve_universe(globalTree: org.kevoree.modeling.api.rbtree.LongRBTree, objUniverseTree: org.kevoree.modeling.api.rbtree.LongRBTree, timeToResolve: number, currentUniverse: number): number {
+                                if (globalTree == null) {
+                                    return currentUniverse;
+                                }
+                                var currentUniverseNode: org.kevoree.modeling.api.rbtree.LongTreeNode = globalTree.lookup(currentUniverse);
+                                if (currentUniverseNode == null) {
+                                    return currentUniverse;
+                                }
+                                var resolved: org.kevoree.modeling.api.rbtree.LongTreeNode = objUniverseTree.lookup(currentUniverse);
+                                while (resolved == null && currentUniverseNode.key != currentUniverseNode.value){
+                                    currentUniverseNode = globalTree.lookup(currentUniverseNode.value);
+                                    resolved = objUniverseTree.lookup(currentUniverseNode.key);
+                                }
+                                if (resolved == null) {
+                                    return currentUniverse;
+                                }
+                                while (resolved != null && resolved.value > timeToResolve && resolved.key != resolved.value){
+                                    var resolvedCurrent: org.kevoree.modeling.api.rbtree.LongTreeNode = globalTree.lookup(resolved.key);
+                                    resolved = objUniverseTree.lookup(resolvedCurrent.value);
+                                    while (resolved == null && resolvedCurrent != null && resolvedCurrent.key != resolvedCurrent.value){
+                                        resolved = objUniverseTree.lookup(resolvedCurrent.value);
+                                        resolvedCurrent = globalTree.lookup(resolvedCurrent.value);
+                                    }
+                                }
+                                if (resolved != null) {
+                                    return resolved.key;
+                                } else {
+                                    return currentUniverse;
+                                }
                             }
 
                         }
@@ -6398,6 +6406,8 @@ module org {
                         public static ID_NAME: string = "id";
                         public static VALUE_NAME: string = "value";
                         public static VALUES_NAME: string = "values";
+                        public static CLASS_IDX_NAME: string = "class";
+                        public static PARAMETERS_NAME: string = "params";
                         public static EVENT_TYPE: number = 0;
                         public static GET_REQ_TYPE: number = 1;
                         public static GET_RES_TYPE: number = 2;
@@ -6535,9 +6545,18 @@ module org {
                                                         if (content.get(KMessageLoader.KEY_NAME) != null) {
                                                             callMessage.key = org.kevoree.modeling.api.data.cache.KContentKey.create(content.get(KMessageLoader.KEY_NAME).toString());
                                                         }
-                                                        if (content.get(KMessageLoader.VALUES_NAME) != null) {
-                                                            var metaParams: java.util.ArrayList<string> = <java.util.ArrayList<string>>content.get(KMessageLoader.VALUES_NAME);
-                                                            var toFlat: string[] = metaParams.toArray(new Array());
+                                                        if (content.get(KMessageLoader.CLASS_IDX_NAME) != null) {
+                                                            callMessage.classIndex = java.lang.Integer.parseInt(content.get(KMessageLoader.CLASS_IDX_NAME).toString());
+                                                        }
+                                                        if (content.get(KMessageLoader.OPERATION_NAME) != null) {
+                                                            callMessage.opIndex = java.lang.Integer.parseInt(content.get(KMessageLoader.OPERATION_NAME).toString());
+                                                        }
+                                                        if (content.get(KMessageLoader.PARAMETERS_NAME) != null) {
+                                                            var params: java.util.ArrayList<string> = <java.util.ArrayList<string>>content.get(KMessageLoader.PARAMETERS_NAME);
+                                                            var toFlat: string[] = new Array();
+                                                            for (var i: number = 0; i < params.size(); i++) {
+                                                                toFlat[i] = org.kevoree.modeling.api.json.JsonString.unescape(params.get(i));
+                                                            }
                                                             callMessage.params = toFlat;
                                                         }
                                                         return callMessage;
@@ -6546,6 +6565,9 @@ module org {
                                                             var resultMessage: org.kevoree.modeling.api.msg.KOperationResultMessage = new org.kevoree.modeling.api.msg.KOperationResultMessage();
                                                             if (content.get(KMessageLoader.ID_NAME) != null) {
                                                                 resultMessage.id = java.lang.Long.parseLong(content.get(KMessageLoader.ID_NAME).toString());
+                                                            }
+                                                            if (content.get(KMessageLoader.KEY_NAME) != null) {
+                                                                resultMessage.key = org.kevoree.modeling.api.data.cache.KContentKey.create(content.get(KMessageLoader.KEY_NAME).toString());
                                                             }
                                                             if (content.get(KMessageLoader.VALUE_NAME) != null) {
                                                                 resultMessage.value = content.get(KMessageLoader.VALUE_NAME).toString();
@@ -6595,10 +6617,11 @@ module org {
 
                     }
 
-                    export class KOperationCallMessage implements org.kevoree.modeling.api.msg.KMessage {
+                    export class KOperationCallMessage extends org.kevoree.modeling.api.msg.KEventMessage {
 
                         public id: number;
-                        public key: org.kevoree.modeling.api.data.cache.KContentKey;
+                        public classIndex: number;
+                        public opIndex: number;
                         public params: string[];
                         public json(): string {
                             var buffer: java.lang.StringBuilder = new java.lang.StringBuilder();
@@ -6606,15 +6629,17 @@ module org {
                             org.kevoree.modeling.api.msg.KMessageHelper.printType(buffer, this.type());
                             org.kevoree.modeling.api.msg.KMessageHelper.printElem(this.id, org.kevoree.modeling.api.msg.KMessageLoader.ID_NAME, buffer);
                             org.kevoree.modeling.api.msg.KMessageHelper.printElem(this.key, org.kevoree.modeling.api.msg.KMessageLoader.KEY_NAME, buffer);
+                            buffer.append(",\"").append(org.kevoree.modeling.api.msg.KMessageLoader.CLASS_IDX_NAME).append("\":\"").append(this.classIndex).append("\"");
+                            buffer.append(",\"").append(org.kevoree.modeling.api.msg.KMessageLoader.OPERATION_NAME).append("\":\"").append(this.opIndex).append("\"");
                             if (this.params != null) {
                                 buffer.append(",\"");
-                                buffer.append(org.kevoree.modeling.api.msg.KMessageLoader.VALUES_NAME).append("\":[");
+                                buffer.append(org.kevoree.modeling.api.msg.KMessageLoader.PARAMETERS_NAME).append("\":[");
                                 for (var i: number = 0; i < this.params.length; i++) {
                                     if (i != 0) {
                                         buffer.append(",");
                                     }
                                     buffer.append("\"");
-                                    buffer.append(this.params[i]);
+                                    buffer.append(org.kevoree.modeling.api.json.JsonString.encode(this.params[i]));
                                     buffer.append("\"");
                                 }
                                 buffer.append("]\n");
@@ -6629,7 +6654,7 @@ module org {
 
                     }
 
-                    export class KOperationResultMessage implements org.kevoree.modeling.api.msg.KMessage {
+                    export class KOperationResultMessage extends org.kevoree.modeling.api.msg.KEventMessage {
 
                         public id: number;
                         public value: string;
@@ -6638,6 +6663,7 @@ module org {
                             org.kevoree.modeling.api.msg.KMessageHelper.printJsonStart(buffer);
                             org.kevoree.modeling.api.msg.KMessageHelper.printType(buffer, this.type());
                             org.kevoree.modeling.api.msg.KMessageHelper.printElem(this.id, org.kevoree.modeling.api.msg.KMessageLoader.ID_NAME, buffer);
+                            org.kevoree.modeling.api.msg.KMessageHelper.printElem(this.key, org.kevoree.modeling.api.msg.KMessageLoader.KEY_NAME, buffer);
                             org.kevoree.modeling.api.msg.KMessageHelper.printElem(this.value, org.kevoree.modeling.api.msg.KMessageLoader.VALUE_NAME, buffer);
                             org.kevoree.modeling.api.msg.KMessageHelper.printJsonEnd(buffer);
                             return buffer.toString();
@@ -11202,12 +11228,8 @@ module org {
                         private staticOperations: java.util.Map<number, java.util.Map<number, (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void>> = new java.util.HashMap<number, java.util.Map<number, (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void>>();
                         private instanceOperations: java.util.Map<number, java.util.Map<number, (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void>> = new java.util.HashMap<number, java.util.Map<number, (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void>>();
                         private _manager: org.kevoree.modeling.api.data.manager.KDataManager;
-                        private static DIM_INDEX: number = 0;
-                        private static TIME_INDEX: number = 1;
-                        private static UUID_INDEX: number = 2;
-                        private static OPERATION_INDEX: number = 3;
-                        private static TUPLE_SIZE: number = 4;
-                        private remoteCallCallbacks: java.util.HashMap<number[], (p : any) => void> = new java.util.HashMap<number[], (p : any) => void>();
+                        private _callbackId: number = 0;
+                        private remoteCallCallbacks: java.util.HashMap<number, (p : any) => void> = new java.util.HashMap<number, (p : any) => void>();
                         constructor(p_manager: org.kevoree.modeling.api.data.manager.KDataManager) {
                             this._manager = p_manager;
                         }
@@ -11252,66 +11274,60 @@ module org {
                         }
 
                         private sendToRemote(source: org.kevoree.modeling.api.KObject, operation: org.kevoree.modeling.api.meta.MetaOperation, param: any[], callback: (p : any) => void): void {
-                            var tuple: number[] = new Array();
-                            tuple[DefaultOperationManager.DIM_INDEX] = source.universe().key();
-                            tuple[DefaultOperationManager.TIME_INDEX] = source.now();
-                            tuple[DefaultOperationManager.UUID_INDEX] = source.uuid();
-                            tuple[DefaultOperationManager.OPERATION_INDEX] = <number>operation.index();
-                            this.remoteCallCallbacks.put(tuple, callback);
-                            var sb: java.lang.StringBuilder = new java.lang.StringBuilder();
-                            sb.append("[");
-                            if (param.length > 0) {
-                                sb.append("\"").append(this.protectString(param[0].toString())).append("\"");
-                                for (var i: number = 1; i < param.length; i++) {
-                                    sb.append(",").append("\"").append(this.protectString(param[i].toString())).append("\"");
-                                }
+                            var stringParams: string[] = new Array();
+                            for (var i: number = 0; i < param.length; i++) {
+                                stringParams[i] = param[i].toString();
                             }
-                            sb.append("]");
+                            var contentKey: org.kevoree.modeling.api.data.cache.KContentKey = new org.kevoree.modeling.api.data.cache.KContentKey(org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_RAW, source.universe().key(), source.now(), source.uuid());
+                            var operationCall: org.kevoree.modeling.api.msg.KOperationCallMessage = new org.kevoree.modeling.api.msg.KOperationCallMessage();
+                            operationCall.id = this.nextKey();
+                            operationCall.key = contentKey;
+                            operationCall.classIndex = source.metaClass().index();
+                            operationCall.opIndex = operation.index();
+                            operationCall.params = stringParams;
+                            this.remoteCallCallbacks.put(operationCall.id, callback);
+                            this._manager.cdn().sendOperation(operationCall);
                         }
 
-                        private protectString(input: string): string {
-                            var sb: java.lang.StringBuilder = new java.lang.StringBuilder();
-                            for (var i: number = 0; i < input.length; i++) {
-                                var c: string = input.charAt(i);
-                                if (c == '{' || c == '}' || c == '[' || c == ']' || c == ',' || c == '\\' || c == '"') {
-                                    sb.append('\\');
-                                }
-                                sb.append(c);
+                        public nextKey(): number {
+                            if (this._callbackId == 9999) {
+                                this._callbackId = 0;
+                            } else {
+                                this._callbackId++;
                             }
-                            return sb.toString();
+                            return this._callbackId;
                         }
 
-                        private parseParams(inParams: string): any[] {
-                            var params: java.util.ArrayList<any> = new java.util.ArrayList<any>();
-                            var sb: java.lang.StringBuilder = new java.lang.StringBuilder();
-                            if (inParams.length > 2) {
-                                if (inParams.charAt(0) == '[') {
-                                    var i: number = 1;
-                                    var c: string = inParams.charAt(i);
-                                    var inParam: boolean = false;
-                                    while (i < inParams.length && c != ']'){
-                                        if (c == '\\') {
-                                            i++;
-                                            sb.append(inParams.charAt(i));
-                                        } else {
-                                            if (c == '"') {
-                                                if (inParam) {
-                                                    params.add(sb.toString());
-                                                    sb = new java.lang.StringBuilder();
-                                                }
-                                                inParam = !inParam;
-                                            } else {
-                                                if (inParam) {
-                                                    sb.append(c);
-                                                }
+                        public operationEventReceived(operationEvent: org.kevoree.modeling.api.msg.KEventMessage): void {
+                            if (operationEvent.type() == org.kevoree.modeling.api.msg.KMessageLoader.OPERATION_RESULT_TYPE) {
+                                var operationResult: org.kevoree.modeling.api.msg.KOperationResultMessage = <org.kevoree.modeling.api.msg.KOperationResultMessage>operationEvent;
+                                var cb: (p : any) => void = this.remoteCallCallbacks.get(operationResult.id);
+                                if (cb != null) {
+                                    cb(operationResult.value);
+                                }
+                            } else {
+                                if (operationEvent.type() == org.kevoree.modeling.api.msg.KMessageLoader.OPERATION_CALL_TYPE) {
+                                    var operationCall: org.kevoree.modeling.api.msg.KOperationCallMessage = <org.kevoree.modeling.api.msg.KOperationCallMessage>operationEvent;
+                                    var sourceKey: org.kevoree.modeling.api.data.cache.KContentKey = operationCall.key;
+                                    var operationCore: (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void = this.searchOperation(sourceKey.obj(), operationCall.classIndex, operationCall.opIndex);
+                                    if (operationCore != null) {
+                                        var view: org.kevoree.modeling.api.KView = this._manager.model().universe(sourceKey.universe()).time(sourceKey.time());
+                                        view.lookup(sourceKey.obj()).then( (kObject : org.kevoree.modeling.api.KObject) => {
+                                            if (kObject != null) {
+                                                operationCore(kObject, operationCall.params,  (o : any) => {
+                                                    var operationResultMessage: org.kevoree.modeling.api.msg.KOperationResultMessage = new org.kevoree.modeling.api.msg.KOperationResultMessage();
+                                                    operationResultMessage.key = operationCall.key;
+                                                    operationResultMessage.id = operationCall.id;
+                                                    operationResultMessage.value = o.toString();
+                                                    this._manager.cdn().sendOperation(operationResultMessage);
+                                                });
                                             }
-                                        }
-                                        i++;
-                                        c = inParams.charAt(i);
+                                        });
                                     }
+                                } else {
+                                    System.err.println("BAD ROUTING !");
                                 }
                             }
-                            return params.toArray(new Array());
                         }
 
                     }
@@ -11321,6 +11337,8 @@ module org {
                         registerOperation(operation: org.kevoree.modeling.api.meta.MetaOperation, callback: (p : org.kevoree.modeling.api.KObject, p1 : any[], p2 : (p : any) => void) => void, target: org.kevoree.modeling.api.KObject): void;
 
                         call(source: org.kevoree.modeling.api.KObject, operation: org.kevoree.modeling.api.meta.MetaOperation, param: any[], callback: (p : any) => void): void;
+
+                        operationEventReceived(operationEvent: org.kevoree.modeling.api.msg.KEventMessage): void;
 
                     }
 

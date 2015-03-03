@@ -1,16 +1,22 @@
 declare class System {
     static out: {
-        println: (obj?: any) => void;
-        print: (obj: any) => void;
+        println(obj?: any): void;
+        print(obj: any): void;
     };
     static err: {
-        println: (obj?: any) => void;
-        print: (obj: any) => void;
+        println(obj?: any): void;
+        print(obj: any): void;
     };
     static arraycopy(src: Number[], srcPos: number, dest: Number[], destPos: number, numElements: number): void;
 }
-declare var TSMap: new <K, V>() => Map<K, V>;
-declare var TSSet: new <T>() => Set<T>;
+declare var TSMap: {
+    new <K, V>(): Map<K, V>;
+    prototype: Map<any, any>;
+};
+declare var TSSet: {
+    new <T>(): Set<T>;
+    prototype: Set<any>;
+};
 interface Number {
     equals: (other: Number) => boolean;
     longValue(): number;
@@ -76,6 +82,7 @@ declare module java {
     module util {
         class Random {
             nextInt(max: number): number;
+            nextDouble(): number;
         }
         class Arrays {
             static fill(data: Number[], begin: number, nbElem: number, param: number): void;
@@ -92,7 +99,7 @@ declare module java {
             isEmpty(): boolean;
             size(): number;
             contains(val: T): boolean;
-            toArray(a: T[]): T[];
+            toArray(a: Array<T>): T[];
         }
         class List<T> extends Collection<T> {
             sort(): void;
@@ -101,7 +108,7 @@ declare module java {
             clear(): void;
             poll(): T;
             remove(val: T): void;
-            toArray(a: T[]): T[];
+            toArray(a: Array<T>): T[];
             size(): number;
             add(val: T): void;
             get(index: number): T;
@@ -134,7 +141,7 @@ declare module java {
             remove(val: T): void;
             size(): number;
             isEmpty(): boolean;
-            toArray(other: T[]): T[];
+            toArray(other: Array<T>): T[];
         }
         class HashSet<T> extends Set<T> {
         }

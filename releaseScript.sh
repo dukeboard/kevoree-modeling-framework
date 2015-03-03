@@ -17,6 +17,6 @@
 #
 
 export JAVA_HOME=$(/usr/libexec/java_home)
-mvn release:clean
-mvn release:prepare
-mvn release:perform
+mvn -P release release:clean
+mvn -P release release:prepare
+mvn -P release release:perform

@@ -203,6 +203,9 @@ var java;
             Random.prototype.nextInt = function (max) {
                 return Math.random() * max;
             };
+            Random.prototype.nextDouble = function () {
+                return Math.random();
+            };
             return Random;
         })();
         util.Random = Random;
