@@ -7,7 +7,6 @@ public class AtomicOperationFactory {
 
     public static final int PREFIX_MUTATE_OPERATION = 0;
 
-
     public static AtomicOperation getMutatePrefixOperation() {
         return new AtomicOperation() {
 
@@ -40,11 +39,11 @@ public class AtomicOperationFactory {
 
     public static AtomicOperation getOperationWithKey(int key) {
         switch (key) {
-            case PREFIX_MUTATE_OPERATION: return getMutatePrefixOperation();
+            case PREFIX_MUTATE_OPERATION:
+                return getMutatePrefixOperation();
         }
         return null;
     }
-
 
 
 }

@@ -3,7 +3,6 @@ package org.kevoree.modeling.api.data.manager;
 /**
  * Created by gregory.nain on 02/12/14.
  */
-// TODO must be synchronized
 public class KeyCalculator {
 
     // Limit long lengths to 53 bits because of JS limitation
@@ -12,8 +11,7 @@ public class KeyCalculator {
     public static final long INDEX_LIMIT = 0x0000001FFFFFFFFFl;
 
     /**
-     * @native:ts
-     * {@code
+     * @native:ts {@code
      * private _prefix: string;
      * }
      */
@@ -21,21 +19,20 @@ public class KeyCalculator {
     private long _currentIndex;
 
     /**
-     * @native:ts
-     * {@code
+     * @param currentIndex
+     * @param prefix
+     * @native:ts {@code
      * this._prefix = "0x" + prefix.toString(16);
      * this._currentIndex = currentIndex;
      * }
-     * @param currentIndex
-     * @param prefix
      */
     public KeyCalculator(short prefix, long currentIndex) {
         this._prefix = ((long) prefix) << 53 - 16;
         this._currentIndex = currentIndex;
     }
 
-    /**@native:ts
-     * {@code
+    /**
+     * @native:ts {@code
      * if (this._currentIndex == KeyCalculator.INDEX_LIMIT) {
      * throw new java.lang.IndexOutOfBoundsException("Object Index could not be created because it exceeded the capacity of the current prefix. Ask for a new prefix.");
      * }
@@ -47,7 +44,6 @@ public class KeyCalculator {
      * }
      * return objectKey;
      * }
-     *
      */
     public long nextKey() {
         if (_currentIndex == INDEX_LIMIT) {
@@ -67,8 +63,7 @@ public class KeyCalculator {
     }
 
     /**
-     * @native:ts
-     * {@code
+     * @native:ts {@code
      * return parseInt(this._prefix,16);
      * }
      */

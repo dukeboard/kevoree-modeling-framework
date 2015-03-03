@@ -130,8 +130,6 @@ public class JsonModelLoader {
                                             raw.set(Index.PARENT_INDEX, parentKey);
                                         }
                                     }
-
-
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -164,7 +162,7 @@ public class JsonModelLoader {
                                         try {
                                             ArrayList<String> plainRawSet = (ArrayList<String>) payload_content;
                                             long[] convertedRaw = new long[plainRawSet.size()];
-                                            for (int l = 0; l < convertedRaw.length; l++) {
+                                            for (int l = 0; l < plainRawSet.size(); l++) {
                                                 try {
                                                     Long converted = Long.parseLong(plainRawSet.get(l));
                                                     if (mappedKeys.containsKey(converted)) {
