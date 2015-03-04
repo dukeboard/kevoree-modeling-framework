@@ -120,11 +120,7 @@ public class KCacheEntry implements KCacheObject {
             for (int i = 0; i < raw.length; i++) {
                 Object resolved = raw[i];
                 if (resolved != null) {
-                    if (resolved instanceof List) {
-                        ArrayList<Long> clonedList = new ArrayList<Long>();
-                        clonedList.addAll((List<Long>) resolved);
-                        cloned[i] = clonedList;
-                    } else if (resolved instanceof KInferState) {
+                    if (resolved instanceof KInferState) {
                         cloned[i] = ((KInferState) resolved).cloneState();
                     } else {
                         cloned[i] = resolved;

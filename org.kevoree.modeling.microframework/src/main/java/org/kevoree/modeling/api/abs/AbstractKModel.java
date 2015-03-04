@@ -1,7 +1,6 @@
 package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.KDefer;
-import org.kevoree.modeling.api.KEventListener;
 import org.kevoree.modeling.api.KModel;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KOperation;

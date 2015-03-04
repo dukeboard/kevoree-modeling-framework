@@ -742,7 +742,6 @@ public class DefaultKDataManager implements KDataManager {
                 return result;
             }
         } catch (Exception e) {
-            System.err.println("Load of object fail " + result.getClass().getName() + " with " + payload + "-" + key + "-" + segment);
             e.printStackTrace();
             return null;
         }
