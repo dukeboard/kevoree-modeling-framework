@@ -6,6 +6,7 @@ import org.iq80.leveldb.Options;
 import org.iq80.leveldb.WriteBatch;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KEventListener;
+import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.cdn.AtomicOperation;
@@ -141,13 +142,13 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
     private LocalEventListeners localEventListeners = new LocalEventListeners();
 
     @Override
-    public void registerListener(Object p_origin, KEventListener p_listener, Object p_scope) {
-        localEventListeners.registerListener(p_origin, p_listener, p_scope);
+    public void registerListener(KObject p_origin, KEventListener p_listener, boolean p_subTree) {
+        localEventListeners.registerListener(p_origin, p_listener, p_subTree);
     }
 
     @Override
-    public void unregister(KEventListener p_listener) {
-        localEventListeners.unregister(p_listener);
+    public void unregister(KObject p_origin, KEventListener p_listener, boolean p_subTree) {
+        localEventListeners.unregister(p_origin, p_listener, p_subTree);
     }
 
 

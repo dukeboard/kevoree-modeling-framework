@@ -2,6 +2,7 @@ package org.kevoree.modeling.api.data.cdn;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KEventListener;
+import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.data.cache.*;
 import org.kevoree.modeling.api.data.manager.KDataManager;
@@ -82,13 +83,13 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
 
 
     @Override
-    public void registerListener(Object p_origin, KEventListener p_listener, Object p_scope) {
+    public void registerListener(KObject p_origin, KEventListener p_listener, boolean p_scope) {
         _localEventListeners.registerListener(p_origin, p_listener, p_scope);
     }
 
     @Override
-    public void unregister(KEventListener p_listener) {
-        _localEventListeners.unregister(p_listener);
+    public void unregister(KObject p_origin, KEventListener p_listener, boolean p_subTree) {
+        _localEventListeners.unregister(p_origin, p_listener, p_subTree);
     }
 
     @Override

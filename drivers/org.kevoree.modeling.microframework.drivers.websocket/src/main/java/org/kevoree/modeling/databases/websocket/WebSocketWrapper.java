@@ -12,6 +12,7 @@ import io.undertow.websockets.core.WebSockets;
 import io.undertow.websockets.spi.WebSocketHttpExchange;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KEventListener;
+import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.cdn.AtomicOperation;
@@ -207,13 +208,13 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
     }
 
     @Override
-    public void registerListener(Object origin, KEventListener listener, Object scope) {
-        wrapped.registerListener(origin, listener, scope);
+    public void registerListener(KObject p_origin, KEventListener p_listener, boolean p_subTree) {
+        wrapped.registerListener(p_origin, p_listener, p_subTree);
     }
 
     @Override
-    public void unregister(KEventListener listener) {
-        wrapped.unregister(listener);
+    public void unregister(KObject p_origin, KEventListener p_listener, boolean p_subTree) {
+        wrapped.unregister(p_origin, p_listener, p_subTree);
     }
 
     @Override

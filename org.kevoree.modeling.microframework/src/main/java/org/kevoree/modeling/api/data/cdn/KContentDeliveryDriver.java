@@ -2,6 +2,7 @@ package org.kevoree.modeling.api.data.cdn;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KEventListener;
+import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.data.cache.KCache;
 import org.kevoree.modeling.api.data.cache.KContentKey;
@@ -30,9 +31,9 @@ public interface KContentDeliveryDriver {
 
     public void close(Callback<Throwable> callback);
 
-    void registerListener(Object origin, KEventListener listener, Object scope);
+    void registerListener(KObject origin, KEventListener listener, boolean subTree);
 
-    void unregister(KEventListener listener);
+    void unregister(KObject origin, KEventListener listener, boolean subTree);
 
     void send(KEventMessage[] msgs);
 

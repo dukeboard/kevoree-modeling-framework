@@ -125,10 +125,6 @@ public abstract class AbstractKView implements KView {
         return newObj;
     }
 
-    public void listen(KEventListener listener) {
-        universe().model().manager().cdn().registerListener(this, listener, null);
-    }
-
     protected abstract KObject internalCreate(MetaClass clazz, LongRBTree universeTree, long key);
 
     @Override

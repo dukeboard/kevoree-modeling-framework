@@ -46,16 +46,6 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
         return internal_create(timePoint);
     }
 
-    @Override
-    public void listen(KEventListener listener) {
-        model().manager().cdn().registerListener(this, listener, null);
-    }
-
-    @Override
-    public void listenAllTimes(KObject target, KEventListener listener) {
-        //TODO invert this and target to fix a potential bug
-        model().manager().cdn().registerListener(this, listener, target);
-    }
 
     protected abstract A internal_create(Long timePoint);
 

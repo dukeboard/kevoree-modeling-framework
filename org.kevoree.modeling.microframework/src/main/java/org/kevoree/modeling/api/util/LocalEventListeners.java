@@ -16,6 +16,8 @@ import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.msg.KEventMessage;
 import org.kevoree.modeling.api.rbtree.LongRBTree;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 /**
@@ -23,35 +25,28 @@ import java.util.HashMap;
  */
 public class LocalEventListeners {
 
-    private static int DIM_INDEX = 0;
-    private static int TIME_INDEX = 1;
-    private static int UUID_INDEX = 2;
-    private static int TUPLE_SIZE = 3;
-
-    private HashMap<KEventListener, Long[]> listeners = new HashMap<KEventListener, Long[]>();
     private KDataManager _manager;
 
-    public void registerListener(Object origin, KEventListener listener, Object scope) {
-        Long[] tuple = new Long[TUPLE_SIZE];
-        if (origin instanceof AbstractKUniverse) {
-            tuple[DIM_INDEX] = ((AbstractKUniverse) origin).key();
-        } else if (origin instanceof AbstractKView) {
-            tuple[DIM_INDEX] = ((AbstractKView) origin).universe().key();
-            tuple[TIME_INDEX] = ((AbstractKView) origin).now();
-        } else if (origin instanceof AbstractKObject) {
-            AbstractKObject casted = (AbstractKObject) origin;
-            if (scope == null) {
-                tuple[DIM_INDEX] = casted.universe().key();
-                tuple[TIME_INDEX] = casted.now();
-                tuple[UUID_INDEX] = casted.uuid();
-            } else {
-                tuple[UUID_INDEX] = casted.uuid();
-                if (scope instanceof AbstractKUniverse) {
-                    tuple[DIM_INDEX] = ((AbstractKUniverse) scope).key();
-                }
-            }
+    private HashMap<Long, HashMap<Long, ArrayList<KEventListener>>> listenersMap = new HashMap<Long, HashMap<Long, ArrayList<KEventListener>>>();
+
+    //Registers a listener for the Origin. In its universe only.
+    //Register also on any sub-element if scope == null
+    public void registerListener(KObject origin, KEventListener listener, boolean subTree) {
+        HashMap<Long, ArrayList<KEventListener>> universeMap = listenersMap.get(origin.universe().key());
+        if(universeMap == null) {
+            universeMap = new HashMap<Long, ArrayList<KEventListener>>();
+            listenersMap.put(origin.universe().key(), universeMap);
         }
-        listeners.put(listener, tuple);
+        ArrayList<KEventListener> objectListeners = universeMap.get(origin.uuid());
+        if(objectListeners == null) {
+            objectListeners = new ArrayList<KEventListener>();
+            universeMap.put(origin.uuid(), objectListeners);
+        }
+        if(subTree == false) {
+            objectListeners.add(listener);
+        } else {
+            System.out.println("Registration of listener for sub-tree not implemented yet.");
+        }
     }
 
     public void setManager(KDataManager manager) {
@@ -66,43 +61,30 @@ public class LocalEventListeners {
         for(int k = 0; k < messages.length; k++) {
             KEventMessage msg = messages[k];
             KContentKey sourceKey = msg.key;
-            final KEventListener[] keys = listeners.keySet().toArray(new KEventListener[listeners.size()]);
-            for (int i = 0; i < keys.length; i++) {
-                Object[] tuple = listeners.get(keys[i]);
-                boolean match = true;
-                if (tuple[DIM_INDEX] != null) {
-                    if (!tuple[DIM_INDEX].equals(sourceKey.universe())) {
-                        match = false;
-                    }
-                }
-                if (tuple[TIME_INDEX] != null) {
-                    if (!tuple[TIME_INDEX].equals(sourceKey.time())) {
-                        match = false;
-                    }
-                }
-                if (tuple[UUID_INDEX] != null) {
-                    if (!tuple[UUID_INDEX].equals(sourceKey.obj())) {
-                        match = false;
-                    }
-                }
-                if (match) {
-                    final int finalI = i;
-                    resolveKObject(sourceKey, universeCache, viewsCache, new Callback<KObject>() {
-                        @Override
-                        public void on(KObject src) {
-                            Meta[] metas = new Meta[msg.meta.length];
-                            for (int j = 0; j < msg.meta.length; j++) {
-                                if (msg.meta[j] >= Index.RESERVED_INDEXES) {
-                                    metas[j] = src.metaClass().meta(msg.meta[j]);
+
+            HashMap<Long, ArrayList<KEventListener>> universeListeners = listenersMap.get(sourceKey.universe());
+            if(universeListeners != null) {
+                ArrayList<KEventListener> objectListeners = universeListeners.get(sourceKey.obj());
+                if(objectListeners != null) {
+                    for(int i = 0; i < objectListeners.size(); i++) {
+                        final int finalI = i;
+                        resolveKObject(sourceKey, universeCache, viewsCache, new Callback<KObject>() {
+                            @Override
+                            public void on(KObject src) {
+                                Meta[] metas = new Meta[msg.meta.length];
+                                for (int j = 0; j < msg.meta.length; j++) {
+                                    if (msg.meta[j] >= Index.RESERVED_INDEXES) {
+                                        metas[j] = src.metaClass().meta(msg.meta[j]);
+                                    }
                                 }
+                                KEventListener lst = objectListeners.get(finalI);
+                                lst.on(src, metas);
                             }
-                            keys[finalI].on(src, metas);
-                        }
-                    });
+                        });
+                    }
                 }
             }
         }
-
     }
 
     private void resolveKObject(KContentKey key, HashMap<Long, KUniverse> universeCache, HashMap<String, KView> viewsCache, Callback<KObject> callback) {
@@ -126,12 +108,22 @@ public class LocalEventListeners {
     }
 
 
-    public void unregister(KEventListener listener) {
-        listeners.remove(listener);
+    public void unregister(KObject origin, KEventListener listener, boolean subTree) {
+        HashMap<Long, ArrayList<KEventListener>> universeListeners = listenersMap.get(origin.universe().key());
+        if(universeListeners != null) {
+            ArrayList<KEventListener> objectListeners = universeListeners.get(origin.uuid());
+            if(objectListeners != null) {
+                if(subTree == false) {
+                    objectListeners.remove(listener);
+                } else {
+                    System.out.println("Registration of listener for sub-tree not implemented yet.");
+                }
+            }
+        }
     }
 
     public void clear() {
-        listeners.clear();
+        listenersMap.clear();
     }
 
 

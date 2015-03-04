@@ -21,8 +21,6 @@ public interface KView {
 
     public long now();
 
-    public void listen(KEventListener listener);
-
     public ModelFormat json();
 
     public ModelFormat xmi();

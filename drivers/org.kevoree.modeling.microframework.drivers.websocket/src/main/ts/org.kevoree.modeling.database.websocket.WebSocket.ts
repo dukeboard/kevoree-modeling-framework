@@ -139,11 +139,11 @@ module org {
                         }
 
 
-                        public registerListener(origin: any, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void, scope: any): void{
-                            this._localEventListeners.registerListener(origin, listener, scope);
+                        public registerListener(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void, subTree: boolean): void{
+                            this._localEventListeners.registerListener(origin, listener, subTree);
                         }
-                        public unregister(listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void {
-                            this._localEventListeners.unregister(listener);
+                        public unregister(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void, subTree: boolean): void {
+                            this._localEventListeners.unregister(origin, listener, subTree);
                         }
 
                         public setManager(manager: org.kevoree.modeling.api.data.manager.KDataManager): void {
@@ -162,8 +162,9 @@ module org {
                                 var key = msgs[i].key;
                                 if(key.segment() == org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_RAW) {
                                     if(msgs[i].type() != org.kevoree.modeling.api.msg.KMessageLoader.OPERATION_CALL_TYPE ||
-                                        msgs[i].type() != org.kevoree.modeling.api.msg.KMessageLoader.OPERATION_RESULT_TYPE)
+                                        msgs[i].type() != org.kevoree.modeling.api.msg.KMessageLoader.OPERATION_RESULT_TYPE) {
                                         messagesToFire.push(msgs[i]);
+                                    }
                                 }
                             }
                             this._localEventListeners.dispatch(messagesToFire);

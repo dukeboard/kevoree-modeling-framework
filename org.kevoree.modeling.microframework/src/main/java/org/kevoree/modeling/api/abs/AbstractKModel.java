@@ -77,16 +77,6 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
     }
 
     @Override
-    public void disable(KEventListener listener) {
-        manager().cdn().unregister(listener);
-    }
-
-    @Override
-    public void listen(KEventListener listener) {
-        manager().cdn().registerListener(this, listener, null);
-    }
-
-    @Override
     public KModel<A> setContentDeliveryDriver(KContentDeliveryDriver p_driver) {
         manager().setContentDeliveryDriver(p_driver);
         return this;
