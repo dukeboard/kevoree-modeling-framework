@@ -11,21 +11,21 @@ import java.util.ArrayList;
  */
 public class ResolutionHelper {
 
-    public static long resolve_universe(LongRBTree globalTree, LongRBTree objUniverseTree, long timeToResolve, long currentUniverse) {
+    public static long resolve_universe(LongRBTree globalTree, LongRBTree objUniverseTree, long timeToResolve, long universeId) {
         if (globalTree == null) {
-            return currentUniverse;
+            return universeId;
         }
-        LongTreeNode currentUniverseNode = globalTree.lookup(currentUniverse);
+        LongTreeNode currentUniverseNode = globalTree.lookup(universeId);
         if (currentUniverseNode == null) {
-            return currentUniverse;
+            return universeId;
         }
-        LongTreeNode resolved = objUniverseTree.lookup(currentUniverse);
+        LongTreeNode resolved = objUniverseTree.lookup(universeId);
         while (resolved == null && currentUniverseNode.key != currentUniverseNode.value) {
             currentUniverseNode = globalTree.lookup(currentUniverseNode.value);
             resolved = objUniverseTree.lookup(currentUniverseNode.key);
         }
         if (resolved == null) {
-            return currentUniverse;
+            return universeId;
         }
         while (resolved != null && resolved.value > timeToResolve && resolved.key != resolved.value) {
             LongTreeNode resolvedCurrent = globalTree.lookup(resolved.key);
@@ -34,11 +34,14 @@ public class ResolutionHelper {
                 resolved = objUniverseTree.lookup(resolvedCurrent.value);
                 resolvedCurrent = globalTree.lookup(resolvedCurrent.value);
             }
+            if(resolvedCurrent.key == resolvedCurrent.value) {
+                break;
+            }
         }
         if (resolved != null) {
             return resolved.key;
         } else {
-            return currentUniverse;
+            return universeId;
         }
     }
 

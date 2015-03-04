@@ -36,6 +36,46 @@ public class TimeTest {
         org.junit.Assert.assertEquals(t1.now(), 1l);
     }
 
+
+
+    final int[] jumpCounter = {4};
+    private Callback<KObject> jumpCallback = new Callback<KObject>() {
+        @Override
+        public void on(KObject kObject) {
+            if(jumpCounter[0] > 0) {
+                jumpCounter[0]--;
+                if (kObject != null) {
+                    Node n = (Node) kObject;
+                    n.jump(jumpCounter[0]).then(jumpCallback);
+                }
+            }
+        }
+    };
+
+    @Test
+    public void jumpTest() {
+        CloudModel cloud = new CloudModel();
+        cloud.connect();
+        CloudUniverse universe = cloud.newUniverse();
+
+        //creates an object at time 3
+        CloudView view3 = universe.time(3);
+        Node n = view3.createNode();
+        view3.setRoot(n);
+        cloud.save();
+
+        //resolves the object from time 5
+        CloudView view5 = universe.time(5);
+        view5.select("/").then(new Callback<KObject[]>() {
+            public void on(KObject[] kObjects) {
+                Node n = (Node)kObjects[0];
+                System.out.println("Jump " + jumpCounter[0]);
+                n.jump(jumpCounter[0]).then(jumpCallback);
+            }
+        });
+
+    }
+
     @Test
     public void simpleTimeNavigationTest() {
         CloudModel universe = new CloudModel();
