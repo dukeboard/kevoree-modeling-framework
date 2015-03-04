@@ -4,8 +4,11 @@ package org.kevoree.modeling.api.map;
 /* From an original idea https://code.google.com/p/jdbm2/ */
 
 import org.kevoree.modeling.api.KConfig;
+import org.kevoree.modeling.api.data.cache.KCacheObject;
+import org.kevoree.modeling.api.data.cache.KContentKey;
+import org.kevoree.modeling.api.meta.MetaModel;
 
-public class LongLongHashMap {
+public class LongLongHashMap implements KCacheObject {
 
     protected int elementCount;
 
@@ -22,6 +25,66 @@ public class LongLongHashMap {
     private final int initalCapacity;
 
     private final float loadFactor;
+
+    private boolean _isDirty = false;
+
+    private static final char ELEMENT_SEP = ',';
+
+    private static final char CHUNK_SEP = '/';
+
+    @Override
+    public boolean isDirty() {
+        return _isDirty;
+    }
+
+    @Override
+    public void setClean() {
+        _isDirty = false;
+    }
+
+    @Override
+    public void unserialize(KContentKey key, String payload, MetaModel metaModel) throws Exception {
+        if (payload == null || payload.length() == 0) {
+            return;
+        }
+        int cursor = 0;
+        while (cursor < payload.length() && payload.charAt(cursor) != CHUNK_SEP) {
+            cursor++;
+        }
+        int nbElement = Integer.parseInt(payload.substring(0, cursor));
+        rehashCapacity(nbElement);
+        while (cursor < payload.length()) {
+            cursor++;
+            int beginChunk = cursor;
+            while (cursor < payload.length() && payload.charAt(cursor) != ELEMENT_SEP) {
+                cursor++;
+            }
+            int middleChunk = cursor;
+            while (cursor < payload.length() && payload.charAt(cursor) != CHUNK_SEP) {
+                cursor++;
+            }
+            long loopKey = Long.parseLong(payload.substring(beginChunk, middleChunk));
+            long loopVal = Long.parseLong(payload.substring(middleChunk + 1, cursor));
+            put(loopKey, loopVal);
+        }
+        _isDirty = false;
+    }
+
+    @Override
+    public String serialize() {
+        StringBuilder buffer = new StringBuilder();
+        buffer.append(elementCount);
+        each(new LongLongHashMapCallBack() {
+            @Override
+            public void on(long key, long value) {
+                buffer.append(CHUNK_SEP);
+                buffer.append(key);
+                buffer.append(ELEMENT_SEP);
+                buffer.append(value);
+            }
+        });
+        return buffer.toString();
+    }
 
     static final class Entry {
         Entry next;
@@ -98,7 +161,8 @@ public class LongLongHashMap {
         }
     }
 
-    public long put(long key, long value) {
+    public synchronized void put(long key, long value) {
+        _isDirty = true;
         Entry entry;
         int hash = (int) (key);
         int index = (hash & 0x7FFFFFFF) % elementDataSize;
@@ -111,9 +175,7 @@ public class LongLongHashMap {
             }
             entry = createHashedEntry(key, index);
         }
-        long result = entry.value;
         entry.value = value;
-        return result;
     }
 
     Entry createHashedEntry(long key, int index) {
@@ -153,16 +215,14 @@ public class LongLongHashMap {
         rehashCapacity(elementDataSize);
     }
 
-    public long remove(long key) {
+    public void remove(long key) {
         Entry entry = removeEntry(key);
         if (entry == null) {
-            return KConfig.NULL_LONG;
+            return;
         }
-        long ret = entry.value;
         entry.value = KConfig.NULL_LONG;
         entry.key = KConfig.BEGINNING_OF_TIME;
         reuseAfterDelete = entry;
-        return ret;
     }
 
     Entry removeEntry(long key) {

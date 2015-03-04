@@ -1,4 +1,4 @@
-package org.kevoree.modeling.microframework.test.util;
+package org.kevoree.modeling.microframework.test.map;
 
 import org.junit.Assert;
 import org.junit.Test;
