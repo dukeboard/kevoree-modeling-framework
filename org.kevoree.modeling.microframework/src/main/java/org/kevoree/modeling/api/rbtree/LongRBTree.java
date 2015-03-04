@@ -1,5 +1,6 @@
 package org.kevoree.modeling.api.rbtree;
 
+import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.data.cache.KCacheObject;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.meta.MetaModel;
@@ -12,8 +13,6 @@ public class LongRBTree implements KCacheObject {
     private LongTreeNode root = null;
 
     private int _size = 0;
-
-    private static final int LOOKUP_CACHE_SIZE = 3;
 
     public int size() {
         return _size;
@@ -51,7 +50,7 @@ public class LongRBTree implements KCacheObject {
     /* Cache management */
     private synchronized LongTreeNode tryPreviousOrEqualsCache(long key) {
         if (_previousOrEqualsCacheKeys != null && _previousOrEqualsCacheValues != null) {
-            for (int i = 0; i < LOOKUP_CACHE_SIZE; i++) {
+            for (int i = 0; i < KConfig.TREE_CACHE_SIZE; i++) {
                 if (_previousOrEqualsCacheKeys[i] != null && key == _previousOrEqualsCacheKeys[i]) {
                     return _previousOrEqualsCacheValues[i];
                 }
@@ -62,7 +61,7 @@ public class LongRBTree implements KCacheObject {
 
     private synchronized LongTreeNode tryLookupCache(long key) {
         if (_lookupCacheKeys != null && _lookupCacheValues != null) {
-            for (int i = 0; i < LOOKUP_CACHE_SIZE; i++) {
+            for (int i = 0; i < KConfig.TREE_CACHE_SIZE; i++) {
                 if (_lookupCacheKeys[i] != null && key == _lookupCacheKeys[i]) {
                     return _lookupCacheValues[i];
                 }
@@ -82,10 +81,10 @@ public class LongRBTree implements KCacheObject {
 
     private void putInPreviousOrEqualsCache(long key, LongTreeNode resolved) {
         if (_previousOrEqualsCacheKeys == null || _previousOrEqualsCacheValues == null) {
-            _previousOrEqualsCacheKeys = new Long[LOOKUP_CACHE_SIZE];
-            _previousOrEqualsCacheValues = new LongTreeNode[LOOKUP_CACHE_SIZE];
+            _previousOrEqualsCacheKeys = new Long[KConfig.TREE_CACHE_SIZE];
+            _previousOrEqualsCacheValues = new LongTreeNode[KConfig.TREE_CACHE_SIZE];
             _nextCacheElem = 0;
-        } else if (_nextCacheElem == LOOKUP_CACHE_SIZE) {
+        } else if (_nextCacheElem == KConfig.TREE_CACHE_SIZE) {
             _nextCacheElem = 0;
         }
         _previousOrEqualsCacheKeys[_nextCacheElem] = key;
@@ -95,10 +94,10 @@ public class LongRBTree implements KCacheObject {
 
     private void putInLookupCache(long key, LongTreeNode resolved) {
         if (_lookupCacheKeys == null || _lookupCacheValues == null) {
-            _lookupCacheKeys = new Long[LOOKUP_CACHE_SIZE];
-            _lookupCacheValues = new LongTreeNode[LOOKUP_CACHE_SIZE];
+            _lookupCacheKeys = new Long[KConfig.TREE_CACHE_SIZE];
+            _lookupCacheValues = new LongTreeNode[KConfig.TREE_CACHE_SIZE];
             _lookupCacheElem = 0;
-        } else if (_lookupCacheElem == LOOKUP_CACHE_SIZE) {
+        } else if (_lookupCacheElem == KConfig.TREE_CACHE_SIZE) {
             _lookupCacheElem = 0;
         }
         _lookupCacheKeys[_lookupCacheElem] = key;

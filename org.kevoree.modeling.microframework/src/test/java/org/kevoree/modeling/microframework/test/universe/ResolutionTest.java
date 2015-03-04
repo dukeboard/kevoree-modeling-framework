@@ -41,7 +41,10 @@ public class ResolutionTest {
         Assert.assertEquals(0, ResolutionHelper.resolve_universe(globalUniverse, objectUniverse, 1, 2));
         Assert.assertEquals(2, ResolutionHelper.resolve_universe(globalUniverse, objectUniverse, 50, 4));
         Assert.assertEquals(0, ResolutionHelper.resolve_universe(globalUniverse, objectUniverse, 5, 4));
-        
+
+
+        //Now simulate a hidden evolution
+
     }
 
 }

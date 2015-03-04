@@ -1,9 +1,6 @@
 package org.kevoree.modeling.api.util;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KOperation;
-import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.meta.MetaOperation;
@@ -92,8 +89,8 @@ public class DefaultOperationManager implements KOperationManager {
         _manager.cdn().sendOperation(operationCall);
     }
 
-    public long nextKey() {
-        if (_callbackId == 9999) {
+    public synchronized long nextKey() {
+        if (_callbackId == KConfig.CALLBACK_HISTORY) {
             _callbackId = 0;
         } else {
             _callbackId++;

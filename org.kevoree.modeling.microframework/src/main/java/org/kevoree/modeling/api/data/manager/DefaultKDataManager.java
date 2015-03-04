@@ -1,12 +1,6 @@
 package org.kevoree.modeling.api.data.manager;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KModel;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KScheduler;
-import org.kevoree.modeling.api.KUniverse;
-import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.ThrowableCallback;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.cache.KCache;
 import org.kevoree.modeling.api.data.cache.KCacheDirty;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
@@ -50,9 +44,6 @@ public class DefaultKDataManager implements KDataManager {
     private final int OBJ_INDEX = 1;
     private final int GLO_TREE_INDEX = 2;
 
-
-    public static final long NULL_KEY = -1;
-
     public DefaultKDataManager(KModel model) {
         this._db = new MemoryKContentDeliveryDriver();
         this._db.setManager(this);
@@ -82,7 +73,7 @@ public class DefaultKDataManager implements KDataManager {
             throw new RuntimeException(UNIVERSE_NOT_CONNECTED_ERROR);
         }
         long nextGeneratedKey = _universeKeyCalculator.nextKey();
-        if (nextGeneratedKey == NULL_KEY) {
+        if (nextGeneratedKey == KConfig.NULL_LONG) {
             nextGeneratedKey = _universeKeyCalculator.nextKey();
         }
         return nextGeneratedKey;
@@ -94,7 +85,7 @@ public class DefaultKDataManager implements KDataManager {
             throw new RuntimeException(UNIVERSE_NOT_CONNECTED_ERROR);
         }
         long nextGeneratedKey = _objectKeyCalculator.nextKey();
-        if (nextGeneratedKey == NULL_KEY) {
+        if (nextGeneratedKey == KConfig.NULL_LONG) {
             nextGeneratedKey = _objectKeyCalculator.nextKey();
         }
         return nextGeneratedKey;

@@ -69,6 +69,18 @@ var org;
                     return KActionType;
                 })();
                 api.KActionType = KActionType;
+                var KConfig = (function () {
+                    function KConfig() {
+                    }
+                    KConfig.TREE_CACHE_SIZE = 3;
+                    KConfig.CALLBACK_HISTORY = 1000;
+                    KConfig.BEGINNING_OF_TIME = -0x001FFFFFFFFFFFFE;
+                    KConfig.END_OF_TIME = 0x001FFFFFFFFFFFFE;
+                    KConfig.NULL_LONG = 0x001FFFFFFFFFFFFF;
+                    KConfig.KEY_PREFIX_SIZE = 0x0000001FFFFFFFFF;
+                    return KConfig;
+                })();
+                api.KConfig = KConfig;
                 var KInferState = (function () {
                     function KInferState() {
                     }
@@ -1353,28 +1365,30 @@ var org;
                         };
                         AbstractKView.prototype.select = function (query) {
                             var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
-                            if (query == null) {
+                            if (query == null || query.length == 0) {
                                 task.initCallback()(new Array());
                             }
-                            this.universe().model().manager().getRoot(this, function (rootObj) {
-                                if (rootObj == null) {
-                                    task.initCallback()(new Array());
-                                }
-                                else {
-                                    var cleanedQuery = query;
-                                    if (query.equals("/")) {
-                                        var param = new Array();
-                                        param[0] = rootObj;
-                                        task.initCallback()(param);
+                            else {
+                                this.universe().model().manager().getRoot(this, function (rootObj) {
+                                    if (rootObj == null) {
+                                        task.initCallback()(new Array());
                                     }
                                     else {
-                                        if (cleanedQuery.startsWith("/")) {
-                                            cleanedQuery = cleanedQuery.substring(1);
+                                        var cleanedQuery = query;
+                                        if (query.length == 1 && query.charAt(0) == '/') {
+                                            var param = new Array();
+                                            param[0] = rootObj;
+                                            task.initCallback()(param);
                                         }
-                                        org.kevoree.modeling.api.traversal.selector.KSelector.select(rootObj, cleanedQuery, task.initCallback());
+                                        else {
+                                            if (cleanedQuery.charAt(0) == '/') {
+                                                cleanedQuery = cleanedQuery.substring(1);
+                                            }
+                                            org.kevoree.modeling.api.traversal.selector.KSelector.select(rootObj, cleanedQuery, task.initCallback());
+                                        }
                                     }
-                                }
-                            });
+                                });
+                            }
                             return task;
                         };
                         AbstractKView.prototype.lookup = function (kid) {
@@ -1476,6 +1490,20 @@ var org;
                         }
                         AbstractMetaClass.prototype.metaByName = function (name) {
                             return this._indexes.get(name);
+                        };
+                        AbstractMetaClass.prototype.attribute = function (name) {
+                            var resolved = this._indexes.get(name);
+                            if (resolved != null && resolved instanceof org.kevoree.modeling.api.abs.AbstractMetaAttribute) {
+                                return resolved;
+                            }
+                            return null;
+                        };
+                        AbstractMetaClass.prototype.reference = function (name) {
+                            var resolved = this._indexes.get(name);
+                            if (resolved != null && resolved instanceof org.kevoree.modeling.api.abs.AbstractMetaReference) {
+                                return resolved;
+                            }
+                            return null;
                         };
                         AbstractMetaClass.prototype.metaElements = function () {
                             return this._meta;
@@ -2029,7 +2057,7 @@ var org;
                             MultiLayeredMemoryCache.prototype.get = function (key) {
                                 if (key == null) {
                                     if (MultiLayeredMemoryCache.DEBUG) {
-                                        System.out.println("KMF_DEBUG_CACHE_GET:NULL->NULL)");
+                                        System.out.println(MultiLayeredMemoryCache.prefixDebugGet + ":NULL->NULL)");
                                     }
                                     return null;
                                 }
@@ -2038,13 +2066,13 @@ var org;
                                     if (nextLayer != null) {
                                         var resolved = nextLayer.resolve(key, 1);
                                         if (MultiLayeredMemoryCache.DEBUG) {
-                                            System.out.println("KMF_DEBUG_CACHE_GET:" + key + "->" + resolved + ")");
+                                            System.out.println(MultiLayeredMemoryCache.prefixDebugGet + ":" + key + "->" + resolved + ")");
                                         }
                                         return resolved;
                                     }
                                     else {
                                         if (MultiLayeredMemoryCache.DEBUG) {
-                                            System.out.println("KMF_DEBUG_CACHE_GET:" + key + "->NULL)");
+                                            System.out.println(MultiLayeredMemoryCache.prefixDebugGet + ":" + key + "->NULL)");
                                         }
                                         return null;
                                     }
@@ -2053,7 +2081,7 @@ var org;
                             MultiLayeredMemoryCache.prototype.put = function (key, payload) {
                                 if (key == null) {
                                     if (MultiLayeredMemoryCache.DEBUG) {
-                                        System.out.println("KMF_DEBUG_CACHE_PUT:NULL->" + payload + ")");
+                                        System.out.println(MultiLayeredMemoryCache.prefixDebugPut + ":NULL->" + payload + ")");
                                     }
                                 }
                                 else {
@@ -2064,7 +2092,7 @@ var org;
                                     }
                                     nextLayer.insert(key, 1, payload);
                                     if (MultiLayeredMemoryCache.DEBUG) {
-                                        System.out.println("KMF_DEBUG_CACHE_PUT:" + key + "->" + payload + ")");
+                                        System.out.println(MultiLayeredMemoryCache.prefixDebugPut + ":" + key + "->" + payload + ")");
                                     }
                                 }
                             };
@@ -2091,6 +2119,8 @@ var org;
                                 this._nestedLayers.remove(org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_ROOT);
                             };
                             MultiLayeredMemoryCache.DEBUG = false;
+                            MultiLayeredMemoryCache.prefixDebugGet = "KMF_DEBUG_CACHE_GET";
+                            MultiLayeredMemoryCache.prefixDebugPut = "KMF_DEBUG_CACHE_PUT";
                             return MultiLayeredMemoryCache;
                         })();
                         cache.MultiLayeredMemoryCache = MultiLayeredMemoryCache;
@@ -2304,7 +2334,7 @@ var org;
                                     throw new java.lang.RuntimeException(DefaultKDataManager.UNIVERSE_NOT_CONNECTED_ERROR);
                                 }
                                 var nextGeneratedKey = this._universeKeyCalculator.nextKey();
-                                if (nextGeneratedKey == DefaultKDataManager.NULL_KEY) {
+                                if (nextGeneratedKey == org.kevoree.modeling.api.KConfig.NULL_LONG) {
                                     nextGeneratedKey = this._universeKeyCalculator.nextKey();
                                 }
                                 return nextGeneratedKey;
@@ -2314,7 +2344,7 @@ var org;
                                     throw new java.lang.RuntimeException(DefaultKDataManager.UNIVERSE_NOT_CONNECTED_ERROR);
                                 }
                                 var nextGeneratedKey = this._objectKeyCalculator.nextKey();
-                                if (nextGeneratedKey == DefaultKDataManager.NULL_KEY) {
+                                if (nextGeneratedKey == org.kevoree.modeling.api.KConfig.NULL_LONG) {
                                     nextGeneratedKey = this._objectKeyCalculator.nextKey();
                                 }
                                 return nextGeneratedKey;
@@ -2915,7 +2945,6 @@ var org;
                             };
                             DefaultKDataManager.OUT_OF_CACHE_MESSAGE = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
                             DefaultKDataManager.UNIVERSE_NOT_CONNECTED_ERROR = "Please connect your model prior to create a universe or an object";
-                            DefaultKDataManager.NULL_KEY = -1;
                             return DefaultKDataManager;
                         })();
                         manager.DefaultKDataManager = DefaultKDataManager;
@@ -3235,13 +3264,13 @@ var org;
                                 this._currentIndex = currentIndex;
                             }
                             KeyCalculator.prototype.nextKey = function () {
-                                if (this._currentIndex == KeyCalculator.INDEX_LIMIT) {
+                                if (this._currentIndex == org.kevoree.modeling.api.KConfig.KEY_PREFIX_SIZE) {
                                     throw new java.lang.IndexOutOfBoundsException("Object Index could not be created because it exceeded the capacity of the current prefix. Ask for a new prefix.");
                                 }
                                 this._currentIndex++;
                                 var indexHex = this._currentIndex.toString(16);
                                 var objectKey = parseInt(this._prefix + "000000000".substring(0, 9 - indexHex.length) + indexHex, 16);
-                                if (objectKey > KeyCalculator.LONG_LIMIT_JS) {
+                                if (objectKey >= org.kevoree.modeling.api.KConfig.NULL_LONG) {
                                     throw new java.lang.IndexOutOfBoundsException("Object Index exceeds teh maximum JavaScript number capacity. (2^53)");
                                 }
                                 return objectKey;
@@ -3252,8 +3281,6 @@ var org;
                             KeyCalculator.prototype.prefix = function () {
                                 return parseInt(this._prefix, 16);
                             };
-                            KeyCalculator.LONG_LIMIT_JS = 0x001FFFFFFFFFFFFF;
-                            KeyCalculator.INDEX_LIMIT = 0x0000001FFFFFFFFF;
                             return KeyCalculator;
                         })();
                         manager.KeyCalculator = KeyCalculator;
@@ -5464,6 +5491,27 @@ var org;
                             return this._metaReferences;
                         };
                         MetaInferClass.prototype.metaByName = function (name) {
+                            return this.attribute(name);
+                        };
+                        MetaInferClass.prototype.attribute = function (name) {
+                            if (name == null) {
+                                return null;
+                            }
+                            else {
+                                if (name.equals(this._attributes[0].metaName())) {
+                                    return this._attributes[0];
+                                }
+                                else {
+                                    if (name.equals(this._attributes[1].metaName())) {
+                                        return this._attributes[1];
+                                    }
+                                    else {
+                                        return null;
+                                    }
+                                }
+                            }
+                        };
+                        MetaInferClass.prototype.reference = function (name) {
                             return null;
                         };
                         MetaInferClass.prototype.metaName = function () {
@@ -7249,7 +7297,7 @@ var org;
                         };
                         IndexRBTree.prototype.tryPreviousOrEqualsCache = function (key) {
                             if (this._previousOrEqualsCacheKeys != null && this._previousOrEqualsCacheValues != null) {
-                                for (var i = 0; i < IndexRBTree.LOOKUP_CACHE_SIZE; i++) {
+                                for (var i = 0; i < org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE; i++) {
                                     if (this._previousOrEqualsCacheKeys[i] != null && key == this._previousOrEqualsCacheKeys[i]) {
                                         return this._previousOrEqualsCacheValues[i];
                                     }
@@ -7272,7 +7320,7 @@ var org;
                                 this._nextCacheElem = 0;
                             }
                             else {
-                                if (this._nextCacheElem == IndexRBTree.LOOKUP_CACHE_SIZE) {
+                                if (this._nextCacheElem == org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE) {
                                     this._nextCacheElem = 0;
                                 }
                             }
@@ -7732,7 +7780,6 @@ var org;
                                 return n.color;
                             }
                         };
-                        IndexRBTree.LOOKUP_CACHE_SIZE = 3;
                         return IndexRBTree;
                     })();
                     rbtree.IndexRBTree = IndexRBTree;
@@ -7765,7 +7812,7 @@ var org;
                         };
                         LongRBTree.prototype.tryPreviousOrEqualsCache = function (key) {
                             if (this._previousOrEqualsCacheKeys != null && this._previousOrEqualsCacheValues != null) {
-                                for (var i = 0; i < LongRBTree.LOOKUP_CACHE_SIZE; i++) {
+                                for (var i = 0; i < org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE; i++) {
                                     if (this._previousOrEqualsCacheKeys[i] != null && key == this._previousOrEqualsCacheKeys[i]) {
                                         return this._previousOrEqualsCacheValues[i];
                                     }
@@ -7775,7 +7822,7 @@ var org;
                         };
                         LongRBTree.prototype.tryLookupCache = function (key) {
                             if (this._lookupCacheKeys != null && this._lookupCacheValues != null) {
-                                for (var i = 0; i < LongRBTree.LOOKUP_CACHE_SIZE; i++) {
+                                for (var i = 0; i < org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE; i++) {
                                     if (this._lookupCacheKeys[i] != null && key == this._lookupCacheKeys[i]) {
                                         return this._lookupCacheValues[i];
                                     }
@@ -7798,7 +7845,7 @@ var org;
                                 this._nextCacheElem = 0;
                             }
                             else {
-                                if (this._nextCacheElem == LongRBTree.LOOKUP_CACHE_SIZE) {
+                                if (this._nextCacheElem == org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE) {
                                     this._nextCacheElem = 0;
                                 }
                             }
@@ -7813,7 +7860,7 @@ var org;
                                 this._lookupCacheElem = 0;
                             }
                             else {
-                                if (this._lookupCacheElem == LongRBTree.LOOKUP_CACHE_SIZE) {
+                                if (this._lookupCacheElem == org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE) {
                                     this._lookupCacheElem = 0;
                                 }
                             }
@@ -8269,7 +8316,6 @@ var org;
                                 return n.color;
                             }
                         };
-                        LongRBTree.LOOKUP_CACHE_SIZE = 3;
                         return LongRBTree;
                     })();
                     rbtree.LongRBTree = LongRBTree;
@@ -10381,7 +10427,7 @@ var org;
                             this._manager.cdn().sendOperation(operationCall);
                         };
                         DefaultOperationManager.prototype.nextKey = function () {
-                            if (this._callbackId == 9999) {
+                            if (this._callbackId == org.kevoree.modeling.api.KConfig.CALLBACK_HISTORY) {
                                 this._callbackId = 0;
                             }
                             else {

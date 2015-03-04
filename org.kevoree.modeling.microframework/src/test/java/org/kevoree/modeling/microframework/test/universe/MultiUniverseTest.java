@@ -132,8 +132,6 @@ public class MultiUniverseTest {
                 kObject.set(kObject.metaClass().attribute("value"), value);
             }
         });
-
-
     }
 
     public double get(long uId, long time) {
@@ -146,8 +144,6 @@ public class MultiUniverseTest {
             }
         });
         return (double) myvalue[0];
-
-
     }
 
 }

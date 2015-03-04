@@ -35,12 +35,12 @@ public class ReflexiveTest {
             @Override
             public void on(Throwable throwable) {
                 KObject home = universe.universe(0).time(0).create(universe.metaModel().metaClass("Home"));
-                home.set(home.metaClass().attribute("name"),"MainHome");
+                home.set(home.metaClass().attribute("name"), "MainHome");
 
                 KObject sensor = universe.universe(0).time(0).create(sensorMetaClass);
-                sensor.set(sensor.metaClass().attribute("name"),"Sensor#1");
+                sensor.set(sensor.metaClass().attribute("name"), "Sensor#1");
 
-                home.mutate(KActionType.ADD, (MetaReference) home.metaClass().metaByName("sensors"),sensor);
+                home.mutate(KActionType.ADD, (MetaReference) home.metaClass().metaByName("sensors"), sensor);
 
                 universe.universe(0).time(0).json().save(home).then(new Callback<String>() {
                     @Override

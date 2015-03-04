@@ -28,6 +28,14 @@ declare module org {
                     static _KActionTypeVALUES: KActionType[];
                     static values(): KActionType[];
                 }
+                class KConfig {
+                    static TREE_CACHE_SIZE: number;
+                    static CALLBACK_HISTORY: number;
+                    static BEGINNING_OF_TIME: number;
+                    static END_OF_TIME: number;
+                    static NULL_LONG: number;
+                    static KEY_PREFIX_SIZE: number;
+                }
                 interface KCurrentDefer<A> extends org.kevoree.modeling.api.KDefer<any> {
                     resultKeys(): string[];
                     resultByName(name: string): any;
@@ -400,6 +408,8 @@ declare module org {
                         private _refs;
                         private _indexes;
                         metaByName(name: string): org.kevoree.modeling.api.meta.Meta;
+                        attribute(name: string): org.kevoree.modeling.api.meta.MetaAttribute;
+                        reference(name: string): org.kevoree.modeling.api.meta.MetaReference;
                         metaElements(): org.kevoree.modeling.api.meta.Meta[];
                         index(): number;
                         metaName(): string;
@@ -535,6 +545,8 @@ declare module org {
                         class MultiLayeredMemoryCache implements org.kevoree.modeling.api.data.cache.KCache {
                             static DEBUG: boolean;
                             private _nestedLayers;
+                            private static prefixDebugGet;
+                            private static prefixDebugPut;
                             get(key: org.kevoree.modeling.api.data.cache.KContentKey): org.kevoree.modeling.api.data.cache.KCacheObject;
                             put(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: org.kevoree.modeling.api.data.cache.KCacheObject): void;
                             dirties(): org.kevoree.modeling.api.data.cache.KCacheDirty[];
@@ -615,7 +627,6 @@ declare module org {
                             private UNIVERSE_INDEX;
                             private OBJ_INDEX;
                             private GLO_TREE_INDEX;
-                            static NULL_KEY: number;
                             private _cache;
                             constructor(model: org.kevoree.modeling.api.KModel<any>);
                             model(): org.kevoree.modeling.api.KModel<any>;
@@ -686,8 +697,6 @@ declare module org {
                             reload(keys: org.kevoree.modeling.api.data.cache.KContentKey[], callback: (p: java.lang.Throwable) => void): void;
                         }
                         class KeyCalculator {
-                            static LONG_LIMIT_JS: number;
-                            static INDEX_LIMIT: number;
                             private _prefix;
                             private _currentIndex;
                             constructor(prefix: number, currentIndex: number);
@@ -1066,6 +1075,8 @@ declare module org {
                         metaAttributes(): org.kevoree.modeling.api.meta.MetaAttribute[];
                         metaReferences(): org.kevoree.modeling.api.meta.MetaReference[];
                         metaByName(name: string): org.kevoree.modeling.api.meta.Meta;
+                        attribute(name: string): org.kevoree.modeling.api.meta.MetaAttribute;
+                        reference(name: string): org.kevoree.modeling.api.meta.MetaReference;
                     }
                     class MetaInferClass implements org.kevoree.modeling.api.meta.MetaClass {
                         private static _INSTANCE;
@@ -1080,6 +1091,8 @@ declare module org {
                         metaAttributes(): org.kevoree.modeling.api.meta.MetaAttribute[];
                         metaReferences(): org.kevoree.modeling.api.meta.MetaReference[];
                         metaByName(name: string): org.kevoree.modeling.api.meta.Meta;
+                        attribute(name: string): org.kevoree.modeling.api.meta.MetaAttribute;
+                        reference(name: string): org.kevoree.modeling.api.meta.MetaReference;
                         metaName(): string;
                         metaType(): org.kevoree.modeling.api.meta.MetaType;
                         index(): number;
@@ -1405,7 +1418,6 @@ declare module org {
                         private root;
                         private _size;
                         private _dirty;
-                        private static LOOKUP_CACHE_SIZE;
                         private _previousOrEqualsCacheKeys;
                         private _previousOrEqualsCacheValues;
                         private _nextCacheElem;
@@ -1446,7 +1458,6 @@ declare module org {
                     class LongRBTree implements org.kevoree.modeling.api.data.cache.KCacheObject {
                         private root;
                         private _size;
-                        private static LOOKUP_CACHE_SIZE;
                         _dirty: boolean;
                         private _previousOrEqualsCacheKeys;
                         private _previousOrEqualsCacheValues;

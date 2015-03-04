@@ -61,29 +61,30 @@ public abstract class AbstractKView implements KView {
     @Override
     public KDefer<KObject[]> select(final String query) {
         AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
-        if (query == null) {
+        if (query == null || query.length() == 0) {
             task.initCallback().on(new KObject[0]);
-        }
-        universe().model().manager().getRoot(this, new Callback<KObject>() {
-            @Override
-            public void on(KObject rootObj) {
-                if (rootObj == null) {
-                    task.initCallback().on(new KObject[0]);
-                } else {
-                    String cleanedQuery = query;
-                    if (query.equals("/")) {
-                        KObject[] param = new KObject[1];
-                        param[0] = rootObj;
-                        task.initCallback().on(param);
+        } else {
+            universe().model().manager().getRoot(this, new Callback<KObject>() {
+                @Override
+                public void on(KObject rootObj) {
+                    if (rootObj == null) {
+                        task.initCallback().on(new KObject[0]);
                     } else {
-                        if (cleanedQuery.startsWith("/")) {
-                            cleanedQuery = cleanedQuery.substring(1);
+                        String cleanedQuery = query;
+                        if (query.length() == 1 && query.charAt(0) == '/') {
+                            KObject[] param = new KObject[1];
+                            param[0] = rootObj;
+                            task.initCallback().on(param);
+                        } else {
+                            if (cleanedQuery.charAt(0) == '/') {
+                                cleanedQuery = cleanedQuery.substring(1);
+                            }
+                            KSelector.select(rootObj, cleanedQuery, task.initCallback());
                         }
-                        KSelector.select(rootObj, cleanedQuery, task.initCallback());
                     }
                 }
-            }
-        });
+            });
+        }
         return task;
     }
 
@@ -106,7 +107,7 @@ public abstract class AbstractKView implements KView {
     }
 
     public KObject createProxy(MetaClass clazz, LongRBTree universeTree, long key) {
-        //TODO check the radixKey
+        //TODO check the radixKey, according to the one created now
         return internalCreate(clazz, universeTree, key);
     }
 

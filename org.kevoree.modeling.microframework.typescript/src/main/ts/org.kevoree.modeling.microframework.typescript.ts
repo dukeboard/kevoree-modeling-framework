@@ -74,6 +74,16 @@ module org {
                     }
                 }
 
+                export class KConfig {
+
+                    public static TREE_CACHE_SIZE: number = 3;
+                    public static CALLBACK_HISTORY: number = 1000;
+                    public static BEGINNING_OF_TIME: number = -0x001FFFFFFFFFFFFE;
+                    public static END_OF_TIME: number = 0x001FFFFFFFFFFFFE;
+                    public static NULL_LONG: number = 0x001FFFFFFFFFFFFF;
+                    public static KEY_PREFIX_SIZE: number = 0x0000001FFFFFFFFF;
+                }
+
                 export interface KCurrentDefer<A> extends org.kevoree.modeling.api.KDefer<any> {
 
                     resultKeys(): string[];
@@ -1709,26 +1719,27 @@ module org {
 
                         public select(query: string): org.kevoree.modeling.api.KDefer<any> {
                             var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
-                            if (query == null) {
+                            if (query == null || query.length == 0) {
                                 task.initCallback()(new Array());
-                            }
-                            this.universe().model().manager().getRoot(this,  (rootObj : org.kevoree.modeling.api.KObject) => {
-                                if (rootObj == null) {
-                                    task.initCallback()(new Array());
-                                } else {
-                                    var cleanedQuery: string = query;
-                                    if (query.equals("/")) {
-                                        var param: org.kevoree.modeling.api.KObject[] = new Array();
-                                        param[0] = rootObj;
-                                        task.initCallback()(param);
+                            } else {
+                                this.universe().model().manager().getRoot(this,  (rootObj : org.kevoree.modeling.api.KObject) => {
+                                    if (rootObj == null) {
+                                        task.initCallback()(new Array());
                                     } else {
-                                        if (cleanedQuery.startsWith("/")) {
-                                            cleanedQuery = cleanedQuery.substring(1);
+                                        var cleanedQuery: string = query;
+                                        if (query.length == 1 && query.charAt(0) == '/') {
+                                            var param: org.kevoree.modeling.api.KObject[] = new Array();
+                                            param[0] = rootObj;
+                                            task.initCallback()(param);
+                                        } else {
+                                            if (cleanedQuery.charAt(0) == '/') {
+                                                cleanedQuery = cleanedQuery.substring(1);
+                                            }
+                                            org.kevoree.modeling.api.traversal.selector.KSelector.select(rootObj, cleanedQuery, task.initCallback());
                                         }
-                                        org.kevoree.modeling.api.traversal.selector.KSelector.select(rootObj, cleanedQuery, task.initCallback());
                                     }
-                                }
-                            });
+                                });
+                            }
                             return task;
                         }
 
@@ -1856,6 +1867,22 @@ module org {
                         private _indexes: java.util.HashMap<string, org.kevoree.modeling.api.meta.Meta> = new java.util.HashMap<string, org.kevoree.modeling.api.meta.Meta>();
                         public metaByName(name: string): org.kevoree.modeling.api.meta.Meta {
                             return this._indexes.get(name);
+                        }
+
+                        public attribute(name: string): org.kevoree.modeling.api.meta.MetaAttribute {
+                            var resolved: org.kevoree.modeling.api.meta.Meta = this._indexes.get(name);
+                            if (resolved != null && resolved instanceof org.kevoree.modeling.api.abs.AbstractMetaAttribute) {
+                                return <org.kevoree.modeling.api.meta.MetaAttribute>resolved;
+                            }
+                            return null;
+                        }
+
+                        public reference(name: string): org.kevoree.modeling.api.meta.MetaReference {
+                            var resolved: org.kevoree.modeling.api.meta.Meta = this._indexes.get(name);
+                            if (resolved != null && resolved instanceof org.kevoree.modeling.api.abs.AbstractMetaReference) {
+                                return <org.kevoree.modeling.api.meta.MetaReference>resolved;
+                            }
+                            return null;
                         }
 
                         public metaElements(): org.kevoree.modeling.api.meta.Meta[] {
@@ -2489,10 +2516,12 @@ module org {
 
                             public static DEBUG: boolean = false;
                             private _nestedLayers: java.util.HashMap<number, org.kevoree.modeling.api.data.cache.KCacheLayer> = new java.util.HashMap<number, org.kevoree.modeling.api.data.cache.KCacheLayer>();
+                            private static prefixDebugGet: string = "KMF_DEBUG_CACHE_GET";
+                            private static prefixDebugPut: string = "KMF_DEBUG_CACHE_PUT";
                             public get(key: org.kevoree.modeling.api.data.cache.KContentKey): org.kevoree.modeling.api.data.cache.KCacheObject {
                                 if (key == null) {
                                     if (MultiLayeredMemoryCache.DEBUG) {
-                                        System.out.println("KMF_DEBUG_CACHE_GET:NULL->NULL)");
+                                        System.out.println(MultiLayeredMemoryCache.prefixDebugGet + ":NULL->NULL)");
                                     }
                                     return null;
                                 } else {
@@ -2500,12 +2529,12 @@ module org {
                                     if (nextLayer != null) {
                                         var resolved: org.kevoree.modeling.api.data.cache.KCacheObject = nextLayer.resolve(key, 1);
                                         if (MultiLayeredMemoryCache.DEBUG) {
-                                            System.out.println("KMF_DEBUG_CACHE_GET:" + key + "->" + resolved + ")");
+                                            System.out.println(MultiLayeredMemoryCache.prefixDebugGet + ":" + key + "->" + resolved + ")");
                                         }
                                         return resolved;
                                     } else {
                                         if (MultiLayeredMemoryCache.DEBUG) {
-                                            System.out.println("KMF_DEBUG_CACHE_GET:" + key + "->NULL)");
+                                            System.out.println(MultiLayeredMemoryCache.prefixDebugGet + ":" + key + "->NULL)");
                                         }
                                         return null;
                                     }
@@ -2515,7 +2544,7 @@ module org {
                             public put(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: org.kevoree.modeling.api.data.cache.KCacheObject): void {
                                 if (key == null) {
                                     if (MultiLayeredMemoryCache.DEBUG) {
-                                        System.out.println("KMF_DEBUG_CACHE_PUT:NULL->" + payload + ")");
+                                        System.out.println(MultiLayeredMemoryCache.prefixDebugPut + ":NULL->" + payload + ")");
                                     }
                                 } else {
                                     var nextLayer: org.kevoree.modeling.api.data.cache.KCacheLayer = this._nestedLayers.get(key.part(0));
@@ -2525,7 +2554,7 @@ module org {
                                     }
                                     nextLayer.insert(key, 1, payload);
                                     if (MultiLayeredMemoryCache.DEBUG) {
-                                        System.out.println("KMF_DEBUG_CACHE_PUT:" + key + "->" + payload + ")");
+                                        System.out.println(MultiLayeredMemoryCache.prefixDebugPut + ":" + key + "->" + payload + ")");
                                     }
                                 }
                             }
@@ -2788,7 +2817,6 @@ module org {
                             private UNIVERSE_INDEX: number = 0;
                             private OBJ_INDEX: number = 1;
                             private GLO_TREE_INDEX: number = 2;
-                            public static NULL_KEY: number = -1;
                             private _cache: org.kevoree.modeling.api.data.cache.MultiLayeredMemoryCache = new org.kevoree.modeling.api.data.cache.MultiLayeredMemoryCache();
                             constructor(model: org.kevoree.modeling.api.KModel<any>) {
                                 this._db = new org.kevoree.modeling.api.data.cdn.MemoryKContentDeliveryDriver();
@@ -2816,7 +2844,7 @@ module org {
                                     throw new java.lang.RuntimeException(DefaultKDataManager.UNIVERSE_NOT_CONNECTED_ERROR);
                                 }
                                 var nextGeneratedKey: number = this._universeKeyCalculator.nextKey();
-                                if (nextGeneratedKey == DefaultKDataManager.NULL_KEY) {
+                                if (nextGeneratedKey == org.kevoree.modeling.api.KConfig.NULL_LONG) {
                                     nextGeneratedKey = this._universeKeyCalculator.nextKey();
                                 }
                                 return nextGeneratedKey;
@@ -2827,7 +2855,7 @@ module org {
                                     throw new java.lang.RuntimeException(DefaultKDataManager.UNIVERSE_NOT_CONNECTED_ERROR);
                                 }
                                 var nextGeneratedKey: number = this._objectKeyCalculator.nextKey();
-                                if (nextGeneratedKey == DefaultKDataManager.NULL_KEY) {
+                                if (nextGeneratedKey == org.kevoree.modeling.api.KConfig.NULL_LONG) {
                                     nextGeneratedKey = this._objectKeyCalculator.nextKey();
                                 }
                                 return nextGeneratedKey;
@@ -3749,8 +3777,6 @@ module org {
 
                         export class KeyCalculator {
 
-                            public static LONG_LIMIT_JS: number = 0x001FFFFFFFFFFFFF;
-                            public static INDEX_LIMIT: number = 0x0000001FFFFFFFFF;
                             private _prefix: string;
                             private _currentIndex: number;
                             constructor(prefix: number, currentIndex: number) {
@@ -3759,13 +3785,13 @@ module org {
                             }
 
                             public nextKey(): number {
-                                if (this._currentIndex == KeyCalculator.INDEX_LIMIT)  {
+                                if (this._currentIndex == org.kevoree.modeling.api.KConfig.KEY_PREFIX_SIZE)  {
                                  throw new java.lang.IndexOutOfBoundsException("Object Index could not be created because it exceeded the capacity of the current prefix. Ask for a new prefix.");
                                 }
                                  this._currentIndex++;
                                  var indexHex = this._currentIndex.toString(16);
                                  var objectKey = parseInt(this._prefix + "000000000".substring(0,9-indexHex.length) + indexHex, 16);
-                                 if (objectKey > KeyCalculator.LONG_LIMIT_JS) 
+                                 if (objectKey >= org.kevoree.modeling.api.KConfig.NULL_LONG) 
                                 {
                                  throw new java.lang.IndexOutOfBoundsException("Object Index exceeds teh maximum JavaScript number capacity. (2^53)");
                                 }
@@ -6084,6 +6110,10 @@ module org {
 
                         metaByName(name: string): org.kevoree.modeling.api.meta.Meta;
 
+                        attribute(name: string): org.kevoree.modeling.api.meta.MetaAttribute;
+
+                        reference(name: string): org.kevoree.modeling.api.meta.MetaReference;
+
                     }
 
                     export class MetaInferClass implements org.kevoree.modeling.api.meta.MetaClass {
@@ -6134,6 +6164,26 @@ module org {
                         }
 
                         public metaByName(name: string): org.kevoree.modeling.api.meta.Meta {
+                            return this.attribute(name);
+                        }
+
+                        public attribute(name: string): org.kevoree.modeling.api.meta.MetaAttribute {
+                            if (name == null) {
+                                return null;
+                            } else {
+                                if (name.equals(this._attributes[0].metaName())) {
+                                    return this._attributes[0];
+                                } else {
+                                    if (name.equals(this._attributes[1].metaName())) {
+                                        return this._attributes[1];
+                                    } else {
+                                        return null;
+                                    }
+                                }
+                            }
+                        }
+
+                        public reference(name: string): org.kevoree.modeling.api.meta.MetaReference {
                             return null;
                         }
 
@@ -8043,7 +8093,6 @@ module org {
                         private root: org.kevoree.modeling.api.rbtree.TreeNode = null;
                         private _size: number = 0;
                         private _dirty: boolean = false;
-                        private static LOOKUP_CACHE_SIZE: number = 3;
                         private _previousOrEqualsCacheKeys: number[] = null;
                         private _previousOrEqualsCacheValues: org.kevoree.modeling.api.rbtree.TreeNode[] = null;
                         private _nextCacheElem: number;
@@ -8053,7 +8102,7 @@ module org {
 
                         private tryPreviousOrEqualsCache(key: number): org.kevoree.modeling.api.rbtree.TreeNode {
                             if (this._previousOrEqualsCacheKeys != null && this._previousOrEqualsCacheValues != null) {
-                                for (var i: number = 0; i < IndexRBTree.LOOKUP_CACHE_SIZE; i++) {
+                                for (var i: number = 0; i < org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE; i++) {
                                     if (this._previousOrEqualsCacheKeys[i] != null && key == this._previousOrEqualsCacheKeys[i]) {
                                         return this._previousOrEqualsCacheValues[i];
                                     }
@@ -8076,7 +8125,7 @@ module org {
                                 this._previousOrEqualsCacheValues = new Array();
                                 this._nextCacheElem = 0;
                             } else {
-                                if (this._nextCacheElem == IndexRBTree.LOOKUP_CACHE_SIZE) {
+                                if (this._nextCacheElem == org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE) {
                                     this._nextCacheElem = 0;
                                 }
                             }
@@ -8533,7 +8582,6 @@ module org {
 
                         private root: org.kevoree.modeling.api.rbtree.LongTreeNode = null;
                         private _size: number = 0;
-                        private static LOOKUP_CACHE_SIZE: number = 3;
                         public _dirty: boolean = false;
                         private _previousOrEqualsCacheKeys: number[] = null;
                         private _previousOrEqualsCacheValues: org.kevoree.modeling.api.rbtree.LongTreeNode[] = null;
@@ -8564,7 +8612,7 @@ module org {
 
                         private tryPreviousOrEqualsCache(key: number): org.kevoree.modeling.api.rbtree.LongTreeNode {
                             if (this._previousOrEqualsCacheKeys != null && this._previousOrEqualsCacheValues != null) {
-                                for (var i: number = 0; i < LongRBTree.LOOKUP_CACHE_SIZE; i++) {
+                                for (var i: number = 0; i < org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE; i++) {
                                     if (this._previousOrEqualsCacheKeys[i] != null && key == this._previousOrEqualsCacheKeys[i]) {
                                         return this._previousOrEqualsCacheValues[i];
                                     }
@@ -8575,7 +8623,7 @@ module org {
 
                         private tryLookupCache(key: number): org.kevoree.modeling.api.rbtree.LongTreeNode {
                             if (this._lookupCacheKeys != null && this._lookupCacheValues != null) {
-                                for (var i: number = 0; i < LongRBTree.LOOKUP_CACHE_SIZE; i++) {
+                                for (var i: number = 0; i < org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE; i++) {
                                     if (this._lookupCacheKeys[i] != null && key == this._lookupCacheKeys[i]) {
                                         return this._lookupCacheValues[i];
                                     }
@@ -8599,7 +8647,7 @@ module org {
                                 this._previousOrEqualsCacheValues = new Array();
                                 this._nextCacheElem = 0;
                             } else {
-                                if (this._nextCacheElem == LongRBTree.LOOKUP_CACHE_SIZE) {
+                                if (this._nextCacheElem == org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE) {
                                     this._nextCacheElem = 0;
                                 }
                             }
@@ -8614,7 +8662,7 @@ module org {
                                 this._lookupCacheValues = new Array();
                                 this._lookupCacheElem = 0;
                             } else {
-                                if (this._lookupCacheElem == LongRBTree.LOOKUP_CACHE_SIZE) {
+                                if (this._lookupCacheElem == org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE) {
                                     this._lookupCacheElem = 0;
                                 }
                             }
@@ -11290,7 +11338,7 @@ module org {
                         }
 
                         public nextKey(): number {
-                            if (this._callbackId == 9999) {
+                            if (this._callbackId == org.kevoree.modeling.api.KConfig.CALLBACK_HISTORY) {
                                 this._callbackId = 0;
                             } else {
                                 this._callbackId++;

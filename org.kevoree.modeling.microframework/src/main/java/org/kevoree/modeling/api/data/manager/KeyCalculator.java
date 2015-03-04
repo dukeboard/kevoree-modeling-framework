@@ -1,14 +1,11 @@
 package org.kevoree.modeling.api.data.manager;
 
+import org.kevoree.modeling.api.KConfig;
+
 /**
  * Created by gregory.nain on 02/12/14.
  */
 public class KeyCalculator {
-
-    // Limit long lengths to 53 bits because of JS limitation
-    public static final long LONG_LIMIT_JS = 0x001FFFFFFFFFFFFFl;
-    // Limit limit local index to LONG limit - prefix size
-    public static final long INDEX_LIMIT = 0x0000001FFFFFFFFFl;
 
     /**
      * @native:ts {@code
@@ -33,26 +30,26 @@ public class KeyCalculator {
 
     /**
      * @native:ts {@code
-     * if (this._currentIndex == KeyCalculator.INDEX_LIMIT) {
+     * if (this._currentIndex == org.kevoree.modeling.api.KConfig.KEY_PREFIX_SIZE) {
      * throw new java.lang.IndexOutOfBoundsException("Object Index could not be created because it exceeded the capacity of the current prefix. Ask for a new prefix.");
      * }
      * this._currentIndex++;
      * var indexHex = this._currentIndex.toString(16);
      * var objectKey = parseInt(this._prefix + "000000000".substring(0,9-indexHex.length) + indexHex, 16);
-     * if (objectKey > KeyCalculator.LONG_LIMIT_JS) {
+     * if (objectKey >= org.kevoree.modeling.api.KConfig.NULL_LONG) {
      * throw new java.lang.IndexOutOfBoundsException("Object Index exceeds teh maximum JavaScript number capacity. (2^53)");
      * }
      * return objectKey;
      * }
      */
     public long nextKey() {
-        if (_currentIndex == INDEX_LIMIT) {
+        if (_currentIndex == KConfig.KEY_PREFIX_SIZE) {
             throw new IndexOutOfBoundsException("Object Index could not be created because it exceeded the capacity of the current prefix. Ask for a new prefix.");
         }
         _currentIndex++;
         //moves the prefix 53-size(short) times to the left;
         long objectKey = _prefix + _currentIndex;
-        if (objectKey > LONG_LIMIT_JS) {
+        if (objectKey >= KConfig.NULL_LONG) {
             throw new IndexOutOfBoundsException("Object Index exceeds teh maximum JavaScript number capacity. (2^53)");
         }
         return objectKey;

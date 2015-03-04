@@ -13,11 +13,15 @@ public class MultiLayeredMemoryCache implements KCache {
 
     private HashMap<Long, KCacheLayer> _nestedLayers = new HashMap<Long, KCacheLayer>();
 
+    private static final String prefixDebugGet = "KMF_DEBUG_CACHE_GET";
+
+    private static final String prefixDebugPut = "KMF_DEBUG_CACHE_PUT";
+
     @Override
     public KCacheObject get(KContentKey key) {
         if (key == null) {
             if (DEBUG) {
-                System.out.println("KMF_DEBUG_CACHE_GET:NULL->NULL)");
+                System.out.println(prefixDebugGet + ":NULL->NULL)");
             }
             return null;
         } else {
@@ -25,12 +29,12 @@ public class MultiLayeredMemoryCache implements KCache {
             if (nextLayer != null) {
                 KCacheObject resolved = nextLayer.resolve(key, 1);
                 if (DEBUG) {
-                    System.out.println("KMF_DEBUG_CACHE_GET:" + key + "->" + resolved + ")");
+                    System.out.println(prefixDebugGet + ":" + key + "->" + resolved + ")");
                 }
                 return resolved;
             } else {
                 if (DEBUG) {
-                    System.out.println("KMF_DEBUG_CACHE_GET:" + key + "->NULL)");
+                    System.out.println(prefixDebugGet + ":" + key + "->NULL)");
                 }
                 return null;
             }
@@ -41,7 +45,7 @@ public class MultiLayeredMemoryCache implements KCache {
     public void put(KContentKey key, KCacheObject payload) {
         if (key == null) {
             if (DEBUG) {
-                System.out.println("KMF_DEBUG_CACHE_PUT:NULL->" + payload + ")");
+                System.out.println(prefixDebugPut + ":NULL->" + payload + ")");
             }
         } else {
             KCacheLayer nextLayer = _nestedLayers.get(key.part(0));
@@ -51,7 +55,7 @@ public class MultiLayeredMemoryCache implements KCache {
             }
             nextLayer.insert(key, 1, payload);
             if (DEBUG) {
-                System.out.println("KMF_DEBUG_CACHE_PUT:" + key + "->" + payload + ")");
+                System.out.println(prefixDebugPut + ":" + key + "->" + payload + ")");
             }
         }
     }
