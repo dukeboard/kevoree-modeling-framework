@@ -42,6 +42,8 @@ public class MainServerTest {
                         public void on(KObject kObject) {
                             if (kObject == null) {
                                 Library lib = geoFactory.createLibrary();
+                                KCacheEntry libEntry = lib.universe().model().manager().entry(lib, AccessMode.READ);
+                                long[] uuids = (long[]) libEntry.get(MetaLibrary.REF_SHAPES.index());
                                 geoFactory.setRoot(lib).then(new Callback<Throwable>() {
                                     @Override
                                     public void on(Throwable throwable) {
@@ -50,7 +52,7 @@ public class MainServerTest {
                                         }
                                     }
                                 });
-                                for (int i = 0; i < 5000; i++) {
+                                for (int i = 0; i < 200; i++) {
                                     lib.addShapes(geoFactory.createShape().setName("ShapeO" + i).setColor(colors[i % 3]));
                                 }
                                 geoModel.save().then(Utils.DefaultPrintStackTraceCallback);
@@ -91,6 +93,7 @@ public class MainServerTest {
                                 Library root = (Library) kObject;
                                 KCacheEntry entry = root.view().universe().model().manager().entry(root, AccessMode.READ);
                                 root.getShapes().then((shapes) -> {
+                                    System.out.println("Shapes:" + shapes.length);
                                     if (shapes != null) {
                                         for (Shape shape : shapes) {
                                             i++;

@@ -63,10 +63,10 @@
                 for(var i = 0; i < shapes.length; i++) {
                     if(shapesContainer.find('div#'+ shapes[i].getName()).length == 0) {
                         $('<div id="'+shapes[i].getName()+'" style="height:50px;width:50px;display: inline-block; margin: 10px;background-color: '+shapes[i].getColor()+';"></div>').appendTo(shapesContainer);
-                        /*
                         shapes[i].listen(function(newShape){
                             $('div#' + newShape.getName()).css('background-color', newShape.getColor());
                         });
+                        /*
                         */
                     }
                 }

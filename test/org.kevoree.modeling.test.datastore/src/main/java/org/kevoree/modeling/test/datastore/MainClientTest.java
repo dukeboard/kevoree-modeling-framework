@@ -21,12 +21,7 @@ public class MainClientTest {
 
         GeometryModel geoModel = new GeometryModel();
         geoModel.setContentDeliveryDriver(new WebSocketWrapper(geoModel.manager().cdn(), 23665));
-        geoModel.listen(new KEventListener() {
-            @Override
-            public void on(KObject src, Meta[] modifications) {
-                System.out.println("Event:" + src.metaClass().metaName() + " => " + Arrays.deepToString(modifications));
-            }
-        });
+
 
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
