@@ -31,10 +31,12 @@ declare module org {
                 class KConfig {
                     static TREE_CACHE_SIZE: number;
                     static CALLBACK_HISTORY: number;
+                    static LONG_SIZE: number;
+                    static PREFIX_SIZE: number;
                     static BEGINNING_OF_TIME: number;
                     static END_OF_TIME: number;
                     static NULL_LONG: number;
-                    static KEY_PREFIX_SIZE: number;
+                    static KEY_PREFIX_MASK: number;
                 }
                 interface KCurrentDefer<A> extends org.kevoree.modeling.api.KDefer<any> {
                     resultKeys(): string[];

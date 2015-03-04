@@ -78,10 +78,12 @@ module org {
 
                     public static TREE_CACHE_SIZE: number = 3;
                     public static CALLBACK_HISTORY: number = 1000;
+                    public static LONG_SIZE: number = 53;
+                    public static PREFIX_SIZE: number = 16;
                     public static BEGINNING_OF_TIME: number = -0x001FFFFFFFFFFFFE;
                     public static END_OF_TIME: number = 0x001FFFFFFFFFFFFE;
                     public static NULL_LONG: number = 0x001FFFFFFFFFFFFF;
-                    public static KEY_PREFIX_SIZE: number = 0x0000001FFFFFFFFF;
+                    public static KEY_PREFIX_MASK: number = 0x0000001FFFFFFFFF;
                 }
 
                 export interface KCurrentDefer<A> extends org.kevoree.modeling.api.KDefer<any> {
@@ -3780,20 +3782,20 @@ module org {
                             private _prefix: string;
                             private _currentIndex: number;
                             constructor(prefix: number, currentIndex: number) {
-                                this._prefix = "0x" + prefix.toString(16);
+                                this._prefix = "0x" + prefix.toString(org.kevoree.modeling.api.KConfig.PREFIX_SIZE);
                                  this._currentIndex = currentIndex;
                             }
 
                             public nextKey(): number {
-                                if (this._currentIndex == org.kevoree.modeling.api.KConfig.KEY_PREFIX_SIZE)  {
+                                if (this._currentIndex == org.kevoree.modeling.api.KConfig.KEY_PREFIX_MASK)  {
                                  throw new java.lang.IndexOutOfBoundsException("Object Index could not be created because it exceeded the capacity of the current prefix. Ask for a new prefix.");
                                 }
                                  this._currentIndex++;
-                                 var indexHex = this._currentIndex.toString(16);
-                                 var objectKey = parseInt(this._prefix + "000000000".substring(0,9-indexHex.length) + indexHex, 16);
+                                 var indexHex = this._currentIndex.toString(org.kevoree.modeling.api.KConfig.PREFIX_SIZE);
+                                 var objectKey = parseInt(this._prefix + "000000000".substring(0,9-indexHex.length) + indexHex, org.kevoree.modeling.api.KConfig.PREFIX_SIZE);
                                  if (objectKey >= org.kevoree.modeling.api.KConfig.NULL_LONG) 
                                 {
-                                 throw new java.lang.IndexOutOfBoundsException("Object Index exceeds teh maximum JavaScript number capacity. (2^53)");
+                                 throw new java.lang.IndexOutOfBoundsException("Object Index exceeds teh maximum JavaScript number capacity. (2^"+org.kevoree.modeling.api.KConfig.LONG_SIZE+")");
                                 }
                                  return objectKey;
                             }
@@ -3803,7 +3805,7 @@ module org {
                             }
 
                             public prefix(): number {
-                                return parseInt(this._prefix,16);
+                                return parseInt(this._prefix,org.kevoree.modeling.api.KConfig.PREFIX_SIZE);
                             }
 
                         }

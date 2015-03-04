@@ -74,10 +74,12 @@ var org;
                     }
                     KConfig.TREE_CACHE_SIZE = 3;
                     KConfig.CALLBACK_HISTORY = 1000;
+                    KConfig.LONG_SIZE = 53;
+                    KConfig.PREFIX_SIZE = 16;
                     KConfig.BEGINNING_OF_TIME = -0x001FFFFFFFFFFFFE;
                     KConfig.END_OF_TIME = 0x001FFFFFFFFFFFFE;
                     KConfig.NULL_LONG = 0x001FFFFFFFFFFFFF;
-                    KConfig.KEY_PREFIX_SIZE = 0x0000001FFFFFFFFF;
+                    KConfig.KEY_PREFIX_MASK = 0x0000001FFFFFFFFF;
                     return KConfig;
                 })();
                 api.KConfig = KConfig;
@@ -3260,18 +3262,18 @@ var org;
                         manager.JsonRaw = JsonRaw;
                         var KeyCalculator = (function () {
                             function KeyCalculator(prefix, currentIndex) {
-                                this._prefix = "0x" + prefix.toString(16);
+                                this._prefix = "0x" + prefix.toString(org.kevoree.modeling.api.KConfig.PREFIX_SIZE);
                                 this._currentIndex = currentIndex;
                             }
                             KeyCalculator.prototype.nextKey = function () {
-                                if (this._currentIndex == org.kevoree.modeling.api.KConfig.KEY_PREFIX_SIZE) {
+                                if (this._currentIndex == org.kevoree.modeling.api.KConfig.KEY_PREFIX_MASK) {
                                     throw new java.lang.IndexOutOfBoundsException("Object Index could not be created because it exceeded the capacity of the current prefix. Ask for a new prefix.");
                                 }
                                 this._currentIndex++;
-                                var indexHex = this._currentIndex.toString(16);
-                                var objectKey = parseInt(this._prefix + "000000000".substring(0, 9 - indexHex.length) + indexHex, 16);
+                                var indexHex = this._currentIndex.toString(org.kevoree.modeling.api.KConfig.PREFIX_SIZE);
+                                var objectKey = parseInt(this._prefix + "000000000".substring(0, 9 - indexHex.length) + indexHex, org.kevoree.modeling.api.KConfig.PREFIX_SIZE);
                                 if (objectKey >= org.kevoree.modeling.api.KConfig.NULL_LONG) {
-                                    throw new java.lang.IndexOutOfBoundsException("Object Index exceeds teh maximum JavaScript number capacity. (2^53)");
+                                    throw new java.lang.IndexOutOfBoundsException("Object Index exceeds teh maximum JavaScript number capacity. (2^" + org.kevoree.modeling.api.KConfig.LONG_SIZE + ")");
                                 }
                                 return objectKey;
                             };
@@ -3279,7 +3281,7 @@ var org;
                                 return this._currentIndex;
                             };
                             KeyCalculator.prototype.prefix = function () {
-                                return parseInt(this._prefix, 16);
+                                return parseInt(this._prefix, org.kevoree.modeling.api.KConfig.PREFIX_SIZE);
                             };
                             return KeyCalculator;
                         })();
