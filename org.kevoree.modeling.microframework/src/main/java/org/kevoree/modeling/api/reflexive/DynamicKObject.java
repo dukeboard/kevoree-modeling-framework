@@ -10,8 +10,8 @@ import org.kevoree.modeling.api.rbtree.LongRBTree;
  */
 public class DynamicKObject extends AbstractKObject {
 
-    public DynamicKObject(KView p_view, long p_uuid, LongRBTree p_universeTree, MetaClass p_metaClass) {
-        super(p_view, p_uuid, p_universeTree, p_metaClass);
+    public DynamicKObject(KView p_view, long p_uuid, MetaClass p_metaClass) {
+        super(p_view, p_uuid, p_metaClass);
     }
 
 }

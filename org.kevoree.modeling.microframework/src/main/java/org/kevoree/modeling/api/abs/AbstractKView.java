@@ -106,9 +106,9 @@ public abstract class AbstractKView implements KView {
         universe().model().manager().lookupAll(this, keys, callback);
     }
 
-    public KObject createProxy(MetaClass clazz, LongRBTree universeTree, long key) {
+    public KObject createProxy(MetaClass clazz, long key) {
         //TODO check the radixKey, according to the one created now
-        return internalCreate(clazz, universeTree, key);
+        return internalCreate(clazz, key);
     }
 
     @Override
@@ -116,16 +116,14 @@ public abstract class AbstractKView implements KView {
         if (!Checker.isDefined(clazz)) {
             return null;
         }
-        LongRBTree newUniverseTree = new LongRBTree();
-        newUniverseTree.insert(universe().key(), now());
-        KObject newObj = internalCreate(clazz, newUniverseTree, universe().model().manager().nextObjectKey());
+        KObject newObj = internalCreate(clazz, universe().model().manager().nextObjectKey());
         if (newObj != null) {
             universe().model().manager().initKObject(newObj, this);
         }
         return newObj;
     }
 
-    protected abstract KObject internalCreate(MetaClass clazz, LongRBTree universeTree, long key);
+    protected abstract KObject internalCreate(MetaClass clazz, long key);
 
     @Override
     public ModelFormat json() {

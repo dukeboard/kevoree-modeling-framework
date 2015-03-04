@@ -92,9 +92,7 @@ public class ModelTraceApplicator {
                                         }
                                     }
                                 } else if (trace instanceof ModelNewTrace) {
-                                    LongRBTree universeTree = new LongRBTree();
-                                    universeTree.insert(_targetModel.universe().key(), _targetModel.now());
-                                    KObject newCreated = ((AbstractKView) _targetModel.view()).createProxy((MetaClass) trace.meta(), universeTree, trace.sourceUUID());
+                                    KObject newCreated = ((AbstractKView) _targetModel.view()).createProxy((MetaClass) trace.meta(), trace.sourceUUID());
                                     _targetModel.universe().model().manager().initKObject(newCreated, _targetModel.view());
                                     cached.put(newCreated.uuid(), newCreated);
                                 } else {

@@ -17,13 +17,15 @@ public class KContentKey {
 
     public static long GLOBAL_SEGMENT_DATA_INDEX = 2;
 
-    public static long GLOBAL_SEGMENT_DATA_LONG_INDEX = 3;
+    public static long GLOBAL_SEGMENT_DATA_HASH_INDEX = 3;
 
     public static long GLOBAL_SEGMENT_DATA_ROOT = 4;
 
-    public static long GLOBAL_SEGMENT_UNIVERSE_TREE = 5;
+    public static long GLOBAL_SEGMENT_DATA_ROOT_INDEX = 5;
 
-    private static long GLOBAL_SEGMENT_PREFIX = 6;
+    public static long GLOBAL_SEGMENT_UNIVERSE_TREE = 6;
+
+    private static long GLOBAL_SEGMENT_PREFIX = 7;
 
     private static long GLOBAL_SUB_SEGMENT_PREFIX_OBJ = 0;
 
@@ -75,7 +77,7 @@ public class KContentKey {
     }
 
     public static KContentKey createUniverseTree(Long p_objectID) {
-        return new KContentKey(GLOBAL_SEGMENT_DATA_LONG_INDEX, KConfig.NULL_LONG, KConfig.NULL_LONG, p_objectID);
+        return new KContentKey(GLOBAL_SEGMENT_DATA_HASH_INDEX, KConfig.NULL_LONG, KConfig.NULL_LONG, p_objectID);
     }
 
     private static KContentKey cached_root_universeTree = null;
@@ -88,7 +90,7 @@ public class KContentKey {
     }
 
     public static KContentKey createRootTimeTree(Long universeID) {
-        return new KContentKey(GLOBAL_SEGMENT_DATA_ROOT, universeID, KConfig.NULL_LONG, KConfig.NULL_LONG);
+        return new KContentKey(GLOBAL_SEGMENT_DATA_ROOT_INDEX, universeID, KConfig.NULL_LONG, KConfig.NULL_LONG);
     }
 
     public static KContentKey createTimeTree(Long p_universeID, Long p_objectID) {

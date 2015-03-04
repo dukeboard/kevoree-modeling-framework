@@ -12,8 +12,8 @@ import org.kevoree.modeling.microframework.test.cloud.meta.MetaElement;
  */
 public class ElementImpl extends AbstractKObject implements Element {
 
-    public ElementImpl(CloudView factory, long kid, LongRBTree p_universeTree, MetaClass p_metaclass) {
-        super(factory, kid, p_universeTree, p_metaclass);
+    public ElementImpl(CloudView factory, long kid, MetaClass p_metaclass) {
+        super(factory, kid, p_metaclass);
     }
 
     @Override

@@ -87,10 +87,8 @@ public class JsonModelLoader {
                         Map<String, Object> elem = alls.get(i);
                         Long kid = Long.parseLong(elem.get(JsonModelSerializer.KEY_UUID).toString());
                         String meta = elem.get(JsonModelSerializer.KEY_META).toString();
-                        LongRBTree universeTree = new LongRBTree();
-                        universeTree.insert(factory.universe().key(), factory.now());
                         MetaClass metaClass = metaModel.metaClass(meta);
-                        KObject current = ((AbstractKView) factory).createProxy(metaClass, universeTree, mappedKeys.get(kid));
+                        KObject current = ((AbstractKView) factory).createProxy(metaClass, mappedKeys.get(kid));
                         factory.universe().model().manager().initKObject(current, factory);
                         KCacheEntry raw = factory.universe().model().manager().entry(current, AccessMode.WRITE);
                         String[] metaKeys = elem.keySet().toArray(new String[elem.size()]);

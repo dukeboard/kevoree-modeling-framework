@@ -5,7 +5,6 @@ import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.util.TimeWalker;
-import org.kevoree.modeling.api.rbtree.LongRBTree;
 import org.kevoree.modeling.api.traversal.KTraversal;
 import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.trace.TraceSequence;
@@ -41,8 +40,6 @@ public interface KObject {
 
     /* Time navigation */
     public long now();
-
-    public LongRBTree universeTree();
 
     public TimeWalker timeWalker();
 

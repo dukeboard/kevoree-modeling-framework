@@ -1,77 +1,55 @@
 package org.kevoree.modeling.api.data.manager;
 
-import org.kevoree.modeling.api.rbtree.IndexRBTree;
+import org.kevoree.modeling.api.KConfig;
+import org.kevoree.modeling.api.map.LongLongHashMap;
 import org.kevoree.modeling.api.rbtree.LongRBTree;
 import org.kevoree.modeling.api.rbtree.LongTreeNode;
-
-import java.util.ArrayList;
 
 /**
  * Created by duke on 03/03/15.
  */
 public class ResolutionHelper {
 
-    public static long resolve_universe(LongRBTree globalTree, LongRBTree objUniverseTree, long timeToResolve, long universeId) {
+    public static long resolve_universe(LongLongHashMap globalTree, LongLongHashMap objUniverseTree, long timeToResolve, long universeId) {
         if (globalTree == null) {
             return universeId;
         }
-        LongTreeNode currentUniverseNode = globalTree.lookup(universeId);
-        if (currentUniverseNode == null) {
+        long currentUniverseValue = globalTree.get(universeId);
+        long currentUniverseKey = universeId;
+        if (currentUniverseValue == KConfig.NULL_LONG) {
             return universeId;
         }
-        LongTreeNode resolved = objUniverseTree.lookup(universeId);
-        while (resolved == null && currentUniverseNode.key != currentUniverseNode.value) {
-            currentUniverseNode = globalTree.lookup(currentUniverseNode.value);
-            resolved = objUniverseTree.lookup(currentUniverseNode.key);
+        long resolvedKey = universeId;
+        long resolvedValue = objUniverseTree.get(resolvedKey);
+        while (resolvedValue == KConfig.NULL_LONG && currentUniverseKey != currentUniverseValue) {
+            currentUniverseKey = currentUniverseValue;
+            currentUniverseValue = globalTree.get(currentUniverseKey);
+            resolvedKey = currentUniverseKey;
+            resolvedValue = objUniverseTree.get(resolvedKey);
         }
-        if (resolved == null) {
+        if (resolvedValue == KConfig.NULL_LONG) {
             return universeId;
         }
-        while (resolved != null && resolved.value > timeToResolve && resolved.key != resolved.value) {
-            LongTreeNode resolvedCurrent = globalTree.lookup(resolved.key);
-            resolved = objUniverseTree.lookup(resolvedCurrent.value);
-            while (resolved == null && resolvedCurrent != null && resolvedCurrent.key != resolvedCurrent.value) {
-                resolved = objUniverseTree.lookup(resolvedCurrent.value);
-                resolvedCurrent = globalTree.lookup(resolvedCurrent.value);
+        while (resolvedValue != KConfig.NULL_LONG && resolvedValue > timeToResolve && resolvedKey != resolvedValue) {
+            long resolvedCurrentKey = resolvedKey;
+            long resolvedCurrentValue = globalTree.get(resolvedCurrentKey);
+            resolvedKey = resolvedCurrentValue;
+            resolvedValue = objUniverseTree.get(resolvedKey);
+            while (resolvedValue == KConfig.NULL_LONG && resolvedCurrentKey != resolvedCurrentValue) {
+                resolvedKey = resolvedCurrentValue;
+                resolvedValue = objUniverseTree.get(resolvedCurrentValue);
+                resolvedCurrentKey = resolvedCurrentValue;
+                resolvedCurrentValue = globalTree.get(resolvedCurrentValue);
             }
-            if(resolvedCurrent.key == resolvedCurrent.value) {
+            if (resolvedCurrentKey == resolvedCurrentValue) {
                 break;
             }
         }
-        if (resolved != null) {
-            return resolved.key;
+        if (resolvedValue != KConfig.NULL_LONG) {
+            return resolvedKey;
         } else {
             return universeId;
         }
     }
-
-    /*
-    public static IndexRBTree[] resolve_times(LongRBTree globalTree, LongRBTree objUniverseTree, long timeStart, long timeEnd, long currentUniverse) {
-        if (globalTree == null) {
-            return new IndexRBTree[0];
-        }
-        LongTreeNode currentUniverseNode = globalTree.lookup(currentUniverse);
-        if (currentUniverseNode == null) {
-            return new IndexRBTree[0];
-        }
-        LongTreeNode resolved = objUniverseTree.lookup(currentUniverse);
-        ArrayList<LongTreeNode> collectedUniverse = new ArrayList<LongTreeNode>();
-        if (resolved != null) {
-            collectedUniverse.add(resolved);
-        }
-        while (currentUniverseNode.key != currentUniverseNode.value) {
-            currentUniverseNode = globalTree.lookup(currentUniverseNode.value);
-            resolved = objUniverseTree.lookup(currentUniverseNode.key);
-        }
-
-        LongTreeNode resolved = objUniverseTree.lookup(currentUniverse);
-        while (resolved == null && currentUniverseNode.key != currentUniverseNode.value) {
-            currentUniverseNode = globalTree.lookup(currentUniverseNode.value);
-            resolved = objUniverseTree.lookup(currentUniverseNode.key);
-        }
-
-        //
-        return null;
-    }*/
 
 }

@@ -16,7 +16,7 @@ import org.kevoree.modeling.api.rbtree.LongRBTree;
 public abstract class AbstractKObjectInfer extends AbstractKObject implements KInfer {
 
     public AbstractKObjectInfer(KView p_view, long p_uuid, LongRBTree p_universeTree, MetaClass p_metaClass) {
-        super(p_view, p_uuid, p_universeTree, p_metaClass);
+        super(p_view, p_uuid, p_metaClass);
     }
 
     public KInferState readOnlyState() {

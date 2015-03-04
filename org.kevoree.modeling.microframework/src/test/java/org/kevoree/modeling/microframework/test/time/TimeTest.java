@@ -37,12 +37,11 @@ public class TimeTest {
     }
 
 
-
     final int[] jumpCounter = {4};
     private Callback<KObject> jumpCallback = new Callback<KObject>() {
         @Override
         public void on(KObject kObject) {
-            if(jumpCounter[0] > 0) {
+            if (jumpCounter[0] > 0) {
                 jumpCounter[0]--;
                 if (kObject != null) {
                     Node n = (Node) kObject;
@@ -68,8 +67,7 @@ public class TimeTest {
         CloudView view5 = universe.time(5);
         view5.select("/").then(new Callback<KObject[]>() {
             public void on(KObject[] kObjects) {
-                Node n = (Node)kObjects[0];
-                System.out.println("Jump " + jumpCounter[0]);
+                Node n = (Node) kObjects[0];
                 n.jump(jumpCounter[0]).then(jumpCallback);
             }
         });
@@ -250,7 +248,6 @@ public class TimeTest {
         });
 
 
-
         CloudView t1 = universe.time(1L);
         final Element element = t1.createElement();
         element.setName("Element1");
@@ -304,7 +301,6 @@ public class TimeTest {
                 });
             }
         });
-
 
 
         CloudView t1 = universe.time(1L);

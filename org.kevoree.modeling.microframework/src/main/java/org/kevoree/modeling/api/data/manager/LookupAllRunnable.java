@@ -7,6 +7,7 @@ import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.cache.KContentKey;
+import org.kevoree.modeling.api.map.LongLongHashMap;
 import org.kevoree.modeling.api.rbtree.LongRBTree;
 
 import java.util.ArrayList;
@@ -42,11 +43,10 @@ public class LookupAllRunnable implements Runnable {
                     if (objects[i] != null && objects[i].resolvedQuanta != null && objects[i].resolvedUniverse != null) {
                         KContentKey contentKey = KContentKey.createObject(objects[i].resolvedUniverse, objects[i].resolvedQuanta, _keys[i]);
                         KCacheEntry entry = (KCacheEntry) _store.cache().get(contentKey);
-                        LongRBTree universeTree = (LongRBTree) _store.cache().get(KContentKey.createUniverseTree(contentKey.obj()));
                         if (entry == null) {
                             toLoadIndexes.add(i);
                         } else {
-                            resolved[i] = ((AbstractKView) _originView).createProxy(entry.metaClass, universeTree, _keys[i]);
+                            resolved[i] = ((AbstractKView) _originView).createProxy(entry.metaClass, _keys[i]);
                         }
                     }
                 }
@@ -72,7 +72,7 @@ public class LookupAllRunnable implements Runnable {
                                         KCacheEntry entry = new KCacheEntry();
                                         if (JsonRaw.decode(strings[i], objects[index].resolvedQuanta, _originView.universe().model().metaModel(), entry)) {
                                             //Create and Add the proxy
-                                            resolved[index] = ((AbstractKView) _originView).createProxy(entry.metaClass, objects[index].universeTree, _keys[index]);
+                                            resolved[index] = ((AbstractKView) _originView).createProxy(entry.metaClass, _keys[index]);
                                             //Save the cache value
                                             _store.cache().put(KContentKey.createObject(objects[index].resolvedUniverse, objects[index].resolvedQuanta, _keys[index]), entry);
                                         } else {

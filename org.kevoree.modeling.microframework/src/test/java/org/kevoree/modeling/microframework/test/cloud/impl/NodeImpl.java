@@ -16,8 +16,8 @@ import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
  */
 public class NodeImpl extends AbstractKObject implements Node {
 
-    public NodeImpl(CloudView p_factory, long p_uuid, LongRBTree p_universeTree, MetaClass p_clazz) {
-        super(p_factory, p_uuid, p_universeTree, p_clazz);
+    public NodeImpl(CloudView p_factory, long p_uuid, MetaClass p_clazz) {
+        super(p_factory, p_uuid, p_clazz);
     }
 
     @Override

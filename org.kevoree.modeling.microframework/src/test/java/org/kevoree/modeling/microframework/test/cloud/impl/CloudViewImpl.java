@@ -23,17 +23,17 @@ public class CloudViewImpl extends AbstractKView implements CloudView {
     }
 
     @Override
-    protected KObject internalCreate(MetaClass p_clazz, LongRBTree p_universeTree, long p_key) {
+    protected KObject internalCreate(MetaClass p_clazz, long p_key) {
         if (p_clazz == null) {
             return null;
         }
         switch (p_clazz.index()) {
             case 0:
-                return new NodeImpl(this, p_key, p_universeTree, p_clazz);
+                return new NodeImpl(this, p_key, p_clazz);
             case 1:
-                return new ElementImpl(this, p_key, p_universeTree, p_clazz);
+                return new ElementImpl(this, p_key, p_clazz);
             default:
-                return new DynamicKObject(this, p_key, p_universeTree, p_clazz);
+                return new DynamicKObject(this, p_key, p_clazz);
         }
     }
 

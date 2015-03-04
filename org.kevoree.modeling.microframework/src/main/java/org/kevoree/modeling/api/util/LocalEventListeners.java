@@ -88,7 +88,6 @@ public class LocalEventListeners {
     }
 
     private void resolveKObject(KContentKey key, HashMap<Long, KUniverse> universeCache, HashMap<String, KView> viewsCache, Callback<KObject> callback) {
-        LongRBTree universeTree = (LongRBTree) _manager.cache().get(KContentKey.createUniverseTree(key.obj()));
         KUniverse universeSelected = universeCache.get(key.universe());
         if (universeSelected == null) {
             universeSelected = _manager.model().universe(key.universe());
@@ -103,7 +102,7 @@ public class LocalEventListeners {
         if(entry == null) {
             _manager.lookup(tempView, key.obj(), callback);
         } else {
-            callback.on(((AbstractKView) tempView).createProxy(entry.metaClass, universeTree, key.obj()));
+            callback.on(((AbstractKView) tempView).createProxy(entry.metaClass, key.obj()));
         }
     }
 
