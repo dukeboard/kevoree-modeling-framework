@@ -63,6 +63,26 @@ public class MetaInferClass implements MetaClass {
 
     @Override
     public Meta metaByName(String name) {
+        return attribute(name);
+    }
+
+    @Override
+    public MetaAttribute attribute(String name) {
+        if (name == null) {
+            return null;
+        } else {
+            if (name.equals(_attributes[0].metaName())) {
+                return _attributes[0];
+            } else if (name.equals(_attributes[1].metaName())) {
+                return _attributes[1];
+            } else {
+                return null;
+            }
+        }
+    }
+
+    @Override
+    public MetaReference reference(String name) {
         return null;
     }
 

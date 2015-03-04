@@ -32,6 +32,24 @@ public class AbstractMetaClass implements MetaClass {
     }
 
     @Override
+    public MetaAttribute attribute(String name) {
+        Meta resolved = _indexes.get(name);
+        if (resolved != null && resolved instanceof AbstractMetaAttribute) {
+            return (MetaAttribute) resolved;
+        }
+        return null;
+    }
+
+    @Override
+    public MetaReference reference(String name) {
+        Meta resolved = _indexes.get(name);
+        if (resolved != null && resolved instanceof AbstractMetaReference) {
+            return (MetaReference) resolved;
+        }
+        return null;
+    }
+
+    @Override
     public Meta[] metaElements() {
         return _meta;
     }

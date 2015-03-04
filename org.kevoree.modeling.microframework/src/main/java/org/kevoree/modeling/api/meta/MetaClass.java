@@ -15,5 +15,8 @@ public interface MetaClass extends Meta {
 
     public Meta metaByName(String name);
 
+    public MetaAttribute attribute(String name);
+
+    public MetaReference reference(String name);
 
 }
