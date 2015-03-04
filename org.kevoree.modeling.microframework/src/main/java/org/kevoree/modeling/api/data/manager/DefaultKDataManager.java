@@ -674,11 +674,11 @@ public class DefaultKDataManager implements KDataManager {
 
     private KCacheObject internal_load(KContentKey key, String payload) {
         KCacheObject result;
-        if (key.segment().equals(KContentKey.GLOBAL_SEGMENT_DATA_INDEX)) {
+        if (key.segment() == KContentKey.GLOBAL_SEGMENT_DATA_INDEX) {
             result = new IndexRBTree();
-        } else if (key.segment().equals(KContentKey.GLOBAL_SEGMENT_DATA_RAW)) {
+        } else if (key.segment() == KContentKey.GLOBAL_SEGMENT_DATA_RAW) {
             result = new KCacheEntry();
-        } else if (key.segment().equals(KContentKey.GLOBAL_SEGMENT_DATA_LONG_INDEX) || key.segment().equals(KContentKey.GLOBAL_SEGMENT_DATA_ROOT) || key.segment().equals(KContentKey.GLOBAL_SEGMENT_UNIVERSE_TREE)) {
+        } else if (key.segment() == KContentKey.GLOBAL_SEGMENT_DATA_LONG_INDEX || key.segment() == KContentKey.GLOBAL_SEGMENT_DATA_ROOT || key.segment() == KContentKey.GLOBAL_SEGMENT_UNIVERSE_TREE) {
             result = new LongRBTree();
         } else {
             result = null;

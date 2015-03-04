@@ -19,4 +19,6 @@ public interface MetaClass extends Meta {
 
     public MetaReference reference(String name);
 
+    public MetaOperation operation(String name);
+
 }

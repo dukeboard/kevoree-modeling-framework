@@ -87,6 +87,11 @@ public class MetaInferClass implements MetaClass {
     }
 
     @Override
+    public MetaOperation operation(String name) {
+        return null;
+    }
+
+    @Override
     public String metaName() {
         return "KInfer";
     }

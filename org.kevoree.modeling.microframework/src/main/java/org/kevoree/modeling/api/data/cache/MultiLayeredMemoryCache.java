@@ -1,5 +1,7 @@
 package org.kevoree.modeling.api.data.cache;
 
+import org.kevoree.modeling.api.KConfig;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,7 +69,7 @@ public class MultiLayeredMemoryCache implements KCache {
         for (int i = 0; i < L0_KEYS.length; i++) {
             KCacheLayer layer = _nestedLayers.get(L0_KEYS[i]);
             if (layer != null) {
-                Long[] prefixKey = new Long[KContentKey.ELEM_SIZE];
+                long[] prefixKey = new long[KConfig.KEY_SIZE];
                 prefixKey[0] = L0_KEYS[i];
                 layer.dirties(result, prefixKey, 1);
             }

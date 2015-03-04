@@ -19,7 +19,7 @@ public class LongMapTest {
      * //noJS
      * }
      */
-    @Test
+    // @Test
     public void test() {
 
         long first = System.currentTimeMillis();
@@ -56,11 +56,11 @@ public class LongMapTest {
      * //noJS
      * }
      */
-    @Test
+    //@Test
     public void testMap() {
 
         long first = System.currentTimeMillis();
-        HashMap<Long,String> map = new HashMap<Long,String>();
+        HashMap<Long, String> map = new HashMap<Long, String>();
         for (long i = 0; i < SIZE; i++) {
             map.put(i, "" + i);
         }
@@ -75,7 +75,7 @@ public class LongMapTest {
 
         int nbCall = 0;
         Long[] keys = map.keySet().toArray(new Long[map.size()]);
-        for(int i=0;i<keys.length;i++){
+        for (int i = 0; i < keys.length; i++) {
             nbCall++;
         }
         Assert.assertEquals(nbCall, SIZE);

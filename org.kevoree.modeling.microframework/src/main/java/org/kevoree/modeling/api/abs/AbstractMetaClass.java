@@ -1,11 +1,7 @@
 package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.data.manager.Index;
-import org.kevoree.modeling.api.meta.Meta;
-import org.kevoree.modeling.api.meta.MetaAttribute;
-import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.meta.MetaType;
+import org.kevoree.modeling.api.meta.*;
 
 import java.util.HashMap;
 
@@ -45,6 +41,15 @@ public class AbstractMetaClass implements MetaClass {
         Meta resolved = _indexes.get(name);
         if (resolved != null && resolved instanceof AbstractMetaReference) {
             return (MetaReference) resolved;
+        }
+        return null;
+    }
+
+    @Override
+    public MetaOperation operation(String name) {
+        Meta resolved = _indexes.get(name);
+        if (resolved != null && resolved instanceof AbstractMetaOperation) {
+            return (MetaOperation) resolved;
         }
         return null;
     }

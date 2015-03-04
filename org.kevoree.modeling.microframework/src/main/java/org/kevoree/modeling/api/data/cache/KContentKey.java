@@ -1,5 +1,7 @@
 package org.kevoree.modeling.api.data.cache;
 
+import org.kevoree.modeling.api.KConfig;
+
 /**
  * Created by duke on 18/02/15.
  */
@@ -7,11 +9,7 @@ package org.kevoree.modeling.api.data.cache;
 //TODO inject singleton for some Keys
 public class KContentKey {
 
-    public static final int ELEM_SIZE = 4;
-
-    private Long[] elem = new Long[ELEM_SIZE];
-
-    public static final char KEY_SEP = '/';
+    private long[] elem;
 
     private static long GLOBAL_SEGMENT_META = 0;
 
@@ -31,59 +29,70 @@ public class KContentKey {
 
     private static long GLOBAL_SUB_SEGMENT_PREFIX_UNI = 1;
 
-    public KContentKey(Long p_prefixID, Long p_universeID, Long p_timeID, Long p_objID) {
+    public KContentKey(long p_prefixID, long p_universeID, long p_timeID, long p_objID) {
+        elem = new long[KConfig.KEY_SIZE];
         elem[0] = p_prefixID;
         elem[1] = p_universeID;
         elem[2] = p_timeID;
         elem[3] = p_objID;
     }
 
-    public Long segment() {
+    public long segment() {
         return elem[0];
     }
 
-    public Long universe() {
+    public long universe() {
         return elem[1];
     }
 
-    public Long time() {
+    public long time() {
         return elem[2];
     }
 
-    public Long obj() {
+    public long obj() {
         return elem[3];
     }
 
-    public Long part(int i) {
-        if (i >= 0 && i < ELEM_SIZE) {
+    public long part(int i) {
+        if (i >= 0 && i < KConfig.KEY_SIZE) {
             return elem[i];
         } else {
-            return null;
+            return KConfig.NULL_LONG;
         }
     }
 
-    public static KContentKey createGlobal(Long p_prefixID) {
-        return new KContentKey(p_prefixID, null, null, null);
+    public static KContentKey createGlobal(long p_prefixID) {
+        return new KContentKey(p_prefixID, KConfig.NULL_LONG, KConfig.NULL_LONG, KConfig.NULL_LONG);
     }
 
+    private static KContentKey cached_global_universeTree = null;
+
     public static KContentKey createGlobalUniverseTree() {
-        return new KContentKey(GLOBAL_SEGMENT_UNIVERSE_TREE, null, null, null);
+        if (cached_global_universeTree == null) {
+            cached_global_universeTree = new KContentKey(GLOBAL_SEGMENT_UNIVERSE_TREE, KConfig.NULL_LONG, KConfig.NULL_LONG, KConfig.NULL_LONG);
+        }
+        return cached_global_universeTree;
     }
 
     public static KContentKey createUniverseTree(Long p_objectID) {
-        return new KContentKey(GLOBAL_SEGMENT_DATA_LONG_INDEX, null, null, p_objectID);
+        return new KContentKey(GLOBAL_SEGMENT_DATA_LONG_INDEX, KConfig.NULL_LONG, KConfig.NULL_LONG, p_objectID);
     }
 
+    private static KContentKey cached_root_universeTree = null;
+
     public static KContentKey createRootUniverseTree() {
-        return new KContentKey(GLOBAL_SEGMENT_DATA_ROOT, null, null, null);
+        if (cached_root_universeTree == null) {
+            cached_root_universeTree = new KContentKey(GLOBAL_SEGMENT_DATA_ROOT, KConfig.NULL_LONG, KConfig.NULL_LONG, KConfig.NULL_LONG);
+        }
+        return cached_root_universeTree;
     }
 
     public static KContentKey createRootTimeTree(Long universeID) {
-        return new KContentKey(GLOBAL_SEGMENT_DATA_ROOT, universeID, null, null);
+        return new KContentKey(GLOBAL_SEGMENT_DATA_ROOT, universeID, KConfig.NULL_LONG, KConfig.NULL_LONG);
     }
 
     public static KContentKey createTimeTree(Long p_universeID, Long p_objectID) {
-        return new KContentKey(GLOBAL_SEGMENT_DATA_INDEX, p_universeID, null, p_objectID);
+        return new KContentKey(GLOBAL_SEGMENT_DATA_INDEX, p_universeID, KConfig.NULL_LONG, p_objectID);
     }
 
     public static KContentKey createObject(Long p_universeID, Long p_quantaID, Long p_objectID) {
@@ -91,27 +100,30 @@ public class KContentKey {
     }
 
     public static KContentKey createLastPrefix() {
-        return new KContentKey(GLOBAL_SEGMENT_PREFIX, null, null, null);
+        return new KContentKey(GLOBAL_SEGMENT_PREFIX, KConfig.NULL_LONG, KConfig.NULL_LONG, KConfig.NULL_LONG);
     }
 
     public static KContentKey createLastObjectIndexFromPrefix(Short prefix) {
-        return new KContentKey(GLOBAL_SEGMENT_PREFIX, GLOBAL_SUB_SEGMENT_PREFIX_OBJ, null, Long.parseLong(prefix.toString()));
+        return new KContentKey(GLOBAL_SEGMENT_PREFIX, GLOBAL_SUB_SEGMENT_PREFIX_OBJ, KConfig.NULL_LONG, Long.parseLong(prefix.toString()));
     }
 
     public static KContentKey createLastUniverseIndexFromPrefix(Short prefix) {
-        return new KContentKey(GLOBAL_SEGMENT_PREFIX, GLOBAL_SUB_SEGMENT_PREFIX_UNI, null, Long.parseLong(prefix.toString()));
+        return new KContentKey(GLOBAL_SEGMENT_PREFIX, GLOBAL_SUB_SEGMENT_PREFIX_UNI, KConfig.NULL_LONG, Long.parseLong(prefix.toString()));
     }
 
     public static KContentKey create(String payload) {
         if (payload == null || payload.length() == 0) {
             return null;
         } else {
-            Long[] temp = new Long[ELEM_SIZE];
+            long[] temp = new long[KConfig.KEY_SIZE];
+            for (int i = 0; i < KConfig.KEY_SIZE; i++) {
+                temp[i] = KConfig.NULL_LONG;
+            }
             int maxRead = payload.length();
             int indexStartElem = -1;
             int indexElem = 0;
             for (int i = 0; i < maxRead; i++) {
-                if (payload.charAt(i) == KEY_SEP) {
+                if (payload.charAt(i) == KConfig.KEY_SEP) {
                     if (indexStartElem != -1) {
                         try {
                             temp[indexElem] = Long.parseLong(payload.substring(indexStartElem, i));
@@ -141,11 +153,11 @@ public class KContentKey {
     @Override
     public String toString() {
         StringBuilder buffer = new StringBuilder();
-        for (int i = 0; i < ELEM_SIZE; i++) {
+        for (int i = 0; i < KConfig.KEY_SIZE; i++) {
             if (i != 0) {
-                buffer.append(KEY_SEP);
+                buffer.append(KConfig.KEY_SEP);
             }
-            if (elem[i] != null) {
+            if (elem[i] != KConfig.NULL_LONG) {
                 buffer.append(elem[i]);
             }
         }

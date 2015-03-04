@@ -8,21 +8,13 @@ import io.undertow.websockets.core.WebSocketChannel;
 import io.undertow.websockets.core.WebSockets;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KEventListener;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KUniverse;
-import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.abs.AbstractKView;
-import org.kevoree.modeling.api.data.cache.KCacheEntry;
-import org.kevoree.modeling.api.data.cache.KCacheObject;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.cdn.AtomicOperation;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
-import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.json.JsonString;
-import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.msg.KAtomicGetRequest;
 import org.kevoree.modeling.api.msg.KAtomicGetResult;
 import org.kevoree.modeling.api.msg.KEventMessage;
@@ -55,7 +47,6 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
     private Map<Long, ThrowableCallback<String[]>> _getCallbacks = new HashMap<>();
     private Map<Long, Callback<Throwable>> _putCallbacks = new HashMap<>();
     private Map<Long, ThrowableCallback<String>> _atomicGetCallbacks = new HashMap<>();
-
 
 
     public WebSocketClient(String url) {
@@ -102,35 +93,39 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
 
         // parse
         JsonArray messages = JsonArray.readFrom(data);
-        for(int i = 0; i < messages.size(); i++) {
+        for (int i = 0; i < messages.size(); i++) {
             JsonObject rawMessage = messages.get(i).asObject();
             KMessage msg = KMessageLoader.load(rawMessage.toString());
             switch (msg.type()) {
-                case KMessageLoader.GET_RES_TYPE:{
+                case KMessageLoader.GET_RES_TYPE: {
                     KGetResult getResult = (KGetResult) msg;
                     _getCallbacks.remove(getResult.id).on(getResult.values, null);
-                }break;
-                case KMessageLoader.PUT_RES_TYPE:{
+                }
+                break;
+                case KMessageLoader.PUT_RES_TYPE: {
                     KPutResult putResult = (KPutResult) msg;
                     _putCallbacks.remove(putResult.id).on(null);
-                }break;
-                case KMessageLoader.ATOMIC_OPERATION_RESULT_TYPE:{
+                }
+                break;
+                case KMessageLoader.ATOMIC_OPERATION_RESULT_TYPE: {
                     KAtomicGetResult atomicGetResult = (KAtomicGetResult) msg;
                     _atomicGetCallbacks.remove(atomicGetResult.id).on(atomicGetResult.value, null);
-                }break;
-                case KMessageLoader.EVENT_TYPE:{
-                    keysToReload.add(((KEventMessage)msg).key);
-                    if(((KEventMessage)msg).key.segment() == KContentKey.GLOBAL_SEGMENT_DATA_RAW) {
+                }
+                break;
+                case KMessageLoader.EVENT_TYPE: {
+                    keysToReload.add(((KEventMessage) msg).key);
+                    if (((KEventMessage) msg).key.segment() == KContentKey.GLOBAL_SEGMENT_DATA_RAW) {
                         messagesToSendLocally.add((KEventMessage) msg);
                     }
-                }break;
-                default:{
+                }
+                break;
+                default: {
                     System.err.println("MessageType not supported:" + msg.type());
                 }
             }
         }
 
-        if(messagesToSendLocally.size() > 0) {
+        if (messagesToSendLocally.size() > 0) {
 
             this._manager.reload(keysToReload.toArray(new KContentKey[keysToReload.size()]), new Callback<Throwable>() {
                 @Override
@@ -192,10 +187,10 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
         final JsonArray payload = new JsonArray();
 
         ArrayList<KEventMessage> messagesToFire = new ArrayList<>();
-        for(int i = 0; i < msgs.length; i++) {
+        for (int i = 0; i < msgs.length; i++) {
             payload.add(msgs[i].json());
             KContentKey key = msgs[i].key;
-            if(key.segment() == KContentKey.GLOBAL_SEGMENT_DATA_RAW) {
+            if (key.segment() == KContentKey.GLOBAL_SEGMENT_DATA_RAW) {
                 messagesToFire.add(msgs[i]);
             }
         }

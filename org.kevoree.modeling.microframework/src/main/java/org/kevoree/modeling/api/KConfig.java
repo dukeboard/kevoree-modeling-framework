@@ -24,4 +24,8 @@ public class KConfig {
     // Limit limit local index to LONG limit - prefix size
     public static final long KEY_PREFIX_MASK = 0x0000001FFFFFFFFFl;
 
+    public static final char KEY_SEP = '/';
+
+    public static final int KEY_SIZE = 4;
+
 }
