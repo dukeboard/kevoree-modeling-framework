@@ -35,9 +35,9 @@ public class LookupAllRunnable implements Runnable {
     public void run() {
         _store.internal_resolve_universe_time(_originView, _keys, new Callback<ResolutionResult[]>() {
             @Override
-            public void on(ResolutionResult[] objects) {
-                KObject[] resolved = new KObject[_keys.length];
-                List<Integer> toLoadIndexes = new ArrayList<Integer>();
+            public void on(final ResolutionResult[] objects) {
+                final KObject[] resolved = new KObject[_keys.length];
+                final List<Integer> toLoadIndexes = new ArrayList<Integer>();
                 for (int i = 0; i < objects.length; i++) {
                     if (objects[i] != null && objects[i].resolvedQuanta != null && objects[i].resolvedUniverse != null) {
                         KContentKey contentKey = KContentKey.createObject(objects[i].resolvedUniverse, objects[i].resolvedQuanta, _keys[i]);

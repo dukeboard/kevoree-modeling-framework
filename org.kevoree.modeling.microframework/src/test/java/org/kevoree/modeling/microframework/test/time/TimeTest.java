@@ -252,7 +252,7 @@ public class TimeTest {
 
 
         CloudView t1 = universe.time(1L);
-        Element element = t1.createElement();
+        final Element element = t1.createElement();
         element.setName("Element1");
         t1.lookup(node0.uuid()).then(new Callback<KObject>() {
             @Override
@@ -285,7 +285,7 @@ public class TimeTest {
     @Test
     public void timeUpdateWithSelectTest() {
 
-        CloudModel model = new CloudModel();
+        final CloudModel model = new CloudModel();
         model.connect();
         CloudUniverse universe = model.newUniverse();
         CloudView t0 = universe.time(0L);
@@ -308,7 +308,7 @@ public class TimeTest {
 
 
         CloudView t1 = universe.time(1L);
-        Element element = t1.createElement();
+        final Element element = t1.createElement();
         element.setName("Element1");
         t1.select("/").then(new Callback<KObject[]>() {
             @Override

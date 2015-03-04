@@ -67,7 +67,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
     }
 
     @Override
-    public void close(Callback<Throwable> callback) {
+    public void close(final Callback<Throwable> callback) {
         if (wrapped != null) {
             wrapped.close(new Callback<Throwable>() {
                 @Override
@@ -95,7 +95,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
     }
 
     @Override
-    protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message) throws IOException {
+    protected void onFullTextMessage(final WebSocketChannel channel, BufferedTextMessage message) throws IOException {
         String data = message.getData();
 
         ArrayList<KEventMessage> _events = null;
@@ -109,7 +109,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
             KMessage msg = KMessageLoader.load(rawMessage);
             switch (msg.type()) {
                 case KMessageLoader.GET_REQ_TYPE:{
-                    KGetRequest getRequest = (KGetRequest)msg;
+                    final KGetRequest getRequest = (KGetRequest)msg;
                     wrapped.get(getRequest.keys, new ThrowableCallback<String[]>() {
                         public void on(String[] strings, Throwable error) {
                             if(error == null) {
@@ -122,7 +122,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
                     });
                 }break;
                 case KMessageLoader.PUT_REQ_TYPE:{
-                    KPutRequest putRequest = (KPutRequest)msg;
+                    final KPutRequest putRequest = (KPutRequest)msg;
                     wrapped.put(putRequest.request, new Callback<Throwable>() {
                         @Override
                         public void on(Throwable throwable) {
@@ -135,7 +135,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
                     });
                 }break;
                 case KMessageLoader.ATOMIC_OPERATION_REQUEST_TYPE:{
-                    KAtomicGetRequest atomicGetRequest = (KAtomicGetRequest)msg;
+                    final KAtomicGetRequest atomicGetRequest = (KAtomicGetRequest)msg;
                     wrapped.atomicGetMutate(atomicGetRequest.key, atomicGetRequest.operation, new ThrowableCallback<String>() {
                         @Override
                         public void on(String s, Throwable error) {

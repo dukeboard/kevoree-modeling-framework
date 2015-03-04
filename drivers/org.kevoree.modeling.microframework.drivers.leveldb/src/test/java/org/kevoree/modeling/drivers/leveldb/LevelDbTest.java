@@ -17,7 +17,7 @@ public class LevelDbTest {
     @Test
     public void test() throws IOException {
 
-        LevelDbContentDeliveryDriver driver = new LevelDbContentDeliveryDriver("target/temp");
+        final LevelDbContentDeliveryDriver driver = new LevelDbContentDeliveryDriver("target/temp");
         driver.connect(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {

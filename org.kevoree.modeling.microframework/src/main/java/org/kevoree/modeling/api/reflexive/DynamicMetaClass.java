@@ -29,8 +29,8 @@ public class DynamicMetaClass extends AbstractMetaClass {
         return this;
     }
 
-    public DynamicMetaClass addReference(String p_name, MetaClass p_metaClass, boolean contained) {
-        MetaClass tempOrigin = this;
+    public DynamicMetaClass addReference(String p_name, final MetaClass p_metaClass, boolean contained) {
+        final MetaClass tempOrigin = this;
         AbstractMetaReference tempReference = new AbstractMetaReference(p_name, _globalIndex, contained, false, new LazyResolver() {
             @Override
             public Meta meta() {
@@ -49,7 +49,7 @@ public class DynamicMetaClass extends AbstractMetaClass {
     }
 
     public DynamicMetaClass addOperation(String p_name) {
-        MetaClass tempOrigin = this;
+        final MetaClass tempOrigin = this;
         AbstractMetaOperation tempOperation = new AbstractMetaOperation(p_name, _globalIndex, new LazyResolver() {
             @Override
             public Meta meta() {

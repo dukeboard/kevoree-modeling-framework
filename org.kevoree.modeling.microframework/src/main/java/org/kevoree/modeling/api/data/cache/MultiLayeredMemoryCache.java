@@ -69,7 +69,7 @@ public class MultiLayeredMemoryCache implements KCache {
 
     @Override
     public KCacheDirty[] dirties() {
-        List<KCacheDirty> result = new ArrayList<KCacheDirty>();
+        final List<KCacheDirty> result = new ArrayList<KCacheDirty>();
         _nestedLayers.each(new LongHashMapCallBack<KCacheLayer>() {
             @Override
             public void on(long loopKey, KCacheLayer loopLayer) {

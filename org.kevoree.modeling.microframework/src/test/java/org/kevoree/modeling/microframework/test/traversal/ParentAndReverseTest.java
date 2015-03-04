@@ -21,13 +21,13 @@ public class ParentAndReverseTest {
 
     @Test
     public void reverseQueryTest() {
-        CloudModel universe = new CloudModel();
+        final CloudModel universe = new CloudModel();
         universe.connect().then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 CloudUniverse dimension0 = universe.newUniverse();
                 CloudView t0 = dimension0.time(0l);
-                Node root = t0.createNode();
+                final Node root = t0.createNode();
                 root.setName("root");
                 t0.setRoot(root);
 

@@ -30,10 +30,10 @@ public class JsonModelSerializer {
 
     public static final String INBOUNDS_META = "@inbounds";
 
-    public static void serialize(KObject model, final Callback<String> callback) {
+    public static void serialize(final KObject model, final Callback<String> callback) {
         model.view().getRoot().then(new Callback<KObject>() {
             @Override
-            public void on(KObject rootObj) {
+            public void on(final KObject rootObj) {
                 boolean isRoot = false;
                 if (rootObj != null) {
                     isRoot = rootObj.uuid() == model.uuid();

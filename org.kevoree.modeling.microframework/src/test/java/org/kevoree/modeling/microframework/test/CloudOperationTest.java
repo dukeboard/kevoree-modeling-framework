@@ -15,7 +15,7 @@ import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
 public class CloudOperationTest {
 
     public static void main(String[] args) {
-        CloudModel model = new CloudModel();
+        final CloudModel model = new CloudModel();
         model.connect().then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {

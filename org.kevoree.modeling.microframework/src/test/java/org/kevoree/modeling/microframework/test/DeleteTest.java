@@ -18,14 +18,14 @@ public class DeleteTest {
 
     @Test
     public void basicDeleteTest() {
-        CloudModel model = new CloudModel();
+        final CloudModel model = new CloudModel();
         model.connect().then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
                     throwable.printStackTrace();
                 } else {
-                    CloudUniverse universe = model.newUniverse();
+                    final CloudUniverse universe = model.newUniverse();
                     CloudView factory = universe.time(0l);
                     Node n = factory.createNode();
                     factory.setRoot(n).then(new Callback<Throwable>() {
@@ -38,7 +38,7 @@ public class DeleteTest {
                                         @Override
                                         public void on(Throwable aBoolean) {
                                             CloudView factory1 = universe.time(1l);
-                                            Element e = factory1.createElement();
+                                            final Element e = factory1.createElement();
                                             factory1.select("/").then(new Callback<KObject[]>() {
                                                 @Override
                                                 public void on(KObject[] results) {
@@ -91,11 +91,11 @@ public class DeleteTest {
                                                 }
                                             });
 
-                                            CloudView factory3 = universe.time(3l);
+                                            final CloudView factory3 = universe.time(3l);
                                             factory3.select("/").then(new Callback<KObject[]>() {
                                                 @Override
                                                 public void on(KObject[] results) {
-                                                    Node n2 = (Node) results[0];
+                                                    final Node n2 = (Node) results[0];
                                                     n2.getElement(new Callback<Element>() {
                                                         @Override
                                                         public void on(Element element) {
@@ -146,7 +146,7 @@ public class DeleteTest {
     @Test
     public void simpleDeleteTest() {
 
-        CloudModel model = new CloudModel();
+        final CloudModel model = new CloudModel();
         model.connect().then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {

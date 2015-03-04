@@ -140,10 +140,10 @@ public class DefaultKDataManager implements KDataManager {
     }
 
     @Override
-    public synchronized void save(Callback<Throwable> callback) {
+    public synchronized void save(final Callback<Throwable> callback) {
         KCacheDirty[] dirtiesEntries = _cache.dirties();
         KContentPutRequest request = new KContentPutRequest(dirtiesEntries.length + 2);
-        KEventMessage[] notificationMessages = new KEventMessage[dirtiesEntries.length];
+        final KEventMessage[] notificationMessages = new KEventMessage[dirtiesEntries.length];
         for (int i = 0; i < dirtiesEntries.length; i++) {
             KCacheObject cachedObject = dirtiesEntries[i].object;
             KEventMessage newMessage = new KEventMessage();
@@ -186,7 +186,7 @@ public class DefaultKDataManager implements KDataManager {
     }
 
     @Override
-    public void connect(Callback<Throwable> connectCallback) {
+    public void connect(final Callback<Throwable> connectCallback) {
         if (isConnected) {
             if (connectCallback != null) {
                 connectCallback.on(null);
@@ -392,7 +392,7 @@ public class DefaultKDataManager implements KDataManager {
         return _operationManager;
     }
 
-    void internal_resolve_universe_time(KView originView, long[] uuids, Callback<ResolutionResult[]> callback) {
+    void internal_resolve_universe_time(final KView originView, final long[] uuids, final Callback<ResolutionResult[]> callback) {
         final ResolutionResult[] tempResult = new ResolutionResult[uuids.length];
         //step 0: try to hit the cache layer for dimensions
         List<Integer> toLoadIndexUniverse = null;
@@ -449,7 +449,7 @@ public class DefaultKDataManager implements KDataManager {
         }
     }
 
-    private void internal_resolve_times(KView originView, long[] uuids, ResolutionResult[] tempResult, Callback<ResolutionResult[]> callback) {
+    private void internal_resolve_times(final KView originView, long[] uuids, final ResolutionResult[] tempResult, final Callback<ResolutionResult[]> callback) {
         //step 1.0: try to hit the cache layer for times
         List<Integer> toLoadIndexTimes = null;
         List<KContentKey> toLoadTimeTrees = null;
@@ -520,7 +520,7 @@ public class DefaultKDataManager implements KDataManager {
 
     /* ROOT MANAGEMENT */
 
-    public void internal_root_load(KContentKey contentKey, Callback<LongRBTree> callback) {
+    public void internal_root_load(final KContentKey contentKey, final Callback<LongRBTree> callback) {
         LongRBTree rootUniverseTree = (LongRBTree) _cache.get(contentKey);
         if (rootUniverseTree == null) {
             KContentKey[] requestKeys = new KContentKey[1];
@@ -583,8 +583,8 @@ public class DefaultKDataManager implements KDataManager {
     }
 
     @Override
-    public void setRoot(KObject newRoot, Callback<Throwable> callback) {
-        KContentKey universeTreeRootKey = KContentKey.createRootUniverseTree();
+    public void setRoot(final KObject newRoot, final Callback<Throwable> callback) {
+        final KContentKey universeTreeRootKey = KContentKey.createRootUniverseTree();
         internal_root_load(universeTreeRootKey, new Callback<LongRBTree>() {
             @Override
             public void on(LongRBTree longRBTree) {
@@ -604,7 +604,7 @@ public class DefaultKDataManager implements KDataManager {
                         callback.on(null);
                     }
                 } else {
-                    KContentKey universeTreeRootKey = KContentKey.createRootTimeTree(closestUniverse);
+                    final KContentKey universeTreeRootKey = KContentKey.createRootTimeTree(closestUniverse);
                     internal_root_load(universeTreeRootKey, new Callback<LongRBTree>() {
                         @Override
                         public void on(LongRBTree resolvedRootTimeTree) {
@@ -633,7 +633,7 @@ public class DefaultKDataManager implements KDataManager {
     }
 
     @Override
-    public void reload(KContentKey[] keys, Callback<Throwable> callback) {
+    public void reload(KContentKey[] keys, final Callback<Throwable> callback) {
         List<KContentKey> toReload = new ArrayList<KContentKey>();
         for (int i = 0; i < keys.length; i++) {
             KCacheObject cached = _cache.get(keys[i]);
@@ -698,7 +698,7 @@ public class DefaultKDataManager implements KDataManager {
 
     /* TODO MultiUniverse */
     @Override
-    public void timeTrees(KObject p_origin, Long start, Long end, Callback<IndexRBTree[]> callback) {
+    public void timeTrees(KObject p_origin, Long start, Long end, final Callback<IndexRBTree[]> callback) {
         //TODO enhance for multiVerse
         long[] uuid = new long[1];
         uuid[0] = p_origin.uuid();

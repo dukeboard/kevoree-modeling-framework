@@ -59,12 +59,12 @@ public class LocalEventListeners {
         HashMap<String, KView> viewsCache = new HashMap<String, KView>();
 
         for(int k = 0; k < messages.length; k++) {
-            KEventMessage msg = messages[k];
+            final KEventMessage msg = messages[k];
             KContentKey sourceKey = msg.key;
 
             HashMap<Long, ArrayList<KEventListener>> universeListeners = listenersMap.get(sourceKey.universe());
             if(universeListeners != null) {
-                ArrayList<KEventListener> objectListeners = universeListeners.get(sourceKey.obj());
+                final ArrayList<KEventListener> objectListeners = universeListeners.get(sourceKey.obj());
                 if(objectListeners != null) {
                     for(int i = 0; i < objectListeners.size(); i++) {
                         final int finalI = i;

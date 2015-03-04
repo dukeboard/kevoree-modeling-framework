@@ -17,14 +17,14 @@ public class SchedulerTest {
 
     @Test
     public void test() {
-        CloudModel model = new CloudModel();
+        final CloudModel model = new CloudModel();
         model.setScheduler(new ExecutorServiceScheduler());
         model.connect().then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 CloudUniverse dimension0 = model.newUniverse();
                 CloudView time0 = dimension0.time(0l);
-                Node root = time0.createNode();
+                final Node root = time0.createNode();
                 time0.setRoot(root);
                 root.setName("root");
                 Node n1 = time0.createNode();

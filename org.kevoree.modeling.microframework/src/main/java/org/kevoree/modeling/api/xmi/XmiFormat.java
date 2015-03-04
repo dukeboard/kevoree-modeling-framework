@@ -26,7 +26,7 @@ public class XmiFormat implements ModelFormat {
     }
 
     public KDefer<String> saveRoot() {
-        AbstractKDeferWrapper<String> wrapper = new AbstractKDeferWrapper<String>();
+        final AbstractKDeferWrapper<String> wrapper = new AbstractKDeferWrapper<String>();
         _view.universe().model().manager().getRoot(_view, new Callback<KObject>() {
             @Override
             public void on(KObject root) {

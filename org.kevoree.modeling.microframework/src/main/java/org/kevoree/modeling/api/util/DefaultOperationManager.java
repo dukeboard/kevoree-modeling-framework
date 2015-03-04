@@ -106,9 +106,9 @@ public class DefaultOperationManager implements KOperationManager {
                 cb.on(operationResult.value);
             }
         } else if (operationEvent.type() == KMessageLoader.OPERATION_CALL_TYPE) {
-            KOperationCallMessage operationCall = (KOperationCallMessage) operationEvent;
+            final KOperationCallMessage operationCall = (KOperationCallMessage) operationEvent;
             KContentKey sourceKey = operationCall.key;
-            KOperation operationCore = searchOperation(sourceKey.obj(), operationCall.classIndex, operationCall.opIndex);
+            final KOperation operationCore = searchOperation(sourceKey.obj(), operationCall.classIndex, operationCall.opIndex);
             if (operationCore != null) {
                 KView view = _manager.model().universe(sourceKey.universe()).time(sourceKey.time());
                 view.lookup(sourceKey.obj()).then(new Callback<KObject>() {

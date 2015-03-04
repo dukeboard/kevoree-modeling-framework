@@ -30,7 +30,7 @@ public class ModelTraceApplicator {
 
     public void applyTraceSequence(final TraceSequence traceSeq, final Callback<Throwable> callback) {
         try {
-            ModelTrace[] traces = traceSeq.traces();
+            final ModelTrace[] traces = traceSeq.traces();
             HashSet<Long> dependencies = new HashSet<Long>();
             for (int i = 0; i < traces.length; i++) {
                 if (traces[i] instanceof ModelAddTrace) {

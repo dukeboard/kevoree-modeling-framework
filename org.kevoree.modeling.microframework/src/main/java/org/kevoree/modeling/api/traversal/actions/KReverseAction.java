@@ -40,9 +40,9 @@ public class KReverseAction implements KTraversalAction {
             _next.execute(p_inputs);
             return;
         } else {
-            AbstractKView currentView = (AbstractKView) p_inputs[0].view();
-            Set<Long> nextIds = new HashSet<Long>();
-            Map<Long, KObject> toFilter = new HashMap<Long, KObject>();
+            final AbstractKView currentView = (AbstractKView) p_inputs[0].view();
+            final Set<Long> nextIds = new HashSet<Long>();
+            final Map<Long, KObject> toFilter = new HashMap<Long, KObject>();
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
@@ -73,7 +73,7 @@ public class KReverseAction implements KTraversalAction {
                     }
                 });
             } else {
-                Long[] toFilterKeys = toFilter.keySet().toArray(new Long[toFilter.keySet().size()]);
+                final Long[] toFilterKeys = toFilter.keySet().toArray(new Long[toFilter.keySet().size()]);
                 currentView.internalLookupAll(ArrayUtils.flatSet(toFilter.keySet()), new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {

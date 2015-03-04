@@ -25,13 +25,13 @@ public class ParentStorageTest {
         //model.connect(null);
 
         CloudUniverse dimension0 = cloudModel.newUniverse();
-        CloudView time0 = dimension0.time(0l);
+        final CloudView time0 = dimension0.time(0l);
 
         Node root = time0.createNode();
         root.setName("root");
         time0.setRoot(root);
 
-        Node n1 = time0.createNode();
+        final Node n1 = time0.createNode();
         n1.setName("n1");
 
         Node n2 = time0.createNode();
@@ -79,7 +79,7 @@ public class ParentStorageTest {
      //   MultiLayeredMemoryCache.DEBUG = true;
         //MemoryKContentDeliveryDriver.DEBUG = true;
 
-        CloudModel cloudModel = new CloudModel();
+        final CloudModel cloudModel = new CloudModel();
         cloudModel.connect();
 
         CloudUniverse dimension0 = cloudModel.newUniverse();

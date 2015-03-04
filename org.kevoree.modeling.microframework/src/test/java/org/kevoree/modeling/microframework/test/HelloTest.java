@@ -21,7 +21,7 @@ public class HelloTest {
 
     @Test
     public void badLookupTest() {
-        CloudModel model = new CloudModel();
+        final CloudModel model = new CloudModel();
         model.connect().then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
@@ -56,7 +56,7 @@ public class HelloTest {
 
     @Test
     public void simpleTest() {
-        CloudModel model = new CloudModel();
+        final CloudModel model = new CloudModel();
         model.connect().then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
@@ -65,7 +65,7 @@ public class HelloTest {
                 } else {
                     CloudUniverse universe = model.newUniverse();
                     CloudView time0 = universe.time(0l);
-                    Node root = time0.createNode();
+                    final Node root = time0.createNode();
 //                    time0.setRoot(root, null);
                     root.setName("root");
                     Assert.assertEquals("root", root.getName());

@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 
@@ -89,10 +90,25 @@ public class App {
                         Path tscPath = Paths.get(jsDir.toPath().toString(), GenModelPlugin.TSC_JS);
                         runner.runTsc(tscPath.toFile().getAbsolutePath(), jsDir.toPath(), Paths.get(jsDir.toPath().toString(), ctx.getMetaModelName() + ".js"));
                         System.out.println("done");
-                        StringBuilder sb = new StringBuilder();
-                        Files.lines(javaLibJs).forEachOrdered((line) -> sb.append(line).append("\n"));
-                        Files.lines(kmfLibJs).forEachOrdered((line) -> sb.append(line).append("\n"));
-                        Files.lines(Paths.get(jsDir.toPath().toString(), ctx.getMetaModelName() + ".js")).forEachOrdered((line) -> sb.append(line).append("\n"));
+                        final StringBuilder sb = new StringBuilder();
+                        Files.lines(javaLibJs).forEachOrdered(new Consumer<String>() {
+                            @Override
+                            public void accept(String line) {
+                                sb.append(line).append("\n");
+                            }
+                        });
+                        Files.lines(kmfLibJs).forEachOrdered(new Consumer<String>() {
+                            @Override
+                            public void accept(String line) {
+                                sb.append(line).append("\n");
+                            }
+                        });
+                        Files.lines(Paths.get(jsDir.toPath().toString(), ctx.getMetaModelName() + ".js")).forEachOrdered(new Consumer<String>() {
+                            @Override
+                            public void accept(String line) {
+                                sb.append(line).append("\n");
+                            }
+                        });
                         Files.write(Paths.get(jsDir.toPath().toString(), ctx.getMetaModelName() + "-all.js"), sb.toString().getBytes());
                         tscPath.toFile().delete();
                         libDts.toFile().delete();

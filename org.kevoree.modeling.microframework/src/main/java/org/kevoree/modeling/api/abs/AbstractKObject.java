@@ -92,7 +92,7 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public KDefer<String> path() {
-        AbstractKDeferWrapper<String> task = new AbstractKDeferWrapper<String>();
+        final AbstractKDeferWrapper<String> task = new AbstractKDeferWrapper<String>();
         parent().then(new Callback<KObject>() {
             @Override
             public void on(KObject parent) {
@@ -152,8 +152,8 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public KDefer<Throwable> delete() {
-        AbstractKDeferWrapper<Throwable> task = new AbstractKDeferWrapper<Throwable>();
-        KObject toRemove = this;
+        final AbstractKDeferWrapper<Throwable> task = new AbstractKDeferWrapper<Throwable>();
+        final KObject toRemove = this;
         KCacheEntry rawPayload = _view.universe().model().manager().entry(this, AccessMode.DELETE);
         if (rawPayload == null) {
             task.initCallback().on(new Exception("Out of cache Error"));
@@ -187,7 +187,7 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public KDefer<KObject[]> select(String query) {
-        AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
+        final AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
         if (!Checker.isDefined(query)) {
             task.initCallback().on(new KObject[0]);
         } else {
@@ -283,7 +283,7 @@ public abstract class AbstractKObject implements KObject {
     }
 
     public void internal_mutate(KActionType actionType, final MetaReference metaReferenceP, KObject param, final boolean setOpposite, final boolean inDelete) {
-        MetaReference metaReference = internal_transpose_ref(metaReferenceP);
+        final MetaReference metaReference = internal_transpose_ref(metaReferenceP);
         if (metaReference == null) {
             if (metaReferenceP == null) {
                 throw new RuntimeException("Bad KMF usage, the reference " + " is null in metaClass named " + metaClass().metaName());
@@ -527,7 +527,7 @@ public abstract class AbstractKObject implements KObject {
         return task;
     }
 
-    private void internal_visit(final ModelVisitor visitor, final Callback<Throwable> end, boolean deep, boolean containedOnly, final HashSet<Long> visited, final HashSet<Long> traversed) {
+    private void internal_visit(final ModelVisitor visitor, final Callback<Throwable> end, final boolean deep, final boolean containedOnly, final HashSet<Long> visited, final HashSet<Long> traversed) {
         if (!Checker.isDefined(visitor)) {
             return;
         }
@@ -758,7 +758,7 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public <U extends KObject> KDefer<U> jump(long time) {
-        AbstractKDeferWrapper<U> task = new AbstractKDeferWrapper<U>();
+        final AbstractKDeferWrapper<U> task = new AbstractKDeferWrapper<U>();
         view().universe().time(time).lookup(_uuid).then(new Callback<KObject>() {
             @Override
             public void on(KObject kObject) {

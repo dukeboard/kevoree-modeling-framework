@@ -30,8 +30,8 @@ public class TimeWalker {
         return internal_walk(walker, false);
     }
 
-    private KDefer<Throwable> internal_walk(Callback<Long> walker, boolean asc) {
-        AbstractKDeferWrapper<Throwable> wrapper = new AbstractKDeferWrapper<Throwable>();
+    private KDefer<Throwable> internal_walk(final Callback<Long> walker, final boolean asc) {
+        final AbstractKDeferWrapper<Throwable> wrapper = new AbstractKDeferWrapper<Throwable>();
         _origin.view().universe().model().manager().timeTrees(_origin, null, null, new Callback<IndexRBTree[]>() {
             @Override
             public void on(IndexRBTree[] indexRBTrees) {
@@ -57,8 +57,8 @@ public class TimeWalker {
         return wrapper;
     }
 
-    private KDefer<Throwable> internal_walk_range(Callback<Long> walker, boolean asc, Long from, Long to) {
-        AbstractKDeferWrapper<Throwable> wrapper = new AbstractKDeferWrapper<Throwable>();
+    private KDefer<Throwable> internal_walk_range(final Callback<Long> walker, final boolean asc, final Long from, final Long to) {
+        final AbstractKDeferWrapper<Throwable> wrapper = new AbstractKDeferWrapper<Throwable>();
         _origin.view().universe().model().manager().timeTrees(_origin, from, to, new Callback<IndexRBTree[]>() {
             @Override
             public void on(IndexRBTree[] indexRBTrees) {

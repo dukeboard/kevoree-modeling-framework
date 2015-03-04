@@ -60,7 +60,7 @@ public abstract class AbstractKView implements KView {
 
     @Override
     public KDefer<KObject[]> select(final String query) {
-        AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
+        final AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
         if (query == null || query.length() == 0) {
             task.initCallback().on(new KObject[0]);
         } else {

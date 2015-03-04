@@ -151,8 +151,8 @@ public class XMIModelSerializer {
         return pack + ":" + cls;
     }
 
-    private static KDefer nonContainedReferenceTaskMaker(final MetaReference ref, SerializationContext p_context, KObject p_currentElement) {
-        KDefer allTask = p_currentElement.ref(ref);
+    private static KDefer nonContainedReferenceTaskMaker(final MetaReference ref, final SerializationContext p_context, KObject p_currentElement) {
+        final KDefer allTask = p_currentElement.ref(ref);
         KDefer thisTask = p_context.model.universe().model().defer();
         thisTask.wait(allTask);
         thisTask.setJob(new KJob() {
@@ -173,8 +173,8 @@ public class XMIModelSerializer {
         return thisTask;
     }
 
-    private static KDefer containedReferenceTaskMaker(final MetaReference ref, SerializationContext context, KObject currentElement) {
-        KDefer allTask = currentElement.ref(ref);
+    private static KDefer containedReferenceTaskMaker(final MetaReference ref, final SerializationContext context, KObject currentElement) {
+        final KDefer allTask = currentElement.ref(ref);
         KDefer thisTask = context.model.universe().model().defer();
         thisTask.wait(allTask);
         thisTask.setJob(new KJob() {

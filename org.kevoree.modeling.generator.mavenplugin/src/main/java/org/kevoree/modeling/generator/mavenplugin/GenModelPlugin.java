@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.function.Consumer;
 
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class GenModelPlugin extends AbstractMojo {
@@ -119,10 +120,25 @@ public class GenModelPlugin extends AbstractMojo {
 
                 TscRunner runner = new TscRunner();
                 runner.runTsc(Paths.get(jsWorkingDir.toPath().toString(), TSC_JS).toFile().getAbsolutePath(), jsWorkingDir.toPath(), Paths.get(jsWorkingDir.toPath().toString(), project.getArtifactId() + ".js"));
-                StringBuilder sb = new StringBuilder();
-                Files.lines(javaLibJs).forEachOrdered((line) -> sb.append(line).append("\n"));
-                Files.lines(kmfLibJs).forEachOrdered((line) -> sb.append(line).append("\n"));
-                Files.lines(Paths.get(jsWorkingDir.toPath().toString(), project.getArtifactId() + ".js")).forEachOrdered((line) -> sb.append(line).append("\n"));
+                final StringBuilder sb = new StringBuilder();
+                Files.lines(javaLibJs).forEachOrdered(new Consumer<String>() {
+                    @Override
+                    public void accept(String line) {
+                        sb.append(line).append("\n");
+                    }
+                });
+                Files.lines(kmfLibJs).forEachOrdered(new Consumer<String>() {
+                    @Override
+                    public void accept(String line) {
+                        sb.append(line).append("\n");
+                    }
+                });
+                Files.lines(Paths.get(jsWorkingDir.toPath().toString(), project.getArtifactId() + ".js")).forEachOrdered(new Consumer<String>() {
+                    @Override
+                    public void accept(String line) {
+                        sb.append(line).append("\n");
+                    }
+                });
                 Files.write(Paths.get(jsWorkingDir.toPath().toString(), project.getArtifactId() + "-all.js"), sb.toString().getBytes());
                 tscPath.toFile().delete();
                 libDts.toFile().delete();

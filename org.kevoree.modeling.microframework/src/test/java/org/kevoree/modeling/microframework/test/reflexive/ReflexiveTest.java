@@ -18,7 +18,7 @@ public class ReflexiveTest {
 
         DynamicMetaModel dynamicMetaModel = new DynamicMetaModel("MyMetaModel");
 
-        DynamicMetaClass sensorMetaClass = dynamicMetaModel.createMetaClass("Sensor");
+        final DynamicMetaClass sensorMetaClass = dynamicMetaModel.createMetaClass("Sensor");
 
         sensorMetaClass
                 .addAttribute("name", PrimitiveTypes.STRING)
@@ -30,7 +30,7 @@ public class ReflexiveTest {
                 .addAttribute("name", PrimitiveTypes.STRING)
                 .addReference("sensors", sensorMetaClass, true);
 
-        KModel universe = dynamicMetaModel.model();
+        final KModel universe = dynamicMetaModel.model();
         universe.connect().then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {

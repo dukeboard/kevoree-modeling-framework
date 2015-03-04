@@ -72,7 +72,7 @@ public class LongLongHashMap implements KCacheObject {
 
     @Override
     public String serialize() {
-        StringBuilder buffer = new StringBuilder();
+        final StringBuilder buffer = new StringBuilder();
         buffer.append(elementCount);
         each(new LongLongHashMapCallBack() {
             @Override

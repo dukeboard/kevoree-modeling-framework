@@ -17,7 +17,7 @@ public class SimpleTaskChainTest {
     public void chainTest() {
         DynamicKModel dynamicKModel = new DynamicKModel();
         KDefer rootTask = dynamicKModel.defer();
-        KDefer fakePromise1 = dynamicKModel.defer();
+        final KDefer fakePromise1 = dynamicKModel.defer();
 
         fakePromise1.setJob(new KJob() {
             @Override
@@ -25,7 +25,7 @@ public class SimpleTaskChainTest {
                 currentTask.addDeferResult("Sample1");
             }
         });
-        KDefer fakePromise2 = dynamicKModel.defer();
+        final KDefer fakePromise2 = dynamicKModel.defer();
         fakePromise2.setJob(new KJob() {
             @Override
             public void run(KCurrentDefer currentTask) {
@@ -60,7 +60,7 @@ public class SimpleTaskChainTest {
     public void chain2Test() {
         DynamicKModel dynamicKModel = new DynamicKModel();
         KDefer rootTask = dynamicKModel.defer();
-        KDefer fakePromise1 = dynamicKModel.defer();
+        final KDefer fakePromise1 = dynamicKModel.defer();
 
         fakePromise1.setJob(new KJob() {
             @Override
@@ -68,7 +68,7 @@ public class SimpleTaskChainTest {
                 currentTask.addDeferResult("Sample1");
             }
         });
-        KDefer fakePromise2 = dynamicKModel.defer();
+        final KDefer fakePromise2 = dynamicKModel.defer();
         fakePromise2.setJob(new KJob() {
             @Override
             public void run(KCurrentDefer currentTask) {
@@ -106,7 +106,7 @@ public class SimpleTaskChainTest {
         metaModel.createMetaClass("Sensor").addAttribute("name", PrimitiveTypes.STRING);
         KModel dynamicKModel = metaModel.model();
         dynamicKModel.connect();
-        KObject root = dynamicKModel.universe(0).time(0).create(metaModel.metaClass("Sensor"));
+        final KObject root = dynamicKModel.universe(0).time(0).create(metaModel.metaClass("Sensor"));
         root.set((MetaAttribute) root.metaClass().metaByName("name"), "MyRoot");
         dynamicKModel.universe(0).time(0).setRoot(root);
 
@@ -141,9 +141,9 @@ public class SimpleTaskChainTest {
         dynamicKModel.universe(0).time(0).setRoot(root);
 
         KDefer rootTask = dynamicKModel.defer();
-        KDefer previousSelect = dynamicKModel.universe(0).time(0).select("/");
+        final KDefer previousSelect = dynamicKModel.universe(0).time(0).select("/");
         rootTask.wait(previousSelect);
-        KDefer previousSelect2 = dynamicKModel.universe(0).time(0).select("/titi");
+        final KDefer previousSelect2 = dynamicKModel.universe(0).time(0).select("/titi");
         rootTask.wait(previousSelect2);
         final int[] res = new int[1];
         final Object[] res2 = new Object[2];

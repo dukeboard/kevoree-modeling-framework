@@ -55,7 +55,7 @@ public class NodeImpl extends AbstractKObject implements Node {
     }
 
     @Override
-    public void getChildren(Callback<Node[]> p_callback) {
+    public void getChildren(final Callback<Node[]> p_callback) {
         this.ref(MetaNode.REF_CHILDREN).then(new Callback<KObject[]>() {
             @Override
             public void on(KObject[] kObjects) {
@@ -77,7 +77,7 @@ public class NodeImpl extends AbstractKObject implements Node {
     }
 
     @Override
-    public void getElement(Callback<Element> p_callback) {
+    public void getElement(final Callback<Element> p_callback) {
         this.ref(MetaNode.REF_ELEMENT).then(new Callback<KObject[]>() {
             @Override
             public void on(KObject[] kObject) {
@@ -89,7 +89,7 @@ public class NodeImpl extends AbstractKObject implements Node {
     }
 
     @Override
-    public void trigger(String param, Callback<String> callback) {
+    public void trigger(String param, final Callback<String> callback) {
         Object[] internal_params = new Object[1];
         internal_params[0] = param;
         view().universe().model().manager().operationManager().call(this, MetaNode.OP_TRIGGER, internal_params, new Callback<Object>() {

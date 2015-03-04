@@ -52,7 +52,7 @@ public class KCacheLayer {
         }
     }
 
-    public void dirties(List<KCacheDirty> result, long[] prefixKeys, int current) {
+    public void dirties(final List<KCacheDirty> result, final long[] prefixKeys, final int current) {
         if (current == KConfig.KEY_SIZE - 1) {
             if (_cachedObjects != null) {
                 _cachedObjects.each(new LongHashMapCallBack<KCacheObject>() {

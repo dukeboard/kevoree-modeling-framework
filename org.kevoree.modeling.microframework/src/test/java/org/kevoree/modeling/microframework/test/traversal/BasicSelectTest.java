@@ -22,7 +22,7 @@ public class BasicSelectTest {
         universe.connect();
         CloudUniverse dimension0 = universe.newUniverse();
         CloudView t0 = dimension0.time(0l);
-        Node node = t0.createNode();
+        final Node node = t0.createNode();
         node.setName("n0");
         t0.setRoot(node).then(new Callback<Throwable>() {
             @Override
@@ -45,7 +45,7 @@ public class BasicSelectTest {
                 Assert.assertEquals(kObjects[0], node);
             }
         });
-        CloudView t1 = dimension0.time(1l);
+        final CloudView t1 = dimension0.time(1l);
         t1.getRoot().then(new Callback<KObject>() {
             @Override
             public void on(KObject kObject) {

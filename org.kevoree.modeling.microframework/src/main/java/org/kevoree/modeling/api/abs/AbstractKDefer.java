@@ -101,7 +101,7 @@ public class AbstractKDefer<A> implements KCurrentDefer<A> {
     }
 
     @Override
-    public void then(Callback<A> p_callback) {
+    public void then(final Callback<A> p_callback) {
         next().setJob(new KJob() {
             @Override
             public void run(KCurrentDefer currentTask) {
@@ -133,9 +133,9 @@ public class AbstractKDefer<A> implements KCurrentDefer<A> {
     }
 
     @Override
-    public KDefer<Object> chain(KDeferBlock p_block) {
+    public KDefer<Object> chain(final KDeferBlock p_block) {
         KDefer<Object> nextDefer = next();
-        KDefer<Object> potentialNext = new AbstractKDefer<Object>();
+        final KDefer<Object> potentialNext = new AbstractKDefer<Object>();
         nextDefer.setJob(new KJob() {
             @Override
             public void run(KCurrentDefer currentTask) {

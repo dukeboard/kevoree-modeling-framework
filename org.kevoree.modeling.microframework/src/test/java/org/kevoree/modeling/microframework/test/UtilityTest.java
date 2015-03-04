@@ -16,7 +16,7 @@ public class UtilityTest {
     @Test
     public void utilityTest() {
 
-        CloudModel model = new CloudModel();
+        final CloudModel model = new CloudModel();
         model.connect().then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {

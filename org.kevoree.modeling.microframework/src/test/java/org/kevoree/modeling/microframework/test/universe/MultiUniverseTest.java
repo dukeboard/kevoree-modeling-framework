@@ -124,7 +124,7 @@ public class MultiUniverseTest {
         //insert(uni.key(),splitTime,val);
     }
 
-    private void insert(long uId, long time, double value) {
+    private void insert(long uId, long time, final double value) {
 
         model.universe(uId).time(time).lookup(object.uuid()).then(new Callback<KObject>() {
             @Override

@@ -24,7 +24,7 @@ public class LookupTest {
 
         final CloudModel cloudModel = new CloudModel();
         cloudModel.connect();
-        CloudUniverse dimension0 = cloudModel.newUniverse();
+        final CloudUniverse dimension0 = cloudModel.newUniverse();
         CloudView t0 = dimension0.time(0l);
         final Node node = t0.createNode();
         node.setName("n0");

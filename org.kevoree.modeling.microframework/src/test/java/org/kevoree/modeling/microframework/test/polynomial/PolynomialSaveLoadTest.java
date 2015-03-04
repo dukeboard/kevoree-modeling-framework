@@ -18,7 +18,7 @@ public class PolynomialSaveLoadTest {
 
         final int[] nbAssert = new int[1];
         nbAssert[0] = 0;
-        CloudModel model = new CloudModel();
+        final CloudModel model = new CloudModel();
         model.connect();
 
         CloudUniverse universe = model.newUniverse();

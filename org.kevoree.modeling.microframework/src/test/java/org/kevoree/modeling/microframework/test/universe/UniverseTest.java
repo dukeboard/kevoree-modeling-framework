@@ -16,7 +16,7 @@ public class UniverseTest {
 
     @Test
     public void testCreation() {
-        CloudModel universe = new CloudModel();
+        final CloudModel universe = new CloudModel();
         universe.connect().then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {

@@ -89,7 +89,7 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
         ArrayList<KEventMessage> _events = null;
         JsonArray payload = null;
 
-        ArrayList<KEventMessage> messagesToSendLocally = new ArrayList<>();
+        final ArrayList<KEventMessage> messagesToSendLocally = new ArrayList<>();
         ArrayList<KContentKey> keysToReload = new ArrayList<>();
 
         // parse
