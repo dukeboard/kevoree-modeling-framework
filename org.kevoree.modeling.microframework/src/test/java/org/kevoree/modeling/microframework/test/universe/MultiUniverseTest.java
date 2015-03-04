@@ -23,7 +23,7 @@ public class MultiUniverseTest {
 
     @Test
     public void testMultiVerse() {
-        long timeOrigine=1000l;
+        long timeOrigine = 1000l;
 
 
         dynamicMetaModel = new DynamicMetaModel("MyMetaModel");
@@ -37,116 +37,112 @@ public class MultiUniverseTest {
         model = dynamicMetaModel.model();
         model.connect();
 
-        object= model.universe(0).time(timeOrigine).create(sensorMetaClass);
+        object = model.universe(0).time(timeOrigine).create(sensorMetaClass);
 
 
+        long unit = 1000;
 
-        long unit=1000;
+        insert(0, timeOrigine, 1);
+        insert(0, timeOrigine + unit, 5);
+        insert(0, timeOrigine + 4 * unit, 8);
+        assert (get(0, timeOrigine + 5 * unit) == 8);
 
-        insert(0,timeOrigine,1);
-        insert(0,timeOrigine+unit,5);
-        insert(0,timeOrigine+4*unit,8);
-        assert(get(0,timeOrigine+5*unit)==8);
+        split(0, timeOrigine + 2 * unit);
+        assert (get(0, timeOrigine + unit) == 5);
+        assert (get(1, timeOrigine + unit) == 5);
 
-        split(0,timeOrigine+2*unit);
-        assert(get(0,timeOrigine+unit)==5);
-        assert(get(1,timeOrigine+unit)==5);
+        assert (get(0, timeOrigine + 5 * unit) == 8);
+        //  assert(get(1,timeOrigine+5*unit)==5);
+        assert (get(1, timeOrigine + 5 * unit) == 8);
 
-        assert(get(0,timeOrigine+5*unit)==8);
-      //  assert(get(1,timeOrigine+5*unit)==5);
-        assert(get(1,timeOrigine+5*unit)==8);
-
-        insert(0,timeOrigine+3*unit,-2);
-        assert(get(0,timeOrigine+3*unit)==-2);
-        assert(get(1,timeOrigine+3*unit)==-2);
+        insert(0, timeOrigine + 3 * unit, -2);
+        assert (get(0, timeOrigine + 3 * unit) == -2);
+        assert (get(1, timeOrigine + 3 * unit) == -2);
         //assert(get(1,timeOrigine+3*unit)==5);
 
-        insert(1,timeOrigine+3*unit,7);
-        assert(get(0,timeOrigine+3*unit)==-2);
-        assert(get(1,timeOrigine+3*unit)==7);
+        insert(1, timeOrigine + 3 * unit, 7);
+        assert (get(0, timeOrigine + 3 * unit) == -2);
+        assert (get(1, timeOrigine + 3 * unit) == 7);
 
-        split(1,timeOrigine+20*unit);
-        split(2,timeOrigine+30*unit);
+        split(1, timeOrigine + 20 * unit);
+        split(2, timeOrigine + 30 * unit);
 
-        assert(get(2,timeOrigine+40*unit)==7);
-        insert(0,timeOrigine+10*unit,-20);
-        insert(1,timeOrigine+4*unit,-15);
+        assert (get(2, timeOrigine + 40 * unit) == 7);
+        insert(0, timeOrigine + 10 * unit, -20);
+        insert(1, timeOrigine + 4 * unit, -15);
 
-        assert(get(1,timeOrigine+4*unit)==-15);
-        assert(get(2,timeOrigine+4*unit)==-15);
-        assert(get(3,timeOrigine+4*unit)==-15);
+        assert (get(1, timeOrigine + 4 * unit) == -15);
+        assert (get(2, timeOrigine + 4 * unit) == -15);
+        assert (get(3, timeOrigine + 4 * unit) == -15);
 
-        insert(3,timeOrigine+17*unit,80);
+        insert(3, timeOrigine + 17 * unit, 80);
 
-        assert(get(0,timeOrigine+17*unit)==-20);
-        assert(get(1,timeOrigine+17*unit)==-15);
-        assert(get(2,timeOrigine+17*unit)==-15);
-        assert(get(3,timeOrigine+17*unit)==80);
+        assert (get(0, timeOrigine + 17 * unit) == -20);
+        assert (get(1, timeOrigine + 17 * unit) == -15);
+        assert (get(2, timeOrigine + 17 * unit) == -15);
+        assert (get(3, timeOrigine + 17 * unit) == 80);
 
 
+        insert(1, timeOrigine + 18 * unit, 100);
 
-        insert(1,timeOrigine+18*unit,100);
+        assert (get(0, timeOrigine + 18 * unit) == -20);
+        assert (get(1, timeOrigine + 18 * unit) == 100);
+        assert (get(2, timeOrigine + 18 * unit) == 100);
+        assert (get(3, timeOrigine + 18 * unit) == 80);
 
-        assert(get(0,timeOrigine+18*unit)==-20);
-        assert(get(1,timeOrigine+18*unit)==100);
-        assert(get(2,timeOrigine+18*unit)==100);
-        assert(get(3,timeOrigine+18*unit)==80);
+        insert(3, timeOrigine + 40 * unit, 78);
 
-        insert(3,timeOrigine+40*unit,78);
-
-        assert(get(0,timeOrigine+40*unit)==-20);
-        assert(get(1,timeOrigine+40*unit)==100);
-        assert(get(2,timeOrigine+40*unit)==100);
+        assert (get(0, timeOrigine + 40 * unit) == -20);
+        assert (get(1, timeOrigine + 40 * unit) == 100);
+        assert (get(2, timeOrigine + 40 * unit) == 100);
         //assert(get(2,timeOrigine+40*unit)==7);
-        assert(get(3,timeOrigine+40*unit)==78);
+        assert (get(3, timeOrigine + 40 * unit) == 78);
 
 
+        insert(2, timeOrigine + 25 * unit, -11);
 
-        insert(2,timeOrigine+25*unit,-11);
-
-        assert(get(0,timeOrigine+25*unit)==-20);
-        assert(get(1,timeOrigine+25*unit)==100);
-        assert(get(2,timeOrigine+25*unit)==-11);
-        assert(get(3,timeOrigine+25*unit)==80);
-
+        assert (get(0, timeOrigine + 25 * unit) == -20);
+        assert (get(1, timeOrigine + 25 * unit) == 100);
+        assert (get(2, timeOrigine + 25 * unit) == -11);
+        assert (get(3, timeOrigine + 25 * unit) == 80);
 
 
-        insert(2,timeOrigine+45*unit,35);
+        insert(2, timeOrigine + 45 * unit, 35);
 
-        assert(get(0,timeOrigine+45*unit)==-20);
-        assert(get(1,timeOrigine+45*unit)==100);
-        assert(get(2,timeOrigine+45*unit)==35);
-        assert(get(3,timeOrigine+45*unit)==78);
+        assert (get(0, timeOrigine + 45 * unit) == -20);
+        assert (get(1, timeOrigine + 45 * unit) == 100);
+        assert (get(2, timeOrigine + 45 * unit) == 35);
+        assert (get(3, timeOrigine + 45 * unit) == 78);
 
-        assert(get(3,timeOrigine+1*unit)==5);
+        assert (get(3, timeOrigine + 1 * unit) == 5);
 
     }
 
-    private void split(int parent, long splitTime){
-        KUniverse uni= model.universe(parent).diverge();
+    private void split(int parent, long splitTime) {
+        KUniverse uni = model.universe(parent).diverge();
         //double val = get(parent,splitTime);
         //insert(uni.key(),splitTime,val);
     }
 
-    private void insert(long uId, long time, double value){
+    private void insert(long uId, long time, double value) {
 
         model.universe(uId).time(time).lookup(object.uuid()).then(new Callback<KObject>() {
             @Override
             public void on(KObject kObject) {
-                kObject.set((MetaAttribute)kObject.metaClass().metaByName("value"),value);
+                kObject.set(kObject.metaClass().attribute("value"), value);
             }
         });
 
 
     }
 
-    public double get(long uId, long time){
+    public double get(long uId, long time) {
         final Object[] myvalue = {null};
         model.universe(uId).time(time).lookup(object.uuid()).then(new Callback<KObject>() {
 
             @Override
             public void on(KObject kObject) {
-                myvalue[0] = kObject.get((MetaAttribute)kObject.metaClass().metaByName("value"));
+                myvalue[0] = kObject.get(kObject.metaClass().attribute("value"));
             }
         });
         return (double) myvalue[0];
