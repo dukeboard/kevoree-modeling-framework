@@ -1,9 +1,10 @@
 package org.kevoree.modeling.api.data.cache;
 
 import org.kevoree.modeling.api.KConfig;
+import org.kevoree.modeling.api.map.LongHashMap;
+import org.kevoree.modeling.api.map.LongHashMapCallBack;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -13,11 +14,15 @@ public class MultiLayeredMemoryCache implements KCache {
 
     public static boolean DEBUG = false;
 
-    private HashMap<Long, KCacheLayer> _nestedLayers = new HashMap<Long, KCacheLayer>();
+    private LongHashMap<KCacheLayer> _nestedLayers;
 
     private static final String prefixDebugGet = "KMF_DEBUG_CACHE_GET";
 
     private static final String prefixDebugPut = "KMF_DEBUG_CACHE_PUT";
+
+    public MultiLayeredMemoryCache() {
+        _nestedLayers = new LongHashMap<KCacheLayer>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+    }
 
     @Override
     public KCacheObject get(KContentKey key) {
@@ -65,15 +70,14 @@ public class MultiLayeredMemoryCache implements KCache {
     @Override
     public KCacheDirty[] dirties() {
         List<KCacheDirty> result = new ArrayList<KCacheDirty>();
-        Long[] L0_KEYS = _nestedLayers.keySet().toArray(new Long[_nestedLayers.keySet().size()]);
-        for (int i = 0; i < L0_KEYS.length; i++) {
-            KCacheLayer layer = _nestedLayers.get(L0_KEYS[i]);
-            if (layer != null) {
+        _nestedLayers.each(new LongHashMapCallBack<KCacheLayer>() {
+            @Override
+            public void on(long loopKey, KCacheLayer loopLayer) {
                 long[] prefixKey = new long[KConfig.KEY_SIZE];
-                prefixKey[0] = L0_KEYS[i];
-                layer.dirties(result, prefixKey, 1);
+                prefixKey[0] = loopKey;
+                loopLayer.dirties(result, prefixKey, 1);
             }
-        }
+        });
         if (DEBUG) {
             System.out.println("KMF_DEBUG_CACHE_DIRTIES:" + result.size());
         }

@@ -28,4 +28,8 @@ public class KConfig {
 
     public static final int KEY_SIZE = 4;
 
+    public static final int CACHE_INIT_SIZE = 16;
+
+    public static final float CACHE_LOAD_FACTOR = ((float) 75 / (float) 100);
+
 }

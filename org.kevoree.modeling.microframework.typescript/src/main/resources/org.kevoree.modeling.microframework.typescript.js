@@ -80,6 +80,10 @@ var org;
                     KConfig.END_OF_TIME = 0x001FFFFFFFFFFFFE;
                     KConfig.NULL_LONG = 0x001FFFFFFFFFFFFF;
                     KConfig.KEY_PREFIX_MASK = 0x0000001FFFFFFFFF;
+                    KConfig.KEY_SEP = '/';
+                    KConfig.KEY_SIZE = 4;
+                    KConfig.CACHE_INIT_SIZE = 16;
+                    KConfig.CACHE_LOAD_FACTOR = (75 / 100);
                     return KConfig;
                 })();
                 api.KConfig = KConfig;
@@ -1507,6 +1511,13 @@ var org;
                             }
                             return null;
                         };
+                        AbstractMetaClass.prototype.operation = function (name) {
+                            var resolved = this._indexes.get(name);
+                            if (resolved != null && resolved instanceof org.kevoree.modeling.api.abs.AbstractMetaOperation) {
+                                return resolved;
+                            }
+                            return null;
+                        };
                         AbstractMetaClass.prototype.metaElements = function () {
                             return this._meta;
                         };
@@ -1821,102 +1832,64 @@ var org;
                             function KCacheLayer() {
                             }
                             KCacheLayer.prototype.resolve = function (p_key, current) {
-                                if (p_key.part(current) == null) {
-                                    if (current == org.kevoree.modeling.api.data.cache.KContentKey.ELEM_SIZE - 1) {
-                                        return this._cachedNullObject;
-                                    }
-                                    else {
-                                        if (this._nestedNullLayer != null) {
-                                            return this._nestedNullLayer.resolve(p_key, current + 1);
-                                        }
-                                        else {
-                                            return null;
-                                        }
-                                    }
+                                if (current == org.kevoree.modeling.api.KConfig.KEY_SIZE - 1) {
+                                    return this._cachedObjects.get(p_key.part(current));
                                 }
                                 else {
-                                    if (current == org.kevoree.modeling.api.data.cache.KContentKey.ELEM_SIZE - 1) {
-                                        return this._cachedObjects.get(p_key.part(current));
-                                    }
-                                    else {
-                                        if (this._nestedLayers != null) {
-                                            var nextLayer = this._nestedLayers.get(p_key.part(current));
-                                            if (nextLayer != null) {
-                                                return nextLayer.resolve(p_key, current + 1);
-                                            }
-                                            else {
-                                                return null;
-                                            }
+                                    if (this._nestedLayers != null) {
+                                        var nextLayer = this._nestedLayers.get(p_key.part(current));
+                                        if (nextLayer != null) {
+                                            return nextLayer.resolve(p_key, current + 1);
                                         }
                                         else {
                                             return null;
                                         }
+                                    }
+                                    else {
+                                        return null;
                                     }
                                 }
                             };
                             KCacheLayer.prototype.insert = function (p_key, current, p_obj_insert) {
-                                if (p_key.part(current) == null) {
-                                    if (current == org.kevoree.modeling.api.data.cache.KContentKey.ELEM_SIZE - 1) {
-                                        this._cachedNullObject = p_obj_insert;
+                                if (current == org.kevoree.modeling.api.KConfig.KEY_SIZE - 1) {
+                                    if (this._cachedObjects == null) {
+                                        this._cachedObjects = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                                     }
-                                    else {
-                                        if (this._nestedNullLayer == null) {
-                                            this._nestedNullLayer = new org.kevoree.modeling.api.data.cache.KCacheLayer();
-                                        }
-                                        this._nestedNullLayer.insert(p_key, current + 1, p_obj_insert);
-                                    }
+                                    this._cachedObjects.put(p_key.part(current), p_obj_insert);
                                 }
                                 else {
-                                    if (current == org.kevoree.modeling.api.data.cache.KContentKey.ELEM_SIZE - 1) {
-                                        if (this._cachedObjects == null) {
-                                            this._cachedObjects = new java.util.HashMap();
-                                        }
-                                        this._cachedObjects.put(p_key.part(current), p_obj_insert);
+                                    if (this._nestedLayers == null) {
+                                        this._nestedLayers = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                                     }
-                                    else {
-                                        if (this._nestedLayers == null) {
-                                            this._nestedLayers = new java.util.HashMap();
-                                        }
-                                        var previousLayer = this._nestedLayers.get(p_key.part(current));
-                                        if (previousLayer == null) {
-                                            previousLayer = new org.kevoree.modeling.api.data.cache.KCacheLayer();
-                                            this._nestedLayers.put(p_key.part(current), previousLayer);
-                                        }
-                                        previousLayer.insert(p_key, current + 1, p_obj_insert);
+                                    var previousLayer = this._nestedLayers.get(p_key.part(current));
+                                    if (previousLayer == null) {
+                                        previousLayer = new org.kevoree.modeling.api.data.cache.KCacheLayer();
+                                        this._nestedLayers.put(p_key.part(current), previousLayer);
                                     }
+                                    previousLayer.insert(p_key, current + 1, p_obj_insert);
                                 }
                             };
                             KCacheLayer.prototype.dirties = function (result, prefixKeys, current) {
-                                if (current == org.kevoree.modeling.api.data.cache.KContentKey.ELEM_SIZE - 1) {
-                                    if (this._cachedNullObject != null && this._cachedNullObject.isDirty()) {
-                                        var nullKey = new org.kevoree.modeling.api.data.cache.KContentKey(prefixKeys[0], prefixKeys[1], prefixKeys[2], null);
-                                        result.add(new org.kevoree.modeling.api.data.cache.KCacheDirty(nullKey, this._cachedNullObject));
-                                    }
+                                if (current == org.kevoree.modeling.api.KConfig.KEY_SIZE - 1) {
                                     if (this._cachedObjects != null) {
-                                        var objKeys = this._cachedObjects.keySet().toArray(new Array());
-                                        for (var i = 0; i < objKeys.length; i++) {
-                                            var loopCached = this._cachedObjects.get(objKeys[i]);
+                                        this._cachedObjects.each(function (loopKey, loopCached) {
                                             if (loopCached.isDirty()) {
-                                                var loopKey = new org.kevoree.modeling.api.data.cache.KContentKey(prefixKeys[0], prefixKeys[1], prefixKeys[2], objKeys[i]);
-                                                result.add(new org.kevoree.modeling.api.data.cache.KCacheDirty(loopKey, loopCached));
+                                                var cachedKey = new org.kevoree.modeling.api.data.cache.KContentKey(prefixKeys[0], prefixKeys[1], prefixKeys[2], loopKey);
+                                                result.add(new org.kevoree.modeling.api.data.cache.KCacheDirty(cachedKey, loopCached));
                                             }
-                                        }
+                                        });
                                     }
                                 }
                                 else {
-                                    if (this._nestedNullLayer != null) {
-                                        this._nestedNullLayer.dirties(result, prefixKeys, current + 1);
-                                    }
                                     if (this._nestedLayers != null) {
-                                        var nestedKeys = this._nestedLayers.keySet().toArray(new Array());
-                                        for (var i = 0; i < nestedKeys.length; i++) {
+                                        this._nestedLayers.each(function (loopKey, loopValue) {
                                             var prefixKeysCloned = new Array();
                                             for (var j = 0; j < current; j++) {
                                                 prefixKeysCloned[j] = prefixKeys[j];
                                             }
-                                            prefixKeysCloned[current] = nestedKeys[i];
-                                            this._nestedLayers.get(nestedKeys[i]).dirties(result, prefixKeysCloned, current + 1);
-                                        }
+                                            prefixKeysCloned[current] = loopKey;
+                                            loopValue.dirties(result, prefixKeysCloned, current + 1);
+                                        });
                                     }
                                 }
                             };
@@ -1944,42 +1917,48 @@ var org;
                                 return this.elem[3];
                             };
                             KContentKey.prototype.part = function (i) {
-                                if (i >= 0 && i < KContentKey.ELEM_SIZE) {
+                                if (i >= 0 && i < org.kevoree.modeling.api.KConfig.KEY_SIZE) {
                                     return this.elem[i];
                                 }
                                 else {
-                                    return null;
+                                    return org.kevoree.modeling.api.KConfig.NULL_LONG;
                                 }
                             };
                             KContentKey.createGlobal = function (p_prefixID) {
-                                return new org.kevoree.modeling.api.data.cache.KContentKey(p_prefixID, null, null, null);
+                                return new org.kevoree.modeling.api.data.cache.KContentKey(p_prefixID, org.kevoree.modeling.api.KConfig.NULL_LONG, org.kevoree.modeling.api.KConfig.NULL_LONG, org.kevoree.modeling.api.KConfig.NULL_LONG);
                             };
                             KContentKey.createGlobalUniverseTree = function () {
-                                return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_UNIVERSE_TREE, null, null, null);
+                                if (KContentKey.cached_global_universeTree == null) {
+                                    KContentKey.cached_global_universeTree = new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_UNIVERSE_TREE, org.kevoree.modeling.api.KConfig.NULL_LONG, org.kevoree.modeling.api.KConfig.NULL_LONG, org.kevoree.modeling.api.KConfig.NULL_LONG);
+                                }
+                                return KContentKey.cached_global_universeTree;
                             };
                             KContentKey.createUniverseTree = function (p_objectID) {
-                                return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_DATA_LONG_INDEX, null, null, p_objectID);
+                                return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_DATA_LONG_INDEX, org.kevoree.modeling.api.KConfig.NULL_LONG, org.kevoree.modeling.api.KConfig.NULL_LONG, p_objectID);
                             };
                             KContentKey.createRootUniverseTree = function () {
-                                return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_DATA_ROOT, null, null, null);
+                                if (KContentKey.cached_root_universeTree == null) {
+                                    KContentKey.cached_root_universeTree = new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_DATA_ROOT, org.kevoree.modeling.api.KConfig.NULL_LONG, org.kevoree.modeling.api.KConfig.NULL_LONG, org.kevoree.modeling.api.KConfig.NULL_LONG);
+                                }
+                                return KContentKey.cached_root_universeTree;
                             };
                             KContentKey.createRootTimeTree = function (universeID) {
-                                return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_DATA_ROOT, universeID, null, null);
+                                return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_DATA_ROOT, universeID, org.kevoree.modeling.api.KConfig.NULL_LONG, org.kevoree.modeling.api.KConfig.NULL_LONG);
                             };
                             KContentKey.createTimeTree = function (p_universeID, p_objectID) {
-                                return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_DATA_INDEX, p_universeID, null, p_objectID);
+                                return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_DATA_INDEX, p_universeID, org.kevoree.modeling.api.KConfig.NULL_LONG, p_objectID);
                             };
                             KContentKey.createObject = function (p_universeID, p_quantaID, p_objectID) {
                                 return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_DATA_RAW, p_universeID, p_quantaID, p_objectID);
                             };
                             KContentKey.createLastPrefix = function () {
-                                return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_PREFIX, null, null, null);
+                                return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_PREFIX, org.kevoree.modeling.api.KConfig.NULL_LONG, org.kevoree.modeling.api.KConfig.NULL_LONG, org.kevoree.modeling.api.KConfig.NULL_LONG);
                             };
                             KContentKey.createLastObjectIndexFromPrefix = function (prefix) {
-                                return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_PREFIX, KContentKey.GLOBAL_SUB_SEGMENT_PREFIX_OBJ, null, java.lang.Long.parseLong(prefix.toString()));
+                                return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_PREFIX, KContentKey.GLOBAL_SUB_SEGMENT_PREFIX_OBJ, org.kevoree.modeling.api.KConfig.NULL_LONG, java.lang.Long.parseLong(prefix.toString()));
                             };
                             KContentKey.createLastUniverseIndexFromPrefix = function (prefix) {
-                                return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_PREFIX, KContentKey.GLOBAL_SUB_SEGMENT_PREFIX_UNI, null, java.lang.Long.parseLong(prefix.toString()));
+                                return new org.kevoree.modeling.api.data.cache.KContentKey(KContentKey.GLOBAL_SEGMENT_PREFIX, KContentKey.GLOBAL_SUB_SEGMENT_PREFIX_UNI, org.kevoree.modeling.api.KConfig.NULL_LONG, java.lang.Long.parseLong(prefix.toString()));
                             };
                             KContentKey.create = function (payload) {
                                 if (payload == null || payload.length == 0) {
@@ -1987,11 +1966,14 @@ var org;
                                 }
                                 else {
                                     var temp = new Array();
+                                    for (var i = 0; i < org.kevoree.modeling.api.KConfig.KEY_SIZE; i++) {
+                                        temp[i] = org.kevoree.modeling.api.KConfig.NULL_LONG;
+                                    }
                                     var maxRead = payload.length;
                                     var indexStartElem = -1;
                                     var indexElem = 0;
                                     for (var i = 0; i < maxRead; i++) {
-                                        if (payload.charAt(i) == KContentKey.KEY_SEP) {
+                                        if (payload.charAt(i) == org.kevoree.modeling.api.KConfig.KEY_SEP) {
                                             if (indexStartElem != -1) {
                                                 try {
                                                     temp[indexElem] = java.lang.Long.parseLong(payload.substring(indexStartElem, i));
@@ -2028,18 +2010,16 @@ var org;
                             };
                             KContentKey.prototype.toString = function () {
                                 var buffer = new java.lang.StringBuilder();
-                                for (var i = 0; i < KContentKey.ELEM_SIZE; i++) {
+                                for (var i = 0; i < org.kevoree.modeling.api.KConfig.KEY_SIZE; i++) {
                                     if (i != 0) {
-                                        buffer.append(KContentKey.KEY_SEP);
+                                        buffer.append(org.kevoree.modeling.api.KConfig.KEY_SEP);
                                     }
-                                    if (this.elem[i] != null) {
+                                    if (this.elem[i] != org.kevoree.modeling.api.KConfig.NULL_LONG) {
                                         buffer.append(this.elem[i]);
                                     }
                                 }
                                 return buffer.toString();
                             };
-                            KContentKey.ELEM_SIZE = 4;
-                            KContentKey.KEY_SEP = '/';
                             KContentKey.GLOBAL_SEGMENT_META = 0;
                             KContentKey.GLOBAL_SEGMENT_DATA_RAW = 1;
                             KContentKey.GLOBAL_SEGMENT_DATA_INDEX = 2;
@@ -2049,12 +2029,14 @@ var org;
                             KContentKey.GLOBAL_SEGMENT_PREFIX = 6;
                             KContentKey.GLOBAL_SUB_SEGMENT_PREFIX_OBJ = 0;
                             KContentKey.GLOBAL_SUB_SEGMENT_PREFIX_UNI = 1;
+                            KContentKey.cached_global_universeTree = null;
+                            KContentKey.cached_root_universeTree = null;
                             return KContentKey;
                         })();
                         cache.KContentKey = KContentKey;
                         var MultiLayeredMemoryCache = (function () {
                             function MultiLayeredMemoryCache() {
-                                this._nestedLayers = new java.util.HashMap();
+                                this._nestedLayers = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                             }
                             MultiLayeredMemoryCache.prototype.get = function (key) {
                                 if (key == null) {
@@ -2100,15 +2082,11 @@ var org;
                             };
                             MultiLayeredMemoryCache.prototype.dirties = function () {
                                 var result = new java.util.ArrayList();
-                                var L0_KEYS = this._nestedLayers.keySet().toArray(new Array());
-                                for (var i = 0; i < L0_KEYS.length; i++) {
-                                    var layer = this._nestedLayers.get(L0_KEYS[i]);
-                                    if (layer != null) {
-                                        var prefixKey = new Array();
-                                        prefixKey[0] = L0_KEYS[i];
-                                        layer.dirties(result, prefixKey, 1);
-                                    }
-                                }
+                                this._nestedLayers.each(function (loopKey, loopLayer) {
+                                    var prefixKey = new Array();
+                                    prefixKey[0] = loopKey;
+                                    loopLayer.dirties(result, prefixKey, 1);
+                                });
                                 if (MultiLayeredMemoryCache.DEBUG) {
                                     System.out.println("KMF_DEBUG_CACHE_DIRTIES:" + result.size());
                                 }
@@ -2903,15 +2881,15 @@ var org;
                             };
                             DefaultKDataManager.prototype.internal_load = function (key, payload) {
                                 var result;
-                                if (key.segment().equals(org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_INDEX)) {
+                                if (key.segment() == org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_INDEX) {
                                     result = new org.kevoree.modeling.api.rbtree.IndexRBTree();
                                 }
                                 else {
-                                    if (key.segment().equals(org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_RAW)) {
+                                    if (key.segment() == org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_RAW) {
                                         result = new org.kevoree.modeling.api.data.cache.KCacheEntry();
                                     }
                                     else {
-                                        if (key.segment().equals(org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_LONG_INDEX) || key.segment().equals(org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_ROOT) || key.segment().equals(org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_UNIVERSE_TREE)) {
+                                        if (key.segment() == org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_LONG_INDEX || key.segment() == org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_ROOT || key.segment() == org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_UNIVERSE_TREE) {
                                             result = new org.kevoree.modeling.api.rbtree.LongRBTree();
                                         }
                                         else {
@@ -5452,6 +5430,337 @@ var org;
                     })();
                     json.Type = Type;
                 })(json = api.json || (api.json = {}));
+                var map;
+                (function (map) {
+                    var LongHashMap = (function () {
+                        function LongHashMap(p_initalCapacity, p_loadFactor) {
+                            this.modCount = 0;
+                            this.reuseAfterDelete = null;
+                            this.initalCapacity = p_initalCapacity;
+                            this.loadFactor = p_loadFactor;
+                            this.elementCount = 0;
+                            this.elementData = this.newElementArray(this.initalCapacity);
+                            this.elementDataSize = this.initalCapacity;
+                            this.computeMaxSize();
+                        }
+                        LongHashMap.prototype.newElementArray = function (s) {
+                            return new Array();
+                        };
+                        LongHashMap.prototype.clear = function () {
+                            if (this.elementCount > 0) {
+                                this.elementCount = 0;
+                                this.elementData = this.newElementArray(this.initalCapacity);
+                                this.elementDataSize = this.initalCapacity;
+                                this.modCount++;
+                            }
+                        };
+                        LongHashMap.prototype.computeMaxSize = function () {
+                            this.threshold = (this.elementDataSize * this.loadFactor);
+                        };
+                        LongHashMap.prototype.containsKey = function (key) {
+                            var hash = (key);
+                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
+                            var m = this.findNonNullKeyEntry(key, index);
+                            return m != null;
+                        };
+                        LongHashMap.prototype.get = function (key) {
+                            var m;
+                            var hash = (key);
+                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
+                            m = this.findNonNullKeyEntry(key, index);
+                            if (m != null) {
+                                return m.value;
+                            }
+                            return null;
+                        };
+                        LongHashMap.prototype.findNonNullKeyEntry = function (key, index) {
+                            var m = this.elementData[index];
+                            while (m != null) {
+                                if (key == m.key) {
+                                    return m;
+                                }
+                                m = m.next;
+                            }
+                            return null;
+                        };
+                        LongHashMap.prototype.each = function (callback) {
+                            for (var i = 0; i < this.elementDataSize; i++) {
+                                if (this.elementData[i] != null) {
+                                    var current = this.elementData[i];
+                                    callback(this.elementData[i].key, this.elementData[i].value);
+                                    while (current.next != null) {
+                                        current = current.next;
+                                        callback(current.key, current.value);
+                                    }
+                                }
+                            }
+                        };
+                        LongHashMap.prototype.put = function (key, value) {
+                            var entry;
+                            var hash = (key);
+                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
+                            entry = this.findNonNullKeyEntry(key, index);
+                            if (entry == null) {
+                                this.modCount++;
+                                if (++this.elementCount > this.threshold) {
+                                    this.rehash();
+                                    index = (hash & 0x7FFFFFFF) % this.elementDataSize;
+                                }
+                                entry = this.createHashedEntry(key, index);
+                            }
+                            var result = entry.value;
+                            entry.value = value;
+                            return result;
+                        };
+                        LongHashMap.prototype.createHashedEntry = function (key, index) {
+                            var entry = this.reuseAfterDelete;
+                            if (entry == null) {
+                                entry = new org.kevoree.modeling.api.map.LongHashMap.Entry(key, null);
+                            }
+                            else {
+                                this.reuseAfterDelete = null;
+                                entry.key = key;
+                                entry.value = null;
+                            }
+                            entry.next = this.elementData[index];
+                            this.elementData[index] = entry;
+                            return entry;
+                        };
+                        LongHashMap.prototype.rehashCapacity = function (capacity) {
+                            var length = (capacity == 0 ? 1 : capacity << 1);
+                            var newData = this.newElementArray(length);
+                            for (var i = 0; i < this.elementDataSize; i++) {
+                                var entry = this.elementData[i];
+                                while (entry != null) {
+                                    var index = (entry.key & 0x7FFFFFFF) % length;
+                                    var next = entry.next;
+                                    entry.next = newData[index];
+                                    newData[index] = entry;
+                                    entry = next;
+                                }
+                            }
+                            this.elementData = newData;
+                            this.elementDataSize = length;
+                            this.computeMaxSize();
+                        };
+                        LongHashMap.prototype.rehash = function () {
+                            this.rehashCapacity(this.elementDataSize);
+                        };
+                        LongHashMap.prototype.remove = function (key) {
+                            var entry = this.removeEntry(key);
+                            if (entry == null) {
+                                return null;
+                            }
+                            var ret = entry.value;
+                            entry.value = null;
+                            entry.key = org.kevoree.modeling.api.KConfig.BEGINNING_OF_TIME;
+                            this.reuseAfterDelete = entry;
+                            return ret;
+                        };
+                        LongHashMap.prototype.removeEntry = function (key) {
+                            var entry;
+                            var last = null;
+                            var hash = key;
+                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
+                            entry = this.elementData[index];
+                            while (entry != null && !(key == entry.key)) {
+                                last = entry;
+                                entry = entry.next;
+                            }
+                            if (entry == null) {
+                                return null;
+                            }
+                            if (last == null) {
+                                this.elementData[index] = entry.next;
+                            }
+                            else {
+                                last.next = entry.next;
+                            }
+                            this.modCount++;
+                            this.elementCount--;
+                            return entry;
+                        };
+                        LongHashMap.prototype.size = function () {
+                            return this.elementCount;
+                        };
+                        return LongHashMap;
+                    })();
+                    map.LongHashMap = LongHashMap;
+                    var LongHashMap;
+                    (function (LongHashMap) {
+                        var Entry = (function () {
+                            function Entry(theKey, theValue) {
+                                this.key = theKey;
+                                this.value = theValue;
+                            }
+                            return Entry;
+                        })();
+                        LongHashMap.Entry = Entry;
+                    })(LongHashMap = map.LongHashMap || (map.LongHashMap = {}));
+                    var LongLongHashMap = (function () {
+                        function LongLongHashMap(p_initalCapacity, p_loadFactor) {
+                            this.modCount = 0;
+                            this.reuseAfterDelete = null;
+                            this.initalCapacity = p_initalCapacity;
+                            this.loadFactor = p_loadFactor;
+                            this.elementCount = 0;
+                            this.elementData = new Array();
+                            this.elementDataSize = this.initalCapacity;
+                            this.computeMaxSize();
+                        }
+                        LongLongHashMap.prototype.clear = function () {
+                            if (this.elementCount > 0) {
+                                this.elementCount = 0;
+                                this.elementData = new Array();
+                                this.elementDataSize = this.initalCapacity;
+                                this.modCount++;
+                            }
+                        };
+                        LongLongHashMap.prototype.computeMaxSize = function () {
+                            this.threshold = (this.elementDataSize * this.loadFactor);
+                        };
+                        LongLongHashMap.prototype.containsKey = function (key) {
+                            var hash = (key);
+                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
+                            var m = this.findNonNullKeyEntry(key, index);
+                            return m != null;
+                        };
+                        LongLongHashMap.prototype.get = function (key) {
+                            var m;
+                            var hash = (key);
+                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
+                            m = this.findNonNullKeyEntry(key, index);
+                            if (m != null) {
+                                return m.value;
+                            }
+                            return org.kevoree.modeling.api.KConfig.NULL_LONG;
+                        };
+                        LongLongHashMap.prototype.findNonNullKeyEntry = function (key, index) {
+                            var m = this.elementData[index];
+                            while (m != null) {
+                                if (key == m.key) {
+                                    return m;
+                                }
+                                m = m.next;
+                            }
+                            return null;
+                        };
+                        LongLongHashMap.prototype.each = function (callback) {
+                            for (var i = 0; i < this.elementDataSize; i++) {
+                                if (this.elementData[i] != null) {
+                                    var current = this.elementData[i];
+                                    callback(this.elementData[i].key, this.elementData[i].value);
+                                    while (current.next != null) {
+                                        current = current.next;
+                                        callback(current.key, current.value);
+                                    }
+                                }
+                            }
+                        };
+                        LongLongHashMap.prototype.put = function (key, value) {
+                            var entry;
+                            var hash = (key);
+                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
+                            entry = this.findNonNullKeyEntry(key, index);
+                            if (entry == null) {
+                                this.modCount++;
+                                if (++this.elementCount > this.threshold) {
+                                    this.rehash();
+                                    index = (hash & 0x7FFFFFFF) % this.elementDataSize;
+                                }
+                                entry = this.createHashedEntry(key, index);
+                            }
+                            var result = entry.value;
+                            entry.value = value;
+                            return result;
+                        };
+                        LongLongHashMap.prototype.createHashedEntry = function (key, index) {
+                            var entry = this.reuseAfterDelete;
+                            if (entry == null) {
+                                entry = new org.kevoree.modeling.api.map.LongLongHashMap.Entry(key, org.kevoree.modeling.api.KConfig.NULL_LONG);
+                            }
+                            else {
+                                this.reuseAfterDelete = null;
+                                entry.key = key;
+                                entry.value = org.kevoree.modeling.api.KConfig.NULL_LONG;
+                            }
+                            entry.next = this.elementData[index];
+                            this.elementData[index] = entry;
+                            return entry;
+                        };
+                        LongLongHashMap.prototype.rehashCapacity = function (capacity) {
+                            var length = (capacity == 0 ? 1 : capacity << 1);
+                            var newData = new Array();
+                            for (var i = 0; i < this.elementDataSize; i++) {
+                                var entry = this.elementData[i];
+                                while (entry != null) {
+                                    var index = (entry.key & 0x7FFFFFFF) % length;
+                                    var next = entry.next;
+                                    entry.next = newData[index];
+                                    newData[index] = entry;
+                                    entry = next;
+                                }
+                            }
+                            this.elementData = newData;
+                            this.elementDataSize = length;
+                            this.computeMaxSize();
+                        };
+                        LongLongHashMap.prototype.rehash = function () {
+                            this.rehashCapacity(this.elementDataSize);
+                        };
+                        LongLongHashMap.prototype.remove = function (key) {
+                            var entry = this.removeEntry(key);
+                            if (entry == null) {
+                                return org.kevoree.modeling.api.KConfig.NULL_LONG;
+                            }
+                            var ret = entry.value;
+                            entry.value = org.kevoree.modeling.api.KConfig.NULL_LONG;
+                            entry.key = org.kevoree.modeling.api.KConfig.BEGINNING_OF_TIME;
+                            this.reuseAfterDelete = entry;
+                            return ret;
+                        };
+                        LongLongHashMap.prototype.removeEntry = function (key) {
+                            var index = 0;
+                            var entry;
+                            var last = null;
+                            var hash = (key);
+                            index = (hash & 0x7FFFFFFF) % this.elementDataSize;
+                            entry = this.elementData[index];
+                            while (entry != null && !(key == entry.key)) {
+                                last = entry;
+                                entry = entry.next;
+                            }
+                            if (entry == null) {
+                                return null;
+                            }
+                            if (last == null) {
+                                this.elementData[index] = entry.next;
+                            }
+                            else {
+                                last.next = entry.next;
+                            }
+                            this.modCount++;
+                            this.elementCount--;
+                            return entry;
+                        };
+                        LongLongHashMap.prototype.size = function () {
+                            return this.elementCount;
+                        };
+                        return LongLongHashMap;
+                    })();
+                    map.LongLongHashMap = LongLongHashMap;
+                    var LongLongHashMap;
+                    (function (LongLongHashMap) {
+                        var Entry = (function () {
+                            function Entry(theKey, theValue) {
+                                this.key = theKey;
+                                this.value = theValue;
+                            }
+                            return Entry;
+                        })();
+                        LongLongHashMap.Entry = Entry;
+                    })(LongLongHashMap = map.LongLongHashMap || (map.LongLongHashMap = {}));
+                })(map = api.map || (api.map = {}));
                 var meta;
                 (function (meta) {
                     var MetaInferClass = (function () {
@@ -5514,6 +5823,9 @@ var org;
                             }
                         };
                         MetaInferClass.prototype.reference = function (name) {
+                            return null;
+                        };
+                        MetaInferClass.prototype.operation = function (name) {
                             return null;
                         };
                         MetaInferClass.prototype.metaName = function () {
@@ -10583,21 +10895,6 @@ var org;
                         return LocalEventListeners;
                     })();
                     util.LocalEventListeners = LocalEventListeners;
-                    var LongHashMap = (function () {
-                        function LongHashMap() {
-                        }
-                        return LongHashMap;
-                    })();
-                    util.LongHashMap = LongHashMap;
-                    var LongHashMap;
-                    (function (LongHashMap) {
-                        var Entry = (function () {
-                            function Entry() {
-                            }
-                            return Entry;
-                        })();
-                        LongHashMap.Entry = Entry;
-                    })(LongHashMap = util.LongHashMap || (util.LongHashMap = {}));
                     var PathHelper = (function () {
                         function PathHelper() {
                         }

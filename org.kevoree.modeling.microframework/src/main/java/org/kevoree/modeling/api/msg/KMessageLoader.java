@@ -10,9 +10,7 @@ import org.kevoree.modeling.api.json.Type;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by duke on 23/02/15.

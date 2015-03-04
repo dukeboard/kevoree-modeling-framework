@@ -1,63 +1,37 @@
 
-package org.kevoree.modeling.api.util;
+package org.kevoree.modeling.api.map;
 
 /* From an original idea https://code.google.com/p/jdbm2/ */
 
-import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KConfig;
 
-/**
- * @native:ts {@code
- * //noJS
- * }
- */
 public class LongHashMap<V> {
 
     protected int elementCount;
 
     protected Entry<V>[] elementData;
 
-    private final float loadFactor;
+    private int elementDataSize;
 
     protected int threshold;
 
     transient int modCount = 0;
 
-    private static final int DEFAULT_SIZE = 16;
-
     transient Entry<V> reuseAfterDelete = null;
 
-    /**
-     * @native:ts {@code
-     * //noJS
-     * }
-     */
+    private final int initalCapacity;
+
+    private final float loadFactor;
+
     static final class Entry<V> {
         Entry<V> next;
         long key;
         V value;
 
-        public boolean equals(Object object) {
-            if (this == object) {
-                return true;
-            }
-            if (object instanceof Entry) {
-                Entry<?> entry = (Entry) object;
-                return (key == entry.key)
-                        && (value == null ? entry.value == null : value
-                        .equals(entry.value));
-            }
-            return false;
-        }
-
-        public int hashCode() {
-            return (int) (key) ^ (value == null ? 0 : value.hashCode());
-        }
-
         Entry(long theKey, V theValue) {
             this.key = theKey;
             this.value = theValue;
         }
-
     }
 
     @SuppressWarnings("unchecked")
@@ -65,28 +39,31 @@ public class LongHashMap<V> {
         return new Entry[s];
     }
 
-    public LongHashMap() {
+    public LongHashMap(int p_initalCapacity, float p_loadFactor) {
+        this.initalCapacity = p_initalCapacity;
+        this.loadFactor = p_loadFactor;
         elementCount = 0;
-        elementData = newElementArray(DEFAULT_SIZE);
-        loadFactor = 0.75f;
+        elementData = newElementArray(initalCapacity);
+        elementDataSize = initalCapacity;
         computeMaxSize();
     }
 
     public void clear() {
         if (elementCount > 0) {
             elementCount = 0;
-            java.util.Arrays.fill(elementData, null);
+            this.elementData = newElementArray(initalCapacity);
+            this.elementDataSize = initalCapacity;
             modCount++;
         }
     }
 
     private void computeMaxSize() {
-        threshold = (int) (elementData.length * loadFactor);
+        threshold = (int) (elementDataSize * loadFactor);
     }
 
     public boolean containsKey(long key) {
         int hash = (int) (key);
-        int index = (hash & 0x7FFFFFFF) % elementData.length;
+        int index = (hash & 0x7FFFFFFF) % elementDataSize;
         Entry<V> m = findNonNullKeyEntry(key, index);
         return m != null;
     }
@@ -94,7 +71,7 @@ public class LongHashMap<V> {
     public V get(long key) {
         Entry<V> m;
         int hash = (int) (key);
-        int index = (hash & 0x7FFFFFFF) % elementData.length;
+        int index = (hash & 0x7FFFFFFF) % elementDataSize;
         m = findNonNullKeyEntry(key, index);
         if (m != null) {
             return m.value;
@@ -113,10 +90,15 @@ public class LongHashMap<V> {
         return null;
     }
 
-    public void values(Callback<V> callback) {
-        for (int i = 0; i < elementData.length; i++) {
+    public void each(LongHashMapCallBack<V> callback) {
+        for (int i = 0; i < elementDataSize; i++) {
             if (elementData[i] != null) {
-                callback.on(elementData[i].value);
+                Entry<V> current = elementData[i];
+                callback.on(elementData[i].key, elementData[i].value);
+                while (current.next != null) {
+                    current = current.next;
+                    callback.on(current.key, current.value);
+                }
             }
         }
     }
@@ -124,13 +106,13 @@ public class LongHashMap<V> {
     public V put(long key, V value) {
         Entry<V> entry;
         int hash = (int) (key);
-        int index = (hash & 0x7FFFFFFF) % elementData.length;
+        int index = (hash & 0x7FFFFFFF) % elementDataSize;
         entry = findNonNullKeyEntry(key, index);
         if (entry == null) {
             modCount++;
             if (++elementCount > threshold) {
                 rehash();
-                index = (hash & 0x7FFFFFFF) % elementData.length;
+                index = (hash & 0x7FFFFFFF) % elementDataSize;
             }
             entry = createHashedEntry(key, index);
         }
@@ -154,10 +136,10 @@ public class LongHashMap<V> {
         return entry;
     }
 
-    void rehash(int capacity) {
+    void rehashCapacity(int capacity) {
         int length = (capacity == 0 ? 1 : capacity << 1);
         Entry<V>[] newData = newElementArray(length);
-        for (int i = 0; i < elementData.length; i++) {
+        for (int i = 0; i < elementDataSize; i++) {
             Entry<V> entry = elementData[i];
             while (entry != null) {
                 int index = ((int) entry.key & 0x7FFFFFFF) % length;
@@ -168,31 +150,32 @@ public class LongHashMap<V> {
             }
         }
         elementData = newData;
+        elementDataSize = length;
         computeMaxSize();
     }
 
     void rehash() {
-        rehash(elementData.length);
+        rehashCapacity(elementDataSize);
     }
 
     public V remove(long key) {
         Entry<V> entry = removeEntry(key);
-        if (entry == null)
+        if (entry == null) {
             return null;
+        }
         V ret = entry.value;
         entry.value = null;
-        entry.key = Long.MIN_VALUE;
+        entry.key = KConfig.BEGINNING_OF_TIME;
         reuseAfterDelete = entry;
 
         return ret;
     }
 
     Entry<V> removeEntry(long key) {
-        int index = 0;
         Entry<V> entry;
         Entry<V> last = null;
-        int hash = (int) (key);
-        index = (hash & 0x7FFFFFFF) % elementData.length;
+        int hash = (int) key;
+        int index = (hash & 0x7FFFFFFF) % elementDataSize;
         entry = elementData[index];
         while (entry != null && !(/*((int)entry.key) == hash &&*/ key == entry.key)) {
             last = entry;
@@ -214,6 +197,15 @@ public class LongHashMap<V> {
     public int size() {
         return elementCount;
     }
+
+    /*
+    public int computeIndex(int key) {
+        return (key & 0x7FFFFFFF) % elementDataSize;
+    }
+
+    public int computeNewIndex(int key, int newSize) {
+        return (key & 0x7FFFFFFF) % newSize;
+    }*/
 
 }
 

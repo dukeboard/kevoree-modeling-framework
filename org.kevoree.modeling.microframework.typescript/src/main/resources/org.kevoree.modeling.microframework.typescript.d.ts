@@ -37,6 +37,10 @@ declare module org {
                     static END_OF_TIME: number;
                     static NULL_LONG: number;
                     static KEY_PREFIX_MASK: number;
+                    static KEY_SEP: string;
+                    static KEY_SIZE: number;
+                    static CACHE_INIT_SIZE: number;
+                    static CACHE_LOAD_FACTOR: number;
                 }
                 interface KCurrentDefer<A> extends org.kevoree.modeling.api.KDefer<any> {
                     resultKeys(): string[];
@@ -412,6 +416,7 @@ declare module org {
                         metaByName(name: string): org.kevoree.modeling.api.meta.Meta;
                         attribute(name: string): org.kevoree.modeling.api.meta.MetaAttribute;
                         reference(name: string): org.kevoree.modeling.api.meta.MetaReference;
+                        operation(name: string): org.kevoree.modeling.api.meta.MetaOperation;
                         metaElements(): org.kevoree.modeling.api.meta.Meta[];
                         index(): number;
                         metaName(): string;
@@ -500,8 +505,6 @@ declare module org {
                         class KCacheLayer {
                             private _nestedLayers;
                             private _cachedObjects;
-                            private _cachedNullObject;
-                            private _nestedNullLayer;
                             resolve(p_key: org.kevoree.modeling.api.data.cache.KContentKey, current: number): org.kevoree.modeling.api.data.cache.KCacheObject;
                             insert(p_key: org.kevoree.modeling.api.data.cache.KContentKey, current: number, p_obj_insert: org.kevoree.modeling.api.data.cache.KCacheObject): void;
                             dirties(result: java.util.List<org.kevoree.modeling.api.data.cache.KCacheDirty>, prefixKeys: number[], current: number): void;
@@ -513,9 +516,7 @@ declare module org {
                             unserialize(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: string, metaModel: org.kevoree.modeling.api.meta.MetaModel): void;
                         }
                         class KContentKey {
-                            static ELEM_SIZE: number;
                             private elem;
-                            static KEY_SEP: string;
                             private static GLOBAL_SEGMENT_META;
                             static GLOBAL_SEGMENT_DATA_RAW: number;
                             static GLOBAL_SEGMENT_DATA_INDEX: number;
@@ -525,6 +526,8 @@ declare module org {
                             private static GLOBAL_SEGMENT_PREFIX;
                             private static GLOBAL_SUB_SEGMENT_PREFIX_OBJ;
                             private static GLOBAL_SUB_SEGMENT_PREFIX_UNI;
+                            private static cached_global_universeTree;
+                            private static cached_root_universeTree;
                             constructor(p_prefixID: number, p_universeID: number, p_timeID: number, p_objID: number);
                             segment(): number;
                             universe(): number;
@@ -549,6 +552,7 @@ declare module org {
                             private _nestedLayers;
                             private static prefixDebugGet;
                             private static prefixDebugPut;
+                            constructor();
                             get(key: org.kevoree.modeling.api.data.cache.KContentKey): org.kevoree.modeling.api.data.cache.KCacheObject;
                             put(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: org.kevoree.modeling.api.data.cache.KCacheObject): void;
                             dirties(): org.kevoree.modeling.api.data.cache.KCacheDirty[];
@@ -1058,6 +1062,79 @@ declare module org {
                         static values(): Type[];
                     }
                 }
+                module map {
+                    class LongHashMap<V> {
+                        elementCount: number;
+                        elementData: org.kevoree.modeling.api.map.LongHashMap.Entry<any>[];
+                        private elementDataSize;
+                        threshold: number;
+                        modCount: number;
+                        reuseAfterDelete: org.kevoree.modeling.api.map.LongHashMap.Entry<any>;
+                        private initalCapacity;
+                        private loadFactor;
+                        newElementArray(s: number): org.kevoree.modeling.api.map.LongHashMap.Entry<any>[];
+                        constructor(p_initalCapacity: number, p_loadFactor: number);
+                        clear(): void;
+                        private computeMaxSize();
+                        containsKey(key: number): boolean;
+                        get(key: number): V;
+                        findNonNullKeyEntry(key: number, index: number): org.kevoree.modeling.api.map.LongHashMap.Entry<any>;
+                        each(callback: (p: number, p1: V) => void): void;
+                        put(key: number, value: V): V;
+                        createHashedEntry(key: number, index: number): org.kevoree.modeling.api.map.LongHashMap.Entry<any>;
+                        rehashCapacity(capacity: number): void;
+                        rehash(): void;
+                        remove(key: number): V;
+                        removeEntry(key: number): org.kevoree.modeling.api.map.LongHashMap.Entry<any>;
+                        size(): number;
+                    }
+                    module LongHashMap {
+                        class Entry<V> {
+                            next: org.kevoree.modeling.api.map.LongHashMap.Entry<any>;
+                            key: number;
+                            value: V;
+                            constructor(theKey: number, theValue: V);
+                        }
+                    }
+                    interface LongHashMapCallBack<V> {
+                        on(key: number, value: V): void;
+                    }
+                    class LongLongHashMap {
+                        elementCount: number;
+                        elementData: org.kevoree.modeling.api.map.LongLongHashMap.Entry[];
+                        private elementDataSize;
+                        threshold: number;
+                        modCount: number;
+                        reuseAfterDelete: org.kevoree.modeling.api.map.LongLongHashMap.Entry;
+                        private initalCapacity;
+                        private loadFactor;
+                        constructor(p_initalCapacity: number, p_loadFactor: number);
+                        clear(): void;
+                        private computeMaxSize();
+                        containsKey(key: number): boolean;
+                        get(key: number): number;
+                        findNonNullKeyEntry(key: number, index: number): org.kevoree.modeling.api.map.LongLongHashMap.Entry;
+                        each(callback: (p: number, p1: number) => void): void;
+                        put(key: number, value: number): number;
+                        createHashedEntry(key: number, index: number): org.kevoree.modeling.api.map.LongLongHashMap.Entry;
+                        rehashCapacity(capacity: number): void;
+                        rehash(): void;
+                        remove(key: number): number;
+                        removeEntry(key: number): org.kevoree.modeling.api.map.LongLongHashMap.Entry;
+                        size(): number;
+                    }
+                    module LongLongHashMap {
+                        class Entry {
+                            next: org.kevoree.modeling.api.map.LongLongHashMap.Entry;
+                            key: number;
+                            value: number;
+                            constructor(theKey: number, theValue: number);
+                        }
+                    }
+                    interface LongLongHashMapCallBack<V> {
+                        on(key: number, value: number): void;
+                    }
+                }
                 module meta {
                     interface Meta {
                         index(): number;
@@ -1079,6 +1156,7 @@ declare module org {
                         metaByName(name: string): org.kevoree.modeling.api.meta.Meta;
                         attribute(name: string): org.kevoree.modeling.api.meta.MetaAttribute;
                         reference(name: string): org.kevoree.modeling.api.meta.MetaReference;
+                        operation(name: string): org.kevoree.modeling.api.meta.MetaOperation;
                     }
                     class MetaInferClass implements org.kevoree.modeling.api.meta.MetaClass {
                         private static _INSTANCE;
@@ -1095,6 +1173,7 @@ declare module org {
                         metaByName(name: string): org.kevoree.modeling.api.meta.Meta;
                         attribute(name: string): org.kevoree.modeling.api.meta.MetaAttribute;
                         reference(name: string): org.kevoree.modeling.api.meta.MetaReference;
+                        operation(name: string): org.kevoree.modeling.api.meta.MetaOperation;
                         metaName(): string;
                         metaType(): org.kevoree.modeling.api.meta.MetaType;
                         index(): number;
@@ -1882,12 +1961,6 @@ declare module org {
                         private resolveKObject(key, universeCache, viewsCache, callback);
                         unregister(listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
                         clear(): void;
-                    }
-                    class LongHashMap<V> {
-                    }
-                    module LongHashMap {
-                        class Entry<V> {
-                        }
                     }
                     class PathHelper {
                         static pathSep: string;
