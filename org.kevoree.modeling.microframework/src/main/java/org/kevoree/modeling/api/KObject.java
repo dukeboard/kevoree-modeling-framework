@@ -33,6 +33,8 @@ public interface KObject {
 
     public void listen(KEventListener listener);
 
+    public void unregister(KEventListener listener);
+
     public void visitAttributes(ModelAttributeVisitor visitor);
 
     public KDefer<Throwable> visit(ModelVisitor visitor, VisitRequest request);

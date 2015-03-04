@@ -220,6 +220,11 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
+    public void unregister(KEventListener listener) {
+        universe().model().manager().cdn().unregister(this, listener, false);
+    }
+
+    @Override
     public String domainKey() {
         StringBuilder builder = new StringBuilder();
         MetaAttribute[] atts = metaClass().metaAttributes();
