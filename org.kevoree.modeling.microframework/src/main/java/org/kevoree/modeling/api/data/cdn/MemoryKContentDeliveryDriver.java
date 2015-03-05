@@ -35,7 +35,9 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
     public void get(KContentKey[] keys, ThrowableCallback<String[]> callback) {
         String[] values = new String[keys.length];
         for (int i = 0; i < keys.length; i++) {
-            values[i] = backend.get(keys[i].toString());
+            if (keys[i] != null) {
+                values[i] = backend.get(keys[i].toString());
+            }
             if (DEBUG) {
                 System.out.println("GET " + keys[i] + "->" + values[i]);
             }

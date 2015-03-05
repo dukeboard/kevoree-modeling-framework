@@ -5,7 +5,7 @@ package org.kevoree.modeling.api.msg;
  */
 public class KAtomicGetResult implements KMessage {
 
-    public Long id;
+    public long id;
 
     public String value;
 

@@ -1,5 +1,6 @@
 package org.kevoree.modeling.api.data.manager;
 
+import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.map.LongLongHashMap;
 import org.kevoree.modeling.api.rbtree.IndexRBTree;
 import org.kevoree.modeling.api.rbtree.LongRBTree;
@@ -9,9 +10,9 @@ import org.kevoree.modeling.api.rbtree.LongRBTree;
  */
 public class ResolutionResult {
 
-    public Long resolvedUniverse = null;
+    public long resolvedUniverse = KConfig.NULL_LONG;
     public LongLongHashMap universeTree = null;
-    public Long resolvedQuanta = null;
+    public long resolvedQuanta = KConfig.NULL_LONG;
     public IndexRBTree timeTree = null;
 
 }

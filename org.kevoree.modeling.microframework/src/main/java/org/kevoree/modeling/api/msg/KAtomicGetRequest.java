@@ -8,7 +8,7 @@ import org.kevoree.modeling.api.data.cdn.AtomicOperation;
  */
 public class KAtomicGetRequest implements KMessage {
 
-    public Long id;
+    public long id;
 
     public KContentKey key;
 

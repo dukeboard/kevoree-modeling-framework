@@ -77,7 +77,7 @@ public class JsonModelLoader {
                 for (int i = 0; i < alls.size(); i++) {
                     try {
                         Map<String, Object> elem = alls.get(i);
-                        Long kid = Long.parseLong(elem.get(JsonModelSerializer.KEY_UUID).toString());
+                        long kid = Long.parseLong(elem.get(JsonModelSerializer.KEY_UUID).toString());
                         mappedKeys.put(kid, factory.universe().model().manager().nextObjectKey());
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -86,7 +86,7 @@ public class JsonModelLoader {
                 for (int i = 0; i < alls.size(); i++) {
                     try {
                         Map<String, Object> elem = alls.get(i);
-                        Long kid = Long.parseLong(elem.get(JsonModelSerializer.KEY_UUID).toString());
+                        long kid = Long.parseLong(elem.get(JsonModelSerializer.KEY_UUID).toString());
                         String meta = elem.get(JsonModelSerializer.KEY_META).toString();
                         MetaClass metaClass = metaModel.metaClass(meta);
                         KObject current = ((AbstractKView) factory).createProxy(metaClass, mappedKeys.get(kid));
@@ -102,7 +102,7 @@ public class JsonModelLoader {
                                     long[] inbounds = new long[raw_keys.size()];
                                     for (int hh = 0; hh < raw_keys.size(); hh++) {
                                         try {
-                                            Long converted = Long.parseLong(raw_keys.get(hh));
+                                            long converted = Long.parseLong(raw_keys.get(hh));
                                             if (mappedKeys.containsKey(converted)) {
                                                 converted = mappedKeys.get(converted);
                                             }
@@ -119,11 +119,11 @@ public class JsonModelLoader {
                                 try {
                                     ArrayList<String> parentKeys = (ArrayList<String>) payload_content;
                                     for (int l = 0; l < parentKeys.size(); l++) {
-                                        Long raw_k = Long.parseLong(parentKeys.get(l));
+                                        long raw_k = Long.parseLong(parentKeys.get(l));
                                         if (mappedKeys.containsKey(raw_k)) {
                                             raw_k = mappedKeys.get(raw_k);
                                         }
-                                        if (raw_k != null) {
+                                        if (raw_k != KConfig.NULL_LONG) {
                                             long[] parentKey = new long[1];
                                             parentKey[0] = raw_k;
                                             raw.set(Index.PARENT_INDEX, parentKey);
@@ -163,7 +163,7 @@ public class JsonModelLoader {
                                             long[] convertedRaw = new long[plainRawSet.size()];
                                             for (int l = 0; l < plainRawSet.size(); l++) {
                                                 try {
-                                                    Long converted = Long.parseLong(plainRawSet.get(l));
+                                                    long converted = Long.parseLong(plainRawSet.get(l));
                                                     if (mappedKeys.containsKey(converted)) {
                                                         converted = mappedKeys.get(converted);
                                                     }

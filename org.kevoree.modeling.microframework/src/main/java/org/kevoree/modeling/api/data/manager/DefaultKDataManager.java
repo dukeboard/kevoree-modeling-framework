@@ -40,11 +40,12 @@ public class DefaultKDataManager implements KDataManager {
 
     private static final String OUT_OF_CACHE_MESSAGE = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
     private static final String UNIVERSE_NOT_CONNECTED_ERROR = "Please connect your model prior to create a universe or an object";
-    //private static final String DELETED_MESSAGE = "KMF Error: your object has been deleted. Please do not use object pointer after a call to delete method";
 
     private final int UNIVERSE_INDEX = 0;
     private final int OBJ_INDEX = 1;
     private final int GLO_TREE_INDEX = 2;
+
+    private MultiLayeredMemoryCache _cache = new MultiLayeredMemoryCache();
 
     public DefaultKDataManager(KModel model) {
         this._db = new MemoryKContentDeliveryDriver();
@@ -52,6 +53,11 @@ public class DefaultKDataManager implements KDataManager {
         this._operationManager = new DefaultOperationManager(this);
         this._scheduler = new DirectScheduler();
         this._model = model;
+    }
+
+    @Override
+    public KCache cache() {
+        return _cache;
     }
 
     @Override
@@ -125,7 +131,7 @@ public class DefaultKDataManager implements KDataManager {
     public long[] descendantsUniverseKeys(long currentUniverseKey) {
         LongLongHashMap cached = globalUniverseOrder();
         if (cached != null) {
-            LongLongHashMap temp = new LongLongHashMap(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
+            LongLongHashMap temp = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
             cached.each(new LongLongHashMapCallBack() {
                 @Override
                 public void on(long key, long value) {
@@ -605,13 +611,6 @@ public class DefaultKDataManager implements KDataManager {
         });
     }
 
-    private MultiLayeredMemoryCache _cache = new MultiLayeredMemoryCache();
-
-    @Override
-    public KCache cache() {
-        return _cache;
-    }
-
     @Override
     public void reload(KContentKey[] keys, final Callback<Throwable> callback) {
         List<KContentKey> toReload = new ArrayList<KContentKey>();
@@ -681,13 +680,15 @@ public class DefaultKDataManager implements KDataManager {
         int nbElem = 0;
         KCacheObject[] result = new KCacheObject[contentKeys.length];
         for (int i = 0; i < contentKeys.length; i++) {
-            result[i] = _cache.get(contentKeys[i]);
-            if (result[i] == null) {
-                if (toLoadIndexes == null) {
-                    toLoadIndexes = new boolean[contentKeys.length];
+            if(contentKeys[i]!=null){
+                result[i] = _cache.get(contentKeys[i]);
+                if (result[i] == null) {
+                    if (toLoadIndexes == null) {
+                        toLoadIndexes = new boolean[contentKeys.length];
+                    }
+                    toLoadIndexes[i] = true;
+                    nbElem++;
                 }
-                toLoadIndexes[i] = true;
-                nbElem++;
             }
         }
         if (toLoadIndexes == null) {

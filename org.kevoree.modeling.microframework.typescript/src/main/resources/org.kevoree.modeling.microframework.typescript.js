@@ -4954,7 +4954,7 @@ var org;
                                                                 if (mappedKeys.containsKey(raw_k)) {
                                                                     raw_k = mappedKeys.get(raw_k);
                                                                 }
-                                                                if (raw_k != null) {
+                                                                if (raw_k != org.kevoree.modeling.api.KConfig.NULL_LONG) {
                                                                     var parentKey = new Array();
                                                                     parentKey[0] = raw_k;
                                                                     raw.set(org.kevoree.modeling.api.data.manager.Index.PARENT_INDEX, parentKey);
