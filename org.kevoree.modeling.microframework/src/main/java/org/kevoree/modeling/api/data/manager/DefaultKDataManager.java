@@ -699,8 +699,8 @@ public class DefaultKDataManager implements KDataManager {
         internal_resolve_universe_time(p_origin.view(), uuid, new Callback<KContentKey[]>() {
             @Override
             public void on(KContentKey[] resolutionResults) {
-                IndexRBTree[] trees = new IndexRBTree[0];
-                //trees[0] = resolutionResults[0].timeTree;
+                IndexRBTree[] trees = new IndexRBTree[1];
+                trees[0] = (IndexRBTree) _cache.get(KContentKey.createTimeTree(resolutionResults[0].universe(), resolutionResults[0].obj()));
                 callback.on(trees);
             }
         });
