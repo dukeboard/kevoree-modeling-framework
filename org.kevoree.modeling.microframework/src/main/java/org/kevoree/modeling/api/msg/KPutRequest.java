@@ -10,7 +10,7 @@ public class KPutRequest implements KMessage {
 
     public KContentPutRequest request;
 
-    public Long id;
+    public long id;
 
     @Override
     public String json() {

@@ -7,7 +7,7 @@ import org.kevoree.modeling.api.data.cache.KContentKey;
  */
 public class KGetRequest implements KMessage {
 
-    public Long id;
+    public long id;
 
     public KContentKey[] keys;
 

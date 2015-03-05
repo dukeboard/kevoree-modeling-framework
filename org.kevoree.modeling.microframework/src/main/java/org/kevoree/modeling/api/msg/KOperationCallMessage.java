@@ -7,7 +7,7 @@ import org.kevoree.modeling.api.json.JsonString;
  */
 public class KOperationCallMessage extends KEventMessage {
 
-    public Long id;
+    public long id;
     public int classIndex;
     public int opIndex;
     public String[] params;

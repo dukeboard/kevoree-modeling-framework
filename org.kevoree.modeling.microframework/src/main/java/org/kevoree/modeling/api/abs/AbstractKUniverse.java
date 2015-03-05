@@ -1,11 +1,6 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.KModel;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KDefer;
-import org.kevoree.modeling.api.KUniverse;
-import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.KEventListener;
+import org.kevoree.modeling.api.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,10 +37,13 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
     }
 
     @Override
-    public synchronized A time(long timePoint) {
-        return internal_create(timePoint);
+    public A time(long timePoint) {
+        if(timePoint <= KConfig.END_OF_TIME && timePoint >= KConfig.BEGINNING_OF_TIME){
+            return internal_create(timePoint);
+        } else {
+            throw new RuntimeException("The selected Time "+timePoint+" is out of the range of KMF managed time");
+        }
     }
-
 
     protected abstract A internal_create(long timePoint);
 
@@ -75,7 +73,7 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
 
     @Override
     public List<B> descendants() {
-        Long[] descendentsKey = _model.manager().descendantsUniverseKeys(_key);
+        long[] descendentsKey = _model.manager().descendantsUniverseKeys(_key);
         List<B> childs = new ArrayList<B>();
         for (int i = 0; i < descendentsKey.length; i++) {
             childs.add((B) _model.universe(descendentsKey[i]));

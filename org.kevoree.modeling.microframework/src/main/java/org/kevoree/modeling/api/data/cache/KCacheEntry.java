@@ -1,5 +1,6 @@
 package org.kevoree.modeling.api.data.cache;
 
+import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KInferState;
 import org.kevoree.modeling.api.data.manager.JsonRaw;
 import org.kevoree.modeling.api.meta.MetaClass;
@@ -54,7 +55,7 @@ public class KCacheEntry implements KCacheObject {
 
     @Override
     public String serialize() {
-        return JsonRaw.encode(this, null, metaClass, true, false);
+        return JsonRaw.encode(this, KConfig.NULL_LONG, metaClass, true, false);
     }
 
     @Override

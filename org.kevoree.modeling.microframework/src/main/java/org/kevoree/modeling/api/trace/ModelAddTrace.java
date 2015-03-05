@@ -16,7 +16,7 @@ public class ModelAddTrace implements ModelTrace {
 
     private long _paramUUID;
 
-    public ModelAddTrace(Long p_srcUUID, MetaReference p_reference, long p_paramUUID) {
+    public ModelAddTrace(long p_srcUUID, MetaReference p_reference, long p_paramUUID) {
         this._srcUUID = p_srcUUID;
         this._reference = p_reference;
         this._paramUUID = p_paramUUID;
@@ -76,8 +76,8 @@ public class ModelAddTrace implements ModelTrace {
     }
 
     @Override
-    public Long sourceUUID() {
-        return null;
+    public long sourceUUID() {
+        return _srcUUID;
     }
 
     public long paramUUID() {

@@ -10,7 +10,7 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
  */
 public class ModelSetTrace implements ModelTrace {
 
-    private Long _srcUUID;
+    private long _srcUUID;
 
     private MetaAttribute _attribute;
 
@@ -74,7 +74,7 @@ public class ModelSetTrace implements ModelTrace {
     }
 
     @Override
-    public Long sourceUUID() {
+    public long sourceUUID() {
         return _srcUUID;
     }
 

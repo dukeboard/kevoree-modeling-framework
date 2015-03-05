@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.json;
 
 import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKView;
@@ -9,12 +10,12 @@ import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.data.manager.JsonRaw;
+import org.kevoree.modeling.api.map.LongLongHashMap;
 import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaModel;
 import org.kevoree.modeling.api.meta.MetaType;
-import org.kevoree.modeling.api.rbtree.LongRBTree;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,7 +73,7 @@ public class JsonModelLoader {
                     currentToken = lexer.nextToken();
                 }
                 KObject rootElem = null;
-                Map<Long, Long> mappedKeys = new HashMap<Long, Long>();
+                LongLongHashMap mappedKeys = new LongLongHashMap(alls.size(), KConfig.CACHE_LOAD_FACTOR);
                 for (int i = 0; i < alls.size(); i++) {
                     try {
                         Map<String, Object> elem = alls.get(i);

@@ -64,7 +64,7 @@ public interface KDataManager {
 
     public long parentUniverseKey(long currentUniverseKey);
 
-    public Long[] descendantsUniverseKeys(Long currentUniverseKey);
+    public long[] descendantsUniverseKeys(long currentUniverseKey);
 
     public void reload(KContentKey[] keys, Callback<Throwable> callback);
 

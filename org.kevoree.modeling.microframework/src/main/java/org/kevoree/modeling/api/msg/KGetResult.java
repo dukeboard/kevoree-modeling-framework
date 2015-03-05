@@ -7,7 +7,7 @@ import org.kevoree.modeling.api.json.JsonString;
  */
 public class KGetResult implements KMessage {
 
-    public Long id;
+    public long id;
 
     public String[] values;
 

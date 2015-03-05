@@ -70,7 +70,7 @@ public class ModelRemoveTrace implements ModelTrace {
     }
 
     @Override
-    public Long sourceUUID() {
+    public long sourceUUID() {
         return _srcUUID;
     }
 

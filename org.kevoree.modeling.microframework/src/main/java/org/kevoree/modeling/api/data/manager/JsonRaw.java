@@ -1,5 +1,6 @@
 package org.kevoree.modeling.api.data.manager;
 
+import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
 import org.kevoree.modeling.api.abs.AbstractMetaReference;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
@@ -141,13 +142,13 @@ public class JsonRaw {
         }
     }
 
-    public static String encode(KCacheEntry raw, Long uuid, MetaClass p_metaClass, boolean endline, boolean isRoot) {
+    public static String encode(KCacheEntry raw, long uuid, MetaClass p_metaClass, boolean endline, boolean isRoot) {
         Meta[] metaElements = p_metaClass.metaElements();
         StringBuilder builder = new StringBuilder();
         builder.append("\t{\n");
         builder.append("\t\t\"" + JsonModelSerializer.KEY_META + "\": \"");
         builder.append(p_metaClass.metaName());
-        if (uuid != null) {
+        if (uuid != KConfig.NULL_LONG) {
             builder.append("\",\n");
             builder.append("\t\t\"" + JsonModelSerializer.KEY_UUID + "\": \"");
             builder.append(uuid);

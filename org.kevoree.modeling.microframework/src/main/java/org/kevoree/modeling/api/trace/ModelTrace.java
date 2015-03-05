@@ -12,6 +12,6 @@ public interface ModelTrace {
 
     public KActionType traceType();
 
-    public Long sourceUUID();
+    public long sourceUUID();
 
 }

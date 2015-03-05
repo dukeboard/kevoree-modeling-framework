@@ -13,7 +13,7 @@ public class ModelNewTrace implements ModelTrace {
 
     private MetaClass _metaClass;
 
-    public ModelNewTrace(Long p_srcUUID, MetaClass p_metaClass) {
+    public ModelNewTrace(long p_srcUUID, MetaClass p_metaClass) {
         this._srcUUID = p_srcUUID;
         this._metaClass = p_metaClass;
     }
@@ -29,7 +29,7 @@ public class ModelNewTrace implements ModelTrace {
     }
 
     @Override
-    public Long sourceUUID() {
+    public long sourceUUID() {
         return _srcUUID;
     }
 }

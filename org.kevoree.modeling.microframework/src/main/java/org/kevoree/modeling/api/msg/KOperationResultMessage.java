@@ -1,20 +1,18 @@
 package org.kevoree.modeling.api.msg;
 
-import org.kevoree.modeling.api.data.cache.KContentKey;
-
 /**
  * Created by duke on 23/02/15.
  */
-public class KOperationResultMessage extends KEventMessage{
+public class KOperationResultMessage extends KEventMessage {
 
-    public Long id;
+    public long id;
     public String value;
 
     @Override
     public String json() {
         StringBuilder buffer = new StringBuilder();
         KMessageHelper.printJsonStart(buffer);
-        KMessageHelper.printType(buffer,type());
+        KMessageHelper.printType(buffer, type());
         KMessageHelper.printElem(id, KMessageLoader.ID_NAME, buffer);
         KMessageHelper.printElem(key, KMessageLoader.KEY_NAME, buffer);
         KMessageHelper.printElem(value, KMessageLoader.VALUE_NAME, buffer);

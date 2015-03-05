@@ -5,7 +5,7 @@ package org.kevoree.modeling.api.msg;
  */
 public class KPutResult implements KMessage {
 
-    public Long id;
+    public long id;
 
     @Override
     public String json() {

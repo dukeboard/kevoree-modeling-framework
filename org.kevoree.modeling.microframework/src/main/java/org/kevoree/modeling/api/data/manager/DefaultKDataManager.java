@@ -122,21 +122,30 @@ public class DefaultKDataManager implements KDataManager {
     }
 
     @Override
-    public Long[] descendantsUniverseKeys(Long currentUniverseKey) {
+    public long[] descendantsUniverseKeys(long currentUniverseKey) {
         LongLongHashMap cached = globalUniverseOrder();
         if (cached != null) {
-            List<Long> nextElems = new ArrayList<Long>();
+            LongLongHashMap temp = new LongLongHashMap(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
             cached.each(new LongLongHashMapCallBack() {
                 @Override
                 public void on(long key, long value) {
                     if (value == currentUniverseKey && key != currentUniverseKey) {
-                        nextElems.add(key);
+                        temp.put(key, value);
                     }
                 }
             });
-            return nextElems.toArray(new Long[nextElems.size()]);
+            long[] result = new long[temp.size()];
+            final int[] insertIndex = {0};
+            temp.each(new LongLongHashMapCallBack() {
+                @Override
+                public void on(long key, long value) {
+                    result[insertIndex[0]] = key;
+                    insertIndex[0]++;
+                }
+            });
+            return result;
         } else {
-            return new Long[0];
+            return new long[0];
         }
     }
 
