@@ -37,16 +37,17 @@ public class KFilterNotAttributeAction implements KTraversalAction {
         if (p_inputs == null || p_inputs.length == 0) {
             _next.execute(p_inputs);
         } else {
-            KView currentView = p_inputs[0].view();
-            Set<KObject> nextStep = new HashSet<KObject>();
+            boolean[] selectedIndexes = new boolean[p_inputs.length];
+            int nbSelected = 0;
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
-                    KCacheEntry raw = currentView.universe().model().manager().entry(loopObj, AccessMode.READ);
+                    KCacheEntry raw = loopObj.universe().model().manager().entry(loopObj, AccessMode.READ);
                     if (raw != null) {
                         if (_attribute == null) {
                             if (_expectedValue == null) {
-                                nextStep.add(loopObj);
+                                selectedIndexes[i] = true;
+                                nbSelected++;
                             } else {
                                 boolean addToNext = true;
                                 for (int j = 0; j < loopObj.metaClass().metaAttributes().length; j++) {
@@ -67,7 +68,8 @@ public class KFilterNotAttributeAction implements KTraversalAction {
                                     }
                                 }
                                 if (addToNext) {
-                                    nextStep.add(loopObj);
+                                    selectedIndexes[i] = true;
+                                    nbSelected++;
                                 }
                             }
                         } else {
@@ -76,12 +78,14 @@ public class KFilterNotAttributeAction implements KTraversalAction {
                                 Object resolved = raw.get(translatedAtt.index());
                                 if (_expectedValue == null) {
                                     if (resolved != null) {
-                                        nextStep.add(loopObj);
+                                        selectedIndexes[i] = true;
+                                        nbSelected++;
                                     }
                                 } else {
                                     if (resolved == null) {
                                         if (!_expectedValue.toString().equals("*")) {
-                                            nextStep.add(loopObj);
+                                            selectedIndexes[i] = true;
+                                            nbSelected++;
                                         }
                                     } else {
 
@@ -91,7 +95,8 @@ public class KFilterNotAttributeAction implements KTraversalAction {
                                             if (resolved.toString().matches(_expectedValue.toString().replace("*", ".*"))) {
                                                 //noop
                                             } else {
-                                                nextStep.add(loopObj);
+                                                selectedIndexes[i] = true;
+                                                nbSelected++;
                                             }
                                         }
                                     }
@@ -105,7 +110,15 @@ public class KFilterNotAttributeAction implements KTraversalAction {
                     e.printStackTrace();
                 }
             }
-            _next.execute(nextStep.toArray(new KObject[nextStep.size()]));
+            KObject[] nextStepElement = new KObject[nbSelected];
+            int inserted = 0;
+            for (int i = 0; i < p_inputs.length; i++) {
+                if (selectedIndexes[i]) {
+                    nextStepElement[inserted] = p_inputs[i];
+                    inserted++;
+                }
+            }
+            _next.execute(nextStepElement);
         }
     }
 

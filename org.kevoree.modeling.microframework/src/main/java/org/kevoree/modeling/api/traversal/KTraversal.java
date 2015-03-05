@@ -28,6 +28,8 @@ public interface KTraversal {
 
     public KTraversal parents();
 
+    public KTraversal removeDuplicate();
+
     public KDefer<KObject[]> then();
 
     public KDefer<Object[]> map(MetaAttribute attribute);

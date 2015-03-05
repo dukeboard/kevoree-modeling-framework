@@ -5,9 +5,6 @@ import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by duke on 19/12/14.
  */
@@ -29,15 +26,26 @@ public class KMapAction implements KTraversalAction {
 
     @Override
     public void execute(KObject[] inputs) {
-        List<Object> collected = new ArrayList<Object>();
+        Object[] selected = new Object[inputs.length];
+        int nbElem = 0;
         for (int i = 0; i < inputs.length; i++) {
             if (inputs[i] != null) {
                 Object resolved = inputs[i].get(_attribute);
                 if (resolved != null) {
-                    collected.add(resolved);
+                    selected[i] = resolved;
+                    nbElem++;
                 }
             }
         }
-        _finalCallback.on(collected.toArray(new Object[inputs.length]));
+        //trim the array
+        Object[] trimmed = new Object[nbElem];
+        int nbInserted = 0;
+        for (int i = 0; i < inputs.length; i++) {
+            if (selected[i] != null) {
+                trimmed[nbInserted] = selected[i];
+                nbInserted++;
+            }
+        }
+        _finalCallback.on(trimmed);
     }
 }

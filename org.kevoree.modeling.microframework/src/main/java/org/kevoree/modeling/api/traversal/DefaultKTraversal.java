@@ -5,17 +5,7 @@ import org.kevoree.modeling.api.KDefer;
 import org.kevoree.modeling.api.abs.AbstractKDeferWrapper;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.traversal.actions.KFilterAction;
-import org.kevoree.modeling.api.traversal.actions.KFilterAttributeAction;
-import org.kevoree.modeling.api.traversal.actions.KFilterAttributeQueryAction;
-import org.kevoree.modeling.api.traversal.actions.KFilterNotAttributeAction;
-import org.kevoree.modeling.api.traversal.actions.KFinalAction;
-import org.kevoree.modeling.api.traversal.actions.KMapAction;
-import org.kevoree.modeling.api.traversal.actions.KParentsAction;
-import org.kevoree.modeling.api.traversal.actions.KReverseAction;
-import org.kevoree.modeling.api.traversal.actions.KReverseQueryAction;
-import org.kevoree.modeling.api.traversal.actions.KTraverseAction;
-import org.kevoree.modeling.api.traversal.actions.KTraverseQueryAction;
+import org.kevoree.modeling.api.traversal.actions.*;
 
 /**
  * Created by duke on 18/12/14.
@@ -133,6 +123,17 @@ public class DefaultKTraversal implements KTraversal {
             throw new RuntimeException(TERMINATED_MESSAGE);
         }
         KParentsAction tempAction = new KParentsAction();
+        _lastAction.chain(tempAction);
+        _lastAction = tempAction;
+        return this;
+    }
+
+    @Override
+    public KTraversal removeDuplicate() {
+        if (_terminated) {
+            throw new RuntimeException(TERMINATED_MESSAGE);
+        }
+        KRemoveDuplicateAction tempAction = new KRemoveDuplicateAction();
         _lastAction.chain(tempAction);
         _lastAction = tempAction;
         return this;

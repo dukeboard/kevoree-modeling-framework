@@ -35,12 +35,14 @@ public class KFilterAttributeQueryAction implements KTraversalAction {
             _next.execute(p_inputs);
             return;
         } else {
-            Set<KObject> nextStep = new HashSet<KObject>();
+            boolean[] selectedIndexes = new boolean[p_inputs.length];
+            int nbSelected = 0;
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
                     if (_attributeQuery == null) {
-                        nextStep.add(loopObj);
+                        selectedIndexes[i] = true;
+                        nbSelected++;
                     } else {
                         Map<String, KQueryParam> params = buildParams(_attributeQuery);
                         boolean selectedForNext = true;
@@ -76,7 +78,8 @@ public class KFilterAttributeQueryAction implements KTraversalAction {
                             }
                         }
                         if (selectedForNext) {
-                            nextStep.add(loopObj);
+                            selectedIndexes[i] = true;
+                            nbSelected++;
                         }
                     }
 
@@ -84,7 +87,15 @@ public class KFilterAttributeQueryAction implements KTraversalAction {
                     e.printStackTrace();
                 }
             }
-            _next.execute(nextStep.toArray(new KObject[nextStep.size()]));
+            KObject[] nextStepElement = new KObject[nbSelected];
+            int inserted = 0;
+            for (int i = 0; i < p_inputs.length; i++) {
+                if (selectedIndexes[i]) {
+                    nextStepElement[inserted] = p_inputs[i];
+                    inserted++;
+                }
+            }
+            _next.execute(nextStepElement);
         }
     }
 

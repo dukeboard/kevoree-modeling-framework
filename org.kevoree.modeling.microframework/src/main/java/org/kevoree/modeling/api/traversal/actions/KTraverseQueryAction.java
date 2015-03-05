@@ -1,11 +1,14 @@
 package org.kevoree.modeling.api.traversal.actions;
 
 import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
+import org.kevoree.modeling.api.map.LongLongHashMap;
+import org.kevoree.modeling.api.map.LongLongHashMapCallBack;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
 import org.kevoree.modeling.api.util.ArrayUtils;
@@ -40,7 +43,7 @@ public class KTraverseQueryAction implements KTraversalAction {
             return;
         } else {
             AbstractKView currentView = (AbstractKView) p_inputs[0].view();
-            Set<Long> nextIds = new HashSet<Long>();
+            LongLongHashMap nextIds = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
@@ -54,7 +57,7 @@ public class KTraverseQueryAction implements KTraversalAction {
                                     long[] resolvedArr = (long[]) resolved;
                                     for (int k = 0; k < resolvedArr.length; k++) {
                                         Long idResolved = resolvedArr[k];
-                                        nextIds.add(idResolved);
+                                        nextIds.put(idResolved, idResolved);
                                     }
                                 }
                             }
@@ -78,7 +81,7 @@ public class KTraverseQueryAction implements KTraversalAction {
                                     if (resolved != null) {
                                         long[] resolvedCasted = (long[]) resolved;
                                         for (int j = 0; j < resolvedCasted.length; j++) {
-                                            nextIds.add(resolvedCasted[j]);
+                                            nextIds.put(resolvedCasted[j], resolvedCasted[j]);
                                         }
                                     }
                                 }
@@ -89,8 +92,17 @@ public class KTraverseQueryAction implements KTraversalAction {
                     e.printStackTrace();
                 }
             }
+            long[] trimmed = new long[nextIds.size()];
+            final int[] inserted = {0};
+            nextIds.each(new LongLongHashMapCallBack() {
+                @Override
+                public void on(long key, long value) {
+                    trimmed[inserted[0]] = key;
+                    inserted[0]++;
+                }
+            });
             //call
-            currentView.internalLookupAll(ArrayUtils.flatSet(nextIds), new Callback<KObject[]>() {
+            currentView.internalLookupAll(trimmed, new Callback<KObject[]>() {
                 @Override
                 public void on(KObject[] kObjects) {
                     _next.execute(kObjects);

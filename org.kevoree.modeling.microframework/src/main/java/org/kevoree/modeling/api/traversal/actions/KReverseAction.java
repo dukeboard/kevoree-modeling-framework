@@ -1,20 +1,19 @@
 package org.kevoree.modeling.api.traversal.actions;
 
 import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.data.manager.Index;
+import org.kevoree.modeling.api.map.LongHashMap;
+import org.kevoree.modeling.api.map.LongHashMapCallBack;
+import org.kevoree.modeling.api.map.LongLongHashMap;
+import org.kevoree.modeling.api.map.LongLongHashMapCallBack;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
-import org.kevoree.modeling.api.util.ArrayUtils;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by duke on 18/12/14.
@@ -41,8 +40,8 @@ public class KReverseAction implements KTraversalAction {
             return;
         } else {
             final AbstractKView currentView = (AbstractKView) p_inputs[0].view();
-            final Set<Long> nextIds = new HashSet<Long>();
-            final Map<Long, KObject> toFilter = new HashMap<Long, KObject>();
+            final LongLongHashMap nextIds = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+            final LongHashMap<KObject> toFilter = new LongHashMap<KObject>(p_inputs.length, KConfig.CACHE_LOAD_FACTOR);
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
@@ -52,7 +51,7 @@ public class KReverseAction implements KTraversalAction {
                         if (elementsKeys != null) {
                             if (_reference == null) {
                                 for (int j = 0; j < elementsKeys.length; j++) {
-                                    nextIds.add(elementsKeys[j]);
+                                    nextIds.put(elementsKeys[j], elementsKeys[j]);
                                 }
                             } else {
                                 for (int j = 0; j < elementsKeys.length; j++) {
@@ -65,29 +64,55 @@ public class KReverseAction implements KTraversalAction {
                     e.printStackTrace();
                 }
             }
-            if (toFilter.keySet().size() == 0) {
-                currentView.internalLookupAll(ArrayUtils.flatSet(nextIds), new Callback<KObject[]>() {
+            if (toFilter.size() == 0) {
+                long[] trimmed = new long[nextIds.size()];
+                final int[] inserted = {0};
+                nextIds.each(new LongLongHashMapCallBack() {
+                    @Override
+                    public void on(long key, long value) {
+                        trimmed[inserted[0]] = key;
+                        inserted[0]++;
+                    }
+                });
+                currentView.internalLookupAll(trimmed, new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         _next.execute(kObjects);
                     }
                 });
             } else {
-                final Long[] toFilterKeys = toFilter.keySet().toArray(new Long[toFilter.keySet().size()]);
-                currentView.internalLookupAll(ArrayUtils.flatSet(toFilter.keySet()), new Callback<KObject[]>() {
+                long[] trimmed = new long[toFilter.size()];
+                final int[] inserted = {0};
+                toFilter.each(new LongHashMapCallBack<KObject>() {
+                    @Override
+                    public void on(long key, KObject value) {
+                        trimmed[inserted[0]] = key;
+                        inserted[0]++;
+                    }
+                });
+                currentView.internalLookupAll(trimmed, new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
-                        for (int i = 0; i < toFilterKeys.length; i++) {
+                        for (int i = 0; i < trimmed.length; i++) {
                             if (kObjects[i] != null) {
-                                MetaReference[] references = kObjects[i].referencesWith(toFilter.get(toFilterKeys[i]));
+                                MetaReference[] references = kObjects[i].referencesWith(toFilter.get(trimmed[i]));
                                 for (int h = 0; h < references.length; h++) {
                                     if (references[h].metaName().equals(_reference.metaName())) {
-                                        nextIds.add(kObjects[i].uuid());
+                                        nextIds.put(kObjects[i].uuid(), kObjects[i].uuid());
                                     }
                                 }
                             }
                         }
-                        currentView.internalLookupAll(ArrayUtils.flatSet(nextIds), new Callback<KObject[]>() {
+                        long[] trimmed2 = new long[nextIds.size()];
+                        final int[] inserted2 = {0};
+                        nextIds.each(new LongLongHashMapCallBack() {
+                            @Override
+                            public void on(long key, long value) {
+                                trimmed2[inserted2[0]] = key;
+                                inserted2[0]++;
+                            }
+                        });
+                        currentView.internalLookupAll(trimmed2, new Callback<KObject[]>() {
                             @Override
                             public void on(KObject[] kObjects) {
                                 _next.execute(kObjects);

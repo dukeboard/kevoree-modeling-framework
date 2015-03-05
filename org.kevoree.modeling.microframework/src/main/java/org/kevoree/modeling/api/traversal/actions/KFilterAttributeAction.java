@@ -1,15 +1,11 @@
 package org.kevoree.modeling.api.traversal.actions;
 
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Created by duke on 19/12/14.
@@ -38,16 +34,17 @@ public class KFilterAttributeAction implements KTraversalAction {
             _next.execute(p_inputs);
             return;
         } else {
-            KView currentView = p_inputs[0].view();
-            Set<KObject> nextStep = new HashSet<KObject>();
+            boolean[] selectedIndexes = new boolean[p_inputs.length];
+            int nbSelected = 0;
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
-                    KCacheEntry raw = currentView.universe().model().manager().entry(loopObj, AccessMode.READ);
+                    KCacheEntry raw = p_inputs[0].universe().model().manager().entry(loopObj, AccessMode.READ);
                     if (raw != null) {
                         if (_attribute == null) {
                             if (_expectedValue == null) {
-                                nextStep.add(loopObj);
+                                selectedIndexes[i] = true;
+                                nbSelected++;
                             } else {
                                 boolean addToNext = false;
                                 for (int j = 0; j < loopObj.metaClass().metaAttributes().length; j++) {
@@ -68,7 +65,8 @@ public class KFilterAttributeAction implements KTraversalAction {
                                     }
                                 }
                                 if (addToNext) {
-                                    nextStep.add(loopObj);
+                                    selectedIndexes[i] = true;
+                                    nbSelected++;
                                 }
                             }
                         } else {
@@ -77,19 +75,23 @@ public class KFilterAttributeAction implements KTraversalAction {
                                 Object resolved = raw.get(translatedAtt.index());
                                 if (_expectedValue == null) {
                                     if (resolved == null) {
-                                        nextStep.add(loopObj);
+                                        selectedIndexes[i] = true;
+                                        nbSelected++;
                                     }
                                 } else {
                                     if (resolved == null) {
                                         if (_expectedValue.toString().equals("*")) {
-                                            nextStep.add(loopObj);
+                                            selectedIndexes[i] = true;
+                                            nbSelected++;
                                         }
                                     } else {
                                         if (resolved.equals(_expectedValue)) {
-                                            nextStep.add(loopObj);
+                                            selectedIndexes[i] = true;
+                                            nbSelected++;
                                         } else {
                                             if (resolved.toString().matches(_expectedValue.toString().replace("*", ".*"))) {
-                                                nextStep.add(loopObj);
+                                                selectedIndexes[i] = true;
+                                                nbSelected++;
                                             }
                                         }
                                     }
@@ -103,7 +105,15 @@ public class KFilterAttributeAction implements KTraversalAction {
                     e.printStackTrace();
                 }
             }
-            _next.execute(nextStep.toArray(new KObject[nextStep.size()]));
+            KObject[] nextStepElement = new KObject[nbSelected];
+            int inserted = 0;
+            for (int i = 0; i < p_inputs.length; i++) {
+                if (selectedIndexes[i]) {
+                    nextStepElement[inserted] = p_inputs[i];
+                    inserted++;
+                }
+            }
+            _next.execute(nextStepElement);
         }
     }
 

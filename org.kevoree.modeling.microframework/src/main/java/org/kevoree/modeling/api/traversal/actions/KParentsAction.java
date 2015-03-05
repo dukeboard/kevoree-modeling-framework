@@ -1,18 +1,16 @@
 package org.kevoree.modeling.api.traversal.actions;
 
 import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.data.manager.Index;
+import org.kevoree.modeling.api.map.LongLongHashMap;
+import org.kevoree.modeling.api.map.LongLongHashMapCallBack;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
-import org.kevoree.modeling.api.util.ArrayUtils;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Created by duke on 18/12/14.
@@ -20,9 +18,6 @@ import java.util.Set;
 public class KParentsAction implements KTraversalAction {
 
     private KTraversalAction _next;
-
-    public KParentsAction() {
-    }
 
     @Override
     public void chain(KTraversalAction p_next) {
@@ -36,23 +31,30 @@ public class KParentsAction implements KTraversalAction {
             return;
         } else {
             AbstractKView currentView = (AbstractKView) p_inputs[0].view();
-            Set<Long> nextIds = new HashSet<Long>();
+            LongLongHashMap selected = new LongLongHashMap(p_inputs.length, KConfig.CACHE_LOAD_FACTOR);
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
-                    KCacheEntry raw = currentView.universe().model().manager().entry(loopObj, AccessMode.READ);
+                    KCacheEntry raw = loopObj.universe().model().manager().entry(loopObj, AccessMode.READ);
                     long[] resolved = raw.getRef(Index.PARENT_INDEX);
-                    if (resolved != null) {
-                        for (int j = 0; j < resolved.length; j++) {
-                            nextIds.add(resolved[j]);
-                        }
+                    if (resolved != null && resolved.length > 0) {
+                        selected.put(resolved[0], resolved[0]);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
+            long[] trimmed = new long[selected.size()];
+            final int[] nbInserted = {0};
+            selected.each(new LongLongHashMapCallBack() {
+                @Override
+                public void on(long key, long value) {
+                    trimmed[nbInserted[0]] = key;
+                    nbInserted[0]++;
+                }
+            });
             //call
-            currentView.internalLookupAll(ArrayUtils.flatSet(nextIds), new Callback<KObject[]>() {
+            currentView.internalLookupAll(trimmed, new Callback<KObject[]>() {
                 @Override
                 public void on(KObject[] kObjects) {
                     _next.execute(kObjects);
