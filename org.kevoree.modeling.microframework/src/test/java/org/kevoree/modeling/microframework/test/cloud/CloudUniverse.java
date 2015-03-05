@@ -14,7 +14,7 @@ public class CloudUniverse extends AbstractKUniverse<CloudView, CloudUniverse, C
     }
 
     @Override
-    protected CloudView internal_create(Long timePoint) {
+    protected CloudView internal_create(long timePoint) {
         return new CloudViewImpl(timePoint,this);
     }
 

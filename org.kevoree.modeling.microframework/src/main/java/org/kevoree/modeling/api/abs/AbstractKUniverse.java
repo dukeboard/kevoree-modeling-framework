@@ -47,7 +47,7 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
     }
 
 
-    protected abstract A internal_create(Long timePoint);
+    protected abstract A internal_create(long timePoint);
 
     @Override
     public boolean equals(Object obj) {

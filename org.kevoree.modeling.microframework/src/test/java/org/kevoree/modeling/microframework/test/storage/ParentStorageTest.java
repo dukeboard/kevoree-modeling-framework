@@ -42,7 +42,7 @@ public class ParentStorageTest {
 
         Long val = 1L;
 
-        Assert.assertEquals(n1.parentUuid(), val);
+        Assert.assertTrue(n1.parentUuid() == val);
         try {
             root.getChildren(null);
         } catch (Exception e) {
@@ -98,7 +98,7 @@ public class ParentStorageTest {
         root.addChildren(n1);
         root.addChildren(n2);
         Long val = 1L;
-        Assert.assertEquals(n1.parentUuid(), val);
+        Assert.assertTrue(n1.parentUuid() == val);
         Assert.assertEquals(n1.referenceInParent(), MetaNode.REF_CHILDREN);
 
 

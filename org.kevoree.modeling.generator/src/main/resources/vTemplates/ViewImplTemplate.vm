@@ -7,16 +7,16 @@ public class ${context.metaModelName}ViewImpl extends org.kevoree.modeling.api.a
     }
 
     @Override
-    protected org.kevoree.modeling.api.KObject internalCreate(org.kevoree.modeling.api.meta.MetaClass p_clazz, org.kevoree.modeling.api.rbtree.LongRBTree p_universeTree, long p_key) {
+    protected org.kevoree.modeling.api.KObject internalCreate(org.kevoree.modeling.api.meta.MetaClass p_clazz, long p_key) {
         if (p_clazz == null) {
             return null;
         }
         switch (p_clazz.index()) {
 #foreach($class in $context.model.getClasses())
     #set($lastIdx = $class.fqn.lastIndexOf(".")+1)
-            case ${class.index} : return new ${class.fqn.substring(0,$class.fqn.lastIndexOf("."))}.impl.${class.fqn.substring($lastIdx)}Impl(this, p_key, p_universeTree, p_clazz);
+            case ${class.index} : return new ${class.fqn.substring(0,$class.fqn.lastIndexOf("."))}.impl.${class.fqn.substring($lastIdx)}Impl(this, p_key, p_clazz);
 #end
-            default : return new org.kevoree.modeling.api.reflexive.DynamicKObject(this, p_key, p_universeTree, p_clazz);
+            default : return new org.kevoree.modeling.api.reflexive.DynamicKObject(this, p_key, p_clazz);
         }
     }
 

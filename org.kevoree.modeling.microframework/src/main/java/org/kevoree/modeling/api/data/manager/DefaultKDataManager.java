@@ -112,17 +112,12 @@ public class DefaultKDataManager implements KDataManager {
     }
 
     @Override
-    public Long parentUniverseKey(Long currentUniverseKey) {
+    public long parentUniverseKey(long currentUniverseKey) {
         LongLongHashMap cached = globalUniverseOrder();
         if (cached != null) {
-            long lookupResult = cached.get(currentUniverseKey);
-            if (lookupResult != KConfig.NULL_LONG) {
-                return lookupResult;
-            } else {
-                return null;
-            }
+            return cached.get(currentUniverseKey);
         } else {
-            return null;
+            return KConfig.NULL_LONG;
         }
     }
 
@@ -265,8 +260,8 @@ public class DefaultKDataManager implements KDataManager {
                                                                     globalUniverseTree = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
                                                                 }
                                                                 _cache.put(KContentKey.createGlobalUniverseTree(), globalUniverseTree);
-                                                                Long newUniIndex = Long.parseLong(uniIndexPayload);
-                                                                Long newObjIndex = Long.parseLong(objIndexPayload);
+                                                                long newUniIndex = Long.parseLong(uniIndexPayload);
+                                                                long newObjIndex = Long.parseLong(objIndexPayload);
                                                                 _universeKeyCalculator = new KeyCalculator(finalNewPrefix, newUniIndex);
                                                                 _objectKeyCalculator = new KeyCalculator(finalNewPrefix, newObjIndex);
                                                                 isConnected = true;
@@ -300,7 +295,7 @@ public class DefaultKDataManager implements KDataManager {
     @Override
     public KCacheEntry entry(KObject origin, AccessMode accessMode) {
         LongLongHashMap objectUniverseTree = (LongLongHashMap) _cache.get(KContentKey.createUniverseTree(origin.uuid()));
-        Long resolvedUniverse = ResolutionHelper.resolve_universe(globalUniverseOrder(), objectUniverseTree, origin.now(), origin.view().universe().key());
+        long resolvedUniverse = ResolutionHelper.resolve_universe(globalUniverseOrder(), objectUniverseTree, origin.now(), origin.view().universe().key());
         IndexRBTree timeTree = (IndexRBTree) _cache.get(KContentKey.createTimeTree(resolvedUniverse, origin.uuid()));
         if (timeTree == null) {
             throw new RuntimeException(OUT_OF_CACHE_MESSAGE + " : TimeTree not found for " + KContentKey.createTimeTree(resolvedUniverse, origin.uuid()) + " from " + origin.universe().key() + "/" + resolvedUniverse);

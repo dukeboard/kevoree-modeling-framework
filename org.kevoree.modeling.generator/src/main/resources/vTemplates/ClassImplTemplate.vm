@@ -3,8 +3,8 @@ package ${classDeclaration.pack}.impl;
 
 public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.AbstractKObject implements ${classDeclaration.pack}.${classDeclaration.name} {
 
-    public ${classDeclaration.name}Impl(${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}View p_factory, long p_uuid, org.kevoree.modeling.api.rbtree.LongRBTree p_universeTree, org.kevoree.modeling.api.meta.MetaClass p_metaClass) {
-        super(p_factory, p_uuid, p_universeTree, p_metaClass);
+    public ${classDeclaration.name}Impl(${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}View p_factory, long p_uuid, org.kevoree.modeling.api.meta.MetaClass p_metaClass) {
+        super(p_factory, p_uuid, p_metaClass);
     }
 
 #foreach($attribute in $classDeclaration.attributes)

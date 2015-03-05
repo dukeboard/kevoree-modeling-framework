@@ -7,7 +7,7 @@ public class ${context.metaModelName}Universe extends org.kevoree.modeling.api.a
     }
 
     @Override
-    protected ${context.metaModelName}View internal_create(Long timePoint) {
+    protected ${context.metaModelName}View internal_create(long timePoint) {
         return new ${context.metaModelPackage}.impl.${context.metaModelName}ViewImpl(timePoint,(org.kevoree.modeling.api.abs.AbstractKUniverse)this);
     }
 

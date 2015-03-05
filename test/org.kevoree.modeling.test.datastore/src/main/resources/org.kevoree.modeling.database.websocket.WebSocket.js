@@ -26,6 +26,8 @@ var org;
                             this._clientConnection = new WebSocket(this._connectionUri);
                             this._clientConnection.onmessage = function (message) {
                                 var parsed = JSON.parse(message.data);
+                                var messagesToSendLocally = [];
+                                var keysToReload = [];
                                 for (var i = 0; i < parsed.length; i++) {
                                     var rawMessage = parsed[i];
                                     var msg = org.kevoree.modeling.api.msg.KMessageLoader.load(JSON.stringify(rawMessage));
@@ -48,11 +50,35 @@ var org;
                                                 _this._atomicGetCallbacks.remove(atomicGetResult.id)(atomicGetResult.value, null);
                                             }
                                             break;
-                                        default:
+                                        case org.kevoree.modeling.api.msg.KMessageLoader.OPERATION_CALL_TYPE:
+                                        case org.kevoree.modeling.api.msg.KMessageLoader.OPERATION_RESULT_TYPE:
                                             {
-                                                console.log("MessageType not supported:" + msg.type());
+                                                _this._manager.operationManager().operationEventReceived(msg);
                                             }
+                                            break;
+                                        case org.kevoree.modeling.api.msg.KMessageLoader.EVENT_TYPE:
+                                            {
+                                                var key = msg.key;
+                                                keysToReload.push(key);
+                                                if (key.segment() == org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_RAW) {
+                                                    messagesToSendLocally.push(msg);
+                                                }
+                                            }
+                                            break;
+                                        default: {
+                                            console.log("MessageType not supported:" + msg.type());
+                                        }
                                     }
+                                }
+                                if (messagesToSendLocally.length > 0) {
+                                    _this._manager.reload(keysToReload, (function (error) {
+                                        if (error != null) {
+                                            error.printStackTrace();
+                                        }
+                                        else {
+                                            this._localEventListeners.dispatch(messagesToSendLocally);
+                                        }
+                                    }).bind(_this));
                                 }
                             };
                             this._clientConnection.onerror = function (error) {
@@ -113,44 +139,37 @@ var org;
                         WebSocketClient.prototype.remove = function (keys, error) {
                             console.error("Not implemented yet");
                         };
-                        WebSocketClient.prototype.registerListener = function (origin, listener, scope) {
-                            this._localEventListeners.registerListener(origin, listener, scope);
+                        WebSocketClient.prototype.registerListener = function (origin, listener, subTree) {
+                            this._localEventListeners.registerListener(origin, listener, subTree);
                         };
-                        WebSocketClient.prototype.unregister = function (listener) {
-                            this._localEventListeners.unregister(listener);
+                        WebSocketClient.prototype.unregister = function (origin, listener, subTree) {
+                            this._localEventListeners.unregister(origin, listener, subTree);
                         };
                         WebSocketClient.prototype.setManager = function (manager) {
                             this._manager = manager;
+                            this._localEventListeners.setManager(manager);
                         };
                         WebSocketClient.prototype.send = function (msgs) {
-                            this.fireLocalMessages(msgs);
                             //Send to remote
                             var payload = [];
+                            var messagesToFire = [];
                             for (var i = 0; i < msgs.length; i++) {
                                 payload.push(msgs[i].json());
+                                var key = msgs[i].key;
+                                if (key.segment() == org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_RAW) {
+                                    if (msgs[i].type() != org.kevoree.modeling.api.msg.KMessageLoader.OPERATION_CALL_TYPE || msgs[i].type() != org.kevoree.modeling.api.msg.KMessageLoader.OPERATION_RESULT_TYPE) {
+                                        messagesToFire.push(msgs[i]);
+                                    }
+                                }
                             }
+                            this._localEventListeners.dispatch(messagesToFire);
                             this._clientConnection.send(JSON.stringify(payload));
                         };
-                        WebSocketClient.prototype.fireLocalMessages = function (msgs) {
-                            var _previousKey = null;
-                            var _currentView = null;
-                            for (var i = 0; i < msgs.length; i++) {
-                                var sourceKey = msgs[i].key;
-                                if (_previousKey == null || sourceKey.part1() != _previousKey.part1() || sourceKey.part2() != _previousKey.part2()) {
-                                    _currentView = this._manager.model().universe(sourceKey.part1()).time(sourceKey.part2());
-                                    _previousKey = sourceKey;
-                                }
-                                var tempIndex = i;
-                                _currentView.lookup(sourceKey.part3()).then(function (kObject) {
-                                    if (kObject != null) {
-                                        var modifiedMetas = [];
-                                        for (var j = 0; j < msgs[tempIndex].meta.length; j++) {
-                                            modifiedMetas.push(kObject.metaClass().meta(msgs[tempIndex].meta[j]));
-                                        }
-                                        this._localEventListeners.dispatch(kObject, modifiedMetas);
-                                    }
-                                });
-                            }
+                        WebSocketClient.prototype.sendOperation = function (operation) {
+                            //Send to remote
+                            var payload = [];
+                            payload.push(operation.json());
+                            this._clientConnection.send(JSON.stringify(payload));
                         };
                         return WebSocketClient;
                     })();

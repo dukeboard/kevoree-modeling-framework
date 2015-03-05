@@ -26,7 +26,7 @@ public interface KObject {
 
     public KDefer<KObject> parent();
 
-    public Long parentUuid();
+    public long parentUuid();
 
     public KDefer<KObject[]> select(String query);
 

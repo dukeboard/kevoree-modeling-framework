@@ -76,7 +76,7 @@ public class KContentKey {
         return cached_global_universeTree;
     }
 
-    public static KContentKey createUniverseTree(Long p_objectID) {
+    public static KContentKey createUniverseTree(long p_objectID) {
         return new KContentKey(GLOBAL_SEGMENT_DATA_HASH_INDEX, KConfig.NULL_LONG, KConfig.NULL_LONG, p_objectID);
     }
 
@@ -89,15 +89,15 @@ public class KContentKey {
         return cached_root_universeTree;
     }
 
-    public static KContentKey createRootTimeTree(Long universeID) {
+    public static KContentKey createRootTimeTree(long universeID) {
         return new KContentKey(GLOBAL_SEGMENT_DATA_ROOT_INDEX, universeID, KConfig.NULL_LONG, KConfig.NULL_LONG);
     }
 
-    public static KContentKey createTimeTree(Long p_universeID, Long p_objectID) {
+    public static KContentKey createTimeTree(long p_universeID, long p_objectID) {
         return new KContentKey(GLOBAL_SEGMENT_DATA_INDEX, p_universeID, KConfig.NULL_LONG, p_objectID);
     }
 
-    public static KContentKey createObject(Long p_universeID, Long p_quantaID, Long p_objectID) {
+    public static KContentKey createObject(long p_universeID, long p_quantaID, long p_objectID) {
         return new KContentKey(GLOBAL_SEGMENT_DATA_RAW, p_universeID, p_quantaID, p_objectID);
     }
 

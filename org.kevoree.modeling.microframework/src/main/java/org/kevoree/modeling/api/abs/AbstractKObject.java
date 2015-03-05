@@ -1,18 +1,6 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KActionType;
-import org.kevoree.modeling.api.KInfer;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KDefer;
-import org.kevoree.modeling.api.KUniverse;
-import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.ModelAttributeVisitor;
-import org.kevoree.modeling.api.KEventListener;
-import org.kevoree.modeling.api.ModelVisitor;
-import org.kevoree.modeling.api.TraceRequest;
-import org.kevoree.modeling.api.VisitRequest;
-import org.kevoree.modeling.api.VisitResult;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.data.manager.Index;
@@ -104,7 +92,7 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public Long parentUuid() {
+    public long parentUuid() {
         KCacheEntry raw = _view.universe().model().manager().entry(this, AccessMode.READ);
         if (raw != null) {
             long[] parentKey = raw.getRef(Index.PARENT_INDEX);
@@ -112,7 +100,7 @@ public abstract class AbstractKObject implements KObject {
                 return parentKey[0];
             }
         }
-        return null;
+        return KConfig.NULL_LONG;
     }
 
     @Override
@@ -122,8 +110,8 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public KDefer<KObject> parent() {
-        Long parentKID = parentUuid();
-        if (parentKID == null) {
+        long parentKID = parentUuid();
+        if (parentKID == KConfig.NULL_LONG) {
             AbstractKDeferWrapper<KObject> task = new AbstractKDeferWrapper<KObject>();
             task.initCallback().on(null);
             return task;
@@ -264,7 +252,7 @@ public abstract class AbstractKObject implements KObject {
     }
 
     private void removeFromContainer(final KObject param) {
-        if (param != null && param.parentUuid() != null && param.parentUuid() != _uuid) {
+        if (param != null && param.parentUuid() != KConfig.NULL_LONG && param.parentUuid() != _uuid) {
             view().lookup(param.parentUuid()).then(new Callback<KObject>() {
                 @Override
                 public void on(KObject parent) {
@@ -386,7 +374,7 @@ public abstract class AbstractKObject implements KObject {
                                     if (resolvedParams[dd] != null) {
                                         KObject resolvedParam = resolvedParams[dd];
                                         if (metaReference.contained()) {
-                                            ((AbstractKObject) resolvedParam).set_parent(null, null);
+                                            ((AbstractKObject) resolvedParam).set_parent(KConfig.NULL_LONG, null);
                                         }
                                         if (metaReference.opposite() != null && setOpposite) {
                                             ((AbstractKObject) resolvedParam).internal_mutate(KActionType.REMOVE, metaReference.opposite(), self, false, inDelete);
@@ -417,7 +405,7 @@ public abstract class AbstractKObject implements KObject {
                         e.printStackTrace();
                     }
                     if (!inDelete && metaReference.contained()) {
-                        ((AbstractKObject) param).set_parent(null, null);
+                        ((AbstractKObject) param).set_parent(KConfig.NULL_LONG, null);
                     }
                     if (metaReference.opposite() != null && setOpposite) {
                         ((AbstractKObject) param).internal_mutate(KActionType.REMOVE, metaReference.opposite(), this, false, inDelete);
@@ -701,10 +689,10 @@ public abstract class AbstractKObject implements KObject {
         }
     }
 
-    public void set_parent(Long p_parentKID, MetaReference p_metaReference) {
+    public void set_parent(long p_parentKID, MetaReference p_metaReference) {
         KCacheEntry raw = _view.universe().model().manager().entry(this, AccessMode.WRITE);
         if (raw != null) {
-            if (p_parentKID != null) {
+            if (p_parentKID != KConfig.NULL_LONG) {
                 long[] parentKey = new long[1];
                 parentKey[0] = p_parentKID;
                 raw.set(Index.PARENT_INDEX, parentKey);

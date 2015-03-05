@@ -14,7 +14,7 @@ public class DynamicKUniverse extends AbstractKUniverse {
     }
 
     @Override
-    protected KView internal_create(Long timePoint) {
+    protected KView internal_create(long timePoint) {
         return new DynamicKView(timePoint, this);
     }
 }
