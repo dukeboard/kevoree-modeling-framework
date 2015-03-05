@@ -1,6 +1,8 @@
 package org.kevoree.modeling.api.data.manager;
 
-import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.cache.KCacheObject;
@@ -27,17 +29,10 @@ public class LookupAllRunnable implements Runnable {
 
     @Override
     public void run() {
-        _store.internal_resolve_universe_time(_originView, _keys, new Callback<ResolutionResult[]>() {
+        _store.internal_resolve_universe_time(_originView, _keys, new Callback<KContentKey[]>() {
             @Override
-            public void on(final ResolutionResult[] objects) {
-                KContentKey[] dependencyKeys = new KContentKey[objects.length];
-                for (int i = 0; i < objects.length; i++) {
-                    if (objects[i] != null && objects[i].resolvedQuanta != KConfig.NULL_LONG && objects[i].resolvedUniverse != KConfig.NULL_LONG) {
-                        KContentKey contentKey = KContentKey.createObject(objects[i].resolvedUniverse, objects[i].resolvedQuanta, _keys[i]);
-                        dependencyKeys[i] = contentKey;
-                    }
-                }
-                _store.bumpKeysToCache(dependencyKeys, new Callback<KCacheObject[]>() {
+            public void on(final KContentKey[] toLoadContentRaws) {
+                _store.bumpKeysToCache(toLoadContentRaws, new Callback<KCacheObject[]>() {
                     @Override
                     public void on(KCacheObject[] cachedObjects) {
                         KObject[] proxies = new KObject[_keys.length];
