@@ -5,6 +5,8 @@ import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.data.manager.JsonRaw;
+import org.kevoree.modeling.api.map.LongLongHashMap;
+import org.kevoree.modeling.api.map.LongLongHashMapCallBack;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaOperation;
@@ -505,21 +507,21 @@ public abstract class AbstractKObject implements KObject {
         if (p_request.equals(VisitRequest.CHILDREN)) {
             internal_visit(p_visitor, task.initCallback(), false, false, null, null);
         } else if (p_request.equals(VisitRequest.ALL)) {
-            internal_visit(p_visitor, task.initCallback(), true, false, new HashSet<Long>(), new HashSet<Long>());
+            internal_visit(p_visitor, task.initCallback(), true, false, new LongLongHashMap(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR), new LongLongHashMap(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR));
         } else if (p_request.equals(VisitRequest.CONTAINED)) {
             internal_visit(p_visitor, task.initCallback(), true, true, null, null);
         }
         return task;
     }
 
-    private void internal_visit(final ModelVisitor visitor, final Callback<Throwable> end, final boolean deep, final boolean containedOnly, final HashSet<Long> visited, final HashSet<Long> traversed) {
+    private void internal_visit(final ModelVisitor visitor, final Callback<Throwable> end, final boolean deep, final boolean containedOnly, final LongLongHashMap visited, final LongLongHashMap traversed) {
         if (!Checker.isDefined(visitor)) {
             return;
         }
         if (traversed != null) {
-            traversed.add(_uuid);
+            traversed.put(_uuid, _uuid);
         }
-        final HashSet<Long> toResolveIds = new HashSet<Long>();
+        final LongLongHashMap toResolveIds = new LongLongHashMap(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
         for (int i = 0; i < metaClass().metaReferences().length; i++) {
             final MetaReference reference = metaClass().metaReferences()[i];
             if (!(containedOnly && !reference.contained())) {
@@ -530,8 +532,8 @@ public abstract class AbstractKObject implements KObject {
                         try {
                             long[] idArr = (long[]) obj;
                             for (int k = 0; k < idArr.length; k++) {
-                                if (traversed == null || !traversed.contains(idArr[k])) { // this is for optimization
-                                    toResolveIds.add(idArr[k]);
+                                if (traversed == null || !traversed.containsKey(idArr[k])) { // this is for optimization
+                                    toResolveIds.put(idArr[k], idArr[k]);
                                 }
                             }
                         } catch (Exception e) {
@@ -541,13 +543,21 @@ public abstract class AbstractKObject implements KObject {
                 }
             }
         }
-        if (toResolveIds.isEmpty()) {
+        if (toResolveIds.size() == 0) {
             if (Checker.isDefined(end)) {
                 end.on(null);
             }
         } else {
-            long[] flattedRes = ArrayUtils.flatSet(toResolveIds);
-            ((AbstractKView) view()).internalLookupAll(flattedRes, new Callback<KObject[]>() {
+            long[] trimmed = new long[toResolveIds.size()];
+            final int[] inserted = {0};
+            toResolveIds.each(new LongLongHashMapCallBack() {
+                @Override
+                public void on(long key, long value) {
+                    trimmed[inserted[0]] = key;
+                    inserted[0]++;
+                }
+            });
+            ((AbstractKView) view()).internalLookupAll(trimmed, new Callback<KObject[]>() {
                 @Override
                 public void on(KObject[] resolvedArr) {
                     final List<KObject> nextDeep = new ArrayList<KObject>();
@@ -556,11 +566,11 @@ public abstract class AbstractKObject implements KObject {
                         final KObject resolved = resolvedArr[i];
                         VisitResult result = VisitResult.CONTINUE;
                         if (resolved != null) {
-                            if (visitor != null && (visited == null || !visited.contains(resolved.uuid()))) {
+                            if (visitor != null && (visited == null || !visited.containsKey(resolved.uuid()))) {
                                 result = visitor.visit(resolved);
                             }
                             if (visited != null) {
-                                visited.add(resolved.uuid());
+                                visited.put(resolved.uuid(), resolved.uuid());
                             }
                         }
                         if (result != null && result.equals(VisitResult.STOP)) {
@@ -570,7 +580,7 @@ public abstract class AbstractKObject implements KObject {
                         } else {
                             if (deep) {
                                 if (result.equals(VisitResult.CONTINUE)) {
-                                    if (traversed == null || !traversed.contains(resolved.uuid())) {
+                                    if (traversed == null || !traversed.containsKey(resolved.uuid())) {
                                         nextDeep.add(resolved);
                                     }
                                 }

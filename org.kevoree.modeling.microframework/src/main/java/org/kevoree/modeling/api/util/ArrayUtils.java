@@ -43,14 +43,5 @@ public class ArrayUtils {
         }
         return -1;
     }
-
-    public static long[] flatSet(Set<Long> keys) {
-        Long[] tempFlat = keys.toArray(new Long[keys.size()]);
-        long[] flatted = new long[keys.size()];
-        for (int i = 0; i < keys.size(); i++) {
-            flatted[i] = tempFlat[i];
-        }
-        return flatted;
-    }
-
+    
 }
