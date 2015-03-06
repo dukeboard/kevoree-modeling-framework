@@ -143,7 +143,7 @@ public class RocksDbContentDeliveryDriver implements KContentDeliveryDriver {
 
     @Override
     public void setManager(KDataManager manager) {
-//NOOP
+        _localEventListeners.setManager(manager);
     }
 
     @Override

@@ -3379,32 +3379,34 @@ var org;
                         };
                         LocalEventListeners.prototype.dispatch = function (messages) {
                             var _this = this;
-                            var toLoad = new Array();
-                            for (var i = 0; i < toLoad.length; i++) {
-                                var universeLayer = this._universeLayers.get(messages[i].key.universe());
-                                if (universeLayer != null) {
-                                    if (universeLayer.isListen(messages[i].key)) {
-                                        toLoad[i] = messages[i].key;
-                                    }
-                                }
-                            }
-                            this._manager.bumpKeysToCache(toLoad, function (kCacheObjects) {
-                                for (var i = 0; i < messages.length; i++) {
-                                    if (kCacheObjects[i] != null && kCacheObjects[i] instanceof org.kevoree.modeling.api.data.cache.KCacheEntry) {
-                                        var universeLayer = _this._universeLayers.get(messages[i].key.universe());
-                                        if (universeLayer != null) {
-                                            var toDispatch = universeLayer.getUniverse().time(messages[i].key.time()).createProxy(kCacheObjects[i].metaClass, messages[i].key.obj());
-                                            var meta = new Array();
-                                            for (var j = 0; j < messages[i].meta.length; j++) {
-                                                if (messages[i].meta[j] >= org.kevoree.modeling.api.data.manager.Index.RESERVED_INDEXES) {
-                                                    meta[j] = toDispatch.metaClass().meta(messages[i].meta[j]);
-                                                }
-                                            }
-                                            universeLayer.dispatch(toDispatch, meta);
+                            if (this._manager != null) {
+                                var toLoad = new Array();
+                                for (var i = 0; i < toLoad.length; i++) {
+                                    var universeLayer = this._universeLayers.get(messages[i].key.universe());
+                                    if (universeLayer != null) {
+                                        if (universeLayer.isListen(messages[i].key)) {
+                                            toLoad[i] = messages[i].key;
                                         }
                                     }
                                 }
-                            });
+                                this._manager.bumpKeysToCache(toLoad, function (kCacheObjects) {
+                                    for (var i = 0; i < messages.length; i++) {
+                                        if (kCacheObjects[i] != null && kCacheObjects[i] instanceof org.kevoree.modeling.api.data.cache.KCacheEntry) {
+                                            var universeLayer = _this._universeLayers.get(messages[i].key.universe());
+                                            if (universeLayer != null) {
+                                                var toDispatch = universeLayer.getUniverse().time(messages[i].key.time()).createProxy(kCacheObjects[i].metaClass, messages[i].key.obj());
+                                                var meta = new Array();
+                                                for (var j = 0; j < messages[i].meta.length; j++) {
+                                                    if (messages[i].meta[j] >= org.kevoree.modeling.api.data.manager.Index.RESERVED_INDEXES) {
+                                                        meta[j] = toDispatch.metaClass().meta(messages[i].meta[j]);
+                                                    }
+                                                }
+                                                universeLayer.dispatch(toDispatch, meta);
+                                            }
+                                        }
+                                    }
+                                });
+                            }
                         };
                         return LocalEventListeners;
                     })();

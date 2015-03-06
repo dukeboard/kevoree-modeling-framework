@@ -3925,32 +3925,34 @@ module org {
                         }
 
                         public dispatch(messages: org.kevoree.modeling.api.msg.KEventMessage[]): void {
-                            var toLoad: org.kevoree.modeling.api.data.cache.KContentKey[] = new Array();
-                            for (var i: number = 0; i < toLoad.length; i++) {
-                                var universeLayer: org.kevoree.modeling.api.event.LocalListenerUniverseLayer = this._universeLayers.get(messages[i].key.universe());
-                                if (universeLayer != null) {
-                                    if (universeLayer.isListen(messages[i].key)) {
-                                        toLoad[i] = messages[i].key;
-                                    }
-                                }
-                            }
-                            (<org.kevoree.modeling.api.data.manager.DefaultKDataManager>this._manager).bumpKeysToCache(toLoad,  (kCacheObjects : org.kevoree.modeling.api.data.cache.KCacheObject[]) => {
-                                for (var i: number = 0; i < messages.length; i++) {
-                                    if (kCacheObjects[i] != null && kCacheObjects[i] instanceof org.kevoree.modeling.api.data.cache.KCacheEntry) {
-                                        var universeLayer: org.kevoree.modeling.api.event.LocalListenerUniverseLayer = this._universeLayers.get(messages[i].key.universe());
-                                        if (universeLayer != null) {
-                                            var toDispatch: org.kevoree.modeling.api.KObject = (<org.kevoree.modeling.api.abs.AbstractKView>universeLayer.getUniverse().time(messages[i].key.time())).createProxy((<org.kevoree.modeling.api.data.cache.KCacheEntry>kCacheObjects[i]).metaClass, messages[i].key.obj());
-                                            var meta: org.kevoree.modeling.api.meta.Meta[] = new Array();
-                                            for (var j: number = 0; j < messages[i].meta.length; j++) {
-                                                if (messages[i].meta[j] >= org.kevoree.modeling.api.data.manager.Index.RESERVED_INDEXES) {
-                                                    meta[j] = toDispatch.metaClass().meta(messages[i].meta[j]);
-                                                }
-                                            }
-                                            universeLayer.dispatch(toDispatch, meta);
+                            if (this._manager != null) {
+                                var toLoad: org.kevoree.modeling.api.data.cache.KContentKey[] = new Array();
+                                for (var i: number = 0; i < toLoad.length; i++) {
+                                    var universeLayer: org.kevoree.modeling.api.event.LocalListenerUniverseLayer = this._universeLayers.get(messages[i].key.universe());
+                                    if (universeLayer != null) {
+                                        if (universeLayer.isListen(messages[i].key)) {
+                                            toLoad[i] = messages[i].key;
                                         }
                                     }
                                 }
-                            });
+                                (<org.kevoree.modeling.api.data.manager.DefaultKDataManager>this._manager).bumpKeysToCache(toLoad,  (kCacheObjects : org.kevoree.modeling.api.data.cache.KCacheObject[]) => {
+                                    for (var i: number = 0; i < messages.length; i++) {
+                                        if (kCacheObjects[i] != null && kCacheObjects[i] instanceof org.kevoree.modeling.api.data.cache.KCacheEntry) {
+                                            var universeLayer: org.kevoree.modeling.api.event.LocalListenerUniverseLayer = this._universeLayers.get(messages[i].key.universe());
+                                            if (universeLayer != null) {
+                                                var toDispatch: org.kevoree.modeling.api.KObject = (<org.kevoree.modeling.api.abs.AbstractKView>universeLayer.getUniverse().time(messages[i].key.time())).createProxy((<org.kevoree.modeling.api.data.cache.KCacheEntry>kCacheObjects[i]).metaClass, messages[i].key.obj());
+                                                var meta: org.kevoree.modeling.api.meta.Meta[] = new Array();
+                                                for (var j: number = 0; j < messages[i].meta.length; j++) {
+                                                    if (messages[i].meta[j] >= org.kevoree.modeling.api.data.manager.Index.RESERVED_INDEXES) {
+                                                        meta[j] = toDispatch.metaClass().meta(messages[i].meta[j]);
+                                                    }
+                                                }
+                                                universeLayer.dispatch(toDispatch, meta);
+                                            }
+                                        }
+                                    }
+                                });
+                            }
                         }
 
                     }

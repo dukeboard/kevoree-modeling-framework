@@ -51,35 +51,37 @@ public class LocalEventListeners {
     }
 
     public void dispatch(KEventMessage[] messages) {
-        KContentKey[] toLoad = new KContentKey[messages.length];
-        for (int i = 0; i < toLoad.length; i++) {
-            LocalListenerUniverseLayer universeLayer = _universeLayers.get(messages[i].key.universe());
-            if (universeLayer != null) {
-                if (universeLayer.isListen(messages[i].key)) {
-                    toLoad[i] = messages[i].key;
-                }
-            }
-        }
-        ((DefaultKDataManager) _manager).bumpKeysToCache(toLoad, new Callback<KCacheObject[]>() {
-            @Override
-            public void on(KCacheObject[] kCacheObjects) {
-                for (int i = 0; i < messages.length; i++) {
-                    if (kCacheObjects[i] != null && kCacheObjects[i] instanceof KCacheEntry) {
-                        LocalListenerUniverseLayer universeLayer = _universeLayers.get(messages[i].key.universe());
-                        if (universeLayer != null) {
-                            KObject toDispatch = ((AbstractKView) universeLayer.getUniverse().time(messages[i].key.time())).createProxy(((KCacheEntry) kCacheObjects[i]).metaClass, messages[i].key.obj());
-                            Meta[] meta = new Meta[messages[i].meta.length];
-                            for (int j = 0; j < messages[i].meta.length; j++) {
-                                if (messages[i].meta[j] >= Index.RESERVED_INDEXES) {
-                                    meta[j] = toDispatch.metaClass().meta(messages[i].meta[j]);
-                                }
-                            }
-                            universeLayer.dispatch(toDispatch, meta);
-                        }
+        if (_manager != null) {
+            KContentKey[] toLoad = new KContentKey[messages.length];
+            for (int i = 0; i < toLoad.length; i++) {
+                LocalListenerUniverseLayer universeLayer = _universeLayers.get(messages[i].key.universe());
+                if (universeLayer != null) {
+                    if (universeLayer.isListen(messages[i].key)) {
+                        toLoad[i] = messages[i].key;
                     }
                 }
             }
-        });
+            ((DefaultKDataManager) _manager).bumpKeysToCache(toLoad, new Callback<KCacheObject[]>() {
+                @Override
+                public void on(KCacheObject[] kCacheObjects) {
+                    for (int i = 0; i < messages.length; i++) {
+                        if (kCacheObjects[i] != null && kCacheObjects[i] instanceof KCacheEntry) {
+                            LocalListenerUniverseLayer universeLayer = _universeLayers.get(messages[i].key.universe());
+                            if (universeLayer != null) {
+                                KObject toDispatch = ((AbstractKView) universeLayer.getUniverse().time(messages[i].key.time())).createProxy(((KCacheEntry) kCacheObjects[i]).metaClass, messages[i].key.obj());
+                                Meta[] meta = new Meta[messages[i].meta.length];
+                                for (int j = 0; j < messages[i].meta.length; j++) {
+                                    if (messages[i].meta[j] >= Index.RESERVED_INDEXES) {
+                                        meta[j] = toDispatch.metaClass().meta(messages[i].meta[j]);
+                                    }
+                                }
+                                universeLayer.dispatch(toDispatch, meta);
+                            }
+                        }
+                    }
+                }
+            });
+        }
     }
 
 }

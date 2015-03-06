@@ -165,6 +165,7 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
 
     @Override
     public void setManager(KDataManager manager) {
+        localEventListeners.setManager(manager);
     }
 
 }
