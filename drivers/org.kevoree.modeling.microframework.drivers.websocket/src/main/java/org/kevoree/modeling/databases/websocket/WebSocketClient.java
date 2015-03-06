@@ -25,7 +25,7 @@ import org.kevoree.modeling.api.msg.KMessage;
 import org.kevoree.modeling.api.msg.KMessageLoader;
 import org.kevoree.modeling.api.msg.KPutRequest;
 import org.kevoree.modeling.api.msg.KPutResult;
-import org.kevoree.modeling.api.util.LocalEventListeners;
+import org.kevoree.modeling.api.event.LocalEventListeners;
 
 import java.io.IOException;
 import java.util.ArrayList;

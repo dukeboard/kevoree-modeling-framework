@@ -196,12 +196,12 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public void listen(KEventListener listener) {
-        universe().model().manager().cdn().registerListener(this, listener, false);
+        universe().model().manager().cdn().registerListener(this, listener);
     }
 
     @Override
     public void unregister(KEventListener listener) {
-        universe().model().manager().cdn().unregister(this, listener, false);
+        universe().model().manager().cdn().unregister(this, listener);
     }
 
     @Override

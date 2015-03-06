@@ -4,11 +4,9 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KEventListener;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.data.cache.KCache;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.msg.KEventMessage;
-import org.kevoree.modeling.api.msg.KMessage;
 
 /**
  * Created with IntelliJ IDEA.
@@ -31,9 +29,9 @@ public interface KContentDeliveryDriver {
 
     public void close(Callback<Throwable> callback);
 
-    void registerListener(KObject origin, KEventListener listener, boolean subTree);
+    void registerListener(KObject origin, KEventListener listener);
 
-    void unregister(KObject origin, KEventListener listener, boolean subTree);
+    void unregister(KObject origin, KEventListener listener);
 
     void send(KEventMessage[] msgs);
 
