@@ -68,6 +68,7 @@ public class LocalEventListeners {
                 if(objectListeners != null) {
                     for(int i = 0; i < objectListeners.size(); i++) {
                         final int finalI = i;
+                        KEventListener lst = objectListeners.get(finalI);
                         resolveKObject(sourceKey, universeCache, viewsCache, new Callback<KObject>() {
                             @Override
                             public void on(KObject src) {
@@ -77,7 +78,6 @@ public class LocalEventListeners {
                                         metas[j] = src.metaClass().meta(msg.meta[j]);
                                     }
                                 }
-                                KEventListener lst = objectListeners.get(finalI);
                                 lst.on(src, metas);
                             }
                         });
