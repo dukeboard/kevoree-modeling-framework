@@ -581,8 +581,8 @@ declare module org {
                             remove(keys: string[], error: (p: java.lang.Throwable) => void): void;
                             connect(callback: (p: java.lang.Throwable) => void): void;
                             close(callback: (p: java.lang.Throwable) => void): void;
-                            registerListener(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void, subTree: boolean): void;
-                            unregister(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void, subTree: boolean): void;
+                            registerListener(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
+                            unregister(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
                             send(msgs: org.kevoree.modeling.api.msg.KEventMessage[]): void;
                             sendOperation(operationMessage: org.kevoree.modeling.api.msg.KEventMessage): void;
                             setManager(manager: org.kevoree.modeling.api.data.manager.KDataManager): void;
@@ -609,8 +609,8 @@ declare module org {
                             remove(keys: string[], callback: (p: java.lang.Throwable) => void): void;
                             connect(callback: (p: java.lang.Throwable) => void): void;
                             close(callback: (p: java.lang.Throwable) => void): void;
-                            registerListener(p_origin: org.kevoree.modeling.api.KObject, p_listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void, p_scope: boolean): void;
-                            unregister(p_origin: org.kevoree.modeling.api.KObject, p_listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void, p_subTree: boolean): void;
+                            registerListener(p_origin: org.kevoree.modeling.api.KObject, p_listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
+                            unregister(p_origin: org.kevoree.modeling.api.KObject, p_listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
                             send(msgs: org.kevoree.modeling.api.msg.KEventMessage[]): void;
                             sendOperation(operation: org.kevoree.modeling.api.msg.KEventMessage): void;
                             setManager(manager: org.kevoree.modeling.api.data.manager.KDataManager): void;
@@ -726,9 +726,31 @@ declare module org {
                             run(): void;
                         }
                         class ResolutionHelper {
-                            static resolve_universe(globalTree: org.kevoree.modeling.api.map.LongLongHashMap, objUniverseTree: org.kevoree.modeling.api.map.LongLongHashMap, timeToResolve: number, universeId: number): number;
+                            static resolve_universe(globalTree: org.kevoree.modeling.api.map.LongLongHashMap, objUniverseTree: org.kevoree.modeling.api.map.LongLongHashMap, timeToResolve: number, originUniverseId: number): number;
                             static universeSelectByRange(globalTree: org.kevoree.modeling.api.map.LongLongHashMap, objUniverseTree: org.kevoree.modeling.api.map.LongLongHashMap, rangeMin: number, rangeMax: number, originUniverseId: number): number[];
                         }
+                    }
+                }
+                module event {
+                    class LocalEventListeners {
+                        private _manager;
+                        private _universeLayers;
+                        constructor();
+                        registerListener(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
+                        unregister(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
+                        clear(): void;
+                        setManager(manager: org.kevoree.modeling.api.data.manager.KDataManager): void;
+                        dispatch(messages: org.kevoree.modeling.api.msg.KEventMessage[]): void;
+                    }
+                    class LocalListenerUniverseLayer {
+                        private universe;
+                        private _objectLayers;
+                        getUniverse(): org.kevoree.modeling.api.KUniverse<any, any, any>;
+                        constructor(universe: org.kevoree.modeling.api.KUniverse<any, any, any>);
+                        register(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
+                        unregister(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
+                        dispatch(resolved: org.kevoree.modeling.api.KObject, impactedMeta: org.kevoree.modeling.api.meta.Meta[]): void;
+                        isListen(key: org.kevoree.modeling.api.data.cache.KContentKey): boolean;
                     }
                 }
                 module extrapolation {
@@ -1960,16 +1982,6 @@ declare module org {
                         registerOperation(operation: org.kevoree.modeling.api.meta.MetaOperation, callback: (p: org.kevoree.modeling.api.KObject, p1: any[], p2: (p: any) => void) => void, target: org.kevoree.modeling.api.KObject): void;
                         call(source: org.kevoree.modeling.api.KObject, operation: org.kevoree.modeling.api.meta.MetaOperation, param: any[], callback: (p: any) => void): void;
                         operationEventReceived(operationEvent: org.kevoree.modeling.api.msg.KEventMessage): void;
-                    }
-                    class LocalEventListeners {
-                        private _manager;
-                        private listenersMap;
-                        registerListener(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void, subTree: boolean): void;
-                        setManager(manager: org.kevoree.modeling.api.data.manager.KDataManager): void;
-                        dispatch(messages: org.kevoree.modeling.api.msg.KEventMessage[]): void;
-                        private resolveKObject(key, universeCache, viewsCache, callback);
-                        unregister(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void, subTree: boolean): void;
-                        clear(): void;
                     }
                     class PathHelper {
                         static pathSep: string;

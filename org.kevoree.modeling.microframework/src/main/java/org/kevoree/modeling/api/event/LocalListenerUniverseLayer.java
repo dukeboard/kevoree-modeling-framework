@@ -51,7 +51,8 @@ public class LocalListenerUniverseLayer {
         ArrayList<KEventListener> listeners = _objectLayers.get(resolved.uuid());
         if (listeners != null) {
             for (int i = 0; i < listeners.size(); i++) {
-                listeners.get(i).on(resolved, impactedMeta);
+                KEventListener listener = listeners.get(i);
+                listener.on(resolved, impactedMeta);
             }
         }
     }

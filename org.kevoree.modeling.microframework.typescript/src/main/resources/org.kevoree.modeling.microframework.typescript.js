@@ -593,10 +593,10 @@ var org;
                             return task;
                         };
                         AbstractKObject.prototype.listen = function (listener) {
-                            this.universe().model().manager().cdn().registerListener(this, listener, false);
+                            this.universe().model().manager().cdn().registerListener(this, listener);
                         };
                         AbstractKObject.prototype.unregister = function (listener) {
-                            this.universe().model().manager().cdn().unregister(this, listener, false);
+                            this.universe().model().manager().cdn().unregister(this, listener);
                         };
                         AbstractKObject.prototype.domainKey = function () {
                             var builder = new java.lang.StringBuilder();
@@ -1712,7 +1712,13 @@ var org;
                                             var timeTree = timeTrees[i];
                                             if (timeTree != null) {
                                                 var currentDivergenceTime = objUniverse.get(collectedUniverse[i]);
-                                                var initNode = timeTree.previousOrEqual(previousDivergenceTime);
+                                                var initNode;
+                                                if (i == 0) {
+                                                    initNode = timeTree.previousOrEqual(previousDivergenceTime);
+                                                }
+                                                else {
+                                                    initNode = timeTree.previous(previousDivergenceTime);
+                                                }
                                                 while (initNode != null && initNode.getKey() >= currentDivergenceTime) {
                                                     collector.put(collector.size(), initNode.getKey());
                                                     initNode = initNode.previous();
@@ -2239,7 +2245,7 @@ var org;
                         var MemoryKContentDeliveryDriver = (function () {
                             function MemoryKContentDeliveryDriver() {
                                 this.backend = new java.util.HashMap();
-                                this._localEventListeners = new org.kevoree.modeling.api.util.LocalEventListeners();
+                                this._localEventListeners = new org.kevoree.modeling.api.event.LocalEventListeners();
                             }
                             MemoryKContentDeliveryDriver.prototype.atomicGetMutate = function (key, operation, callback) {
                                 var result = this.backend.get(key.toString());
@@ -2293,11 +2299,11 @@ var org;
                                 this._localEventListeners.clear();
                                 this.backend.clear();
                             };
-                            MemoryKContentDeliveryDriver.prototype.registerListener = function (p_origin, p_listener, p_scope) {
-                                this._localEventListeners.registerListener(p_origin, p_listener, p_scope);
+                            MemoryKContentDeliveryDriver.prototype.registerListener = function (p_origin, p_listener) {
+                                this._localEventListeners.registerListener(p_origin, p_listener);
                             };
-                            MemoryKContentDeliveryDriver.prototype.unregister = function (p_origin, p_listener, p_subTree) {
-                                this._localEventListeners.unregister(p_origin, p_listener, p_subTree);
+                            MemoryKContentDeliveryDriver.prototype.unregister = function (p_origin, p_listener) {
+                                this._localEventListeners.unregister(p_origin, p_listener);
                             };
                             MemoryKContentDeliveryDriver.prototype.send = function (msgs) {
                                 this._localEventListeners.dispatch(msgs);
@@ -3296,47 +3302,22 @@ var org;
                         var ResolutionHelper = (function () {
                             function ResolutionHelper() {
                             }
-                            ResolutionHelper.resolve_universe = function (globalTree, objUniverseTree, timeToResolve, universeId) {
+                            ResolutionHelper.resolve_universe = function (globalTree, objUniverseTree, timeToResolve, originUniverseId) {
                                 if (globalTree == null) {
-                                    return universeId;
+                                    return originUniverseId;
                                 }
-                                var currentUniverseValue = globalTree.get(universeId);
-                                var currentUniverseKey = universeId;
-                                if (currentUniverseValue == org.kevoree.modeling.api.KConfig.NULL_LONG) {
-                                    return universeId;
-                                }
-                                var resolvedKey = universeId;
-                                var resolvedValue = objUniverseTree.get(resolvedKey);
-                                while (resolvedValue == org.kevoree.modeling.api.KConfig.NULL_LONG && currentUniverseKey != currentUniverseValue) {
-                                    currentUniverseKey = currentUniverseValue;
-                                    currentUniverseValue = globalTree.get(currentUniverseKey);
-                                    resolvedKey = currentUniverseKey;
-                                    resolvedValue = objUniverseTree.get(resolvedKey);
-                                }
-                                if (resolvedValue == org.kevoree.modeling.api.KConfig.NULL_LONG) {
-                                    return universeId;
-                                }
-                                while (resolvedValue != org.kevoree.modeling.api.KConfig.NULL_LONG && resolvedValue > timeToResolve && resolvedKey != resolvedValue) {
-                                    var resolvedCurrentKey = resolvedKey;
-                                    var resolvedCurrentValue = globalTree.get(resolvedCurrentKey);
-                                    resolvedKey = resolvedCurrentValue;
-                                    resolvedValue = objUniverseTree.get(resolvedKey);
-                                    while (resolvedValue == org.kevoree.modeling.api.KConfig.NULL_LONG && resolvedCurrentKey != resolvedCurrentValue) {
-                                        resolvedKey = resolvedCurrentValue;
-                                        resolvedValue = objUniverseTree.get(resolvedCurrentValue);
-                                        resolvedCurrentKey = resolvedCurrentValue;
-                                        resolvedCurrentValue = globalTree.get(resolvedCurrentValue);
+                                var currentUniverse = originUniverseId;
+                                var previousUniverse = org.kevoree.modeling.api.KConfig.NULL_LONG;
+                                var divergenceTime = objUniverseTree.get(currentUniverse);
+                                while (currentUniverse != previousUniverse) {
+                                    if (divergenceTime != org.kevoree.modeling.api.KConfig.NULL_LONG && divergenceTime <= timeToResolve) {
+                                        return currentUniverse;
                                     }
-                                    if (resolvedCurrentKey == resolvedCurrentValue) {
-                                        break;
-                                    }
+                                    previousUniverse = currentUniverse;
+                                    currentUniverse = globalTree.get(currentUniverse);
+                                    divergenceTime = objUniverseTree.get(currentUniverse);
                                 }
-                                if (resolvedValue != org.kevoree.modeling.api.KConfig.NULL_LONG) {
-                                    return resolvedKey;
-                                }
-                                else {
-                                    return universeId;
-                                }
+                                return originUniverseId;
                             };
                             ResolutionHelper.universeSelectByRange = function (globalTree, objUniverseTree, rangeMin, rangeMax, originUniverseId) {
                                 var collected = new org.kevoree.modeling.api.map.LongLongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
@@ -3370,6 +3351,105 @@ var org;
                         manager.ResolutionHelper = ResolutionHelper;
                     })(manager = data.manager || (data.manager = {}));
                 })(data = api.data || (api.data = {}));
+                var event;
+                (function (event) {
+                    var LocalEventListeners = (function () {
+                        function LocalEventListeners() {
+                            this._universeLayers = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                        }
+                        LocalEventListeners.prototype.registerListener = function (origin, listener) {
+                            var universeLayer = this._universeLayers.get(origin.universe().key());
+                            if (universeLayer == null) {
+                                universeLayer = new org.kevoree.modeling.api.event.LocalListenerUniverseLayer(origin.universe());
+                                this._universeLayers.put(origin.universe().key(), universeLayer);
+                            }
+                            universeLayer.register(origin, listener);
+                        };
+                        LocalEventListeners.prototype.unregister = function (origin, listener) {
+                            var universeLayer = this._universeLayers.get(origin.universe().key());
+                            if (universeLayer != null) {
+                                universeLayer.unregister(origin, listener);
+                            }
+                        };
+                        LocalEventListeners.prototype.clear = function () {
+                            this._universeLayers.clear();
+                        };
+                        LocalEventListeners.prototype.setManager = function (manager) {
+                            this._manager = manager;
+                        };
+                        LocalEventListeners.prototype.dispatch = function (messages) {
+                            var _this = this;
+                            var toLoad = new Array();
+                            for (var i = 0; i < toLoad.length; i++) {
+                                var universeLayer = this._universeLayers.get(messages[i].key.universe());
+                                if (universeLayer != null) {
+                                    if (universeLayer.isListen(messages[i].key)) {
+                                        toLoad[i] = messages[i].key;
+                                    }
+                                }
+                            }
+                            this._manager.bumpKeysToCache(toLoad, function (kCacheObjects) {
+                                for (var i = 0; i < messages.length; i++) {
+                                    if (kCacheObjects[i] != null && kCacheObjects[i] instanceof org.kevoree.modeling.api.data.cache.KCacheEntry) {
+                                        var universeLayer = _this._universeLayers.get(messages[i].key.universe());
+                                        if (universeLayer != null) {
+                                            var toDispatch = universeLayer.getUniverse().time(messages[i].key.time()).createProxy(kCacheObjects[i].metaClass, messages[i].key.obj());
+                                            var meta = new Array();
+                                            for (var j = 0; j < messages[i].meta.length; j++) {
+                                                if (messages[i].meta[j] >= org.kevoree.modeling.api.data.manager.Index.RESERVED_INDEXES) {
+                                                    meta[j] = toDispatch.metaClass().meta(messages[i].meta[j]);
+                                                }
+                                            }
+                                            universeLayer.dispatch(toDispatch, meta);
+                                        }
+                                    }
+                                }
+                            });
+                        };
+                        return LocalEventListeners;
+                    })();
+                    event.LocalEventListeners = LocalEventListeners;
+                    var LocalListenerUniverseLayer = (function () {
+                        function LocalListenerUniverseLayer(universe) {
+                            this.universe = universe;
+                            this._objectLayers = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                        }
+                        LocalListenerUniverseLayer.prototype.getUniverse = function () {
+                            return this.universe;
+                        };
+                        LocalListenerUniverseLayer.prototype.register = function (origin, listener) {
+                            var listeners = this._objectLayers.get(origin.uuid());
+                            if (listeners == null) {
+                                listeners = new java.util.ArrayList();
+                                this._objectLayers.put(origin.uuid(), listeners);
+                            }
+                            listeners.add(listener);
+                        };
+                        LocalListenerUniverseLayer.prototype.unregister = function (origin, listener) {
+                            var listeners = this._objectLayers.get(origin.uuid());
+                            if (listeners != null) {
+                                listeners.remove(listener);
+                                if (listeners.isEmpty()) {
+                                    this._objectLayers.remove(origin.uuid());
+                                }
+                            }
+                        };
+                        LocalListenerUniverseLayer.prototype.dispatch = function (resolved, impactedMeta) {
+                            var listeners = this._objectLayers.get(resolved.uuid());
+                            if (listeners != null) {
+                                for (var i = 0; i < listeners.size(); i++) {
+                                    var listener = listeners.get(i);
+                                    listener(resolved, impactedMeta);
+                                }
+                            }
+                        };
+                        LocalListenerUniverseLayer.prototype.isListen = function (key) {
+                            return this._objectLayers.containsKey(key.obj());
+                        };
+                        return LocalListenerUniverseLayer;
+                    })();
+                    event.LocalListenerUniverseLayer = LocalListenerUniverseLayer;
+                })(event = api.event || (api.event = {}));
                 var extrapolation;
                 (function (extrapolation) {
                     var DiscreteExtrapolation = (function () {
@@ -10949,97 +11029,6 @@ var org;
                         return DefaultOperationManager;
                     })();
                     util.DefaultOperationManager = DefaultOperationManager;
-                    var LocalEventListeners = (function () {
-                        function LocalEventListeners() {
-                            this.listenersMap = new java.util.HashMap();
-                        }
-                        LocalEventListeners.prototype.registerListener = function (origin, listener, subTree) {
-                            var universeMap = this.listenersMap.get(origin.universe().key());
-                            if (universeMap == null) {
-                                universeMap = new java.util.HashMap();
-                                this.listenersMap.put(origin.universe().key(), universeMap);
-                            }
-                            var objectListeners = universeMap.get(origin.uuid());
-                            if (objectListeners == null) {
-                                objectListeners = new java.util.ArrayList();
-                                universeMap.put(origin.uuid(), objectListeners);
-                            }
-                            if (subTree == false) {
-                                objectListeners.add(listener);
-                            }
-                            else {
-                                System.out.println("Registration of listener for sub-tree not implemented yet.");
-                            }
-                        };
-                        LocalEventListeners.prototype.setManager = function (manager) {
-                            this._manager = manager;
-                        };
-                        LocalEventListeners.prototype.dispatch = function (messages) {
-                            var universeCache = new java.util.HashMap();
-                            var viewsCache = new java.util.HashMap();
-                            for (var k = 0; k < messages.length; k++) {
-                                var msg = messages[k];
-                                var sourceKey = msg.key;
-                                var universeListeners = this.listenersMap.get(sourceKey.universe());
-                                if (universeListeners != null) {
-                                    var objectListeners = universeListeners.get(sourceKey.obj());
-                                    if (objectListeners != null) {
-                                        for (var i = 0; i < objectListeners.size(); i++) {
-                                            var finalI = i;
-                                            this.resolveKObject(sourceKey, universeCache, viewsCache, function (src) {
-                                                var metas = new Array();
-                                                for (var j = 0; j < msg.meta.length; j++) {
-                                                    if (msg.meta[j] >= org.kevoree.modeling.api.data.manager.Index.RESERVED_INDEXES) {
-                                                        metas[j] = src.metaClass().meta(msg.meta[j]);
-                                                    }
-                                                }
-                                                var lst = objectListeners.get(finalI);
-                                                lst(src, metas);
-                                            });
-                                        }
-                                    }
-                                }
-                            }
-                        };
-                        LocalEventListeners.prototype.resolveKObject = function (key, universeCache, viewsCache, callback) {
-                            var universeSelected = universeCache.get(key.universe());
-                            if (universeSelected == null) {
-                                universeSelected = this._manager.model().universe(key.universe());
-                                universeCache.put(key.universe(), universeSelected);
-                            }
-                            var tempView = viewsCache.get(key.universe() + "/" + key.time());
-                            if (tempView == null) {
-                                tempView = universeSelected.time(key.time());
-                                viewsCache.put(key.universe() + "/" + key.time(), tempView);
-                            }
-                            var entry = this._manager.cache().get(key);
-                            if (entry == null) {
-                                this._manager.lookup(tempView, key.obj(), callback);
-                            }
-                            else {
-                                callback(tempView.createProxy(entry.metaClass, key.obj()));
-                            }
-                        };
-                        LocalEventListeners.prototype.unregister = function (origin, listener, subTree) {
-                            var universeListeners = this.listenersMap.get(origin.universe().key());
-                            if (universeListeners != null) {
-                                var objectListeners = universeListeners.get(origin.uuid());
-                                if (objectListeners != null) {
-                                    if (subTree == false) {
-                                        objectListeners.remove(listener);
-                                    }
-                                    else {
-                                        System.out.println("Registration of listener for sub-tree not implemented yet.");
-                                    }
-                                }
-                            }
-                        };
-                        LocalEventListeners.prototype.clear = function () {
-                            this.listenersMap.clear();
-                        };
-                        return LocalEventListeners;
-                    })();
-                    util.LocalEventListeners = LocalEventListeners;
                     var PathHelper = (function () {
                         function PathHelper() {
                         }

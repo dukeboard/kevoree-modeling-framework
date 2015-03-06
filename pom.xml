@@ -137,6 +137,9 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                    <compilerArguments>
+                        <profile>compact1</profile>
+                    </compilerArguments>
                 </configuration>
             </plugin>
             <plugin>
