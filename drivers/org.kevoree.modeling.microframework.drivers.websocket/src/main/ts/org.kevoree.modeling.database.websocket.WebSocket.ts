@@ -12,7 +12,7 @@ module org {
                         private _clientConnection:WebSocket;
                         private _connectionUri:string;
                         private _manager: org.kevoree.modeling.api.data.manager.KDataManager;
-                        private _localEventListeners = new org.kevoree.modeling.api.util.LocalEventListeners();
+                        private _localEventListeners = new org.kevoree.modeling.api.event.LocalEventListeners();
 
                         private _getCallbacks:java.util.HashMap<number, (p1:string[], p2:java.lang.Throwable) => void> = new java.util.HashMap<number, (p1:string[], p2:java.lang.Throwable) => void>();
                         private _putCallbacks:java.util.HashMap<number, (p: java.lang.Throwable) => void> = new java.util.HashMap<number, (p1:java.lang.Throwable) => void>();
@@ -139,11 +139,11 @@ module org {
                         }
 
 
-                        public registerListener(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void, subTree: boolean): void{
-                            this._localEventListeners.registerListener(origin, listener, subTree);
+                        public registerListener(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void{
+                            this._localEventListeners.registerListener(origin, listener);
                         }
-                        public unregister(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void, subTree: boolean): void {
-                            this._localEventListeners.unregister(origin, listener, subTree);
+                        public unregister(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void {
+                            this._localEventListeners.unregister(origin, listener);
                         }
 
                         public setManager(manager: org.kevoree.modeling.api.data.manager.KDataManager): void {

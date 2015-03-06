@@ -121,13 +121,13 @@ public class RocksDbContentDeliveryDriver implements KContentDeliveryDriver {
     private LocalEventListeners _localEventListeners = new LocalEventListeners();
 
     @Override
-    public void registerListener(KObject p_origin, KEventListener p_listener, boolean p_subTree) {
-        _localEventListeners.registerListener(p_origin, p_listener, p_subTree);
+    public void registerListener(KObject p_origin, KEventListener p_listener) {
+        _localEventListeners.registerListener(p_origin, p_listener);
     }
 
     @Override
-    public void unregister(KObject p_origin, KEventListener p_listener, boolean p_subTree) {
-        _localEventListeners.unregister(p_origin, p_listener, p_subTree);
+    public void unregister(KObject p_origin, KEventListener p_listener) {
+        _localEventListeners.unregister(p_origin, p_listener);
     }
 
     @Override

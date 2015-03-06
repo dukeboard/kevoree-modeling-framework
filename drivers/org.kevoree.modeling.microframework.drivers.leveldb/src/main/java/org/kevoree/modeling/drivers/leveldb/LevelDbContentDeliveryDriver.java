@@ -142,13 +142,13 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
     private LocalEventListeners localEventListeners = new LocalEventListeners();
 
     @Override
-    public void registerListener(KObject p_origin, KEventListener p_listener, boolean p_subTree) {
-        localEventListeners.registerListener(p_origin, p_listener, p_subTree);
+    public void registerListener(KObject p_origin, KEventListener p_listener) {
+        localEventListeners.registerListener(p_origin, p_listener);
     }
 
     @Override
-    public void unregister(KObject p_origin, KEventListener p_listener, boolean p_subTree) {
-        localEventListeners.unregister(p_origin, p_listener, p_subTree);
+    public void unregister(KObject p_origin, KEventListener p_listener) {
+        localEventListeners.unregister(p_origin, p_listener);
     }
 
 

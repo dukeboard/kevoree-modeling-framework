@@ -208,13 +208,13 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
     }
 
     @Override
-    public void registerListener(KObject p_origin, KEventListener p_listener, boolean p_subTree) {
-        wrapped.registerListener(p_origin, p_listener, p_subTree);
+    public void registerListener(KObject p_origin, KEventListener p_listener) {
+        wrapped.registerListener(p_origin, p_listener);
     }
 
     @Override
-    public void unregister(KObject p_origin, KEventListener p_listener, boolean p_subTree) {
-        wrapped.unregister(p_origin, p_listener, p_subTree);
+    public void unregister(KObject p_origin, KEventListener p_listener) {
+        wrapped.unregister(p_origin, p_listener);
     }
 
     @Override
