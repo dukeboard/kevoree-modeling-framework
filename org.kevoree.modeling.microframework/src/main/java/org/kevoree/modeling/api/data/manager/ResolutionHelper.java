@@ -11,46 +11,24 @@ import org.kevoree.modeling.api.rbtree.LongTreeNode;
  */
 public class ResolutionHelper {
 
-    public static long resolve_universe(LongLongHashMap globalTree, LongLongHashMap objUniverseTree, long timeToResolve, long universeId) {
+    public static long resolve_universe(LongLongHashMap globalTree, LongLongHashMap objUniverseTree, long timeToResolve, long originUniverseId) {
         if (globalTree == null) {
-            return universeId;
+            return originUniverseId;
         }
-        long currentUniverseValue = globalTree.get(universeId);
-        long currentUniverseKey = universeId;
-        if (currentUniverseValue == KConfig.NULL_LONG) {
-            return universeId;
-        }
-        long resolvedKey = universeId;
-        long resolvedValue = objUniverseTree.get(resolvedKey);
-        while (resolvedValue == KConfig.NULL_LONG && currentUniverseKey != currentUniverseValue) {
-            currentUniverseKey = currentUniverseValue;
-            currentUniverseValue = globalTree.get(currentUniverseKey);
-            resolvedKey = currentUniverseKey;
-            resolvedValue = objUniverseTree.get(resolvedKey);
-        }
-        if (resolvedValue == KConfig.NULL_LONG) {
-            return universeId;
-        }
-        while (resolvedValue != KConfig.NULL_LONG && resolvedValue > timeToResolve && resolvedKey != resolvedValue) {
-            long resolvedCurrentKey = resolvedKey;
-            long resolvedCurrentValue = globalTree.get(resolvedCurrentKey);
-            resolvedKey = resolvedCurrentValue;
-            resolvedValue = objUniverseTree.get(resolvedKey);
-            while (resolvedValue == KConfig.NULL_LONG && resolvedCurrentKey != resolvedCurrentValue) {
-                resolvedKey = resolvedCurrentValue;
-                resolvedValue = objUniverseTree.get(resolvedCurrentValue);
-                resolvedCurrentKey = resolvedCurrentValue;
-                resolvedCurrentValue = globalTree.get(resolvedCurrentValue);
+        long currentUniverse = originUniverseId;
+        long previousUniverse = KConfig.NULL_LONG;
+        long divergenceTime = objUniverseTree.get(currentUniverse);
+        while (currentUniverse != previousUniverse) {
+            //check range
+            if (divergenceTime != KConfig.NULL_LONG && divergenceTime <= timeToResolve) {
+                return currentUniverse;
             }
-            if (resolvedCurrentKey == resolvedCurrentValue) {
-                break;
-            }
+            //next round
+            previousUniverse = currentUniverse;
+            currentUniverse = globalTree.get(currentUniverse);
+            divergenceTime = objUniverseTree.get(currentUniverse);
         }
-        if (resolvedValue != KConfig.NULL_LONG) {
-            return resolvedKey;
-        } else {
-            return universeId;
-        }
+        return originUniverseId;
     }
 
     public static long[] universeSelectByRange(LongLongHashMap globalTree, LongLongHashMap objUniverseTree, long rangeMin, long rangeMax, long originUniverseId) {
@@ -74,8 +52,8 @@ public class ResolutionHelper {
             divergenceTime = objUniverseTree.get(currentUniverse);
         }
         long[] trimmed = new long[collected.size()];
-        for(long i=0;i<collected.size();i++){
-            trimmed[(int)i] = collected.get(i);
+        for (long i = 0; i < collected.size(); i++) {
+            trimmed[(int) i] = collected.get(i);
         }
         return trimmed;
     }

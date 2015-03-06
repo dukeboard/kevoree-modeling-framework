@@ -48,7 +48,12 @@ public class AbstractTimeWalker implements KTimeWalker {
                                 IndexRBTree timeTree = (IndexRBTree) timeTrees[i];
                                 if (timeTree != null) {
                                     long currentDivergenceTime = objUniverse.get(collectedUniverse[i]);
-                                    TreeNode initNode = timeTree.previousOrEqual(previousDivergenceTime);
+                                    TreeNode initNode;
+                                    if (i == 0) { //first iteration, right side inclusive
+                                        initNode = timeTree.previousOrEqual(previousDivergenceTime);
+                                    } else {
+                                        initNode = timeTree.previous(previousDivergenceTime);
+                                    }
                                     while (initNode != null && initNode.getKey() >= currentDivergenceTime) {
                                         collector.put(collector.size(), initNode.getKey());
                                         initNode = initNode.previous();
