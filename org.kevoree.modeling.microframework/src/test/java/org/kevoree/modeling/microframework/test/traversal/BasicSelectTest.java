@@ -176,4 +176,49 @@ public class BasicSelectTest {
 
     }
 
+
+    @Test
+    public void selectTest2() throws Exception {
+        CloudModel universe = new CloudModel();
+        universe.connect();
+
+        CloudUniverse dimension0 = universe.newUniverse();
+        CloudView t0 = dimension0.time(0l);
+        Node n0 = t0.createNode();
+        n0.setName("n0");
+        n0.setValue("v0");
+        t0.setRoot(n0);
+
+        final Node n1 = t0.createNode();
+        n1.setName("n1");
+        n1.setValue("v1");
+        n0.addChildren(n1);
+
+        final Node n2 = t0.createNode();
+        n2.setName("n2");
+        n2.setValue("v2");
+        n0.addChildren(n2);
+
+        t0.select("children[value=v2,name=n1]").then(new Callback<KObject[]>() {
+            @Override
+            public void on(KObject[] selecteds) {
+                Assert.assertEquals(selecteds.length,0);
+            }
+        });
+
+        t0.select("children[value=v2,name=n2]").then(new Callback<KObject[]>() {
+            @Override
+            public void on(KObject[] selecteds) {
+                Assert.assertEquals(selecteds.length,1);
+            }
+        });
+
+        t0.select("children[name=*]").then(new Callback<KObject[]>() {
+            @Override
+            public void on(KObject[] selecteds) {
+                Assert.assertEquals(selecteds.length, 2);
+            }
+        });
+    }
+
 }

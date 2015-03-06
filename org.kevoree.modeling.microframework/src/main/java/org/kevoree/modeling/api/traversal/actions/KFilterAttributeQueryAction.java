@@ -106,7 +106,7 @@ public class KFilterAttributeQueryAction implements KTraversalAction {
         while (iParam < p_paramString.length()) {
             if (p_paramString.charAt(iParam) == ',') {
                 String p = p_paramString.substring(lastStart, iParam).trim();
-                if (p.equals("") && !p.equals("*")) {
+                if (!p.equals("") && !p.equals("*")) {
                     if (p.endsWith("=")) {
                         p = p + "*";
                     }
