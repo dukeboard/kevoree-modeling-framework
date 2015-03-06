@@ -65,7 +65,7 @@ public class KReverseAction implements KTraversalAction {
                 }
             }
             if (toFilter.size() == 0) {
-                long[] trimmed = new long[nextIds.size()];
+                final long[] trimmed = new long[nextIds.size()];
                 final int[] inserted = {0};
                 nextIds.each(new LongLongHashMapCallBack() {
                     @Override
@@ -81,7 +81,7 @@ public class KReverseAction implements KTraversalAction {
                     }
                 });
             } else {
-                long[] trimmed = new long[toFilter.size()];
+                final long[] trimmed = new long[toFilter.size()];
                 final int[] inserted = {0};
                 toFilter.each(new LongHashMapCallBack<KObject>() {
                     @Override
@@ -103,7 +103,7 @@ public class KReverseAction implements KTraversalAction {
                                 }
                             }
                         }
-                        long[] trimmed2 = new long[nextIds.size()];
+                        final long[] trimmed2 = new long[nextIds.size()];
                         final int[] inserted2 = {0};
                         nextIds.each(new LongLongHashMapCallBack() {
                             @Override

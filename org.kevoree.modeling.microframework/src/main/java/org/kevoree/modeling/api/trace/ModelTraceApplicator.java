@@ -58,7 +58,7 @@ public class ModelTraceApplicator {
                     }
                 }
             }
-            long[] trimmed = new long[dependencies.size()];
+            final long[] trimmed = new long[dependencies.size()];
             final int[] inserted = {0};
             dependencies.each(new LongLongHashMapCallBack() {
                 @Override

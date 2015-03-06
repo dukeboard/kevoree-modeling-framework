@@ -21,12 +21,12 @@ public class AbstractTimeWalker implements KTimeWalker {
 
     private KObject _origin = null;
 
-    private KDefer<long[]> internal_times(long start, long end) {
+    private KDefer<long[]> internal_times(final long start, final long end) {
         final AbstractKDeferWrapper<long[]> wrapper = new AbstractKDeferWrapper<long[]>();
         KContentKey[] keys = new KContentKey[2];
         keys[0] = KContentKey.createGlobalUniverseTree();
         keys[1] = KContentKey.createUniverseTree(_origin.uuid());
-        DefaultKDataManager manager = (DefaultKDataManager) _origin.view().universe().model().manager();
+        final DefaultKDataManager manager = (DefaultKDataManager) _origin.view().universe().model().manager();
         manager.bumpKeysToCache(keys, new Callback<KCacheObject[]>() {
             @Override
             public void on(KCacheObject[] kCacheObjects) {
@@ -34,7 +34,7 @@ public class AbstractTimeWalker implements KTimeWalker {
                 if (kCacheObjects[0] == null || kCacheObjects[1] == null) {
                     wrapper.initCallback().on(null);
                 } else {
-                    long[] collectedUniverse = ResolutionHelper.universeSelectByRange((LongLongHashMap) kCacheObjects[0], (LongLongHashMap) kCacheObjects[1], start, end, _origin.universe().key());
+                    final long[] collectedUniverse = ResolutionHelper.universeSelectByRange((LongLongHashMap) kCacheObjects[0], (LongLongHashMap) kCacheObjects[1], start, end, _origin.universe().key());
                     KContentKey[] timeTreeToLoad = new KContentKey[collectedUniverse.length];
                     for (int i = 0; i < collectedUniverse.length; i++) {
                         timeTreeToLoad[i] = KContentKey.createTimeTree(collectedUniverse[i], _origin.uuid());

@@ -24,7 +24,7 @@ public class KRemoveDuplicateAction implements KTraversalAction {
         for (int i = 0; i < p_inputs.length; i++) {
             elems.put(p_inputs[i].uuid(), p_inputs[i]);
         }
-        KObject[] trimmed = new KObject[elems.size()];
+        final KObject[] trimmed = new KObject[elems.size()];
         final int[] nbInserted = {0};
         elems.each(new LongHashMapCallBack<KObject>() {
             @Override

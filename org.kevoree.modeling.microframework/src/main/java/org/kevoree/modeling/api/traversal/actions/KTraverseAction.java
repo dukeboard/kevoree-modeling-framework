@@ -69,7 +69,7 @@ public class KTraverseAction implements KTraversalAction {
                     e.printStackTrace();
                 }
             }
-            long[] trimmed = new long[nextIds.size()];
+            final long[] trimmed = new long[nextIds.size()];
             final int[] inserted = {0};
             nextIds.each(new LongLongHashMapCallBack() {
                 @Override

@@ -546,7 +546,7 @@ public abstract class AbstractKObject implements KObject {
                 end.on(null);
             }
         } else {
-            long[] trimmed = new long[toResolveIds.size()];
+            final long[] trimmed = new long[toResolveIds.size()];
             final int[] inserted = {0};
             toResolveIds.each(new LongLongHashMapCallBack() {
                 @Override

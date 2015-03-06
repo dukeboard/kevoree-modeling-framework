@@ -44,7 +44,7 @@ public class KParentsAction implements KTraversalAction {
                     e.printStackTrace();
                 }
             }
-            long[] trimmed = new long[selected.size()];
+            final long[] trimmed = new long[selected.size()];
             final int[] nbInserted = {0};
             selected.each(new LongLongHashMapCallBack() {
                 @Override

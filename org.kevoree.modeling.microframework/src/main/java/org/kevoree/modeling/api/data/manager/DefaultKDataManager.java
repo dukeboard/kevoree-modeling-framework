@@ -147,10 +147,10 @@ public class DefaultKDataManager implements KDataManager {
     }
 
     @Override
-    public long[] descendantsUniverseKeys(long currentUniverseKey) {
+    public long[] descendantsUniverseKeys(final long currentUniverseKey) {
         LongLongHashMap cached = globalUniverseOrder();
         if (cached != null) {
-            LongLongHashMap temp = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+            final LongLongHashMap temp = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
             cached.each(new LongLongHashMapCallBack() {
                 @Override
                 public void on(long key, long value) {
@@ -159,7 +159,7 @@ public class DefaultKDataManager implements KDataManager {
                     }
                 }
             });
-            long[] result = new long[temp.size()];
+            final long[] result = new long[temp.size()];
             final int[] insertIndex = {0};
             temp.each(new LongLongHashMapCallBack() {
                 @Override
@@ -373,7 +373,7 @@ public class DefaultKDataManager implements KDataManager {
     }
 
     @Override
-    public void discard(KUniverse p_universe, Callback<Throwable> callback) {
+    public void discard(KUniverse p_universe, final Callback<Throwable> callback) {
         _cache.clearDataSegment();
         KContentKey[] globalUniverseTree = new KContentKey[1];
         globalUniverseTree[0] = KContentKey.createGlobalUniverseTree();
@@ -439,7 +439,7 @@ public class DefaultKDataManager implements KDataManager {
     }
 
     void internal_resolve_universe_time(final KView originView, final long[] uuids, final Callback<KContentKey[]> callback) {
-        KContentKey[] tempKeys = new KContentKey[uuids.length];
+        final KContentKey[] tempKeys = new KContentKey[uuids.length];
         for (int i = 0; i < uuids.length; i++) {
             if (uuids[i] != KConfig.NULL_LONG) {
                 tempKeys[i] = KContentKey.createUniverseTree(uuids[i]);
@@ -508,7 +508,7 @@ public class DefaultKDataManager implements KDataManager {
     }
 
     @Override
-    public void setRoot(KObject newRoot, Callback<Throwable> callback) {
+    public void setRoot(final KObject newRoot, final Callback<Throwable> callback) {
         bumpKeyToCache(KContentKey.createRootUniverseTree(), new Callback<KCacheObject>() {
             @Override
             public void on(KCacheObject globalRootTree) {
@@ -528,7 +528,7 @@ public class DefaultKDataManager implements KDataManager {
                         callback.on(null);
                     }
                 } else {
-                    KContentKey universeTreeRootKey = KContentKey.createRootTimeTree(closestUniverse);
+                    final KContentKey universeTreeRootKey = KContentKey.createRootTimeTree(closestUniverse);
                     bumpKeyToCache(universeTreeRootKey, new Callback<KCacheObject>() {
                         @Override
                         public void on(KCacheObject resolvedRootTimeTree) {
@@ -589,7 +589,7 @@ public class DefaultKDataManager implements KDataManager {
         });
     }
 
-    public void bumpKeyToCache(KContentKey contentKey, Callback<KCacheObject> callback) {
+    public void bumpKeyToCache(final KContentKey contentKey, final Callback<KCacheObject> callback) {
         KCacheObject cached = _cache.get(contentKey);
         if (cached != null) {
             callback.on(cached);
@@ -613,10 +613,10 @@ public class DefaultKDataManager implements KDataManager {
         }
     }
 
-    public void bumpKeysToCache(KContentKey[] contentKeys, Callback<KCacheObject[]> callback) {
+    public void bumpKeysToCache(KContentKey[] contentKeys, final Callback<KCacheObject[]> callback) {
         boolean[] toLoadIndexes = null;
         int nbElem = 0;
-        KCacheObject[] result = new KCacheObject[contentKeys.length];
+        final KCacheObject[] result = new KCacheObject[contentKeys.length];
         for (int i = 0; i < contentKeys.length; i++) {
             if (contentKeys[i] != null) {
                 result[i] = _cache.get(contentKeys[i]);
@@ -632,8 +632,8 @@ public class DefaultKDataManager implements KDataManager {
         if (toLoadIndexes == null) {
             callback.on(result);
         } else {
-            KContentKey[] toLoadDbKeys = new KContentKey[nbElem];
-            int[] originIndexes = new int[nbElem];
+            final KContentKey[] toLoadDbKeys = new KContentKey[nbElem];
+            final int[] originIndexes = new int[nbElem];
             int toLoadIndex = 0;
             for (int i = 0; i < contentKeys.length; i++) {
                 if (toLoadIndexes[i]) {
