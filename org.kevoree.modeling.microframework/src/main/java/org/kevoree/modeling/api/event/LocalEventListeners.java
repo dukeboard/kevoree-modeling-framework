@@ -53,7 +53,7 @@ public class LocalEventListeners {
     public void dispatch(KEventMessage[] messages) {
         if (_manager != null) {
             KContentKey[] toLoad = new KContentKey[messages.length];
-            for (int i = 0; i < toLoad.length; i++) {
+            for (int i = 0; i < messages.length; i++) {
                 LocalListenerUniverseLayer universeLayer = _universeLayers.get(messages[i].key.universe());
                 if (universeLayer != null) {
                     if (universeLayer.isListen(messages[i].key)) {
