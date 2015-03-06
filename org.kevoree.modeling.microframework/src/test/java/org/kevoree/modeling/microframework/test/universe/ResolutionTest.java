@@ -48,4 +48,53 @@ public class ResolutionTest {
 
     }
 
+    @Test
+    public void testRange() {
+
+        //create a universeTree
+        LongLongHashMap globalUniverse = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+        //root
+        globalUniverse.put(0, 0);
+        //branch 0 -> 1 -> 3
+        globalUniverse.put(1, 0);
+        globalUniverse.put(3, 1);
+        //branch 0 -> 2 -> 4
+        globalUniverse.put(2, 0);
+        globalUniverse.put(4, 2);
+
+        LongLongHashMap objectUniverse = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+        objectUniverse.put(0, 0);
+        objectUniverse.put(3, 10);
+        objectUniverse.put(2, 8);
+
+        //full resolution branch 0->2->4
+        long[] collected = ResolutionHelper.universeSelectByRange(globalUniverse,objectUniverse,KConfig.BEGINNING_OF_TIME,KConfig.END_OF_TIME,4);
+        Assert.assertEquals(collected[0],2);
+        Assert.assertEquals(collected[1],0);
+
+        //full resolution branch 0->1->3
+        collected = ResolutionHelper.universeSelectByRange(globalUniverse,objectUniverse,KConfig.BEGINNING_OF_TIME,KConfig.END_OF_TIME,3);
+        Assert.assertEquals(collected[0],3);
+        Assert.assertEquals(collected[1],0);
+
+        //mid resolution branch 0->2->4
+        collected = ResolutionHelper.universeSelectByRange(globalUniverse,objectUniverse,8,KConfig.END_OF_TIME,4);
+        Assert.assertEquals(collected[0],2);
+
+        collected = ResolutionHelper.universeSelectByRange(globalUniverse,objectUniverse,7,KConfig.END_OF_TIME,4);
+        Assert.assertEquals(collected[0],2);
+        Assert.assertEquals(collected[1],0);
+
+        collected = ResolutionHelper.universeSelectByRange(globalUniverse,objectUniverse,8,9,4);
+        Assert.assertEquals(collected[0],2);
+
+        collected = ResolutionHelper.universeSelectByRange(globalUniverse,objectUniverse,8,9,3);
+        Assert.assertEquals(collected[0],0);
+
+        collected = ResolutionHelper.universeSelectByRange(globalUniverse,objectUniverse,-3,11,3);
+        Assert.assertEquals(collected[0],3);
+        Assert.assertEquals(collected[1],0);
+
+    }
+
 }

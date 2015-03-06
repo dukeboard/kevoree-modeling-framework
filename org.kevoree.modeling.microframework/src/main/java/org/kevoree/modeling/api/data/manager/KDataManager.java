@@ -32,8 +32,6 @@ public interface KDataManager {
 
     KCacheEntry entry(KObject origin, AccessMode accessMode);
 
-    void timeTrees(KObject origin, Long start, Long end, Callback<IndexRBTree[]> callback);
-
     public void save(Callback<Throwable> callback);
 
     public void discard(KUniverse universe, Callback<Throwable> callback);

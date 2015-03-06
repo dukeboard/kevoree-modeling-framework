@@ -690,20 +690,4 @@ public class DefaultKDataManager implements KDataManager {
         }
     }
 
-    /* TODO MultiUniverse */
-    @Override
-    public void timeTrees(KObject p_origin, Long start, Long end, final Callback<IndexRBTree[]> callback) {
-        //TODO enhance for multiVerse
-        long[] uuid = new long[1];
-        uuid[0] = p_origin.uuid();
-        internal_resolve_universe_time(p_origin.view(), uuid, new Callback<KContentKey[]>() {
-            @Override
-            public void on(KContentKey[] resolutionResults) {
-                IndexRBTree[] trees = new IndexRBTree[1];
-                trees[0] = (IndexRBTree) _cache.get(KContentKey.createTimeTree(resolutionResults[0].universe(), resolutionResults[0].obj()));
-                callback.on(trees);
-            }
-        });
-    }
-
 }

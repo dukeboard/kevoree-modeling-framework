@@ -13,7 +13,6 @@ import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.operation.DefaultModelCompare;
 import org.kevoree.modeling.api.util.ArrayUtils;
-import org.kevoree.modeling.api.util.TimeWalker;
 import org.kevoree.modeling.api.traversal.DefaultKTraversal;
 import org.kevoree.modeling.api.traversal.KTraversal;
 import org.kevoree.modeling.api.traversal.actions.KParentsAction;
@@ -29,7 +28,6 @@ import org.kevoree.modeling.api.util.Checker;
 import org.kevoree.modeling.api.util.PathHelper;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -106,8 +104,8 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public TimeWalker timeWalker() {
-        return new TimeWalker(this);
+    public KTimeWalker timeWalker() {
+        return new AbstractTimeWalker(this);
     }
 
     @Override

@@ -4,7 +4,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.util.TimeWalker;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
@@ -51,16 +50,10 @@ public class PolynomialKMFTest {
                 }
             });
         }
-        final int[] nb = {0};
-        element.timeWalker().walk(new Callback<Long>() {
+        element.timeWalker().allTimes().then(new Callback<long[]>() {
             @Override
-            public void on(Long aLong) {
-                nb[0]++;
-            }
-        }).then(new Callback<Throwable>() {
-            @Override
-            public void on(Throwable throwable) {
-                Assert.assertEquals(2, nb[0]);//
+            public void on(long[] collected) {
+                Assert.assertEquals(2, collected.length);//
             }
         });
 
@@ -110,17 +103,10 @@ public class PolynomialKMFTest {
             });
         }
 
-
-        final int[] nb = {0};
-        element.timeWalker().walkAsc(new Callback<Long>() {
+        element.timeWalker().allTimes().then(new Callback<long[]>() {
             @Override
-            public void on(Long aLong) {
-                nb[0]++;
-            }
-        }).then(new Callback<Throwable>() {
-            @Override
-            public void on(Throwable throwable) {
-                Assert.assertEquals(92,nb[0]);
+            public void on(long[] collected2) {
+                Assert.assertEquals(92,collected2.length);
             }
         });
 

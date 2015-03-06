@@ -5,8 +5,6 @@ import org.kevoree.modeling.api.KConfig;
 /**
  * Created by duke on 18/02/15.
  */
-
-//TODO inject singleton for some Keys
 public class KContentKey {
 
     private long[] elem;

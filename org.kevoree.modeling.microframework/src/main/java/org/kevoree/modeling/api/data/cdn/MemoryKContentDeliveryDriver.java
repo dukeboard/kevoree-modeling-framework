@@ -18,7 +18,6 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
 
     public static boolean DEBUG = false;
 
-    //TODO implement a lock
     @Override
     public void atomicGetMutate(KContentKey key, AtomicOperation operation, ThrowableCallback<String> callback) {
         String result = backend.get(key.toString());
