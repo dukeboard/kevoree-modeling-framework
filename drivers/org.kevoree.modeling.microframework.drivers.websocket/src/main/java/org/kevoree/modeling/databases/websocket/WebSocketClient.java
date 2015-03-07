@@ -73,7 +73,7 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
         return _atomicInteger.getAndUpdate(new IntUnaryOperator() {
             @Override
             public int applyAsInt(int operand) {
-                if (operand == 999) {
+                if (operand == 1000000) {
                     return 0;
                 } else {
                     return operand + 1;
@@ -100,7 +100,12 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
             switch (msg.type()) {
                 case KMessageLoader.GET_RES_TYPE: {
                     KGetResult getResult = (KGetResult) msg;
-                    _getCallbacks.remove(getResult.id).on(getResult.values, null);
+                    ThrowableCallback<String[]> callback = _getCallbacks.remove(getResult.id);
+                    if(callback != null) {
+                    callback.on(getResult.values, null);
+                    } else {
+                        System.out.println("");
+                    }
                 }
                 break;
                 case KMessageLoader.PUT_RES_TYPE: {
@@ -153,6 +158,7 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
         KGetRequest getRequest = new KGetRequest();
         getRequest.keys = keys;
         getRequest.id = nextKey();
+        System.out.println("GET:" + getRequest.id + " => " + callback);
         _getCallbacks.put(getRequest.id, callback);
         WebSockets.sendText("[\"" + JsonString.encode(getRequest.json()) + "\"]", _client.getChannel(), null);
     }
