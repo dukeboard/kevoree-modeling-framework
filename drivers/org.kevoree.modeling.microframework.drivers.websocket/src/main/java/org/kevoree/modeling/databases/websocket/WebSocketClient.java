@@ -158,7 +158,6 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
         KGetRequest getRequest = new KGetRequest();
         getRequest.keys = keys;
         getRequest.id = nextKey();
-        System.out.println("GET:" + getRequest.id + " => " + callback);
         _getCallbacks.put(getRequest.id, callback);
         WebSockets.sendText("[\"" + JsonString.encode(getRequest.json()) + "\"]", _client.getChannel(), null);
     }
