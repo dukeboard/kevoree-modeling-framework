@@ -50,7 +50,7 @@ public class LocalEventListeners {
         this._manager = manager;
     }
 
-    public void dispatch(KEventMessage[] messages) {
+    public void dispatch(final KEventMessage[] messages) {
         if (_manager != null) {
             KContentKey[] toLoad = new KContentKey[messages.length];
             for (int i = 0; i < messages.length; i++) {
