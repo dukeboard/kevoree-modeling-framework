@@ -1038,6 +1038,12 @@ declare module org {
                         static serialize(model: org.kevoree.modeling.api.KObject, callback: (p: string) => void): void;
                         static printJSON(elem: org.kevoree.modeling.api.KObject, builder: java.lang.StringBuilder, isRoot: boolean): void;
                     }
+                    class JsonObjectReader {
+                        private readObject;
+                        parseObject(payload: string): void;
+                        get(name: string): any;
+                        keys(): string[];
+                    }
                     class JsonString {
                         private static ESCAPE_CHAR;
                         static encodeBuffer(buffer: java.lang.StringBuilder, chain: string): void;

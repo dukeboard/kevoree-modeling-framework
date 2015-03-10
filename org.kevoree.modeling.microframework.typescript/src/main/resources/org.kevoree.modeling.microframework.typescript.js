@@ -2957,51 +2957,19 @@ var org;
                                 if (payload == null) {
                                     return false;
                                 }
-                                var lexer = new org.kevoree.modeling.api.json.Lexer(payload);
-                                var currentAttributeName = null;
-                                var arrayPayload = null;
-                                var content = new java.util.HashMap();
-                                var currentToken = lexer.nextToken();
-                                while (currentToken.tokenType() != org.kevoree.modeling.api.json.Type.EOF) {
-                                    if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.LEFT_BRACKET)) {
-                                        arrayPayload = new java.util.ArrayList();
-                                    }
-                                    else {
-                                        if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.RIGHT_BRACKET)) {
-                                            content.put(currentAttributeName, arrayPayload);
-                                            arrayPayload = null;
-                                            currentAttributeName = null;
-                                        }
-                                        else {
-                                            if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.VALUE)) {
-                                                if (currentAttributeName == null) {
-                                                    currentAttributeName = currentToken.value().toString();
-                                                }
-                                                else {
-                                                    if (arrayPayload == null) {
-                                                        content.put(currentAttributeName, currentToken.value().toString());
-                                                        currentAttributeName = null;
-                                                    }
-                                                    else {
-                                                        arrayPayload.add(currentToken.value().toString());
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    currentToken = lexer.nextToken();
-                                }
-                                if (content.get(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_META) == null) {
+                                var objectReader = new org.kevoree.modeling.api.json.JsonObjectReader();
+                                objectReader.parseObject(payload);
+                                if (objectReader.get(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_META) == null) {
                                     return false;
                                 }
                                 else {
-                                    entry.metaClass = metaModel.metaClass(content.get(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_META).toString());
+                                    entry.metaClass = metaModel.metaClass(objectReader.get(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_META).toString());
                                     entry.initRaw(org.kevoree.modeling.api.data.manager.Index.RESERVED_INDEXES + entry.metaClass.metaElements().length);
-                                    var metaKeys = content.keySet().toArray(new Array());
+                                    var metaKeys = objectReader.keys();
                                     for (var i = 0; i < metaKeys.length; i++) {
                                         if (metaKeys[i].equals(org.kevoree.modeling.api.json.JsonModelSerializer.INBOUNDS_META)) {
                                             try {
-                                                var raw_payload = content.get(metaKeys[i]);
+                                                var raw_payload = objectReader.get(metaKeys[i]);
                                                 var raw_keys = raw_payload;
                                                 var inbounds = new Array();
                                                 for (var j = 0; j < raw_keys.size(); j++) {
@@ -3027,7 +2995,7 @@ var org;
                                         else {
                                             if (metaKeys[i].equals(org.kevoree.modeling.api.json.JsonModelSerializer.PARENT_META)) {
                                                 try {
-                                                    var parentKeyStrings = content.get(metaKeys[i]);
+                                                    var parentKeyStrings = objectReader.get(metaKeys[i]);
                                                     var parentKey = new Array();
                                                     for (var k = 0; k < parentKeyStrings.size(); k++) {
                                                         parentKey[0] = java.lang.Long.parseLong(parentKeyStrings.get(k));
@@ -3044,7 +3012,7 @@ var org;
                                             else {
                                                 if (metaKeys[i].equals(org.kevoree.modeling.api.json.JsonModelSerializer.PARENT_REF_META)) {
                                                     try {
-                                                        var raw_payload_ref = content.get(metaKeys[i]).toString();
+                                                        var raw_payload_ref = objectReader.get(metaKeys[i]).toString();
                                                         var elemsRefs = raw_payload_ref.split(JsonRaw.SEP);
                                                         if (elemsRefs.length == 2) {
                                                             var foundMeta = metaModel.metaClass(elemsRefs[0].trim());
@@ -3065,7 +3033,7 @@ var org;
                                                 }
                                                 else {
                                                     var metaElement = entry.metaClass.metaByName(metaKeys[i]);
-                                                    var insideContent = content.get(metaKeys[i]);
+                                                    var insideContent = objectReader.get(metaKeys[i]);
                                                     if (insideContent != null) {
                                                         if (metaElement != null && metaElement.metaType().equals(org.kevoree.modeling.api.meta.MetaType.ATTRIBUTE)) {
                                                             entry.set(metaElement.index(), metaElement.strategy().load(insideContent.toString(), metaElement, now));
@@ -5153,6 +5121,25 @@ var org;
                         return JsonModelSerializer;
                     })();
                     json.JsonModelSerializer = JsonModelSerializer;
+                    var JsonObjectReader = (function () {
+                        function JsonObjectReader() {
+                        }
+                        JsonObjectReader.prototype.parseObject = function (payload) {
+                            this.readObject = JSON.parse(payload);
+                        };
+                        JsonObjectReader.prototype.get = function (name) {
+                            return this.readObject[name];
+                        };
+                        JsonObjectReader.prototype.keys = function () {
+                            var keysArr = [];
+                            for (var key in this.readObject) {
+                                keysArr.push(key);
+                            }
+                            return keysArr;
+                        };
+                        return JsonObjectReader;
+                    })();
+                    json.JsonObjectReader = JsonObjectReader;
                     var JsonString = (function () {
                         function JsonString() {
                         }
@@ -6060,24 +6047,28 @@ var org;
                                 buffer.append("\"");
                             }
                             buffer.append("]\n");
-                            buffer.append(",");
-                            buffer.append("\"");
-                            buffer.append(org.kevoree.modeling.api.msg.KMessageLoader.VALUES_NAME).append("\":[");
-                            for (var i = 0; i < this._metaindexes.length; i++) {
-                                if (i != 0) {
-                                    buffer.append(",");
-                                }
+                            if (this._metaindexes != null) {
+                                buffer.append(",");
                                 buffer.append("\"");
-                                var metaModified = this._metaindexes[i];
-                                for (var j = 0; j < metaModified.length; j++) {
-                                    if (j != 0) {
-                                        buffer.append("%");
+                                buffer.append(org.kevoree.modeling.api.msg.KMessageLoader.VALUES_NAME).append("\":[");
+                                for (var i = 0; i < this._metaindexes.length; i++) {
+                                    if (i != 0) {
+                                        buffer.append(",");
                                     }
-                                    buffer.append(metaModified[j]);
+                                    buffer.append("\"");
+                                    var metaModified = this._metaindexes[i];
+                                    if (metaModified != null) {
+                                        for (var j = 0; j < metaModified.length; j++) {
+                                            if (j != 0) {
+                                                buffer.append("%");
+                                            }
+                                            buffer.append(metaModified[j]);
+                                        }
+                                    }
+                                    buffer.append("\"");
                                 }
-                                buffer.append("\"");
+                                buffer.append("]\n");
                             }
-                            buffer.append("]\n");
                             org.kevoree.modeling.api.msg.KMessageHelper.printJsonEnd(buffer);
                             return buffer.toString();
                         };
@@ -6195,55 +6186,17 @@ var org;
                         function KMessageLoader() {
                         }
                         KMessageLoader.load = function (payload) {
-                            var lexer = new org.kevoree.modeling.api.json.Lexer(payload);
-                            var content = new java.util.HashMap();
-                            var currentAttributeName = null;
-                            var arrayPayload = null;
-                            var currentToken = lexer.nextToken();
-                            while (currentToken.tokenType() != org.kevoree.modeling.api.json.Type.EOF) {
-                                if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.LEFT_BRACKET)) {
-                                    arrayPayload = new java.util.ArrayList();
-                                }
-                                else {
-                                    if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.RIGHT_BRACKET)) {
-                                        content.put(currentAttributeName, arrayPayload);
-                                        arrayPayload = null;
-                                        currentAttributeName = null;
-                                    }
-                                    else {
-                                        if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.LEFT_BRACE)) {
-                                            content = new java.util.HashMap();
-                                        }
-                                        else {
-                                            if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.RIGHT_BRACE)) {
-                                            }
-                                            else {
-                                                if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.VALUE)) {
-                                                    if (currentAttributeName == null) {
-                                                        currentAttributeName = currentToken.value().toString();
-                                                    }
-                                                    else {
-                                                        if (arrayPayload == null) {
-                                                            content.put(currentAttributeName, currentToken.value().toString());
-                                                            currentAttributeName = null;
-                                                        }
-                                                        else {
-                                                            arrayPayload.add(currentToken.value().toString());
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                currentToken = lexer.nextToken();
+                            if (payload == null) {
+                                return null;
                             }
+                            var objectReader = new org.kevoree.modeling.api.json.JsonObjectReader();
+                            objectReader.parseObject(payload);
                             try {
-                                var parsedType = java.lang.Integer.parseInt(content.get(KMessageLoader.TYPE_NAME).toString());
+                                var parsedType = java.lang.Integer.parseInt(objectReader.get(KMessageLoader.TYPE_NAME).toString());
                                 if (parsedType == KMessageLoader.EVENTS_TYPE) {
                                     var eventsMessage = null;
-                                    if (content.get(KMessageLoader.KEYS_NAME) != null) {
-                                        var objIdsRaw = content.get(KMessageLoader.KEYS_NAME);
+                                    if (objectReader.get(KMessageLoader.KEYS_NAME) != null) {
+                                        var objIdsRaw = objectReader.get(KMessageLoader.KEYS_NAME);
                                         eventsMessage = new org.kevoree.modeling.api.msg.KEvents(objIdsRaw.size());
                                         var keys = new Array();
                                         for (var i = 0; i < objIdsRaw.size(); i++) {
@@ -6258,8 +6211,8 @@ var org;
                                             }
                                         }
                                         eventsMessage._objIds = keys;
-                                        if (content.get(KMessageLoader.VALUES_NAME) != null) {
-                                            var metaInt = content.get(KMessageLoader.VALUES_NAME);
+                                        if (objectReader.get(KMessageLoader.VALUES_NAME) != null) {
+                                            var metaInt = objectReader.get(KMessageLoader.VALUES_NAME);
                                             var metaIndexes = new Array();
                                             for (var i = 0; i < metaInt.size(); i++) {
                                                 try {
@@ -6267,7 +6220,9 @@ var org;
                                                         var splitted = metaInt.get(i).split("%");
                                                         var newMeta = new Array();
                                                         for (var h = 0; h < splitted.length; h++) {
-                                                            newMeta[h] = java.lang.Integer.parseInt(splitted[h]);
+                                                            if (splitted[h] != null && !splitted[h].isEmpty()) {
+                                                                newMeta[h] = java.lang.Integer.parseInt(splitted[h]);
+                                                            }
                                                         }
                                                         metaIndexes[i] = newMeta;
                                                     }
@@ -6287,11 +6242,11 @@ var org;
                                 else {
                                     if (parsedType == KMessageLoader.GET_REQ_TYPE) {
                                         var getKeysRequest = new org.kevoree.modeling.api.msg.KGetRequest();
-                                        if (content.get(KMessageLoader.ID_NAME) != null) {
-                                            getKeysRequest.id = java.lang.Long.parseLong(content.get(KMessageLoader.ID_NAME).toString());
+                                        if (objectReader.get(KMessageLoader.ID_NAME) != null) {
+                                            getKeysRequest.id = java.lang.Long.parseLong(objectReader.get(KMessageLoader.ID_NAME).toString());
                                         }
-                                        if (content.get(KMessageLoader.KEYS_NAME) != null) {
-                                            var metaInt = content.get(KMessageLoader.KEYS_NAME);
+                                        if (objectReader.get(KMessageLoader.KEYS_NAME) != null) {
+                                            var metaInt = objectReader.get(KMessageLoader.KEYS_NAME);
                                             var keys = new Array();
                                             for (var i = 0; i < metaInt.size(); i++) {
                                                 keys[i] = org.kevoree.modeling.api.data.cache.KContentKey.create(metaInt.get(i));
@@ -6303,11 +6258,11 @@ var org;
                                     else {
                                         if (parsedType == KMessageLoader.GET_RES_TYPE) {
                                             var getResult = new org.kevoree.modeling.api.msg.KGetResult();
-                                            if (content.get(KMessageLoader.ID_NAME) != null) {
-                                                getResult.id = java.lang.Long.parseLong(content.get(KMessageLoader.ID_NAME).toString());
+                                            if (objectReader.get(KMessageLoader.ID_NAME) != null) {
+                                                getResult.id = java.lang.Long.parseLong(objectReader.get(KMessageLoader.ID_NAME).toString());
                                             }
-                                            if (content.get(KMessageLoader.VALUES_NAME) != null) {
-                                                var metaInt = content.get(KMessageLoader.VALUES_NAME);
+                                            if (objectReader.get(KMessageLoader.VALUES_NAME) != null) {
+                                                var metaInt = objectReader.get(KMessageLoader.VALUES_NAME);
                                                 var values = new Array();
                                                 for (var i = 0; i < metaInt.size(); i++) {
                                                     values[i] = org.kevoree.modeling.api.json.JsonString.unescape(metaInt.get(i));
@@ -6319,17 +6274,17 @@ var org;
                                         else {
                                             if (parsedType == KMessageLoader.PUT_REQ_TYPE) {
                                                 var putRequest = new org.kevoree.modeling.api.msg.KPutRequest();
-                                                if (content.get(KMessageLoader.ID_NAME) != null) {
-                                                    putRequest.id = java.lang.Long.parseLong(content.get(KMessageLoader.ID_NAME).toString());
+                                                if (objectReader.get(KMessageLoader.ID_NAME) != null) {
+                                                    putRequest.id = java.lang.Long.parseLong(objectReader.get(KMessageLoader.ID_NAME).toString());
                                                 }
                                                 var toFlatKeys = null;
                                                 var toFlatValues = null;
-                                                if (content.get(KMessageLoader.KEYS_NAME) != null) {
-                                                    var metaKeys = content.get(KMessageLoader.KEYS_NAME);
+                                                if (objectReader.get(KMessageLoader.KEYS_NAME) != null) {
+                                                    var metaKeys = objectReader.get(KMessageLoader.KEYS_NAME);
                                                     toFlatKeys = metaKeys.toArray(new Array());
                                                 }
-                                                if (content.get(KMessageLoader.VALUES_NAME) != null) {
-                                                    var metaValues = content.get(KMessageLoader.VALUES_NAME);
+                                                if (objectReader.get(KMessageLoader.VALUES_NAME) != null) {
+                                                    var metaValues = objectReader.get(KMessageLoader.VALUES_NAME);
                                                     toFlatValues = metaValues.toArray(new Array());
                                                 }
                                                 if (toFlatKeys != null && toFlatValues != null && toFlatKeys.length == toFlatValues.length) {
@@ -6345,28 +6300,28 @@ var org;
                                             else {
                                                 if (parsedType == KMessageLoader.PUT_RES_TYPE) {
                                                     var putResult = new org.kevoree.modeling.api.msg.KPutResult();
-                                                    if (content.get(KMessageLoader.ID_NAME) != null) {
-                                                        putResult.id = java.lang.Long.parseLong(content.get(KMessageLoader.ID_NAME).toString());
+                                                    if (objectReader.get(KMessageLoader.ID_NAME) != null) {
+                                                        putResult.id = java.lang.Long.parseLong(objectReader.get(KMessageLoader.ID_NAME).toString());
                                                     }
                                                     return putResult;
                                                 }
                                                 else {
                                                     if (parsedType == KMessageLoader.OPERATION_CALL_TYPE) {
                                                         var callMessage = new org.kevoree.modeling.api.msg.KOperationCallMessage();
-                                                        if (content.get(KMessageLoader.ID_NAME) != null) {
-                                                            callMessage.id = java.lang.Long.parseLong(content.get(KMessageLoader.ID_NAME).toString());
+                                                        if (objectReader.get(KMessageLoader.ID_NAME) != null) {
+                                                            callMessage.id = java.lang.Long.parseLong(objectReader.get(KMessageLoader.ID_NAME).toString());
                                                         }
-                                                        if (content.get(KMessageLoader.KEY_NAME) != null) {
-                                                            callMessage.key = org.kevoree.modeling.api.data.cache.KContentKey.create(content.get(KMessageLoader.KEY_NAME).toString());
+                                                        if (objectReader.get(KMessageLoader.KEY_NAME) != null) {
+                                                            callMessage.key = org.kevoree.modeling.api.data.cache.KContentKey.create(objectReader.get(KMessageLoader.KEY_NAME).toString());
                                                         }
-                                                        if (content.get(KMessageLoader.CLASS_IDX_NAME) != null) {
-                                                            callMessage.classIndex = java.lang.Integer.parseInt(content.get(KMessageLoader.CLASS_IDX_NAME).toString());
+                                                        if (objectReader.get(KMessageLoader.CLASS_IDX_NAME) != null) {
+                                                            callMessage.classIndex = java.lang.Integer.parseInt(objectReader.get(KMessageLoader.CLASS_IDX_NAME).toString());
                                                         }
-                                                        if (content.get(KMessageLoader.OPERATION_NAME) != null) {
-                                                            callMessage.opIndex = java.lang.Integer.parseInt(content.get(KMessageLoader.OPERATION_NAME).toString());
+                                                        if (objectReader.get(KMessageLoader.OPERATION_NAME) != null) {
+                                                            callMessage.opIndex = java.lang.Integer.parseInt(objectReader.get(KMessageLoader.OPERATION_NAME).toString());
                                                         }
-                                                        if (content.get(KMessageLoader.PARAMETERS_NAME) != null) {
-                                                            var params = content.get(KMessageLoader.PARAMETERS_NAME);
+                                                        if (objectReader.get(KMessageLoader.PARAMETERS_NAME) != null) {
+                                                            var params = objectReader.get(KMessageLoader.PARAMETERS_NAME);
                                                             var toFlat = new Array();
                                                             for (var i = 0; i < params.size(); i++) {
                                                                 toFlat[i] = org.kevoree.modeling.api.json.JsonString.unescape(params.get(i));
@@ -6378,39 +6333,39 @@ var org;
                                                     else {
                                                         if (parsedType == KMessageLoader.OPERATION_RESULT_TYPE) {
                                                             var resultMessage = new org.kevoree.modeling.api.msg.KOperationResultMessage();
-                                                            if (content.get(KMessageLoader.ID_NAME) != null) {
-                                                                resultMessage.id = java.lang.Long.parseLong(content.get(KMessageLoader.ID_NAME).toString());
+                                                            if (objectReader.get(KMessageLoader.ID_NAME) != null) {
+                                                                resultMessage.id = java.lang.Long.parseLong(objectReader.get(KMessageLoader.ID_NAME).toString());
                                                             }
-                                                            if (content.get(KMessageLoader.KEY_NAME) != null) {
-                                                                resultMessage.key = org.kevoree.modeling.api.data.cache.KContentKey.create(content.get(KMessageLoader.KEY_NAME).toString());
+                                                            if (objectReader.get(KMessageLoader.KEY_NAME) != null) {
+                                                                resultMessage.key = org.kevoree.modeling.api.data.cache.KContentKey.create(objectReader.get(KMessageLoader.KEY_NAME).toString());
                                                             }
-                                                            if (content.get(KMessageLoader.VALUE_NAME) != null) {
-                                                                resultMessage.value = content.get(KMessageLoader.VALUE_NAME).toString();
+                                                            if (objectReader.get(KMessageLoader.VALUE_NAME) != null) {
+                                                                resultMessage.value = objectReader.get(KMessageLoader.VALUE_NAME).toString();
                                                             }
                                                             return resultMessage;
                                                         }
                                                         else {
                                                             if (parsedType == KMessageLoader.ATOMIC_OPERATION_REQUEST_TYPE) {
                                                                 var atomicGetMessage = new org.kevoree.modeling.api.msg.KAtomicGetRequest();
-                                                                if (content.get(KMessageLoader.ID_NAME) != null) {
-                                                                    atomicGetMessage.id = java.lang.Long.parseLong(content.get(KMessageLoader.ID_NAME).toString());
+                                                                if (objectReader.get(KMessageLoader.ID_NAME) != null) {
+                                                                    atomicGetMessage.id = java.lang.Long.parseLong(objectReader.get(KMessageLoader.ID_NAME).toString());
                                                                 }
-                                                                if (content.get(KMessageLoader.KEY_NAME) != null) {
-                                                                    atomicGetMessage.key = org.kevoree.modeling.api.data.cache.KContentKey.create(content.get(KMessageLoader.KEY_NAME).toString());
+                                                                if (objectReader.get(KMessageLoader.KEY_NAME) != null) {
+                                                                    atomicGetMessage.key = org.kevoree.modeling.api.data.cache.KContentKey.create(objectReader.get(KMessageLoader.KEY_NAME).toString());
                                                                 }
-                                                                if (content.get(KMessageLoader.OPERATION_NAME) != null) {
-                                                                    atomicGetMessage.operation = org.kevoree.modeling.api.data.cdn.AtomicOperationFactory.getOperationWithKey(java.lang.Integer.parseInt(content.get(KMessageLoader.OPERATION_NAME)));
+                                                                if (objectReader.get(KMessageLoader.OPERATION_NAME) != null) {
+                                                                    atomicGetMessage.operation = org.kevoree.modeling.api.data.cdn.AtomicOperationFactory.getOperationWithKey(java.lang.Integer.parseInt(objectReader.get(KMessageLoader.OPERATION_NAME)));
                                                                 }
                                                                 return atomicGetMessage;
                                                             }
                                                             else {
                                                                 if (parsedType == KMessageLoader.ATOMIC_OPERATION_RESULT_TYPE) {
                                                                     var atomicGetResultMessage = new org.kevoree.modeling.api.msg.KAtomicGetResult();
-                                                                    if (content.get(KMessageLoader.ID_NAME) != null) {
-                                                                        atomicGetResultMessage.id = java.lang.Long.parseLong(content.get(KMessageLoader.ID_NAME).toString());
+                                                                    if (objectReader.get(KMessageLoader.ID_NAME) != null) {
+                                                                        atomicGetResultMessage.id = java.lang.Long.parseLong(objectReader.get(KMessageLoader.ID_NAME).toString());
                                                                     }
-                                                                    if (content.get(KMessageLoader.VALUE_NAME) != null) {
-                                                                        atomicGetResultMessage.value = content.get(KMessageLoader.VALUE_NAME).toString();
+                                                                    if (objectReader.get(KMessageLoader.VALUE_NAME) != null) {
+                                                                        atomicGetResultMessage.value = objectReader.get(KMessageLoader.VALUE_NAME).toString();
                                                                     }
                                                                     return atomicGetResultMessage;
                                                                 }

@@ -4,10 +4,7 @@ import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
 import org.kevoree.modeling.api.abs.AbstractMetaReference;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
-import org.kevoree.modeling.api.json.JsonModelSerializer;
-import org.kevoree.modeling.api.json.JsonToken;
-import org.kevoree.modeling.api.json.Lexer;
-import org.kevoree.modeling.api.json.Type;
+import org.kevoree.modeling.api.json.*;
 import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
@@ -17,8 +14,6 @@ import org.kevoree.modeling.api.meta.MetaType;
 import org.kevoree.modeling.api.meta.PrimitiveTypes;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by duke on 11/25/14.
@@ -31,47 +26,23 @@ public class JsonRaw {
         if (payload == null) {
             return false;
         }
-        Lexer lexer = new Lexer(payload);
-        String currentAttributeName = null;
-        ArrayList<String> arrayPayload = null;
-        //TODO replace by indexBaseStructure
-        Map<String, Object> content = new HashMap<String, Object>();
-        JsonToken currentToken = lexer.nextToken();
-        while (currentToken.tokenType() != Type.EOF) {
-            if (currentToken.tokenType().equals(Type.LEFT_BRACKET)) {
-                arrayPayload = new ArrayList<String>();
-            } else if (currentToken.tokenType().equals(Type.RIGHT_BRACKET)) {
-                content.put(currentAttributeName, arrayPayload);
-                arrayPayload = null;
-                currentAttributeName = null;
-            } else if (currentToken.tokenType().equals(Type.VALUE)) {
-                if (currentAttributeName == null) {
-                    currentAttributeName = currentToken.value().toString();
-                } else {
-                    if (arrayPayload == null) {
-                        content.put(currentAttributeName, currentToken.value().toString());
-                        currentAttributeName = null;
-                    } else {
-                        arrayPayload.add(currentToken.value().toString());
-                    }
-                }
-            }
-            currentToken = lexer.nextToken();
-        }
+        JsonObjectReader objectReader = new JsonObjectReader();
+        objectReader.parseObject(payload);
+
         //Consistency check
-        if (content.get(JsonModelSerializer.KEY_META) == null) {
+        if (objectReader.get(JsonModelSerializer.KEY_META) == null) {
             return false;
         } else {
             //Init metaClass before everything
-            entry.metaClass = metaModel.metaClass(content.get(JsonModelSerializer.KEY_META).toString());
+            entry.metaClass = metaModel.metaClass(objectReader.get(JsonModelSerializer.KEY_META).toString());
             //Init the Raw manager
             entry.initRaw(Index.RESERVED_INDEXES + entry.metaClass.metaElements().length);
             //Now Fill the Raw Storage
-            String[] metaKeys = content.keySet().toArray(new String[content.size()]);
+            String[] metaKeys = objectReader.keys();
             for (int i = 0; i < metaKeys.length; i++) {
                 if (metaKeys[i].equals(JsonModelSerializer.INBOUNDS_META)) {
                     try {
-                        Object raw_payload = content.get(metaKeys[i]);
+                        Object raw_payload = objectReader.get(metaKeys[i]);
                         ArrayList<String> raw_keys = (ArrayList<String>) raw_payload;
                         long[] inbounds = new long[raw_keys.size()];
                         for (int j = 0; j < raw_keys.size(); j++) {
@@ -87,7 +58,7 @@ public class JsonRaw {
                     }
                 } else if (metaKeys[i].equals(JsonModelSerializer.PARENT_META)) {
                     try {
-                        ArrayList<String> parentKeyStrings = (ArrayList<String>) content.get(metaKeys[i]);
+                        ArrayList<String> parentKeyStrings = (ArrayList<String>) objectReader.get(metaKeys[i]);
                         long[] parentKey = new long[1];
                         for (int k = 0; k < parentKeyStrings.size(); k++) {
                             parentKey[0] = Long.parseLong(parentKeyStrings.get(k));
@@ -98,7 +69,7 @@ public class JsonRaw {
                     }
                 } else if (metaKeys[i].equals(JsonModelSerializer.PARENT_REF_META)) {
                     try {
-                        String raw_payload_ref = content.get(metaKeys[i]).toString();
+                        String raw_payload_ref = objectReader.get(metaKeys[i]).toString();
                         String[] elemsRefs = raw_payload_ref.split(SEP);
                         if (elemsRefs.length == 2) {
                             MetaClass foundMeta = metaModel.metaClass(elemsRefs[0].trim());
@@ -114,7 +85,7 @@ public class JsonRaw {
                     }
                 } else {
                     Meta metaElement = entry.metaClass.metaByName(metaKeys[i]);
-                    Object insideContent = content.get(metaKeys[i]);
+                    Object insideContent = objectReader.get(metaKeys[i]);
                     if (insideContent != null) {
                         if (metaElement != null && metaElement.metaType().equals(MetaType.ATTRIBUTE)) {
                             entry.set(metaElement.index(), ((AbstractMetaAttribute) metaElement).strategy().load(insideContent.toString(), (AbstractMetaAttribute) metaElement, now));

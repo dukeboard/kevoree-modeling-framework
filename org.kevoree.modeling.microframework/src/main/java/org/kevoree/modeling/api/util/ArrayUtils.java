@@ -1,7 +1,5 @@
 package org.kevoree.modeling.api.util;
 
-import java.util.Set;
-
 /**
  * Created by duke on 02/03/15.
  */
