@@ -50,11 +50,13 @@ public class KEvents implements KMessage {
                 }
                 buffer.append("\"");
                 int[] metaModified = _metaindexes[i];
-                for (int j = 0; j < metaModified.length; j++) {
-                    if (j != 0) {
-                        buffer.append("%");
+                if (metaModified != null) {
+                    for (int j = 0; j < metaModified.length; j++) {
+                        if (j != 0) {
+                            buffer.append("%");
+                        }
+                        buffer.append(metaModified[j]);
                     }
-                    buffer.append(metaModified[j]);
                 }
                 buffer.append("\"");
             }
