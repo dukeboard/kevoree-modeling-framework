@@ -13,7 +13,7 @@ public class KEvents implements KMessage {
 
     private int _size;
 
-    public KContentKey[] allKeys(){
+    public KContentKey[] allKeys() {
         return _objIds;
     }
 
@@ -40,25 +40,26 @@ public class KEvents implements KMessage {
             buffer.append("\"");
         }
         buffer.append("]\n");
-        buffer.append(",");
-        buffer.append("\"");
-        buffer.append(KMessageLoader.VALUES_NAME).append("\":[");
-        for (int i = 0; i < _metaindexes.length; i++) {
-            if (i != 0) {
-                buffer.append(",");
-            }
+        if (_metaindexes != null) {
+            buffer.append(",");
             buffer.append("\"");
-            int[] metaModified = _metaindexes[i];
-            for (int j = 0; j < metaModified.length; j++) {
-                if (j != 0) {
-                    buffer.append("%");
+            buffer.append(KMessageLoader.VALUES_NAME).append("\":[");
+            for (int i = 0; i < _metaindexes.length; i++) {
+                if (i != 0) {
+                    buffer.append(",");
                 }
-                buffer.append(metaModified[j]);
+                buffer.append("\"");
+                int[] metaModified = _metaindexes[i];
+                for (int j = 0; j < metaModified.length; j++) {
+                    if (j != 0) {
+                        buffer.append("%");
+                    }
+                    buffer.append(metaModified[j]);
+                }
+                buffer.append("\"");
             }
-            buffer.append("\"");
+            buffer.append("]\n");
         }
-        buffer.append("]\n");
-
         KMessageHelper.printJsonEnd(buffer);
         return buffer.toString();
     }
