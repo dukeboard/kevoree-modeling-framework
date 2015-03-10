@@ -2,13 +2,16 @@ package org.kevoree.modeling.test.datastore;
 
 import geometry.*;
 import geometry.meta.MetaLibrary;
+import geometry.meta.MetaShape;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KOperation;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.cdn.MemoryKContentDeliveryDriver;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.databases.websocket.WebSocketWrapper;
 
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +31,32 @@ public class MainServerTest {
 
         GeometryModel geoModel = new GeometryModel();
         geoModel.setContentDeliveryDriver(new WebSocketWrapper(geoModel.manager().cdn(), 23664));
+
+
+        geoModel.setOperation(MetaLibrary.OP_ADDSHAPE, new KOperation() {
+            public void on(KObject source, Object[] params, Callback<Object> result) {
+                GeometryUniverse dimension = geoModel.universe(0);
+                GeometryView geoFactory = dimension.time(originOfTime);
+                geoFactory.getRoot().then(new Callback<KObject>() {
+                    @Override
+                    public void on(KObject kObject) {
+                        if (kObject != null) {
+                            Library lib = (Library) kObject;
+                            lib.addShapes(geoFactory.createShape().setName("Shape" + params[0]).setColor("grey"));
+                            geoModel.save().then(Utils.DefaultPrintStackTraceCallback);
+
+                            System.out.println("Shape added by operation");
+                            result.on("true");
+                        } else {
+                            System.out.println("Shape not added, root not found");
+                            result.on("false");
+                        }
+                    }
+                });
+            }
+        });
+
+
 
         geoModel.connect().then(new Callback<Throwable>() {
             @Override

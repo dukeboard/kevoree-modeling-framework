@@ -11,7 +11,7 @@
 </head>
 <body>
 
-<button id="addNewShapeButton">AddNewShape</button>
+<button id="addNewShapeButton">AddNewShape</button> <button id="addNewShapeOperation">AddNewShape by operation</button>
 
 <div id="shapesContainer"></div>
 
@@ -56,7 +56,6 @@
 
     function displayShapes(lib) {
 
-
         var shapesContainer = $('#shapesContainer');
         lib.getShapes().then(function(shapes){
             if(shapes != null) {
@@ -76,6 +75,7 @@
     }
 
     $('#addNewShapeButton').on('click', addNewShape);
+    $('#addNewShapeOperation').on('click', addNewShapeOperation);
 
     function addNewShape() {
         var dimension = geometryModel.universe(0);
@@ -100,6 +100,23 @@
                 }catch( e ) {
                     console.error(e);
                 }
+            }
+        });
+    }
+
+    function addNewShapeOperation() {
+        var dimension = geometryModel.universe(0);
+        var view = dimension.time(0);
+        view.getRoot().then(function (root) {
+            if (root === undefined) {
+                console.error("No root found.", root)
+            } else {
+                var lib = root;
+                var index = lib.sizeOfShapes();
+                index = index +1;
+                lib.addShape("" + index, function(result) {
+                    console.log("Shape added by operation:" + result);
+                });
             }
         });
     }
