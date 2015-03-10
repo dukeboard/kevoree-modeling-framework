@@ -102,7 +102,9 @@ public class KMessageLoader {
                                     String[] splitted = metaInt.get(i).split("%");
                                     int[] newMeta = new int[splitted.length];
                                     for (int h = 0; h < splitted.length; h++) {
-                                        newMeta[h] = Integer.parseInt(splitted[h]);
+                                        if(splitted[h]!=null && !splitted[h].isEmpty()){
+                                            newMeta[h] = Integer.parseInt(splitted[h]);
+                                        }
                                     }
                                     metaIndexes[i] = newMeta;
                                 }
