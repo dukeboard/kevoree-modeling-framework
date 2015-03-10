@@ -2969,12 +2969,11 @@ var org;
                                     for (var i = 0; i < metaKeys.length; i++) {
                                         if (metaKeys[i].equals(org.kevoree.modeling.api.json.JsonModelSerializer.INBOUNDS_META)) {
                                             try {
-                                                var raw_payload = objectReader.get(metaKeys[i]);
-                                                var raw_keys = raw_payload;
+                                                var raw_keys = objectReader.getAsStringArray(metaKeys[i]);
                                                 var inbounds = new Array();
-                                                for (var j = 0; j < raw_keys.size(); j++) {
+                                                for (var j = 0; j < raw_keys.length; j++) {
                                                     try {
-                                                        inbounds[j] = java.lang.Long.parseLong(raw_keys.get(j));
+                                                        inbounds[j] = java.lang.Long.parseLong(raw_keys[j]);
                                                     }
                                                     catch ($ex$) {
                                                         if ($ex$ instanceof java.lang.Exception) {
@@ -2995,10 +2994,10 @@ var org;
                                         else {
                                             if (metaKeys[i].equals(org.kevoree.modeling.api.json.JsonModelSerializer.PARENT_META)) {
                                                 try {
-                                                    var parentKeyStrings = objectReader.get(metaKeys[i]);
+                                                    var parentKeyStrings = objectReader.getAsStringArray(metaKeys[i]);
                                                     var parentKey = new Array();
-                                                    for (var k = 0; k < parentKeyStrings.size(); k++) {
-                                                        parentKey[0] = java.lang.Long.parseLong(parentKeyStrings.get(k));
+                                                    for (var k = 0; k < parentKeyStrings.length; k++) {
+                                                        parentKey[0] = java.lang.Long.parseLong(parentKeyStrings[k]);
                                                     }
                                                     entry.set(org.kevoree.modeling.api.data.manager.Index.PARENT_INDEX, parentKey);
                                                 }
@@ -3041,11 +3040,11 @@ var org;
                                                         else {
                                                             if (metaElement != null && metaElement instanceof org.kevoree.modeling.api.abs.AbstractMetaReference) {
                                                                 try {
-                                                                    var plainRawSet = insideContent;
+                                                                    var plainRawSet = objectReader.getAsStringArray(metaKeys[i]);
                                                                     var convertedRaw = new Array();
-                                                                    for (var l = 0; l < plainRawSet.size(); l++) {
+                                                                    for (var l = 0; l < plainRawSet.length; l++) {
                                                                         try {
-                                                                            convertedRaw[l] = java.lang.Long.parseLong(plainRawSet.get(l));
+                                                                            convertedRaw[l] = java.lang.Long.parseLong(plainRawSet[l]);
                                                                         }
                                                                         catch ($ex$) {
                                                                             if ($ex$ instanceof java.lang.Exception) {
@@ -5130,6 +5129,9 @@ var org;
                         JsonObjectReader.prototype.get = function (name) {
                             return this.readObject[name];
                         };
+                        JsonObjectReader.prototype.getAsStringArray = function (name) {
+                            return this.readObject[name];
+                        };
                         JsonObjectReader.prototype.keys = function () {
                             var keysArr = [];
                             for (var key in this.readObject) {
@@ -6196,12 +6198,12 @@ var org;
                                 if (parsedType == KMessageLoader.EVENTS_TYPE) {
                                     var eventsMessage = null;
                                     if (objectReader.get(KMessageLoader.KEYS_NAME) != null) {
-                                        var objIdsRaw = objectReader.get(KMessageLoader.KEYS_NAME);
-                                        eventsMessage = new org.kevoree.modeling.api.msg.KEvents(objIdsRaw.size());
+                                        var objIdsRaw = objectReader.getAsStringArray(KMessageLoader.KEYS_NAME);
+                                        eventsMessage = new org.kevoree.modeling.api.msg.KEvents(objIdsRaw.length);
                                         var keys = new Array();
-                                        for (var i = 0; i < objIdsRaw.size(); i++) {
+                                        for (var i = 0; i < objIdsRaw.length; i++) {
                                             try {
-                                                keys[i] = org.kevoree.modeling.api.data.cache.KContentKey.create(objIdsRaw.get(i));
+                                                keys[i] = org.kevoree.modeling.api.data.cache.KContentKey.create(objIdsRaw[i]);
                                             }
                                             catch ($ex$) {
                                                 if ($ex$ instanceof java.lang.Exception) {
@@ -6212,12 +6214,12 @@ var org;
                                         }
                                         eventsMessage._objIds = keys;
                                         if (objectReader.get(KMessageLoader.VALUES_NAME) != null) {
-                                            var metaInt = objectReader.get(KMessageLoader.VALUES_NAME);
+                                            var metaInt = objectReader.getAsStringArray(KMessageLoader.VALUES_NAME);
                                             var metaIndexes = new Array();
-                                            for (var i = 0; i < metaInt.size(); i++) {
+                                            for (var i = 0; i < metaInt.length; i++) {
                                                 try {
-                                                    if (metaInt.get(i) != null) {
-                                                        var splitted = metaInt.get(i).split("%");
+                                                    if (metaInt[i] != null) {
+                                                        var splitted = metaInt[i].split("%");
                                                         var newMeta = new Array();
                                                         for (var h = 0; h < splitted.length; h++) {
                                                             if (splitted[h] != null && !splitted[h].isEmpty()) {
@@ -6246,10 +6248,10 @@ var org;
                                             getKeysRequest.id = java.lang.Long.parseLong(objectReader.get(KMessageLoader.ID_NAME).toString());
                                         }
                                         if (objectReader.get(KMessageLoader.KEYS_NAME) != null) {
-                                            var metaInt = objectReader.get(KMessageLoader.KEYS_NAME);
+                                            var metaInt = objectReader.getAsStringArray(KMessageLoader.KEYS_NAME);
                                             var keys = new Array();
-                                            for (var i = 0; i < metaInt.size(); i++) {
-                                                keys[i] = org.kevoree.modeling.api.data.cache.KContentKey.create(metaInt.get(i));
+                                            for (var i = 0; i < metaInt.length; i++) {
+                                                keys[i] = org.kevoree.modeling.api.data.cache.KContentKey.create(metaInt[i]);
                                             }
                                             getKeysRequest.keys = keys;
                                         }
@@ -6262,10 +6264,10 @@ var org;
                                                 getResult.id = java.lang.Long.parseLong(objectReader.get(KMessageLoader.ID_NAME).toString());
                                             }
                                             if (objectReader.get(KMessageLoader.VALUES_NAME) != null) {
-                                                var metaInt = objectReader.get(KMessageLoader.VALUES_NAME);
+                                                var metaInt = objectReader.getAsStringArray(KMessageLoader.VALUES_NAME);
                                                 var values = new Array();
-                                                for (var i = 0; i < metaInt.size(); i++) {
-                                                    values[i] = org.kevoree.modeling.api.json.JsonString.unescape(metaInt.get(i));
+                                                for (var i = 0; i < metaInt.length; i++) {
+                                                    values[i] = org.kevoree.modeling.api.json.JsonString.unescape(metaInt[i]);
                                                 }
                                                 getResult.values = values;
                                             }
@@ -6280,12 +6282,10 @@ var org;
                                                 var toFlatKeys = null;
                                                 var toFlatValues = null;
                                                 if (objectReader.get(KMessageLoader.KEYS_NAME) != null) {
-                                                    var metaKeys = objectReader.get(KMessageLoader.KEYS_NAME);
-                                                    toFlatKeys = metaKeys.toArray(new Array());
+                                                    toFlatKeys = objectReader.getAsStringArray(KMessageLoader.KEYS_NAME);
                                                 }
                                                 if (objectReader.get(KMessageLoader.VALUES_NAME) != null) {
-                                                    var metaValues = objectReader.get(KMessageLoader.VALUES_NAME);
-                                                    toFlatValues = metaValues.toArray(new Array());
+                                                    toFlatValues = objectReader.getAsStringArray(KMessageLoader.VALUES_NAME);
                                                 }
                                                 if (toFlatKeys != null && toFlatValues != null && toFlatKeys.length == toFlatValues.length) {
                                                     if (putRequest.request == null) {
@@ -6321,10 +6321,10 @@ var org;
                                                             callMessage.opIndex = java.lang.Integer.parseInt(objectReader.get(KMessageLoader.OPERATION_NAME).toString());
                                                         }
                                                         if (objectReader.get(KMessageLoader.PARAMETERS_NAME) != null) {
-                                                            var params = objectReader.get(KMessageLoader.PARAMETERS_NAME);
+                                                            var params = objectReader.getAsStringArray(KMessageLoader.PARAMETERS_NAME);
                                                             var toFlat = new Array();
-                                                            for (var i = 0; i < params.size(); i++) {
-                                                                toFlat[i] = org.kevoree.modeling.api.json.JsonString.unescape(params.get(i));
+                                                            for (var i = 0; i < params.length; i++) {
+                                                                toFlat[i] = org.kevoree.modeling.api.json.JsonString.unescape(params[i]);
                                                             }
                                                             callMessage.params = toFlat;
                                                         }

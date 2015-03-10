@@ -1042,6 +1042,7 @@ declare module org {
                         private readObject;
                         parseObject(payload: string): void;
                         get(name: string): any;
+                        getAsStringArray(name: string): string[];
                         keys(): string[];
                     }
                     class JsonString {

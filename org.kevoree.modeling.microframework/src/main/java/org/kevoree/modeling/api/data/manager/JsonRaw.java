@@ -13,8 +13,6 @@ import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.meta.MetaType;
 import org.kevoree.modeling.api.meta.PrimitiveTypes;
 
-import java.util.ArrayList;
-
 /**
  * Created by duke on 11/25/14.
  */
@@ -42,12 +40,11 @@ public class JsonRaw {
             for (int i = 0; i < metaKeys.length; i++) {
                 if (metaKeys[i].equals(JsonModelSerializer.INBOUNDS_META)) {
                     try {
-                        Object raw_payload = objectReader.get(metaKeys[i]);
-                        ArrayList<String> raw_keys = (ArrayList<String>) raw_payload;
-                        long[] inbounds = new long[raw_keys.size()];
-                        for (int j = 0; j < raw_keys.size(); j++) {
+                        String[] raw_keys = objectReader.getAsStringArray(metaKeys[i]);
+                        long[] inbounds = new long[raw_keys.length];
+                        for (int j = 0; j < raw_keys.length; j++) {
                             try {
-                                inbounds[j] = Long.parseLong(raw_keys.get(j));
+                                inbounds[j] = Long.parseLong(raw_keys[j]);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -58,10 +55,10 @@ public class JsonRaw {
                     }
                 } else if (metaKeys[i].equals(JsonModelSerializer.PARENT_META)) {
                     try {
-                        ArrayList<String> parentKeyStrings = (ArrayList<String>) objectReader.get(metaKeys[i]);
+                        String[] parentKeyStrings = objectReader.getAsStringArray(metaKeys[i]);
                         long[] parentKey = new long[1];
-                        for (int k = 0; k < parentKeyStrings.size(); k++) {
-                            parentKey[0] = Long.parseLong(parentKeyStrings.get(k));
+                        for (int k = 0; k < parentKeyStrings.length; k++) {
+                            parentKey[0] = Long.parseLong(parentKeyStrings[k]);
                         }
                         entry.set(Index.PARENT_INDEX, parentKey);
                     } catch (Exception e) {
@@ -90,12 +87,13 @@ public class JsonRaw {
                         if (metaElement != null && metaElement.metaType().equals(MetaType.ATTRIBUTE)) {
                             entry.set(metaElement.index(), ((AbstractMetaAttribute) metaElement).strategy().load(insideContent.toString(), (AbstractMetaAttribute) metaElement, now));
                         } else if (metaElement != null && metaElement instanceof AbstractMetaReference) {
+
                             try {
-                                ArrayList<String> plainRawSet = (ArrayList<String>) insideContent;
-                                long[] convertedRaw = new long[plainRawSet.size()];
-                                for (int l = 0; l < plainRawSet.size(); l++) {
+                                String[] plainRawSet = objectReader.getAsStringArray(metaKeys[i]);
+                                long[] convertedRaw = new long[plainRawSet.length];
+                                for (int l = 0; l < plainRawSet.length; l++) {
                                     try {
-                                        convertedRaw[l] = Long.parseLong(plainRawSet.get(l));
+                                        convertedRaw[l] = Long.parseLong(plainRawSet[l]);
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }

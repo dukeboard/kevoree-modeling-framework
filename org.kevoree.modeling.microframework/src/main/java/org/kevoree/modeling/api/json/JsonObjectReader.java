@@ -10,33 +10,31 @@ import java.util.Set;
  */
 
 /**
- * @native:ts
- * {@code
-        private readObject:any;
-
-        public parseObject(payload:string):void {
-            this.readObject = JSON.parse(payload);
-        }
-
-        public get(name:string):any {
-            return this.readObject[name];
-        }
-
-        public keys():string[] {
-            var keysArr = []
-            for (var key in this.readObject) {
-                keysArr.push(key);
-            }
-            return keysArr;
-        }
-
+ * @native:ts {@code
+ * private readObject:any;
+ * public parseObject(payload:string):void {
+ * this.readObject = JSON.parse(payload);
+ * }
+ * public get(name:string):any {
+ * return this.readObject[name];
+ * }
+ * public getAsStringArray(name:string):string[] {
+ * return <string[]> this.readObject[name];
+ * }
+ * public keys():string[] {
+ * var keysArr = []
+ * for (var key in this.readObject) {
+ * keysArr.push(key);
+ * }
+ * return keysArr;
+ * }
  * }
  */
 public class JsonObjectReader {
 
     private Map<String, Object> content = new HashMap<String, Object>();
 
-    private String[] keys= null;
+    private String[] keys = null;
 
     public void parseObject(String payload) {
         Lexer lexer = new Lexer(payload);
@@ -71,8 +69,17 @@ public class JsonObjectReader {
         return content.get(name);
     }
 
-    public String[] keys(){
-        if(keys == null){
+    public String[] getAsStringArray(String name) {
+        Object result = content.get(name);
+        if (result instanceof ArrayList) {
+            ArrayList<String> casted = (ArrayList<String>) result;
+            return casted.toArray(new String[casted.size()]);
+        }
+        return null;
+    }
+
+    public String[] keys() {
+        if (keys == null) {
             Set<String> keySet = content.keySet();
             keys = keySet.toArray(new String[keySet.size()]);
         }

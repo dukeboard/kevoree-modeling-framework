@@ -55,24 +55,24 @@ public class KMessageLoader {
             if (parsedType == EVENTS_TYPE) {
                 KEvents eventsMessage = null;
                 if (objectReader.get(KEYS_NAME) != null) {
-                    ArrayList<String> objIdsRaw = (ArrayList<String>) objectReader.get(KEYS_NAME);
-                    eventsMessage = new KEvents(objIdsRaw.size());
-                    KContentKey[] keys = new KContentKey[objIdsRaw.size()];
-                    for (int i = 0; i < objIdsRaw.size(); i++) {
+                    String[] objIdsRaw = objectReader.getAsStringArray(KEYS_NAME);
+                    eventsMessage = new KEvents(objIdsRaw.length);
+                    KContentKey[] keys = new KContentKey[objIdsRaw.length];
+                    for (int i = 0; i < objIdsRaw.length; i++) {
                         try {
-                            keys[i] = KContentKey.create(objIdsRaw.get(i));
+                            keys[i] = KContentKey.create(objIdsRaw[i]);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
                     eventsMessage._objIds = keys;
                     if (objectReader.get(VALUES_NAME) != null) {
-                        ArrayList<String> metaInt = (ArrayList<String>) objectReader.get(VALUES_NAME);
-                        int[][] metaIndexes = new int[metaInt.size()][];
-                        for (int i = 0; i < metaInt.size(); i++) {
+                        String[] metaInt = objectReader.getAsStringArray(VALUES_NAME);
+                        int[][] metaIndexes = new int[metaInt.length][];
+                        for (int i = 0; i < metaInt.length; i++) {
                             try {
-                                if (metaInt.get(i) != null) {
-                                    String[] splitted = metaInt.get(i).split("%");
+                                if (metaInt[i] != null) {
+                                    String[] splitted = metaInt[i].split("%");
                                     int[] newMeta = new int[splitted.length];
                                     for (int h = 0; h < splitted.length; h++) {
                                         if(splitted[h]!=null && !splitted[h].isEmpty()){
@@ -95,10 +95,10 @@ public class KMessageLoader {
                     getKeysRequest.id = Long.parseLong(objectReader.get(ID_NAME).toString());
                 }
                 if (objectReader.get(KEYS_NAME) != null) {
-                    ArrayList<String> metaInt = (ArrayList<String>) objectReader.get(KEYS_NAME);
-                    KContentKey[] keys = new KContentKey[metaInt.size()];
-                    for (int i = 0; i < metaInt.size(); i++) {
-                        keys[i] = KContentKey.create(metaInt.get(i));
+                    String[] metaInt = objectReader.getAsStringArray(KEYS_NAME);
+                    KContentKey[] keys = new KContentKey[metaInt.length];
+                    for (int i = 0; i < metaInt.length; i++) {
+                        keys[i] = KContentKey.create(metaInt[i]);
                     }
                     getKeysRequest.keys = keys;
                 }
@@ -109,10 +109,10 @@ public class KMessageLoader {
                     getResult.id = Long.parseLong(objectReader.get(ID_NAME).toString());
                 }
                 if (objectReader.get(VALUES_NAME) != null) {
-                    ArrayList<String> metaInt = (ArrayList<String>) objectReader.get(VALUES_NAME);
-                    String[] values = new String[metaInt.size()];
-                    for (int i = 0; i < metaInt.size(); i++) {
-                        values[i] = JsonString.unescape(metaInt.get(i));
+                    String[] metaInt = objectReader.getAsStringArray(VALUES_NAME);
+                    String[] values = new String[metaInt.length];
+                    for (int i = 0; i < metaInt.length; i++) {
+                        values[i] = JsonString.unescape(metaInt[i]);
                     }
                     getResult.values = values;
                 }
@@ -125,12 +125,10 @@ public class KMessageLoader {
                 String[] toFlatKeys = null;
                 String[] toFlatValues = null;
                 if (objectReader.get(KEYS_NAME) != null) {
-                    ArrayList<String> metaKeys = (ArrayList<String>) objectReader.get(KEYS_NAME);
-                    toFlatKeys = metaKeys.toArray(new String[metaKeys.size()]);
+                    toFlatKeys = objectReader.getAsStringArray(KEYS_NAME);
                 }
                 if (objectReader.get(VALUES_NAME) != null) {
-                    ArrayList<String> metaValues = (ArrayList<String>) objectReader.get(VALUES_NAME);
-                    toFlatValues = metaValues.toArray(new String[metaValues.size()]);
+                    toFlatValues = objectReader.getAsStringArray(VALUES_NAME);
                 }
                 if (toFlatKeys != null && toFlatValues != null && toFlatKeys.length == toFlatValues.length) {
                     if (putRequest.request == null) {
@@ -162,10 +160,10 @@ public class KMessageLoader {
                     callMessage.opIndex = Integer.parseInt(objectReader.get(OPERATION_NAME).toString());
                 }
                 if (objectReader.get(PARAMETERS_NAME) != null) {
-                    ArrayList<String> params = (ArrayList<String>) objectReader.get(PARAMETERS_NAME);
-                    String[] toFlat = new String[params.size()];
-                    for (int i = 0; i < params.size(); i++) {
-                        toFlat[i] = JsonString.unescape(params.get(i));
+                    String[] params = objectReader.getAsStringArray(PARAMETERS_NAME);
+                    String[] toFlat = new String[params.length];
+                    for (int i = 0; i < params.length; i++) {
+                        toFlat[i] = JsonString.unescape(params[i]);
                     }
                     callMessage.params = toFlat;
                 }
