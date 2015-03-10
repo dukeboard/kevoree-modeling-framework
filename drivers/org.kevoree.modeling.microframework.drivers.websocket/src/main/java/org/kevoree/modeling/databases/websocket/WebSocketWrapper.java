@@ -148,7 +148,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
                 for (int i = 0; i < channels.size(); i++) {
                     WebSocketChannel chan = channels.get(i);
                     if (chan != channel) {
-                        WebSockets.sendText(payload, channel, null);
+                        WebSockets.sendText(payload, chan, null);
                     }
                 }
             }
