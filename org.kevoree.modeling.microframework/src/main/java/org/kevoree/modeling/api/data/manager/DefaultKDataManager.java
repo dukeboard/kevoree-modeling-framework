@@ -20,7 +20,7 @@ import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
 import org.kevoree.modeling.api.data.cdn.MemoryKContentDeliveryDriver;
 import org.kevoree.modeling.api.map.LongLongHashMap;
 import org.kevoree.modeling.api.map.LongLongHashMapCallBack;
-import org.kevoree.modeling.api.msg.KEventMessage;
+import org.kevoree.modeling.api.msg.KEvents;
 import org.kevoree.modeling.api.scheduler.DirectScheduler;
 import org.kevoree.modeling.api.rbtree.IndexRBTree;
 import org.kevoree.modeling.api.rbtree.LongRBTree;
@@ -178,17 +178,16 @@ public class DefaultKDataManager implements KDataManager {
     public synchronized void save(final Callback<Throwable> callback) {
         KCacheDirty[] dirtiesEntries = _cache.dirties();
         KContentPutRequest request = new KContentPutRequest(dirtiesEntries.length + 2);
-        final KEventMessage[] notificationMessages = new KEventMessage[dirtiesEntries.length];
+        final KEvents notificationMessages = new KEvents(dirtiesEntries.length);
         for (int i = 0; i < dirtiesEntries.length; i++) {
             KCacheObject cachedObject = dirtiesEntries[i].object;
-            KEventMessage newMessage = new KEventMessage();
+            int[] meta;
             if (dirtiesEntries[i].object instanceof KCacheEntry) {
-                newMessage.meta = ((KCacheEntry) dirtiesEntries[i].object).modifiedIndexes();
+                meta = ((KCacheEntry) dirtiesEntries[i].object).modifiedIndexes();
             } else {
-                newMessage.meta = null;
+                meta = null;
             }
-            newMessage.key = dirtiesEntries[i].key;
-            notificationMessages[i] = newMessage;
+            notificationMessages.setEvent(i, dirtiesEntries[i].key, meta);
             request.put(dirtiesEntries[i].key, cachedObject.serialize());
             cachedObject.setClean();
         }

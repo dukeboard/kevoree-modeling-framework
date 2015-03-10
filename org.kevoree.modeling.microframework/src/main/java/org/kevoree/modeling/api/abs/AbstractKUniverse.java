@@ -38,10 +38,10 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
 
     @Override
     public A time(long timePoint) {
-        if(timePoint <= KConfig.END_OF_TIME && timePoint >= KConfig.BEGINNING_OF_TIME){
+        if (timePoint <= KConfig.END_OF_TIME && timePoint >= KConfig.BEGINNING_OF_TIME) {
             return internal_create(timePoint);
         } else {
-            throw new RuntimeException("The selected Time "+timePoint+" is out of the range of KMF managed time");
+            throw new RuntimeException("The selected Time " + timePoint + " is out of the range of KMF managed time");
         }
     }
 
@@ -79,6 +79,14 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
             childs.add((B) _model.universe(descendentsKey[i]));
         }
         return childs;
+    }
+
+    @Override
+    public KDefer<KObject[]> lookupAllTimes(long uuid, long[] times) {
+        AbstractKDeferWrapper<KObject[]> deferWrapper = new AbstractKDeferWrapper<KObject[]>();
+        //TODO
+        //TODO
+        return deferWrapper;
     }
 
 }

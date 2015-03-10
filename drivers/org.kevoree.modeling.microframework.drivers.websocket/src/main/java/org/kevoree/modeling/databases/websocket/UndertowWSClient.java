@@ -18,7 +18,7 @@ import java.net.URISyntaxException;
 /**
  * Created by gregory.nain on 24/02/15.
  */
-public class UndertowWSClient {
+class UndertowWSClient {
 
     private ByteBufferSlicePool _buffer;
     private XnioWorker _worker;
@@ -31,14 +31,14 @@ public class UndertowWSClient {
         try {
             Xnio xnio = Xnio.getInstance(io.undertow.websockets.client.WebSocketClient.class.getClassLoader());
             _worker = xnio.createWorker(OptionMap.builder()
-                .set(Options.WORKER_IO_THREADS, 2)
-                .set(Options.CONNECTION_HIGH_WATER, 1000000)
-                .set(Options.CONNECTION_LOW_WATER, 1000000)
-                .set(Options.WORKER_TASK_CORE_THREADS, 30)
-                .set(Options.WORKER_TASK_MAX_THREADS, 30)
-                .set(Options.TCP_NODELAY, true)
-                .set(Options.CORK, true)
-                .getMap());
+                    .set(Options.WORKER_IO_THREADS, 2)
+                    .set(Options.CONNECTION_HIGH_WATER, 1000000)
+                    .set(Options.CONNECTION_LOW_WATER, 1000000)
+                    .set(Options.WORKER_TASK_CORE_THREADS, 30)
+                    .set(Options.WORKER_TASK_MAX_THREADS, 30)
+                    .set(Options.TCP_NODELAY, true)
+                    .set(Options.CORK, true)
+                    .getMap());
 
             _buffer = new ByteBufferSlicePool(BufferAllocator.BYTE_BUFFER_ALLOCATOR, 1024, 1024);
 

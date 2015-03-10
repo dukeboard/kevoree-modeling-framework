@@ -4,10 +4,11 @@ import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.meta.MetaOperation;
-import org.kevoree.modeling.api.msg.KEventMessage;
+import org.kevoree.modeling.api.msg.KMessage;
 import org.kevoree.modeling.api.msg.KMessageLoader;
 import org.kevoree.modeling.api.msg.KOperationCallMessage;
 import org.kevoree.modeling.api.msg.KOperationResultMessage;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -86,7 +87,7 @@ public class DefaultOperationManager implements KOperationManager {
 
         remoteCallCallbacks.put(operationCall.id, callback);
 
-        _manager.cdn().sendOperation(operationCall);
+        _manager.cdn().send(operationCall);
     }
 
     public synchronized long nextKey() {
@@ -98,11 +99,11 @@ public class DefaultOperationManager implements KOperationManager {
         return _callbackId;
     }
 
-    public void operationEventReceived(KEventMessage operationEvent) {
+    public void operationEventReceived(KMessage operationEvent) {
         if (operationEvent.type() == KMessageLoader.OPERATION_RESULT_TYPE) {
-            KOperationResultMessage operationResult = (KOperationResultMessage)operationEvent;
+            KOperationResultMessage operationResult = (KOperationResultMessage) operationEvent;
             Callback<Object> cb = remoteCallCallbacks.get(operationResult.id);
-            if(cb != null) {
+            if (cb != null) {
                 cb.on(operationResult.value);
             }
         } else if (operationEvent.type() == KMessageLoader.OPERATION_CALL_TYPE) {
@@ -120,7 +121,7 @@ public class DefaultOperationManager implements KOperationManager {
                                     operationResultMessage.key = operationCall.key;
                                     operationResultMessage.id = operationCall.id;
                                     operationResultMessage.value = o.toString();
-                                    _manager.cdn().sendOperation(operationResultMessage);
+                                    _manager.cdn().send(operationResultMessage);
                                 }
                             });
                         }

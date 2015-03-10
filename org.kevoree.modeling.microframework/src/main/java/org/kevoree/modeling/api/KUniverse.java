@@ -24,4 +24,6 @@ public interface KUniverse<A extends KView, B extends KUniverse, C extends KMode
 
     public KDefer<Throwable> delete();
 
+    public KDefer<KObject[]> lookupAllTimes(long uuid, long[] times);
+
 }

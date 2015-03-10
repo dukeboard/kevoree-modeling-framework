@@ -14,15 +14,17 @@ public class KMessageTest {
     @Test
     public void test() {
 
-        KEventMessage event = new KEventMessage();
-        event.key = KContentKey.createObject(0l, 1l, 2l);
-        event.meta = new int[2];
-        event.meta[0] = 0;
-        event.meta[1] = 1;
+        KEvents event = new KEvents(1);
+        int[] meta = new int[2];
+        meta[0] = 0;
+        meta[1] = 1;
+
+        event.setEvent(0,KContentKey.createObject(0l, 1l, 2l),meta);
+
         Assert.assertEquals("{\n" +
                 "\"type\":\"0\"\n" +
-                ",\"key\":\"1/0/1/2\"\n" +
-                ",\"values\":[\"0\",\"1\"]\n" +
+                ",\"keys\":[\"1/0/1/2\"]\n" +
+                ",\"values\":[\"0%1\"]\n" +
                 "}\n", event.json());
         KMessage parsed = KMessageLoader.load(event.json());
         Assert.assertEquals(parsed.json(), event.json());

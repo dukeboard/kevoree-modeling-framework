@@ -27,7 +27,7 @@ public class KMessageLoader {
     public static String CLASS_IDX_NAME = "class";
     public static String PARAMETERS_NAME = "params";
 
-    public static final int EVENT_TYPE = 0;
+    public static final int EVENTS_TYPE = 0;
 
     public static final int GET_REQ_TYPE = 1;
 
@@ -79,21 +79,41 @@ public class KMessageLoader {
         }
         try {
             Integer parsedType = Integer.parseInt(content.get(TYPE_NAME).toString());
-            if (parsedType == EVENT_TYPE) {
-                KEventMessage eventMessage = new KEventMessage();
-                if (content.get(KEY_NAME) != null) {
-                    eventMessage.key = KContentKey.create(content.get(KEY_NAME).toString());
-                }
-                if (content.get(VALUES_NAME) != null) {
-                    ArrayList<String> metaInt = (ArrayList<String>) content.get(VALUES_NAME);
-                    String[] toFlat = metaInt.toArray(new String[metaInt.size()]);
-                    int[] nbElem = new int[metaInt.size()];
-                    for (int i = 0; i < toFlat.length; i++) {
-                        nbElem[i] = Integer.parseInt(toFlat[i]);
+            if (parsedType == EVENTS_TYPE) {
+                KEvents eventsMessage = null;
+                if (content.get(KEYS_NAME) != null) {
+                    ArrayList<String> objIdsRaw = (ArrayList<String>) content.get(KEYS_NAME);
+                    eventsMessage = new KEvents(objIdsRaw.size());
+                    KContentKey[] keys = new KContentKey[objIdsRaw.size()];
+                    for (int i = 0; i < objIdsRaw.size(); i++) {
+                        try {
+                            keys[i] = KContentKey.create(objIdsRaw.get(i));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
-                    eventMessage.meta = nbElem;
+                    eventsMessage._objIds = keys;
+                    if (content.get(VALUES_NAME) != null) {
+                        ArrayList<String> metaInt = (ArrayList<String>) content.get(VALUES_NAME);
+                        int[][] metaIndexes = new int[metaInt.size()][];
+                        for (int i = 0; i < metaInt.size(); i++) {
+                            try {
+                                if (metaInt.get(i) != null) {
+                                    String[] splitted = metaInt.get(i).split("%");
+                                    int[] newMeta = new int[splitted.length];
+                                    for (int h = 0; h < splitted.length; h++) {
+                                        newMeta[h] = Integer.parseInt(splitted[h]);
+                                    }
+                                    metaIndexes[i] = newMeta;
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        eventsMessage._metaindexes = metaIndexes;
+                    }
                 }
-                return eventMessage;
+                return eventsMessage;
             } else if (parsedType == GET_REQ_TYPE) {
                 KGetRequest getKeysRequest = new KGetRequest();
                 if (content.get(ID_NAME) != null) {
@@ -101,10 +121,9 @@ public class KMessageLoader {
                 }
                 if (content.get(KEYS_NAME) != null) {
                     ArrayList<String> metaInt = (ArrayList<String>) content.get(KEYS_NAME);
-                    String[] toFlat = metaInt.toArray(new String[metaInt.size()]);
-                    KContentKey[] keys = new KContentKey[toFlat.length];
-                    for (int i = 0; i < toFlat.length; i++) {
-                        keys[i] = KContentKey.create(toFlat[i]);
+                    KContentKey[] keys = new KContentKey[metaInt.size()];
+                    for (int i = 0; i < metaInt.size(); i++) {
+                        keys[i] = KContentKey.create(metaInt.get(i));
                     }
                     getKeysRequest.keys = keys;
                 }
@@ -116,10 +135,9 @@ public class KMessageLoader {
                 }
                 if (content.get(VALUES_NAME) != null) {
                     ArrayList<String> metaInt = (ArrayList<String>) content.get(VALUES_NAME);
-                    String[] toFlat = metaInt.toArray(new String[metaInt.size()]);
-                    String[] values = new String[toFlat.length];
-                    for (int i = 0; i < toFlat.length; i++) {
-                        values[i] = JsonString.unescape(toFlat[i]);
+                    String[] values = new String[metaInt.size()];
+                    for (int i = 0; i < metaInt.size(); i++) {
+                        values[i] = JsonString.unescape(metaInt.get(i));
                     }
                     getResult.values = values;
                 }

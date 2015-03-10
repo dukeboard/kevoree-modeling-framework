@@ -9,9 +9,13 @@ import org.kevoree.modeling.api.data.cdn.AtomicOperation;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
 import org.kevoree.modeling.api.data.manager.KDataManager;
-import org.kevoree.modeling.api.msg.KEventMessage;
 import org.kevoree.modeling.api.event.LocalEventListeners;
-import org.rocksdb.*;
+import org.kevoree.modeling.api.msg.KMessage;
+import org.rocksdb.Options;
+import org.rocksdb.RocksDB;
+import org.rocksdb.RocksDBException;
+import org.rocksdb.WriteBatch;
+import org.rocksdb.WriteOptions;
 
 import java.io.File;
 import java.io.IOException;
@@ -131,14 +135,9 @@ public class RocksDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void send(KEventMessage[] msgs) {
+    public void send(KMessage msg) {
         //NO Remote op
-        _localEventListeners.dispatch(msgs);
-    }
-
-    @Override
-    public void sendOperation(KEventMessage operationMessage) {
-        //NOOP
+        _localEventListeners.dispatch(msg);
     }
 
     @Override

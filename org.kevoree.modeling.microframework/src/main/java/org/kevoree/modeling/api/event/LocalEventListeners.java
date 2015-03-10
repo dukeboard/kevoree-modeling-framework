@@ -1,6 +1,9 @@
 package org.kevoree.modeling.api.event;
 
-import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KConfig;
+import org.kevoree.modeling.api.KEventListener;
+import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.cache.KCacheObject;
@@ -10,7 +13,8 @@ import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.map.LongHashMap;
 import org.kevoree.modeling.api.meta.Meta;
-import org.kevoree.modeling.api.msg.KEventMessage;
+import org.kevoree.modeling.api.msg.KEvents;
+import org.kevoree.modeling.api.msg.KMessage;
 
 /**
  * Created by gregory.nain on 11/11/14.
@@ -50,37 +54,40 @@ public class LocalEventListeners {
         this._manager = manager;
     }
 
-    public void dispatch(final KEventMessage[] messages) {
+    public void dispatch(KMessage param) {
         if (_manager != null) {
-            KContentKey[] toLoad = new KContentKey[messages.length];
-            for (int i = 0; i < messages.length; i++) {
-                LocalListenerUniverseLayer universeLayer = _universeLayers.get(messages[i].key.universe());
-                if (universeLayer != null) {
-                    if (universeLayer.isListen(messages[i].key)) {
-                        toLoad[i] = messages[i].key;
-                    }
-                }
-            }
-            ((DefaultKDataManager) _manager).bumpKeysToCache(toLoad, new Callback<KCacheObject[]>() {
-                @Override
-                public void on(KCacheObject[] kCacheObjects) {
-                    for (int i = 0; i < messages.length; i++) {
-                        if (kCacheObjects[i] != null && kCacheObjects[i] instanceof KCacheEntry) {
-                            LocalListenerUniverseLayer universeLayer = _universeLayers.get(messages[i].key.universe());
-                            if (universeLayer != null) {
-                                KObject toDispatch = ((AbstractKView) universeLayer.getUniverse().time(messages[i].key.time())).createProxy(((KCacheEntry) kCacheObjects[i]).metaClass, messages[i].key.obj());
-                                Meta[] meta = new Meta[messages[i].meta.length];
-                                for (int j = 0; j < messages[i].meta.length; j++) {
-                                    if (messages[i].meta[j] >= Index.RESERVED_INDEXES) {
-                                        meta[j] = toDispatch.metaClass().meta(messages[i].meta[j]);
-                                    }
-                                }
-                                universeLayer.dispatch(toDispatch, meta);
-                            }
+            if (param instanceof KEvents) {
+                KEvents messages = (KEvents) param;
+                KContentKey[] toLoad = new KContentKey[messages.size()];
+                for (int i = 0; i < messages.size(); i++) {
+                    LocalListenerUniverseLayer universeLayer = _universeLayers.get(messages.getKey(i).universe());
+                    if (universeLayer != null) {
+                        if (universeLayer.isListen(messages.getKey(i))) {
+                            toLoad[i] = messages.getKey(i);
                         }
                     }
                 }
-            });
+                ((DefaultKDataManager) _manager).bumpKeysToCache(toLoad, new Callback<KCacheObject[]>() {
+                    @Override
+                    public void on(KCacheObject[] kCacheObjects) {
+                        for (int i = 0; i < messages.size(); i++) {
+                            if (kCacheObjects[i] != null && kCacheObjects[i] instanceof KCacheEntry) {
+                                LocalListenerUniverseLayer universeLayer = _universeLayers.get(messages.getKey(i).universe());
+                                if (universeLayer != null) {
+                                    KObject toDispatch = ((AbstractKView) universeLayer.getUniverse().time(messages.getKey(i).time())).createProxy(((KCacheEntry) kCacheObjects[i]).metaClass, messages.getKey(i).obj());
+                                    Meta[] meta = new Meta[messages.getIndexes(i).length];
+                                    for (int j = 0; j < messages.getIndexes(i).length; j++) {
+                                        if (messages.getIndexes(i)[j] >= Index.RESERVED_INDEXES) {
+                                            meta[j] = toDispatch.metaClass().meta(messages.getIndexes(i)[j]);
+                                        }
+                                    }
+                                    universeLayer.dispatch(toDispatch, meta);
+                                }
+                            }
+                        }
+                    }
+                });
+            }
         }
     }
 

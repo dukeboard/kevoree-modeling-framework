@@ -161,4 +161,26 @@ public class DefaultKTraversal implements KTraversal {
         return task;
     }
 
+    @Override
+    public KTraversal deepTraverse(MetaReference metaReference, KTraversalFilter stopCondition) {
+        if (_terminated) {
+            throw new RuntimeException(TERMINATED_MESSAGE);
+        }
+        KDeepTraverseAction tempAction = new KDeepTraverseAction(metaReference, stopCondition);
+        _lastAction.chain(tempAction);
+        _lastAction = tempAction;
+        return this;
+    }
+
+    @Override
+    public KTraversal deepCollect(MetaReference metaReference, KTraversalFilter stopCondition) {
+        if (_terminated) {
+            throw new RuntimeException(TERMINATED_MESSAGE);
+        }
+        KDeepCollectAction tempAction = new KDeepCollectAction(metaReference, stopCondition);
+        _lastAction.chain(tempAction);
+        _lastAction = tempAction;
+        return this;
+    }
+
 }

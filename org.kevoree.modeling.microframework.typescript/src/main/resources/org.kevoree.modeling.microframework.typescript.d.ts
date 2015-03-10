@@ -166,6 +166,7 @@ declare module org {
                     origin(): B;
                     descendants(): java.util.List<B>;
                     delete(): org.kevoree.modeling.api.KDefer<any>;
+                    lookupAllTimes(uuid: number, times: number[]): org.kevoree.modeling.api.KDefer<any>;
                 }
                 interface KView {
                     createFQN(metaClassName: string): org.kevoree.modeling.api.KObject;
@@ -363,6 +364,7 @@ declare module org {
                         origin(): B;
                         diverge(): B;
                         descendants(): java.util.List<B>;
+                        lookupAllTimes(uuid: number, times: number[]): org.kevoree.modeling.api.KDefer<any>;
                     }
                     class AbstractKView implements org.kevoree.modeling.api.KView {
                         private _now;
@@ -583,8 +585,7 @@ declare module org {
                             close(callback: (p: java.lang.Throwable) => void): void;
                             registerListener(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
                             unregister(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
-                            send(msgs: org.kevoree.modeling.api.msg.KEventMessage[]): void;
-                            sendOperation(operationMessage: org.kevoree.modeling.api.msg.KEventMessage): void;
+                            send(msgs: org.kevoree.modeling.api.msg.KMessage): void;
                             setManager(manager: org.kevoree.modeling.api.data.manager.KDataManager): void;
                         }
                         class KContentPutRequest {
@@ -611,8 +612,7 @@ declare module org {
                             close(callback: (p: java.lang.Throwable) => void): void;
                             registerListener(p_origin: org.kevoree.modeling.api.KObject, p_listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
                             unregister(p_origin: org.kevoree.modeling.api.KObject, p_listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
-                            send(msgs: org.kevoree.modeling.api.msg.KEventMessage[]): void;
-                            sendOperation(operation: org.kevoree.modeling.api.msg.KEventMessage): void;
+                            send(msgs: org.kevoree.modeling.api.msg.KMessage): void;
                             setManager(manager: org.kevoree.modeling.api.data.manager.KDataManager): void;
                         }
                     }
@@ -740,7 +740,7 @@ declare module org {
                         unregister(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
                         clear(): void;
                         setManager(manager: org.kevoree.modeling.api.data.manager.KDataManager): void;
-                        dispatch(messages: org.kevoree.modeling.api.msg.KEventMessage[]): void;
+                        dispatch(param: org.kevoree.modeling.api.msg.KMessage): void;
                     }
                     class LocalListenerUniverseLayer {
                         private universe;
@@ -1257,11 +1257,18 @@ declare module org {
                         json(): string;
                         type(): number;
                     }
-                    class KEventMessage implements org.kevoree.modeling.api.msg.KMessage {
-                        key: org.kevoree.modeling.api.data.cache.KContentKey;
-                        meta: number[];
+                    class KEvents implements org.kevoree.modeling.api.msg.KMessage {
+                        _objIds: org.kevoree.modeling.api.data.cache.KContentKey[];
+                        _metaindexes: number[][];
+                        private _size;
+                        allKeys(): org.kevoree.modeling.api.data.cache.KContentKey[];
+                        constructor(nbObject: number);
                         json(): string;
                         type(): number;
+                        size(): number;
+                        setEvent(index: number, p_objId: org.kevoree.modeling.api.data.cache.KContentKey, p_metaIndexes: number[]): void;
+                        getKey(index: number): org.kevoree.modeling.api.data.cache.KContentKey;
+                        getIndexes(index: number): number[];
                     }
                     class KGetRequest implements org.kevoree.modeling.api.msg.KMessage {
                         id: number;
@@ -1295,7 +1302,7 @@ declare module org {
                         static VALUES_NAME: string;
                         static CLASS_IDX_NAME: string;
                         static PARAMETERS_NAME: string;
-                        static EVENT_TYPE: number;
+                        static EVENTS_TYPE: number;
                         static GET_REQ_TYPE: number;
                         static GET_RES_TYPE: number;
                         static PUT_REQ_TYPE: number;
@@ -1306,17 +1313,19 @@ declare module org {
                         static ATOMIC_OPERATION_RESULT_TYPE: number;
                         static load(payload: string): org.kevoree.modeling.api.msg.KMessage;
                     }
-                    class KOperationCallMessage extends org.kevoree.modeling.api.msg.KEventMessage {
+                    class KOperationCallMessage implements org.kevoree.modeling.api.msg.KMessage {
                         id: number;
                         classIndex: number;
                         opIndex: number;
                         params: string[];
+                        key: org.kevoree.modeling.api.data.cache.KContentKey;
                         json(): string;
                         type(): number;
                     }
-                    class KOperationResultMessage extends org.kevoree.modeling.api.msg.KEventMessage {
+                    class KOperationResultMessage implements org.kevoree.modeling.api.msg.KMessage {
                         id: number;
                         value: string;
+                        key: org.kevoree.modeling.api.data.cache.KContentKey;
                         json(): string;
                         type(): number;
                     }
@@ -1822,6 +1831,8 @@ declare module org {
                         removeDuplicate(): org.kevoree.modeling.api.traversal.KTraversal;
                         then(): org.kevoree.modeling.api.KDefer<any>;
                         map(attribute: org.kevoree.modeling.api.meta.MetaAttribute): org.kevoree.modeling.api.KDefer<any>;
+                        deepTraverse(metaReference: org.kevoree.modeling.api.meta.MetaReference, stopCondition: (p: org.kevoree.modeling.api.KObject) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
+                        deepCollect(metaReference: org.kevoree.modeling.api.meta.MetaReference, stopCondition: (p: org.kevoree.modeling.api.KObject) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
                     }
                     interface KTraversal {
                         traverse(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.traversal.KTraversal;
@@ -1836,6 +1847,8 @@ declare module org {
                         removeDuplicate(): org.kevoree.modeling.api.traversal.KTraversal;
                         then(): org.kevoree.modeling.api.KDefer<any>;
                         map(attribute: org.kevoree.modeling.api.meta.MetaAttribute): org.kevoree.modeling.api.KDefer<any>;
+                        deepTraverse(metaReference: org.kevoree.modeling.api.meta.MetaReference, stopCondition: (p: org.kevoree.modeling.api.KObject) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
+                        deepCollect(metaReference: org.kevoree.modeling.api.meta.MetaReference, stopCondition: (p: org.kevoree.modeling.api.KObject) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
                     }
                     interface KTraversalAction {
                         chain(next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
@@ -1845,6 +1858,22 @@ declare module org {
                         filter(obj: org.kevoree.modeling.api.KObject): boolean;
                     }
                     module actions {
+                        class KDeepCollectAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
+                            private _next;
+                            private _reference;
+                            private _stopCondition;
+                            constructor(p_reference: org.kevoree.modeling.api.meta.MetaReference, p_stopCondition: (p: org.kevoree.modeling.api.KObject) => boolean);
+                            chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
+                            execute(p_inputs: org.kevoree.modeling.api.KObject[]): void;
+                        }
+                        class KDeepTraverseAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
+                            private _next;
+                            private _reference;
+                            private _stopCondition;
+                            constructor(p_reference: org.kevoree.modeling.api.meta.MetaReference, p_stopCondition: (p: org.kevoree.modeling.api.KObject) => boolean);
+                            chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
+                            execute(p_inputs: org.kevoree.modeling.api.KObject[]): void;
+                        }
                         class KFilterAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
                             private _next;
                             private _filter;
@@ -1976,12 +2005,12 @@ declare module org {
                         call(source: org.kevoree.modeling.api.KObject, operation: org.kevoree.modeling.api.meta.MetaOperation, param: any[], callback: (p: any) => void): void;
                         private sendToRemote(source, operation, param, callback);
                         nextKey(): number;
-                        operationEventReceived(operationEvent: org.kevoree.modeling.api.msg.KEventMessage): void;
+                        operationEventReceived(operationEvent: org.kevoree.modeling.api.msg.KMessage): void;
                     }
                     interface KOperationManager {
                         registerOperation(operation: org.kevoree.modeling.api.meta.MetaOperation, callback: (p: org.kevoree.modeling.api.KObject, p1: any[], p2: (p: any) => void) => void, target: org.kevoree.modeling.api.KObject): void;
                         call(source: org.kevoree.modeling.api.KObject, operation: org.kevoree.modeling.api.meta.MetaOperation, param: any[], callback: (p: any) => void): void;
-                        operationEventReceived(operationEvent: org.kevoree.modeling.api.msg.KEventMessage): void;
+                        operationEventReceived(operationEvent: org.kevoree.modeling.api.msg.KMessage): void;
                     }
                     class PathHelper {
                         static pathSep: string;

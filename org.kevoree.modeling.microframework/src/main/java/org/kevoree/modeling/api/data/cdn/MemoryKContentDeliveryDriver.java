@@ -6,8 +6,8 @@ import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.data.cache.*;
 import org.kevoree.modeling.api.data.manager.KDataManager;
-import org.kevoree.modeling.api.msg.KEventMessage;
 import org.kevoree.modeling.api.event.LocalEventListeners;
+import org.kevoree.modeling.api.msg.KMessage;
 
 import java.util.HashMap;
 
@@ -94,14 +94,9 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void send(KEventMessage[] msgs) {
+    public void send(KMessage msgs) {
         //NO REMOTE MANAGEMENT
         _localEventListeners.dispatch(msgs);
-    }
-
-    @Override
-    public void sendOperation(KEventMessage operation) {
-        //NO REMOTE MANAGEMENT
     }
 
     @Override

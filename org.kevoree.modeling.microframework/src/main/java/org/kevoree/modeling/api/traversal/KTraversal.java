@@ -34,6 +34,10 @@ public interface KTraversal {
 
     public KDefer<Object[]> map(MetaAttribute attribute);
 
+    public KTraversal deepTraverse(MetaReference metaReference, KTraversalFilter stopCondition);
+
+    public KTraversal deepCollect(MetaReference metaReference, KTraversalFilter stopCondition);
+
 }
 
 

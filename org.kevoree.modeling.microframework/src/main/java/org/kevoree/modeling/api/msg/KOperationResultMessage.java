@@ -1,12 +1,15 @@
 package org.kevoree.modeling.api.msg;
 
+import org.kevoree.modeling.api.data.cache.KContentKey;
+
 /**
  * Created by duke on 23/02/15.
  */
-public class KOperationResultMessage extends KEventMessage {
+public class KOperationResultMessage implements KMessage {
 
     public long id;
     public String value;
+    public KContentKey key;
 
     @Override
     public String json() {

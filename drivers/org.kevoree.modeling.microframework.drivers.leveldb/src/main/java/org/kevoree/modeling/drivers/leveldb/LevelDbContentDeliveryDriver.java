@@ -13,8 +13,8 @@ import org.kevoree.modeling.api.data.cdn.AtomicOperation;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
 import org.kevoree.modeling.api.data.manager.KDataManager;
-import org.kevoree.modeling.api.msg.KEventMessage;
 import org.kevoree.modeling.api.event.LocalEventListeners;
+import org.kevoree.modeling.api.msg.KMessage;
 
 import java.io.File;
 import java.io.IOException;
@@ -153,14 +153,9 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
 
 
     @Override
-    public void send(KEventMessage[] msgs) {
+    public void send(KMessage msgs) {
         //No Remote send since LevelDB do not provide message brokering
         localEventListeners.dispatch(msgs);
-    }
-
-    @Override
-    public void sendOperation(KEventMessage operationMessage) {
-        //NOOP since LevelDB do not provide message brokering
     }
 
     @Override
