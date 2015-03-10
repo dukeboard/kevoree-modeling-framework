@@ -54,7 +54,7 @@ public class LocalEventListeners {
         this._manager = manager;
     }
 
-    public void dispatch(KMessage param) {
+    public void dispatch(final KMessage param) {
         if (_manager != null) {
             if (param instanceof KEvents) {
                 KEvents messages = (KEvents) param;
