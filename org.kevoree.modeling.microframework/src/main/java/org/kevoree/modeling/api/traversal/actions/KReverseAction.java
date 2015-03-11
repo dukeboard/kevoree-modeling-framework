@@ -29,29 +29,22 @@ public class KReverseAction implements KTraversalAction {
         if (p_history == null || p_history.historySize() == 0) {
             throw new RuntimeException("Error during traversal execution, reverse action cannot be called without an history activation before, or history is null");
         }
-        LongLongHashMap inbounds = new LongLongHashMap(p_inputs.length, KConfig.CACHE_LOAD_FACTOR);
+        LongHashMap<KObject> selected = new LongHashMap<KObject>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         for (int i = 0; i < p_inputs.length; i++) {
             KCacheEntry rawPayload = p_inputs[i].view().universe().model().manager().entry(p_inputs[i], AccessMode.READ);
             if (rawPayload != null) {
                 long[] loopInbounds = rawPayload.getRef(Index.INBOUNDS_INDEX);
                 if (loopInbounds != null) {
                     for (int j = 0; j < loopInbounds.length; j++) {
-                        inbounds.put(loopInbounds[j], loopInbounds[j]);
+                        KObject previous = p_history.get(loopInbounds[j]);
+                        if (previous != null) {
+                            selected.put(loopInbounds[j], previous);
+                        }
                     }
                 }
             }
             p_history.remove(p_inputs[i].uuid());
         }
-        LongHashMap<KObject> selected = new LongHashMap<KObject>(inbounds.size(), KConfig.CACHE_LOAD_FACTOR);
-        inbounds.each(new LongLongHashMapCallBack() {
-            @Override
-            public void on(long key, long value) {
-                KObject previous = p_history.get(key);
-                if (previous != null) {
-                    selected.put(key, previous);
-                }
-            }
-        });
         KObject[] trimmed = new KObject[selected.size()];
         final int[] nbInsert = {0};
         selected.each(new LongHashMapCallBack<KObject>() {
