@@ -118,10 +118,7 @@ declare module org {
                     mutate(actionType: org.kevoree.modeling.api.KActionType, metaReference: org.kevoree.modeling.api.meta.MetaReference, param: org.kevoree.modeling.api.KObject): void;
                     ref(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KDefer<any>;
                     inferRef(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KDefer<any>;
-                    traverse(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.traversal.KTraversal;
-                    traverseQuery(metaReferenceQuery: string): org.kevoree.modeling.api.traversal.KTraversal;
-                    traverseInbounds(metaReferenceQuery: string): org.kevoree.modeling.api.traversal.KTraversal;
-                    traverseParent(): org.kevoree.modeling.api.traversal.KTraversal;
+                    traversal(): org.kevoree.modeling.api.traversal.KTraversal;
                     inbounds(): org.kevoree.modeling.api.KDefer<any>;
                     traces(request: org.kevoree.modeling.api.TraceRequest): org.kevoree.modeling.api.trace.ModelTrace[];
                     get(attribute: org.kevoree.modeling.api.meta.MetaAttribute): any;
@@ -330,10 +327,7 @@ declare module org {
                         internal_transpose_ref(p: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.meta.MetaReference;
                         internal_transpose_att(p: org.kevoree.modeling.api.meta.MetaAttribute): org.kevoree.modeling.api.meta.MetaAttribute;
                         internal_transpose_op(p: org.kevoree.modeling.api.meta.MetaOperation): org.kevoree.modeling.api.meta.MetaOperation;
-                        traverse(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.traversal.KTraversal;
-                        traverseQuery(metaReferenceQuery: string): org.kevoree.modeling.api.traversal.KTraversal;
-                        traverseInbounds(metaReferenceQuery: string): org.kevoree.modeling.api.traversal.KTraversal;
-                        traverseParent(): org.kevoree.modeling.api.traversal.KTraversal;
+                        traversal(): org.kevoree.modeling.api.traversal.KTraversal;
                         referencesWith(o: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.meta.MetaReference[];
                         call(p_operation: org.kevoree.modeling.api.meta.MetaOperation, p_params: any[]): org.kevoree.modeling.api.KDefer<any>;
                         inferObjects(): org.kevoree.modeling.api.KDefer<any>;
@@ -1825,21 +1819,23 @@ declare module org {
                         private _initAction;
                         private _lastAction;
                         private _terminated;
-                        constructor(p_root: org.kevoree.modeling.api.KObject, p_initAction: org.kevoree.modeling.api.traversal.KTraversalAction);
+                        constructor(p_root: org.kevoree.modeling.api.KObject);
+                        private internal_chain_action(p_action);
                         traverse(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.traversal.KTraversal;
                         traverseQuery(p_metaReferenceQuery: string): org.kevoree.modeling.api.traversal.KTraversal;
                         withAttribute(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_expectedValue: any): org.kevoree.modeling.api.traversal.KTraversal;
                         withoutAttribute(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_expectedValue: any): org.kevoree.modeling.api.traversal.KTraversal;
                         attributeQuery(p_attributeQuery: string): org.kevoree.modeling.api.traversal.KTraversal;
-                        filter(p_filter: (p: org.kevoree.modeling.api.KObject) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
-                        reverse(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.traversal.KTraversal;
-                        reverseQuery(p_metaReferenceQuery: string): org.kevoree.modeling.api.traversal.KTraversal;
+                        filter(p_filter: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.traversal.KTraversalHistory) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
+                        inbounds(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.traversal.KTraversal;
+                        inboundsQuery(p_metaReferenceQuery: string): org.kevoree.modeling.api.traversal.KTraversal;
                         parents(): org.kevoree.modeling.api.traversal.KTraversal;
                         removeDuplicate(): org.kevoree.modeling.api.traversal.KTraversal;
-                        then(): org.kevoree.modeling.api.KDefer<any>;
+                        deepTraverse(metaReference: org.kevoree.modeling.api.meta.MetaReference, continueCondition: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.traversal.KTraversalHistory) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
+                        deepCollect(metaReference: org.kevoree.modeling.api.meta.MetaReference, continueCondition: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.traversal.KTraversalHistory) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
+                        activateHistory(): org.kevoree.modeling.api.traversal.KTraversal;
+                        done(): org.kevoree.modeling.api.KDefer<any>;
                         map(attribute: org.kevoree.modeling.api.meta.MetaAttribute): org.kevoree.modeling.api.KDefer<any>;
-                        deepTraverse(metaReference: org.kevoree.modeling.api.meta.MetaReference, stopCondition: (p: org.kevoree.modeling.api.KObject) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
-                        deepCollect(metaReference: org.kevoree.modeling.api.meta.MetaReference, stopCondition: (p: org.kevoree.modeling.api.KObject) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
                     }
                     interface KTraversal {
                         traverse(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.traversal.KTraversal;
@@ -1847,46 +1843,67 @@ declare module org {
                         attributeQuery(attributeQuery: string): org.kevoree.modeling.api.traversal.KTraversal;
                         withAttribute(attribute: org.kevoree.modeling.api.meta.MetaAttribute, expectedValue: any): org.kevoree.modeling.api.traversal.KTraversal;
                         withoutAttribute(attribute: org.kevoree.modeling.api.meta.MetaAttribute, expectedValue: any): org.kevoree.modeling.api.traversal.KTraversal;
-                        filter(filter: (p: org.kevoree.modeling.api.KObject) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
-                        reverse(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.traversal.KTraversal;
-                        reverseQuery(metaReferenceQuery: string): org.kevoree.modeling.api.traversal.KTraversal;
+                        filter(filter: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.traversal.KTraversalHistory) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
+                        inbounds(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.traversal.KTraversal;
+                        inboundsQuery(metaReferenceQuery: string): org.kevoree.modeling.api.traversal.KTraversal;
                         parents(): org.kevoree.modeling.api.traversal.KTraversal;
                         removeDuplicate(): org.kevoree.modeling.api.traversal.KTraversal;
-                        then(): org.kevoree.modeling.api.KDefer<any>;
+                        done(): org.kevoree.modeling.api.KDefer<any>;
                         map(attribute: org.kevoree.modeling.api.meta.MetaAttribute): org.kevoree.modeling.api.KDefer<any>;
-                        deepTraverse(metaReference: org.kevoree.modeling.api.meta.MetaReference, stopCondition: (p: org.kevoree.modeling.api.KObject) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
-                        deepCollect(metaReference: org.kevoree.modeling.api.meta.MetaReference, stopCondition: (p: org.kevoree.modeling.api.KObject) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
+                        deepTraverse(metaReference: org.kevoree.modeling.api.meta.MetaReference, continueCondition: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.traversal.KTraversalHistory) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
+                        deepCollect(metaReference: org.kevoree.modeling.api.meta.MetaReference, continueCondition: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.traversal.KTraversalHistory) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
+                        activateHistory(): org.kevoree.modeling.api.traversal.KTraversal;
                     }
                     interface KTraversalAction {
                         chain(next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                        execute(inputs: org.kevoree.modeling.api.KObject[]): void;
+                        execute(inputs: org.kevoree.modeling.api.KObject[], history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
                     }
                     interface KTraversalFilter {
-                        filter(obj: org.kevoree.modeling.api.KObject): boolean;
+                        filter(obj: org.kevoree.modeling.api.KObject, history: org.kevoree.modeling.api.traversal.KTraversalHistory): boolean;
+                    }
+                    class KTraversalHistory {
+                        private _valuesHistory;
+                        constructor();
+                        addResult(resolved: org.kevoree.modeling.api.KObject[]): void;
+                        popResult(): void;
+                        getPastResult(historyDeep: number): org.kevoree.modeling.api.KObject[];
+                        historySize(): number;
                     }
                     module actions {
+                        class KActivateHistoryAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
+                            private _next;
+                            chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
+                            execute(inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
+                        }
                         class KDeepCollectAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
                             private _next;
                             private _reference;
-                            private _stopCondition;
-                            constructor(p_reference: org.kevoree.modeling.api.meta.MetaReference, p_stopCondition: (p: org.kevoree.modeling.api.KObject) => boolean);
+                            private _continueCondition;
+                            private _alreadyPassed;
+                            private _finalElements;
+                            private currentView;
+                            constructor(p_reference: org.kevoree.modeling.api.meta.MetaReference, p_continueCondition: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.traversal.KTraversalHistory) => boolean);
                             chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[]): void;
+                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
+                            private executeStep(p_inputStep, private_callback);
                         }
                         class KDeepTraverseAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
                             private _next;
                             private _reference;
-                            private _stopCondition;
-                            constructor(p_reference: org.kevoree.modeling.api.meta.MetaReference, p_stopCondition: (p: org.kevoree.modeling.api.KObject) => boolean);
+                            private _continueCondition;
+                            private _alreadyPassed;
+                            private _finalElements;
+                            constructor(p_reference: org.kevoree.modeling.api.meta.MetaReference, p_continueCondition: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.traversal.KTraversalHistory) => boolean);
                             chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[]): void;
+                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
+                            private executeStep(p_inputStep, private_callback, p_history);
                         }
                         class KFilterAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
                             private _next;
                             private _filter;
-                            constructor(p_filter: (p: org.kevoree.modeling.api.KObject) => boolean);
+                            constructor(p_filter: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.traversal.KTraversalHistory) => boolean);
                             chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[]): void;
+                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
                         }
                         class KFilterAttributeAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
                             private _next;
@@ -1894,14 +1911,14 @@ declare module org {
                             private _expectedValue;
                             constructor(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_expectedValue: any);
                             chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[]): void;
+                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
                         }
                         class KFilterAttributeQueryAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
                             private _next;
                             private _attributeQuery;
                             constructor(p_attributeQuery: string);
                             chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[]): void;
+                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
                             private buildParams(p_paramString);
                         }
                         class KFilterNotAttributeAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
@@ -1910,51 +1927,51 @@ declare module org {
                             private _expectedValue;
                             constructor(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_expectedValue: any);
                             chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[]): void;
+                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
                         }
                         class KFinalAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
                             private _finalCallback;
                             constructor(p_callback: (p: org.kevoree.modeling.api.KObject[]) => void);
                             chain(next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(inputs: org.kevoree.modeling.api.KObject[]): void;
+                            execute(inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
+                        }
+                        class KInboundsAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
+                            private _next;
+                            private _reference;
+                            constructor(p_reference: org.kevoree.modeling.api.meta.MetaReference);
+                            chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
+                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
+                        }
+                        class KInboundsQueryAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
+                            private _next;
+                            private _referenceQuery;
+                            constructor(p_referenceQuery: string);
+                            chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
+                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
                         }
                         class KMapAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
                             private _finalCallback;
                             private _attribute;
                             constructor(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_callback: (p: any[]) => void);
                             chain(next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(inputs: org.kevoree.modeling.api.KObject[]): void;
+                            execute(inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
                         }
                         class KParentsAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
                             private _next;
                             chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[]): void;
+                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
                         }
                         class KRemoveDuplicateAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
                             private _next;
                             chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[]): void;
-                        }
-                        class KReverseAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
-                            private _next;
-                            private _reference;
-                            constructor(p_reference: org.kevoree.modeling.api.meta.MetaReference);
-                            chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[]): void;
-                        }
-                        class KReverseQueryAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
-                            private _next;
-                            private _referenceQuery;
-                            constructor(p_referenceQuery: string);
-                            chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[]): void;
+                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
                         }
                         class KTraverseAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
                             private _next;
                             private _reference;
                             constructor(p_reference: org.kevoree.modeling.api.meta.MetaReference);
                             chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[]): void;
+                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
                         }
                         class KTraverseQueryAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
                             private SEP;
@@ -1962,7 +1979,7 @@ declare module org {
                             private _referenceQuery;
                             constructor(p_referenceQuery: string);
                             chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[]): void;
+                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
                         }
                     }
                     module selector {

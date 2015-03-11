@@ -1175,17 +1175,8 @@ var org;
                                 return this.metaClass().metaByName(p.metaName());
                             }
                         };
-                        AbstractKObject.prototype.traverse = function (p_metaReference) {
-                            return new org.kevoree.modeling.api.traversal.DefaultKTraversal(this, new org.kevoree.modeling.api.traversal.actions.KTraverseAction(p_metaReference));
-                        };
-                        AbstractKObject.prototype.traverseQuery = function (metaReferenceQuery) {
-                            return new org.kevoree.modeling.api.traversal.DefaultKTraversal(this, new org.kevoree.modeling.api.traversal.actions.KTraverseQueryAction(metaReferenceQuery));
-                        };
-                        AbstractKObject.prototype.traverseInbounds = function (metaReferenceQuery) {
-                            return new org.kevoree.modeling.api.traversal.DefaultKTraversal(this, new org.kevoree.modeling.api.traversal.actions.KReverseQueryAction(metaReferenceQuery));
-                        };
-                        AbstractKObject.prototype.traverseParent = function () {
-                            return new org.kevoree.modeling.api.traversal.DefaultKTraversal(this, new org.kevoree.modeling.api.traversal.actions.KParentsAction());
+                        AbstractKObject.prototype.traversal = function () {
+                            return new org.kevoree.modeling.api.traversal.DefaultKTraversal(this);
                         };
                         AbstractKObject.prototype.referencesWith = function (o) {
                             if (org.kevoree.modeling.api.util.Checker.isDefined(o)) {
@@ -9773,163 +9764,360 @@ var org;
                 var traversal;
                 (function (traversal) {
                     var DefaultKTraversal = (function () {
-                        function DefaultKTraversal(p_root, p_initAction) {
+                        function DefaultKTraversal(p_root) {
                             this._terminated = false;
-                            this._initAction = p_initAction;
                             this._initObjs = new Array();
                             this._initObjs[0] = p_root;
-                            this._lastAction = this._initAction;
                         }
-                        DefaultKTraversal.prototype.traverse = function (p_metaReference) {
+                        DefaultKTraversal.prototype.internal_chain_action = function (p_action) {
                             if (this._terminated) {
                                 throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
                             }
-                            var tempAction = new org.kevoree.modeling.api.traversal.actions.KTraverseAction(p_metaReference);
-                            this._lastAction.chain(tempAction);
-                            this._lastAction = tempAction;
+                            if (this._initAction == null) {
+                                this._initAction = p_action;
+                            }
+                            if (this._lastAction != null) {
+                                this._lastAction.chain(p_action);
+                            }
+                            this._lastAction = p_action;
                             return this;
+                        };
+                        DefaultKTraversal.prototype.traverse = function (p_metaReference) {
+                            return this.internal_chain_action(new org.kevoree.modeling.api.traversal.actions.KTraverseAction(p_metaReference));
                         };
                         DefaultKTraversal.prototype.traverseQuery = function (p_metaReferenceQuery) {
-                            if (this._terminated) {
-                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
-                            }
-                            var tempAction = new org.kevoree.modeling.api.traversal.actions.KTraverseQueryAction(p_metaReferenceQuery);
-                            this._lastAction.chain(tempAction);
-                            this._lastAction = tempAction;
-                            return this;
+                            return this.internal_chain_action(new org.kevoree.modeling.api.traversal.actions.KTraverseQueryAction(p_metaReferenceQuery));
                         };
                         DefaultKTraversal.prototype.withAttribute = function (p_attribute, p_expectedValue) {
-                            if (this._terminated) {
-                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
-                            }
-                            var tempAction = new org.kevoree.modeling.api.traversal.actions.KFilterAttributeAction(p_attribute, p_expectedValue);
-                            this._lastAction.chain(tempAction);
-                            this._lastAction = tempAction;
-                            return this;
+                            return this.internal_chain_action(new org.kevoree.modeling.api.traversal.actions.KFilterAttributeAction(p_attribute, p_expectedValue));
                         };
                         DefaultKTraversal.prototype.withoutAttribute = function (p_attribute, p_expectedValue) {
-                            if (this._terminated) {
-                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
-                            }
-                            var tempAction = new org.kevoree.modeling.api.traversal.actions.KFilterNotAttributeAction(p_attribute, p_expectedValue);
-                            this._lastAction.chain(tempAction);
-                            this._lastAction = tempAction;
-                            return this;
+                            return this.internal_chain_action(new org.kevoree.modeling.api.traversal.actions.KFilterNotAttributeAction(p_attribute, p_expectedValue));
                         };
                         DefaultKTraversal.prototype.attributeQuery = function (p_attributeQuery) {
-                            if (this._terminated) {
-                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
-                            }
-                            var tempAction = new org.kevoree.modeling.api.traversal.actions.KFilterAttributeQueryAction(p_attributeQuery);
-                            this._lastAction.chain(tempAction);
-                            this._lastAction = tempAction;
-                            return this;
+                            return this.internal_chain_action(new org.kevoree.modeling.api.traversal.actions.KFilterAttributeQueryAction(p_attributeQuery));
                         };
                         DefaultKTraversal.prototype.filter = function (p_filter) {
-                            if (this._terminated) {
-                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
-                            }
-                            var tempAction = new org.kevoree.modeling.api.traversal.actions.KFilterAction(p_filter);
-                            this._lastAction.chain(tempAction);
-                            this._lastAction = tempAction;
-                            return this;
+                            return this.internal_chain_action(new org.kevoree.modeling.api.traversal.actions.KFilterAction(p_filter));
                         };
-                        DefaultKTraversal.prototype.reverse = function (p_metaReference) {
-                            if (this._terminated) {
-                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
-                            }
-                            var tempAction = new org.kevoree.modeling.api.traversal.actions.KReverseAction(p_metaReference);
-                            this._lastAction.chain(tempAction);
-                            this._lastAction = tempAction;
-                            return this;
+                        DefaultKTraversal.prototype.inbounds = function (p_metaReference) {
+                            return this.internal_chain_action(new org.kevoree.modeling.api.traversal.actions.KInboundsAction(p_metaReference));
                         };
-                        DefaultKTraversal.prototype.reverseQuery = function (p_metaReferenceQuery) {
-                            if (this._terminated) {
-                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
-                            }
-                            var tempAction = new org.kevoree.modeling.api.traversal.actions.KReverseQueryAction(p_metaReferenceQuery);
-                            this._lastAction.chain(tempAction);
-                            this._lastAction = tempAction;
-                            return this;
+                        DefaultKTraversal.prototype.inboundsQuery = function (p_metaReferenceQuery) {
+                            return this.internal_chain_action(new org.kevoree.modeling.api.traversal.actions.KInboundsQueryAction(p_metaReferenceQuery));
                         };
                         DefaultKTraversal.prototype.parents = function () {
-                            if (this._terminated) {
-                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
-                            }
-                            var tempAction = new org.kevoree.modeling.api.traversal.actions.KParentsAction();
-                            this._lastAction.chain(tempAction);
-                            this._lastAction = tempAction;
-                            return this;
+                            return this.internal_chain_action(new org.kevoree.modeling.api.traversal.actions.KParentsAction());
                         };
                         DefaultKTraversal.prototype.removeDuplicate = function () {
-                            if (this._terminated) {
-                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
-                            }
-                            var tempAction = new org.kevoree.modeling.api.traversal.actions.KRemoveDuplicateAction();
-                            this._lastAction.chain(tempAction);
-                            this._lastAction = tempAction;
-                            return this;
+                            return this.internal_chain_action(new org.kevoree.modeling.api.traversal.actions.KRemoveDuplicateAction());
                         };
-                        DefaultKTraversal.prototype.then = function () {
+                        DefaultKTraversal.prototype.deepTraverse = function (metaReference, continueCondition) {
+                            return this.internal_chain_action(new org.kevoree.modeling.api.traversal.actions.KDeepTraverseAction(metaReference, continueCondition));
+                        };
+                        DefaultKTraversal.prototype.deepCollect = function (metaReference, continueCondition) {
+                            return this.internal_chain_action(new org.kevoree.modeling.api.traversal.actions.KDeepCollectAction(metaReference, continueCondition));
+                        };
+                        DefaultKTraversal.prototype.activateHistory = function () {
+                            return this.internal_chain_action(new org.kevoree.modeling.api.traversal.actions.KActivateHistoryAction());
+                        };
+                        DefaultKTraversal.prototype.done = function () {
                             var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
+                            this.internal_chain_action(new org.kevoree.modeling.api.traversal.actions.KFinalAction(task.initCallback()));
                             this._terminated = true;
-                            this._lastAction.chain(new org.kevoree.modeling.api.traversal.actions.KFinalAction(task.initCallback()));
-                            this._initAction.execute(this._initObjs);
+                            this._initAction.execute(this._initObjs, null);
                             return task;
                         };
                         DefaultKTraversal.prototype.map = function (attribute) {
                             var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
+                            this.internal_chain_action(new org.kevoree.modeling.api.traversal.actions.KMapAction(attribute, task.initCallback()));
                             this._terminated = true;
-                            this._lastAction.chain(new org.kevoree.modeling.api.traversal.actions.KMapAction(attribute, task.initCallback()));
-                            this._initAction.execute(this._initObjs);
+                            this._initAction.execute(this._initObjs, null);
                             return task;
-                        };
-                        DefaultKTraversal.prototype.deepTraverse = function (metaReference, stopCondition) {
-                            if (this._terminated) {
-                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
-                            }
-                            var tempAction = new org.kevoree.modeling.api.traversal.actions.KDeepTraverseAction(metaReference, stopCondition);
-                            this._lastAction.chain(tempAction);
-                            this._lastAction = tempAction;
-                            return this;
-                        };
-                        DefaultKTraversal.prototype.deepCollect = function (metaReference, stopCondition) {
-                            if (this._terminated) {
-                                throw new java.lang.RuntimeException(DefaultKTraversal.TERMINATED_MESSAGE);
-                            }
-                            var tempAction = new org.kevoree.modeling.api.traversal.actions.KDeepCollectAction(metaReference, stopCondition);
-                            this._lastAction.chain(tempAction);
-                            this._lastAction = tempAction;
-                            return this;
                         };
                         DefaultKTraversal.TERMINATED_MESSAGE = "Promise is terminated by the call of done method, please create another promise";
                         return DefaultKTraversal;
                     })();
                     traversal.DefaultKTraversal = DefaultKTraversal;
+                    var KTraversalHistory = (function () {
+                        function KTraversalHistory() {
+                            this._valuesHistory = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                        }
+                        KTraversalHistory.prototype.addResult = function (resolved) {
+                            this._valuesHistory.put(this._valuesHistory.size(), resolved);
+                        };
+                        KTraversalHistory.prototype.popResult = function () {
+                            if (this._valuesHistory.size() > 0) {
+                                this._valuesHistory.remove(this._valuesHistory.size() - 1);
+                            }
+                        };
+                        KTraversalHistory.prototype.getPastResult = function (historyDeep) {
+                            return this._valuesHistory.get(historyDeep);
+                        };
+                        KTraversalHistory.prototype.historySize = function () {
+                            return this._valuesHistory.size();
+                        };
+                        return KTraversalHistory;
+                    })();
+                    traversal.KTraversalHistory = KTraversalHistory;
                     var actions;
                     (function (actions) {
+                        var KActivateHistoryAction = (function () {
+                            function KActivateHistoryAction() {
+                            }
+                            KActivateHistoryAction.prototype.chain = function (p_next) {
+                                this._next = p_next;
+                            };
+                            KActivateHistoryAction.prototype.execute = function (inputs, p_history) {
+                                var _history = p_history;
+                                if (_history == null) {
+                                    _history = new org.kevoree.modeling.api.traversal.KTraversalHistory();
+                                }
+                                _history.addResult(inputs);
+                                this._next.execute(inputs, _history);
+                            };
+                            return KActivateHistoryAction;
+                        })();
+                        actions.KActivateHistoryAction = KActivateHistoryAction;
                         var KDeepCollectAction = (function () {
-                            function KDeepCollectAction(p_reference, p_stopCondition) {
+                            function KDeepCollectAction(p_reference, p_continueCondition) {
+                                this._alreadyPassed = null;
+                                this._finalElements = null;
                                 this._reference = p_reference;
-                                this._stopCondition = p_stopCondition;
+                                this._continueCondition = p_continueCondition;
                             }
                             KDeepCollectAction.prototype.chain = function (p_next) {
                                 this._next = p_next;
                             };
-                            KDeepCollectAction.prototype.execute = function (p_inputs) {
+                            KDeepCollectAction.prototype.execute = function (p_inputs, p_history) {
+                                var _this = this;
+                                if (p_inputs == null || p_inputs.length == 0) {
+                                    if (p_history != null) {
+                                        p_history.addResult(p_inputs);
+                                    }
+                                    this._next.execute(p_inputs, p_history);
+                                    return;
+                                }
+                                else {
+                                    this.currentView = p_inputs[0].view();
+                                    this._alreadyPassed = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                                    this._finalElements = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                                    var filtered_inputs = new Array();
+                                    for (var i = 0; i < p_inputs.length; i++) {
+                                        if (this._continueCondition == null || this._continueCondition(p_inputs[i], p_history)) {
+                                            filtered_inputs[i] = p_inputs[i];
+                                            this._alreadyPassed.put(p_inputs[i].uuid(), p_inputs[i]);
+                                        }
+                                    }
+                                    var iterationCallbacks = new Array();
+                                    iterationCallbacks[0] = function (traversed) {
+                                        var filtered_inputs2 = new Array();
+                                        var nbSize = 0;
+                                        for (var i = 0; i < traversed.length; i++) {
+                                            if ((_this._continueCondition == null || _this._continueCondition(traversed[i], p_history)) && !_this._alreadyPassed.containsKey(traversed[i].uuid())) {
+                                                filtered_inputs2[i] = traversed[i];
+                                                _this._alreadyPassed.put(traversed[i].uuid(), traversed[i]);
+                                                _this._finalElements.put(traversed[i].uuid(), traversed[i]);
+                                                nbSize++;
+                                            }
+                                        }
+                                        if (nbSize > 0) {
+                                            _this.executeStep(filtered_inputs2, iterationCallbacks[0]);
+                                        }
+                                        else {
+                                            var trimmed = new Array();
+                                            var nbInserted = [0];
+                                            _this._finalElements.each(function (key, value) {
+                                                trimmed[nbInserted[0]] = value;
+                                                nbInserted[0]++;
+                                            });
+                                            if (p_history != null) {
+                                                p_history.addResult(trimmed);
+                                            }
+                                            _this._next.execute(trimmed, p_history);
+                                        }
+                                    };
+                                    this.executeStep(filtered_inputs, iterationCallbacks[0]);
+                                }
+                            };
+                            KDeepCollectAction.prototype.executeStep = function (p_inputStep, private_callback) {
+                                var nextIds = new org.kevoree.modeling.api.map.LongLongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                                for (var i = 0; i < p_inputStep.length; i++) {
+                                    if (p_inputStep[i] != null) {
+                                        try {
+                                            var loopObj = p_inputStep[i];
+                                            var raw = this.currentView.universe().model().manager().entry(loopObj, org.kevoree.modeling.api.data.manager.AccessMode.READ);
+                                            if (raw != null) {
+                                                if (this._reference == null) {
+                                                    for (var j = 0; j < loopObj.metaClass().metaReferences().length; j++) {
+                                                        var ref = loopObj.metaClass().metaReferences()[j];
+                                                        var resolved = raw.getRef(ref.index());
+                                                        if (resolved != null) {
+                                                            for (var k = 0; k < resolved.length; k++) {
+                                                                nextIds.put(resolved[k], resolved[k]);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                else {
+                                                    var translatedRef = loopObj.internal_transpose_ref(this._reference);
+                                                    if (translatedRef != null) {
+                                                        var resolved = raw.getRef(translatedRef.index());
+                                                        if (resolved != null) {
+                                                            for (var j = 0; j < resolved.length; j++) {
+                                                                nextIds.put(resolved[j], resolved[j]);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        catch ($ex$) {
+                                            if ($ex$ instanceof java.lang.Exception) {
+                                                var e = $ex$;
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    }
+                                }
+                                var trimmed = new Array();
+                                var inserted = [0];
+                                nextIds.each(function (key, value) {
+                                    trimmed[inserted[0]] = key;
+                                    inserted[0]++;
+                                });
+                                this.currentView.internalLookupAll(trimmed, function (kObjects) {
+                                    private_callback(kObjects);
+                                });
                             };
                             return KDeepCollectAction;
                         })();
                         actions.KDeepCollectAction = KDeepCollectAction;
                         var KDeepTraverseAction = (function () {
-                            function KDeepTraverseAction(p_reference, p_stopCondition) {
+                            function KDeepTraverseAction(p_reference, p_continueCondition) {
+                                this._alreadyPassed = null;
+                                this._finalElements = null;
                                 this._reference = p_reference;
-                                this._stopCondition = p_stopCondition;
+                                this._continueCondition = p_continueCondition;
                             }
                             KDeepTraverseAction.prototype.chain = function (p_next) {
                                 this._next = p_next;
                             };
-                            KDeepTraverseAction.prototype.execute = function (p_inputs) {
+                            KDeepTraverseAction.prototype.execute = function (p_inputs, p_history) {
+                                var _this = this;
+                                if (p_inputs == null || p_inputs.length == 0) {
+                                    if (p_history != null) {
+                                        p_history.addResult(p_inputs);
+                                    }
+                                    this._next.execute(p_inputs, p_history);
+                                    return;
+                                }
+                                else {
+                                    this._alreadyPassed = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                                    this._finalElements = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                                    var filtered_inputs = new Array();
+                                    for (var i = 0; i < p_inputs.length; i++) {
+                                        if (this._continueCondition == null || this._continueCondition(p_inputs[i], p_history)) {
+                                            this._alreadyPassed.put(p_inputs[i].uuid(), p_inputs[i]);
+                                            filtered_inputs[i] = p_inputs[i];
+                                        }
+                                    }
+                                    var iterationCallbacks = new Array();
+                                    iterationCallbacks[0] = function (traversed) {
+                                        var filtered_inputs2 = new Array();
+                                        var nbSize = 0;
+                                        for (var i = 0; i < traversed.length; i++) {
+                                            var filterCondition = _this._continueCondition == null || _this._continueCondition(traversed[i], p_history);
+                                            if (filterCondition && !_this._alreadyPassed.containsKey(traversed[i].uuid())) {
+                                                filtered_inputs2[i] = traversed[i];
+                                                _this._alreadyPassed.put(traversed[i].uuid(), traversed[i]);
+                                                nbSize++;
+                                            }
+                                            else {
+                                                if (filterCondition) {
+                                                    _this._finalElements.put(traversed[i].uuid(), traversed[i]);
+                                                }
+                                            }
+                                        }
+                                        if (nbSize > 0) {
+                                            _this.executeStep(filtered_inputs2, iterationCallbacks[0], p_history);
+                                        }
+                                        else {
+                                            var trimmed = new Array();
+                                            var nbInserted = [0];
+                                            _this._finalElements.each(function (key, value) {
+                                                trimmed[nbInserted[0]] = value;
+                                                nbInserted[0]++;
+                                            });
+                                            if (p_history != null) {
+                                                p_history.addResult(trimmed);
+                                            }
+                                            _this._next.execute(trimmed, p_history);
+                                        }
+                                    };
+                                    this.executeStep(filtered_inputs, iterationCallbacks[0], p_history);
+                                }
+                            };
+                            KDeepTraverseAction.prototype.executeStep = function (p_inputStep, private_callback, p_history) {
+                                var currentView = p_inputStep[0].view();
+                                var nextIds = new org.kevoree.modeling.api.map.LongLongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                                for (var i = 0; i < p_inputStep.length; i++) {
+                                    if (p_inputStep[i] != null) {
+                                        try {
+                                            var loopObj = p_inputStep[i];
+                                            var raw = currentView.universe().model().manager().entry(loopObj, org.kevoree.modeling.api.data.manager.AccessMode.READ);
+                                            if (raw != null) {
+                                                if (this._reference == null) {
+                                                    var leadNode = true;
+                                                    for (var j = 0; j < loopObj.metaClass().metaReferences().length; j++) {
+                                                        var ref = loopObj.metaClass().metaReferences()[j];
+                                                        var resolved = raw.getRef(ref.index());
+                                                        if (resolved != null) {
+                                                            for (var k = 0; k < resolved.length; k++) {
+                                                                nextIds.put(resolved[k], resolved[k]);
+                                                                leadNode = false;
+                                                            }
+                                                        }
+                                                    }
+                                                    if (leadNode && (this._continueCondition == null || this._continueCondition(loopObj, p_history))) {
+                                                        this._finalElements.put(loopObj.uuid(), loopObj);
+                                                    }
+                                                }
+                                                else {
+                                                    var leadNode = true;
+                                                    var translatedRef = loopObj.internal_transpose_ref(this._reference);
+                                                    if (translatedRef != null) {
+                                                        var resolved = raw.getRef(translatedRef.index());
+                                                        if (resolved != null) {
+                                                            for (var j = 0; j < resolved.length; j++) {
+                                                                nextIds.put(resolved[j], resolved[j]);
+                                                                leadNode = false;
+                                                            }
+                                                        }
+                                                    }
+                                                    if (leadNode && (this._continueCondition == null || this._continueCondition(loopObj, p_history))) {
+                                                        this._finalElements.put(loopObj.uuid(), loopObj);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        catch ($ex$) {
+                                            if ($ex$ instanceof java.lang.Exception) {
+                                                var e = $ex$;
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    }
+                                }
+                                var trimmed = new Array();
+                                var inserted = [0];
+                                nextIds.each(function (key, value) {
+                                    trimmed[inserted[0]] = key;
+                                    inserted[0]++;
+                                });
+                                currentView.internalLookupAll(trimmed, function (kObjects) {
+                                    private_callback(kObjects);
+                                });
                             };
                             return KDeepTraverseAction;
                         })();
@@ -9941,12 +10129,12 @@ var org;
                             KFilterAction.prototype.chain = function (p_next) {
                                 this._next = p_next;
                             };
-                            KFilterAction.prototype.execute = function (p_inputs) {
+                            KFilterAction.prototype.execute = function (p_inputs, p_history) {
                                 var selectedIndex = new Array();
                                 var selected = 0;
                                 for (var i = 0; i < p_inputs.length; i++) {
                                     try {
-                                        if (this._filter(p_inputs[i])) {
+                                        if (this._filter(p_inputs[i], p_history)) {
                                             selectedIndex[i] = true;
                                             selected++;
                                         }
@@ -9966,7 +10154,10 @@ var org;
                                         inserted++;
                                     }
                                 }
-                                this._next.execute(nextStepElement);
+                                if (p_history != null) {
+                                    p_history.addResult(nextStepElement);
+                                }
+                                this._next.execute(nextStepElement, p_history);
                             };
                             return KFilterAction;
                         })();
@@ -9979,9 +10170,12 @@ var org;
                             KFilterAttributeAction.prototype.chain = function (p_next) {
                                 this._next = p_next;
                             };
-                            KFilterAttributeAction.prototype.execute = function (p_inputs) {
+                            KFilterAttributeAction.prototype.execute = function (p_inputs, p_history) {
                                 if (p_inputs == null || p_inputs.length == 0) {
-                                    this._next.execute(p_inputs);
+                                    if (p_history != null) {
+                                        p_history.addResult(p_inputs);
+                                    }
+                                    this._next.execute(p_inputs, p_history);
                                     return;
                                 }
                                 else {
@@ -10076,7 +10270,10 @@ var org;
                                             inserted++;
                                         }
                                     }
-                                    this._next.execute(nextStepElement);
+                                    if (p_history != null) {
+                                        p_history.addResult(nextStepElement);
+                                    }
+                                    this._next.execute(nextStepElement, p_history);
                                 }
                             };
                             return KFilterAttributeAction;
@@ -10089,9 +10286,12 @@ var org;
                             KFilterAttributeQueryAction.prototype.chain = function (p_next) {
                                 this._next = p_next;
                             };
-                            KFilterAttributeQueryAction.prototype.execute = function (p_inputs) {
+                            KFilterAttributeQueryAction.prototype.execute = function (p_inputs, p_history) {
                                 if (p_inputs == null || p_inputs.length == 0) {
-                                    this._next.execute(p_inputs);
+                                    if (p_history != null) {
+                                        p_history.addResult(p_inputs);
+                                    }
+                                    this._next.execute(p_inputs, p_history);
                                     return;
                                 }
                                 else {
@@ -10164,7 +10364,10 @@ var org;
                                             inserted++;
                                         }
                                     }
-                                    this._next.execute(nextStepElement);
+                                    if (p_history != null) {
+                                        p_history.addResult(nextStepElement);
+                                    }
+                                    this._next.execute(nextStepElement, p_history);
                                 }
                             };
                             KFilterAttributeQueryAction.prototype.buildParams = function (p_paramString) {
@@ -10218,9 +10421,12 @@ var org;
                             KFilterNotAttributeAction.prototype.chain = function (p_next) {
                                 this._next = p_next;
                             };
-                            KFilterNotAttributeAction.prototype.execute = function (p_inputs) {
+                            KFilterNotAttributeAction.prototype.execute = function (p_inputs, p_history) {
                                 if (p_inputs == null || p_inputs.length == 0) {
-                                    this._next.execute(p_inputs);
+                                    if (p_history != null) {
+                                        p_history.addResult(p_inputs);
+                                    }
+                                    this._next.execute(p_inputs, p_history);
                                 }
                                 else {
                                     var selectedIndexes = new Array();
@@ -10314,7 +10520,10 @@ var org;
                                             inserted++;
                                         }
                                     }
-                                    this._next.execute(nextStepElement);
+                                    if (p_history != null) {
+                                        p_history.addResult(nextStepElement);
+                                    }
+                                    this._next.execute(nextStepElement, p_history);
                                 }
                             };
                             return KFilterNotAttributeAction;
@@ -10326,122 +10535,26 @@ var org;
                             }
                             KFinalAction.prototype.chain = function (next) {
                             };
-                            KFinalAction.prototype.execute = function (inputs) {
+                            KFinalAction.prototype.execute = function (inputs, p_history) {
                                 this._finalCallback(inputs);
                             };
                             return KFinalAction;
                         })();
                         actions.KFinalAction = KFinalAction;
-                        var KMapAction = (function () {
-                            function KMapAction(p_attribute, p_callback) {
-                                this._finalCallback = p_callback;
-                                this._attribute = p_attribute;
-                            }
-                            KMapAction.prototype.chain = function (next) {
-                            };
-                            KMapAction.prototype.execute = function (inputs) {
-                                var selected = new Array();
-                                var nbElem = 0;
-                                for (var i = 0; i < inputs.length; i++) {
-                                    if (inputs[i] != null) {
-                                        var resolved = inputs[i].get(this._attribute);
-                                        if (resolved != null) {
-                                            selected[i] = resolved;
-                                            nbElem++;
-                                        }
-                                    }
-                                }
-                                var trimmed = new Array();
-                                var nbInserted = 0;
-                                for (var i = 0; i < inputs.length; i++) {
-                                    if (selected[i] != null) {
-                                        trimmed[nbInserted] = selected[i];
-                                        nbInserted++;
-                                    }
-                                }
-                                this._finalCallback(trimmed);
-                            };
-                            return KMapAction;
-                        })();
-                        actions.KMapAction = KMapAction;
-                        var KParentsAction = (function () {
-                            function KParentsAction() {
-                            }
-                            KParentsAction.prototype.chain = function (p_next) {
-                                this._next = p_next;
-                            };
-                            KParentsAction.prototype.execute = function (p_inputs) {
-                                var _this = this;
-                                if (p_inputs == null || p_inputs.length == 0) {
-                                    this._next.execute(p_inputs);
-                                    return;
-                                }
-                                else {
-                                    var currentView = p_inputs[0].view();
-                                    var selected = new org.kevoree.modeling.api.map.LongLongHashMap(p_inputs.length, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
-                                    for (var i = 0; i < p_inputs.length; i++) {
-                                        try {
-                                            var loopObj = p_inputs[i];
-                                            var raw = loopObj.universe().model().manager().entry(loopObj, org.kevoree.modeling.api.data.manager.AccessMode.READ);
-                                            var resolved = raw.getRef(org.kevoree.modeling.api.data.manager.Index.PARENT_INDEX);
-                                            if (resolved != null && resolved.length > 0) {
-                                                selected.put(resolved[0], resolved[0]);
-                                            }
-                                        }
-                                        catch ($ex$) {
-                                            if ($ex$ instanceof java.lang.Exception) {
-                                                var e = $ex$;
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                    }
-                                    var trimmed = new Array();
-                                    var nbInserted = [0];
-                                    selected.each(function (key, value) {
-                                        trimmed[nbInserted[0]] = key;
-                                        nbInserted[0]++;
-                                    });
-                                    currentView.internalLookupAll(trimmed, function (kObjects) {
-                                        _this._next.execute(kObjects);
-                                    });
-                                }
-                            };
-                            return KParentsAction;
-                        })();
-                        actions.KParentsAction = KParentsAction;
-                        var KRemoveDuplicateAction = (function () {
-                            function KRemoveDuplicateAction() {
-                            }
-                            KRemoveDuplicateAction.prototype.chain = function (p_next) {
-                                this._next = p_next;
-                            };
-                            KRemoveDuplicateAction.prototype.execute = function (p_inputs) {
-                                var elems = new org.kevoree.modeling.api.map.LongHashMap(p_inputs.length, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
-                                for (var i = 0; i < p_inputs.length; i++) {
-                                    elems.put(p_inputs[i].uuid(), p_inputs[i]);
-                                }
-                                var trimmed = new Array();
-                                var nbInserted = [0];
-                                elems.each(function (key, value) {
-                                    trimmed[nbInserted[0]] = value;
-                                    nbInserted[0]++;
-                                });
-                                this._next.execute(trimmed);
-                            };
-                            return KRemoveDuplicateAction;
-                        })();
-                        actions.KRemoveDuplicateAction = KRemoveDuplicateAction;
-                        var KReverseAction = (function () {
-                            function KReverseAction(p_reference) {
+                        var KInboundsAction = (function () {
+                            function KInboundsAction(p_reference) {
                                 this._reference = p_reference;
                             }
-                            KReverseAction.prototype.chain = function (p_next) {
+                            KInboundsAction.prototype.chain = function (p_next) {
                                 this._next = p_next;
                             };
-                            KReverseAction.prototype.execute = function (p_inputs) {
+                            KInboundsAction.prototype.execute = function (p_inputs, p_history) {
                                 var _this = this;
                                 if (p_inputs == null || p_inputs.length == 0) {
-                                    this._next.execute(p_inputs);
+                                    if (p_history != null) {
+                                        p_history.addResult(p_inputs);
+                                    }
+                                    this._next.execute(p_inputs, p_history);
                                     return;
                                 }
                                 else {
@@ -10483,7 +10596,7 @@ var org;
                                             inserted[0]++;
                                         });
                                         currentView.internalLookupAll(trimmed, function (kObjects) {
-                                            _this._next.execute(kObjects);
+                                            _this._next.execute(kObjects, p_history);
                                         });
                                     }
                                     else {
@@ -10511,28 +10624,34 @@ var org;
                                                 inserted2[0]++;
                                             });
                                             currentView.internalLookupAll(trimmed2, function (kObjects) {
-                                                _this._next.execute(kObjects);
+                                                if (p_history != null) {
+                                                    p_history.addResult(kObjects);
+                                                }
+                                                _this._next.execute(kObjects, p_history);
                                             });
                                         });
                                     }
                                 }
                             };
-                            return KReverseAction;
+                            return KInboundsAction;
                         })();
-                        actions.KReverseAction = KReverseAction;
-                        var KReverseQueryAction = (function () {
-                            function KReverseQueryAction(p_referenceQuery) {
+                        actions.KInboundsAction = KInboundsAction;
+                        var KInboundsQueryAction = (function () {
+                            function KInboundsQueryAction(p_referenceQuery) {
                                 if (this._referenceQuery != null) {
                                     this._referenceQuery = p_referenceQuery.replace("*", ".*");
                                 }
                             }
-                            KReverseQueryAction.prototype.chain = function (p_next) {
+                            KInboundsQueryAction.prototype.chain = function (p_next) {
                                 this._next = p_next;
                             };
-                            KReverseQueryAction.prototype.execute = function (p_inputs) {
+                            KInboundsQueryAction.prototype.execute = function (p_inputs, p_history) {
                                 var _this = this;
                                 if (p_inputs == null || p_inputs.length == 0) {
-                                    this._next.execute(p_inputs);
+                                    if (p_history != null) {
+                                        p_history.addResult(p_inputs);
+                                    }
+                                    this._next.execute(p_inputs, p_history);
                                     return;
                                 }
                                 else {
@@ -10574,7 +10693,7 @@ var org;
                                             inserted[0]++;
                                         });
                                         currentView.internalLookupAll(trimmed, function (kObjects) {
-                                            _this._next.execute(kObjects);
+                                            _this._next.execute(kObjects, p_history);
                                         });
                                     }
                                     else {
@@ -10602,15 +10721,126 @@ var org;
                                                 inserted2[0]++;
                                             });
                                             currentView.internalLookupAll(trimmed2, function (kObjects) {
-                                                _this._next.execute(kObjects);
+                                                if (p_history != null) {
+                                                    p_history.addResult(kObjects);
+                                                }
+                                                _this._next.execute(kObjects, p_history);
                                             });
                                         });
                                     }
                                 }
                             };
-                            return KReverseQueryAction;
+                            return KInboundsQueryAction;
                         })();
-                        actions.KReverseQueryAction = KReverseQueryAction;
+                        actions.KInboundsQueryAction = KInboundsQueryAction;
+                        var KMapAction = (function () {
+                            function KMapAction(p_attribute, p_callback) {
+                                this._finalCallback = p_callback;
+                                this._attribute = p_attribute;
+                            }
+                            KMapAction.prototype.chain = function (next) {
+                            };
+                            KMapAction.prototype.execute = function (inputs, p_history) {
+                                var selected = new Array();
+                                var nbElem = 0;
+                                for (var i = 0; i < inputs.length; i++) {
+                                    if (inputs[i] != null) {
+                                        var resolved = inputs[i].get(this._attribute);
+                                        if (resolved != null) {
+                                            selected[i] = resolved;
+                                            nbElem++;
+                                        }
+                                    }
+                                }
+                                var trimmed = new Array();
+                                var nbInserted = 0;
+                                for (var i = 0; i < inputs.length; i++) {
+                                    if (selected[i] != null) {
+                                        trimmed[nbInserted] = selected[i];
+                                        nbInserted++;
+                                    }
+                                }
+                                this._finalCallback(trimmed);
+                            };
+                            return KMapAction;
+                        })();
+                        actions.KMapAction = KMapAction;
+                        var KParentsAction = (function () {
+                            function KParentsAction() {
+                            }
+                            KParentsAction.prototype.chain = function (p_next) {
+                                this._next = p_next;
+                            };
+                            KParentsAction.prototype.execute = function (p_inputs, p_history) {
+                                var _this = this;
+                                if (p_inputs == null || p_inputs.length == 0) {
+                                    if (p_history != null) {
+                                        p_history.addResult(p_inputs);
+                                    }
+                                    this._next.execute(p_inputs, p_history);
+                                    return;
+                                }
+                                else {
+                                    var currentView = p_inputs[0].view();
+                                    var selected = new org.kevoree.modeling.api.map.LongLongHashMap(p_inputs.length, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                                    for (var i = 0; i < p_inputs.length; i++) {
+                                        try {
+                                            var loopObj = p_inputs[i];
+                                            var raw = loopObj.universe().model().manager().entry(loopObj, org.kevoree.modeling.api.data.manager.AccessMode.READ);
+                                            var resolved = raw.getRef(org.kevoree.modeling.api.data.manager.Index.PARENT_INDEX);
+                                            if (resolved != null && resolved.length > 0) {
+                                                selected.put(resolved[0], resolved[0]);
+                                            }
+                                        }
+                                        catch ($ex$) {
+                                            if ($ex$ instanceof java.lang.Exception) {
+                                                var e = $ex$;
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    }
+                                    var trimmed = new Array();
+                                    var nbInserted = [0];
+                                    selected.each(function (key, value) {
+                                        trimmed[nbInserted[0]] = key;
+                                        nbInserted[0]++;
+                                    });
+                                    currentView.internalLookupAll(trimmed, function (kObjects) {
+                                        if (p_history != null) {
+                                            p_history.addResult(kObjects);
+                                        }
+                                        _this._next.execute(kObjects, p_history);
+                                    });
+                                }
+                            };
+                            return KParentsAction;
+                        })();
+                        actions.KParentsAction = KParentsAction;
+                        var KRemoveDuplicateAction = (function () {
+                            function KRemoveDuplicateAction() {
+                            }
+                            KRemoveDuplicateAction.prototype.chain = function (p_next) {
+                                this._next = p_next;
+                            };
+                            KRemoveDuplicateAction.prototype.execute = function (p_inputs, p_history) {
+                                var elems = new org.kevoree.modeling.api.map.LongHashMap(p_inputs.length, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                                for (var i = 0; i < p_inputs.length; i++) {
+                                    elems.put(p_inputs[i].uuid(), p_inputs[i]);
+                                }
+                                var trimmed = new Array();
+                                var nbInserted = [0];
+                                elems.each(function (key, value) {
+                                    trimmed[nbInserted[0]] = value;
+                                    nbInserted[0]++;
+                                });
+                                if (p_history != null) {
+                                    p_history.addResult(trimmed);
+                                }
+                                this._next.execute(trimmed, p_history);
+                            };
+                            return KRemoveDuplicateAction;
+                        })();
+                        actions.KRemoveDuplicateAction = KRemoveDuplicateAction;
                         var KTraverseAction = (function () {
                             function KTraverseAction(p_reference) {
                                 this._reference = p_reference;
@@ -10618,10 +10848,13 @@ var org;
                             KTraverseAction.prototype.chain = function (p_next) {
                                 this._next = p_next;
                             };
-                            KTraverseAction.prototype.execute = function (p_inputs) {
+                            KTraverseAction.prototype.execute = function (p_inputs, p_history) {
                                 var _this = this;
                                 if (p_inputs == null || p_inputs.length == 0) {
-                                    this._next.execute(p_inputs);
+                                    if (p_history != null) {
+                                        p_history.addResult(p_inputs);
+                                    }
+                                    this._next.execute(p_inputs, p_history);
                                     return;
                                 }
                                 else {
@@ -10670,7 +10903,10 @@ var org;
                                         inserted[0]++;
                                     });
                                     currentView.internalLookupAll(trimmed, function (kObjects) {
-                                        _this._next.execute(kObjects);
+                                        if (p_history != null) {
+                                            p_history.addResult(kObjects);
+                                        }
+                                        _this._next.execute(kObjects, p_history);
                                     });
                                 }
                             };
@@ -10685,10 +10921,13 @@ var org;
                             KTraverseQueryAction.prototype.chain = function (p_next) {
                                 this._next = p_next;
                             };
-                            KTraverseQueryAction.prototype.execute = function (p_inputs) {
+                            KTraverseQueryAction.prototype.execute = function (p_inputs, p_history) {
                                 var _this = this;
                                 if (p_inputs == null || p_inputs.length == 0) {
-                                    this._next.execute(p_inputs);
+                                    if (p_history != null) {
+                                        p_history.addResult(p_inputs);
+                                    }
+                                    this._next.execute(p_inputs, p_history);
                                     return;
                                 }
                                 else {
@@ -10754,7 +10993,10 @@ var org;
                                         inserted[0]++;
                                     });
                                     currentView.internalLookupAll(trimmed, function (kObjects) {
-                                        _this._next.execute(kObjects);
+                                        if (p_history != null) {
+                                            p_history.addResult(kObjects);
+                                        }
+                                        _this._next.execute(kObjects, p_history);
                                     });
                                 }
                             };
@@ -10883,29 +11125,29 @@ var org;
                                     for (var i = 0; i < extracted.size(); i++) {
                                         if (current == null) {
                                             if (extracted.get(i).relationName.equals("..")) {
-                                                current = root.traverseInbounds("*");
+                                                current = root.traversal().inboundsQuery("*");
                                             }
                                             else {
                                                 if (extracted.get(i).relationName.startsWith("..")) {
-                                                    current = root.traverseInbounds(extracted.get(i).relationName.substring(2));
+                                                    current = root.traversal().inboundsQuery(extracted.get(i).relationName.substring(2));
                                                 }
                                                 else {
                                                     if (extracted.get(i).relationName.equals("@parent")) {
-                                                        current = root.traverseParent();
+                                                        current = root.traversal().parents();
                                                     }
                                                     else {
-                                                        current = root.traverseQuery(extracted.get(i).relationName);
+                                                        current = root.traversal().traverseQuery(extracted.get(i).relationName);
                                                     }
                                                 }
                                             }
                                         }
                                         else {
                                             if (extracted.get(i).relationName.equals("..")) {
-                                                current = current.reverseQuery("*");
+                                                current = current.inboundsQuery("*");
                                             }
                                             else {
                                                 if (extracted.get(i).relationName.startsWith("..")) {
-                                                    current = current.reverseQuery(extracted.get(i).relationName.substring(2));
+                                                    current = current.inboundsQuery(extracted.get(i).relationName.substring(2));
                                                 }
                                                 else {
                                                     if (extracted.get(i).relationName.equals("@parent")) {
@@ -10921,7 +11163,7 @@ var org;
                                     }
                                 }
                                 if (current != null) {
-                                    current.then().then(callback);
+                                    current.done().then(callback);
                                 }
                                 else {
                                     callback(new Array());
