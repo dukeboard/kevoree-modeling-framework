@@ -77,6 +77,9 @@ public class KDeepCollectAction implements KTraversalAction {
                         }
                     }
                     if (nbSize > 0) {
+                        if(p_history != null){
+                            p_history.addResult(filtered_inputs2);
+                        }
                         executeStep(filtered_inputs2, iterationCallbacks[0]);
                     } else {
                         KObject[] trimmed = new KObject[_finalElements.size()];

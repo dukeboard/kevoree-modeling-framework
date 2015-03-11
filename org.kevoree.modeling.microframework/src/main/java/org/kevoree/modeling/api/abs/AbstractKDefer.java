@@ -110,7 +110,6 @@ public class AbstractKDefer<A> implements KCurrentDefer<A> {
                         p_callback.on(getResult());
                     } catch (Exception e) {
                         e.printStackTrace();
-                        p_callback.on(null);
                     }
                 }
             }

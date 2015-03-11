@@ -108,6 +108,11 @@ public class DefaultKTraversal implements KTraversal {
     }
 
     @Override
+    public KTraversal reverse() {
+        return internal_chain_action(new KReverseAction());
+    }
+
+    @Override
     public KDefer<KObject[]> done() {
         AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
         //set the terminal leaf action

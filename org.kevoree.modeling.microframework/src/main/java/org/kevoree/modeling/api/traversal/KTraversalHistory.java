@@ -9,24 +9,26 @@ import org.kevoree.modeling.api.map.LongHashMap;
  */
 public class KTraversalHistory {
 
-    private LongHashMap<KObject[]> _valuesHistory;
+    private LongHashMap<KObject> _valuesHistory;
 
     public KTraversalHistory() {
-        _valuesHistory = new LongHashMap<KObject[]>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+        _valuesHistory = new LongHashMap<KObject>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
     }
 
     public void addResult(KObject[] resolved) {
-        _valuesHistory.put(_valuesHistory.size(), resolved);
-    }
-
-    public void popResult() {
-        if (_valuesHistory.size() > 0) {
-            _valuesHistory.remove(_valuesHistory.size() - 1);
+        if (resolved != null) {
+            for (int i = 0; i < resolved.length; i++) {
+                _valuesHistory.put(resolved[i].uuid(), resolved[i]);
+            }
         }
     }
 
-    public KObject[] getPastResult(long historyDeep) {
-        return _valuesHistory.get(historyDeep);
+    public void remove(long toDrop) {
+        _valuesHistory.remove(toDrop);
+    }
+
+    public KObject get(long uuid) {
+        return _valuesHistory.get(uuid);
     }
 
     public int historySize() {

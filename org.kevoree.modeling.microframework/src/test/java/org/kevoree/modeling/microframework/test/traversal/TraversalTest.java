@@ -692,19 +692,71 @@ public class TraversalTest {
                     @Override
                     public boolean filter(KObject obj, KTraversalHistory history) {
                         Assert.assertNotNull(history);
-                        Assert.assertEquals(1, history.historySize());
                         return true;
                     }
                 }).filter(new KTraversalFilter() {
                     @Override
                     public boolean filter(KObject obj, KTraversalHistory history) {
                         Assert.assertNotNull(history);
-                        Assert.assertEquals(2, history.historySize());
-                        Assert.assertEquals(1, history.getPastResult(0).length);
-                        Assert.assertEquals(6, history.getPastResult(1).length);
+                        Assert.assertEquals(7, history.historySize());
                         return true;
                     }
                 }).done();
+
+            }
+        });
+    }
+
+    @Test
+    public void deepReverseTest() {
+        final CloudModel universe = new CloudModel();
+        universe.connect();
+        final CloudUniverse dimension0 = universe.newUniverse();
+        final CloudView t0 = dimension0.time(0l);
+
+        final Node node0 = t0.createNode();
+        node0.setName("c0");
+        final Element elem0_0 = t0.createElement();
+        elem0_0.setName("c0_e1");
+        node0.setElement(elem0_0);
+
+        t0.setRoot(node0).then(new Callback<Throwable>() {
+            @Override
+            public void on(Throwable throwable) {
+
+                final Node node1 = t0.createNode();
+                node1.setName("c1");
+                final Element elem1_0 = t0.createElement();
+                elem1_0.setName("c1_e1");
+                node1.setElement(elem1_0);
+
+                final Node node2 = t0.createNode();
+                node2.setName("c2");
+                final Element elem2_0 = t0.createElement();
+                elem2_0.setName("c2_e1");
+                node2.setElement(elem2_0);
+
+                node0.addChildren(node1);
+                node0.addChildren(node2);
+
+                final Node node1_1 = t0.createNode();
+                node1_1.setName("c1_1");
+                node1.addChildren(node1_1);
+
+
+                node0.traversal().activateHistory().deepTraverse(MetaNode.REF_CHILDREN, null).filter(new KTraversalFilter() {
+                    @Override
+                    public boolean filter(KObject obj, KTraversalHistory history) {
+                        return obj.get(MetaNode.ATT_NAME).equals("c1_1");
+                    }
+                }).reverse().done().then(new Callback<KObject[]>() {
+                    @Override
+                    public void on(KObject[] kObjects) {
+                        Assert.assertEquals(kObjects.length,1);
+                        Assert.assertEquals(kObjects[0].get(MetaNode.ATT_NAME).toString(),"c1");
+                    }
+                });
+
 
             }
         });

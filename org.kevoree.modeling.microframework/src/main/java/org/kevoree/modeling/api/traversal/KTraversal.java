@@ -39,6 +39,8 @@ public interface KTraversal {
     public KTraversal deepCollect(MetaReference metaReference, KTraversalFilter continueCondition);
 
     public KTraversal activateHistory();
+
+    public KTraversal reverse();
     
 }
 
