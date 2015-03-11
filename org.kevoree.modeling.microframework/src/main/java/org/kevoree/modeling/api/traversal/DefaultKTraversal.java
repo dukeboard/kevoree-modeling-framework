@@ -12,7 +12,7 @@ import org.kevoree.modeling.api.traversal.actions.*;
  */
 public class DefaultKTraversal implements KTraversal {
 
-    private static final String TERMINATED_MESSAGE = "Promise is terminated by the call of then method, please create another promise";
+    private static final String TERMINATED_MESSAGE = "Promise is terminated by the call of done method, please create another promise";
 
     private KObject[] _initObjs;
 
@@ -108,7 +108,7 @@ public class DefaultKTraversal implements KTraversal {
     }
 
     @Override
-    public KDefer<KObject[]> then() {
+    public KDefer<KObject[]> done() {
         AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
         //set the terminal leaf action
         internal_chain_action(new KFinalAction(task.initCallback()));

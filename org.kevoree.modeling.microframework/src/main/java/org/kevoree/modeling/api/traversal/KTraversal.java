@@ -30,7 +30,7 @@ public interface KTraversal {
 
     public KTraversal removeDuplicate();
 
-    public KDefer<KObject[]> then();
+    public KDefer<KObject[]> done();
 
     public KDefer<Object[]> map(MetaAttribute attribute);
 

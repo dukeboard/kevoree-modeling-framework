@@ -23,6 +23,6 @@ public class KActivateHistoryAction implements KTraversalAction {
             _history = new KTraversalHistory();
         }
         _history.addResult(inputs);
-        _next.execute(inputs, p_history);
+        _next.execute(inputs, _history);
     }
 }

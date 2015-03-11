@@ -405,7 +405,7 @@ public class IndexRBTree implements KCacheObject {
         } else {
             _size--;
             if (n.getLeft() != null && n.getRight() != null) {
-                // Copy domainKey/value from predecessor and then delete it instead
+                // Copy domainKey/value from predecessor and done delete it instead
                 TreeNode pred = n.getLeft();
                 while (pred.getRight() != null) {
                     pred = pred.getRight();
