@@ -25,11 +25,11 @@ public class KDeepTraverseAction implements KTraversalAction {
 
     private MetaReference _reference;
 
-    private KTraversalFilter _stopCondition;
+    private KTraversalFilter _continueCondition;
 
-    public KDeepTraverseAction(MetaReference p_reference, KTraversalFilter p_stopCondition) {
+    public KDeepTraverseAction(MetaReference p_reference, KTraversalFilter p_continueCondition) {
         this._reference = p_reference;
-        this._stopCondition = p_stopCondition;
+        this._continueCondition = p_continueCondition;
     }
 
     @Override
@@ -44,7 +44,7 @@ public class KDeepTraverseAction implements KTraversalAction {
     @Override
     public void execute(KObject[] p_inputs, KTraversalHistory p_history) {
         if (p_inputs == null || p_inputs.length == 0) {
-            if(p_history!=null){
+            if (p_history != null) {
                 p_history.addResult(p_inputs);
             }
             _next.execute(p_inputs, p_history);
@@ -54,29 +54,31 @@ public class KDeepTraverseAction implements KTraversalAction {
             _finalElements = new LongHashMap<KObject>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
             KObject[] filtered_inputs = new KObject[p_inputs.length];
             for (int i = 0; i < p_inputs.length; i++) {
-                if (!_stopCondition.filter(p_inputs[i], p_history)) {
+                if (_continueCondition == null || _continueCondition.filter(p_inputs[i], p_history)) {
                     _alreadyPassed.put(p_inputs[i].uuid(), p_inputs[i]);
                     filtered_inputs[i] = p_inputs[i];
                 }
             }
-            Callback<KObject[]> iterationCallback = null;
-            final Callback<KObject[]> finalIterationCallback = iterationCallback;
-            iterationCallback = new Callback<KObject[]>() {
+            final Callback<KObject[]>[] iterationCallbacks = new Callback[1];
+            iterationCallbacks[0] = new Callback<KObject[]>() {
                 @Override
                 public void on(KObject[] traversed) {
                     KObject[] filtered_inputs2 = new KObject[traversed.length];
                     int nbSize = 0;
                     for (int i = 0; i < traversed.length; i++) {
-                        if (!_stopCondition.filter(traversed[i], p_history) && !_alreadyPassed.containsKey(traversed[i].uuid())) {
+                        boolean filterCondition = _continueCondition == null || _continueCondition.filter(traversed[i], p_history);
+                        if (filterCondition && !_alreadyPassed.containsKey(traversed[i].uuid())) {
                             filtered_inputs2[i] = traversed[i];
-                            _alreadyPassed.put(p_inputs[i].uuid(), p_inputs[i]);
+                            _alreadyPassed.put(traversed[i].uuid(), traversed[i]);
                             nbSize++;
                         } else {
-                            _finalElements.put(p_inputs[i].uuid(), p_inputs[i]);
+                            if(filterCondition){
+                                _finalElements.put(traversed[i].uuid(), traversed[i]);
+                            }
                         }
                     }
                     if (nbSize > 0) {
-                        executeStep(filtered_inputs2, finalIterationCallback);
+                        executeStep(filtered_inputs2, iterationCallbacks[0],p_history);
                     } else {
                         KObject[] trimmed = new KObject[_finalElements.size()];
                         final int[] nbInserted = {0};
@@ -94,11 +96,11 @@ public class KDeepTraverseAction implements KTraversalAction {
                     }
                 }
             };
-            executeStep(filtered_inputs, iterationCallback);
+            executeStep(filtered_inputs, iterationCallbacks[0],p_history);
         }
     }
 
-    private void executeStep(KObject[] p_inputStep, Callback<KObject[]> private_callback) {
+    private void executeStep(KObject[] p_inputStep, Callback<KObject[]> private_callback, KTraversalHistory p_history) {
         AbstractKView currentView = (AbstractKView) p_inputStep[0].view();
         LongLongHashMap nextIds = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         for (int i = 0; i < p_inputStep.length; i++) {
@@ -108,24 +110,34 @@ public class KDeepTraverseAction implements KTraversalAction {
                     KCacheEntry raw = currentView.universe().model().manager().entry(loopObj, AccessMode.READ);
                     if (raw != null) {
                         if (_reference == null) {
+                            boolean leadNode = true;
                             for (int j = 0; j < loopObj.metaClass().metaReferences().length; j++) {
                                 MetaReference ref = loopObj.metaClass().metaReferences()[j];
                                 long[] resolved = raw.getRef(ref.index());
                                 if (resolved != null) {
                                     for (int k = 0; k < resolved.length; k++) {
                                         nextIds.put(resolved[k], resolved[k]);
+                                        leadNode = false;
                                     }
                                 }
                             }
+                            if(leadNode && (_continueCondition == null || _continueCondition.filter(loopObj,p_history))){
+                                _finalElements.put(loopObj.uuid(),loopObj);
+                            }
                         } else {
+                            boolean leadNode = true;
                             MetaReference translatedRef = loopObj.internal_transpose_ref(_reference);
                             if (translatedRef != null) {
                                 long[] resolved = raw.getRef(translatedRef.index());
                                 if (resolved != null) {
                                     for (int j = 0; j < resolved.length; j++) {
                                         nextIds.put(resolved[j], resolved[j]);
+                                        leadNode = false;
                                     }
                                 }
+                            }
+                            if(leadNode && (_continueCondition == null ||_continueCondition.filter(loopObj,p_history))){
+                                _finalElements.put(loopObj.uuid(),loopObj);
                             }
                         }
                     }

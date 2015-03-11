@@ -93,13 +93,13 @@ public class DefaultKTraversal implements KTraversal {
     }
 
     @Override
-    public KTraversal deepTraverse(MetaReference metaReference, KTraversalFilter stopCondition) {
-        return internal_chain_action(new KDeepTraverseAction(metaReference, stopCondition));
+    public KTraversal deepTraverse(MetaReference metaReference, KTraversalFilter continueCondition) {
+        return internal_chain_action(new KDeepTraverseAction(metaReference, continueCondition));
     }
 
     @Override
-    public KTraversal deepCollect(MetaReference metaReference, KTraversalFilter stopCondition) {
-        return internal_chain_action(new KDeepCollectAction(metaReference, stopCondition));
+    public KTraversal deepCollect(MetaReference metaReference, KTraversalFilter continueCondition) {
+        return internal_chain_action(new KDeepCollectAction(metaReference, continueCondition));
     }
 
     @Override
