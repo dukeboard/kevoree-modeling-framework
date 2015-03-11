@@ -14,20 +14,19 @@ import org.kevoree.modeling.api.map.LongLongHashMap;
 import org.kevoree.modeling.api.map.LongLongHashMapCallBack;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
+import org.kevoree.modeling.api.traversal.KTraversalHistory;
 
 /**
  * Created by duke on 18/12/14.
  */
-public class KReverseQueryAction implements KTraversalAction {
+public class KInboundsAction implements KTraversalAction {
 
     private KTraversalAction _next;
 
-    private String _referenceQuery;
+    private MetaReference _reference;
 
-    public KReverseQueryAction(String p_referenceQuery) {
-        if (this._referenceQuery != null) {
-            this._referenceQuery = p_referenceQuery.replace("*", ".*");
-        }
+    public KInboundsAction(MetaReference p_reference) {
+        this._reference = p_reference;
     }
 
     @Override
@@ -36,9 +35,12 @@ public class KReverseQueryAction implements KTraversalAction {
     }
 
     @Override
-    public void execute(KObject[] p_inputs) {
+    public void execute(KObject[] p_inputs, KTraversalHistory p_history) {
         if (p_inputs == null || p_inputs.length == 0) {
-            _next.execute(p_inputs);
+            if (p_history != null) {
+                p_history.addResult(p_inputs);
+            }
+            _next.execute(p_inputs, p_history);
             return;
         } else {
             final AbstractKView currentView = (AbstractKView) p_inputs[0].view();
@@ -49,15 +51,15 @@ public class KReverseQueryAction implements KTraversalAction {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
                     KCacheEntry raw = currentView.universe().model().manager().entry(loopObj, AccessMode.READ);
                     if (raw != null) {
-                        long[] inboundsKeys = raw.getRef(Index.INBOUNDS_INDEX);
-                        if (inboundsKeys != null) {
-                            if (_referenceQuery == null) {
-                                for (int j = 0; j < inboundsKeys.length; j++) {
-                                    nextIds.put(inboundsKeys[j], inboundsKeys[j]);
+                        long[] elementsKeys = raw.getRef(Index.INBOUNDS_INDEX);
+                        if (elementsKeys != null) {
+                            if (_reference == null) {
+                                for (int j = 0; j < elementsKeys.length; j++) {
+                                    nextIds.put(elementsKeys[j], elementsKeys[j]);
                                 }
                             } else {
-                                for (int j = 0; j < inboundsKeys.length; j++) {
-                                    toFilter.put(inboundsKeys[j], p_inputs[i]);
+                                for (int j = 0; j < elementsKeys.length; j++) {
+                                    toFilter.put(elementsKeys[j], p_inputs[i]);
                                 }
                             }
                         }
@@ -79,7 +81,7 @@ public class KReverseQueryAction implements KTraversalAction {
                 currentView.internalLookupAll(trimmed, new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
-                        _next.execute(kObjects);
+                        _next.execute(kObjects, p_history);
                     }
                 });
             } else {
@@ -99,7 +101,7 @@ public class KReverseQueryAction implements KTraversalAction {
                             if (kObjects[i] != null) {
                                 MetaReference[] references = kObjects[i].referencesWith(toFilter.get(trimmed[i]));
                                 for (int h = 0; h < references.length; h++) {
-                                    if (references[h].metaName().matches(_referenceQuery)) {
+                                    if (references[h].metaName().equals(_reference.metaName())) {
                                         nextIds.put(kObjects[i].uuid(), kObjects[i].uuid());
                                     }
                                 }
@@ -117,7 +119,10 @@ public class KReverseQueryAction implements KTraversalAction {
                         currentView.internalLookupAll(trimmed2, new Callback<KObject[]>() {
                             @Override
                             public void on(KObject[] kObjects) {
-                                _next.execute(kObjects);
+                                if (p_history != null) {
+                                    p_history.addResult(kObjects);
+                                }
+                                _next.execute(kObjects, p_history);
                             }
                         });
                     }

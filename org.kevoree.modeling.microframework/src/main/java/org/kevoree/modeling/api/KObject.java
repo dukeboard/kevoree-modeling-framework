@@ -55,13 +55,7 @@ public interface KObject {
 
     public KDefer<KObject[]> inferRef(MetaReference metaReference);
 
-    public KTraversal traverse(MetaReference metaReference);
-
-    public KTraversal traverseQuery(String metaReferenceQuery);
-
-    public KTraversal traverseInbounds(String metaReferenceQuery);
-
-    public KTraversal traverseParent();
+    public KTraversal traversal();
 
     public KDefer<KObject[]> inbounds();
 

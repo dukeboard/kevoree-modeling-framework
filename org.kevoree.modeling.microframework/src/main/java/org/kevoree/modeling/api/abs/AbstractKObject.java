@@ -16,7 +16,7 @@ import org.kevoree.modeling.api.util.ArrayUtils;
 import org.kevoree.modeling.api.traversal.DefaultKTraversal;
 import org.kevoree.modeling.api.traversal.KTraversal;
 import org.kevoree.modeling.api.traversal.actions.KParentsAction;
-import org.kevoree.modeling.api.traversal.actions.KReverseQueryAction;
+import org.kevoree.modeling.api.traversal.actions.KInboundsQueryAction;
 import org.kevoree.modeling.api.traversal.actions.KTraverseAction;
 import org.kevoree.modeling.api.traversal.actions.KTraverseQueryAction;
 import org.kevoree.modeling.api.traversal.selector.KSelector;
@@ -505,7 +505,7 @@ public abstract class AbstractKObject implements KObject {
         if (p_request.equals(VisitRequest.CHILDREN)) {
             internal_visit(p_visitor, task.initCallback(), false, false, null, null);
         } else if (p_request.equals(VisitRequest.ALL)) {
-            internal_visit(p_visitor, task.initCallback(), true, false, new LongLongHashMap(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR), new LongLongHashMap(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR));
+            internal_visit(p_visitor, task.initCallback(), true, false, new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR), new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR));
         } else if (p_request.equals(VisitRequest.CONTAINED)) {
             internal_visit(p_visitor, task.initCallback(), true, true, null, null);
         }
@@ -519,7 +519,7 @@ public abstract class AbstractKObject implements KObject {
         if (traversed != null) {
             traversed.put(_uuid, _uuid);
         }
-        final LongLongHashMap toResolveIds = new LongLongHashMap(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
+        final LongLongHashMap toResolveIds = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         for (int i = 0; i < metaClass().metaReferences().length; i++) {
             final MetaReference reference = metaClass().metaReferences()[i];
             if (!(containedOnly && !reference.contained())) {
@@ -791,20 +791,9 @@ public abstract class AbstractKObject implements KObject {
         }
     }
 
-    public KTraversal traverse(MetaReference p_metaReference) {
-        return new DefaultKTraversal(this, new KTraverseAction(p_metaReference));
-    }
-
-    public KTraversal traverseQuery(String metaReferenceQuery) {
-        return new DefaultKTraversal(this, new KTraverseQueryAction(metaReferenceQuery));
-    }
-
-    public KTraversal traverseInbounds(String metaReferenceQuery) {
-        return new DefaultKTraversal(this, new KReverseQueryAction(metaReferenceQuery));
-    }
-
-    public KTraversal traverseParent() {
-        return new DefaultKTraversal(this, new KParentsAction());
+    @Override
+    public KTraversal traversal() {
+        return new DefaultKTraversal(this);
     }
 
     @Override

@@ -11,6 +11,7 @@ import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.map.LongLongHashMap;
 import org.kevoree.modeling.api.map.LongLongHashMapCallBack;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
+import org.kevoree.modeling.api.traversal.KTraversalHistory;
 
 /**
  * Created by duke on 18/12/14.
@@ -25,9 +26,12 @@ public class KParentsAction implements KTraversalAction {
     }
 
     @Override
-    public void execute(KObject[] p_inputs) {
+    public void execute(KObject[] p_inputs, KTraversalHistory p_history) {
         if (p_inputs == null || p_inputs.length == 0) {
-            _next.execute(p_inputs);
+            if (p_history != null) {
+                p_history.addResult(p_inputs);
+            }
+            _next.execute(p_inputs, p_history);
             return;
         } else {
             AbstractKView currentView = (AbstractKView) p_inputs[0].view();
@@ -57,7 +61,10 @@ public class KParentsAction implements KTraversalAction {
             currentView.internalLookupAll(trimmed, new Callback<KObject[]>() {
                 @Override
                 public void on(KObject[] kObjects) {
-                    _next.execute(kObjects);
+                    if (p_history != null) {
+                        p_history.addResult(kObjects);
+                    }
+                    _next.execute(kObjects, p_history);
                 }
             });
         }

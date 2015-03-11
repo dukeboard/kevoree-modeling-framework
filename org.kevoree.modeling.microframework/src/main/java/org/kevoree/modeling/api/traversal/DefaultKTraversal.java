@@ -22,165 +22,112 @@ public class DefaultKTraversal implements KTraversal {
 
     private boolean _terminated = false;
 
-    public DefaultKTraversal(KObject p_root, KTraversalAction p_initAction) {
-        this._initAction = p_initAction;
+    public DefaultKTraversal(KObject p_root) {
         this._initObjs = new KObject[1];
         this._initObjs[0] = p_root;
-        this._lastAction = _initAction;
     }
 
-    @Override
-    public KTraversal traverse(MetaReference p_metaReference) {
+    private KTraversal internal_chain_action(KTraversalAction p_action) {
         if (_terminated) {
             throw new RuntimeException(TERMINATED_MESSAGE);
         }
-        KTraverseAction tempAction = new KTraverseAction(p_metaReference);
-        _lastAction.chain(tempAction);
-        _lastAction = tempAction;
+        if (_initAction == null) {
+            _initAction = p_action;
+        }
+        if (_lastAction != null) {
+            _lastAction.chain(p_action);
+        }
+        _lastAction = p_action;
         return this;
+    }
+
+
+    @Override
+    public KTraversal traverse(MetaReference p_metaReference) {
+        return internal_chain_action(new KTraverseAction(p_metaReference));
     }
 
     @Override
     public KTraversal traverseQuery(String p_metaReferenceQuery) {
-        if (_terminated) {
-            throw new RuntimeException(TERMINATED_MESSAGE);
-        }
-        KTraverseQueryAction tempAction = new KTraverseQueryAction(p_metaReferenceQuery);
-        _lastAction.chain(tempAction);
-        _lastAction = tempAction;
-        return this;
+        return internal_chain_action(new KTraverseQueryAction(p_metaReferenceQuery));
     }
 
     @Override
     public KTraversal withAttribute(MetaAttribute p_attribute, Object p_expectedValue) {
-        if (_terminated) {
-            throw new RuntimeException(TERMINATED_MESSAGE);
-        }
-        KFilterAttributeAction tempAction = new KFilterAttributeAction(p_attribute, p_expectedValue);
-        _lastAction.chain(tempAction);
-        _lastAction = tempAction;
-        return this;
+        return internal_chain_action(new KFilterAttributeAction(p_attribute, p_expectedValue));
     }
 
     @Override
     public KTraversal withoutAttribute(MetaAttribute p_attribute, Object p_expectedValue) {
-        if (_terminated) {
-            throw new RuntimeException(TERMINATED_MESSAGE);
-        }
-        KFilterNotAttributeAction tempAction = new KFilterNotAttributeAction(p_attribute, p_expectedValue);
-        _lastAction.chain(tempAction);
-        _lastAction = tempAction;
-        return this;
+        return internal_chain_action(new KFilterNotAttributeAction(p_attribute, p_expectedValue));
     }
 
     @Override
     public KTraversal attributeQuery(String p_attributeQuery) {
-        if (_terminated) {
-            throw new RuntimeException(TERMINATED_MESSAGE);
-        }
-        KFilterAttributeQueryAction tempAction = new KFilterAttributeQueryAction(p_attributeQuery);
-        _lastAction.chain(tempAction);
-        _lastAction = tempAction;
-        return this;
+        return internal_chain_action(new KFilterAttributeQueryAction(p_attributeQuery));
     }
 
     @Override
     public KTraversal filter(KTraversalFilter p_filter) {
-        if (_terminated) {
-            throw new RuntimeException(TERMINATED_MESSAGE);
-        }
-        KFilterAction tempAction = new KFilterAction(p_filter);
-        _lastAction.chain(tempAction);
-        _lastAction = tempAction;
-        return this;
+        return internal_chain_action(new KFilterAction(p_filter));
     }
 
     @Override
-    public KTraversal reverse(MetaReference p_metaReference) {
-        if (_terminated) {
-            throw new RuntimeException(TERMINATED_MESSAGE);
-        }
-        KReverseAction tempAction = new KReverseAction(p_metaReference);
-        _lastAction.chain(tempAction);
-        _lastAction = tempAction;
-        return this;
+    public KTraversal inbounds(MetaReference p_metaReference) {
+        return internal_chain_action(new KInboundsAction(p_metaReference));
     }
 
     @Override
-    public KTraversal reverseQuery(String p_metaReferenceQuery) {
-        if (_terminated) {
-            throw new RuntimeException(TERMINATED_MESSAGE);
-        }
-        KReverseQueryAction tempAction = new KReverseQueryAction(p_metaReferenceQuery);
-        _lastAction.chain(tempAction);
-        _lastAction = tempAction;
-        return this;
+    public KTraversal inboundsQuery(String p_metaReferenceQuery) {
+        return internal_chain_action(new KInboundsQueryAction(p_metaReferenceQuery));
     }
 
     @Override
     public KTraversal parents() {
-        if (_terminated) {
-            throw new RuntimeException(TERMINATED_MESSAGE);
-        }
-        KParentsAction tempAction = new KParentsAction();
-        _lastAction.chain(tempAction);
-        _lastAction = tempAction;
-        return this;
+        return internal_chain_action(new KParentsAction());
     }
 
     @Override
     public KTraversal removeDuplicate() {
-        if (_terminated) {
-            throw new RuntimeException(TERMINATED_MESSAGE);
-        }
-        KRemoveDuplicateAction tempAction = new KRemoveDuplicateAction();
-        _lastAction.chain(tempAction);
-        _lastAction = tempAction;
-        return this;
+        return internal_chain_action(new KRemoveDuplicateAction());
+    }
+
+    @Override
+    public KTraversal deepTraverse(MetaReference metaReference, KTraversalFilter stopCondition) {
+        return internal_chain_action(new KDeepTraverseAction(metaReference, stopCondition));
+    }
+
+    @Override
+    public KTraversal deepCollect(MetaReference metaReference, KTraversalFilter stopCondition) {
+        return internal_chain_action(new KDeepCollectAction(metaReference, stopCondition));
+    }
+
+    @Override
+    public KTraversal activateHistory() {
+        return internal_chain_action(new KActivateHistoryAction());
     }
 
     @Override
     public KDefer<KObject[]> then() {
         AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
-        _terminated = true;
         //set the terminal leaf action
-        _lastAction.chain(new KFinalAction(task.initCallback()));
+        internal_chain_action(new KFinalAction(task.initCallback()));
+        _terminated = true;
         //execute the first element of the chain of actions
-        _initAction.execute(_initObjs);
+        _initAction.execute(_initObjs, null);
         return task;
     }
 
     @Override
     public KDefer<Object[]> map(MetaAttribute attribute) {
         AbstractKDeferWrapper<Object[]> task = new AbstractKDeferWrapper<Object[]>();
-        _terminated = true;
         //set the terminal leaf action
-        _lastAction.chain(new KMapAction(attribute, task.initCallback()));
+        internal_chain_action(new KMapAction(attribute, task.initCallback()));
+        _terminated = true;
         //execute the first element of the chain of actions
-        _initAction.execute(_initObjs);
+        _initAction.execute(_initObjs, null);
         return task;
     }
 
-    @Override
-    public KTraversal deepTraverse(MetaReference metaReference, KTraversalFilter stopCondition) {
-        if (_terminated) {
-            throw new RuntimeException(TERMINATED_MESSAGE);
-        }
-        KDeepTraverseAction tempAction = new KDeepTraverseAction(metaReference, stopCondition);
-        _lastAction.chain(tempAction);
-        _lastAction = tempAction;
-        return this;
-    }
-
-    @Override
-    public KTraversal deepCollect(MetaReference metaReference, KTraversalFilter stopCondition) {
-        if (_terminated) {
-            throw new RuntimeException(TERMINATED_MESSAGE);
-        }
-        KDeepCollectAction tempAction = new KDeepCollectAction(metaReference, stopCondition);
-        _lastAction.chain(tempAction);
-        _lastAction = tempAction;
-        return this;
-    }
 
 }

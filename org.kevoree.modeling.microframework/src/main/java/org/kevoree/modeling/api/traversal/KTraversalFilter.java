@@ -7,6 +7,6 @@ import org.kevoree.modeling.api.KObject;
  */
 public interface KTraversalFilter {
 
-    public boolean filter(KObject obj);
+    public boolean filter(KObject obj, KTraversalHistory history);
 
 }

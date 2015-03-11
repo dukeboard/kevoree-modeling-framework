@@ -22,9 +22,9 @@ public interface KTraversal {
 
     public KTraversal filter(KTraversalFilter filter);
 
-    public KTraversal reverse(MetaReference metaReference);
+    public KTraversal inbounds(MetaReference metaReference);
 
-    public KTraversal reverseQuery(String metaReferenceQuery);
+    public KTraversal inboundsQuery(String metaReferenceQuery);
 
     public KTraversal parents();
 
@@ -34,10 +34,12 @@ public interface KTraversal {
 
     public KDefer<Object[]> map(MetaAttribute attribute);
 
-    public KTraversal deepTraverse(MetaReference metaReference, KTraversalFilter stopCondition);
+    public KTraversal deepTraverse(MetaReference metaReference, KTraversalFilter continueCondition);
 
-    public KTraversal deepCollect(MetaReference metaReference, KTraversalFilter stopCondition);
+    public KTraversal deepCollect(MetaReference metaReference, KTraversalFilter continueCondition);
 
+    public KTraversal activateHistory();
+    
 }
 
 

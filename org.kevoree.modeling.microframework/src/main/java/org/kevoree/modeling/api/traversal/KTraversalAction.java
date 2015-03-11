@@ -9,6 +9,6 @@ public interface KTraversalAction {
 
     public void chain(KTraversalAction next);
 
-    public void execute(KObject[] inputs);
+    public void execute(KObject[] inputs, KTraversalHistory history);
 
 }
