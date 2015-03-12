@@ -306,7 +306,6 @@ var org;
                                         if ($ex$ instanceof java.lang.Exception) {
                                             var e = $ex$;
                                             e.printStackTrace();
-                                            p_callback(null);
                                         }
                                     }
                                 }
@@ -9821,6 +9820,9 @@ var org;
                         DefaultKTraversal.prototype.activateHistory = function () {
                             return this.internal_chain_action(new org.kevoree.modeling.api.traversal.actions.KActivateHistoryAction());
                         };
+                        DefaultKTraversal.prototype.reverse = function () {
+                            return this.internal_chain_action(new org.kevoree.modeling.api.traversal.actions.KReverseAction());
+                        };
                         DefaultKTraversal.prototype.done = function () {
                             var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
                             this.internal_chain_action(new org.kevoree.modeling.api.traversal.actions.KFinalAction(task.initCallback()));
@@ -9844,15 +9846,17 @@ var org;
                             this._valuesHistory = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                         }
                         KTraversalHistory.prototype.addResult = function (resolved) {
-                            this._valuesHistory.put(this._valuesHistory.size(), resolved);
-                        };
-                        KTraversalHistory.prototype.popResult = function () {
-                            if (this._valuesHistory.size() > 0) {
-                                this._valuesHistory.remove(this._valuesHistory.size() - 1);
+                            if (resolved != null) {
+                                for (var i = 0; i < resolved.length; i++) {
+                                    this._valuesHistory.put(resolved[i].uuid(), resolved[i]);
+                                }
                             }
                         };
-                        KTraversalHistory.prototype.getPastResult = function (historyDeep) {
-                            return this._valuesHistory.get(historyDeep);
+                        KTraversalHistory.prototype.remove = function (toDrop) {
+                            this._valuesHistory.remove(toDrop);
+                        };
+                        KTraversalHistory.prototype.get = function (uuid) {
+                            return this._valuesHistory.get(uuid);
                         };
                         KTraversalHistory.prototype.historySize = function () {
                             return this._valuesHistory.size();
@@ -9922,6 +9926,9 @@ var org;
                                             }
                                         }
                                         if (nbSize > 0) {
+                                            if (p_history != null) {
+                                                p_history.addResult(filtered_inputs2);
+                                            }
                                             _this.executeStep(filtered_inputs2, iterationCallbacks[0]);
                                         }
                                         else {
@@ -10040,6 +10047,9 @@ var org;
                                             }
                                         }
                                         if (nbSize > 0) {
+                                            if (p_history != null) {
+                                                p_history.addResult(filtered_inputs2);
+                                            }
                                             _this.executeStep(filtered_inputs2, iterationCallbacks[0], p_history);
                                         }
                                         else {
@@ -10841,6 +10851,43 @@ var org;
                             return KRemoveDuplicateAction;
                         })();
                         actions.KRemoveDuplicateAction = KRemoveDuplicateAction;
+                        var KReverseAction = (function () {
+                            function KReverseAction() {
+                            }
+                            KReverseAction.prototype.chain = function (p_next) {
+                                this._next = p_next;
+                            };
+                            KReverseAction.prototype.execute = function (p_inputs, p_history) {
+                                if (p_history == null || p_history.historySize() == 0) {
+                                    throw new java.lang.RuntimeException("Error during traversal execution, reverse action cannot be called without an history activation before, or history is null");
+                                }
+                                var selected = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                                for (var i = 0; i < p_inputs.length; i++) {
+                                    var rawPayload = p_inputs[i].view().universe().model().manager().entry(p_inputs[i], org.kevoree.modeling.api.data.manager.AccessMode.READ);
+                                    if (rawPayload != null) {
+                                        var loopInbounds = rawPayload.getRef(org.kevoree.modeling.api.data.manager.Index.INBOUNDS_INDEX);
+                                        if (loopInbounds != null) {
+                                            for (var j = 0; j < loopInbounds.length; j++) {
+                                                var previous = p_history.get(loopInbounds[j]);
+                                                if (previous != null) {
+                                                    selected.put(loopInbounds[j], previous);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    p_history.remove(p_inputs[i].uuid());
+                                }
+                                var trimmed = new Array();
+                                var nbInsert = [0];
+                                selected.each(function (key, value) {
+                                    trimmed[nbInsert[0]] = value;
+                                    nbInsert[0]++;
+                                });
+                                this._next.execute(trimmed, p_history);
+                            };
+                            return KReverseAction;
+                        })();
+                        actions.KReverseAction = KReverseAction;
                         var KTraverseAction = (function () {
                             function KTraverseAction(p_reference) {
                                 this._reference = p_reference;

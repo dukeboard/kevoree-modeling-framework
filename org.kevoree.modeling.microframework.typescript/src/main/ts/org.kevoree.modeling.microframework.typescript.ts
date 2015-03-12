@@ -599,7 +599,6 @@ module org {
                                         if ($ex$ instanceof java.lang.Exception) {
                                             var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                             e.printStackTrace();
-                                            p_callback(null);
                                         }
                                      }
                                 }
@@ -10806,6 +10805,10 @@ module org {
                             return this.internal_chain_action(new org.kevoree.modeling.api.traversal.actions.KActivateHistoryAction());
                         }
 
+                        public reverse(): org.kevoree.modeling.api.traversal.KTraversal {
+                            return this.internal_chain_action(new org.kevoree.modeling.api.traversal.actions.KReverseAction());
+                        }
+
                         public done(): org.kevoree.modeling.api.KDefer<any> {
                             var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
                             this.internal_chain_action(new org.kevoree.modeling.api.traversal.actions.KFinalAction(task.initCallback()));
@@ -10856,6 +10859,8 @@ module org {
 
                         activateHistory(): org.kevoree.modeling.api.traversal.KTraversal;
 
+                        reverse(): org.kevoree.modeling.api.traversal.KTraversal;
+
                     }
 
                     export interface KTraversalAction {
@@ -10880,17 +10885,19 @@ module org {
                         }
 
                         public addResult(resolved: org.kevoree.modeling.api.KObject[]): void {
-                            this._valuesHistory.put(this._valuesHistory.size(), resolved);
-                        }
-
-                        public popResult(): void {
-                            if (this._valuesHistory.size() > 0) {
-                                this._valuesHistory.remove(this._valuesHistory.size() - 1);
+                            if (resolved != null) {
+                                for (var i: number = 0; i < resolved.length; i++) {
+                                    this._valuesHistory.put(resolved[i].uuid(), resolved[i]);
+                                }
                             }
                         }
 
-                        public getPastResult(historyDeep: number): org.kevoree.modeling.api.KObject[] {
-                            return this._valuesHistory.get(historyDeep);
+                        public remove(toDrop: number): void {
+                            this._valuesHistory.remove(toDrop);
+                        }
+
+                        public get(uuid: number): org.kevoree.modeling.api.KObject {
+                            return this._valuesHistory.get(uuid);
                         }
 
                         public historySize(): number {
@@ -10966,6 +10973,9 @@ module org {
                                             }
                                         }
                                         if (nbSize > 0) {
+                                            if (p_history != null) {
+                                                p_history.addResult(filtered_inputs2);
+                                            }
                                             this.executeStep(filtered_inputs2, iterationCallbacks[0]);
                                         } else {
                                             var trimmed: org.kevoree.modeling.api.KObject[] = new Array();
@@ -11085,6 +11095,9 @@ module org {
                                             }
                                         }
                                         if (nbSize > 0) {
+                                            if (p_history != null) {
+                                                p_history.addResult(filtered_inputs2);
+                                            }
                                             this.executeStep(filtered_inputs2, iterationCallbacks[0], p_history);
                                         } else {
                                             var trimmed: org.kevoree.modeling.api.KObject[] = new Array();
@@ -11882,6 +11895,44 @@ module org {
                                 if (p_history != null) {
                                     p_history.addResult(trimmed);
                                 }
+                                this._next.execute(trimmed, p_history);
+                            }
+
+                        }
+
+                        export class KReverseAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
+
+                            private _next: org.kevoree.modeling.api.traversal.KTraversalAction;
+                            public chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void {
+                                this._next = p_next;
+                            }
+
+                            public execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void {
+                                if (p_history == null || p_history.historySize() == 0) {
+                                    throw new java.lang.RuntimeException("Error during traversal execution, reverse action cannot be called without an history activation before, or history is null");
+                                }
+                                var selected: org.kevoree.modeling.api.map.LongHashMap<any> = new org.kevoree.modeling.api.map.LongHashMap<any>(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                                for (var i: number = 0; i < p_inputs.length; i++) {
+                                    var rawPayload: org.kevoree.modeling.api.data.cache.KCacheEntry = p_inputs[i].view().universe().model().manager().entry(p_inputs[i], org.kevoree.modeling.api.data.manager.AccessMode.READ);
+                                    if (rawPayload != null) {
+                                        var loopInbounds: number[] = rawPayload.getRef(org.kevoree.modeling.api.data.manager.Index.INBOUNDS_INDEX);
+                                        if (loopInbounds != null) {
+                                            for (var j: number = 0; j < loopInbounds.length; j++) {
+                                                var previous: org.kevoree.modeling.api.KObject = p_history.get(loopInbounds[j]);
+                                                if (previous != null) {
+                                                    selected.put(loopInbounds[j], previous);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    p_history.remove(p_inputs[i].uuid());
+                                }
+                                var trimmed: org.kevoree.modeling.api.KObject[] = new Array();
+                                var nbInsert: number[] = [0];
+                                selected.each( (key : number, value : org.kevoree.modeling.api.KObject) => {
+                                    trimmed[nbInsert[0]] = value;
+                                    nbInsert[0]++;
+                                });
                                 this._next.execute(trimmed, p_history);
                             }
 
