@@ -9,6 +9,7 @@ module org {
                     export class WebSocketClient implements org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver {
 
                         private _callbackId = 0;
+                        private _reconnectionDelay = 3000;
                         private _clientConnection:WebSocket;
                         private _connectionUri:string;
                         private _manager:org.kevoree.modeling.api.data.manager.KDataManager;
@@ -23,6 +24,7 @@ module org {
                         }
 
                         public connect(callback:(p:java.lang.Throwable) => void):void {
+                            var self = this;
                             this._clientConnection = new WebSocket(this._connectionUri);
                             this._clientConnection.onmessage = (message) => {
                                 var msg = org.kevoree.modeling.api.msg.KMessageLoader.load(message.data);
@@ -70,16 +72,21 @@ module org {
                                 }
                             };
                             this._clientConnection.onerror = function (error) {
-                                console.error(error);
+                                //console.log(error);
                             };
                             this._clientConnection.onclose = function (error) {
-                                console.error(error);
+                                console.log("Try reconnection in " + self._reconnectionDelay + " milliseconds.");
+                                //try to reconnect
+                                setTimeout(function () {
+                                    self.connect(null)
+                                }, self._reconnectionDelay);
                             };
                             this._clientConnection.onopen = function () {
                                 if (callback != null) {
                                     callback(null);
                                 }
                             };
+
                         }
 
                         public close(callback:(p:java.lang.Throwable) => void):void {
