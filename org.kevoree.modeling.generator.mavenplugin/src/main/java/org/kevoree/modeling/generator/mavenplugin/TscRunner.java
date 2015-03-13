@@ -8,6 +8,7 @@ import javax.script.ScriptEngineManager;
 import java.io.*;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -34,8 +35,20 @@ public class TscRunner {
                 }
             }
         });
-        for (File f : selected) {
-            params.add(f.getAbsolutePath());
+        HashMap<String, File> filteredHeaders = new HashMap<String, File>();
+        for (int i = 0; i < selected.length; i++) {
+            if (!selected[i].getName().endsWith(".d.ts")) {
+                filteredHeaders.put(selected[i].getName().replace(".ts", ""), selected[i]);
+            }
+        }
+        for (int i = 0; i < selected.length; i++) {
+            if (selected[i].getName().endsWith(".d.ts")) {
+                if(filteredHeaders.get(selected[i].getName().replace(".d.ts",""))==null){
+                    params.add(selected[i].getAbsolutePath());
+                }
+            } else {
+                params.add(selected[i].getAbsolutePath());
+            }
         }
         tsc(tscPath, params.toArray(new String[params.size()]));
     }
@@ -61,7 +74,6 @@ public class TscRunner {
     }
 
     private void tsc(String tscPath, String... args) throws Exception {
-
         if (testNativeNode()) {
             System.out.println("Native NodeJS installed on the machine, using it to compile to JS");
             String[] params = new String[args.length + 2];
@@ -80,10 +92,10 @@ public class TscRunner {
             int res = pb.start().waitFor();
             if (res != 0) {
                 StringBuilder builder = new StringBuilder();
-                for(String s : params){
-                    builder.append(" "+s);
+                for (String s : params) {
+                    builder.append(" " + s);
                 }
-                throw new Exception("Compilation error, please check your console "+builder.toString());
+                throw new Exception("Compilation error, please check your console " + builder.toString());
             }
         } else {
             IRuntimeConfig runtimeConfig = (new NodejsRuntimeConfigBuilder()).defaults().build();
