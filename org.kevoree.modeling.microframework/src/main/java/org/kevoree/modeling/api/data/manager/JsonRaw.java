@@ -117,19 +117,22 @@ public class JsonRaw {
         builder.append("\t{\n");
         builder.append("\t\t\"" + JsonModelSerializer.KEY_META + "\": \"");
         builder.append(p_metaClass.metaName());
+        builder.append("\"");
         if (uuid != KConfig.NULL_LONG) {
-            builder.append("\",\n");
+            builder.append(",\n");
             builder.append("\t\t\"" + JsonModelSerializer.KEY_UUID + "\": \"");
             builder.append(uuid);
+            builder.append("\"");
         }
         if (isRoot) {
-            builder.append("\",\n");
+            builder.append(",\n");
             builder.append("\t\t\"" + JsonModelSerializer.KEY_ROOT + "\": \"");
             builder.append("true");
+            builder.append("\"");
         }
         long[] parentKey = raw.getRef(Index.PARENT_INDEX);
         if (parentKey != null) {
-            builder.append("\",\n");
+            builder.append(",\n");
             builder.append("\t\t\"" + JsonModelSerializer.PARENT_META + "\": [");
             boolean isFirst = true;
             for (int j = 0; j < parentKey.length; j++) {
@@ -153,9 +156,10 @@ public class JsonRaw {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            builder.append("\"");
         }
         if (raw.get(Index.INBOUNDS_INDEX) != null) {
-            builder.append("\",\n");
+            builder.append(",\n");
             builder.append("\t\t\"" + JsonModelSerializer.INBOUNDS_META + "\": [");
             try {
                 long[] elemsInRaw = (long[]) raw.get(Index.INBOUNDS_INDEX);
@@ -173,18 +177,7 @@ public class JsonRaw {
                 e.printStackTrace();
             }
             builder.append("]");
-            builder.append(",\n");
-        } else {
-            builder.append("\",\n");
         }
-
-        int nbElemToPrint = 0;
-        for (int i = Index.RESERVED_INDEXES; i < raw.sizeRaw(); i++) {
-            if (raw.get(i) != null) {
-                nbElemToPrint++;
-            }
-        }
-        int nbElemPrinted = 0;
         for (int i = 0; i < metaElements.length; i++) {
             if (metaElements[i] != null && metaElements[i].metaType().equals(MetaType.ATTRIBUTE)) {
                 Object payload_res = raw.get(metaElements[i].index());
@@ -192,23 +185,20 @@ public class JsonRaw {
                     if (((MetaAttribute) metaElements[i]).attributeType() != PrimitiveTypes.TRANSIENT) {
                         String attrsPayload = ((MetaAttribute) metaElements[i]).strategy().save(payload_res, (MetaAttribute) metaElements[i]);
                         if (attrsPayload != null) {
+                            builder.append(",\n");
                             builder.append("\t\t");
                             builder.append("\"");
                             builder.append(metaElements[i].metaName());
                             builder.append("\": \"");
                             builder.append(attrsPayload);
                             builder.append("\"");
-                            nbElemPrinted++;
-                            if (nbElemPrinted < nbElemToPrint) {
-                                builder.append(",");
-                            }
-                            builder.append("\n");
                         }
                     }
                 }
             } else if (metaElements[i] != null && metaElements[i].metaType().equals(MetaType.REFERENCE)) {
                 Object refPayload = raw.get(metaElements[i].index());
                 if (refPayload != null) {
+                    builder.append(",\n");
                     builder.append("\t\t");
                     builder.append("\"");
                     builder.append(metaElements[i].metaName());
@@ -224,14 +214,10 @@ public class JsonRaw {
                         }
                     }
                     builder.append("]");
-                    nbElemPrinted++;
-                    if (nbElemPrinted < nbElemToPrint) {
-                        builder.append(",");
-                    }
-                    builder.append("\n");
                 }
             }
         }
+        builder.append("\n");
         if (endline) {
             builder.append("\t}\n");
         } else {

@@ -3548,19 +3548,22 @@ module org {
                                 builder.append("\t{\n");
                                 builder.append("\t\t\"" + org.kevoree.modeling.api.json.JsonModelSerializer.KEY_META + "\": \"");
                                 builder.append(p_metaClass.metaName());
+                                builder.append("\"");
                                 if (uuid != org.kevoree.modeling.api.KConfig.NULL_LONG) {
-                                    builder.append("\",\n");
+                                    builder.append(",\n");
                                     builder.append("\t\t\"" + org.kevoree.modeling.api.json.JsonModelSerializer.KEY_UUID + "\": \"");
                                     builder.append(uuid);
+                                    builder.append("\"");
                                 }
                                 if (isRoot) {
-                                    builder.append("\",\n");
+                                    builder.append(",\n");
                                     builder.append("\t\t\"" + org.kevoree.modeling.api.json.JsonModelSerializer.KEY_ROOT + "\": \"");
                                     builder.append("true");
+                                    builder.append("\"");
                                 }
                                 var parentKey: number[] = raw.getRef(org.kevoree.modeling.api.data.manager.Index.PARENT_INDEX);
                                 if (parentKey != null) {
-                                    builder.append("\",\n");
+                                    builder.append(",\n");
                                     builder.append("\t\t\"" + org.kevoree.modeling.api.json.JsonModelSerializer.PARENT_META + "\": [");
                                     var isFirst: boolean = true;
                                     for (var j: number = 0; j < parentKey.length; j++) {
@@ -3587,9 +3590,10 @@ module org {
                                             e.printStackTrace();
                                         }
                                      }
+                                    builder.append("\"");
                                 }
                                 if (raw.get(org.kevoree.modeling.api.data.manager.Index.INBOUNDS_INDEX) != null) {
-                                    builder.append("\",\n");
+                                    builder.append(",\n");
                                     builder.append("\t\t\"" + org.kevoree.modeling.api.json.JsonModelSerializer.INBOUNDS_META + "\": [");
                                     try {
                                         var elemsInRaw: number[] = <number[]>raw.get(org.kevoree.modeling.api.data.manager.Index.INBOUNDS_INDEX);
@@ -3610,17 +3614,7 @@ module org {
                                         }
                                      }
                                     builder.append("]");
-                                    builder.append(",\n");
-                                } else {
-                                    builder.append("\",\n");
                                 }
-                                var nbElemToPrint: number = 0;
-                                for (var i: number = org.kevoree.modeling.api.data.manager.Index.RESERVED_INDEXES; i < raw.sizeRaw(); i++) {
-                                    if (raw.get(i) != null) {
-                                        nbElemToPrint++;
-                                    }
-                                }
-                                var nbElemPrinted: number = 0;
                                 for (var i: number = 0; i < metaElements.length; i++) {
                                     if (metaElements[i] != null && metaElements[i].metaType().equals(org.kevoree.modeling.api.meta.MetaType.ATTRIBUTE)) {
                                         var payload_res: any = raw.get(metaElements[i].index());
@@ -3628,17 +3622,13 @@ module org {
                                             if ((<org.kevoree.modeling.api.meta.MetaAttribute>metaElements[i]).attributeType() != org.kevoree.modeling.api.meta.PrimitiveTypes.TRANSIENT) {
                                                 var attrsPayload: string = (<org.kevoree.modeling.api.meta.MetaAttribute>metaElements[i]).strategy().save(payload_res, <org.kevoree.modeling.api.meta.MetaAttribute>metaElements[i]);
                                                 if (attrsPayload != null) {
+                                                    builder.append(",\n");
                                                     builder.append("\t\t");
                                                     builder.append("\"");
                                                     builder.append(metaElements[i].metaName());
                                                     builder.append("\": \"");
                                                     builder.append(attrsPayload);
                                                     builder.append("\"");
-                                                    nbElemPrinted++;
-                                                    if (nbElemPrinted < nbElemToPrint) {
-                                                        builder.append(",");
-                                                    }
-                                                    builder.append("\n");
                                                 }
                                             }
                                         }
@@ -3646,6 +3636,7 @@ module org {
                                         if (metaElements[i] != null && metaElements[i].metaType().equals(org.kevoree.modeling.api.meta.MetaType.REFERENCE)) {
                                             var refPayload: any = raw.get(metaElements[i].index());
                                             if (refPayload != null) {
+                                                builder.append(",\n");
                                                 builder.append("\t\t");
                                                 builder.append("\"");
                                                 builder.append(metaElements[i].metaName());
@@ -3661,15 +3652,11 @@ module org {
                                                     }
                                                 }
                                                 builder.append("]");
-                                                nbElemPrinted++;
-                                                if (nbElemPrinted < nbElemToPrint) {
-                                                    builder.append(",");
-                                                }
-                                                builder.append("\n");
                                             }
                                         }
                                     }
                                 }
+                                builder.append("\n");
                                 if (endline) {
                                     builder.append("\t}\n");
                                 } else {

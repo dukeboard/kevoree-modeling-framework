@@ -3068,19 +3068,22 @@ var org;
                                 builder.append("\t{\n");
                                 builder.append("\t\t\"" + org.kevoree.modeling.api.json.JsonModelSerializer.KEY_META + "\": \"");
                                 builder.append(p_metaClass.metaName());
+                                builder.append("\"");
                                 if (uuid != org.kevoree.modeling.api.KConfig.NULL_LONG) {
-                                    builder.append("\",\n");
+                                    builder.append(",\n");
                                     builder.append("\t\t\"" + org.kevoree.modeling.api.json.JsonModelSerializer.KEY_UUID + "\": \"");
                                     builder.append(uuid);
+                                    builder.append("\"");
                                 }
                                 if (isRoot) {
-                                    builder.append("\",\n");
+                                    builder.append(",\n");
                                     builder.append("\t\t\"" + org.kevoree.modeling.api.json.JsonModelSerializer.KEY_ROOT + "\": \"");
                                     builder.append("true");
+                                    builder.append("\"");
                                 }
                                 var parentKey = raw.getRef(org.kevoree.modeling.api.data.manager.Index.PARENT_INDEX);
                                 if (parentKey != null) {
-                                    builder.append("\",\n");
+                                    builder.append(",\n");
                                     builder.append("\t\t\"" + org.kevoree.modeling.api.json.JsonModelSerializer.PARENT_META + "\": [");
                                     var isFirst = true;
                                     for (var j = 0; j < parentKey.length; j++) {
@@ -3108,9 +3111,10 @@ var org;
                                             e.printStackTrace();
                                         }
                                     }
+                                    builder.append("\"");
                                 }
                                 if (raw.get(org.kevoree.modeling.api.data.manager.Index.INBOUNDS_INDEX) != null) {
-                                    builder.append("\",\n");
+                                    builder.append(",\n");
                                     builder.append("\t\t\"" + org.kevoree.modeling.api.json.JsonModelSerializer.INBOUNDS_META + "\": [");
                                     try {
                                         var elemsInRaw = raw.get(org.kevoree.modeling.api.data.manager.Index.INBOUNDS_INDEX);
@@ -3132,18 +3136,7 @@ var org;
                                         }
                                     }
                                     builder.append("]");
-                                    builder.append(",\n");
                                 }
-                                else {
-                                    builder.append("\",\n");
-                                }
-                                var nbElemToPrint = 0;
-                                for (var i = org.kevoree.modeling.api.data.manager.Index.RESERVED_INDEXES; i < raw.sizeRaw(); i++) {
-                                    if (raw.get(i) != null) {
-                                        nbElemToPrint++;
-                                    }
-                                }
-                                var nbElemPrinted = 0;
                                 for (var i = 0; i < metaElements.length; i++) {
                                     if (metaElements[i] != null && metaElements[i].metaType().equals(org.kevoree.modeling.api.meta.MetaType.ATTRIBUTE)) {
                                         var payload_res = raw.get(metaElements[i].index());
@@ -3151,17 +3144,13 @@ var org;
                                             if (metaElements[i].attributeType() != org.kevoree.modeling.api.meta.PrimitiveTypes.TRANSIENT) {
                                                 var attrsPayload = metaElements[i].strategy().save(payload_res, metaElements[i]);
                                                 if (attrsPayload != null) {
+                                                    builder.append(",\n");
                                                     builder.append("\t\t");
                                                     builder.append("\"");
                                                     builder.append(metaElements[i].metaName());
                                                     builder.append("\": \"");
                                                     builder.append(attrsPayload);
                                                     builder.append("\"");
-                                                    nbElemPrinted++;
-                                                    if (nbElemPrinted < nbElemToPrint) {
-                                                        builder.append(",");
-                                                    }
-                                                    builder.append("\n");
                                                 }
                                             }
                                         }
@@ -3170,6 +3159,7 @@ var org;
                                         if (metaElements[i] != null && metaElements[i].metaType().equals(org.kevoree.modeling.api.meta.MetaType.REFERENCE)) {
                                             var refPayload = raw.get(metaElements[i].index());
                                             if (refPayload != null) {
+                                                builder.append(",\n");
                                                 builder.append("\t\t");
                                                 builder.append("\"");
                                                 builder.append(metaElements[i].metaName());
@@ -3185,15 +3175,11 @@ var org;
                                                     }
                                                 }
                                                 builder.append("]");
-                                                nbElemPrinted++;
-                                                if (nbElemPrinted < nbElemToPrint) {
-                                                    builder.append(",");
-                                                }
-                                                builder.append("\n");
                                             }
                                         }
                                     }
                                 }
+                                builder.append("\n");
                                 if (endline) {
                                     builder.append("\t}\n");
                                 }

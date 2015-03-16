@@ -1,6 +1,8 @@
 package org.kevoree.modeling.databases.websocket;
 
+import io.undertow.Handlers;
 import io.undertow.Undertow;
+import io.undertow.server.handlers.resource.ClassPathResourceManager;
 import io.undertow.websockets.WebSocketConnectionCallback;
 import io.undertow.websockets.core.AbstractReceiveListener;
 import io.undertow.websockets.core.BufferedTextMessage;
@@ -36,16 +38,28 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
     private Undertow _server = null;
     private String _address = "0.0.0.0";
     private int _port = 8080;
+    private ClassLoader _exposedClassLoader = null;
 
     public WebSocketWrapper(KContentDeliveryDriver p_wrapped, int p_port) {
         this.wrapped = p_wrapped;
         this._port = p_port;
     }
 
+    public WebSocketWrapper exposeResourcesOf(ClassLoader classLoader) {
+        this._exposedClassLoader = classLoader;
+        return this;
+    }
+
     @Override
     public void connect(Callback<Throwable> callback) {
         if (wrapped != null) {
-            _server = Undertow.builder().addHttpListener(_port, _address).setHandler(websocket(this)).build();
+            if (_exposedClassLoader != null) {
+                _server = Undertow.builder().addHttpListener(_port, _address)
+                        .setHandler(Handlers.path().addPrefixPath("/cdn", websocket(this)).addPrefixPath("/", Handlers.resource(new ClassPathResourceManager(_exposedClassLoader))))
+                        .build();
+            } else {
+                _server = Undertow.builder().addHttpListener(_port, _address).setHandler(websocket(this)).build();
+            }
             _server.start();
             wrapped.connect(callback);
         } else {

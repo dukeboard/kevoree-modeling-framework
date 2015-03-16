@@ -97,7 +97,7 @@ module org {
                         }
 
                         private nextKey():number {
-                            if (this._callbackId == 1000) {
+                            if (this._callbackId == 1000000) {
                                 this._callbackId = 0;
                             } else {
                                 this._callbackId = this._callbackId + 1;

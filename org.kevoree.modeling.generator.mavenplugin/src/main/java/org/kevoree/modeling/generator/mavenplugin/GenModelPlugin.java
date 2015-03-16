@@ -66,7 +66,13 @@ public class GenModelPlugin extends AbstractMojo {
     @Parameter(defaultValue = "${project.basedir}/src/main/resources")
     private File resourceDir;
 
-    @Parameter
+    /**
+     * Generate Samples
+     */
+    @Parameter(defaultValue = "false")
+    private boolean samples = false;
+
+    @Parameter(defaultValue = "false")
     private boolean js = false;
 
     public static final String LIB_D_TS = "lib.d.ts";
@@ -76,6 +82,9 @@ public class GenModelPlugin extends AbstractMojo {
     public static final String JAVA_LIB_JS = "java.js";
 
     public static final String TSC_JS = "tsc.js";
+
+
+
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -158,7 +167,9 @@ public class GenModelPlugin extends AbstractMojo {
                 }
                 System.setProperty("additional", buffer.toString());
 
-                HtmlTemplateGenerator.generateHtml(resourceDir.toPath(), project.getArtifactId() + "-all.js", targetName);
+                if(samples){
+                    HtmlTemplateGenerator.generateHtml(resourceDir.toPath(), project.getArtifactId() + "-all.js", targetName);
+                }
 
             }
 
