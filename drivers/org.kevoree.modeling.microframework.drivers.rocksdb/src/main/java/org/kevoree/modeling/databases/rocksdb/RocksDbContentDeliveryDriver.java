@@ -135,6 +135,11 @@ public class RocksDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
+    public void unregisterAll() {
+        _localEventListeners.unregisterAll();
+    }
+
+    @Override
     public void send(KMessage msg) {
         //NO Remote op
         _localEventListeners.dispatch(msg);

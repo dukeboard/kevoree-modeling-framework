@@ -37,4 +37,6 @@ public interface KModel<A extends KUniverse> {
 
     public KDefer<Throwable> close();
 
+    public void clearListeners();
+
 }

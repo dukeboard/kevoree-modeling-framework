@@ -45,6 +45,10 @@ public class LocalEventListeners {
         }
     }
 
+    public void unregisterAll(){
+        _universeLayers.clear();
+    }
+
     public void clear() {
         _universeLayers.clear();
     }

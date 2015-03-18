@@ -102,4 +102,8 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
         return new AbstractKDefer();
     }
 
+    @Override
+    public void clearListeners() {
+        manager().cdn().unregisterAll();
+    }
 }

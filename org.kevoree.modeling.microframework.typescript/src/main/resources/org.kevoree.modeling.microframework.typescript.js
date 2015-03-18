@@ -456,6 +456,9 @@ var org;
                         AbstractKModel.prototype.defer = function () {
                             return new org.kevoree.modeling.api.abs.AbstractKDefer();
                         };
+                        AbstractKModel.prototype.clearListeners = function () {
+                            this.manager().cdn().unregisterAll();
+                        };
                         return AbstractKModel;
                     })();
                     abs.AbstractKModel = AbstractKModel;
@@ -2299,6 +2302,9 @@ var org;
                             MemoryKContentDeliveryDriver.prototype.unregister = function (p_origin, p_listener) {
                                 this._localEventListeners.unregister(p_origin, p_listener);
                             };
+                            MemoryKContentDeliveryDriver.prototype.unregisterAll = function () {
+                                this._localEventListeners.unregisterAll();
+                            };
                             MemoryKContentDeliveryDriver.prototype.send = function (msgs) {
                                 this._localEventListeners.dispatch(msgs);
                             };
@@ -3314,6 +3320,9 @@ var org;
                             if (universeLayer != null) {
                                 universeLayer.unregister(origin, listener);
                             }
+                        };
+                        LocalEventListeners.prototype.unregisterAll = function () {
+                            this._universeLayers.clear();
                         };
                         LocalEventListeners.prototype.clear = function () {
                             this._universeLayers.clear();

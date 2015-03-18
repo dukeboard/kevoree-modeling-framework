@@ -204,6 +204,11 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
     }
 
     @Override
+    public void unregisterAll() {
+        wrapped.unregisterAll();
+    }
+
+    @Override
     public void send(KMessage msg) {
         //send locally
         wrapped.send(msg);

@@ -151,6 +151,10 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
         localEventListeners.unregister(p_origin, p_listener);
     }
 
+    @Override
+    public void unregisterAll() {
+        localEventListeners.unregisterAll();
+    }
 
     @Override
     public void send(KMessage msgs) {

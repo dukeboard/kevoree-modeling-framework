@@ -142,6 +142,10 @@ module org {
                             this._localEventListeners.unregister(origin, listener);
                         }
 
+                        public unregisterAll():void {
+                            this._localEventListeners.unregisterAll();
+                        }
+
                         public setManager(manager:org.kevoree.modeling.api.data.manager.KDataManager):void {
                             this._manager = manager;
                             this._localEventListeners.setManager(manager);

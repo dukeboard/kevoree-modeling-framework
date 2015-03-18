@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.kevoree.modeling</groupId>
     <artifactId>org.kevoree.modeling.root</artifactId>
@@ -72,7 +73,7 @@
 
     <properties>
         <kmf.plugin.version>15</kmf.plugin.version>
-        <java2typescript.plugin.version>20</java2typescript.plugin.version>
+        <java2typescript.plugin.version>21</java2typescript.plugin.version>
     </properties>
 
     <modules>
@@ -88,21 +89,8 @@
         <module>drivers/org.kevoree.modeling.microframework.drivers.leveldb</module>
         <module>drivers/org.kevoree.modeling.microframework.drivers.rocksdb</module>
         <module>drivers/org.kevoree.modeling.microframework.drivers.websocket</module>
-
-        <!--
-        <module>drivers/org.kevoree.modeling.microframework.databases.redis</module>
-        <module>drivers/org.kevoree.modeling.microframework.databases.mongodb</module>
-        <module>drivers/org.kevoree.modeling.microframework.databases.chronicle</module>
-        <module>drivers/org.kevoree.modeling.microframework.databases.voldemort</module>
-        <module>drivers/org.kevoree.modeling.microframework.databases.webrtc</module>
-        <module>drivers/org.kevoree.modeling.microframework.databases.dht.openChord</module>
-        <module>drivers/org.kevoree.modeling.microframework.databases.dht.freepastry</module>
-        <module>drivers/org.kevoree.modeling.microframework.databases.dht.hyperbolic</module>
-        -->
-
-
-        <!-- End DataStores -->
-
+        <!--Addons -->
+        <module>addons/org.kevoree.modeling.microframework.addons.nunjucks</module>
     </modules>
 
     <dependencies>

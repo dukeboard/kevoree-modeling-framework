@@ -69,6 +69,11 @@ public class KContentDeliveryDriverMock implements KContentDeliveryDriver {
 
     }
 
+    @Override
+    public void unregisterAll() {
+
+    }
+
     public ArrayList<KMessage> recMessages = new ArrayList<KMessage>();
 
     public CountDownLatch msgCounter = new CountDownLatch(1);

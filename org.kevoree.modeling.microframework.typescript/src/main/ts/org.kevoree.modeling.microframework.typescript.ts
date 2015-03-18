@@ -206,6 +206,8 @@ module org {
 
                     close(): org.kevoree.modeling.api.KDefer<any>;
 
+                    clearListeners(): void;
+
                 }
 
                 export interface KObject {
@@ -777,6 +779,10 @@ module org {
 
                         public defer(): org.kevoree.modeling.api.KDefer<any> {
                             return new org.kevoree.modeling.api.abs.AbstractKDefer<any>();
+                        }
+
+                        public clearListeners(): void {
+                            this.manager().cdn().unregisterAll();
                         }
 
                     }
@@ -2684,6 +2690,8 @@ module org {
 
                             unregister(origin: org.kevoree.modeling.api.KObject, listener: (p : org.kevoree.modeling.api.KObject, p1 : org.kevoree.modeling.api.meta.Meta[]) => void): void;
 
+                            unregisterAll(): void;
+
                             send(msgs: org.kevoree.modeling.api.msg.KMessage): void;
 
                             setManager(manager: org.kevoree.modeling.api.data.manager.KDataManager): void;
@@ -2800,6 +2808,10 @@ module org {
 
                             public unregister(p_origin: org.kevoree.modeling.api.KObject, p_listener: (p : org.kevoree.modeling.api.KObject, p1 : org.kevoree.modeling.api.meta.Meta[]) => void): void {
                                 this._localEventListeners.unregister(p_origin, p_listener);
+                            }
+
+                            public unregisterAll(): void {
+                                this._localEventListeners.unregisterAll();
                             }
 
                             public send(msgs: org.kevoree.modeling.api.msg.KMessage): void {
@@ -3854,6 +3866,10 @@ module org {
                             if (universeLayer != null) {
                                 universeLayer.unregister(origin, listener);
                             }
+                        }
+
+                        public unregisterAll(): void {
+                            this._universeLayers.clear();
                         }
 
                         public clear(): void {

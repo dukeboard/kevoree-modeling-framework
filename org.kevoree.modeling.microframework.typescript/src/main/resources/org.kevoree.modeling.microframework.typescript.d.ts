@@ -96,6 +96,7 @@ declare module org {
                     discard(): org.kevoree.modeling.api.KDefer<any>;
                     connect(): org.kevoree.modeling.api.KDefer<any>;
                     close(): org.kevoree.modeling.api.KDefer<any>;
+                    clearListeners(): void;
                 }
                 interface KObject {
                     universe(): org.kevoree.modeling.api.KUniverse<any, any, any>;
@@ -280,6 +281,7 @@ declare module org {
                         setOperation(metaOperation: org.kevoree.modeling.api.meta.MetaOperation, operation: (p: org.kevoree.modeling.api.KObject, p1: any[], p2: (p: any) => void) => void): void;
                         setInstanceOperation(metaOperation: org.kevoree.modeling.api.meta.MetaOperation, target: org.kevoree.modeling.api.KObject, operation: (p: org.kevoree.modeling.api.KObject, p1: any[], p2: (p: any) => void) => void): void;
                         defer(): org.kevoree.modeling.api.KDefer<any>;
+                        clearListeners(): void;
                     }
                     class AbstractKObject implements org.kevoree.modeling.api.KObject {
                         private _view;
@@ -579,6 +581,7 @@ declare module org {
                             close(callback: (p: java.lang.Throwable) => void): void;
                             registerListener(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
                             unregister(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
+                            unregisterAll(): void;
                             send(msgs: org.kevoree.modeling.api.msg.KMessage): void;
                             setManager(manager: org.kevoree.modeling.api.data.manager.KDataManager): void;
                         }
@@ -606,6 +609,7 @@ declare module org {
                             close(callback: (p: java.lang.Throwable) => void): void;
                             registerListener(p_origin: org.kevoree.modeling.api.KObject, p_listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
                             unregister(p_origin: org.kevoree.modeling.api.KObject, p_listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
+                            unregisterAll(): void;
                             send(msgs: org.kevoree.modeling.api.msg.KMessage): void;
                             setManager(manager: org.kevoree.modeling.api.data.manager.KDataManager): void;
                         }
@@ -732,6 +736,7 @@ declare module org {
                         constructor();
                         registerListener(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
                         unregister(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
+                        unregisterAll(): void;
                         clear(): void;
                         setManager(manager: org.kevoree.modeling.api.data.manager.KDataManager): void;
                         dispatch(param: org.kevoree.modeling.api.msg.KMessage): void;

@@ -163,6 +163,11 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
     }
 
     @Override
+    public void unregisterAll() {
+        _localEventListeners.unregisterAll();
+    }
+
+    @Override
     public void send(KMessage msg) {
         _localEventListeners.dispatch(msg);
         WebSockets.sendText(msg.json(), _client.getChannel(), null);

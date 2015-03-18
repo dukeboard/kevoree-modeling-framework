@@ -94,6 +94,11 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
+    public void unregisterAll() {
+        _localEventListeners.unregisterAll();
+    }
+
+    @Override
     public void send(KMessage msgs) {
         //NO REMOTE MANAGEMENT
         _localEventListeners.dispatch(msgs);

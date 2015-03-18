@@ -33,6 +33,8 @@ public interface KContentDeliveryDriver {
 
     void unregister(KObject origin, KEventListener listener);
 
+    void unregisterAll();
+
     void send(KMessage msgs);
 
     void setManager(KDataManager manager);
