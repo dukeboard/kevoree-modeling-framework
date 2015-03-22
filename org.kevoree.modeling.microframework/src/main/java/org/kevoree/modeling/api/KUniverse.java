@@ -26,4 +26,6 @@ public interface KUniverse<A extends KView, B extends KUniverse, C extends KMode
 
     public KDefer<KObject[]> lookupAllTimes(long uuid, long[] times);
 
+    public void listenAll(long groupId, long[] objects, KEventMultiListener multiListener);
+
 }

@@ -41,7 +41,7 @@ public class JsonModelSerializer {
                 final StringBuilder builder = new StringBuilder();
                 builder.append("[\n");
                 printJSON(model, builder, isRoot);
-                model.visit(new ModelVisitor() {
+                model.visit(VisitRequest.ALL,new ModelVisitor() {
                     @Override
                     public VisitResult visit(KObject elem) {
                         boolean isRoot2 = false;
@@ -57,7 +57,7 @@ public class JsonModelSerializer {
                         }
                         return VisitResult.CONTINUE;
                     }
-                }, VisitRequest.ALL).then(new Callback<Throwable>() {
+                }).then(new Callback<Throwable>() {
                     @Override
                     public void on(Throwable throwable) {
                         builder.append("\n]\n");

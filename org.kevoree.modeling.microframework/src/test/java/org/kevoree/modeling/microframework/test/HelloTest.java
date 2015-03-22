@@ -162,13 +162,13 @@ public class HelloTest {
 */
         i[0] = 0;
         final int[] j = {0};
-        nodeT0.visit(new ModelVisitor() {
+        nodeT0.visit(VisitRequest.CHILDREN, new ModelVisitor() {
             @Override
             public VisitResult visit(KObject elem) {
                 i[0]++;
                 return VisitResult.CONTINUE;
             }
-        }, VisitRequest.CHILDREN).then(new Callback<Throwable>() {
+        }).then(new Callback<Throwable>() {
             @Override
             public void on(Throwable t) {
                 j[0]++;
@@ -179,13 +179,13 @@ public class HelloTest {
 
         i[0] = 0;
         j[0] = 0;
-        nodeT1.visit(new ModelVisitor() {
+        nodeT1.visit(VisitRequest.CHILDREN, new ModelVisitor() {
             @Override
             public VisitResult visit(KObject elem) {
                 i[0]++;
                 return VisitResult.CONTINUE;
             }
-        }, VisitRequest.CHILDREN).then(new Callback<Throwable>() {
+        }).then(new Callback<Throwable>() {
             @Override
             public void on(Throwable t) {
                 j[0]++;
@@ -196,13 +196,13 @@ public class HelloTest {
 
         i[0] = 0;
         j[0] = 0;
-        nodeT3.visit(new ModelVisitor() {
+        nodeT3.visit(VisitRequest.CHILDREN, new ModelVisitor() {
             @Override
             public VisitResult visit(KObject elem) {
                 i[0]++;
                 return VisitResult.CONTINUE;
             }
-        }, VisitRequest.CHILDREN).then(new Callback<Throwable>() {
+        }).then(new Callback<Throwable>() {
             @Override
             public void on(Throwable t) {
                 j[0]++;
@@ -213,13 +213,13 @@ public class HelloTest {
 
         i[0] = 0;
         j[0] = 0;
-        nodeT0.visit(new ModelVisitor() {
+        nodeT0.visit(VisitRequest.CONTAINED, new ModelVisitor() {
             @Override
             public VisitResult visit(KObject elem) {
                 i[0]++;
                 return VisitResult.CONTINUE;
             }
-        }, VisitRequest.CONTAINED).then(new Callback<Throwable>() {
+        }).then(new Callback<Throwable>() {
             @Override
             public void on(Throwable t) {
                 j[0]++;
@@ -230,13 +230,13 @@ public class HelloTest {
 
         i[0] = 0;
         j[0] = 0;
-        nodeT0.visit(new ModelVisitor() {
+        nodeT0.visit(VisitRequest.ALL, new ModelVisitor() {
             @Override
             public VisitResult visit(KObject elem) {
                 i[0]++;
                 return VisitResult.CONTINUE;
             }
-        }, VisitRequest.ALL).then(new Callback<Throwable>() {
+        }).then(new Callback<Throwable>() {
             @Override
             public void on(Throwable t) {
                 j[0]++;
@@ -248,13 +248,13 @@ public class HelloTest {
 
         i[0] = 0;
         j[0] = 0;
-        nodeT0.visit(new ModelVisitor() {
+        nodeT0.visit(VisitRequest.ALL, new ModelVisitor() {
             @Override
             public VisitResult visit(KObject elem) {
                 i[0]++;
                 return VisitResult.CONTINUE;
             }
-        }, VisitRequest.ALL).then(new Callback<Throwable>() {
+        }).then(new Callback<Throwable>() {
             @Override
             public void on(Throwable t) {
                 j[0]++;

@@ -195,13 +195,8 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public void listen(KEventListener listener) {
-        universe().model().manager().cdn().registerListener(this, listener);
-    }
-
-    @Override
-    public void unregister(KEventListener listener) {
-        universe().model().manager().cdn().unregister(this, listener);
+    public void listen(long groupId, KEventListener listener) {
+        universe().model().manager().cdn().registerListener(groupId, this, listener);
     }
 
     @Override
@@ -500,7 +495,7 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public KDefer<Throwable> visit(ModelVisitor p_visitor, VisitRequest p_request) {
+    public KDefer<Throwable> visit(VisitRequest p_request, ModelVisitor p_visitor) {
         AbstractKDeferWrapper<Throwable> task = new AbstractKDeferWrapper<Throwable>();
         if (p_request.equals(VisitRequest.CHILDREN)) {
             internal_visit(p_visitor, task.initCallback(), false, false, null, null);
@@ -677,7 +672,7 @@ public abstract class AbstractKObject implements KObject {
     public KDefer<KObject[]> inbounds() {
         KCacheEntry rawPayload = view().universe().model().manager().entry(this, AccessMode.READ);
         if (rawPayload != null) {
-            Object payload = rawPayload.get(Index.INBOUNDS_INDEX);
+            long[] payload = rawPayload.getRef(Index.INBOUNDS_INDEX);
             if (payload != null) {
                 try {
                     return _view.lookupAll((long[]) payload);

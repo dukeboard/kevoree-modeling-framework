@@ -43,6 +43,10 @@ public class DefaultKDataManager implements KDataManager {
     private KModel _model;
     private KeyCalculator _objectKeyCalculator = null;
     private KeyCalculator _universeKeyCalculator = null;
+
+    private KeyCalculator _modelKeyCalculator;
+    private KeyCalculator _groupKeyCalculator;
+
     private boolean isConnected = false;
 
     private static final String OUT_OF_CACHE_MESSAGE = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
@@ -54,7 +58,13 @@ public class DefaultKDataManager implements KDataManager {
 
     private MultiLayeredMemoryCache _cache = new MultiLayeredMemoryCache();
 
+    private static final short zeroPrefix = 0;
+
     public DefaultKDataManager(KModel model) {
+
+        _modelKeyCalculator = new KeyCalculator(zeroPrefix, 0);
+        _groupKeyCalculator = new KeyCalculator(zeroPrefix, 0);
+
         this._db = new MemoryKContentDeliveryDriver();
         this._db.setManager(this);
         this._operationManager = new DefaultOperationManager(this);
@@ -106,6 +116,17 @@ public class DefaultKDataManager implements KDataManager {
         }
         return nextGeneratedKey;
     }
+
+    @Override
+    public synchronized long nextModelKey() {
+        return _modelKeyCalculator.nextKey();
+    }
+
+    @Override
+    public synchronized long nextGroupKey() {
+        return _groupKeyCalculator.nextKey();
+    }
+
     /* End Key Management Section */
 
     /* Global Universe Local Caching */

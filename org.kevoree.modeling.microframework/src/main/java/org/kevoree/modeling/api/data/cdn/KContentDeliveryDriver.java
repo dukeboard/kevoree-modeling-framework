@@ -1,9 +1,6 @@
 package org.kevoree.modeling.api.data.cdn;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KEventListener;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ThrowableCallback;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.msg.KMessage;
@@ -29,11 +26,11 @@ public interface KContentDeliveryDriver {
 
     public void close(Callback<Throwable> callback);
 
-    void registerListener(KObject origin, KEventListener listener);
+    void registerListener(long groupId,KObject origin, KEventListener listener);
 
-    void unregister(KObject origin, KEventListener listener);
+    void registerMultiListener(long groupId,KUniverse origin, long[] objects, KEventMultiListener listener);
 
-    void unregisterAll();
+    void unregisterGroup(long groupId);
 
     void send(KMessage msgs);
 

@@ -46,6 +46,10 @@ public interface KDataManager {
 
     long nextObjectKey();
 
+    long nextModelKey();
+
+    long nextGroupKey();
+
     public void getRoot(KView originView, Callback<KObject> callback);
 
     public void setRoot(KObject newRoot, Callback<Throwable> callback);

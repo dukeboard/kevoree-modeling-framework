@@ -85,8 +85,11 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
     public KDefer<KObject[]> lookupAllTimes(long uuid, long[] times) {
         AbstractKDeferWrapper<KObject[]> deferWrapper = new AbstractKDeferWrapper<KObject[]>();
         //TODO
-        //TODO
         return deferWrapper;
     }
 
+    @Override
+    public void listenAll(long groupId, long[] objects, KEventMultiListener multiListener) {
+        model().manager().cdn().registerMultiListener(groupId,this, objects, multiListener);
+    }
 }

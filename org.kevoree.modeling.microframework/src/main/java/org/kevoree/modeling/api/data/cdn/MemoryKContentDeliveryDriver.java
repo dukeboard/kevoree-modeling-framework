@@ -1,9 +1,6 @@
 package org.kevoree.modeling.api.data.cdn;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KEventListener;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ThrowableCallback;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.cache.*;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.event.LocalEventListeners;
@@ -84,18 +81,18 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
 
 
     @Override
-    public void registerListener(KObject p_origin, KEventListener p_listener) {
-        _localEventListeners.registerListener(p_origin, p_listener);
+    public void registerListener(long groupId, KObject p_origin, KEventListener p_listener) {
+        _localEventListeners.registerListener(groupId, p_origin, p_listener);
     }
 
     @Override
-    public void unregister(KObject p_origin, KEventListener p_listener) {
-        _localEventListeners.unregister(p_origin, p_listener);
+    public void unregisterGroup(long groupId) {
+        _localEventListeners.unregister(groupId);
     }
 
     @Override
-    public void unregisterAll() {
-        _localEventListeners.unregisterAll();
+    public void registerMultiListener(long groupId, KUniverse origin, long[] objects, KEventMultiListener listener) {
+        _localEventListeners.registerListenerAll(groupId, origin, objects, listener);
     }
 
     @Override

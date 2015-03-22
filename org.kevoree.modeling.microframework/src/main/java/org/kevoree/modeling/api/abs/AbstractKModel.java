@@ -1,11 +1,6 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.KDefer;
-import org.kevoree.modeling.api.KModel;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KOperation;
-import org.kevoree.modeling.api.KScheduler;
-import org.kevoree.modeling.api.KUniverse;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.manager.DefaultKDataManager;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.api.data.manager.KDataManager;
@@ -21,8 +16,11 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
 
     public abstract MetaModel metaModel();
 
+    private long _key;
+
     protected AbstractKModel() {
         _manager = new DefaultKDataManager(this);
+        _key = _manager.nextModelKey();
     }
 
     @Override
@@ -103,7 +101,17 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
     }
 
     @Override
-    public void clearListeners() {
-        manager().cdn().unregisterAll();
+    public long key() {
+        return this._key;
+    }
+
+    @Override
+    public void clearListenerGroup(long groupID) {
+        manager().cdn().unregisterGroup(groupID);
+    }
+
+    @Override
+    public long nextGroup() {
+        return this.manager().nextGroupKey();
     }
 }

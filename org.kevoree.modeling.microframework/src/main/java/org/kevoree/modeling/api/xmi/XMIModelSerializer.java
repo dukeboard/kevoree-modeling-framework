@@ -46,7 +46,7 @@ public class XMIModelSerializer {
             context.addressTable.put(model.uuid(), "/");
 
 
-            KDefer addressCreationTask = context.model.visit(new ModelVisitor() {
+            KDefer addressCreationTask = context.model.visit(VisitRequest.CONTAINED,new ModelVisitor() {
                 @Override
                 public VisitResult visit(KObject elem) {
                     String parentXmiAddress = context.addressTable.get(elem.parentUuid());
@@ -64,7 +64,7 @@ public class XMIModelSerializer {
                     }
                     return VisitResult.CONTINUE;
                 }
-            }, VisitRequest.CONTAINED);
+            });
 
             KDefer serializationTask = context.model.universe().model().defer();
             serializationTask.wait(addressCreationTask);

@@ -1,9 +1,6 @@
 package org.kevoree.modeling.databases.websocket.test;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KEventListener;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ThrowableCallback;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.cdn.AtomicOperation;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
@@ -60,17 +57,17 @@ public class KContentDeliveryDriverMock implements KContentDeliveryDriver {
     }
 
     @Override
-    public void registerListener(KObject origin, KEventListener listener) {
+    public void registerListener(long groupId, KObject origin, KEventListener listener) {
 
     }
 
     @Override
-    public void unregister(KObject origin, KEventListener listener) {
+    public void registerMultiListener(long groupId, KUniverse origin, long[] objects, KEventMultiListener listener) {
 
     }
 
     @Override
-    public void unregisterAll() {
+    public void unregisterGroup(long groupId) {
 
     }
 

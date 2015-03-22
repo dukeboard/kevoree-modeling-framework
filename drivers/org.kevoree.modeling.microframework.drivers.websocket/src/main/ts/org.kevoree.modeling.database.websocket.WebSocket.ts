@@ -134,16 +134,16 @@ module org {
                             console.error("Not implemented yet");
                         }
 
-                        public registerListener(origin:org.kevoree.modeling.api.KObject, listener:(p:org.kevoree.modeling.api.KObject, p1:org.kevoree.modeling.api.meta.Meta[]) => void):void {
-                            this._localEventListeners.registerListener(origin, listener);
+                        public registerListener(groupId:number,origin:org.kevoree.modeling.api.KObject, listener:(p:org.kevoree.modeling.api.KObject, p1:org.kevoree.modeling.api.meta.Meta[]) => void):void {
+                            this._localEventListeners.registerListener(groupId,origin, listener);
                         }
 
-                        public unregister(origin:org.kevoree.modeling.api.KObject, listener:(p:org.kevoree.modeling.api.KObject, p1:org.kevoree.modeling.api.meta.Meta[]) => void):void {
-                            this._localEventListeners.unregister(origin, listener);
+                        public registerMultiListener(groupId:number, origin:org.kevoree.modeling.api.KUniverse<any,any,any>, objects:number[], listener:(objs:org.kevoree.modeling.api.KObject[])=>void) {
+                            this._localEventListeners.registerListenerAll(groupId, origin, objects, listener);
                         }
 
-                        public unregisterAll():void {
-                            this._localEventListeners.unregisterAll();
+                        public unregisterGroup(groupId:number) {
+                            this._localEventListeners.unregister(groupId);
                         }
 
                         public setManager(manager:org.kevoree.modeling.api.data.manager.KDataManager):void {

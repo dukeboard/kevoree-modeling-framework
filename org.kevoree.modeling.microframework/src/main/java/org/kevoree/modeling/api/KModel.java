@@ -11,6 +11,8 @@ import org.kevoree.modeling.api.meta.MetaOperation;
 
 public interface KModel<A extends KUniverse> {
 
+    public long key();
+
     public A newUniverse();
 
     public A universe(long key);
@@ -37,6 +39,8 @@ public interface KModel<A extends KUniverse> {
 
     public KDefer<Throwable> close();
 
-    public void clearListeners();
+    public void clearListenerGroup(long groupID);
+
+    public long nextGroup();
 
 }

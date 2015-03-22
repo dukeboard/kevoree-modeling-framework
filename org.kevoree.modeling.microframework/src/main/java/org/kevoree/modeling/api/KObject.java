@@ -29,13 +29,11 @@ public interface KObject {
 
     public KDefer<KObject[]> select(String query);
 
-    public void listen(KEventListener listener);
-
-    public void unregister(KEventListener listener);
+    public void listen(long groupId, KEventListener listener);
 
     public void visitAttributes(ModelAttributeVisitor visitor);
 
-    public KDefer<Throwable> visit(ModelVisitor visitor, VisitRequest request);
+    public KDefer<Throwable> visit(VisitRequest request,ModelVisitor visitor);
 
     /* Time navigation */
     public long now();

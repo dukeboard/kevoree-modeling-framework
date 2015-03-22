@@ -36,22 +36,22 @@ public class DefaultModelCompare {
         final Map<Long, KObject> objectsMap = new HashMap<Long, KObject>();
         traces.addAll(internal_createTraces(origin, target, inter, merge, false, true));
         tracesRef.addAll(internal_createTraces(origin, target, inter, merge, true, false));
-        origin.visit(new ModelVisitor() {
+        origin.visit(VisitRequest.CONTAINED,new ModelVisitor() {
             @Override
             public VisitResult visit(KObject elem) {
                 objectsMap.put(elem.uuid(), elem);
                 return VisitResult.CONTINUE;
             }
-        }, VisitRequest.CONTAINED).then(new Callback<Throwable>() {
+        }).then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
                     throwable.printStackTrace();
                     callback.on(null);
                 } else {
-                    target.visit(new ModelVisitor() {
+                    target.visit(VisitRequest.CONTAINED,new ModelVisitor() {
                         @Override
-                        public VisitResult visit(KObject elem) {
+                        public VisitResult visit (KObject elem){
                             Long childUUID = elem.uuid();
                             if (objectsMap.containsKey(childUUID)) {
                                 if (inter) {
@@ -71,7 +71,7 @@ public class DefaultModelCompare {
                             }
                             return VisitResult.CONTINUE;
                         }
-                    }, VisitRequest.CONTAINED).then(new Callback<Throwable>() {
+                    }).then(new Callback<Throwable>() {
                         @Override
                         public void on(Throwable throwable) {
                             if (throwable != null) {

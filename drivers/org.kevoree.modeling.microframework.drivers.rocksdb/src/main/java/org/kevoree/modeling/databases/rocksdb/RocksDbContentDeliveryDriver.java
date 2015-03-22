@@ -1,9 +1,6 @@
 package org.kevoree.modeling.databases.rocksdb;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KEventListener;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ThrowableCallback;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.cdn.AtomicOperation;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
@@ -125,18 +122,18 @@ public class RocksDbContentDeliveryDriver implements KContentDeliveryDriver {
     private LocalEventListeners _localEventListeners = new LocalEventListeners();
 
     @Override
-    public void registerListener(KObject p_origin, KEventListener p_listener) {
-        _localEventListeners.registerListener(p_origin, p_listener);
+    public void registerListener(long p_groupId, KObject p_origin, KEventListener p_listener) {
+        _localEventListeners.registerListener(p_groupId, p_origin, p_listener);
     }
 
     @Override
-    public void unregister(KObject p_origin, KEventListener p_listener) {
-        _localEventListeners.unregister(p_origin, p_listener);
+    public void registerMultiListener(long p_groupId, KUniverse p_origin, long[] p_objects, KEventMultiListener p_listener) {
+        _localEventListeners.registerListenerAll(p_groupId, p_origin, p_objects, p_listener);
     }
 
     @Override
-    public void unregisterAll() {
-        _localEventListeners.unregisterAll();
+    public void unregisterGroup(long p_groupId) {
+        _localEventListeners.unregister(p_groupId);
     }
 
     @Override

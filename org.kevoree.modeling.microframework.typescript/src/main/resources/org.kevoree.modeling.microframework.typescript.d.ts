@@ -67,6 +67,9 @@ declare module org {
                 interface KEventListener {
                     on(src: org.kevoree.modeling.api.KObject, modifications: org.kevoree.modeling.api.meta.Meta[]): void;
                 }
+                interface KEventMultiListener {
+                    on(objects: org.kevoree.modeling.api.KObject[]): void;
+                }
                 interface KInfer extends org.kevoree.modeling.api.KObject {
                     train(trainingSet: any[][], expectedResultSet: any[], callback: (p: java.lang.Throwable) => void): void;
                     infer(features: any[]): any;
@@ -83,6 +86,7 @@ declare module org {
                     run(currentTask: org.kevoree.modeling.api.KCurrentDefer<any>): void;
                 }
                 interface KModel<A extends org.kevoree.modeling.api.KUniverse<any, any, any>> {
+                    key(): number;
                     newUniverse(): A;
                     universe(key: number): A;
                     manager(): org.kevoree.modeling.api.data.manager.KDataManager;
@@ -96,7 +100,8 @@ declare module org {
                     discard(): org.kevoree.modeling.api.KDefer<any>;
                     connect(): org.kevoree.modeling.api.KDefer<any>;
                     close(): org.kevoree.modeling.api.KDefer<any>;
-                    clearListeners(): void;
+                    clearListenerGroup(groupID: number): void;
+                    nextGroup(): number;
                 }
                 interface KObject {
                     universe(): org.kevoree.modeling.api.KUniverse<any, any, any>;
@@ -107,10 +112,9 @@ declare module org {
                     parent(): org.kevoree.modeling.api.KDefer<any>;
                     parentUuid(): number;
                     select(query: string): org.kevoree.modeling.api.KDefer<any>;
-                    listen(listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
-                    unregister(listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
+                    listen(groupId: number, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
                     visitAttributes(visitor: (p: org.kevoree.modeling.api.meta.MetaAttribute, p1: any) => void): void;
-                    visit(visitor: (p: org.kevoree.modeling.api.KObject) => org.kevoree.modeling.api.VisitResult, request: org.kevoree.modeling.api.VisitRequest): org.kevoree.modeling.api.KDefer<any>;
+                    visit(request: org.kevoree.modeling.api.VisitRequest, visitor: (p: org.kevoree.modeling.api.KObject) => org.kevoree.modeling.api.VisitResult): org.kevoree.modeling.api.KDefer<any>;
                     now(): number;
                     timeWalker(): org.kevoree.modeling.api.KTimeWalker;
                     referenceInParent(): org.kevoree.modeling.api.meta.MetaReference;
@@ -165,6 +169,7 @@ declare module org {
                     descendants(): java.util.List<B>;
                     delete(): org.kevoree.modeling.api.KDefer<any>;
                     lookupAllTimes(uuid: number, times: number[]): org.kevoree.modeling.api.KDefer<any>;
+                    listenAll(groupId: number, objects: number[], multiListener: (p: org.kevoree.modeling.api.KObject[]) => void): void;
                 }
                 interface KView {
                     createFQN(metaClassName: string): org.kevoree.modeling.api.KObject;
@@ -266,6 +271,7 @@ declare module org {
                     }
                     class AbstractKModel<A extends org.kevoree.modeling.api.KUniverse<any, any, any>> implements org.kevoree.modeling.api.KModel<any> {
                         private _manager;
+                        private _key;
                         metaModel(): org.kevoree.modeling.api.meta.MetaModel;
                         constructor();
                         connect(): org.kevoree.modeling.api.KDefer<any>;
@@ -281,7 +287,9 @@ declare module org {
                         setOperation(metaOperation: org.kevoree.modeling.api.meta.MetaOperation, operation: (p: org.kevoree.modeling.api.KObject, p1: any[], p2: (p: any) => void) => void): void;
                         setInstanceOperation(metaOperation: org.kevoree.modeling.api.meta.MetaOperation, target: org.kevoree.modeling.api.KObject, operation: (p: org.kevoree.modeling.api.KObject, p1: any[], p2: (p: any) => void) => void): void;
                         defer(): org.kevoree.modeling.api.KDefer<any>;
-                        clearListeners(): void;
+                        key(): number;
+                        clearListenerGroup(groupID: number): void;
+                        nextGroup(): number;
                     }
                     class AbstractKObject implements org.kevoree.modeling.api.KObject {
                         private _view;
@@ -300,8 +308,7 @@ declare module org {
                         referenceInParent(): org.kevoree.modeling.api.meta.MetaReference;
                         delete(): org.kevoree.modeling.api.KDefer<any>;
                         select(query: string): org.kevoree.modeling.api.KDefer<any>;
-                        listen(listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
-                        unregister(listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
+                        listen(groupId: number, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
                         domainKey(): string;
                         get(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute): any;
                         set(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, payload: any): void;
@@ -313,7 +320,7 @@ declare module org {
                         ref(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KDefer<any>;
                         inferRef(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KDefer<any>;
                         visitAttributes(visitor: (p: org.kevoree.modeling.api.meta.MetaAttribute, p1: any) => void): void;
-                        visit(p_visitor: (p: org.kevoree.modeling.api.KObject) => org.kevoree.modeling.api.VisitResult, p_request: org.kevoree.modeling.api.VisitRequest): org.kevoree.modeling.api.KDefer<any>;
+                        visit(p_request: org.kevoree.modeling.api.VisitRequest, p_visitor: (p: org.kevoree.modeling.api.KObject) => org.kevoree.modeling.api.VisitResult): org.kevoree.modeling.api.KDefer<any>;
                         private internal_visit(visitor, end, deep, containedOnly, visited, traversed);
                         toJSON(): string;
                         toString(): string;
@@ -361,6 +368,7 @@ declare module org {
                         diverge(): B;
                         descendants(): java.util.List<B>;
                         lookupAllTimes(uuid: number, times: number[]): org.kevoree.modeling.api.KDefer<any>;
+                        listenAll(groupId: number, objects: number[], multiListener: (p: org.kevoree.modeling.api.KObject[]) => void): void;
                     }
                     class AbstractKView implements org.kevoree.modeling.api.KView {
                         private _now;
@@ -579,9 +587,9 @@ declare module org {
                             remove(keys: string[], error: (p: java.lang.Throwable) => void): void;
                             connect(callback: (p: java.lang.Throwable) => void): void;
                             close(callback: (p: java.lang.Throwable) => void): void;
-                            registerListener(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
-                            unregister(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
-                            unregisterAll(): void;
+                            registerListener(groupId: number, origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
+                            registerMultiListener(groupId: number, origin: org.kevoree.modeling.api.KUniverse<any, any, any>, objects: number[], listener: (p: org.kevoree.modeling.api.KObject[]) => void): void;
+                            unregisterGroup(groupId: number): void;
                             send(msgs: org.kevoree.modeling.api.msg.KMessage): void;
                             setManager(manager: org.kevoree.modeling.api.data.manager.KDataManager): void;
                         }
@@ -607,9 +615,9 @@ declare module org {
                             remove(keys: string[], callback: (p: java.lang.Throwable) => void): void;
                             connect(callback: (p: java.lang.Throwable) => void): void;
                             close(callback: (p: java.lang.Throwable) => void): void;
-                            registerListener(p_origin: org.kevoree.modeling.api.KObject, p_listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
-                            unregister(p_origin: org.kevoree.modeling.api.KObject, p_listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
-                            unregisterAll(): void;
+                            registerListener(groupId: number, p_origin: org.kevoree.modeling.api.KObject, p_listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
+                            unregisterGroup(groupId: number): void;
+                            registerMultiListener(groupId: number, origin: org.kevoree.modeling.api.KUniverse<any, any, any>, objects: number[], listener: (p: org.kevoree.modeling.api.KObject[]) => void): void;
                             send(msgs: org.kevoree.modeling.api.msg.KMessage): void;
                             setManager(manager: org.kevoree.modeling.api.data.manager.KDataManager): void;
                         }
@@ -630,6 +638,8 @@ declare module org {
                             private _model;
                             private _objectKeyCalculator;
                             private _universeKeyCalculator;
+                            private _modelKeyCalculator;
+                            private _groupKeyCalculator;
                             private isConnected;
                             private static OUT_OF_CACHE_MESSAGE;
                             private static UNIVERSE_NOT_CONNECTED_ERROR;
@@ -637,6 +647,7 @@ declare module org {
                             private OBJ_INDEX;
                             private GLO_TREE_INDEX;
                             private _cache;
+                            private static zeroPrefix;
                             private cachedGlobalUniverse;
                             constructor(model: org.kevoree.modeling.api.KModel<any>);
                             cache(): org.kevoree.modeling.api.data.cache.KCache;
@@ -644,6 +655,8 @@ declare module org {
                             close(callback: (p: java.lang.Throwable) => void): void;
                             nextUniverseKey(): number;
                             nextObjectKey(): number;
+                            nextModelKey(): number;
+                            nextGroupKey(): number;
                             private globalUniverseOrder();
                             private internal_load_global_universe();
                             initUniverse(p_universe: org.kevoree.modeling.api.KUniverse<any, any, any>, p_parent: org.kevoree.modeling.api.KUniverse<any, any, any>): void;
@@ -695,6 +708,8 @@ declare module org {
                             initUniverse(universe: org.kevoree.modeling.api.KUniverse<any, any, any>, parent: org.kevoree.modeling.api.KUniverse<any, any, any>): void;
                             nextUniverseKey(): number;
                             nextObjectKey(): number;
+                            nextModelKey(): number;
+                            nextGroupKey(): number;
                             getRoot(originView: org.kevoree.modeling.api.KView, callback: (p: org.kevoree.modeling.api.KObject) => void): void;
                             setRoot(newRoot: org.kevoree.modeling.api.KObject, callback: (p: java.lang.Throwable) => void): void;
                             setContentDeliveryDriver(driver: org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver): void;
@@ -732,24 +747,21 @@ declare module org {
                 module event {
                     class LocalEventListeners {
                         private _manager;
-                        private _universeLayers;
+                        private _internalListenerKeyGen;
+                        private _simpleListener;
+                        private _multiListener;
+                        private _listener2Object;
+                        private _listener2Objects;
+                        private _obj2Listener;
+                        private _group2Listener;
+                        private _universeCache;
                         constructor();
-                        registerListener(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
-                        unregister(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
-                        unregisterAll(): void;
+                        registerListener(groupId: number, origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
+                        registerListenerAll(groupId: number, origin: org.kevoree.modeling.api.KUniverse<any, any, any>, objects: number[], listener: (p: org.kevoree.modeling.api.KObject[]) => void): void;
+                        unregister(groupId: number): void;
                         clear(): void;
                         setManager(manager: org.kevoree.modeling.api.data.manager.KDataManager): void;
                         dispatch(param: org.kevoree.modeling.api.msg.KMessage): void;
-                    }
-                    class LocalListenerUniverseLayer {
-                        private universe;
-                        private _objectLayers;
-                        getUniverse(): org.kevoree.modeling.api.KUniverse<any, any, any>;
-                        constructor(universe: org.kevoree.modeling.api.KUniverse<any, any, any>);
-                        register(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
-                        unregister(origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
-                        dispatch(resolved: org.kevoree.modeling.api.KObject, impactedMeta: org.kevoree.modeling.api.meta.Meta[]): void;
-                        isListen(key: org.kevoree.modeling.api.data.cache.KContentKey): boolean;
                     }
                 }
                 module extrapolation {

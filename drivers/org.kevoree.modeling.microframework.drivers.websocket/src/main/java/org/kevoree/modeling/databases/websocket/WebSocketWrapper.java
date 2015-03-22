@@ -10,10 +10,7 @@ import io.undertow.websockets.core.StreamSourceFrameChannel;
 import io.undertow.websockets.core.WebSocketChannel;
 import io.undertow.websockets.core.WebSockets;
 import io.undertow.websockets.spi.WebSocketHttpExchange;
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KEventListener;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ThrowableCallback;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.cdn.AtomicOperation;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
@@ -194,18 +191,18 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
     }
 
     @Override
-    public void registerListener(KObject p_origin, KEventListener p_listener) {
-        wrapped.registerListener(p_origin, p_listener);
+    public void registerListener(long p_groupId, KObject p_origin, KEventListener p_listener) {
+        wrapped.registerListener(p_groupId, p_origin, p_listener);
     }
 
     @Override
-    public void unregister(KObject p_origin, KEventListener p_listener) {
-        wrapped.unregister(p_origin, p_listener);
+    public void registerMultiListener(long groupId, KUniverse origin, long[] objects, KEventMultiListener listener) {
+        wrapped.registerMultiListener(groupId, origin, objects, listener);
     }
 
     @Override
-    public void unregisterAll() {
-        wrapped.unregisterAll();
+    public void unregisterGroup(long groupId) {
+        wrapped.unregisterGroup(groupId);
     }
 
     @Override
