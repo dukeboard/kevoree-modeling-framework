@@ -3891,7 +3891,6 @@ module org {
                         private _listener2Objects: org.kevoree.modeling.api.map.LongHashMap<any>;
                         private _obj2Listener: org.kevoree.modeling.api.map.LongHashMap<any>;
                         private _group2Listener: org.kevoree.modeling.api.map.LongHashMap<any>;
-                        private _universeCache: org.kevoree.modeling.api.map.LongHashMap<any>;
                         constructor() {
                             this._internalListenerKeyGen = new org.kevoree.modeling.api.data.manager.KeyCalculator(<number>0, 0);
                             this._simpleListener = new org.kevoree.modeling.api.map.LongHashMap<any>(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
@@ -3900,13 +3899,9 @@ module org {
                             this._listener2Object = new org.kevoree.modeling.api.map.LongLongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                             this._listener2Objects = new org.kevoree.modeling.api.map.LongHashMap<any>(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                             this._group2Listener = new org.kevoree.modeling.api.map.LongHashMap<any>(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
-                            this._universeCache = new org.kevoree.modeling.api.map.LongHashMap<any>(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                         }
 
                         public registerListener(groupId: number, origin: org.kevoree.modeling.api.KObject, listener: (p : org.kevoree.modeling.api.KObject, p1 : org.kevoree.modeling.api.meta.Meta[]) => void): void {
-                            if (!this._universeCache.containsKey(origin.universe().key())) {
-                                this._universeCache.put(origin.universe().key(), origin.universe());
-                            }
                             var generateNewID: number = this._internalListenerKeyGen.nextKey();
                             this._simpleListener.put(generateNewID, listener);
                             this._listener2Object.put(generateNewID, origin.universe().key());
@@ -3925,9 +3920,6 @@ module org {
                         }
 
                         public registerListenerAll(groupId: number, origin: org.kevoree.modeling.api.KUniverse<any, any, any>, objects: number[], listener: (p : org.kevoree.modeling.api.KObject[]) => void): void {
-                            if (!this._universeCache.containsKey(origin.key())) {
-                                this._universeCache.put(origin.key(), origin);
-                            }
                             var generateNewID: number = this._internalListenerKeyGen.nextKey();
                             this._multiListener.put(generateNewID, listener);
                             this._listener2Objects.put(generateNewID, objects);
@@ -3983,7 +3975,6 @@ module org {
                             this._group2Listener.clear();
                             this._listener2Object.clear();
                             this._listener2Objects.clear();
-                            this._universeCache.clear();
                         }
 
                         public setManager(manager: org.kevoree.modeling.api.data.manager.KDataManager): void {
@@ -3992,9 +3983,11 @@ module org {
 
                         public dispatch(param: org.kevoree.modeling.api.msg.KMessage): void {
                             if (this._manager != null) {
+                                var _cacheUniverse: org.kevoree.modeling.api.map.LongHashMap<any> = new org.kevoree.modeling.api.map.LongHashMap<any>(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                                 if (param instanceof org.kevoree.modeling.api.msg.KEvents) {
                                     var messages: org.kevoree.modeling.api.msg.KEvents = <org.kevoree.modeling.api.msg.KEvents>param;
                                     var toLoad: org.kevoree.modeling.api.data.cache.KContentKey[] = new Array();
+                                    var multiCounters: org.kevoree.modeling.api.map.LongLongHashMap[] = new Array();
                                     for (var i: number = 0; i < messages.size(); i++) {
                                         var loopKey: org.kevoree.modeling.api.data.cache.KContentKey = messages.getKey(i);
                                         var listeners: org.kevoree.modeling.api.map.LongLongHashMap = this._obj2Listener.get(loopKey.obj());
@@ -4003,6 +3996,17 @@ module org {
                                             listeners.each( (listenerKey : number, universeKey : number) => {
                                                 if (universeKey == loopKey.universe()) {
                                                     isSelect[0] = true;
+                                                    if (this._multiListener.containsKey(listenerKey)) {
+                                                        if (multiCounters[0] == null) {
+                                                            multiCounters[0] = new org.kevoree.modeling.api.map.LongLongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                                                        }
+                                                        var previous: number = 0;
+                                                        if (multiCounters[0].containsKey(listenerKey)) {
+                                                            previous = multiCounters[0].get(listenerKey);
+                                                        }
+                                                        previous++;
+                                                        multiCounters[0].put(listenerKey, previous);
+                                                    }
                                                 }
                                             });
                                         }
@@ -4011,27 +4015,60 @@ module org {
                                         }
                                     }
                                     (<org.kevoree.modeling.api.data.manager.DefaultKDataManager>this._manager).bumpKeysToCache(toLoad,  (kCacheObjects : org.kevoree.modeling.api.data.cache.KCacheObject[]) => {
+                                        var multiObjectSets: org.kevoree.modeling.api.map.LongHashMap<any>[] = new Array();
+                                        var multiObjectIndexes: org.kevoree.modeling.api.map.LongLongHashMap[] = new Array();
+                                        if (multiCounters[0] != null) {
+                                            multiObjectSets[0] = new org.kevoree.modeling.api.map.LongHashMap<any>(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                                            multiObjectIndexes[0] = new org.kevoree.modeling.api.map.LongLongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                                            multiCounters[0].each( (listenerKey : number, value : number) => {
+                                                multiObjectSets[0].put(listenerKey, new Array());
+                                                multiObjectIndexes[0].put(listenerKey, 0);
+                                            });
+                                        }
                                         var listeners: org.kevoree.modeling.api.map.LongLongHashMap;
                                         for (var i: number = 0; i < messages.size(); i++) {
                                             if (kCacheObjects[i] != null && kCacheObjects[i] instanceof org.kevoree.modeling.api.data.cache.KCacheEntry) {
                                                 var correspondingKey: org.kevoree.modeling.api.data.cache.KContentKey = toLoad[i];
                                                 listeners = this._obj2Listener.get(correspondingKey.obj());
                                                 if (listeners != null) {
-                                                    var toDispatch: org.kevoree.modeling.api.KObject = (<org.kevoree.modeling.api.abs.AbstractKView>this._universeCache.get(correspondingKey.universe()).time(correspondingKey.time())).createProxy((<org.kevoree.modeling.api.data.cache.KCacheEntry>kCacheObjects[i]).metaClass, correspondingKey.obj());
+                                                    var cachedUniverse: org.kevoree.modeling.api.KUniverse<any, any, any> = _cacheUniverse.get(correspondingKey.universe());
+                                                    if (cachedUniverse == null) {
+                                                        cachedUniverse = this._manager.model().universe(correspondingKey.universe());
+                                                        _cacheUniverse.put(correspondingKey.universe(), cachedUniverse);
+                                                    }
+                                                    var toDispatch: org.kevoree.modeling.api.KObject = (<org.kevoree.modeling.api.abs.AbstractKView>cachedUniverse.time(correspondingKey.time())).createProxy((<org.kevoree.modeling.api.data.cache.KCacheEntry>kCacheObjects[i]).metaClass, correspondingKey.obj());
                                                     var meta: org.kevoree.modeling.api.meta.Meta[] = new Array();
                                                     for (var j: number = 0; j < messages.getIndexes(i).length; j++) {
                                                         if (messages.getIndexes(i)[j] >= org.kevoree.modeling.api.data.manager.Index.RESERVED_INDEXES) {
                                                             meta[j] = toDispatch.metaClass().meta(messages.getIndexes(i)[j]);
                                                         }
                                                     }
-                                                    listeners.each( (key : number, value : number) => {
-                                                        var listener: (p : org.kevoree.modeling.api.KObject, p1 : org.kevoree.modeling.api.meta.Meta[]) => void = this._simpleListener.get(key);
+                                                    listeners.each( (listenerKey : number, value : number) => {
+                                                        var listener: (p : org.kevoree.modeling.api.KObject, p1 : org.kevoree.modeling.api.meta.Meta[]) => void = this._simpleListener.get(listenerKey);
                                                         if (listener != null) {
                                                             listener(toDispatch, meta);
+                                                        } else {
+                                                            var multiListener: (p : org.kevoree.modeling.api.KObject[]) => void = this._multiListener.get(listenerKey);
+                                                            if (multiListener != null) {
+                                                                if (multiObjectSets[0] != null && multiObjectIndexes[0] != null) {
+                                                                    var index: number = multiObjectIndexes[0].get(listenerKey);
+                                                                    multiObjectSets[0].get(listenerKey)[<number>index] = toDispatch;
+                                                                    index = index + 1;
+                                                                    multiObjectIndexes[0].put(listenerKey, index);
+                                                                }
+                                                            }
                                                         }
                                                     });
                                                 }
                                             }
+                                        }
+                                        if (multiObjectSets[0] != null) {
+                                            multiObjectSets[0].each( (key : number, value : org.kevoree.modeling.api.KObject[]) => {
+                                                var multiListener: (p : org.kevoree.modeling.api.KObject[]) => void = this._multiListener.get(key);
+                                                if (multiListener != null) {
+                                                    multiListener(value);
+                                                }
+                                            });
                                         }
                                     });
                                 }

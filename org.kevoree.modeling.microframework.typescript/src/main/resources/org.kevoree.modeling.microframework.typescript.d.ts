@@ -754,7 +754,6 @@ declare module org {
                         private _listener2Objects;
                         private _obj2Listener;
                         private _group2Listener;
-                        private _universeCache;
                         constructor();
                         registerListener(groupId: number, origin: org.kevoree.modeling.api.KObject, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
                         registerListenerAll(groupId: number, origin: org.kevoree.modeling.api.KUniverse<any, any, any>, objects: number[], listener: (p: org.kevoree.modeling.api.KObject[]) => void): void;

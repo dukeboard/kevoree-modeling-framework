@@ -3328,12 +3328,8 @@ var org;
                             this._listener2Object = new org.kevoree.modeling.api.map.LongLongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                             this._listener2Objects = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                             this._group2Listener = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
-                            this._universeCache = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                         }
                         LocalEventListeners.prototype.registerListener = function (groupId, origin, listener) {
-                            if (!this._universeCache.containsKey(origin.universe().key())) {
-                                this._universeCache.put(origin.universe().key(), origin.universe());
-                            }
                             var generateNewID = this._internalListenerKeyGen.nextKey();
                             this._simpleListener.put(generateNewID, listener);
                             this._listener2Object.put(generateNewID, origin.universe().key());
@@ -3351,9 +3347,6 @@ var org;
                             subLayer.put(generateNewID, 1);
                         };
                         LocalEventListeners.prototype.registerListenerAll = function (groupId, origin, objects, listener) {
-                            if (!this._universeCache.containsKey(origin.key())) {
-                                this._universeCache.put(origin.key(), origin);
-                            }
                             var generateNewID = this._internalListenerKeyGen.nextKey();
                             this._multiListener.put(generateNewID, listener);
                             this._listener2Objects.put(generateNewID, objects);
@@ -3409,7 +3402,6 @@ var org;
                             this._group2Listener.clear();
                             this._listener2Object.clear();
                             this._listener2Objects.clear();
-                            this._universeCache.clear();
                         };
                         LocalEventListeners.prototype.setManager = function (manager) {
                             this._manager = manager;
@@ -3417,9 +3409,11 @@ var org;
                         LocalEventListeners.prototype.dispatch = function (param) {
                             var _this = this;
                             if (this._manager != null) {
+                                var _cacheUniverse = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                                 if (param instanceof org.kevoree.modeling.api.msg.KEvents) {
                                     var messages = param;
                                     var toLoad = new Array();
+                                    var multiCounters = new Array();
                                     for (var i = 0; i < messages.size(); i++) {
                                         var loopKey = messages.getKey(i);
                                         var listeners = this._obj2Listener.get(loopKey.obj());
@@ -3428,6 +3422,17 @@ var org;
                                             listeners.each(function (listenerKey, universeKey) {
                                                 if (universeKey == loopKey.universe()) {
                                                     isSelect[0] = true;
+                                                    if (_this._multiListener.containsKey(listenerKey)) {
+                                                        if (multiCounters[0] == null) {
+                                                            multiCounters[0] = new org.kevoree.modeling.api.map.LongLongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                                                        }
+                                                        var previous = 0;
+                                                        if (multiCounters[0].containsKey(listenerKey)) {
+                                                            previous = multiCounters[0].get(listenerKey);
+                                                        }
+                                                        previous++;
+                                                        multiCounters[0].put(listenerKey, previous);
+                                                    }
                                                 }
                                             });
                                         }
@@ -3436,27 +3441,61 @@ var org;
                                         }
                                     }
                                     this._manager.bumpKeysToCache(toLoad, function (kCacheObjects) {
+                                        var multiObjectSets = new Array();
+                                        var multiObjectIndexes = new Array();
+                                        if (multiCounters[0] != null) {
+                                            multiObjectSets[0] = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                                            multiObjectIndexes[0] = new org.kevoree.modeling.api.map.LongLongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                                            multiCounters[0].each(function (listenerKey, value) {
+                                                multiObjectSets[0].put(listenerKey, new Array());
+                                                multiObjectIndexes[0].put(listenerKey, 0);
+                                            });
+                                        }
                                         var listeners;
                                         for (var i = 0; i < messages.size(); i++) {
                                             if (kCacheObjects[i] != null && kCacheObjects[i] instanceof org.kevoree.modeling.api.data.cache.KCacheEntry) {
                                                 var correspondingKey = toLoad[i];
                                                 listeners = _this._obj2Listener.get(correspondingKey.obj());
                                                 if (listeners != null) {
-                                                    var toDispatch = _this._universeCache.get(correspondingKey.universe()).time(correspondingKey.time()).createProxy(kCacheObjects[i].metaClass, correspondingKey.obj());
+                                                    var cachedUniverse = _cacheUniverse.get(correspondingKey.universe());
+                                                    if (cachedUniverse == null) {
+                                                        cachedUniverse = _this._manager.model().universe(correspondingKey.universe());
+                                                        _cacheUniverse.put(correspondingKey.universe(), cachedUniverse);
+                                                    }
+                                                    var toDispatch = cachedUniverse.time(correspondingKey.time()).createProxy(kCacheObjects[i].metaClass, correspondingKey.obj());
                                                     var meta = new Array();
                                                     for (var j = 0; j < messages.getIndexes(i).length; j++) {
                                                         if (messages.getIndexes(i)[j] >= org.kevoree.modeling.api.data.manager.Index.RESERVED_INDEXES) {
                                                             meta[j] = toDispatch.metaClass().meta(messages.getIndexes(i)[j]);
                                                         }
                                                     }
-                                                    listeners.each(function (key, value) {
-                                                        var listener = _this._simpleListener.get(key);
+                                                    listeners.each(function (listenerKey, value) {
+                                                        var listener = _this._simpleListener.get(listenerKey);
                                                         if (listener != null) {
                                                             listener(toDispatch, meta);
+                                                        }
+                                                        else {
+                                                            var multiListener = _this._multiListener.get(listenerKey);
+                                                            if (multiListener != null) {
+                                                                if (multiObjectSets[0] != null && multiObjectIndexes[0] != null) {
+                                                                    var index = multiObjectIndexes[0].get(listenerKey);
+                                                                    multiObjectSets[0].get(listenerKey)[index] = toDispatch;
+                                                                    index = index + 1;
+                                                                    multiObjectIndexes[0].put(listenerKey, index);
+                                                                }
+                                                            }
                                                         }
                                                     });
                                                 }
                                             }
+                                        }
+                                        if (multiObjectSets[0] != null) {
+                                            multiObjectSets[0].each(function (key, value) {
+                                                var multiListener = _this._multiListener.get(key);
+                                                if (multiListener != null) {
+                                                    multiListener(value);
+                                                }
+                                            });
                                         }
                                     });
                                 }

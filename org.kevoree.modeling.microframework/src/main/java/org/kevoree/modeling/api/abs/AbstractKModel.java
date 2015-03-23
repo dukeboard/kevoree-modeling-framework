@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.manager.DefaultKDataManager;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.api.data.manager.KDataManager;
@@ -58,7 +59,7 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
         manager().initUniverse(newDimension, null);
         return newDimension;
     }
-
+    
     @Override
     public KDefer<Throwable> save() {
         AbstractKDeferWrapper<Throwable> task = new AbstractKDeferWrapper<Throwable>();

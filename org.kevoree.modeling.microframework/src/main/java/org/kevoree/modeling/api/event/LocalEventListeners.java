@@ -10,6 +10,7 @@ import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.data.manager.KeyCalculator;
 import org.kevoree.modeling.api.map.LongHashMap;
+import org.kevoree.modeling.api.map.LongHashMapCallBack;
 import org.kevoree.modeling.api.map.LongLongHashMap;
 import org.kevoree.modeling.api.map.LongLongHashMapCallBack;
 import org.kevoree.modeling.api.meta.Meta;
@@ -37,8 +38,6 @@ public class LocalEventListeners {
 
     private LongHashMap<LongLongHashMap> _group2Listener;
 
-    private LongHashMap<KUniverse> _universeCache;
-
     public LocalEventListeners() {
         _internalListenerKeyGen = new KeyCalculator((short) 0, 0);
         _simpleListener = new LongHashMap<KEventListener>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
@@ -47,13 +46,9 @@ public class LocalEventListeners {
         _listener2Object = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         _listener2Objects = new LongHashMap<long[]>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         _group2Listener = new LongHashMap<LongLongHashMap>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
-        _universeCache = new LongHashMap<KUniverse>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
     }
 
     public synchronized void registerListener(long groupId, KObject origin, KEventListener listener) {
-        if (!_universeCache.containsKey(origin.universe().key())) {
-            _universeCache.put(origin.universe().key(), origin.universe());
-        }
         long generateNewID = _internalListenerKeyGen.nextKey();
         _simpleListener.put(generateNewID, listener);
         _listener2Object.put(generateNewID, origin.universe().key());
@@ -72,9 +67,6 @@ public class LocalEventListeners {
     }
 
     public synchronized void registerListenerAll(long groupId, KUniverse origin, long[] objects, KEventMultiListener listener) {
-        if (!_universeCache.containsKey(origin.key())) {
-            _universeCache.put(origin.key(), origin);
-        }
         long generateNewID = _internalListenerKeyGen.nextKey();
         _multiListener.put(generateNewID, listener);
         _listener2Objects.put(generateNewID, objects);
@@ -133,7 +125,6 @@ public class LocalEventListeners {
         _group2Listener.clear();
         _listener2Object.clear();
         _listener2Objects.clear();
-        _universeCache.clear();
     }
 
     public void setManager(KDataManager manager) {
@@ -142,13 +133,16 @@ public class LocalEventListeners {
 
     public void dispatch(final KMessage param) {
         if (_manager != null) {
+            LongHashMap<KUniverse> _cacheUniverse = new LongHashMap<KUniverse>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
             if (param instanceof KEvents) {
                 KEvents messages = (KEvents) param;
                 KContentKey[] toLoad = new KContentKey[messages.size()];
+                final LongLongHashMap[] multiCounters = new LongLongHashMap[1];
                 //first step, we filter and select relevant keys
                 for (int i = 0; i < messages.size(); i++) {
                     KContentKey loopKey = messages.getKey(i);
                     LongLongHashMap listeners = _obj2Listener.get(loopKey.obj());
+
                     final boolean[] isSelect = {false};
                     if (listeners != null) {
                         listeners.each(new LongLongHashMapCallBack() {
@@ -156,6 +150,17 @@ public class LocalEventListeners {
                             public void on(long listenerKey, long universeKey) {
                                 if (universeKey == loopKey.universe()) {
                                     isSelect[0] = true;
+                                    if (_multiListener.containsKey(listenerKey)) {
+                                        if (multiCounters[0] == null) {
+                                            multiCounters[0] = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+                                        }
+                                        long previous = 0;
+                                        if (multiCounters[0].containsKey(listenerKey)) {
+                                            previous = multiCounters[0].get(listenerKey);
+                                        }
+                                        previous++;
+                                        multiCounters[0].put(listenerKey, previous);
+                                    }
                                 }
                             }
                         });
@@ -167,6 +172,20 @@ public class LocalEventListeners {
                 ((DefaultKDataManager) _manager).bumpKeysToCache(toLoad, new Callback<KCacheObject[]>() {
                     @Override
                     public void on(KCacheObject[] kCacheObjects) {
+                        final LongHashMap<KObject[]>[] multiObjectSets = new LongHashMap[1];
+                        final LongLongHashMap[] multiObjectIndexes = new LongLongHashMap[1];
+                        if (multiCounters[0] != null) {
+                            multiObjectSets[0] = new LongHashMap<KObject[]>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+                            multiObjectIndexes[0] = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+                            //init next result
+                            multiCounters[0].each(new LongLongHashMapCallBack() {
+                                @Override
+                                public void on(long listenerKey, long value) {
+                                    multiObjectSets[0].put(listenerKey, new KObject[(int) value]);
+                                    multiObjectIndexes[0].put(listenerKey, 0);
+                                }
+                            });
+                        }
                         //first we try to select unary listener
                         LongLongHashMap listeners;
                         for (int i = 0; i < messages.size(); i++) {
@@ -174,7 +193,12 @@ public class LocalEventListeners {
                                 KContentKey correspondingKey = toLoad[i];
                                 listeners = _obj2Listener.get(correspondingKey.obj());
                                 if (listeners != null) {
-                                    KObject toDispatch = ((AbstractKView) _universeCache.get(correspondingKey.universe()).time(correspondingKey.time())).createProxy(((KCacheEntry) kCacheObjects[i]).metaClass, correspondingKey.obj());
+                                    KUniverse cachedUniverse = _cacheUniverse.get(correspondingKey.universe());
+                                    if (cachedUniverse == null) {
+                                        cachedUniverse = _manager.model().universe(correspondingKey.universe());
+                                        _cacheUniverse.put(correspondingKey.universe(), cachedUniverse);
+                                    }
+                                    KObject toDispatch = ((AbstractKView) cachedUniverse.time(correspondingKey.time())).createProxy(((KCacheEntry) kCacheObjects[i]).metaClass, correspondingKey.obj());
                                     Meta[] meta = new Meta[messages.getIndexes(i).length];
                                     for (int j = 0; j < messages.getIndexes(i).length; j++) {
                                         if (messages.getIndexes(i)[j] >= Index.RESERVED_INDEXES) {
@@ -183,15 +207,36 @@ public class LocalEventListeners {
                                     }
                                     listeners.each(new LongLongHashMapCallBack() {
                                         @Override
-                                        public void on(long key, long value) {
-                                            KEventListener listener = _simpleListener.get(key);
+                                        public void on(long listenerKey, long value) {
+                                            KEventListener listener = _simpleListener.get(listenerKey);
                                             if (listener != null) {
                                                 listener.on(toDispatch, meta);
+                                            } else {
+                                                KEventMultiListener multiListener = _multiListener.get(listenerKey);
+                                                if (multiListener != null) {
+                                                    if (multiObjectSets[0] != null && multiObjectIndexes[0] != null) {
+                                                        long index = multiObjectIndexes[0].get(listenerKey);
+                                                        multiObjectSets[0].get(listenerKey)[(int) index] = toDispatch;
+                                                        index = index + 1;
+                                                        multiObjectIndexes[0].put(listenerKey, index);
+                                                    }
+                                                }
                                             }
                                         }
                                     });
                                 }
                             }
+                        }
+                        if (multiObjectSets[0] != null) {
+                            multiObjectSets[0].each(new LongHashMapCallBack<KObject[]>() {
+                                @Override
+                                public void on(long key, KObject[] value) {
+                                    KEventMultiListener multiListener = _multiListener.get(key);
+                                    if (multiListener != null) {
+                                        multiListener.on(value);
+                                    }
+                                }
+                            });
                         }
                     }
                 });
