@@ -977,13 +977,9 @@
         }
 
         function asyncAll(arr, dimen, func, cb) {
-
-            console.log("Arr2", arr);
-
             var finished = 0;
             var len;
             var outputArr;
-
             function done(i, output) {
                 finished++;
                 outputArr[i] = output;
@@ -992,7 +988,6 @@
                     cb(null, outputArr.join(''));
                 }
             }
-
             if (lib.isArray(arr)) {
                 len = arr.length;
                 outputArr = new Array(len);
@@ -4976,14 +4971,11 @@
                 var cb = originCb;
                 if (ctx.autoRefresh) {
                     ctx.managedObjects = {};
+                    ctx.originModel = undefined;
+                    ctx.originGroup = undefined;
                     ctx.managedListener = function (srcEvent, metaEvt) {
-                        try {
-                            for (var uuid in ctx.managedObjects) {
-                                ctx.managedObjects[uuid].view().universe().model().clearListeners();
-                                break;
-                            }
-                        } catch (e) {
-                            console.error(e);
+                        if(ctx.originGroup !== undefined && ctx.originModel !== undefined){
+                            ctx.originModel.clearListenerGroup(ctx.originGroup);
                         }
                         ctx.managedObjects = {};
                         if (ctx.autoNow) {
@@ -4993,7 +4985,7 @@
                             var originUniverse = undefined;
                             for (var keyName in ctx) {
                                 var loopObj = ctx[keyName];
-                                if (loopObj.metaClass !== undefined) {
+                                if (loopObj !== undefined && loopObj.metaClass !== undefined) {
                                     toReloadMap[loopObj.uuid()] = keyName;
                                     toReloadIds.push(loopObj.uuid());
                                     if (originUniverse == undefined) {
@@ -5025,8 +5017,19 @@
                         }
                     };
                     cb = function (err, res) {
+                        if(ctx.originModel !== undefined){
+                            if(ctx.originGroup == undefined){
+                                ctx.originGroup = ctx.originModel.nextGroup();
+                            }
+                        }
+                        var toListenUuids = [];
                         for (var uuid in ctx.managedObjects) {
-                            ctx.managedObjects[uuid].listen(ctx.managedListener);
+                            toListenUuids.push(ctx.managedObjects[uuid].uuid());
+                        }
+                        for (var uuid in ctx.managedObjects) {
+                            ctx.originModel = ctx.managedObjects[uuid].view().universe().model();
+                            ctx.managedObjects[uuid].view().universe().listenAll(ctx.originGroup,toListenUuids,ctx.managedListener);
+                            break;
                         }
                         originCb(err, res)
                     };
