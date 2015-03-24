@@ -12,7 +12,7 @@ import org.kevoree.modeling.api.rbtree.LongTreeNode;
 public class ResolutionHelper {
 
     public static long resolve_universe(LongLongHashMap globalTree, LongLongHashMap objUniverseTree, long timeToResolve, long originUniverseId) {
-        if (globalTree == null) {
+        if (globalTree == null || objUniverseTree == null)  {
             return originUniverseId;
         }
         long currentUniverse = originUniverseId;

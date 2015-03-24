@@ -56,15 +56,24 @@ public class MultiLayeredMemoryCache implements KCache {
             }
         } else {
             KCacheLayer nextLayer = _nestedLayers.get(key.part(0));
-            if (nextLayer == null) {
-                nextLayer = new KCacheLayer();
-                _nestedLayers.put(key.part(0), nextLayer);
+            if (nextLayer != null) {
+                nextLayer.insert(key, 1, payload);
+            } else {
+                internal_put(key, payload);
             }
-            nextLayer.insert(key, 1, payload);
             if (DEBUG) {
                 System.out.println(prefixDebugPut + ":" + key + "->" + payload + ")");
             }
         }
+    }
+
+    private synchronized void internal_put(KContentKey key, KCacheObject payload) {
+        KCacheLayer nextLayer = _nestedLayers.get(key.part(0));
+        if (nextLayer == null) {
+            nextLayer = new KCacheLayer();
+            _nestedLayers.put(key.part(0), nextLayer);
+        }
+        nextLayer.insert(key, 1, payload);
     }
 
     @Override

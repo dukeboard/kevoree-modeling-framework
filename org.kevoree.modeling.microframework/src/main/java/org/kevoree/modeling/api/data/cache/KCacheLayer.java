@@ -35,21 +35,41 @@ public class KCacheLayer {
 
     public void insert(KContentKey p_key, int current, KCacheObject p_obj_insert) {
         if (current == KConfig.KEY_SIZE - 1) {
-            if (_cachedObjects == null) {
-                _cachedObjects = new LongHashMap<KCacheObject>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
-            }
-            _cachedObjects.put(p_key.part(current), p_obj_insert);
+            //TODO, protect, only in case of conflict...
+            private_insert_object(p_key,current,p_obj_insert);
         } else {
             if (_nestedLayers == null) {
-                _nestedLayers = new LongHashMap<KCacheLayer>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+                private_nestedLayers_init();
             }
             KCacheLayer previousLayer = _nestedLayers.get(p_key.part(current));
-            if (previousLayer == null) {
-                previousLayer = new KCacheLayer();
-                _nestedLayers.put(p_key.part(current), previousLayer);
+            if (previousLayer != null) {
+                previousLayer.insert(p_key, current + 1, p_obj_insert);
+            } else {
+                private_insert_nested(p_key, current, p_obj_insert);
             }
-            previousLayer.insert(p_key, current + 1, p_obj_insert);
         }
+    }
+
+    private synchronized void private_insert_object(KContentKey p_key, int current, KCacheObject p_obj_insert){
+        if (_cachedObjects == null) {
+            _cachedObjects = new LongHashMap<KCacheObject>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+        }
+        _cachedObjects.put(p_key.part(current), p_obj_insert);
+    }
+
+    private synchronized void private_nestedLayers_init() {
+        if (_nestedLayers == null) {
+            _nestedLayers = new LongHashMap<KCacheLayer>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+        }
+    }
+
+    private synchronized void private_insert_nested(KContentKey p_key, int current, KCacheObject p_obj_insert) {
+        KCacheLayer previousLayer = _nestedLayers.get(p_key.part(current));
+        if (previousLayer == null) {
+            previousLayer = new KCacheLayer();
+            _nestedLayers.put(p_key.part(current), previousLayer);
+        }
+        previousLayer.insert(p_key, current + 1, p_obj_insert);
     }
 
     public void dirties(final List<KCacheDirty> result, final long[] prefixKeys, final int current) {
