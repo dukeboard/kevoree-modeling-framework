@@ -1910,22 +1910,39 @@ var org;
                             };
                             KCacheLayer.prototype.insert = function (p_key, current, p_obj_insert) {
                                 if (current == org.kevoree.modeling.api.KConfig.KEY_SIZE - 1) {
-                                    if (this._cachedObjects == null) {
-                                        this._cachedObjects = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
-                                    }
-                                    this._cachedObjects.put(p_key.part(current), p_obj_insert);
+                                    this.private_insert_object(p_key, current, p_obj_insert);
                                 }
                                 else {
                                     if (this._nestedLayers == null) {
-                                        this._nestedLayers = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                                        this.private_nestedLayers_init();
                                     }
                                     var previousLayer = this._nestedLayers.get(p_key.part(current));
-                                    if (previousLayer == null) {
-                                        previousLayer = new org.kevoree.modeling.api.data.cache.KCacheLayer();
-                                        this._nestedLayers.put(p_key.part(current), previousLayer);
+                                    if (previousLayer != null) {
+                                        previousLayer.insert(p_key, current + 1, p_obj_insert);
                                     }
-                                    previousLayer.insert(p_key, current + 1, p_obj_insert);
+                                    else {
+                                        this.private_insert_nested(p_key, current, p_obj_insert);
+                                    }
                                 }
+                            };
+                            KCacheLayer.prototype.private_insert_object = function (p_key, current, p_obj_insert) {
+                                if (this._cachedObjects == null) {
+                                    this._cachedObjects = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                                }
+                                this._cachedObjects.put(p_key.part(current), p_obj_insert);
+                            };
+                            KCacheLayer.prototype.private_nestedLayers_init = function () {
+                                if (this._nestedLayers == null) {
+                                    this._nestedLayers = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                                }
+                            };
+                            KCacheLayer.prototype.private_insert_nested = function (p_key, current, p_obj_insert) {
+                                var previousLayer = this._nestedLayers.get(p_key.part(current));
+                                if (previousLayer == null) {
+                                    previousLayer = new org.kevoree.modeling.api.data.cache.KCacheLayer();
+                                    this._nestedLayers.put(p_key.part(current), previousLayer);
+                                }
+                                previousLayer.insert(p_key, current + 1, p_obj_insert);
                             };
                             KCacheLayer.prototype.dirties = function (result, prefixKeys, current) {
                                 if (current == org.kevoree.modeling.api.KConfig.KEY_SIZE - 1) {
@@ -2129,15 +2146,24 @@ var org;
                                 }
                                 else {
                                     var nextLayer = this._nestedLayers.get(key.part(0));
-                                    if (nextLayer == null) {
-                                        nextLayer = new org.kevoree.modeling.api.data.cache.KCacheLayer();
-                                        this._nestedLayers.put(key.part(0), nextLayer);
+                                    if (nextLayer != null) {
+                                        nextLayer.insert(key, 1, payload);
                                     }
-                                    nextLayer.insert(key, 1, payload);
+                                    else {
+                                        this.internal_put(key, payload);
+                                    }
                                     if (MultiLayeredMemoryCache.DEBUG) {
                                         System.out.println(MultiLayeredMemoryCache.prefixDebugPut + ":" + key + "->" + payload + ")");
                                     }
                                 }
+                            };
+                            MultiLayeredMemoryCache.prototype.internal_put = function (key, payload) {
+                                var nextLayer = this._nestedLayers.get(key.part(0));
+                                if (nextLayer == null) {
+                                    nextLayer = new org.kevoree.modeling.api.data.cache.KCacheLayer();
+                                    this._nestedLayers.put(key.part(0), nextLayer);
+                                }
+                                nextLayer.insert(key, 1, payload);
                             };
                             MultiLayeredMemoryCache.prototype.dirties = function () {
                                 var result = new java.util.ArrayList();
@@ -3269,7 +3295,7 @@ var org;
                             function ResolutionHelper() {
                             }
                             ResolutionHelper.resolve_universe = function (globalTree, objUniverseTree, timeToResolve, originUniverseId) {
-                                if (globalTree == null) {
+                                if (globalTree == null || objUniverseTree == null) {
                                     return originUniverseId;
                                 }
                                 var currentUniverse = originUniverseId;

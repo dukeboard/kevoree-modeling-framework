@@ -517,6 +517,9 @@ declare module org {
                             private _cachedObjects;
                             resolve(p_key: org.kevoree.modeling.api.data.cache.KContentKey, current: number): org.kevoree.modeling.api.data.cache.KCacheObject;
                             insert(p_key: org.kevoree.modeling.api.data.cache.KContentKey, current: number, p_obj_insert: org.kevoree.modeling.api.data.cache.KCacheObject): void;
+                            private private_insert_object(p_key, current, p_obj_insert);
+                            private private_nestedLayers_init();
+                            private private_insert_nested(p_key, current, p_obj_insert);
                             dirties(result: java.util.List<org.kevoree.modeling.api.data.cache.KCacheDirty>, prefixKeys: number[], current: number): void;
                         }
                         interface KCacheObject {
@@ -566,6 +569,7 @@ declare module org {
                             constructor();
                             get(key: org.kevoree.modeling.api.data.cache.KContentKey): org.kevoree.modeling.api.data.cache.KCacheObject;
                             put(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: org.kevoree.modeling.api.data.cache.KCacheObject): void;
+                            private internal_put(key, payload);
                             dirties(): org.kevoree.modeling.api.data.cache.KCacheDirty[];
                             clearDataSegment(): void;
                         }
