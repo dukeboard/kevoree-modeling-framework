@@ -125,14 +125,10 @@ declare module org {
                     inferRef(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KDefer<any>;
                     traversal(): org.kevoree.modeling.api.traversal.KTraversal;
                     inbounds(): org.kevoree.modeling.api.KDefer<any>;
-                    traces(request: org.kevoree.modeling.api.TraceRequest): org.kevoree.modeling.api.trace.ModelTrace[];
                     get(attribute: org.kevoree.modeling.api.meta.MetaAttribute): any;
                     set(attribute: org.kevoree.modeling.api.meta.MetaAttribute, payload: any): void;
                     toJSON(): string;
                     equals(other: any): boolean;
-                    diff(target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any>;
-                    merge(target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any>;
-                    intersection(target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any>;
                     jump<U extends org.kevoree.modeling.api.KObject>(time: number): org.kevoree.modeling.api.KDefer<any>;
                     referencesWith(o: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.meta.MetaReference[];
                     inferObjects(): org.kevoree.modeling.api.KDefer<any>;
@@ -172,7 +168,7 @@ declare module org {
                     listenAll(groupId: number, objects: number[], multiListener: (p: org.kevoree.modeling.api.KObject[]) => void): void;
                 }
                 interface KView {
-                    createFQN(metaClassName: string): org.kevoree.modeling.api.KObject;
+                    createByName(metaClassName: string): org.kevoree.modeling.api.KObject;
                     create(clazz: org.kevoree.modeling.api.meta.MetaClass): org.kevoree.modeling.api.KObject;
                     select(query: string): org.kevoree.modeling.api.KDefer<any>;
                     lookup(key: number): org.kevoree.modeling.api.KDefer<any>;
@@ -324,14 +320,10 @@ declare module org {
                         private internal_visit(visitor, end, deep, containedOnly, visited, traversed);
                         toJSON(): string;
                         toString(): string;
-                        traces(request: org.kevoree.modeling.api.TraceRequest): org.kevoree.modeling.api.trace.ModelTrace[];
                         inbounds(): org.kevoree.modeling.api.KDefer<any>;
                         set_parent(p_parentKID: number, p_metaReference: org.kevoree.modeling.api.meta.MetaReference): void;
                         equals(obj: any): boolean;
                         hashCode(): number;
-                        diff(target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any>;
-                        merge(target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any>;
-                        intersection(target: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any>;
                         jump<U extends org.kevoree.modeling.api.KObject>(time: number): org.kevoree.modeling.api.KDefer<any>;
                         internal_transpose_ref(p: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.meta.MetaReference;
                         internal_transpose_att(p: org.kevoree.modeling.api.meta.MetaAttribute): org.kevoree.modeling.api.meta.MetaAttribute;
@@ -376,7 +368,7 @@ declare module org {
                         constructor(p_now: number, p_universe: org.kevoree.modeling.api.KUniverse<any, any, any>);
                         now(): number;
                         universe(): org.kevoree.modeling.api.KUniverse<any, any, any>;
-                        createFQN(metaClassName: string): org.kevoree.modeling.api.KObject;
+                        createByName(metaClassName: string): org.kevoree.modeling.api.KObject;
                         setRoot(elem: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any>;
                         getRoot(): org.kevoree.modeling.api.KDefer<any>;
                         select(query: string): org.kevoree.modeling.api.KDefer<any>;
@@ -489,6 +481,8 @@ declare module org {
                             put(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: org.kevoree.modeling.api.data.cache.KCacheObject): void;
                             dirties(): org.kevoree.modeling.api.data.cache.KCacheDirty[];
                             clearDataSegment(): void;
+                            clean(): void;
+                            monitor(origin: org.kevoree.modeling.api.KObject): void;
                         }
                         class KCacheDirty {
                             key: org.kevoree.modeling.api.data.cache.KContentKey;
@@ -500,12 +494,16 @@ declare module org {
                             private raw;
                             _modifiedIndexes: boolean[];
                             _dirty: boolean;
+                            private _counter;
                             initRaw(p_size: number): void;
                             isDirty(): boolean;
                             modifiedIndexes(): number[];
                             serialize(): string;
                             setClean(): void;
                             unserialize(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: string, metaModel: org.kevoree.modeling.api.meta.MetaModel): void;
+                            counter(): number;
+                            inc(): void;
+                            dec(): void;
                             get(index: number): any;
                             getRef(index: number): number[];
                             set(index: number, content: any): void;
@@ -515,7 +513,9 @@ declare module org {
                         class KCacheLayer {
                             private _nestedLayers;
                             private _cachedObjects;
+                            empty(): boolean;
                             resolve(p_key: org.kevoree.modeling.api.data.cache.KContentKey, current: number): org.kevoree.modeling.api.data.cache.KCacheObject;
+                            decClean(p_key: org.kevoree.modeling.api.data.cache.KContentKey, current: number): void;
                             insert(p_key: org.kevoree.modeling.api.data.cache.KContentKey, current: number, p_obj_insert: org.kevoree.modeling.api.data.cache.KCacheObject): void;
                             private private_insert_object(p_key, current, p_obj_insert);
                             private private_nestedLayers_init();
@@ -527,6 +527,9 @@ declare module org {
                             serialize(): string;
                             setClean(): void;
                             unserialize(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: string, metaModel: org.kevoree.modeling.api.meta.MetaModel): void;
+                            counter(): number;
+                            inc(): void;
+                            dec(): void;
                         }
                         class KContentKey {
                             private elem;
@@ -561,17 +564,24 @@ declare module org {
                             static create(payload: string): org.kevoree.modeling.api.data.cache.KContentKey;
                             toString(): string;
                         }
+                        class KObjectWeakReference extends java.lang.ref.WeakReference<org.kevoree.modeling.api.KObject> {
+                        }
                         class MultiLayeredMemoryCache implements org.kevoree.modeling.api.data.cache.KCache {
                             static DEBUG: boolean;
                             private _nestedLayers;
                             private static prefixDebugGet;
                             private static prefixDebugPut;
-                            constructor();
+                            private _manager;
+                            private references;
+                            constructor(p_manager: org.kevoree.modeling.api.data.manager.KDataManager);
                             get(key: org.kevoree.modeling.api.data.cache.KContentKey): org.kevoree.modeling.api.data.cache.KCacheObject;
                             put(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: org.kevoree.modeling.api.data.cache.KCacheObject): void;
                             private internal_put(key, payload);
                             dirties(): org.kevoree.modeling.api.data.cache.KCacheDirty[];
                             clearDataSegment(): void;
+                            monitor(origin: org.kevoree.modeling.api.KObject): void;
+                            private decCleanKey(key);
+                            clean(): void;
                         }
                     }
                     module cdn {
@@ -661,7 +671,7 @@ declare module org {
                             nextObjectKey(): number;
                             nextModelKey(): number;
                             nextGroupKey(): number;
-                            private globalUniverseOrder();
+                            globalUniverseOrder(): org.kevoree.modeling.api.map.LongLongHashMap;
                             private internal_load_global_universe();
                             initUniverse(p_universe: org.kevoree.modeling.api.KUniverse<any, any, any>, p_parent: org.kevoree.modeling.api.KUniverse<any, any, any>): void;
                             parentUniverseKey(currentUniverseKey: number): number;
@@ -678,13 +688,13 @@ declare module org {
                             setContentDeliveryDriver(p_dataBase: org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver): void;
                             setScheduler(p_scheduler: org.kevoree.modeling.api.KScheduler): void;
                             operationManager(): org.kevoree.modeling.api.util.KOperationManager;
-                            internal_resolve_universe_time(originView: org.kevoree.modeling.api.KView, uuids: number[], callback: (p: org.kevoree.modeling.api.data.cache.KContentKey[]) => void): void;
                             getRoot(originView: org.kevoree.modeling.api.KView, callback: (p: org.kevoree.modeling.api.KObject) => void): void;
                             setRoot(newRoot: org.kevoree.modeling.api.KObject, callback: (p: java.lang.Throwable) => void): void;
                             reload(keys: org.kevoree.modeling.api.data.cache.KContentKey[], callback: (p: java.lang.Throwable) => void): void;
                             bumpKeyToCache(contentKey: org.kevoree.modeling.api.data.cache.KContentKey, callback: (p: org.kevoree.modeling.api.data.cache.KCacheObject) => void): void;
                             bumpKeysToCache(contentKeys: org.kevoree.modeling.api.data.cache.KContentKey[], callback: (p: org.kevoree.modeling.api.data.cache.KCacheObject[]) => void): void;
                             private internal_unserialize(key, payload);
+                            cleanObject(objectToClean: org.kevoree.modeling.api.KObject): void;
                         }
                         class Index {
                             static PARENT_INDEX: number;
@@ -724,6 +734,7 @@ declare module org {
                             parentUniverseKey(currentUniverseKey: number): number;
                             descendantsUniverseKeys(currentUniverseKey: number): number[];
                             reload(keys: org.kevoree.modeling.api.data.cache.KContentKey[], callback: (p: java.lang.Throwable) => void): void;
+                            cleanObject(objectToClean: org.kevoree.modeling.api.KObject): void;
                         }
                         class KeyCalculator {
                             private _prefix;
@@ -734,7 +745,6 @@ declare module org {
                             prefix(): number;
                         }
                         class LookupAllRunnable implements java.lang.Runnable {
-                            static DEBUG: boolean;
                             private _originView;
                             private _keys;
                             private _callback;
@@ -1079,7 +1089,6 @@ declare module org {
                         private BOOLEAN_LETTERS;
                         private DIGIT;
                         private index;
-                        private static DEFAULT_BUFFER_SIZE;
                         constructor(payload: string);
                         isSpace(c: string): boolean;
                         private nextChar();
@@ -1107,6 +1116,42 @@ declare module org {
                     }
                 }
                 module map {
+                    class IntHashMap<V> {
+                        elementCount: number;
+                        elementData: org.kevoree.modeling.api.map.IntHashMap.Entry<any>[];
+                        private elementDataSize;
+                        threshold: number;
+                        modCount: number;
+                        reuseAfterDelete: org.kevoree.modeling.api.map.IntHashMap.Entry<any>;
+                        private initalCapacity;
+                        private loadFactor;
+                        newElementArray(s: number): org.kevoree.modeling.api.map.IntHashMap.Entry<any>[];
+                        constructor(p_initalCapacity: number, p_loadFactor: number);
+                        clear(): void;
+                        private computeMaxSize();
+                        containsKey(key: number): boolean;
+                        get(key: number): V;
+                        findNonNullKeyEntry(key: number, index: number): org.kevoree.modeling.api.map.IntHashMap.Entry<any>;
+                        each(callback: (p: number, p1: V) => void): void;
+                        put(key: number, value: V): V;
+                        createHashedEntry(key: number, index: number): org.kevoree.modeling.api.map.IntHashMap.Entry<any>;
+                        rehashCapacity(capacity: number): void;
+                        rehash(): void;
+                        remove(key: number): V;
+                        removeEntry(key: number): org.kevoree.modeling.api.map.IntHashMap.Entry<any>;
+                        size(): number;
+                    }
+                    module IntHashMap {
+                        class Entry<V> {
+                            next: org.kevoree.modeling.api.map.IntHashMap.Entry<any>;
+                            key: number;
+                            value: V;
+                            constructor(theKey: number, theValue: V);
+                        }
+                    }
+                    interface IntHashMapCallBack<V> {
+                        on(key: number, value: V): void;
+                    }
                     class LongHashMap<V> {
                         elementCount: number;
                         elementData: org.kevoree.modeling.api.map.LongHashMap.Entry<any>[];
@@ -1155,6 +1200,10 @@ declare module org {
                         private _isDirty;
                         private static ELEMENT_SEP;
                         private static CHUNK_SEP;
+                        private _counter;
+                        counter(): number;
+                        inc(): void;
+                        dec(): void;
                         isDirty(): boolean;
                         setClean(): void;
                         unserialize(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: string, metaModel: org.kevoree.modeling.api.meta.MetaModel): void;
@@ -1184,6 +1233,42 @@ declare module org {
                     }
                     interface LongLongHashMapCallBack<V> {
                         on(key: number, value: number): void;
+                    }
+                    class StringHashMap<V> {
+                        elementCount: number;
+                        elementData: org.kevoree.modeling.api.map.StringHashMap.Entry<any>[];
+                        private elementDataSize;
+                        threshold: number;
+                        modCount: number;
+                        reuseAfterDelete: org.kevoree.modeling.api.map.StringHashMap.Entry<any>;
+                        private initalCapacity;
+                        private loadFactor;
+                        newElementArray(s: number): org.kevoree.modeling.api.map.StringHashMap.Entry<any>[];
+                        constructor(p_initalCapacity: number, p_loadFactor: number);
+                        clear(): void;
+                        private computeMaxSize();
+                        containsKey(key: string): boolean;
+                        get(key: string): V;
+                        findNonNullKeyEntry(key: string, index: number): org.kevoree.modeling.api.map.StringHashMap.Entry<any>;
+                        each(callback: (p: string, p1: V) => void): void;
+                        put(key: string, value: V): V;
+                        createHashedEntry(key: string, index: number): org.kevoree.modeling.api.map.StringHashMap.Entry<any>;
+                        rehashCapacity(capacity: number): void;
+                        rehash(): void;
+                        remove(key: string): V;
+                        removeEntry(key: string): org.kevoree.modeling.api.map.StringHashMap.Entry<any>;
+                        size(): number;
+                    }
+                    module StringHashMap {
+                        class Entry<V> {
+                            next: org.kevoree.modeling.api.map.StringHashMap.Entry<any>;
+                            key: string;
+                            value: V;
+                            constructor(theKey: string, theValue: V);
+                        }
+                    }
+                    interface StringHashMapCallBack<V> {
+                        on(key: string, value: V): void;
                     }
                 }
                 module meta {
@@ -1360,15 +1445,6 @@ declare module org {
                         id: number;
                         json(): string;
                         type(): number;
-                    }
-                }
-                module operation {
-                    class DefaultModelCompare {
-                        static diff(origin: org.kevoree.modeling.api.KObject, target: org.kevoree.modeling.api.KObject, callback: (p: org.kevoree.modeling.api.trace.TraceSequence) => void): void;
-                        static merge(origin: org.kevoree.modeling.api.KObject, target: org.kevoree.modeling.api.KObject, callback: (p: org.kevoree.modeling.api.trace.TraceSequence) => void): void;
-                        static intersection(origin: org.kevoree.modeling.api.KObject, target: org.kevoree.modeling.api.KObject, callback: (p: org.kevoree.modeling.api.trace.TraceSequence) => void): void;
-                        private static internal_diff(origin, target, inter, merge, callback);
-                        private static internal_createTraces(current, sibling, inter, merge, references, attributes);
                     }
                 }
                 module polynomial {
@@ -1562,7 +1638,11 @@ declare module org {
                         private _previousOrEqualsCacheKeys;
                         private _previousOrEqualsCacheValues;
                         private _nextCacheElem;
+                        private _counter;
                         size(): number;
+                        counter(): number;
+                        inc(): void;
+                        dec(): void;
                         private tryPreviousOrEqualsCache(key);
                         private resetCache();
                         private putInPreviousOrEqualsCache(key, resolved);
@@ -1600,6 +1680,7 @@ declare module org {
                         private root;
                         private _size;
                         _dirty: boolean;
+                        private _counter;
                         private _previousOrEqualsCacheKeys;
                         private _previousOrEqualsCacheValues;
                         private _nextCacheElem;
@@ -1607,6 +1688,9 @@ declare module org {
                         private _lookupCacheValues;
                         private _lookupCacheElem;
                         size(): number;
+                        counter(): number;
+                        inc(): void;
+                        dec(): void;
                         toString(): string;
                         isDirty(): boolean;
                         serialize(): string;
@@ -1746,90 +1830,6 @@ declare module org {
                     class ExecutorServiceScheduler implements org.kevoree.modeling.api.KScheduler {
                         dispatch(p_runnable: java.lang.Runnable): void;
                         stop(): void;
-                    }
-                }
-                module trace {
-                    class ModelAddTrace implements org.kevoree.modeling.api.trace.ModelTrace {
-                        private _srcUUID;
-                        private _reference;
-                        private _paramUUID;
-                        constructor(p_srcUUID: number, p_reference: org.kevoree.modeling.api.meta.MetaReference, p_paramUUID: number);
-                        toString(): string;
-                        meta(): org.kevoree.modeling.api.meta.Meta;
-                        traceType(): org.kevoree.modeling.api.KActionType;
-                        sourceUUID(): number;
-                        paramUUID(): number;
-                    }
-                    class ModelNewTrace implements org.kevoree.modeling.api.trace.ModelTrace {
-                        private _srcUUID;
-                        private _metaClass;
-                        constructor(p_srcUUID: number, p_metaClass: org.kevoree.modeling.api.meta.MetaClass);
-                        meta(): org.kevoree.modeling.api.meta.Meta;
-                        traceType(): org.kevoree.modeling.api.KActionType;
-                        sourceUUID(): number;
-                    }
-                    class ModelRemoveTrace implements org.kevoree.modeling.api.trace.ModelTrace {
-                        private _srcUUID;
-                        private _reference;
-                        private _paramUUID;
-                        constructor(p_srcUUID: number, p_reference: org.kevoree.modeling.api.meta.MetaReference, p_paramUUID: number);
-                        toString(): string;
-                        meta(): org.kevoree.modeling.api.meta.Meta;
-                        traceType(): org.kevoree.modeling.api.KActionType;
-                        sourceUUID(): number;
-                        paramUUID(): number;
-                    }
-                    class ModelSetTrace implements org.kevoree.modeling.api.trace.ModelTrace {
-                        private _srcUUID;
-                        private _attribute;
-                        private _content;
-                        constructor(p_srcUUID: number, p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_content: any);
-                        toString(): string;
-                        meta(): org.kevoree.modeling.api.meta.Meta;
-                        traceType(): org.kevoree.modeling.api.KActionType;
-                        sourceUUID(): number;
-                        content(): any;
-                    }
-                    interface ModelTrace {
-                        meta(): org.kevoree.modeling.api.meta.Meta;
-                        traceType(): org.kevoree.modeling.api.KActionType;
-                        sourceUUID(): number;
-                    }
-                    class ModelTraceApplicator {
-                        private _targetModel;
-                        constructor(p_targetModel: org.kevoree.modeling.api.KObject);
-                        applyTraceSequence(traceSeq: org.kevoree.modeling.api.trace.TraceSequence, callback: (p: java.lang.Throwable) => void): void;
-                    }
-                    class ModelTraceConstants {
-                        static traceType: ModelTraceConstants;
-                        static src: ModelTraceConstants;
-                        static meta: ModelTraceConstants;
-                        static previouspath: ModelTraceConstants;
-                        static typename: ModelTraceConstants;
-                        static objpath: ModelTraceConstants;
-                        static content: ModelTraceConstants;
-                        static openJSON: ModelTraceConstants;
-                        static closeJSON: ModelTraceConstants;
-                        static bb: ModelTraceConstants;
-                        static sep: ModelTraceConstants;
-                        static coma: ModelTraceConstants;
-                        static dp: ModelTraceConstants;
-                        private _code;
-                        constructor(p_code: string);
-                        toString(): string;
-                        equals(other: any): boolean;
-                        static _ModelTraceConstantsVALUES: ModelTraceConstants[];
-                        static values(): ModelTraceConstants[];
-                    }
-                    class TraceSequence {
-                        private _traces;
-                        traces(): org.kevoree.modeling.api.trace.ModelTrace[];
-                        populate(addtraces: java.util.List<org.kevoree.modeling.api.trace.ModelTrace>): org.kevoree.modeling.api.trace.TraceSequence;
-                        append(seq: org.kevoree.modeling.api.trace.TraceSequence): org.kevoree.modeling.api.trace.TraceSequence;
-                        toString(): string;
-                        applyOn(target: org.kevoree.modeling.api.KObject, callback: (p: java.lang.Throwable) => void): boolean;
-                        reverse(): org.kevoree.modeling.api.trace.TraceSequence;
-                        size(): number;
                     }
                 }
                 module traversal {
@@ -2047,9 +2047,9 @@ declare module org {
                     class DefaultOperationManager implements org.kevoree.modeling.api.util.KOperationManager {
                         private staticOperations;
                         private instanceOperations;
+                        private remoteCallCallbacks;
                         private _manager;
                         private _callbackId;
-                        private remoteCallCallbacks;
                         constructor(p_manager: org.kevoree.modeling.api.data.manager.KDataManager);
                         registerOperation(operation: org.kevoree.modeling.api.meta.MetaOperation, callback: (p: org.kevoree.modeling.api.KObject, p1: any[], p2: (p: any) => void) => void, target: org.kevoree.modeling.api.KObject): void;
                         private searchOperation(source, clazz, operation);
@@ -2080,16 +2080,16 @@ declare module org {
                         finishCallback: (p: string) => void;
                         printer: java.lang.StringBuilder;
                         attributesVisitor: (p: org.kevoree.modeling.api.meta.MetaAttribute, p1: any) => void;
-                        addressTable: java.util.HashMap<number, string>;
-                        elementsCount: java.util.HashMap<string, number>;
+                        addressTable: org.kevoree.modeling.api.map.LongHashMap<any>;
+                        elementsCount: org.kevoree.modeling.api.map.StringHashMap<any>;
                         packageList: java.util.ArrayList<string>;
                     }
                     class XMILoadingContext {
                         xmiReader: org.kevoree.modeling.api.xmi.XmlParser;
                         loadedRoots: org.kevoree.modeling.api.KObject;
                         resolvers: java.util.ArrayList<org.kevoree.modeling.api.xmi.XMIResolveCommand>;
-                        map: java.util.HashMap<string, org.kevoree.modeling.api.KObject>;
-                        elementsCount: java.util.HashMap<string, number>;
+                        map: org.kevoree.modeling.api.map.StringHashMap<any>;
+                        elementsCount: org.kevoree.modeling.api.map.StringHashMap<any>;
                         successCallback: (p: java.lang.Throwable) => void;
                     }
                     class XMIModelLoader {

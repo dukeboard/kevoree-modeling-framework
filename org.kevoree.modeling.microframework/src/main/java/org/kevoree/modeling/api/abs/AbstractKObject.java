@@ -11,19 +11,10 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.operation.DefaultModelCompare;
 import org.kevoree.modeling.api.util.ArrayUtils;
 import org.kevoree.modeling.api.traversal.DefaultKTraversal;
 import org.kevoree.modeling.api.traversal.KTraversal;
-import org.kevoree.modeling.api.traversal.actions.KParentsAction;
-import org.kevoree.modeling.api.traversal.actions.KInboundsQueryAction;
-import org.kevoree.modeling.api.traversal.actions.KTraverseAction;
-import org.kevoree.modeling.api.traversal.actions.KTraverseQueryAction;
 import org.kevoree.modeling.api.traversal.selector.KSelector;
-import org.kevoree.modeling.api.trace.ModelAddTrace;
-import org.kevoree.modeling.api.trace.ModelSetTrace;
-import org.kevoree.modeling.api.trace.ModelTrace;
-import org.kevoree.modeling.api.trace.TraceSequence;
 import org.kevoree.modeling.api.util.Checker;
 import org.kevoree.modeling.api.util.PathHelper;
 
@@ -43,6 +34,7 @@ public abstract class AbstractKObject implements KObject {
         this._view = p_view;
         this._uuid = p_uuid;
         this._metaClass = p_metaClass;
+        p_view.universe().model().manager().cache().monitor(this);
     }
 
     @Override
@@ -634,41 +626,6 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public ModelTrace[] traces(TraceRequest request) {
-        if (!Checker.isDefined(request)) {
-            return null;
-        }
-        List<ModelTrace> traces = new ArrayList<ModelTrace>();
-        if (TraceRequest.ATTRIBUTES_ONLY.equals(request) || TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
-            for (int i = 0; i < metaClass().metaAttributes().length; i++) {
-                MetaAttribute current = metaClass().metaAttributes()[i];
-                Object payload = get(current);
-                if (payload != null) {
-                    traces.add(new ModelSetTrace(_uuid, current, payload));
-                }
-            }
-        }
-        if (TraceRequest.REFERENCES_ONLY.equals(request) || TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
-            for (int i = 0; i < metaClass().metaReferences().length; i++) {
-                MetaReference ref = metaClass().metaReferences()[i];
-                KCacheEntry raw = view().universe().model().manager().entry(this, AccessMode.READ);
-                if (raw != null) {
-                    Object o = raw.get(ref.index());
-                    try {
-                        long[] castedArr = (long[]) o;
-                        for (int j = 0; j < castedArr.length; j++) {
-                            traces.add(new ModelAddTrace(_uuid, ref, castedArr[j]));
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-        return traces.toArray(new ModelTrace[traces.size()]);
-    }
-
-    @Override
     public KDefer<KObject[]> inbounds() {
         KCacheEntry rawPayload = view().universe().model().manager().entry(this, AccessMode.READ);
         if (rawPayload != null) {
@@ -721,27 +678,6 @@ public abstract class AbstractKObject implements KObject {
         //TODO use Array hash function to be more efficient
         String hashString = uuid() + "-" + view().now() + "-" + view().universe().key();
         return hashString.hashCode();
-    }
-
-    @Override
-    public KDefer<TraceSequence> diff(KObject target) {
-        AbstractKDeferWrapper<TraceSequence> task = new AbstractKDeferWrapper<TraceSequence>();
-        DefaultModelCompare.diff(this, target, task.initCallback());
-        return task;
-    }
-
-    @Override
-    public KDefer<TraceSequence> merge(KObject target) {
-        AbstractKDeferWrapper<TraceSequence> task = new AbstractKDeferWrapper<TraceSequence>();
-        DefaultModelCompare.merge(this, target, task.initCallback());
-        return task;
-    }
-
-    @Override
-    public KDefer<TraceSequence> intersection(KObject target) {
-        AbstractKDeferWrapper<TraceSequence> task = new AbstractKDeferWrapper<TraceSequence>();
-        DefaultModelCompare.intersection(this, target, task.initCallback());
-        return task;
     }
 
     @Override

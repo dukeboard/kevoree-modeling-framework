@@ -11,36 +11,36 @@ import org.kevoree.modeling.api.meta.MetaOperation;
 
 public interface KModel<A extends KUniverse> {
 
-    public long key();
+    long key();
 
-    public A newUniverse();
+    A newUniverse();
 
-    public A universe(long key);
+    A universe(long key);
 
-    public KDataManager manager();
+    KDataManager manager();
 
-    public KModel<A> setContentDeliveryDriver(KContentDeliveryDriver dataBase);
+    KModel<A> setContentDeliveryDriver(KContentDeliveryDriver dataBase);
 
-    public KModel<A> setScheduler(KScheduler scheduler);
+    KModel<A> setScheduler(KScheduler scheduler);
 
-    public void setOperation(MetaOperation metaOperation, KOperation operation);
+    void setOperation(MetaOperation metaOperation, KOperation operation);
 
-    public void setInstanceOperation(MetaOperation metaOperation, KObject target, KOperation operation);
+    void setInstanceOperation(MetaOperation metaOperation, KObject target, KOperation operation);
 
-    public MetaModel metaModel();
+    MetaModel metaModel();
 
-    public KDefer defer();
+    KDefer defer();
 
-    public KDefer<Throwable> save();
+    KDefer<Throwable> save();
 
-    public KDefer<Throwable> discard();
+    KDefer<Throwable> discard();
 
-    public KDefer<Throwable> connect();
+    KDefer<Throwable> connect();
 
-    public KDefer<Throwable> close();
+    KDefer<Throwable> close();
 
-    public void clearListenerGroup(long groupID);
+    void clearListenerGroup(long groupID);
 
-    public long nextGroup();
+    long nextGroup();
 
 }

@@ -15,4 +15,10 @@ public interface KCacheObject {
 
     public void unserialize(KContentKey key, String payload, MetaModel metaModel) throws Exception;
 
+    public int counter();
+
+    public void inc();
+
+    public void dec();
+
 }

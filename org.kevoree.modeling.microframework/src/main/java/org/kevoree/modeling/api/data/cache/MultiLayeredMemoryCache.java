@@ -1,11 +1,20 @@
 package org.kevoree.modeling.api.data.cache;
 
 import org.kevoree.modeling.api.KConfig;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.data.manager.DefaultKDataManager;
+import org.kevoree.modeling.api.data.manager.KDataManager;
+import org.kevoree.modeling.api.data.manager.ResolutionHelper;
 import org.kevoree.modeling.api.map.LongHashMap;
 import org.kevoree.modeling.api.map.LongHashMapCallBack;
+import org.kevoree.modeling.api.map.LongLongHashMap;
+import org.kevoree.modeling.api.rbtree.IndexRBTree;
+import org.kevoree.modeling.api.rbtree.TreeNode;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 
 /**
  * Created by duke on 20/02/15.
@@ -20,7 +29,10 @@ public class MultiLayeredMemoryCache implements KCache {
 
     private static final String prefixDebugPut = "KMF_DEBUG_CACHE_PUT";
 
-    public MultiLayeredMemoryCache() {
+    private DefaultKDataManager _manager;
+
+    public MultiLayeredMemoryCache(KDataManager p_manager) {
+        this._manager = (DefaultKDataManager) p_manager;
         _nestedLayers = new LongHashMap<KCacheLayer>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
     }
 
@@ -100,6 +112,60 @@ public class MultiLayeredMemoryCache implements KCache {
         _nestedLayers.remove(KContentKey.GLOBAL_SEGMENT_DATA_HASH_INDEX);
         _nestedLayers.remove(KContentKey.GLOBAL_SEGMENT_DATA_ROOT);
         _nestedLayers.remove(KContentKey.GLOBAL_SEGMENT_DATA_ROOT_INDEX);
+    }
+
+    private LinkedList<KObjectWeakReference> references = new LinkedList<KObjectWeakReference>();
+
+    /**
+     * @native:ts {@code
+     * }
+     */
+    @Override
+    public void monitor(KObject origin) {
+        KObjectWeakReference phantomRef = new KObjectWeakReference(origin);
+        references.add(phantomRef);
+    }
+
+    private void decCleanKey(KContentKey key) {
+        if (key != null) {
+            KCacheLayer nextLayer = _nestedLayers.get(key.part(0));
+            if (nextLayer != null) {
+                nextLayer.decClean(key, 1);
+            }
+        }
+    }
+
+    /**
+     * @native:ts {@code
+     * }
+     */
+    @Override
+    public synchronized void clean() {
+        if(_manager != null){
+            ListIterator<KObjectWeakReference> iterator = references.listIterator();
+            while (iterator.hasNext()) {
+                KObjectWeakReference loopRef = iterator.next();
+                if (loopRef.get() == null) {
+                    iterator.remove();
+                    KContentKey objectUniverseTreeKey = KContentKey.createUniverseTree(loopRef.keyParts()[2]);
+                    LongLongHashMap objectUniverseTree = (LongLongHashMap) get(objectUniverseTreeKey);
+                    if (objectUniverseTree != null) {
+                        long resolvedUniverse = ResolutionHelper.resolve_universe(_manager.globalUniverseOrder(), objectUniverseTree, loopRef.keyParts()[1], loopRef.keyParts()[0]);
+                        KContentKey timeTreeKey = KContentKey.createTimeTree(resolvedUniverse, loopRef.keyParts()[2]);
+                        IndexRBTree timeTree = (IndexRBTree) get(timeTreeKey);
+                        if (timeTree != null) {
+                            TreeNode resolvedNode = timeTree.previousOrEqual(loopRef.keyParts()[1]);
+                            if (resolvedNode != null) {
+                                KContentKey toCleanKey = KContentKey.createObject(resolvedUniverse, resolvedNode.getKey(), loopRef.keyParts()[2]);
+                                decCleanKey(toCleanKey);
+                                decCleanKey(timeTreeKey);
+                                decCleanKey(objectUniverseTreeKey);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }

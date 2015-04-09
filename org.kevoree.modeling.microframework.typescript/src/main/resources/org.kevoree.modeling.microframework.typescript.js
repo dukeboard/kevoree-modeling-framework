@@ -227,8 +227,8 @@ var org;
                             this._isReady = false;
                             this._nbRecResult = 0;
                             this._nbExpectedResult = 0;
-                            this._results = new java.util.HashMap();
-                            this._nextTasks = new java.util.HashSet();
+                            this._results = new org.kevoree.modeling.api.map.StringHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                            this._nextTasks = new java.util.ArrayList();
                             this._result = null;
                         }
                         AbstractKDefer.prototype.setDoneOrRegister = function (next) {
@@ -246,17 +246,27 @@ var org;
                             }
                         };
                         AbstractKDefer.prototype.informParentEnd = function (end) {
+                            var _this = this;
                             if (end == null) {
                                 this._nbRecResult = this._nbRecResult + this._nbExpectedResult;
                             }
                             else {
                                 if (end != this) {
                                     var castedEnd = end;
-                                    var keys = castedEnd._results.keySet().toArray(new Array());
-                                    for (var i = 0; i < keys.length; i++) {
-                                        this._results.put(keys[i], castedEnd._results.get(keys[i]));
+                                    if (castedEnd._results != null) {
+                                        if (this._results == null) {
+                                            this._results = new org.kevoree.modeling.api.map.StringHashMap(castedEnd._results.size(), org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                                        }
+                                        castedEnd._results.each(function (key, value) {
+                                            _this._results.put(key, value);
+                                        });
                                     }
-                                    this._results.put(end.getName(), castedEnd._result);
+                                    if (castedEnd._result != null) {
+                                        if (this._results == null) {
+                                            this._results = new org.kevoree.modeling.api.map.StringHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                                        }
+                                        this._results.put(end.getName(), castedEnd._result);
+                                    }
                                     this._nbRecResult--;
                                 }
                             }
@@ -268,17 +278,27 @@ var org;
                             }
                         };
                         AbstractKDefer.prototype.wait = function (p_previous) {
+                            var _this = this;
                             if (p_previous != this) {
                                 if (!p_previous.setDoneOrRegister(this)) {
                                     this._nbExpectedResult++;
                                 }
                                 else {
                                     var castedEnd = p_previous;
-                                    var keys = castedEnd._results.keySet().toArray(new Array());
-                                    for (var i = 0; i < keys.length; i++) {
-                                        this._results.put(keys[i], castedEnd._results.get(keys[i]));
+                                    if (castedEnd._results != null) {
+                                        if (this._results == null) {
+                                            this._results = new org.kevoree.modeling.api.map.StringHashMap(castedEnd._results.size(), org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                                        }
+                                        castedEnd._results.each(function (key, value) {
+                                            _this._results.put(key, value);
+                                        });
                                     }
-                                    this._results.put(p_previous.getName(), castedEnd._result);
+                                    if (castedEnd._result != null) {
+                                        if (this._results == null) {
+                                            this._results = new org.kevoree.modeling.api.map.StringHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                                        }
+                                        this._results.put(p_previous.getName(), castedEnd._result);
+                                    }
                                 }
                             }
                             return this;
@@ -336,19 +356,38 @@ var org;
                             return potentialNext;
                         };
                         AbstractKDefer.prototype.resultKeys = function () {
-                            return this._results.keySet().toArray(new Array());
+                            if (this._results == null) {
+                                return new Array();
+                            }
+                            else {
+                                var resultKeys = new Array();
+                                var indexInsert = [0];
+                                this._results.each(function (key, value) {
+                                    resultKeys[indexInsert[0]] = key;
+                                    indexInsert[0]++;
+                                });
+                                return resultKeys;
+                            }
                         };
                         AbstractKDefer.prototype.resultByName = function (p_name) {
+                            if (this._results == null) {
+                                return null;
+                            }
                             return this._results.get(p_name);
                         };
                         AbstractKDefer.prototype.resultByDefer = function (defer) {
+                            if (this._results == null) {
+                                return null;
+                            }
                             return this._results.get(defer.getName());
                         };
                         AbstractKDefer.prototype.addDeferResult = function (p_result) {
                             this._result = p_result;
                         };
                         AbstractKDefer.prototype.clearResults = function () {
-                            this._results.clear();
+                            if (this._results != null) {
+                                this._results = null;
+                            }
                         };
                         AbstractKDefer.prototype.getResult = function () {
                             if (this._isDone) {
@@ -474,6 +513,7 @@ var org;
                             this._view = p_view;
                             this._uuid = p_uuid;
                             this._metaClass = p_metaClass;
+                            p_view.universe().model().manager().cache().monitor(this);
                         }
                         AbstractKObject.prototype.view = function () {
                             return this._view;
@@ -1033,43 +1073,6 @@ var org;
                         AbstractKObject.prototype.toString = function () {
                             return this.toJSON();
                         };
-                        AbstractKObject.prototype.traces = function (request) {
-                            if (!org.kevoree.modeling.api.util.Checker.isDefined(request)) {
-                                return null;
-                            }
-                            var traces = new java.util.ArrayList();
-                            if (org.kevoree.modeling.api.TraceRequest.ATTRIBUTES_ONLY.equals(request) || org.kevoree.modeling.api.TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
-                                for (var i = 0; i < this.metaClass().metaAttributes().length; i++) {
-                                    var current = this.metaClass().metaAttributes()[i];
-                                    var payload = this.get(current);
-                                    if (payload != null) {
-                                        traces.add(new org.kevoree.modeling.api.trace.ModelSetTrace(this._uuid, current, payload));
-                                    }
-                                }
-                            }
-                            if (org.kevoree.modeling.api.TraceRequest.REFERENCES_ONLY.equals(request) || org.kevoree.modeling.api.TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
-                                for (var i = 0; i < this.metaClass().metaReferences().length; i++) {
-                                    var ref = this.metaClass().metaReferences()[i];
-                                    var raw = this.view().universe().model().manager().entry(this, org.kevoree.modeling.api.data.manager.AccessMode.READ);
-                                    if (raw != null) {
-                                        var o = raw.get(ref.index());
-                                        try {
-                                            var castedArr = o;
-                                            for (var j = 0; j < castedArr.length; j++) {
-                                                traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(this._uuid, ref, castedArr[j]));
-                                            }
-                                        }
-                                        catch ($ex$) {
-                                            if ($ex$ instanceof java.lang.Exception) {
-                                                var e = $ex$;
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            return traces.toArray(new Array());
-                        };
                         AbstractKObject.prototype.inbounds = function () {
                             var rawPayload = this.view().universe().model().manager().entry(this, org.kevoree.modeling.api.data.manager.AccessMode.READ);
                             if (rawPayload != null) {
@@ -1124,21 +1127,6 @@ var org;
                         AbstractKObject.prototype.hashCode = function () {
                             var hashString = this.uuid() + "-" + this.view().now() + "-" + this.view().universe().key();
                             return hashString.hashCode();
-                        };
-                        AbstractKObject.prototype.diff = function (target) {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
-                            org.kevoree.modeling.api.operation.DefaultModelCompare.diff(this, target, task.initCallback());
-                            return task;
-                        };
-                        AbstractKObject.prototype.merge = function (target) {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
-                            org.kevoree.modeling.api.operation.DefaultModelCompare.merge(this, target, task.initCallback());
-                            return task;
-                        };
-                        AbstractKObject.prototype.intersection = function (target) {
-                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
-                            org.kevoree.modeling.api.operation.DefaultModelCompare.intersection(this, target, task.initCallback());
-                            return task;
                         };
                         AbstractKObject.prototype.jump = function (time) {
                             var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
@@ -1356,7 +1344,7 @@ var org;
                         AbstractKView.prototype.universe = function () {
                             return this._universe;
                         };
-                        AbstractKView.prototype.createFQN = function (metaClassName) {
+                        AbstractKView.prototype.createByName = function (metaClassName) {
                             return this.create(this.universe().model().metaModel().metaClass(metaClassName));
                         };
                         AbstractKView.prototype.setRoot = function (elem) {
@@ -1486,7 +1474,7 @@ var org;
                     abs.AbstractMetaAttribute = AbstractMetaAttribute;
                     var AbstractMetaClass = (function () {
                         function AbstractMetaClass(p_name, p_index) {
-                            this._indexes = new java.util.HashMap();
+                            this._indexes = null;
                             this._name = p_name;
                             this._index = p_index;
                         }
@@ -1494,25 +1482,40 @@ var org;
                             return this._indexes.get(name);
                         };
                         AbstractMetaClass.prototype.attribute = function (name) {
-                            var resolved = this._indexes.get(name);
-                            if (resolved != null && resolved instanceof org.kevoree.modeling.api.abs.AbstractMetaAttribute) {
-                                return resolved;
+                            if (this._indexes == null) {
+                                return null;
                             }
-                            return null;
+                            else {
+                                var resolved = this._indexes.get(name);
+                                if (resolved != null && resolved instanceof org.kevoree.modeling.api.abs.AbstractMetaAttribute) {
+                                    return resolved;
+                                }
+                                return null;
+                            }
                         };
                         AbstractMetaClass.prototype.reference = function (name) {
-                            var resolved = this._indexes.get(name);
-                            if (resolved != null && resolved instanceof org.kevoree.modeling.api.abs.AbstractMetaReference) {
-                                return resolved;
+                            if (this._indexes == null) {
+                                return null;
                             }
-                            return null;
+                            else {
+                                var resolved = this._indexes.get(name);
+                                if (resolved != null && resolved instanceof org.kevoree.modeling.api.abs.AbstractMetaReference) {
+                                    return resolved;
+                                }
+                                return null;
+                            }
                         };
                         AbstractMetaClass.prototype.operation = function (name) {
-                            var resolved = this._indexes.get(name);
-                            if (resolved != null && resolved instanceof org.kevoree.modeling.api.abs.AbstractMetaOperation) {
-                                return resolved;
+                            if (this._indexes == null) {
+                                return null;
                             }
-                            return null;
+                            else {
+                                var resolved = this._indexes.get(name);
+                                if (resolved != null && resolved instanceof org.kevoree.modeling.api.abs.AbstractMetaOperation) {
+                                    return resolved;
+                                }
+                                return null;
+                            }
                         };
                         AbstractMetaClass.prototype.metaElements = function () {
                             return this._meta;
@@ -1527,6 +1530,7 @@ var org;
                             return org.kevoree.modeling.api.meta.MetaType.CLASS;
                         };
                         AbstractMetaClass.prototype.init = function (p_meta) {
+                            this._indexes = new org.kevoree.modeling.api.map.StringHashMap(p_meta.length, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                             this._meta = p_meta;
                             var nbAtt = 0;
                             var nbRef = 0;
@@ -1579,7 +1583,7 @@ var org;
                     abs.AbstractMetaClass = AbstractMetaClass;
                     var AbstractMetaModel = (function () {
                         function AbstractMetaModel(p_name, p_index) {
-                            this._metaClasses_indexes = new java.util.HashMap();
+                            this._metaClasses_indexes = null;
                             this._name = p_name;
                             this._index = p_index;
                         }
@@ -1596,6 +1600,9 @@ var org;
                             return this._metaClasses;
                         };
                         AbstractMetaModel.prototype.metaClass = function (name) {
+                            if (this._metaClasses_indexes == null) {
+                                return null;
+                            }
                             var resolved = this._metaClasses_indexes.get(name);
                             if (resolved == null) {
                                 return null;
@@ -1605,7 +1612,7 @@ var org;
                             }
                         };
                         AbstractMetaModel.prototype.init = function (p_metaClasses) {
-                            this._metaClasses_indexes.clear();
+                            this._metaClasses_indexes = new org.kevoree.modeling.api.map.StringHashMap(p_metaClasses.length, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                             this._metaClasses = p_metaClasses;
                             for (var i = 0; i < this._metaClasses.length; i++) {
                                 this._metaClasses_indexes.put(this._metaClasses[i].metaName(), i);
@@ -1772,6 +1779,7 @@ var org;
                             function KCacheEntry() {
                                 this._modifiedIndexes = null;
                                 this._dirty = false;
+                                this._counter = 0;
                             }
                             KCacheEntry.prototype.initRaw = function (p_size) {
                                 this.raw = new Array();
@@ -1810,6 +1818,15 @@ var org;
                             };
                             KCacheEntry.prototype.unserialize = function (key, payload, metaModel) {
                                 org.kevoree.modeling.api.data.manager.JsonRaw.decode(payload, key.time(), metaModel, this);
+                            };
+                            KCacheEntry.prototype.counter = function () {
+                                return this._counter;
+                            };
+                            KCacheEntry.prototype.inc = function () {
+                                this._counter++;
+                            };
+                            KCacheEntry.prototype.dec = function () {
+                                this._counter--;
                             };
                             KCacheEntry.prototype.get = function (index) {
                                 if (this.raw != null) {
@@ -1889,6 +1906,9 @@ var org;
                         var KCacheLayer = (function () {
                             function KCacheLayer() {
                             }
+                            KCacheLayer.prototype.empty = function () {
+                                return (this._nestedLayers == null || this._nestedLayers.size() == 0) && (this._cachedObjects == null || this._cachedObjects.size() == 0);
+                            };
                             KCacheLayer.prototype.resolve = function (p_key, current) {
                                 if (current == org.kevoree.modeling.api.KConfig.KEY_SIZE - 1) {
                                     return this._cachedObjects.get(p_key.part(current));
@@ -1905,6 +1925,30 @@ var org;
                                     }
                                     else {
                                         return null;
+                                    }
+                                }
+                            };
+                            KCacheLayer.prototype.decClean = function (p_key, current) {
+                                if (current == org.kevoree.modeling.api.KConfig.KEY_SIZE - 1) {
+                                    var obj = this._cachedObjects.get(p_key.part(current));
+                                    if (obj != null) {
+                                        obj.dec();
+                                        if (obj.counter() <= 0) {
+                                            if (!obj.isDirty()) {
+                                                this._cachedObjects.remove(p_key.part(current));
+                                            }
+                                        }
+                                    }
+                                }
+                                else {
+                                    if (this._nestedLayers != null) {
+                                        var nextLayer = this._nestedLayers.get(p_key.part(current));
+                                        if (nextLayer != null) {
+                                            nextLayer.decClean(p_key, current + 1);
+                                            if (nextLayer.empty()) {
+                                                this._nestedLayers.remove(p_key.part(current));
+                                            }
+                                        }
                                     }
                                 }
                             };
@@ -1948,7 +1992,7 @@ var org;
                                 if (current == org.kevoree.modeling.api.KConfig.KEY_SIZE - 1) {
                                     if (this._cachedObjects != null) {
                                         this._cachedObjects.each(function (loopKey, loopCached) {
-                                            if (loopCached.isDirty()) {
+                                            if (loopCached != null && loopCached.isDirty()) {
                                                 var cachedKey = new org.kevoree.modeling.api.data.cache.KContentKey(prefixKeys[0], prefixKeys[1], prefixKeys[2], loopKey);
                                                 result.add(new org.kevoree.modeling.api.data.cache.KCacheDirty(cachedKey, loopCached));
                                             }
@@ -2110,8 +2154,18 @@ var org;
                             return KContentKey;
                         })();
                         cache.KContentKey = KContentKey;
+                        var KObjectWeakReference = (function (_super) {
+                            __extends(KObjectWeakReference, _super);
+                            function KObjectWeakReference() {
+                                _super.apply(this, arguments);
+                            }
+                            return KObjectWeakReference;
+                        })(java.lang.ref.WeakReference);
+                        cache.KObjectWeakReference = KObjectWeakReference;
                         var MultiLayeredMemoryCache = (function () {
-                            function MultiLayeredMemoryCache() {
+                            function MultiLayeredMemoryCache(p_manager) {
+                                this.references = new java.util.LinkedList();
+                                this._manager = p_manager;
                                 this._nestedLayers = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                             }
                             MultiLayeredMemoryCache.prototype.get = function (key) {
@@ -2183,6 +2237,18 @@ var org;
                                 this._nestedLayers.remove(org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_HASH_INDEX);
                                 this._nestedLayers.remove(org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_ROOT);
                                 this._nestedLayers.remove(org.kevoree.modeling.api.data.cache.KContentKey.GLOBAL_SEGMENT_DATA_ROOT_INDEX);
+                            };
+                            MultiLayeredMemoryCache.prototype.monitor = function (origin) {
+                            };
+                            MultiLayeredMemoryCache.prototype.decCleanKey = function (key) {
+                                if (key != null) {
+                                    var nextLayer = this._nestedLayers.get(key.part(0));
+                                    if (nextLayer != null) {
+                                        nextLayer.decClean(key, 1);
+                                    }
+                                }
+                            };
+                            MultiLayeredMemoryCache.prototype.clean = function () {
                             };
                             MultiLayeredMemoryCache.DEBUG = false;
                             MultiLayeredMemoryCache.prefixDebugGet = "KMF_DEBUG_CACHE_GET";
@@ -2274,7 +2340,7 @@ var org;
                         cdn.KContentPutRequest = KContentPutRequest;
                         var MemoryKContentDeliveryDriver = (function () {
                             function MemoryKContentDeliveryDriver() {
-                                this.backend = new java.util.HashMap();
+                                this.backend = new org.kevoree.modeling.api.map.StringHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                                 this._localEventListeners = new org.kevoree.modeling.api.event.LocalEventListeners();
                             }
                             MemoryKContentDeliveryDriver.prototype.atomicGetMutate = function (key, operation, callback) {
@@ -2379,8 +2445,8 @@ var org;
                                 this.UNIVERSE_INDEX = 0;
                                 this.OBJ_INDEX = 1;
                                 this.GLO_TREE_INDEX = 2;
-                                this._cache = new org.kevoree.modeling.api.data.cache.MultiLayeredMemoryCache();
                                 this.cachedGlobalUniverse = null;
+                                this._cache = new org.kevoree.modeling.api.data.cache.MultiLayeredMemoryCache(this);
                                 this._modelKeyCalculator = new org.kevoree.modeling.api.data.manager.KeyCalculator(DefaultKDataManager.zeroPrefix, 0);
                                 this._groupKeyCalculator = new org.kevoree.modeling.api.data.manager.KeyCalculator(DefaultKDataManager.zeroPrefix, 0);
                                 this._db = new org.kevoree.modeling.api.data.cdn.MemoryKContentDeliveryDriver();
@@ -2517,9 +2583,12 @@ var org;
                                 cacheEntry.initRaw(org.kevoree.modeling.api.data.manager.Index.RESERVED_INDEXES + obj.metaClass().metaElements().length);
                                 cacheEntry._dirty = true;
                                 cacheEntry.metaClass = obj.metaClass();
+                                cacheEntry.inc();
                                 var timeTree = new org.kevoree.modeling.api.rbtree.IndexRBTree();
+                                timeTree.inc();
                                 timeTree.insert(obj.now());
                                 var universeTree = new org.kevoree.modeling.api.map.LongLongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                                universeTree.inc();
                                 universeTree.put(obj.view().universe().key(), obj.now());
                                 this._cache.put(org.kevoree.modeling.api.data.cache.KContentKey.createTimeTree(obj.universe().key(), obj.uuid()), timeTree);
                                 this._cache.put(org.kevoree.modeling.api.data.cache.KContentKey.createUniverseTree(obj.uuid()), universeTree);
@@ -2675,6 +2744,7 @@ var org;
                                             objectUniverseTree.put(origin.universe().key(), origin.now());
                                         }
                                         this._cache.put(org.kevoree.modeling.api.data.cache.KContentKey.createObject(origin.universe().key(), origin.now(), origin.uuid()), clonedEntry);
+                                        entry.dec();
                                         return clonedEntry;
                                     }
                                 }
@@ -2729,39 +2799,6 @@ var org;
                             };
                             DefaultKDataManager.prototype.operationManager = function () {
                                 return this._operationManager;
-                            };
-                            DefaultKDataManager.prototype.internal_resolve_universe_time = function (originView, uuids, callback) {
-                                var _this = this;
-                                var tempKeys = new Array();
-                                for (var i = 0; i < uuids.length; i++) {
-                                    if (uuids[i] != org.kevoree.modeling.api.KConfig.NULL_LONG) {
-                                        tempKeys[i] = org.kevoree.modeling.api.data.cache.KContentKey.createUniverseTree(uuids[i]);
-                                    }
-                                }
-                                this.bumpKeysToCache(tempKeys, function (universeIndexes) {
-                                    for (var i = 0; i < uuids.length; i++) {
-                                        var toLoadKey = null;
-                                        if (universeIndexes[i] != null) {
-                                            var closestUniverse = org.kevoree.modeling.api.data.manager.ResolutionHelper.resolve_universe(_this.globalUniverseOrder(), universeIndexes[i], originView.now(), originView.universe().key());
-                                            toLoadKey = org.kevoree.modeling.api.data.cache.KContentKey.createTimeTree(closestUniverse, uuids[i]);
-                                        }
-                                        tempKeys[i] = toLoadKey;
-                                    }
-                                    _this.bumpKeysToCache(tempKeys, function (timeIndexes) {
-                                        for (var i = 0; i < uuids.length; i++) {
-                                            var resolvedContentKey = null;
-                                            if (timeIndexes[i] != null) {
-                                                var cachedIndexTree = timeIndexes[i];
-                                                var resolvedNode = cachedIndexTree.previousOrEqual(originView.now());
-                                                if (resolvedNode != null) {
-                                                    resolvedContentKey = org.kevoree.modeling.api.data.cache.KContentKey.createObject(tempKeys[i].universe(), resolvedNode.getKey(), uuids[i]);
-                                                }
-                                            }
-                                            tempKeys[i] = resolvedContentKey;
-                                        }
-                                        callback(tempKeys);
-                                    });
-                                });
                             };
                             DefaultKDataManager.prototype.getRoot = function (originView, callback) {
                                 var _this = this;
@@ -2970,6 +3007,9 @@ var org;
                                         return null;
                                     }
                                 }
+                            };
+                            DefaultKDataManager.prototype.cleanObject = function (objectToClean) {
+                                System.err.println("ToClean=" + objectToClean.uuid());
                             };
                             DefaultKDataManager.OUT_OF_CACHE_MESSAGE = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
                             DefaultKDataManager.UNIVERSE_NOT_CONNECTED_ERROR = "Please connect your model prior to create a universe or an object";
@@ -3275,19 +3315,50 @@ var org;
                             }
                             LookupAllRunnable.prototype.run = function () {
                                 var _this = this;
-                                this._store.internal_resolve_universe_time(this._originView, this._keys, function (toLoadContentRaws) {
-                                    _this._store.bumpKeysToCache(toLoadContentRaws, function (cachedObjects) {
-                                        var proxies = new Array();
-                                        for (var i = 0; i < _this._keys.length; i++) {
-                                            if (cachedObjects[i] != null && cachedObjects[i] instanceof org.kevoree.modeling.api.data.cache.KCacheEntry) {
-                                                proxies[i] = _this._originView.createProxy(cachedObjects[i].metaClass, _this._keys[i]);
-                                            }
+                                var tempKeys = new Array();
+                                for (var i = 0; i < this._keys.length; i++) {
+                                    if (this._keys[i] != org.kevoree.modeling.api.KConfig.NULL_LONG) {
+                                        tempKeys[i] = org.kevoree.modeling.api.data.cache.KContentKey.createUniverseTree(this._keys[i]);
+                                    }
+                                }
+                                this._store.bumpKeysToCache(tempKeys, function (universeIndexes) {
+                                    for (var i = 0; i < _this._keys.length; i++) {
+                                        var toLoadKey = null;
+                                        if (universeIndexes[i] != null) {
+                                            var closestUniverse = org.kevoree.modeling.api.data.manager.ResolutionHelper.resolve_universe(_this._store.globalUniverseOrder(), universeIndexes[i], _this._originView.now(), _this._originView.universe().key());
+                                            toLoadKey = org.kevoree.modeling.api.data.cache.KContentKey.createTimeTree(closestUniverse, _this._keys[i]);
                                         }
-                                        _this._callback(proxies);
+                                        tempKeys[i] = toLoadKey;
+                                    }
+                                    _this._store.bumpKeysToCache(tempKeys, function (timeIndexes) {
+                                        for (var i = 0; i < _this._keys.length; i++) {
+                                            var resolvedContentKey = null;
+                                            if (timeIndexes[i] != null) {
+                                                var cachedIndexTree = timeIndexes[i];
+                                                var resolvedNode = cachedIndexTree.previousOrEqual(_this._originView.now());
+                                                if (resolvedNode != null) {
+                                                    resolvedContentKey = org.kevoree.modeling.api.data.cache.KContentKey.createObject(tempKeys[i].universe(), resolvedNode.getKey(), _this._keys[i]);
+                                                }
+                                            }
+                                            tempKeys[i] = resolvedContentKey;
+                                        }
+                                        _this._store.bumpKeysToCache(tempKeys, function (cachedObjects) {
+                                            var proxies = new Array();
+                                            for (var i = 0; i < _this._keys.length; i++) {
+                                                if (cachedObjects[i] != null && cachedObjects[i] instanceof org.kevoree.modeling.api.data.cache.KCacheEntry) {
+                                                    proxies[i] = _this._originView.createProxy(cachedObjects[i].metaClass, _this._keys[i]);
+                                                    if (proxies[i] != null) {
+                                                        var cachedIndexTree = timeIndexes[i];
+                                                        cachedObjects[i].inc();
+                                                        cachedIndexTree.inc();
+                                                    }
+                                                }
+                                            }
+                                            _this._callback(proxies);
+                                        });
                                     });
                                 });
                             };
-                            LookupAllRunnable.DEBUG = false;
                             return LookupAllRunnable;
                         })();
                         manager.LookupAllRunnable = LookupAllRunnable;
@@ -3489,6 +3560,9 @@ var org;
                                                         _cacheUniverse.put(correspondingKey.universe(), cachedUniverse);
                                                     }
                                                     var toDispatch = cachedUniverse.time(correspondingKey.time()).createProxy(kCacheObjects[i].metaClass, correspondingKey.obj());
+                                                    if (toDispatch != null) {
+                                                        kCacheObjects[i].inc();
+                                                    }
                                                     var meta = new Array();
                                                     for (var j = 0; j < messages.getIndexes(i).length; j++) {
                                                         if (messages.getIndexes(i)[j] >= org.kevoree.modeling.api.data.manager.Index.RESERVED_INDEXES) {
@@ -5562,7 +5636,6 @@ var org;
                             }
                             return new org.kevoree.modeling.api.json.JsonToken(tokenType, jsonValue);
                         };
-                        Lexer.DEFAULT_BUFFER_SIZE = 1024 * 4;
                         return Lexer;
                     })();
                     json.Lexer = Lexer;
@@ -5600,6 +5673,170 @@ var org;
                 })(json = api.json || (api.json = {}));
                 var map;
                 (function (map) {
+                    var IntHashMap = (function () {
+                        function IntHashMap(p_initalCapacity, p_loadFactor) {
+                            this.modCount = 0;
+                            this.reuseAfterDelete = null;
+                            this.initalCapacity = p_initalCapacity;
+                            this.loadFactor = p_loadFactor;
+                            this.elementCount = 0;
+                            this.elementData = this.newElementArray(this.initalCapacity);
+                            this.elementDataSize = this.initalCapacity;
+                            this.computeMaxSize();
+                        }
+                        IntHashMap.prototype.newElementArray = function (s) {
+                            return new Array();
+                        };
+                        IntHashMap.prototype.clear = function () {
+                            if (this.elementCount > 0) {
+                                this.elementCount = 0;
+                                this.elementData = this.newElementArray(this.initalCapacity);
+                                this.elementDataSize = this.initalCapacity;
+                                this.modCount++;
+                            }
+                        };
+                        IntHashMap.prototype.computeMaxSize = function () {
+                            this.threshold = (this.elementDataSize * this.loadFactor);
+                        };
+                        IntHashMap.prototype.containsKey = function (key) {
+                            var hash = (key);
+                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
+                            var m = this.findNonNullKeyEntry(key, index);
+                            return m != null;
+                        };
+                        IntHashMap.prototype.get = function (key) {
+                            var m;
+                            var hash = (key);
+                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
+                            m = this.findNonNullKeyEntry(key, index);
+                            if (m != null) {
+                                return m.value;
+                            }
+                            return null;
+                        };
+                        IntHashMap.prototype.findNonNullKeyEntry = function (key, index) {
+                            var m = this.elementData[index];
+                            while (m != null) {
+                                if (key == m.key) {
+                                    return m;
+                                }
+                                m = m.next;
+                            }
+                            return null;
+                        };
+                        IntHashMap.prototype.each = function (callback) {
+                            for (var i = 0; i < this.elementDataSize; i++) {
+                                if (this.elementData[i] != null) {
+                                    var current = this.elementData[i];
+                                    callback(this.elementData[i].key, this.elementData[i].value);
+                                    while (current.next != null) {
+                                        current = current.next;
+                                        callback(current.key, current.value);
+                                    }
+                                }
+                            }
+                        };
+                        IntHashMap.prototype.put = function (key, value) {
+                            var entry;
+                            var index = (key & 0x7FFFFFFF) % this.elementDataSize;
+                            entry = this.findNonNullKeyEntry(key, index);
+                            if (entry == null) {
+                                this.modCount++;
+                                if (++this.elementCount > this.threshold) {
+                                    this.rehash();
+                                    index = (key & 0x7FFFFFFF) % this.elementDataSize;
+                                }
+                                entry = this.createHashedEntry(key, index);
+                            }
+                            var result = entry.value;
+                            entry.value = value;
+                            return result;
+                        };
+                        IntHashMap.prototype.createHashedEntry = function (key, index) {
+                            var entry = this.reuseAfterDelete;
+                            if (entry == null) {
+                                entry = new org.kevoree.modeling.api.map.IntHashMap.Entry(key, null);
+                            }
+                            else {
+                                this.reuseAfterDelete = null;
+                                entry.key = key;
+                                entry.value = null;
+                            }
+                            entry.next = this.elementData[index];
+                            this.elementData[index] = entry;
+                            return entry;
+                        };
+                        IntHashMap.prototype.rehashCapacity = function (capacity) {
+                            var length = (capacity == 0 ? 1 : capacity << 1);
+                            var newData = this.newElementArray(length);
+                            for (var i = 0; i < this.elementDataSize; i++) {
+                                var entry = this.elementData[i];
+                                while (entry != null) {
+                                    var index = (entry.key & 0x7FFFFFFF) % length;
+                                    var next = entry.next;
+                                    entry.next = newData[index];
+                                    newData[index] = entry;
+                                    entry = next;
+                                }
+                            }
+                            this.elementData = newData;
+                            this.elementDataSize = length;
+                            this.computeMaxSize();
+                        };
+                        IntHashMap.prototype.rehash = function () {
+                            this.rehashCapacity(this.elementDataSize);
+                        };
+                        IntHashMap.prototype.remove = function (key) {
+                            var entry = this.removeEntry(key);
+                            if (entry == null) {
+                                return null;
+                            }
+                            var ret = entry.value;
+                            entry.value = null;
+                            entry.key = -1;
+                            this.reuseAfterDelete = entry;
+                            return ret;
+                        };
+                        IntHashMap.prototype.removeEntry = function (key) {
+                            var entry;
+                            var last = null;
+                            var hash = key;
+                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
+                            entry = this.elementData[index];
+                            while (entry != null && !(key == entry.key)) {
+                                last = entry;
+                                entry = entry.next;
+                            }
+                            if (entry == null) {
+                                return null;
+                            }
+                            if (last == null) {
+                                this.elementData[index] = entry.next;
+                            }
+                            else {
+                                last.next = entry.next;
+                            }
+                            this.modCount++;
+                            this.elementCount--;
+                            return entry;
+                        };
+                        IntHashMap.prototype.size = function () {
+                            return this.elementCount;
+                        };
+                        return IntHashMap;
+                    })();
+                    map.IntHashMap = IntHashMap;
+                    var IntHashMap;
+                    (function (IntHashMap) {
+                        var Entry = (function () {
+                            function Entry(theKey, theValue) {
+                                this.key = theKey;
+                                this.value = theValue;
+                            }
+                            return Entry;
+                        })();
+                        IntHashMap.Entry = Entry;
+                    })(IntHashMap = map.IntHashMap || (map.IntHashMap = {}));
                     var LongHashMap = (function () {
                         function LongHashMap(p_initalCapacity, p_loadFactor) {
                             this.modCount = 0;
@@ -5770,6 +6007,7 @@ var org;
                             this.modCount = 0;
                             this.reuseAfterDelete = null;
                             this._isDirty = false;
+                            this._counter = 0;
                             this.initalCapacity = p_initalCapacity;
                             this.loadFactor = p_loadFactor;
                             this.elementCount = 0;
@@ -5777,6 +6015,15 @@ var org;
                             this.elementDataSize = this.initalCapacity;
                             this.computeMaxSize();
                         }
+                        LongLongHashMap.prototype.counter = function () {
+                            return this._counter;
+                        };
+                        LongLongHashMap.prototype.inc = function () {
+                            this._counter++;
+                        };
+                        LongLongHashMap.prototype.dec = function () {
+                            this._counter--;
+                        };
                         LongLongHashMap.prototype.isDirty = function () {
                             return this._isDirty;
                         };
@@ -5971,6 +6218,178 @@ var org;
                         })();
                         LongLongHashMap.Entry = Entry;
                     })(LongLongHashMap = map.LongLongHashMap || (map.LongLongHashMap = {}));
+                    var StringHashMap = (function () {
+                        function StringHashMap(p_initalCapacity, p_loadFactor) {
+                            this.modCount = 0;
+                            this.reuseAfterDelete = null;
+                            this.initalCapacity = p_initalCapacity;
+                            this.loadFactor = p_loadFactor;
+                            this.elementCount = 0;
+                            this.elementData = this.newElementArray(this.initalCapacity);
+                            this.elementDataSize = this.initalCapacity;
+                            this.computeMaxSize();
+                        }
+                        StringHashMap.prototype.newElementArray = function (s) {
+                            return new Array();
+                        };
+                        StringHashMap.prototype.clear = function () {
+                            if (this.elementCount > 0) {
+                                this.elementCount = 0;
+                                this.elementData = this.newElementArray(this.initalCapacity);
+                                this.elementDataSize = this.initalCapacity;
+                                this.modCount++;
+                            }
+                        };
+                        StringHashMap.prototype.computeMaxSize = function () {
+                            this.threshold = (this.elementDataSize * this.loadFactor);
+                        };
+                        StringHashMap.prototype.containsKey = function (key) {
+                            if (this.elementDataSize == 0) {
+                                return false;
+                            }
+                            var hash = key.hashCode();
+                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
+                            var m = this.findNonNullKeyEntry(key, index);
+                            return m != null;
+                        };
+                        StringHashMap.prototype.get = function (key) {
+                            if (key == null || this.elementDataSize == 0) {
+                                return null;
+                            }
+                            var m;
+                            var hash = key.hashCode();
+                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
+                            m = this.findNonNullKeyEntry(key, index);
+                            if (m != null) {
+                                return m.value;
+                            }
+                            return null;
+                        };
+                        StringHashMap.prototype.findNonNullKeyEntry = function (key, index) {
+                            var m = this.elementData[index];
+                            while (m != null) {
+                                if (key.equals(m.key)) {
+                                    return m;
+                                }
+                                m = m.next;
+                            }
+                            return null;
+                        };
+                        StringHashMap.prototype.each = function (callback) {
+                            for (var i = 0; i < this.elementDataSize; i++) {
+                                if (this.elementData[i] != null) {
+                                    var current = this.elementData[i];
+                                    callback(this.elementData[i].key, this.elementData[i].value);
+                                    while (current.next != null) {
+                                        current = current.next;
+                                        callback(current.key, current.value);
+                                    }
+                                }
+                            }
+                        };
+                        StringHashMap.prototype.put = function (key, value) {
+                            var entry;
+                            var hash = key.hashCode();
+                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
+                            entry = this.findNonNullKeyEntry(key, index);
+                            if (entry == null) {
+                                this.modCount++;
+                                if (++this.elementCount > this.threshold) {
+                                    this.rehash();
+                                    index = (hash & 0x7FFFFFFF) % this.elementDataSize;
+                                }
+                                entry = this.createHashedEntry(key, index);
+                            }
+                            var result = entry.value;
+                            entry.value = value;
+                            return result;
+                        };
+                        StringHashMap.prototype.createHashedEntry = function (key, index) {
+                            var entry = this.reuseAfterDelete;
+                            if (entry == null) {
+                                entry = new org.kevoree.modeling.api.map.StringHashMap.Entry(key, null);
+                            }
+                            else {
+                                this.reuseAfterDelete = null;
+                                entry.key = key;
+                                entry.value = null;
+                            }
+                            entry.next = this.elementData[index];
+                            this.elementData[index] = entry;
+                            return entry;
+                        };
+                        StringHashMap.prototype.rehashCapacity = function (capacity) {
+                            var length = (capacity == 0 ? 1 : capacity << 1);
+                            var newData = this.newElementArray(length);
+                            for (var i = 0; i < this.elementDataSize; i++) {
+                                var entry = this.elementData[i];
+                                while (entry != null) {
+                                    var hash = entry.key.hashCode();
+                                    var index = (hash & 0x7FFFFFFF) % length;
+                                    var next = entry.next;
+                                    entry.next = newData[index];
+                                    newData[index] = entry;
+                                    entry = next;
+                                }
+                            }
+                            this.elementData = newData;
+                            this.elementDataSize = length;
+                            this.computeMaxSize();
+                        };
+                        StringHashMap.prototype.rehash = function () {
+                            this.rehashCapacity(this.elementDataSize);
+                        };
+                        StringHashMap.prototype.remove = function (key) {
+                            var entry = this.removeEntry(key);
+                            if (entry == null) {
+                                return null;
+                            }
+                            var ret = entry.value;
+                            entry.value = null;
+                            entry.key = null;
+                            this.reuseAfterDelete = entry;
+                            return ret;
+                        };
+                        StringHashMap.prototype.removeEntry = function (key) {
+                            var entry;
+                            var last = null;
+                            var hash = key.hashCode();
+                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
+                            entry = this.elementData[index];
+                            while (entry != null && !(key.equals(entry.key))) {
+                                last = entry;
+                                entry = entry.next;
+                            }
+                            if (entry == null) {
+                                return null;
+                            }
+                            if (last == null) {
+                                this.elementData[index] = entry.next;
+                            }
+                            else {
+                                last.next = entry.next;
+                            }
+                            this.modCount++;
+                            this.elementCount--;
+                            return entry;
+                        };
+                        StringHashMap.prototype.size = function () {
+                            return this.elementCount;
+                        };
+                        return StringHashMap;
+                    })();
+                    map.StringHashMap = StringHashMap;
+                    var StringHashMap;
+                    (function (StringHashMap) {
+                        var Entry = (function () {
+                            function Entry(theKey, theValue) {
+                                this.key = theKey;
+                                this.value = theValue;
+                            }
+                            return Entry;
+                        })();
+                        StringHashMap.Entry = Entry;
+                    })(StringHashMap = map.StringHashMap || (map.StringHashMap = {}));
                 })(map = api.map || (api.map = {}));
                 var meta;
                 (function (meta) {
@@ -6627,233 +7046,6 @@ var org;
                     })();
                     msg.KPutResult = KPutResult;
                 })(msg = api.msg || (api.msg = {}));
-                var operation;
-                (function (operation) {
-                    var DefaultModelCompare = (function () {
-                        function DefaultModelCompare() {
-                        }
-                        DefaultModelCompare.diff = function (origin, target, callback) {
-                            org.kevoree.modeling.api.operation.DefaultModelCompare.internal_diff(origin, target, false, false, callback);
-                        };
-                        DefaultModelCompare.merge = function (origin, target, callback) {
-                            org.kevoree.modeling.api.operation.DefaultModelCompare.internal_diff(origin, target, false, true, callback);
-                        };
-                        DefaultModelCompare.intersection = function (origin, target, callback) {
-                            org.kevoree.modeling.api.operation.DefaultModelCompare.internal_diff(origin, target, true, false, callback);
-                        };
-                        DefaultModelCompare.internal_diff = function (origin, target, inter, merge, callback) {
-                            var traces = new java.util.ArrayList();
-                            var tracesRef = new java.util.ArrayList();
-                            var objectsMap = new java.util.HashMap();
-                            traces.addAll(org.kevoree.modeling.api.operation.DefaultModelCompare.internal_createTraces(origin, target, inter, merge, false, true));
-                            tracesRef.addAll(org.kevoree.modeling.api.operation.DefaultModelCompare.internal_createTraces(origin, target, inter, merge, true, false));
-                            origin.visit(org.kevoree.modeling.api.VisitRequest.CONTAINED, function (elem) {
-                                objectsMap.put(elem.uuid(), elem);
-                                return org.kevoree.modeling.api.VisitResult.CONTINUE;
-                            }).then(function (throwable) {
-                                if (throwable != null) {
-                                    throwable.printStackTrace();
-                                    callback(null);
-                                }
-                                else {
-                                    target.visit(org.kevoree.modeling.api.VisitRequest.CONTAINED, function (elem) {
-                                        var childUUID = elem.uuid();
-                                        if (objectsMap.containsKey(childUUID)) {
-                                            if (inter) {
-                                                traces.add(new org.kevoree.modeling.api.trace.ModelNewTrace(elem.uuid(), elem.metaClass()));
-                                                traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(elem.parentUuid(), elem.referenceInParent(), elem.uuid()));
-                                            }
-                                            traces.addAll(org.kevoree.modeling.api.operation.DefaultModelCompare.internal_createTraces(objectsMap.get(childUUID), elem, inter, merge, false, true));
-                                            tracesRef.addAll(org.kevoree.modeling.api.operation.DefaultModelCompare.internal_createTraces(objectsMap.get(childUUID), elem, inter, merge, true, false));
-                                            objectsMap.remove(childUUID);
-                                        }
-                                        else {
-                                            if (!inter) {
-                                                traces.add(new org.kevoree.modeling.api.trace.ModelNewTrace(elem.uuid(), elem.metaClass()));
-                                                traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(elem.parentUuid(), elem.referenceInParent(), elem.uuid()));
-                                                traces.addAll(org.kevoree.modeling.api.operation.DefaultModelCompare.internal_createTraces(elem, elem, true, merge, false, true));
-                                                tracesRef.addAll(org.kevoree.modeling.api.operation.DefaultModelCompare.internal_createTraces(elem, elem, true, merge, true, false));
-                                            }
-                                        }
-                                        return org.kevoree.modeling.api.VisitResult.CONTINUE;
-                                    }).then(function (throwable) {
-                                        if (throwable != null) {
-                                            throwable.printStackTrace();
-                                            callback(null);
-                                        }
-                                        else {
-                                            traces.addAll(tracesRef);
-                                            if (!inter && !merge) {
-                                                var diffChildKeys = objectsMap.keySet().toArray(new Array());
-                                                for (var i = 0; i < diffChildKeys.length; i++) {
-                                                    var diffChildKey = diffChildKeys[i];
-                                                    var diffChild = objectsMap.get(diffChildKey);
-                                                    var src = diffChild.parentUuid();
-                                                    traces.add(new org.kevoree.modeling.api.trace.ModelRemoveTrace(src, diffChild.referenceInParent(), diffChild.uuid()));
-                                                }
-                                            }
-                                            callback(new org.kevoree.modeling.api.trace.TraceSequence().populate(traces));
-                                        }
-                                    });
-                                }
-                            });
-                        };
-                        DefaultModelCompare.internal_createTraces = function (current, sibling, inter, merge, references, attributes) {
-                            var traces = new java.util.ArrayList();
-                            var values = new java.util.HashMap();
-                            if (attributes) {
-                                if (current != null) {
-                                    current.visitAttributes(function (metaAttribute, value) {
-                                        if (value == null) {
-                                            values.put(metaAttribute, null);
-                                        }
-                                        else {
-                                            values.put(metaAttribute, value.toString());
-                                        }
-                                    });
-                                }
-                                if (sibling != null) {
-                                    sibling.visitAttributes(function (metaAttribute, value) {
-                                        var flatAtt2 = null;
-                                        if (value != null) {
-                                            flatAtt2 = value.toString();
-                                        }
-                                        var flatAtt1 = values.get(metaAttribute);
-                                        var isEquals = true;
-                                        if (flatAtt1 == null) {
-                                            if (flatAtt2 == null) {
-                                                isEquals = true;
-                                            }
-                                            else {
-                                                isEquals = false;
-                                            }
-                                        }
-                                        else {
-                                            isEquals = flatAtt1.equals(flatAtt2);
-                                        }
-                                        if (isEquals) {
-                                            if (inter) {
-                                                traces.add(new org.kevoree.modeling.api.trace.ModelSetTrace(current.uuid(), metaAttribute, flatAtt2));
-                                            }
-                                        }
-                                        else {
-                                            if (!inter) {
-                                                traces.add(new org.kevoree.modeling.api.trace.ModelSetTrace(current.uuid(), metaAttribute, flatAtt2));
-                                            }
-                                        }
-                                        values.remove(metaAttribute);
-                                    });
-                                }
-                                if (!inter && !merge && !values.isEmpty()) {
-                                    var mettaAttributes = values.keySet().toArray(new Array());
-                                    for (var i = 0; i < mettaAttributes.length; i++) {
-                                        var hashLoopRes = mettaAttributes[i];
-                                        traces.add(new org.kevoree.modeling.api.trace.ModelSetTrace(current.uuid(), hashLoopRes, null));
-                                        values.remove(hashLoopRes);
-                                    }
-                                }
-                            }
-                            var valuesRef = new java.util.HashMap();
-                            if (references) {
-                                for (var i = 0; i < current.metaClass().metaReferences().length; i++) {
-                                    var reference = current.metaClass().metaReferences()[i];
-                                    var payload = current.view().universe().model().manager().entry(current, org.kevoree.modeling.api.data.manager.AccessMode.READ).get(reference.index());
-                                    valuesRef.put(reference, payload);
-                                }
-                                if (sibling != null) {
-                                    for (var i = 0; i < sibling.metaClass().metaReferences().length; i++) {
-                                        var reference = sibling.metaClass().metaReferences()[i];
-                                        var payload2 = sibling.view().universe().model().manager().entry(sibling, org.kevoree.modeling.api.data.manager.AccessMode.READ).get(reference.index());
-                                        var payload1 = valuesRef.get(reference);
-                                        if (reference.single()) {
-                                            var isEquals = true;
-                                            if (payload1 == null) {
-                                                if (payload2 == null) {
-                                                    isEquals = true;
-                                                }
-                                                else {
-                                                    isEquals = false;
-                                                }
-                                            }
-                                            else {
-                                                isEquals = payload1.equals(payload2);
-                                            }
-                                            if (isEquals) {
-                                                if (inter) {
-                                                    if (payload2 != null) {
-                                                        traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(current.uuid(), reference, payload2));
-                                                    }
-                                                }
-                                            }
-                                            else {
-                                                if (!inter) {
-                                                    traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(current.uuid(), reference, payload2));
-                                                }
-                                            }
-                                        }
-                                        else {
-                                            if (payload1 == null && payload2 != null) {
-                                                var siblingToAdd = payload2.toArray(new Array());
-                                                for (var j = 0; j < siblingToAdd.length; j++) {
-                                                    var siblingElem = siblingToAdd[j];
-                                                    if (!inter) {
-                                                        traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(current.uuid(), reference, siblingElem));
-                                                    }
-                                                }
-                                            }
-                                            else {
-                                                if (payload1 != null) {
-                                                    var currentPaths = payload1.toArray(new Array());
-                                                    for (var j = 0; j < currentPaths.length; j++) {
-                                                        var currentPath = currentPaths[j];
-                                                        var isFound = false;
-                                                        if (payload2 != null) {
-                                                            var siblingPaths = payload2;
-                                                            isFound = siblingPaths.contains(currentPath);
-                                                        }
-                                                        if (isFound) {
-                                                            if (inter) {
-                                                                traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(current.uuid(), reference, currentPath));
-                                                            }
-                                                        }
-                                                        else {
-                                                            if (!inter) {
-                                                                traces.add(new org.kevoree.modeling.api.trace.ModelRemoveTrace(current.uuid(), reference, currentPath));
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        valuesRef.remove(reference);
-                                    }
-                                    if (!inter && !merge && !valuesRef.isEmpty()) {
-                                        var metaReferences = valuesRef.keySet().toArray(new Array());
-                                        for (var i = 0; i < metaReferences.length; i++) {
-                                            var hashLoopResRef = metaReferences[i];
-                                            var payload = valuesRef.get(hashLoopResRef);
-                                            if (payload != null) {
-                                                if (payload instanceof java.util.Set) {
-                                                    var toRemoveSet = payload.toArray(new Array());
-                                                    for (var j = 0; j < toRemoveSet.length; j++) {
-                                                        var toRemovePath = toRemoveSet[j];
-                                                        traces.add(new org.kevoree.modeling.api.trace.ModelRemoveTrace(current.uuid(), hashLoopResRef, toRemovePath));
-                                                    }
-                                                }
-                                                else {
-                                                    traces.add(new org.kevoree.modeling.api.trace.ModelRemoveTrace(current.uuid(), hashLoopResRef, payload));
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            return traces;
-                        };
-                        return DefaultModelCompare;
-                    })();
-                    operation.DefaultModelCompare = DefaultModelCompare;
-                })(operation = api.operation || (api.operation = {}));
                 var polynomial;
                 (function (polynomial) {
                     var doublepolynomial;
@@ -7838,9 +8030,19 @@ var org;
                             this._dirty = false;
                             this._previousOrEqualsCacheKeys = null;
                             this._previousOrEqualsCacheValues = null;
+                            this._counter = 0;
                         }
                         IndexRBTree.prototype.size = function () {
                             return this._size;
+                        };
+                        IndexRBTree.prototype.counter = function () {
+                            return this._counter;
+                        };
+                        IndexRBTree.prototype.inc = function () {
+                            this._counter++;
+                        };
+                        IndexRBTree.prototype.dec = function () {
+                            this._counter--;
                         };
                         IndexRBTree.prototype.tryPreviousOrEqualsCache = function (key) {
                             if (this._previousOrEqualsCacheKeys != null && this._previousOrEqualsCacheValues != null) {
@@ -8335,6 +8537,7 @@ var org;
                             this.root = null;
                             this._size = 0;
                             this._dirty = false;
+                            this._counter = 0;
                             this._previousOrEqualsCacheKeys = null;
                             this._previousOrEqualsCacheValues = null;
                             this._lookupCacheKeys = null;
@@ -8342,6 +8545,15 @@ var org;
                         }
                         LongRBTree.prototype.size = function () {
                             return this._size;
+                        };
+                        LongRBTree.prototype.counter = function () {
+                            return this._counter;
+                        };
+                        LongRBTree.prototype.inc = function () {
+                            this._counter++;
+                        };
+                        LongRBTree.prototype.dec = function () {
+                            this._counter--;
                         };
                         LongRBTree.prototype.toString = function () {
                             return this.serialize();
@@ -9347,9 +9559,10 @@ var org;
                         __extends(DynamicMetaClass, _super);
                         function DynamicMetaClass(p_name, p_index) {
                             _super.call(this, p_name, p_index);
-                            this.cached_meta = new java.util.HashMap();
+                            this.cached_meta = new org.kevoree.modeling.api.map.StringHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                             this._globalIndex = -1;
                             this._globalIndex = org.kevoree.modeling.api.data.manager.Index.RESERVED_INDEXES;
+                            this.internalInit();
                         }
                         DynamicMetaClass.prototype.addAttribute = function (p_name, p_type) {
                             var tempAttribute = new org.kevoree.modeling.api.abs.AbstractMetaAttribute(p_name, this._globalIndex, -1, false, p_type, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
@@ -9382,11 +9595,12 @@ var org;
                         };
                         DynamicMetaClass.prototype.internalInit = function () {
                             var tempMeta = new Array();
-                            var keysMeta = this.cached_meta.keySet().toArray(new Array());
-                            for (var i = 0; i < keysMeta.length; i++) {
-                                var resAtt = this.cached_meta.get(keysMeta[i]);
-                                tempMeta[i] = resAtt;
-                            }
+                            var loopKey = new Array();
+                            loopKey[0] = 0;
+                            this.cached_meta.each(function (key, value) {
+                                tempMeta[loopKey[0]] = value;
+                                loopKey[0]++;
+                            });
                             this.init(tempMeta);
                         };
                         return DynamicMetaClass;
@@ -9395,16 +9609,16 @@ var org;
                     var DynamicMetaModel = (function () {
                         function DynamicMetaModel(p_metaName) {
                             this._metaName = null;
-                            this._classes = new java.util.HashMap();
+                            this._classes = new org.kevoree.modeling.api.map.StringHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                             this._metaName = p_metaName;
                         }
                         DynamicMetaModel.prototype.metaClasses = function () {
                             var tempResult = new Array();
-                            var keys = this._classes.keySet().toArray(new Array());
-                            for (var i = 0; i < keys.length; i++) {
-                                var res = this._classes.get(keys[i]);
-                                tempResult[res.index()] = res;
-                            }
+                            var loopI = new Array();
+                            this._classes.each(function (key, value) {
+                                tempResult[value.index()] = value;
+                                loopI[0]++;
+                            });
                             return tempResult;
                         };
                         DynamicMetaModel.prototype.metaClass = function (name) {
@@ -9424,7 +9638,7 @@ var org;
                                 return this._classes.get(name);
                             }
                             else {
-                                var dynamicMetaClass = new org.kevoree.modeling.api.reflexive.DynamicMetaClass(name, this._classes.keySet().size());
+                                var dynamicMetaClass = new org.kevoree.modeling.api.reflexive.DynamicMetaClass(name, this._classes.size());
                                 this._classes.put(name, dynamicMetaClass);
                                 return dynamicMetaClass;
                             }
@@ -9463,421 +9677,6 @@ var org;
                     })();
                     scheduler.ExecutorServiceScheduler = ExecutorServiceScheduler;
                 })(scheduler = api.scheduler || (api.scheduler = {}));
-                var trace;
-                (function (_trace) {
-                    var ModelAddTrace = (function () {
-                        function ModelAddTrace(p_srcUUID, p_reference, p_paramUUID) {
-                            this._srcUUID = p_srcUUID;
-                            this._reference = p_reference;
-                            this._paramUUID = p_paramUUID;
-                        }
-                        ModelAddTrace.prototype.toString = function () {
-                            var buffer = new java.lang.StringBuilder();
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.openJSON);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.traceType);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.dp);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.KActionType.ADD.toString());
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.coma);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.src);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.dp);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            org.kevoree.modeling.api.json.JsonString.encodeBuffer(buffer, this._srcUUID + "");
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            if (this._reference != null) {
-                                buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.coma);
-                                buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                                buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.meta);
-                                buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                                buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.dp);
-                                buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                                buffer.append(this._reference.origin().metaName());
-                                buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.sep);
-                                buffer.append(this._reference.metaName());
-                                buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            }
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.coma);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.previouspath);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.dp);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            org.kevoree.modeling.api.json.JsonString.encodeBuffer(buffer, this._paramUUID + "");
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.closeJSON);
-                            return buffer.toString();
-                        };
-                        ModelAddTrace.prototype.meta = function () {
-                            return this._reference;
-                        };
-                        ModelAddTrace.prototype.traceType = function () {
-                            return org.kevoree.modeling.api.KActionType.ADD;
-                        };
-                        ModelAddTrace.prototype.sourceUUID = function () {
-                            return this._srcUUID;
-                        };
-                        ModelAddTrace.prototype.paramUUID = function () {
-                            return this._paramUUID;
-                        };
-                        return ModelAddTrace;
-                    })();
-                    _trace.ModelAddTrace = ModelAddTrace;
-                    var ModelNewTrace = (function () {
-                        function ModelNewTrace(p_srcUUID, p_metaClass) {
-                            this._srcUUID = p_srcUUID;
-                            this._metaClass = p_metaClass;
-                        }
-                        ModelNewTrace.prototype.meta = function () {
-                            return this._metaClass;
-                        };
-                        ModelNewTrace.prototype.traceType = function () {
-                            return org.kevoree.modeling.api.KActionType.NEW;
-                        };
-                        ModelNewTrace.prototype.sourceUUID = function () {
-                            return this._srcUUID;
-                        };
-                        return ModelNewTrace;
-                    })();
-                    _trace.ModelNewTrace = ModelNewTrace;
-                    var ModelRemoveTrace = (function () {
-                        function ModelRemoveTrace(p_srcUUID, p_reference, p_paramUUID) {
-                            this._srcUUID = p_srcUUID;
-                            this._reference = p_reference;
-                            this._paramUUID = p_paramUUID;
-                        }
-                        ModelRemoveTrace.prototype.toString = function () {
-                            var buffer = new java.lang.StringBuilder();
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.openJSON);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.traceType);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.dp);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.KActionType.REMOVE);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.coma);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.src);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.dp);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            org.kevoree.modeling.api.json.JsonString.encodeBuffer(buffer, this._srcUUID + "");
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.coma);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.meta);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.dp);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(this._reference.metaName());
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.coma);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.objpath);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.dp);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            org.kevoree.modeling.api.json.JsonString.encodeBuffer(buffer, this._paramUUID + "");
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.closeJSON);
-                            return buffer.toString();
-                        };
-                        ModelRemoveTrace.prototype.meta = function () {
-                            return this._reference;
-                        };
-                        ModelRemoveTrace.prototype.traceType = function () {
-                            return org.kevoree.modeling.api.KActionType.REMOVE;
-                        };
-                        ModelRemoveTrace.prototype.sourceUUID = function () {
-                            return this._srcUUID;
-                        };
-                        ModelRemoveTrace.prototype.paramUUID = function () {
-                            return this._paramUUID;
-                        };
-                        return ModelRemoveTrace;
-                    })();
-                    _trace.ModelRemoveTrace = ModelRemoveTrace;
-                    var ModelSetTrace = (function () {
-                        function ModelSetTrace(p_srcUUID, p_attribute, p_content) {
-                            this._srcUUID = p_srcUUID;
-                            this._attribute = p_attribute;
-                            this._content = p_content;
-                        }
-                        ModelSetTrace.prototype.toString = function () {
-                            var buffer = new java.lang.StringBuilder();
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.openJSON);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.traceType);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.dp);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.KActionType.SET);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.coma);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.src);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.dp);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            org.kevoree.modeling.api.json.JsonString.encodeBuffer(buffer, this._srcUUID + "");
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.coma);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.meta);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.dp);
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            buffer.append(this._attribute.metaName());
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            if (this._content != null) {
-                                buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.coma);
-                                buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                                buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.content);
-                                buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                                buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.dp);
-                                buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                                org.kevoree.modeling.api.json.JsonString.encodeBuffer(buffer, this._content.toString());
-                                buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.bb);
-                            }
-                            buffer.append(org.kevoree.modeling.api.trace.ModelTraceConstants.closeJSON);
-                            return buffer.toString();
-                        };
-                        ModelSetTrace.prototype.meta = function () {
-                            return this._attribute;
-                        };
-                        ModelSetTrace.prototype.traceType = function () {
-                            return org.kevoree.modeling.api.KActionType.SET;
-                        };
-                        ModelSetTrace.prototype.sourceUUID = function () {
-                            return this._srcUUID;
-                        };
-                        ModelSetTrace.prototype.content = function () {
-                            return this._content;
-                        };
-                        return ModelSetTrace;
-                    })();
-                    _trace.ModelSetTrace = ModelSetTrace;
-                    var ModelTraceApplicator = (function () {
-                        function ModelTraceApplicator(p_targetModel) {
-                            this._targetModel = p_targetModel;
-                        }
-                        ModelTraceApplicator.prototype.applyTraceSequence = function (traceSeq, callback) {
-                            var _this = this;
-                            try {
-                                var traces = traceSeq.traces();
-                                var dependencies = new org.kevoree.modeling.api.map.LongLongHashMap(traces.length * 2, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
-                                for (var i = 0; i < traces.length; i++) {
-                                    if (traces[i] instanceof org.kevoree.modeling.api.trace.ModelAddTrace) {
-                                        dependencies.put(traces[i].paramUUID(), traces[i].paramUUID());
-                                        dependencies.put(traces[i].sourceUUID(), traces[i].sourceUUID());
-                                    }
-                                    if (traces[i] instanceof org.kevoree.modeling.api.trace.ModelRemoveTrace) {
-                                        dependencies.put(traces[i].paramUUID(), traces[i].paramUUID());
-                                        dependencies.put(traces[i].sourceUUID(), traces[i].sourceUUID());
-                                    }
-                                    if (traces[i] instanceof org.kevoree.modeling.api.trace.ModelSetTrace) {
-                                        if (traces[i].meta() != null && traces[i].meta().metaType().equals(org.kevoree.modeling.api.meta.MetaType.ATTRIBUTE)) {
-                                            dependencies.put(traces[i].sourceUUID(), traces[i].sourceUUID());
-                                        }
-                                        else {
-                                            try {
-                                                var paramUUID = java.lang.Long.parseLong(traces[i].content().toString());
-                                                dependencies.put(paramUUID, paramUUID);
-                                                dependencies.put(traces[i].sourceUUID(), traces[i].sourceUUID());
-                                            }
-                                            catch ($ex$) {
-                                                if ($ex$ instanceof java.lang.Exception) {
-                                                    var e = $ex$;
-                                                    e.printStackTrace();
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                var trimmed = new Array();
-                                var inserted = [0];
-                                dependencies.each(function (key, value) {
-                                    trimmed[inserted[0]] = key;
-                                    inserted[0]++;
-                                });
-                                this._targetModel.view().lookupAll(trimmed).then(function (kObjects) {
-                                    var cached = new java.util.HashMap();
-                                    for (var i = 0; i < traces.length; i++) {
-                                        try {
-                                            var trace = traces[i];
-                                            var sourceObject = cached.get(trace.sourceUUID());
-                                            if (sourceObject != null) {
-                                                if (trace instanceof org.kevoree.modeling.api.trace.ModelRemoveTrace) {
-                                                    var removeTrace = trace;
-                                                    var param = cached.get(removeTrace.paramUUID());
-                                                    if (param != null) {
-                                                        sourceObject.mutate(org.kevoree.modeling.api.KActionType.REMOVE, removeTrace.meta(), param);
-                                                    }
-                                                }
-                                                else {
-                                                    if (trace instanceof org.kevoree.modeling.api.trace.ModelAddTrace) {
-                                                        var addTrace = trace;
-                                                        var param = cached.get(addTrace.paramUUID());
-                                                        if (param != null) {
-                                                            sourceObject.mutate(org.kevoree.modeling.api.KActionType.ADD, addTrace.meta(), param);
-                                                        }
-                                                    }
-                                                    else {
-                                                        if (trace instanceof org.kevoree.modeling.api.trace.ModelSetTrace) {
-                                                            var setTrace = trace;
-                                                            if (trace.meta() != null && trace.meta().metaType().equals(org.kevoree.modeling.api.meta.MetaType.ATTRIBUTE)) {
-                                                                sourceObject.set(trace.meta(), setTrace.content());
-                                                            }
-                                                            else {
-                                                                try {
-                                                                    var paramUUID = java.lang.Long.parseLong(traces[i].content().toString());
-                                                                    var param = cached.get(paramUUID);
-                                                                    if (param != null) {
-                                                                        sourceObject.mutate(org.kevoree.modeling.api.KActionType.SET, trace.meta(), param);
-                                                                    }
-                                                                }
-                                                                catch ($ex$) {
-                                                                    if ($ex$ instanceof java.lang.Exception) {
-                                                                        var e = $ex$;
-                                                                        e.printStackTrace();
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                        else {
-                                                            if (trace instanceof org.kevoree.modeling.api.trace.ModelNewTrace) {
-                                                                var newCreated = _this._targetModel.view().createProxy(trace.meta(), trace.sourceUUID());
-                                                                _this._targetModel.universe().model().manager().initKObject(newCreated, _this._targetModel.view());
-                                                                cached.put(newCreated.uuid(), newCreated);
-                                                            }
-                                                            else {
-                                                                System.err.println("Unknow traceType: " + trace);
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            else {
-                                                System.err.println("Unknow object: " + trace);
-                                            }
-                                        }
-                                        catch ($ex$) {
-                                            if ($ex$ instanceof java.lang.Exception) {
-                                                var e = $ex$;
-                                                e.printStackTrace();
-                                                System.err.println("Error " + e);
-                                            }
-                                        }
-                                    }
-                                    callback(null);
-                                });
-                            }
-                            catch ($ex$) {
-                                if ($ex$ instanceof java.lang.Exception) {
-                                    var e = $ex$;
-                                    callback(e);
-                                }
-                            }
-                        };
-                        return ModelTraceApplicator;
-                    })();
-                    _trace.ModelTraceApplicator = ModelTraceApplicator;
-                    var ModelTraceConstants = (function () {
-                        function ModelTraceConstants(p_code) {
-                            this._code = "";
-                            this._code = p_code;
-                        }
-                        ModelTraceConstants.prototype.toString = function () {
-                            return this._code;
-                        };
-                        ModelTraceConstants.prototype.equals = function (other) {
-                            return this == other;
-                        };
-                        ModelTraceConstants.values = function () {
-                            return ModelTraceConstants._ModelTraceConstantsVALUES;
-                        };
-                        ModelTraceConstants.traceType = new ModelTraceConstants("type");
-                        ModelTraceConstants.src = new ModelTraceConstants("src");
-                        ModelTraceConstants.meta = new ModelTraceConstants("meta");
-                        ModelTraceConstants.previouspath = new ModelTraceConstants("prev");
-                        ModelTraceConstants.typename = new ModelTraceConstants("class");
-                        ModelTraceConstants.objpath = new ModelTraceConstants("orig");
-                        ModelTraceConstants.content = new ModelTraceConstants("val");
-                        ModelTraceConstants.openJSON = new ModelTraceConstants("{");
-                        ModelTraceConstants.closeJSON = new ModelTraceConstants("}");
-                        ModelTraceConstants.bb = new ModelTraceConstants("\"");
-                        ModelTraceConstants.sep = new ModelTraceConstants("@");
-                        ModelTraceConstants.coma = new ModelTraceConstants(",");
-                        ModelTraceConstants.dp = new ModelTraceConstants(":");
-                        ModelTraceConstants._ModelTraceConstantsVALUES = [
-                            ModelTraceConstants.traceType,
-                            ModelTraceConstants.src,
-                            ModelTraceConstants.meta,
-                            ModelTraceConstants.previouspath,
-                            ModelTraceConstants.typename,
-                            ModelTraceConstants.objpath,
-                            ModelTraceConstants.content,
-                            ModelTraceConstants.openJSON,
-                            ModelTraceConstants.closeJSON,
-                            ModelTraceConstants.bb,
-                            ModelTraceConstants.sep,
-                            ModelTraceConstants.coma,
-                            ModelTraceConstants.dp
-                        ];
-                        return ModelTraceConstants;
-                    })();
-                    _trace.ModelTraceConstants = ModelTraceConstants;
-                    var TraceSequence = (function () {
-                        function TraceSequence() {
-                            this._traces = new java.util.ArrayList();
-                        }
-                        TraceSequence.prototype.traces = function () {
-                            return this._traces.toArray(new Array());
-                        };
-                        TraceSequence.prototype.populate = function (addtraces) {
-                            this._traces.addAll(addtraces);
-                            return this;
-                        };
-                        TraceSequence.prototype.append = function (seq) {
-                            this._traces.addAll(seq._traces);
-                            return this;
-                        };
-                        TraceSequence.prototype.toString = function () {
-                            var buffer = new java.lang.StringBuilder();
-                            buffer.append("[");
-                            var isFirst = true;
-                            for (var i = 0; i < this._traces.size(); i++) {
-                                var trace = this._traces.get(i);
-                                if (!isFirst) {
-                                    buffer.append(",\n");
-                                }
-                                buffer.append(trace);
-                                isFirst = false;
-                            }
-                            buffer.append("]");
-                            return buffer.toString();
-                        };
-                        TraceSequence.prototype.applyOn = function (target, callback) {
-                            var traceApplicator = new org.kevoree.modeling.api.trace.ModelTraceApplicator(target);
-                            traceApplicator.applyTraceSequence(this, callback);
-                            return true;
-                        };
-                        TraceSequence.prototype.reverse = function () {
-                            java.util.Collections.reverse(this._traces);
-                            return this;
-                        };
-                        TraceSequence.prototype.size = function () {
-                            return this._traces.size();
-                        };
-                        return TraceSequence;
-                    })();
-                    _trace.TraceSequence = TraceSequence;
-                })(trace = api.trace || (api.trace = {}));
                 var traversal;
                 (function (traversal) {
                     var DefaultKTraversal = (function () {
@@ -10434,10 +10233,8 @@ var org;
                                             }
                                             else {
                                                 var params = this.buildParams(this._attributeQuery);
-                                                var selectedForNext = true;
-                                                var paramKeys = params.keySet().toArray(new Array());
-                                                for (var h = 0; h < paramKeys.length; h++) {
-                                                    var param = params.get(paramKeys[h]);
+                                                var selectedForNext = [true];
+                                                params.each(function (key, param) {
                                                     for (var j = 0; j < loopObj.metaClass().metaAttributes().length; j++) {
                                                         var metaAttribute = loopObj.metaClass().metaAttributes()[j];
                                                         if (metaAttribute.metaName().matches(param.name())) {
@@ -10445,18 +10242,18 @@ var org;
                                                             if (o_raw != null) {
                                                                 if (param.value().equals("null")) {
                                                                     if (!param.isNegative()) {
-                                                                        selectedForNext = false;
+                                                                        selectedForNext[0] = false;
                                                                     }
                                                                 }
                                                                 else {
                                                                     if (o_raw.toString().matches(param.value())) {
                                                                         if (param.isNegative()) {
-                                                                            selectedForNext = false;
+                                                                            selectedForNext[0] = false;
                                                                         }
                                                                     }
                                                                     else {
                                                                         if (!param.isNegative()) {
-                                                                            selectedForNext = false;
+                                                                            selectedForNext[0] = false;
                                                                         }
                                                                     }
                                                                 }
@@ -10464,14 +10261,14 @@ var org;
                                                             else {
                                                                 if (param.value().equals("null") || param.value().equals("*")) {
                                                                     if (param.isNegative()) {
-                                                                        selectedForNext = false;
+                                                                        selectedForNext[0] = false;
                                                                     }
                                                                 }
                                                             }
                                                         }
                                                     }
-                                                }
-                                                if (selectedForNext) {
+                                                });
+                                                if (selectedForNext[0]) {
                                                     selectedIndexes[i] = true;
                                                     nbSelected++;
                                                 }
@@ -10499,7 +10296,7 @@ var org;
                                 }
                             };
                             KFilterAttributeQueryAction.prototype.buildParams = function (p_paramString) {
-                                var params = new java.util.HashMap();
+                                var params = new org.kevoree.modeling.api.map.StringHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                                 var iParam = 0;
                                 var lastStart = iParam;
                                 while (iParam < p_paramString.length) {
@@ -11392,17 +11189,17 @@ var org;
                     util.Checker = Checker;
                     var DefaultOperationManager = (function () {
                         function DefaultOperationManager(p_manager) {
-                            this.staticOperations = new java.util.HashMap();
-                            this.instanceOperations = new java.util.HashMap();
+                            this.remoteCallCallbacks = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                             this._callbackId = 0;
-                            this.remoteCallCallbacks = new java.util.HashMap();
+                            this.staticOperations = new org.kevoree.modeling.api.map.IntHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                            this.instanceOperations = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                             this._manager = p_manager;
                         }
                         DefaultOperationManager.prototype.registerOperation = function (operation, callback, target) {
                             if (target == null) {
                                 var clazzOperations = this.staticOperations.get(operation.origin().index());
                                 if (clazzOperations == null) {
-                                    clazzOperations = new java.util.HashMap();
+                                    clazzOperations = new org.kevoree.modeling.api.map.IntHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                                     this.staticOperations.put(operation.origin().index(), clazzOperations);
                                 }
                                 clazzOperations.put(operation.index(), callback);
@@ -11410,7 +11207,7 @@ var org;
                             else {
                                 var objectOperations = this.instanceOperations.get(target.uuid());
                                 if (objectOperations == null) {
-                                    objectOperations = new java.util.HashMap();
+                                    objectOperations = new org.kevoree.modeling.api.map.IntHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                                     this.instanceOperations.put(target.uuid(), objectOperations);
                                 }
                                 objectOperations.put(operation.index(), callback);
@@ -11544,8 +11341,8 @@ var org;
                     var SerializationContext = (function () {
                         function SerializationContext() {
                             this.ignoreGeneratedID = false;
-                            this.addressTable = new java.util.HashMap();
-                            this.elementsCount = new java.util.HashMap();
+                            this.addressTable = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                            this.elementsCount = new org.kevoree.modeling.api.map.StringHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                             this.packageList = new java.util.ArrayList();
                         }
                         return SerializationContext;
@@ -11555,8 +11352,8 @@ var org;
                         function XMILoadingContext() {
                             this.loadedRoots = null;
                             this.resolvers = new java.util.ArrayList();
-                            this.map = new java.util.HashMap();
-                            this.elementsCount = new java.util.HashMap();
+                            this.map = new org.kevoree.modeling.api.map.StringHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                            this.elementsCount = new org.kevoree.modeling.api.map.StringHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                         }
                         return XMILoadingContext;
                     })();
@@ -11640,7 +11437,7 @@ var org;
                                     if (nextTag.equals(org.kevoree.modeling.api.xmi.XmlToken.START_TAG)) {
                                         var localName = reader.getLocalName();
                                         if (localName != null) {
-                                            var ns = new java.util.HashMap();
+                                            var ns = new org.kevoree.modeling.api.map.StringHashMap(reader.getAttributeCount(), org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                                             for (var i = 0; i < reader.getAttributeCount() - 1; i++) {
                                                 var attrLocalName = reader.getAttributeLocalName(i);
                                                 var attrLocalValue = reader.getAttributeValue(i);
@@ -11674,7 +11471,7 @@ var org;
                         XMIModelLoader.callFactory = function (p_view, ctx, objectType) {
                             var modelElem = null;
                             if (objectType != null) {
-                                modelElem = p_view.createFQN(objectType);
+                                modelElem = p_view.createByName(objectType);
                                 if (modelElem == null) {
                                     var xsiType = null;
                                     for (var i = 0; i < (ctx.xmiReader.getAttributeCount() - 1); i++) {
@@ -11688,12 +11485,12 @@ var org;
                                     if (xsiType != null) {
                                         var realTypeName = xsiType.substring(0, xsiType.lastIndexOf(":"));
                                         var realName = xsiType.substring(xsiType.lastIndexOf(":") + 1, xsiType.length);
-                                        modelElem = p_view.createFQN(realTypeName + "." + realName);
+                                        modelElem = p_view.createByName(realTypeName + "." + realName);
                                     }
                                 }
                             }
                             else {
-                                modelElem = p_view.createFQN(ctx.xmiReader.getLocalName());
+                                modelElem = p_view.createByName(ctx.xmiReader.getLocalName());
                             }
                             return modelElem;
                         };

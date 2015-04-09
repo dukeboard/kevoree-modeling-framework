@@ -1,11 +1,13 @@
 package org.kevoree.modeling.api.xmi;
 
 import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ModelAttributeVisitor;
+import org.kevoree.modeling.api.map.LongHashMap;
+import org.kevoree.modeling.api.map.StringHashMap;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 class SerializationContext {
     public boolean ignoreGeneratedID = false;
@@ -15,8 +17,10 @@ class SerializationContext {
     public ModelAttributeVisitor attributesVisitor;
 
     // KPath -> XMIPath
-    HashMap<Long, String> addressTable = new HashMap<Long, String>();
+    LongHashMap<String> addressTable = new LongHashMap<String>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
     // KPath -> Count
-    HashMap<String, Integer> elementsCount = new HashMap<String, Integer>();
+    StringHashMap<Integer> elementsCount = new StringHashMap<Integer>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+
     ArrayList<String> packageList = new ArrayList<String>();
+
 }

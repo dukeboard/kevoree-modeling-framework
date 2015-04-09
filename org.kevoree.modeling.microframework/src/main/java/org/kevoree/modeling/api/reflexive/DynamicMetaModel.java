@@ -1,11 +1,12 @@
 package org.kevoree.modeling.api.reflexive;
 
+import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KModel;
+import org.kevoree.modeling.api.map.StringHashMap;
+import org.kevoree.modeling.api.map.StringHashMapCallBack;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaModel;
 import org.kevoree.modeling.api.meta.MetaType;
-
-import java.util.HashMap;
 
 /**
  * Created by duke on 16/01/15.
@@ -14,7 +15,7 @@ public class DynamicMetaModel implements MetaModel {
 
     private String _metaName = null;
 
-    private HashMap<String, MetaClass> _classes = new HashMap<String, MetaClass>();
+    private StringHashMap<MetaClass> _classes = new  StringHashMap<MetaClass>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
 
     public DynamicMetaModel(String p_metaName) {
         this._metaName = p_metaName;
@@ -23,11 +24,14 @@ public class DynamicMetaModel implements MetaModel {
     @Override
     public MetaClass[] metaClasses() {
         MetaClass[] tempResult = new MetaClass[_classes.size()];
-        String[] keys = _classes.keySet().toArray(new String[_classes.keySet().size()]);
-        for (int i = 0; i < keys.length; i++) {
-            MetaClass res = _classes.get(keys[i]);
-            tempResult[res.index()] = res;
-        }
+        int[] loopI = new int[1];
+        _classes.each(new StringHashMapCallBack<MetaClass>() {
+            @Override
+            public void on(String key, MetaClass value) {
+                tempResult[value.index()] = value;
+                loopI[0]++;
+            }
+        });
         return tempResult;
     }
 
@@ -55,7 +59,7 @@ public class DynamicMetaModel implements MetaModel {
         if (_classes.containsKey(name)) {
             return (DynamicMetaClass) _classes.get(name);
         } else {
-            DynamicMetaClass dynamicMetaClass = new DynamicMetaClass(name, _classes.keySet().size());
+            DynamicMetaClass dynamicMetaClass = new DynamicMetaClass(name, _classes.size());
             _classes.put(name, dynamicMetaClass);
             return dynamicMetaClass;
         }

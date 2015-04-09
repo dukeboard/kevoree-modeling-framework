@@ -1,14 +1,14 @@
 package org.kevoree.modeling.api.traversal.actions;
 
+import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.abs.AbstractKObject;
+import org.kevoree.modeling.api.map.StringHashMap;
+import org.kevoree.modeling.api.map.StringHashMapCallBack;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
 import org.kevoree.modeling.api.traversal.KTraversalHistory;
 import org.kevoree.modeling.api.traversal.selector.KQueryParam;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by duke on 01/02/15.
@@ -46,40 +46,41 @@ public class KFilterAttributeQueryAction implements KTraversalAction {
                         selectedIndexes[i] = true;
                         nbSelected++;
                     } else {
-                        Map<String, KQueryParam> params = buildParams(_attributeQuery);
-                        boolean selectedForNext = true;
-                        String[] paramKeys = params.keySet().toArray(new String[params.keySet().size()]);
-                        for (int h = 0; h < paramKeys.length; h++) {
-                            KQueryParam param = params.get(paramKeys[h]);
-                            for (int j = 0; j < loopObj.metaClass().metaAttributes().length; j++) {
-                                MetaAttribute metaAttribute = loopObj.metaClass().metaAttributes()[j];
-                                if (metaAttribute.metaName().matches(param.name())) {
-                                    Object o_raw = loopObj.get(metaAttribute);
-                                    if (o_raw != null) {
-                                        if (param.value().equals("null")) {
-                                            if (!param.isNegative()) {
-                                                selectedForNext = false;
-                                            }
-                                        } else if (o_raw.toString().matches(param.value())) {
-                                            if (param.isNegative()) {
-                                                selectedForNext = false;
+                        StringHashMap<KQueryParam> params = buildParams(_attributeQuery);
+                        final boolean[] selectedForNext = {true};
+                        params.each(new StringHashMapCallBack<KQueryParam>() {
+                            @Override
+                            public void on(String key, KQueryParam param) {
+                                for (int j = 0; j < loopObj.metaClass().metaAttributes().length; j++) {
+                                    MetaAttribute metaAttribute = loopObj.metaClass().metaAttributes()[j];
+                                    if (metaAttribute.metaName().matches(param.name())) {
+                                        Object o_raw = loopObj.get(metaAttribute);
+                                        if (o_raw != null) {
+                                            if (param.value().equals("null")) {
+                                                if (!param.isNegative()) {
+                                                    selectedForNext[0] = false;
+                                                }
+                                            } else if (o_raw.toString().matches(param.value())) {
+                                                if (param.isNegative()) {
+                                                    selectedForNext[0] = false;
+                                                }
+                                            } else {
+                                                if (!param.isNegative()) {
+                                                    selectedForNext[0] = false;
+                                                }
                                             }
                                         } else {
-                                            if (!param.isNegative()) {
-                                                selectedForNext = false;
-                                            }
-                                        }
-                                    } else {
-                                        if (param.value().equals("null") || param.value().equals("*")) {
-                                            if (param.isNegative()) {
-                                                selectedForNext = false;
+                                            if (param.value().equals("null") || param.value().equals("*")) {
+                                                if (param.isNegative()) {
+                                                    selectedForNext[0] = false;
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
-                        }
-                        if (selectedForNext) {
+                        });
+                        if (selectedForNext[0]) {
                             selectedIndexes[i] = true;
                             nbSelected++;
                         }
@@ -104,8 +105,8 @@ public class KFilterAttributeQueryAction implements KTraversalAction {
         }
     }
 
-    private Map<String, KQueryParam> buildParams(String p_paramString) {
-        Map<String, KQueryParam> params = new HashMap<String, KQueryParam>();
+    private StringHashMap<KQueryParam> buildParams(String p_paramString) {
+        StringHashMap<KQueryParam> params = new StringHashMap<KQueryParam>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
         int iParam = 0;
         int lastStart = iParam;
         while (iParam < p_paramString.length()) {

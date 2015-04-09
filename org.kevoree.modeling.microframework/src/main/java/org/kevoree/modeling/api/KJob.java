@@ -5,6 +5,6 @@ package org.kevoree.modeling.api;
  */
 public interface KJob {
 
-    public void run(KCurrentDefer currentTask);
+    void run(KCurrentDefer currentTask);
 
 }

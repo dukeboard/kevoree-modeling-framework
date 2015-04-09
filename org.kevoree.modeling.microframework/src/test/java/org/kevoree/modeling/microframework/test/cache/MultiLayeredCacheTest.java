@@ -14,7 +14,7 @@ public class MultiLayeredCacheTest {
 
     @Test
     public void test() {
-        MultiLayeredMemoryCache cache = new MultiLayeredMemoryCache();
+        MultiLayeredMemoryCache cache = new MultiLayeredMemoryCache(null);
         KCacheObject temp = new KCacheObject() {
             @Override
             public boolean isDirty() {
@@ -33,6 +33,21 @@ public class MultiLayeredCacheTest {
 
             @Override
             public void unserialize(KContentKey key, String payload, MetaModel metaModel) throws Exception {
+
+            }
+
+            @Override
+            public int counter() {
+                return 0;
+            }
+
+            @Override
+            public void inc() {
+
+            }
+
+            @Override
+            public void dec() {
 
             }
         };

@@ -38,7 +38,7 @@ public abstract class AbstractKView implements KView {
     }
 
     @Override
-    public KObject createFQN(String metaClassName) {
+    public KObject createByName(String metaClassName) {
         return create(universe().model().metaModel().metaClass(metaClassName));
     }
 
@@ -106,7 +106,6 @@ public abstract class AbstractKView implements KView {
     }
 
     public KObject createProxy(MetaClass clazz, long key) {
-        //TODO check the radixKey, according to the one created now
         return internalCreate(clazz, key);
     }
 

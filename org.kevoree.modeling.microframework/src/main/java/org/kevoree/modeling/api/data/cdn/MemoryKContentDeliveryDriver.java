@@ -4,13 +4,12 @@ import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.cache.*;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.event.LocalEventListeners;
+import org.kevoree.modeling.api.map.StringHashMap;
 import org.kevoree.modeling.api.msg.KMessage;
-
-import java.util.HashMap;
 
 public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
 
-    private final HashMap<String, String> backend = new HashMap<String, String>();
+    private final StringHashMap<String> backend = new StringHashMap<String>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
     private LocalEventListeners _localEventListeners = new LocalEventListeners();
 
     public static boolean DEBUG = false;

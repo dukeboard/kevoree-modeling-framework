@@ -32,6 +32,23 @@ public class LongLongHashMap implements KCacheObject {
 
     private static final char CHUNK_SEP = '/';
 
+    private int _counter = 0;
+
+    @Override
+    public int counter() {
+        return _counter;
+    }
+
+    @Override
+    public void inc() {
+        _counter++;
+    }
+
+    @Override
+    public void dec() {
+        _counter--;
+    }
+
     @Override
     public boolean isDirty() {
         return _isDirty;

@@ -1,9 +1,9 @@
 package org.kevoree.modeling.api.abs;
 
+import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.data.manager.Index;
+import org.kevoree.modeling.api.map.StringHashMap;
 import org.kevoree.modeling.api.meta.*;
-
-import java.util.HashMap;
 
 /**
  * Created by duke on 07/12/14.
@@ -20,7 +20,7 @@ public class AbstractMetaClass implements MetaClass {
 
     private MetaReference[] _refs;
 
-    private HashMap<String, Meta> _indexes = new HashMap<String, Meta>();
+    private StringHashMap<Meta> _indexes = null;
 
     @Override
     public Meta metaByName(String name) {
@@ -29,29 +29,41 @@ public class AbstractMetaClass implements MetaClass {
 
     @Override
     public MetaAttribute attribute(String name) {
-        Meta resolved = _indexes.get(name);
-        if (resolved != null && resolved instanceof AbstractMetaAttribute) {
-            return (MetaAttribute) resolved;
+        if(_indexes == null){
+            return null;
+        } else {
+            Meta resolved = _indexes.get(name);
+            if (resolved != null && resolved instanceof AbstractMetaAttribute) {
+                return (MetaAttribute) resolved;
+            }
+            return null;
         }
-        return null;
     }
 
     @Override
     public MetaReference reference(String name) {
-        Meta resolved = _indexes.get(name);
-        if (resolved != null && resolved instanceof AbstractMetaReference) {
-            return (MetaReference) resolved;
+        if(_indexes == null){
+            return null;
+        } else {
+            Meta resolved = _indexes.get(name);
+            if (resolved != null && resolved instanceof AbstractMetaReference) {
+                return (MetaReference) resolved;
+            }
+            return null;
         }
-        return null;
     }
 
     @Override
     public MetaOperation operation(String name) {
-        Meta resolved = _indexes.get(name);
-        if (resolved != null && resolved instanceof AbstractMetaOperation) {
-            return (MetaOperation) resolved;
+        if(_indexes == null){
+            return null;
+        } else {
+            Meta resolved = _indexes.get(name);
+            if (resolved != null && resolved instanceof AbstractMetaOperation) {
+                return (MetaOperation) resolved;
+            }
+            return null;
         }
-        return null;
     }
 
     @Override
@@ -78,6 +90,7 @@ public class AbstractMetaClass implements MetaClass {
     }
 
     protected void init(Meta[] p_meta) {
+        _indexes = new StringHashMap<Meta>(p_meta.length, KConfig.CACHE_LOAD_FACTOR);
         this._meta = p_meta;
         int nbAtt = 0;
         int nbRef = 0;

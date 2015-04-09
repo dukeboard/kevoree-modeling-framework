@@ -199,6 +199,9 @@ public class LocalEventListeners {
                                         _cacheUniverse.put(correspondingKey.universe(), cachedUniverse);
                                     }
                                     KObject toDispatch = ((AbstractKView) cachedUniverse.time(correspondingKey.time())).createProxy(((KCacheEntry) kCacheObjects[i]).metaClass, correspondingKey.obj());
+                                    if(toDispatch != null){
+                                        kCacheObjects[i].inc();
+                                    }
                                     Meta[] meta = new Meta[messages.getIndexes(i).length];
                                     for (int j = 0; j < messages.getIndexes(i).length; j++) {
                                         if (messages.getIndexes(i)[j] >= Index.RESERVED_INDEXES) {

@@ -1,24 +1,27 @@
 package org.kevoree.modeling.api.reflexive;
 
+import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KType;
 import org.kevoree.modeling.api.abs.*;
 import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation;
-import org.kevoree.modeling.api.meta.*;
-
-import java.util.HashMap;
+import org.kevoree.modeling.api.map.StringHashMap;
+import org.kevoree.modeling.api.map.StringHashMapCallBack;
+import org.kevoree.modeling.api.meta.Meta;
+import org.kevoree.modeling.api.meta.MetaClass;
 
 /**
  * Created by duke on 16/01/15.
  */
 public class DynamicMetaClass extends AbstractMetaClass {
 
-    private HashMap<String, Meta> cached_meta = new HashMap<String, Meta>();
+    private StringHashMap<Meta> cached_meta = new StringHashMap<Meta>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
     private int _globalIndex = -1;
 
     public DynamicMetaClass(String p_name, int p_index) {
         super(p_name, p_index);
         _globalIndex = Index.RESERVED_INDEXES;
+        internalInit();
     }
 
     public DynamicMetaClass addAttribute(String p_name, KType p_type) {
@@ -64,11 +67,15 @@ public class DynamicMetaClass extends AbstractMetaClass {
 
     private void internalInit() {
         Meta[] tempMeta = new Meta[cached_meta.size()];
-        String[] keysMeta = cached_meta.keySet().toArray(new String[cached_meta.keySet().size()]);
-        for (int i = 0; i < keysMeta.length; i++) {
-            Meta resAtt = cached_meta.get(keysMeta[i]);
-            tempMeta[i] = resAtt;
-        }
+        int[] loopKey = new int[1];
+        loopKey[0] = 0;
+        cached_meta.each(new StringHashMapCallBack<Meta>() {
+            @Override
+            public void on(String key, Meta value) {
+                tempMeta[loopKey[0]] = value;
+                loopKey[0]++;
+            }
+        });
         init(tempMeta);
     }
 

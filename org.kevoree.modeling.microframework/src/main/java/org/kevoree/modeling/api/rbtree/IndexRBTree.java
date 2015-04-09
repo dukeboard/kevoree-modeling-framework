@@ -24,6 +24,23 @@ public class IndexRBTree implements KCacheObject {
     private TreeNode[] _previousOrEqualsCacheValues = null;
     private int _nextCacheElem;
 
+    private int _counter = 0;
+
+    @Override
+    public int counter() {
+        return _counter;
+    }
+
+    @Override
+    public void inc() {
+        _counter++;
+    }
+
+    @Override
+    public void dec() {
+        _counter--;
+    }
+
     /* Cache management */
     private TreeNode tryPreviousOrEqualsCache(long key) {
         if (_previousOrEqualsCacheKeys != null && _previousOrEqualsCacheValues != null) {

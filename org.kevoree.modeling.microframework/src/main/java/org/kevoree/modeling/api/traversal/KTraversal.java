@@ -41,7 +41,7 @@ public interface KTraversal {
     public KTraversal activateHistory();
 
     public KTraversal reverse();
-    
+
 }
 
 

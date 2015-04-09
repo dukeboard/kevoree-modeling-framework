@@ -4,6 +4,6 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
 
 public interface ModelAttributeVisitor {
 
-    public void visit(MetaAttribute metaAttribute, Object value);
+    void visit(MetaAttribute metaAttribute, Object value);
 
 }

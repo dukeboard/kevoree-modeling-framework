@@ -3,44 +3,48 @@ package org.kevoree.modeling.api.util;
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.manager.KDataManager;
+import org.kevoree.modeling.api.map.IntHashMap;
+import org.kevoree.modeling.api.map.LongHashMap;
 import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.msg.KMessage;
 import org.kevoree.modeling.api.msg.KMessageLoader;
 import org.kevoree.modeling.api.msg.KOperationCallMessage;
 import org.kevoree.modeling.api.msg.KOperationResultMessage;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Created by gregory.nain on 28/11/14.
  */
 public class DefaultOperationManager implements KOperationManager {
 
-    private Map<Integer, Map<Integer, KOperation>> staticOperations = new HashMap<Integer, Map<Integer, KOperation>>();
-    private Map<Long, Map<Integer, KOperation>> instanceOperations = new HashMap<Long, Map<Integer, KOperation>>();
+    private IntHashMap<IntHashMap<KOperation>> staticOperations;
+
+    private LongHashMap<IntHashMap<KOperation>> instanceOperations;
+
+    private LongHashMap<Callback<Object>> remoteCallCallbacks = new LongHashMap<Callback<Object>>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
+
     private KDataManager _manager;
+
     private int _callbackId = 0;
 
-    private HashMap<Long, Callback<Object>> remoteCallCallbacks = new HashMap<Long, Callback<Object>>();
-
     public DefaultOperationManager(KDataManager p_manager) {
+        this.staticOperations = new IntHashMap<IntHashMap<KOperation>>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
+        this.instanceOperations = new LongHashMap<IntHashMap<KOperation>>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
         this._manager = p_manager;
     }
 
     @Override
     public void registerOperation(MetaOperation operation, KOperation callback, KObject target) {
         if (target == null) {
-            Map<Integer, KOperation> clazzOperations = staticOperations.get(operation.origin().index());
+            IntHashMap<KOperation> clazzOperations = staticOperations.get(operation.origin().index());
             if (clazzOperations == null) {
-                clazzOperations = new HashMap<Integer, KOperation>();
+                clazzOperations = new IntHashMap<KOperation>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
                 staticOperations.put(operation.origin().index(), clazzOperations);
             }
             clazzOperations.put(operation.index(), callback);
         } else {
-            Map<Integer, KOperation> objectOperations = instanceOperations.get(target.uuid());
+            IntHashMap<KOperation> objectOperations = instanceOperations.get(target.uuid());
             if (objectOperations == null) {
-                objectOperations = new HashMap<Integer, KOperation>();
+                objectOperations = new IntHashMap<KOperation>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
                 instanceOperations.put(target.uuid(), objectOperations);
             }
             objectOperations.put(operation.index(), callback);
@@ -48,11 +52,11 @@ public class DefaultOperationManager implements KOperationManager {
     }
 
     private KOperation searchOperation(Long source, int clazz, int operation) {
-        Map<Integer, KOperation> objectOperations = instanceOperations.get(source);
+        IntHashMap<KOperation> objectOperations = instanceOperations.get(source);
         if (objectOperations != null) {
             return objectOperations.get(operation);
         }
-        Map<Integer, KOperation> clazzOperations = staticOperations.get(clazz);
+        IntHashMap<KOperation> clazzOperations = staticOperations.get(clazz);
         if (clazzOperations != null) {
             return clazzOperations.get(operation);
         }
@@ -70,23 +74,18 @@ public class DefaultOperationManager implements KOperationManager {
     }
 
     private void sendToRemote(KObject source, MetaOperation operation, Object[] param, Callback<Object> callback) {
-
         String[] stringParams = new String[param.length];
         for (int i = 0; i < param.length; i++) {
             stringParams[i] = param[i].toString();
         }
-
         KContentKey contentKey = new KContentKey(KContentKey.GLOBAL_SEGMENT_DATA_RAW, source.universe().key(), source.now(), source.uuid());
-
         KOperationCallMessage operationCall = new KOperationCallMessage();
         operationCall.id = nextKey();
         operationCall.key = contentKey;
         operationCall.classIndex = source.metaClass().index();
         operationCall.opIndex = operation.index();
         operationCall.params = stringParams;
-
         remoteCallCallbacks.put(operationCall.id, callback);
-
         _manager.cdn().send(operationCall);
     }
 

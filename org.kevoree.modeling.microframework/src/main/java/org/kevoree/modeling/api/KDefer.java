@@ -5,24 +5,24 @@ package org.kevoree.modeling.api;
  */
 public interface KDefer<A> {
 
-    public KDefer<A> wait(KDefer previous);
+    KDefer<A> wait(KDefer previous);
 
-    public A getResult() throws Exception;
+    A getResult() throws Exception;
 
-    public boolean isDone();
+    boolean isDone();
 
-    public KDefer<A> setJob(KJob kjob);
+    KDefer<A> setJob(KJob kjob);
 
-    public KDefer<A> ready();
+    KDefer<A> ready();
 
-    public KDefer<Object> next();
+    KDefer<Object> next();
 
-    public void then(Callback<A> callback);
+    void then(Callback<A> callback);
 
-    public KDefer<A> setName(String taskName);
+    KDefer<A> setName(String taskName);
 
-    public String getName();
+    String getName();
 
-    public KDefer<Object> chain(KDeferBlock block);
+    KDefer<Object> chain(KDeferBlock block);
 
 }

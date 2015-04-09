@@ -7,6 +7,8 @@ var __extends = this.__extends || function (d, b) {
 var System = (function () {
     function System() {
     }
+    System.gc = function () {
+    };
     System.arraycopy = function (src, srcPos, dest, destPos, numElements) {
         for (var i = 0; i < numElements; i++) {
             dest[destPos + i] = src[srcPos + i];
@@ -194,6 +196,15 @@ var java;
             return StringBuilder;
         })();
         lang.StringBuilder = StringBuilder;
+        var ref;
+        (function (ref) {
+            var WeakReference = (function () {
+                function WeakReference() {
+                }
+                return WeakReference;
+            })();
+            ref.WeakReference = WeakReference;
+        })(ref = lang.ref || (lang.ref = {}));
     })(lang = java.lang || (java.lang = {}));
     var util;
     (function (util) {

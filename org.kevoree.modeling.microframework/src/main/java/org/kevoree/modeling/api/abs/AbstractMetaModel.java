@@ -1,10 +1,10 @@
 package org.kevoree.modeling.api.abs;
 
+import org.kevoree.modeling.api.KConfig;
+import org.kevoree.modeling.api.map.StringHashMap;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaModel;
 import org.kevoree.modeling.api.meta.MetaType;
-
-import java.util.HashMap;
 
 /**
  * Created by duke on 07/12/14.
@@ -17,7 +17,7 @@ public class AbstractMetaModel implements MetaModel {
 
     private MetaClass[] _metaClasses;
 
-    private HashMap<String, Integer> _metaClasses_indexes = new HashMap<String, Integer>();
+    private StringHashMap<Integer> _metaClasses_indexes = null;
 
     @Override
     public int index() {
@@ -44,6 +44,9 @@ public class AbstractMetaModel implements MetaModel {
     }
 
     public MetaClass metaClass(String name) {
+        if(_metaClasses_indexes == null){
+            return null;
+        }
         Integer resolved = _metaClasses_indexes.get(name);
         if (resolved == null) {
             return null;
@@ -53,7 +56,7 @@ public class AbstractMetaModel implements MetaModel {
     }
 
     public void init(MetaClass[] p_metaClasses) {
-        _metaClasses_indexes.clear();
+        _metaClasses_indexes = new StringHashMap<Integer>(p_metaClasses.length, KConfig.CACHE_LOAD_FACTOR);
         _metaClasses = p_metaClasses;
         for (int i = 0; i < _metaClasses.length; i++) {
             _metaClasses_indexes.put(_metaClasses[i].metaName(), i);

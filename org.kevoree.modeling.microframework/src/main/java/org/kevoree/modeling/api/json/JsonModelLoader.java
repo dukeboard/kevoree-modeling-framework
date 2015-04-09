@@ -29,8 +29,6 @@ import java.util.Map;
  * Time: 13:08
  */
 
-
-
 public class JsonModelLoader {
 
     public static void load(KView factory, String payload, final Callback<Throwable> callback) {
@@ -38,7 +36,6 @@ public class JsonModelLoader {
             callback.on(null);
         } else {
             MetaModel metaModel = factory.universe().model().metaModel();
-
             Lexer lexer = new Lexer(payload);
             JsonToken currentToken = lexer.nextToken();
             if (currentToken.tokenType() != Type.LEFT_BRACKET) {

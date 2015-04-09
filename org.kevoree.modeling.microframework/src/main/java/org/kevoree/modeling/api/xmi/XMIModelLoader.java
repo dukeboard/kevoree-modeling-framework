@@ -2,21 +2,20 @@ package org.kevoree.modeling.api.xmi;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KActionType;
+import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractMetaReference;
+import org.kevoree.modeling.api.map.StringHashMap;
 import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.meta.MetaType;
 
-import java.util.HashMap;
-
 /*
 * Author : Gregory Nain
 * Date : 30/08/13
 */
-
 public class XMIModelLoader {
 
     public static final String LOADER_XMI_LOCAL_NAME = "type";
@@ -87,7 +86,7 @@ public class XMIModelLoader {
                 if (nextTag.equals(XmlToken.START_TAG)) {
                     String localName = reader.getLocalName();
                     if (localName != null) {
-                        HashMap<String, String> ns = new HashMap<String, String>();
+                        StringHashMap<String> ns = new StringHashMap<String>(reader.getAttributeCount(), KConfig.CACHE_LOAD_FACTOR);
                         for (int i = 0; i < reader.getAttributeCount() - 1; i++) {
                             String attrLocalName = reader.getAttributeLocalName(i);
                             String attrLocalValue = reader.getAttributeValue(i);
@@ -118,7 +117,7 @@ public class XMIModelLoader {
     private static KObject callFactory(KView p_view, XMILoadingContext ctx, String objectType) {
         KObject modelElem = null;
         if (objectType != null) {
-            modelElem = p_view.createFQN(objectType);
+            modelElem = p_view.createByName(objectType);
             if (modelElem == null) {
                 String xsiType = null;
                 for (int i = 0; i < (ctx.xmiReader.getAttributeCount() - 1); i++) {
@@ -132,16 +131,15 @@ public class XMIModelLoader {
                 if (xsiType != null) {
                     String realTypeName = xsiType.substring(0, xsiType.lastIndexOf(":"));
                     String realName = xsiType.substring(xsiType.lastIndexOf(":") + 1, xsiType.length());
-                    modelElem = p_view.createFQN(realTypeName + "." + realName);
+                    modelElem = p_view.createByName(realTypeName + "." + realName);
                 }
             }
 
         } else {
-            modelElem = p_view.createFQN(ctx.xmiReader.getLocalName());
+            modelElem = p_view.createByName(ctx.xmiReader.getLocalName());
         }
         return modelElem;
     }
-
 
     private static KObject loadObject(KView p_view, XMILoadingContext ctx, String xmiAddress, String objectType) throws Exception {
         String elementTagName = ctx.xmiReader.getLocalName();
@@ -150,7 +148,6 @@ public class XMIModelLoader {
             throw new Exception("Could not create an object for local name " + elementTagName);
         }
         ctx.map.put(xmiAddress, modelElem);
-
         /* Read attributes and References */
         for (int i = 0; i < ctx.xmiReader.getAttributeCount(); i++) {
             String prefix = ctx.xmiReader.getAttributePrefix(i);
@@ -183,7 +180,6 @@ public class XMIModelLoader {
                 }
             }
         }
-
         boolean done = false;
         while (!done) {
             if (ctx.xmiReader.hasNext()) {
@@ -210,8 +206,8 @@ public class XMIModelLoader {
             }
         }
         return modelElem;
-
     }
+
 }
 
 

@@ -1,15 +1,15 @@
 package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KCurrentDefer;
 import org.kevoree.modeling.api.KDefer;
 import org.kevoree.modeling.api.KDeferBlock;
 import org.kevoree.modeling.api.KJob;
+import org.kevoree.modeling.api.map.StringHashMap;
+import org.kevoree.modeling.api.map.StringHashMapCallBack;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.ArrayList;
 
 /**
  * Created by duke on 20/01/15.
@@ -22,8 +22,8 @@ public class AbstractKDefer<A> implements KCurrentDefer<A> {
     protected boolean _isReady = false;
     private int _nbRecResult = 0;
     private int _nbExpectedResult = 0;
-    private Map<String, Object> _results = new HashMap<String, Object>();
-    private Set<KDefer> _nextTasks = new HashSet<KDefer>();
+    private StringHashMap<Object> _results = new StringHashMap<Object>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
+    private ArrayList<KDefer> _nextTasks = new ArrayList<KDefer>();
     private KJob _job;
     private A _result = null;
 
@@ -49,11 +49,23 @@ public class AbstractKDefer<A> implements KCurrentDefer<A> {
         } else {
             if (end != this) {
                 AbstractKDefer castedEnd = (AbstractKDefer) end;
-                String[] keys = (String[]) castedEnd._results.keySet().toArray(new String[castedEnd._results.size()]);
-                for (int i = 0; i < keys.length; i++) {
-                    _results.put(keys[i], castedEnd._results.get(keys[i]));
+                if(castedEnd._results != null){
+                    if(_results == null){
+                        _results = new StringHashMap<Object>(castedEnd._results.size(),KConfig.CACHE_LOAD_FACTOR);
+                    }
+                    castedEnd._results.each(new StringHashMapCallBack() {
+                        @Override
+                        public void on(String key, Object value) {
+                            _results.put(key, value);
+                        }
+                    });
                 }
-                _results.put(end.getName(), castedEnd._result);
+                if(castedEnd._result != null){
+                    if(_results == null){
+                        _results = new StringHashMap<Object>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
+                    }
+                    _results.put(end.getName(), castedEnd._result);
+                }
                 _nbRecResult--;
             }
         }
@@ -74,11 +86,23 @@ public class AbstractKDefer<A> implements KCurrentDefer<A> {
             } else {
                 //previous is already finished, no need to count, copy the result
                 AbstractKDefer castedEnd = (AbstractKDefer) p_previous;
-                String[] keys = (String[]) castedEnd._results.keySet().toArray(new String[castedEnd._results.size()]);
-                for (int i = 0; i < keys.length; i++) {
-                    _results.put(keys[i], castedEnd._results.get(keys[i]));
+                if(castedEnd._results != null){
+                    if(_results == null){
+                        _results = new StringHashMap<Object>(castedEnd._results.size(),KConfig.CACHE_LOAD_FACTOR);
+                    }
+                    castedEnd._results.each(new StringHashMapCallBack() {
+                        @Override
+                        public void on(String key, Object value) {
+                            _results.put(key, value);
+                        }
+                    });
                 }
-                _results.put(p_previous.getName(), castedEnd._result);
+                if(castedEnd._result != null){
+                    if(_results == null){
+                        _results = new StringHashMap<Object>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
+                    }
+                    _results.put(p_previous.getName(), castedEnd._result);
+                }
             }
         }
         return this;
@@ -150,16 +174,35 @@ public class AbstractKDefer<A> implements KCurrentDefer<A> {
 
     @Override
     public String[] resultKeys() {
-        return _results.keySet().toArray(new String[_results.keySet().size()]);
+        if(_results == null){
+            return new String[0];
+        } else {
+            String[] resultKeys = new String[_results.size()];
+            final int[] indexInsert = {0};
+            _results.each(new StringHashMapCallBack<Object>() {
+                @Override
+                public void on(String key, Object value) {
+                    resultKeys[indexInsert[0]] = key;
+                    indexInsert[0]++;
+                }
+            });
+            return resultKeys;
+        }
     }
 
     @Override
     public Object resultByName(String p_name) {
+        if(_results == null){
+            return null;
+        }
         return _results.get(p_name);
     }
 
     @Override
     public Object resultByDefer(KDefer defer) {
+        if(_results == null){
+            return null;
+        }
         return _results.get(defer.getName());
     }
 
@@ -170,7 +213,9 @@ public class AbstractKDefer<A> implements KCurrentDefer<A> {
 
     @Override
     public void clearResults() {
-        _results.clear();
+        if(_results != null){
+            _results = null;
+        }
     }
 
     @Override

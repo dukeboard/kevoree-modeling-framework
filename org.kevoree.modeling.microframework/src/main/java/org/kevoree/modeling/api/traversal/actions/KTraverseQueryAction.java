@@ -12,10 +12,6 @@ import org.kevoree.modeling.api.map.LongLongHashMapCallBack;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
 import org.kevoree.modeling.api.traversal.KTraversalHistory;
-import org.kevoree.modeling.api.util.ArrayUtils;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Created by duke on 30/01/15.

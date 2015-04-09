@@ -20,6 +20,23 @@ public class LongRBTree implements KCacheObject {
 
     public boolean _dirty = false;
 
+    private int _counter = 0;
+
+    @Override
+    public int counter() {
+        return _counter;
+    }
+
+    @Override
+    public void inc() {
+        _counter++;
+    }
+
+    @Override
+    public void dec() {
+        _counter--;
+    }
+
     @Override
     public String toString() {
         return serialize();

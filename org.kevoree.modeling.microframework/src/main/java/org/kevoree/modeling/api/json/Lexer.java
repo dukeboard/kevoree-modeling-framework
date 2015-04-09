@@ -11,7 +11,6 @@ public class Lexer {
 
     private int index = 0;
 
-
     public Lexer(String payload) {
         this.bytes = payload;
         this.EOF = new JsonToken(Type.EOF, null);
@@ -132,7 +131,5 @@ public class Lexer {
 
         return new JsonToken(tokenType, jsonValue);
     }
-
-    private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
 
 }

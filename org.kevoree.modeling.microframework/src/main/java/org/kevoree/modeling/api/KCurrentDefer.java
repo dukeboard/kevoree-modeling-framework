@@ -5,14 +5,14 @@ package org.kevoree.modeling.api;
  */
 public interface KCurrentDefer<A> extends KDefer<A> {
 
-    public String[] resultKeys();
+    String[] resultKeys();
 
-    public Object resultByName(String name);
+    Object resultByName(String name);
 
-    public Object resultByDefer(KDefer defer);
+    Object resultByDefer(KDefer defer);
 
-    public void addDeferResult(A result);
+    void addDeferResult(A result);
 
-    public void clearResults();
+    void clearResults();
 
 }

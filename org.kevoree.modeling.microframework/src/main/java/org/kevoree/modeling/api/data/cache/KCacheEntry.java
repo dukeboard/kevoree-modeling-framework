@@ -69,6 +69,23 @@ public class KCacheEntry implements KCacheObject {
         JsonRaw.decode(payload, key.time(), metaModel, this);
     }
 
+    private int _counter = 0;
+
+    @Override
+    public int counter() {
+        return _counter;
+    }
+
+    @Override
+    public void inc() {
+        _counter++;
+    }
+
+    @Override
+    public void dec() {
+        _counter--;
+    }
+
     public Object get(int index) {
         if (raw != null) {
             return raw[index];

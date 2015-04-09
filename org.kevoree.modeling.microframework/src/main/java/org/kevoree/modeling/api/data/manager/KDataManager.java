@@ -70,4 +70,6 @@ public interface KDataManager {
 
     public void reload(KContentKey[] keys, Callback<Throwable> callback);
 
+    public void cleanObject(KObject objectToClean);
+
 }

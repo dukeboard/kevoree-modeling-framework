@@ -13,7 +13,7 @@ import org.kevoree.modeling.api.map.LongLongHashMapCallBack;
  */
 public class LongMapTest {
 
-    private int SIZE = 100000;
+    private int SIZE = 100;
 
     @Test
     public void test() {
@@ -62,26 +62,5 @@ public class LongMapTest {
         map.clear();
         Assert.assertEquals(map.size(), 0);
     }
-
-    //@Test
-    /*
-    public void testMap() {
-        HashMap<Long, String> map = new HashMap<Long, String>();
-        for (long i = 0; i < SIZE; i++) {
-            map.put(i, "" + i);
-        }
-        Assert.assertEquals(map.size(), SIZE);
-        for (long i = 0; i < SIZE; i++) {
-            Assert.assertEquals(i, Long.parseLong(map.get(i)));
-        }
-        int nbCall = 0;
-        Long[] keys = map.keySet().toArray(new Long[map.size()]);
-        for (int i = 0; i < keys.length; i++) {
-            nbCall++;
-        }
-        Assert.assertEquals(nbCall, SIZE);
-        map.clear();
-        Assert.assertEquals(map.size(), 0);
-    }*/
 
 }

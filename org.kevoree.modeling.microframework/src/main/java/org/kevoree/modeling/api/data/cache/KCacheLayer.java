@@ -4,7 +4,6 @@ import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.map.LongHashMap;
 import org.kevoree.modeling.api.map.LongHashMapCallBack;
 
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -15,6 +14,10 @@ public class KCacheLayer {
     private LongHashMap<KCacheLayer> _nestedLayers;
 
     private LongHashMap<KCacheObject> _cachedObjects;
+
+    public boolean empty(){
+        return (_nestedLayers == null || _nestedLayers.size() == 0) && (_cachedObjects == null ||_cachedObjects.size() == 0);
+    }
 
     public KCacheObject resolve(KContentKey p_key, int current) {
         if (current == KConfig.KEY_SIZE - 1) {
@@ -33,10 +36,34 @@ public class KCacheLayer {
         }
     }
 
+    public void decClean(KContentKey p_key, int current) {
+        if (current == KConfig.KEY_SIZE - 1) {
+            KCacheObject obj = _cachedObjects.get(p_key.part(current));
+            if(obj != null){
+                obj.dec();
+                if(obj.counter()<= 0){
+                    if(!obj.isDirty()){
+                        _cachedObjects.remove(p_key.part(current));
+                    }
+                }
+            }
+        } else {
+            if (_nestedLayers != null) {
+                KCacheLayer nextLayer = _nestedLayers.get(p_key.part(current));
+                if (nextLayer != null) {
+                    nextLayer.decClean(p_key, current + 1);
+                    if(nextLayer.empty()){
+                        _nestedLayers.remove(p_key.part(current));
+                    }
+                }
+            }
+        }
+    }
+
     public void insert(KContentKey p_key, int current, KCacheObject p_obj_insert) {
         if (current == KConfig.KEY_SIZE - 1) {
             //TODO, protect, only in case of conflict...
-            private_insert_object(p_key,current,p_obj_insert);
+            private_insert_object(p_key, current, p_obj_insert);
         } else {
             if (_nestedLayers == null) {
                 private_nestedLayers_init();
@@ -50,7 +77,7 @@ public class KCacheLayer {
         }
     }
 
-    private synchronized void private_insert_object(KContentKey p_key, int current, KCacheObject p_obj_insert){
+    private synchronized void private_insert_object(KContentKey p_key, int current, KCacheObject p_obj_insert) {
         if (_cachedObjects == null) {
             _cachedObjects = new LongHashMap<KCacheObject>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         }
@@ -78,7 +105,7 @@ public class KCacheLayer {
                 _cachedObjects.each(new LongHashMapCallBack<KCacheObject>() {
                     @Override
                     public void on(long loopKey, KCacheObject loopCached) {
-                        if (loopCached.isDirty()) {
+                        if (loopCached != null && loopCached.isDirty()) {
                             KContentKey cachedKey = new KContentKey(prefixKeys[0], prefixKeys[1], prefixKeys[2], loopKey);
                             result.add(new KCacheDirty(cachedKey, loopCached));
                         }

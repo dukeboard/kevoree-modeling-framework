@@ -3,9 +3,7 @@ package org.kevoree.modeling.api.map;
 
 /* From an original idea https://code.google.com/p/jdbm2/ */
 
-import org.kevoree.modeling.api.KConfig;
-
-public class LongHashMap<V> {
+public class StringHashMap<V> {
 
     protected int elementCount;
 
@@ -25,10 +23,10 @@ public class LongHashMap<V> {
 
     static final class Entry<V> {
         Entry<V> next;
-        long key;
+        String key;
         V value;
 
-        Entry(long theKey, V theValue) {
+        Entry(String theKey, V theValue) {
             this.key = theKey;
             this.value = theValue;
         }
@@ -39,7 +37,7 @@ public class LongHashMap<V> {
         return new Entry[s];
     }
 
-    public LongHashMap(int p_initalCapacity, float p_loadFactor) {
+    public StringHashMap(int p_initalCapacity, float p_loadFactor) {
         this.initalCapacity = p_initalCapacity;
         this.loadFactor = p_loadFactor;
         elementCount = 0;
@@ -61,16 +59,22 @@ public class LongHashMap<V> {
         threshold = (int) (elementDataSize * loadFactor);
     }
 
-    public boolean containsKey(long key) {
-        int hash = (int) (key);
+    public boolean containsKey(String key) {
+        if(elementDataSize == 0){
+            return false;
+        }
+        int hash = key.hashCode();
         int index = (hash & 0x7FFFFFFF) % elementDataSize;
         Entry<V> m = findNonNullKeyEntry(key, index);
         return m != null;
     }
 
-    public V get(long key) {
+    public V get(String key) {
+        if(key == null || elementDataSize == 0){
+            return null;
+        }
         Entry<V> m;
-        int hash = (int) (key);
+        int hash = key.hashCode();
         int index = (hash & 0x7FFFFFFF) % elementDataSize;
         m = findNonNullKeyEntry(key, index);
         if (m != null) {
@@ -79,10 +83,10 @@ public class LongHashMap<V> {
         return null;
     }
 
-    final Entry<V> findNonNullKeyEntry(long key, int index) {
+    final Entry<V> findNonNullKeyEntry(String key, int index) {
         Entry<V> m = elementData[index];
         while (m != null) {
-            if (key == m.key) {
+            if (key.equals(m.key)) {
                 return m;
             }
             m = m.next;
@@ -90,7 +94,7 @@ public class LongHashMap<V> {
         return null;
     }
 
-    public void each(LongHashMapCallBack<V> callback) {
+    public void each(StringHashMapCallBack<V> callback) {
         for (int i = 0; i < elementDataSize; i++) {
             if (elementData[i] != null) {
                 Entry<V> current = elementData[i];
@@ -103,9 +107,9 @@ public class LongHashMap<V> {
         }
     }
 
-    public V put(long key, V value) {
+    public V put(String key, V value) {
         Entry<V> entry;
-        int hash = (int) (key);
+        int hash = key.hashCode();
         int index = (hash & 0x7FFFFFFF) % elementDataSize;
         entry = findNonNullKeyEntry(key, index);
         if (entry == null) {
@@ -121,7 +125,7 @@ public class LongHashMap<V> {
         return result;
     }
 
-    Entry<V> createHashedEntry(long key, int index) {
+    Entry<V> createHashedEntry(String key, int index) {
         Entry<V> entry = reuseAfterDelete;
         if (entry == null) {
             entry = new Entry<V>(key, null);
@@ -142,7 +146,8 @@ public class LongHashMap<V> {
         for (int i = 0; i < elementDataSize; i++) {
             Entry<V> entry = elementData[i];
             while (entry != null) {
-                int index = ((int) entry.key & 0x7FFFFFFF) % length;
+                int hash = entry.key.hashCode();
+                int index = (hash & 0x7FFFFFFF) % length;
                 Entry<V> next = entry.next;
                 entry.next = newData[index];
                 newData[index] = entry;
@@ -158,26 +163,25 @@ public class LongHashMap<V> {
         rehashCapacity(elementDataSize);
     }
 
-    public V remove(long key) {
+    public V remove(String key) {
         Entry<V> entry = removeEntry(key);
         if (entry == null) {
             return null;
         }
         V ret = entry.value;
         entry.value = null;
-        entry.key = KConfig.BEGINNING_OF_TIME;
+        entry.key = null;
         reuseAfterDelete = entry;
-
         return ret;
     }
 
-    Entry<V> removeEntry(long key) {
+    Entry<V> removeEntry(String key) {
         Entry<V> entry;
         Entry<V> last = null;
-        int hash = (int) key;
+        int hash = key.hashCode();
         int index = (hash & 0x7FFFFFFF) % elementDataSize;
         entry = elementData[index];
-        while (entry != null && !(/*((int)entry.key) == hash &&*/ key == entry.key)) {
+        while (entry != null && !(key.equals(entry.key))) {
             last = entry;
             entry = entry.next;
         }

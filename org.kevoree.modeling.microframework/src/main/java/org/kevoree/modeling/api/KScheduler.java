@@ -5,8 +5,8 @@ package org.kevoree.modeling.api;
  */
 public interface KScheduler {
 
-    public void dispatch(Runnable runnable);
+    void dispatch(Runnable runnable);
 
-    public void stop();
+    void stop();
 
 }

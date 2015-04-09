@@ -7,28 +7,28 @@ import org.kevoree.modeling.api.meta.MetaClass;
  */
 public interface KView {
 
-    public KObject createFQN(String metaClassName);
+    KObject createByName(String metaClassName);
 
-    public KObject create(MetaClass clazz);
+    KObject create(MetaClass clazz);
 
-    public KDefer<KObject[]> select(String query);
+    KDefer<KObject[]> select(String query);
 
-    public KDefer<KObject> lookup(long key);
+    KDefer<KObject> lookup(long key);
 
-    public KDefer<KObject[]> lookupAll(long[] keys);
+    KDefer<KObject[]> lookupAll(long[] keys);
 
-    public KUniverse universe();
+    KUniverse universe();
 
-    public long now();
+    long now();
 
-    public ModelFormat json();
+    ModelFormat json();
 
-    public ModelFormat xmi();
+    ModelFormat xmi();
 
-    public boolean equals(Object other);
+    boolean equals(Object other);
 
-    public KDefer<Throwable> setRoot(KObject elem);
+    KDefer<Throwable> setRoot(KObject elem);
 
-    public KDefer<KObject> getRoot();
+    KDefer<KObject> getRoot();
 
 }

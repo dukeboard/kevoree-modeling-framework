@@ -1,4 +1,5 @@
 declare class System {
+    static gc(): void;
     static out: {
         println(obj?: any): void;
         print(obj: any): void;
@@ -77,6 +78,10 @@ declare module java {
             length: number;
             append(val: any): StringBuilder;
             toString(): string;
+        }
+        module ref {
+            class WeakReference<A> {
+            }
         }
     }
     module util {

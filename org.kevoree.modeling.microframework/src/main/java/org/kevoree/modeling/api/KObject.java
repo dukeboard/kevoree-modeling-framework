@@ -5,88 +5,77 @@ import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.traversal.KTraversal;
-import org.kevoree.modeling.api.trace.ModelTrace;
-import org.kevoree.modeling.api.trace.TraceSequence;
 
 /**
  * Created by thomas on 10/2/14.
  */
 public interface KObject {
 
-    public KUniverse universe();
+    KUniverse universe();
 
-    public long uuid();
+    long uuid();
 
-    public KDefer<String> path();
+    KDefer<String> path();
 
-    public KView view();
+    KView view();
 
-    public KDefer<Throwable> delete();
+    KDefer<Throwable> delete();
 
-    public KDefer<KObject> parent();
+    KDefer<KObject> parent();
 
-    public long parentUuid();
+    long parentUuid();
 
-    public KDefer<KObject[]> select(String query);
+    KDefer<KObject[]> select(String query);
 
-    public void listen(long groupId, KEventListener listener);
+    void listen(long groupId, KEventListener listener);
 
-    public void visitAttributes(ModelAttributeVisitor visitor);
+    void visitAttributes(ModelAttributeVisitor visitor);
 
-    public KDefer<Throwable> visit(VisitRequest request,ModelVisitor visitor);
+    KDefer<Throwable> visit(VisitRequest request,ModelVisitor visitor);
 
     /* Time navigation */
-    public long now();
+    long now();
 
-    public KTimeWalker timeWalker();
+    KTimeWalker timeWalker();
 
     /* Reflexive API */
-    public MetaReference referenceInParent();
+    MetaReference referenceInParent();
 
-    public String domainKey();
+    String domainKey();
 
-    public MetaClass metaClass();
+    MetaClass metaClass();
 
-    public void mutate(KActionType actionType, MetaReference metaReference, KObject param);
+    void mutate(KActionType actionType, MetaReference metaReference, KObject param);
 
-    public KDefer<KObject[]> ref(MetaReference metaReference);
+    KDefer<KObject[]> ref(MetaReference metaReference);
 
-    public KDefer<KObject[]> inferRef(MetaReference metaReference);
+    KDefer<KObject[]> inferRef(MetaReference metaReference);
 
-    public KTraversal traversal();
+    KTraversal traversal();
 
-    public KDefer<KObject[]> inbounds();
+    KDefer<KObject[]> inbounds();
 
     /* End Reflexive API */
 
-    public ModelTrace[] traces(TraceRequest request);
+    Object get(MetaAttribute attribute);
 
-    public Object get(MetaAttribute attribute);
+    void set(MetaAttribute attribute, Object payload);
 
-    public void set(MetaAttribute attribute, Object payload);
+    String toJSON();
 
-    public String toJSON();
+    boolean equals(Object other);
 
-    public boolean equals(Object other);
+    <U extends KObject> KDefer<U> jump(long time);
 
-    /* Model operations */
-    public KDefer<TraceSequence> diff(KObject target);
+    MetaReference[] referencesWith(KObject o);
 
-    public KDefer<TraceSequence> merge(KObject target);
+    /* Inference Objects Management */
+    KDefer<KInfer[]> inferObjects();
 
-    public KDefer<TraceSequence> intersection(KObject target);
+    Object inferAttribute(MetaAttribute attribute);
 
-    public <U extends KObject> KDefer<U> jump(long time);
+    KDefer<Object> call(MetaOperation operation, Object[] params);
 
-    public MetaReference[] referencesWith(KObject o);
-
-    /* Inference Objects Manegement */
-    public KDefer<KInfer[]> inferObjects();
-
-    public Object inferAttribute(MetaAttribute attribute);
-
-    public KDefer<Object> call(MetaOperation operation, Object[] params);
-
-    public KDefer<Object> inferCall(MetaOperation operation, Object[] params);
+    KDefer<Object> inferCall(MetaOperation operation, Object[] params);
 
 }

@@ -5,7 +5,7 @@ package org.kevoree.modeling.api.map;
 
 import org.kevoree.modeling.api.KConfig;
 
-public class LongHashMap<V> {
+public class IntHashMap<V> {
 
     protected int elementCount;
 
@@ -25,10 +25,10 @@ public class LongHashMap<V> {
 
     static final class Entry<V> {
         Entry<V> next;
-        long key;
+        int key;
         V value;
 
-        Entry(long theKey, V theValue) {
+        Entry(int theKey, V theValue) {
             this.key = theKey;
             this.value = theValue;
         }
@@ -39,7 +39,7 @@ public class LongHashMap<V> {
         return new Entry[s];
     }
 
-    public LongHashMap(int p_initalCapacity, float p_loadFactor) {
+    public IntHashMap(int p_initalCapacity, float p_loadFactor) {
         this.initalCapacity = p_initalCapacity;
         this.loadFactor = p_loadFactor;
         elementCount = 0;
@@ -103,16 +103,15 @@ public class LongHashMap<V> {
         }
     }
 
-    public V put(long key, V value) {
+    public V put(int key, V value) {
         Entry<V> entry;
-        int hash = (int) (key);
-        int index = (hash & 0x7FFFFFFF) % elementDataSize;
+        int index = (key & 0x7FFFFFFF) % elementDataSize;
         entry = findNonNullKeyEntry(key, index);
         if (entry == null) {
             modCount++;
             if (++elementCount > threshold) {
                 rehash();
-                index = (hash & 0x7FFFFFFF) % elementDataSize;
+                index = (key & 0x7FFFFFFF) % elementDataSize;
             }
             entry = createHashedEntry(key, index);
         }
@@ -121,7 +120,7 @@ public class LongHashMap<V> {
         return result;
     }
 
-    Entry<V> createHashedEntry(long key, int index) {
+    Entry<V> createHashedEntry(int key, int index) {
         Entry<V> entry = reuseAfterDelete;
         if (entry == null) {
             entry = new Entry<V>(key, null);
@@ -165,7 +164,7 @@ public class LongHashMap<V> {
         }
         V ret = entry.value;
         entry.value = null;
-        entry.key = KConfig.BEGINNING_OF_TIME;
+        entry.key = -1;
         reuseAfterDelete = entry;
 
         return ret;

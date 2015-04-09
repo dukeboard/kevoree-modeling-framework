@@ -5,12 +5,12 @@ package org.kevoree.modeling.api;
  */
 public interface KType {
 
-    public String name();
+    String name();
 
-    public boolean isEnum();
+    boolean isEnum();
 
-    public String save(Object src);
+    String save(Object src);
 
-    public Object load(String payload);
+    Object load(String payload);
 
 }

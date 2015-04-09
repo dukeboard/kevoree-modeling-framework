@@ -5,6 +5,6 @@ package org.kevoree.modeling.api;
  */
 public interface KDeferBlock {
 
-    public KDefer exec(KDefer previous);
+    KDefer exec(KDefer previous);
 
 }

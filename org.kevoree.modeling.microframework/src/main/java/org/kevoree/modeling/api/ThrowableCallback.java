@@ -5,6 +5,6 @@ package org.kevoree.modeling.api;
  */
 public interface ThrowableCallback<A> {
 
-    public void on(A a, Throwable error);
+    void on(A a, Throwable error);
 
 }

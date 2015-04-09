@@ -8,24 +8,24 @@ import java.util.List;
 
 public interface KUniverse<A extends KView, B extends KUniverse, C extends KModel> {
 
-    public long key();
+    long key();
 
-    public A time(long timePoint);
+    A time(long timePoint);
 
-    public C model();
+    C model();
 
-    public boolean equals(Object other);
+    boolean equals(Object other);
 
-    public B diverge();
+    B diverge();
 
-    public B origin();
+    B origin();
 
-    public List<B> descendants();
+    List<B> descendants();
 
-    public KDefer<Throwable> delete();
+    KDefer<Throwable> delete();
 
-    public KDefer<KObject[]> lookupAllTimes(long uuid, long[] times);
+    KDefer<KObject[]> lookupAllTimes(long uuid, long[] times);
 
-    public void listenAll(long groupId, long[] objects, KEventMultiListener multiListener);
+    void listenAll(long groupId, long[] objects, KEventMultiListener multiListener);
 
 }

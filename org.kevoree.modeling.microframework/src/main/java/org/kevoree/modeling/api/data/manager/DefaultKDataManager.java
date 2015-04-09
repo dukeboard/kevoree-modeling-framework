@@ -56,12 +56,12 @@ public class DefaultKDataManager implements KDataManager {
     private final int OBJ_INDEX = 1;
     private final int GLO_TREE_INDEX = 2;
 
-    private MultiLayeredMemoryCache _cache = new MultiLayeredMemoryCache();
+    private MultiLayeredMemoryCache _cache;
 
     private static final short zeroPrefix = 0;
 
     public DefaultKDataManager(KModel model) {
-
+        _cache = new MultiLayeredMemoryCache(this);
         _modelKeyCalculator = new KeyCalculator(zeroPrefix, 0);
         _groupKeyCalculator = new KeyCalculator(zeroPrefix, 0);
 
@@ -132,7 +132,7 @@ public class DefaultKDataManager implements KDataManager {
     /* Global Universe Local Caching */
     private LongLongHashMap cachedGlobalUniverse = null;
 
-    private LongLongHashMap globalUniverseOrder() {
+    public LongLongHashMap globalUniverseOrder() {
         if (cachedGlobalUniverse != null) {
             return cachedGlobalUniverse;
         } else {
@@ -233,9 +233,12 @@ public class DefaultKDataManager implements KDataManager {
         cacheEntry.initRaw(Index.RESERVED_INDEXES + obj.metaClass().metaElements().length);
         cacheEntry._dirty = true;
         cacheEntry.metaClass = obj.metaClass();
+        cacheEntry.inc();
         IndexRBTree timeTree = new IndexRBTree();
+        timeTree.inc();
         timeTree.insert(obj.now());
         LongLongHashMap universeTree = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+        universeTree.inc();
         universeTree.put(obj.view().universe().key(), obj.now());
         _cache.put(KContentKey.createTimeTree(obj.universe().key(), obj.uuid()), timeTree);
         _cache.put(KContentKey.createUniverseTree(obj.uuid()), universeTree);
@@ -384,6 +387,7 @@ public class DefaultKDataManager implements KDataManager {
                     objectUniverseTree.put(origin.universe().key(), origin.now());//insert this time as a divergence point for this object
                 }
                 _cache.put(KContentKey.createObject(origin.universe().key(), origin.now(), origin.uuid()), clonedEntry);
+                entry.dec();
                 return clonedEntry;
             }
         } else {
@@ -456,45 +460,6 @@ public class DefaultKDataManager implements KDataManager {
 
     public KOperationManager operationManager() {
         return _operationManager;
-    }
-
-    void internal_resolve_universe_time(final KView originView, final long[] uuids, final Callback<KContentKey[]> callback) {
-        final KContentKey[] tempKeys = new KContentKey[uuids.length];
-        for (int i = 0; i < uuids.length; i++) {
-            if (uuids[i] != KConfig.NULL_LONG) {
-                tempKeys[i] = KContentKey.createUniverseTree(uuids[i]);
-            }
-        }
-        bumpKeysToCache(tempKeys, new Callback<KCacheObject[]>() {
-            @Override
-            public void on(KCacheObject[] universeIndexes) {
-                for (int i = 0; i < uuids.length; i++) {
-                    KContentKey toLoadKey = null;
-                    if (universeIndexes[i] != null) {
-                        long closestUniverse = ResolutionHelper.resolve_universe(globalUniverseOrder(), (LongLongHashMap) universeIndexes[i], originView.now(), originView.universe().key());
-                        toLoadKey = KContentKey.createTimeTree(closestUniverse, uuids[i]);
-                    }
-                    tempKeys[i] = toLoadKey;
-                }
-                bumpKeysToCache(tempKeys, new Callback<KCacheObject[]>() {
-                    @Override
-                    public void on(KCacheObject[] timeIndexes) {
-                        for (int i = 0; i < uuids.length; i++) {
-                            KContentKey resolvedContentKey = null;
-                            if (timeIndexes[i] != null) {
-                                IndexRBTree cachedIndexTree = (IndexRBTree) timeIndexes[i];
-                                TreeNode resolvedNode = cachedIndexTree.previousOrEqual(originView.now());
-                                if (resolvedNode != null) {
-                                    resolvedContentKey = KContentKey.createObject(tempKeys[i].universe(), resolvedNode.getKey(), uuids[i]);
-                                }
-                            }
-                            tempKeys[i] = resolvedContentKey;
-                        }
-                        callback.on(tempKeys);
-                    }
-                });
-            }
-        });
     }
 
     /* Special case management for Root */
@@ -708,6 +673,11 @@ public class DefaultKDataManager implements KDataManager {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public void cleanObject(KObject objectToClean) {
+
+        System.err.println("ToClean=" + objectToClean.uuid());
     }
 
 }

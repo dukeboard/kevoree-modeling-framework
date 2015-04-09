@@ -5,6 +5,6 @@ package org.kevoree.modeling.api;
  */
 public interface Callback<A> {
 
-    public void on(A a);
+    void on(A a);
 
 }
