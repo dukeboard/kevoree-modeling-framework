@@ -534,9 +534,8 @@ module org {
                                 return this._isDone;
                             } else {
                                 this._isDone = true;
-                                var childrenTasks: org.kevoree.modeling.api.KDefer<any>[] = this._nextTasks.toArray(new Array());
-                                for (var i: number = 0; i < childrenTasks.length; i++) {
-                                    (<org.kevoree.modeling.api.abs.AbstractKDefer<any>>childrenTasks[i]).informParentEnd(this);
+                                for (var i: number = 0; i < this._nextTasks.size(); i++) {
+                                    (<org.kevoree.modeling.api.abs.AbstractKDefer<any>>this._nextTasks.get(i)).informParentEnd(this);
                                 }
                                 return this._isDone;
                             }
@@ -5731,8 +5730,8 @@ module org {
                                 if (currentToken.tokenType() != org.kevoree.modeling.api.json.Type.LEFT_BRACKET) {
                                     callback(null);
                                 } else {
-                                    var alls: java.util.List<java.util.Map<string, any>> = new java.util.ArrayList<java.util.Map<string, any>>();
-                                    var content: java.util.Map<string, any> = new java.util.HashMap<string, any>();
+                                    var alls: java.util.List<org.kevoree.modeling.api.map.StringHashMap<any>> = new java.util.ArrayList<org.kevoree.modeling.api.map.StringHashMap<any>>();
+                                    var content: org.kevoree.modeling.api.map.StringHashMap<any> = new org.kevoree.modeling.api.map.StringHashMap<any>(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                                     var currentAttributeName: string = null;
                                     var arrayPayload: java.util.ArrayList<string> = null;
                                     currentToken = lexer.nextToken();
@@ -5746,11 +5745,11 @@ module org {
                                                 currentAttributeName = null;
                                             } else {
                                                 if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.LEFT_BRACE)) {
-                                                    content = new java.util.HashMap<string, any>();
+                                                    content = new org.kevoree.modeling.api.map.StringHashMap<any>(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                                                 } else {
                                                     if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.RIGHT_BRACE)) {
                                                         alls.add(content);
-                                                        content = new java.util.HashMap<string, any>();
+                                                        content = new org.kevoree.modeling.api.map.StringHashMap<any>(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                                                     } else {
                                                         if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.VALUE)) {
                                                             if (currentAttributeName == null) {
@@ -5770,11 +5769,11 @@ module org {
                                         }
                                         currentToken = lexer.nextToken();
                                     }
-                                    var rootElem: org.kevoree.modeling.api.KObject = null;
+                                    var rootElem: org.kevoree.modeling.api.KObject[] = [null];
                                     var mappedKeys: org.kevoree.modeling.api.map.LongLongHashMap = new org.kevoree.modeling.api.map.LongLongHashMap(alls.size(), org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                                     for (var i: number = 0; i < alls.size(); i++) {
                                         try {
-                                            var elem: java.util.Map<string, any> = alls.get(i);
+                                            var elem: org.kevoree.modeling.api.map.StringHashMap<any> = alls.get(i);
                                             var kid: number = java.lang.Long.parseLong(elem.get(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_UUID).toString());
                                             mappedKeys.put(kid, factory.universe().model().manager().nextObjectKey());
                                         } catch ($ex$) {
@@ -5786,17 +5785,14 @@ module org {
                                     }
                                     for (var i: number = 0; i < alls.size(); i++) {
                                         try {
-                                            var elem: java.util.Map<string, any> = alls.get(i);
+                                            var elem: org.kevoree.modeling.api.map.StringHashMap<any> = alls.get(i);
                                             var kid: number = java.lang.Long.parseLong(elem.get(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_UUID).toString());
                                             var meta: string = elem.get(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_META).toString();
                                             var metaClass: org.kevoree.modeling.api.meta.MetaClass = metaModel.metaClass(meta);
                                             var current: org.kevoree.modeling.api.KObject = (<org.kevoree.modeling.api.abs.AbstractKView>factory).createProxy(metaClass, mappedKeys.get(kid));
                                             factory.universe().model().manager().initKObject(current, factory);
                                             var raw: org.kevoree.modeling.api.data.cache.KCacheEntry = factory.universe().model().manager().entry(current, org.kevoree.modeling.api.data.manager.AccessMode.WRITE);
-                                            var metaKeys: string[] = elem.keySet().toArray(new Array());
-                                            for (var h: number = 0; h < metaKeys.length; h++) {
-                                                var metaKey: string = metaKeys[h];
-                                                var payload_content: any = elem.get(metaKey);
+                                            elem.each( (metaKey : string, payload_content : any) => {
                                                 if (metaKey.equals(org.kevoree.modeling.api.json.JsonModelSerializer.INBOUNDS_META)) {
                                                     try {
                                                         var raw_keys: java.util.ArrayList<string> = <java.util.ArrayList<string>>payload_content;
@@ -5866,7 +5862,7 @@ module org {
                                                         } else {
                                                             if (metaKey.equals(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_ROOT)) {
                                                                 if ("true".equals(payload_content)) {
-                                                                    rootElem = current;
+                                                                    rootElem[0] = current;
                                                                 }
                                                             } else {
                                                                 var metaElement: org.kevoree.modeling.api.meta.Meta = metaClass.metaByName(metaKey);
@@ -5906,7 +5902,7 @@ module org {
                                                         }
                                                     }
                                                 }
-                                            }
+                                            });
                                         } catch ($ex$) {
                                             if ($ex$ instanceof java.lang.Exception) {
                                                 var e: java.lang.Exception = <java.lang.Exception>$ex$;
@@ -5914,8 +5910,8 @@ module org {
                                             }
                                          }
                                     }
-                                    if (rootElem != null) {
-                                        factory.setRoot(rootElem).then( (throwable : java.lang.Throwable) => {
+                                    if (rootElem[0] != null) {
+                                        factory.setRoot(rootElem[0]).then( (throwable : java.lang.Throwable) => {
                                             if (callback != null) {
                                                 callback(throwable);
                                             }
@@ -7078,6 +7074,9 @@ module org {
                         }
 
                         public put(key: string, value: V): V {
+                            if (key == null) {
+                                return value;
+                            }
                             var entry: org.kevoree.modeling.api.map.StringHashMap.Entry<any>;
                             var hash: number = key.hashCode();
                             var index: number = (hash & 0x7FFFFFFF) % this.elementDataSize;

@@ -10,14 +10,6 @@ declare class System {
     };
     static arraycopy(src: Number[], srcPos: number, dest: Number[], destPos: number, numElements: number): void;
 }
-declare var TSMap: {
-    new <K, V>(): Map<K, V>;
-    prototype: Map<any, any>;
-};
-declare var TSSet: {
-    new <T>(): Set<T>;
-    prototype: Set<any>;
-};
 interface Number {
     equals: (other: Number) => boolean;
     longValue(): number;
@@ -146,7 +138,6 @@ declare module java {
             remove(val: T): void;
             size(): number;
             isEmpty(): boolean;
-            toArray(other: Array<T>): T[];
         }
         class HashSet<T> extends Set<T> {
         }

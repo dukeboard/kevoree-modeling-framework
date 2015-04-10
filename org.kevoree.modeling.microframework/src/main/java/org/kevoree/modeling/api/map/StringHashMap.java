@@ -108,6 +108,9 @@ public class StringHashMap<V> {
     }
 
     public V put(String key, V value) {
+        if(key == null){
+            return value;
+        }
         Entry<V> entry;
         int hash = key.hashCode();
         int index = (hash & 0x7FFFFFFF) % elementDataSize;

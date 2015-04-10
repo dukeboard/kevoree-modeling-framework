@@ -1,5 +1,9 @@
 package org.kevoree.modeling.api.json;
 
+import org.kevoree.modeling.api.KConfig;
+import org.kevoree.modeling.api.map.StringHashMap;
+import org.kevoree.modeling.api.map.StringHashMapCallBack;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +36,7 @@ import java.util.Set;
  */
 public class JsonObjectReader {
 
-    private Map<String, Object> content = new HashMap<String, Object>();
+    private StringHashMap<Object> content = new StringHashMap<Object>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
 
     private String[] keys = null;
 
@@ -80,8 +84,16 @@ public class JsonObjectReader {
 
     public String[] keys() {
         if (keys == null) {
-            Set<String> keySet = content.keySet();
-            keys = keySet.toArray(new String[keySet.size()]);
+            keys = new String[content.size()];
+            int[] nbLoop = new int[1];
+            nbLoop[0] = 0;
+            content.each(new StringHashMapCallBack<Object>() {
+                @Override
+                public void on(String key, Object value) {
+                    keys[nbLoop[0]] = key;
+                    nbLoop[0]++;
+                }
+            });
         }
         return keys;
     }

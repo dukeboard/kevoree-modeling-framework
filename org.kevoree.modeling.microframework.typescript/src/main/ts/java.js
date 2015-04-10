@@ -32,8 +32,6 @@ var System = (function () {
     };
     return System;
 })();
-var TSMap = Map;
-var TSSet = Set;
 Number.prototype.equals = function (other) {
     return this == other;
 };
@@ -366,41 +364,51 @@ var java;
         util.LinkedList = LinkedList;
         var Map = (function () {
             function Map() {
-                this.internalMap = new TSMap();
+                this.internalMap = {};
             }
             Map.prototype.get = function (key) {
-                return this.internalMap.get(key);
+                return this.internalMap[key];
             };
             Map.prototype.put = function (key, value) {
-                this.internalMap.set(key, value);
+                this.internalMap[key] = value;
             };
             Map.prototype.containsKey = function (key) {
-                return this.internalMap.has(key);
+                return this.internalMap.hasOwnProperty(key);
             };
             Map.prototype.remove = function (key) {
-                var tmp = this.internalMap.get(key);
-                this.internalMap.delete(key);
+                var tmp = this.internalMap[key];
+                delete this.internalMap[key];
                 return tmp;
             };
             Map.prototype.keySet = function () {
                 var result = new HashSet();
-                this.internalMap.forEach(function (value, index, p1) {
-                    result.add(index);
-                });
+                for (var p in this.internalMap) {
+                    if (this.internalMap.hasOwnProperty(p)) {
+                        result.add(p);
+                    }
+                }
                 return result;
             };
             Map.prototype.isEmpty = function () {
-                return this.internalMap.size == 0;
+                var c = 0;
+                for (var p in this.internalMap) {
+                    if (this.internalMap.hasOwnProperty(p)) {
+                        c++;
+                    }
+                }
+                return c == 0;
             };
             Map.prototype.values = function () {
                 var result = new HashSet();
-                this.internalMap.forEach(function (value, index, p1) {
-                    result.add(value);
-                });
+                for (var p in this.internalMap) {
+                    if (this.internalMap.hasOwnProperty(p)) {
+                        result.add(this.internalMap[p]);
+                    }
+                }
                 return result;
             };
             Map.prototype.clear = function () {
-                this.internalMap = new TSMap();
+                this.internalMap = {};
             };
             return Map;
         })();
@@ -417,40 +425,37 @@ var java;
             __extends(Set, _super);
             function Set() {
                 _super.apply(this, arguments);
-                this.internalSet = new TSSet();
+                this.internalSet = {};
             }
             Set.prototype.add = function (val) {
-                this.internalSet.add(val);
+                this.internalSet[val] = val;
             };
             Set.prototype.clear = function () {
-                this.internalSet = new TSSet();
+                this.internalSet = {};
             };
             Set.prototype.contains = function (val) {
-                return this.internalSet.has(val);
+                return this.internalSet.hasOwnProperty(val);
             };
             Set.prototype.addAll = function (vals) {
                 var tempArray = vals.toArray(null);
                 for (var i = 0; i < tempArray.length; i++) {
-                    this.internalSet.add(tempArray[i]);
+                    this.internalSet[tempArray[i]] = tempArray[i];
                 }
             };
             Set.prototype.remove = function (val) {
-                this.internalSet.delete(val);
+                delete this.internalSet[val];
             };
             Set.prototype.size = function () {
-                return this.internalSet.size;
+                var c = 0;
+                for (var p in this.internalSet) {
+                    if (this.internalSet.hasOwnProperty(p)) {
+                        c++;
+                    }
+                }
+                return c;
             };
             Set.prototype.isEmpty = function () {
-                return this.internalSet.size == 0;
-            };
-            Set.prototype.toArray = function (other) {
-                var result = new Array(this.internalSet.size);
-                var i = 0;
-                this.internalSet.forEach(function (value, index, origin) {
-                    result[i] = value;
-                    i++;
-                });
-                return result;
+                return this.size() == 0;
             };
             return Set;
         })(Collection);

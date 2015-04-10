@@ -34,9 +34,8 @@ public class AbstractKDefer<A> implements KCurrentDefer<A> {
         } else {
             _isDone = true;
             //inform child to decrease
-            KDefer[] childrenTasks = _nextTasks.toArray(new KDefer[_nextTasks.size()]);
-            for (int i = 0; i < childrenTasks.length; i++) {
-                ((AbstractKDefer) childrenTasks[i]).informParentEnd(this);
+            for (int i = 0; i < _nextTasks.size(); i++) {
+                ((AbstractKDefer) _nextTasks.get(i)).informParentEnd(this);
             }
             return _isDone;
         }

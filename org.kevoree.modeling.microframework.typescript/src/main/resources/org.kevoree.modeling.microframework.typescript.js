@@ -238,9 +238,8 @@ var org;
                             }
                             else {
                                 this._isDone = true;
-                                var childrenTasks = this._nextTasks.toArray(new Array());
-                                for (var i = 0; i < childrenTasks.length; i++) {
-                                    childrenTasks[i].informParentEnd(this);
+                                for (var i = 0; i < this._nextTasks.size(); i++) {
+                                    this._nextTasks.get(i).informParentEnd(this);
                                 }
                                 return this._isDone;
                             }
@@ -5031,7 +5030,7 @@ var org;
                                 }
                                 else {
                                     var alls = new java.util.ArrayList();
-                                    var content = new java.util.HashMap();
+                                    var content = new org.kevoree.modeling.api.map.StringHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                                     var currentAttributeName = null;
                                     var arrayPayload = null;
                                     currentToken = lexer.nextToken();
@@ -5047,12 +5046,12 @@ var org;
                                             }
                                             else {
                                                 if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.LEFT_BRACE)) {
-                                                    content = new java.util.HashMap();
+                                                    content = new org.kevoree.modeling.api.map.StringHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                                                 }
                                                 else {
                                                     if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.RIGHT_BRACE)) {
                                                         alls.add(content);
-                                                        content = new java.util.HashMap();
+                                                        content = new org.kevoree.modeling.api.map.StringHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                                                     }
                                                     else {
                                                         if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.VALUE)) {
@@ -5075,7 +5074,7 @@ var org;
                                         }
                                         currentToken = lexer.nextToken();
                                     }
-                                    var rootElem = null;
+                                    var rootElem = [null];
                                     var mappedKeys = new org.kevoree.modeling.api.map.LongLongHashMap(alls.size(), org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                                     for (var i = 0; i < alls.size(); i++) {
                                         try {
@@ -5099,10 +5098,7 @@ var org;
                                             var current = factory.createProxy(metaClass, mappedKeys.get(kid));
                                             factory.universe().model().manager().initKObject(current, factory);
                                             var raw = factory.universe().model().manager().entry(current, org.kevoree.modeling.api.data.manager.AccessMode.WRITE);
-                                            var metaKeys = elem.keySet().toArray(new Array());
-                                            for (var h = 0; h < metaKeys.length; h++) {
-                                                var metaKey = metaKeys[h];
-                                                var payload_content = elem.get(metaKey);
+                                            elem.each(function (metaKey, payload_content) {
                                                 if (metaKey.equals(org.kevoree.modeling.api.json.JsonModelSerializer.INBOUNDS_META)) {
                                                     try {
                                                         var raw_keys = payload_content;
@@ -5179,7 +5175,7 @@ var org;
                                                         else {
                                                             if (metaKey.equals(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_ROOT)) {
                                                                 if ("true".equals(payload_content)) {
-                                                                    rootElem = current;
+                                                                    rootElem[0] = current;
                                                                 }
                                                             }
                                                             else {
@@ -5223,7 +5219,7 @@ var org;
                                                         }
                                                     }
                                                 }
-                                            }
+                                            });
                                         }
                                         catch ($ex$) {
                                             if ($ex$ instanceof java.lang.Exception) {
@@ -5232,8 +5228,8 @@ var org;
                                             }
                                         }
                                     }
-                                    if (rootElem != null) {
-                                        factory.setRoot(rootElem).then(function (throwable) {
+                                    if (rootElem[0] != null) {
+                                        factory.setRoot(rootElem[0]).then(function (throwable) {
                                             if (callback != null) {
                                                 callback(throwable);
                                             }
@@ -6288,6 +6284,9 @@ var org;
                             }
                         };
                         StringHashMap.prototype.put = function (key, value) {
+                            if (key == null) {
+                                return value;
+                            }
                             var entry;
                             var hash = key.hashCode();
                             var index = (hash & 0x7FFFFFFF) % this.elementDataSize;

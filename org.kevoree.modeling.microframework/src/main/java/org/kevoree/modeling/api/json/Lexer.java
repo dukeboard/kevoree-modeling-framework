@@ -2,6 +2,7 @@ package org.kevoree.modeling.api.json;
 
 import java.util.HashSet;
 
+
 public class Lexer {
 
     private String bytes;
