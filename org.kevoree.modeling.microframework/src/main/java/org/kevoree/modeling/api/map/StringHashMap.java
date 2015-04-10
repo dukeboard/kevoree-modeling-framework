@@ -4,7 +4,7 @@ package org.kevoree.modeling.api.map;
 /* From an original idea https://code.google.com/p/jdbm2/ */
 
 /**
- * @native:ts {@code
+ * @native ts
  * private internalMap;
  * constructor(initalCapacity: number, loadFactor : number) { this.internalMap = {}; }
  * public clear():void { this.internalMap = {}; }
@@ -14,7 +14,6 @@ package org.kevoree.modeling.api.map;
  * public remove(key:string):V { var tmp = this.internalMap[key]; delete this.internalMap[key]; return tmp; }
  * public size():number { var c=0;for(var p in this.internalMap){ if(this.internalMap.hasOwnProperty(p)){ c++; } } return c; }
  * public each(callback: (p : string, p1 : V) => void): void { for(var p in this.internalMap){ callback(<string>p,this.internalMap[p]); } }
- * }
  */
 public class StringHashMap<V> {
 
@@ -34,7 +33,7 @@ public class StringHashMap<V> {
 
     private final float loadFactor;
 
-    /** @native:ts {@code } */
+    /** @ignore ts */
     static final class Entry<V> {
         Entry<V> next;
         String key;

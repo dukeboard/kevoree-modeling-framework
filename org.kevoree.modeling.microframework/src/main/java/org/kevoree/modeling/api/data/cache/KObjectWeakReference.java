@@ -8,10 +8,7 @@ import java.lang.ref.WeakReference;
  * Created by duke on 30/03/15.
  */
 
-/**
- * @native:ts {@code
- * }
- */
+/** @ignore ts */
 public class KObjectWeakReference extends WeakReference<KObject> {
 
     public long[] keyParts() {

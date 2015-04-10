@@ -14,7 +14,7 @@ import java.util.Set;
  */
 
 /**
- * @native:ts {@code
+ * @native ts
  * private readObject:any;
  * public parseObject(payload:string):void {
  * this.readObject = JSON.parse(payload);
@@ -31,7 +31,6 @@ import java.util.Set;
  * keysArr.push(key);
  * }
  * return keysArr;
- * }
  * }
  */
 public class JsonObjectReader {

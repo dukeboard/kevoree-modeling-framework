@@ -114,12 +114,10 @@ public class MultiLayeredMemoryCache implements KCache {
         _nestedLayers.remove(KContentKey.GLOBAL_SEGMENT_DATA_ROOT_INDEX);
     }
 
+    /** @ignore ts */
     private LinkedList<KObjectWeakReference> references = new LinkedList<KObjectWeakReference>();
 
-    /**
-     * @native:ts {@code
-     * }
-     */
+    /** @native ts */
     @Override
     public void monitor(KObject origin) {
         KObjectWeakReference phantomRef = new KObjectWeakReference(origin);
@@ -135,10 +133,7 @@ public class MultiLayeredMemoryCache implements KCache {
         }
     }
 
-    /**
-     * @native:ts {@code
-     * }
-     */
+    /** @native ts */
     @Override
     public synchronized void clean() {
         if(_manager != null){

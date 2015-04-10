@@ -9,7 +9,7 @@ import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.meta.MetaModel;
 
 /**
- * @native:ts {@code
+ * @native ts
  * private internalMap;
  * private _counter = 0;
  * private _isDirty = false;
@@ -45,7 +45,6 @@ import org.kevoree.modeling.api.meta.MetaModel;
  * this.put(loopKey, loopVal);
  * }
  * this._isDirty = false;
- * }
  * }
  */
 public class LongLongHashMap implements KCacheObject {
@@ -143,9 +142,7 @@ public class LongLongHashMap implements KCacheObject {
         return buffer.toString();
     }
 
-    /**
-     * @native:ts {@code }
-     */
+    /** @ignore ts */
     static final class Entry {
         Entry next;
         long key;

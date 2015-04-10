@@ -11,15 +11,13 @@ import java.util.concurrent.Executors;
 public class ExecutorServiceScheduler implements KScheduler {
 
     /**
-     * @native:ts {@code
-     * }
+     * @ignore ts
      */
     private ExecutorService _service = Executors.newCachedThreadPool();
 
     /**
-     * @native:ts {@code
+     * @native ts
      * p_runnable.run();
-     * }
      */
     @Override
     public void dispatch(Runnable p_runnable) {
@@ -27,8 +25,7 @@ public class ExecutorServiceScheduler implements KScheduler {
     }
 
     /**
-     * @native:ts {@code
-     * }
+     * @native ts
      */
     @Override
     public void stop() {

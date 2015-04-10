@@ -6,10 +6,8 @@ package org.kevoree.modeling.api.util;
 public class Checker {
 
     /**
-     * @native:ts
-     * {@code
-     *   return param != undefined && param != null;
-     * }
+     * @native ts
+     * return param != undefined && param != null;
      * @param param
      * @return
      */

@@ -2138,17 +2138,8 @@ var org;
                             return KContentKey;
                         })();
                         cache.KContentKey = KContentKey;
-                        var KObjectWeakReference = (function (_super) {
-                            __extends(KObjectWeakReference, _super);
-                            function KObjectWeakReference() {
-                                _super.apply(this, arguments);
-                            }
-                            return KObjectWeakReference;
-                        })(java.lang.ref.WeakReference);
-                        cache.KObjectWeakReference = KObjectWeakReference;
                         var MultiLayeredMemoryCache = (function () {
                             function MultiLayeredMemoryCache(p_manager) {
-                                this.references = new java.util.LinkedList();
                                 this._manager = p_manager;
                                 this._nestedLayers = new org.kevoree.modeling.api.map.LongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                             }
@@ -5694,15 +5685,6 @@ var org;
                         return IntHashMap;
                     })();
                     map.IntHashMap = IntHashMap;
-                    var IntHashMap;
-                    (function (IntHashMap) {
-                        var Entry = (function () {
-                            function Entry() {
-                            }
-                            return Entry;
-                        })();
-                        IntHashMap.Entry = Entry;
-                    })(IntHashMap = map.IntHashMap || (map.IntHashMap = {}));
                     var LongHashMap = (function () {
                         function LongHashMap(initalCapacity, loadFactor) {
                             this.internalMap = {};
@@ -5743,15 +5725,6 @@ var org;
                         return LongHashMap;
                     })();
                     map.LongHashMap = LongHashMap;
-                    var LongHashMap;
-                    (function (LongHashMap) {
-                        var Entry = (function () {
-                            function Entry() {
-                            }
-                            return Entry;
-                        })();
-                        LongHashMap.Entry = Entry;
-                    })(LongHashMap = map.LongHashMap || (map.LongHashMap = {}));
                     var LongLongHashMap = (function () {
                         function LongLongHashMap(initalCapacity, loadFactor) {
                             this._counter = 0;
@@ -5844,15 +5817,6 @@ var org;
                         return LongLongHashMap;
                     })();
                     map.LongLongHashMap = LongLongHashMap;
-                    var LongLongHashMap;
-                    (function (LongLongHashMap) {
-                        var Entry = (function () {
-                            function Entry() {
-                            }
-                            return Entry;
-                        })();
-                        LongLongHashMap.Entry = Entry;
-                    })(LongLongHashMap = map.LongLongHashMap || (map.LongLongHashMap = {}));
                     var StringHashMap = (function () {
                         function StringHashMap(initalCapacity, loadFactor) {
                             this.internalMap = {};
@@ -5893,15 +5857,6 @@ var org;
                         return StringHashMap;
                     })();
                     map.StringHashMap = StringHashMap;
-                    var StringHashMap;
-                    (function (StringHashMap) {
-                        var Entry = (function () {
-                            function Entry() {
-                            }
-                            return Entry;
-                        })();
-                        StringHashMap.Entry = Entry;
-                    })(StringHashMap = map.StringHashMap || (map.StringHashMap = {}));
                 })(map = api.map || (api.map = {}));
                 var meta;
                 (function (meta) {

@@ -118,19 +118,17 @@ declare module java {
         }
         class Map<K, V> {
             get(key: K): V;
-            put(key: K, value: V): void;
+            put(key: K, value: V): V;
             containsKey(key: K): boolean;
             remove(key: K): V;
             keySet(): Set<K>;
             isEmpty(): boolean;
             values(): Set<V>;
-            private internalMap;
             clear(): void;
         }
         class HashMap<K, V> extends Map<K, V> {
         }
         class Set<T> extends Collection<T> {
-            private internalSet;
             add(val: T): void;
             clear(): void;
             contains(val: T): boolean;

@@ -8,9 +8,8 @@ import org.kevoree.modeling.api.KConfig;
 public class KeyCalculator {
 
     /**
-     * @native:ts {@code
+     * @native ts
      * private _prefix: string;
-     * }
      */
     private long _prefix;
     private long _currentIndex;
@@ -18,10 +17,9 @@ public class KeyCalculator {
     /**
      * @param currentIndex
      * @param prefix
-     * @native:ts {@code
+     * @native ts
      * this._prefix = "0x" + prefix.toString(org.kevoree.modeling.api.KConfig.PREFIX_SIZE);
      * this._currentIndex = currentIndex;
-     * }
      */
     public KeyCalculator(short prefix, long currentIndex) {
         this._prefix = ((long) prefix) << KConfig.LONG_SIZE - KConfig.PREFIX_SIZE;
@@ -29,7 +27,7 @@ public class KeyCalculator {
     }
 
     /**
-     * @native:ts {@code
+     * @native ts
      * if (this._currentIndex == org.kevoree.modeling.api.KConfig.KEY_PREFIX_MASK) {
      * throw new java.lang.IndexOutOfBoundsException("Object Index could not be created because it exceeded the capacity of the current prefix. Ask for a new prefix.");
      * }
@@ -40,7 +38,6 @@ public class KeyCalculator {
      * throw new java.lang.IndexOutOfBoundsException("Object Index exceeds teh maximum JavaScript number capacity. (2^"+org.kevoree.modeling.api.KConfig.LONG_SIZE+")");
      * }
      * return objectKey;
-     * }
      */
     public long nextKey() {
         if (_currentIndex == KConfig.KEY_PREFIX_MASK) {
@@ -60,9 +57,8 @@ public class KeyCalculator {
     }
 
     /**
-     * @native:ts {@code
+     * @native ts
      * return parseInt(this._prefix,org.kevoree.modeling.api.KConfig.PREFIX_SIZE);
-     * }
      */
     public short prefix() {
         return (short) (_prefix >> KConfig.LONG_SIZE - KConfig.PREFIX_SIZE);

@@ -562,15 +562,12 @@ declare module org {
                             static create(payload: string): org.kevoree.modeling.api.data.cache.KContentKey;
                             toString(): string;
                         }
-                        class KObjectWeakReference extends java.lang.ref.WeakReference<org.kevoree.modeling.api.KObject> {
-                        }
                         class MultiLayeredMemoryCache implements org.kevoree.modeling.api.data.cache.KCache {
                             static DEBUG: boolean;
                             private _nestedLayers;
                             private static prefixDebugGet;
                             private static prefixDebugPut;
                             private _manager;
-                            private references;
                             constructor(p_manager: org.kevoree.modeling.api.data.manager.KDataManager);
                             get(key: org.kevoree.modeling.api.data.cache.KContentKey): org.kevoree.modeling.api.data.cache.KCacheObject;
                             put(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: org.kevoree.modeling.api.data.cache.KCacheObject): void;
@@ -1125,10 +1122,6 @@ declare module org {
                         size(): number;
                         each(callback: (p: number, p1: V) => void): void;
                     }
-                    module IntHashMap {
-                        class Entry<V> {
-                        }
-                    }
                     interface IntHashMapCallBack<V> {
                         on(key: number, value: V): void;
                     }
@@ -1142,10 +1135,6 @@ declare module org {
                         remove(key: number): V;
                         size(): number;
                         each(callback: (p: number, p1: V) => void): void;
-                    }
-                    module LongHashMap {
-                        class Entry<V> {
-                        }
                     }
                     interface LongHashMapCallBack<V> {
                         on(key: number, value: V): void;
@@ -1172,10 +1161,6 @@ declare module org {
                         serialize(): string;
                         unserialize(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: string, metaModel: org.kevoree.modeling.api.meta.MetaModel): void;
                     }
-                    module LongLongHashMap {
-                        class Entry {
-                        }
-                    }
                     interface LongLongHashMapCallBack<V> {
                         on(key: number, value: number): void;
                     }
@@ -1189,10 +1174,6 @@ declare module org {
                         remove(key: string): V;
                         size(): number;
                         each(callback: (p: string, p1: V) => void): void;
-                    }
-                    module StringHashMap {
-                        class Entry<V> {
-                        }
                     }
                     interface StringHashMapCallBack<V> {
                         on(key: string, value: V): void;

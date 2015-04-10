@@ -364,51 +364,48 @@ var java;
         util.LinkedList = LinkedList;
         var Map = (function () {
             function Map() {
-                this.internalMap = {};
             }
             Map.prototype.get = function (key) {
-                return this.internalMap[key];
+                return this[key];
             };
             Map.prototype.put = function (key, value) {
-                this.internalMap[key] = value;
+                var previous_val = this[key];
+                this[key] = value;
+                return previous_val;
             };
             Map.prototype.containsKey = function (key) {
-                return this.internalMap.hasOwnProperty(key);
+                return this.hasOwnProperty(key);
             };
             Map.prototype.remove = function (key) {
-                var tmp = this.internalMap[key];
-                delete this.internalMap[key];
+                var tmp = this[key];
+                delete this[key];
                 return tmp;
             };
             Map.prototype.keySet = function () {
                 var result = new HashSet();
-                for (var p in this.internalMap) {
-                    if (this.internalMap.hasOwnProperty(p)) {
+                for (var p in this) {
+                    if (this.hasOwnProperty(p)) {
                         result.add(p);
                     }
                 }
                 return result;
             };
             Map.prototype.isEmpty = function () {
-                var c = 0;
-                for (var p in this.internalMap) {
-                    if (this.internalMap.hasOwnProperty(p)) {
-                        c++;
-                    }
-                }
-                return c == 0;
+                return Object.keys(this).length == 0;
             };
             Map.prototype.values = function () {
                 var result = new HashSet();
-                for (var p in this.internalMap) {
-                    if (this.internalMap.hasOwnProperty(p)) {
-                        result.add(this.internalMap[p]);
+                for (var p in this) {
+                    if (this.hasOwnProperty(p)) {
+                        result.add(this[p]);
                     }
                 }
                 return result;
             };
             Map.prototype.clear = function () {
-                this.internalMap = {};
+                for (var p in this) {
+                    delete this[p];
+                }
             };
             return Map;
         })();
@@ -425,34 +422,29 @@ var java;
             __extends(Set, _super);
             function Set() {
                 _super.apply(this, arguments);
-                this.internalSet = {};
             }
             Set.prototype.add = function (val) {
-                this.internalSet[val] = val;
+                this[val] = val;
             };
             Set.prototype.clear = function () {
-                this.internalSet = {};
+                for (var p in this) {
+                    delete this[p];
+                }
             };
             Set.prototype.contains = function (val) {
-                return this.internalSet.hasOwnProperty(val);
+                return this.hasOwnProperty(val);
             };
             Set.prototype.addAll = function (vals) {
                 var tempArray = vals.toArray(null);
                 for (var i = 0; i < tempArray.length; i++) {
-                    this.internalSet[tempArray[i]] = tempArray[i];
+                    this[tempArray[i]] = tempArray[i];
                 }
             };
             Set.prototype.remove = function (val) {
-                delete this.internalSet[val];
+                delete this[val];
             };
             Set.prototype.size = function () {
-                var c = 0;
-                for (var p in this.internalSet) {
-                    if (this.internalSet.hasOwnProperty(p)) {
-                        c++;
-                    }
-                }
-                return c;
+                return Object.keys(this).length;
             };
             Set.prototype.isEmpty = function () {
                 return this.size() == 0;
