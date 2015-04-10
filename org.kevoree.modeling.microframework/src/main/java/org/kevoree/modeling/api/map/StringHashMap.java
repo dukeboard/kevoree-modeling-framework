@@ -3,8 +3,19 @@ package org.kevoree.modeling.api.map;
 
 /* From an original idea https://code.google.com/p/jdbm2/ */
 
-
-
+/**
+ * @native:ts {@code
+ * private internalMap;
+ * constructor(initalCapacity: number, loadFactor : number) { this.internalMap = {}; }
+ * public clear():void { this.internalMap = {}; }
+ * public get(key:string):V { return this.internalMap[key]; }
+ * public put(key:string, pval : V):V { var previousVal = this.internalMap[key];this.internalMap[key] = pval;return previousVal;}
+ * public containsKey(key:string):boolean { return this.internalMap.hasOwnProperty(key);}
+ * public remove(key:string):V { var tmp = this.internalMap[key]; delete this.internalMap[key]; return tmp; }
+ * public size():number { var c=0;for(var p in this.internalMap){ if(this.internalMap.hasOwnProperty(p)){ c++; } } return c; }
+ * public each(callback: (p : string, p1 : V) => void): void { for(var p in this.internalMap){ callback(<string>p,this.internalMap[p]); } }
+ * }
+ */
 public class StringHashMap<V> {
 
     protected int elementCount;
@@ -23,6 +34,7 @@ public class StringHashMap<V> {
 
     private final float loadFactor;
 
+    /** @native:ts {@code } */
     static final class Entry<V> {
         Entry<V> next;
         String key;
@@ -62,7 +74,7 @@ public class StringHashMap<V> {
     }
 
     public boolean containsKey(String key) {
-        if(elementDataSize == 0){
+        if (elementDataSize == 0) {
             return false;
         }
         int hash = key.hashCode();
@@ -72,7 +84,7 @@ public class StringHashMap<V> {
     }
 
     public V get(String key) {
-        if(key == null || elementDataSize == 0){
+        if (key == null || elementDataSize == 0) {
             return null;
         }
         Entry<V> m;
@@ -110,7 +122,7 @@ public class StringHashMap<V> {
     }
 
     public V put(String key, V value) {
-        if(key == null){
+        if (key == null) {
             return value;
         }
         Entry<V> entry;

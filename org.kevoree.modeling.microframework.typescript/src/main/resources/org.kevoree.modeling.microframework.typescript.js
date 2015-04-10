@@ -5655,154 +5655,41 @@ var org;
                 var map;
                 (function (map) {
                     var IntHashMap = (function () {
-                        function IntHashMap(p_initalCapacity, p_loadFactor) {
-                            this.modCount = 0;
-                            this.reuseAfterDelete = null;
-                            this.initalCapacity = p_initalCapacity;
-                            this.loadFactor = p_loadFactor;
-                            this.elementCount = 0;
-                            this.elementData = this.newElementArray(this.initalCapacity);
-                            this.elementDataSize = this.initalCapacity;
-                            this.computeMaxSize();
+                        function IntHashMap(initalCapacity, loadFactor) {
+                            this.internalMap = {};
                         }
-                        IntHashMap.prototype.newElementArray = function (s) {
-                            return new Array();
-                        };
                         IntHashMap.prototype.clear = function () {
-                            if (this.elementCount > 0) {
-                                this.elementCount = 0;
-                                this.elementData = this.newElementArray(this.initalCapacity);
-                                this.elementDataSize = this.initalCapacity;
-                                this.modCount++;
-                            }
-                        };
-                        IntHashMap.prototype.computeMaxSize = function () {
-                            this.threshold = (this.elementDataSize * this.loadFactor);
-                        };
-                        IntHashMap.prototype.containsKey = function (key) {
-                            var hash = (key);
-                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            var m = this.findNonNullKeyEntry(key, index);
-                            return m != null;
+                            this.internalMap = {};
                         };
                         IntHashMap.prototype.get = function (key) {
-                            var m;
-                            var hash = (key);
-                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            m = this.findNonNullKeyEntry(key, index);
-                            if (m != null) {
-                                return m.value;
-                            }
-                            return null;
+                            return this.internalMap[key];
                         };
-                        IntHashMap.prototype.findNonNullKeyEntry = function (key, index) {
-                            var m = this.elementData[index];
-                            while (m != null) {
-                                if (key == m.key) {
-                                    return m;
-                                }
-                                m = m.next;
-                            }
-                            return null;
+                        IntHashMap.prototype.put = function (key, pval) {
+                            var previousVal = this.internalMap[key];
+                            this.internalMap[key] = pval;
+                            return previousVal;
                         };
-                        IntHashMap.prototype.each = function (callback) {
-                            for (var i = 0; i < this.elementDataSize; i++) {
-                                if (this.elementData[i] != null) {
-                                    var current = this.elementData[i];
-                                    callback(this.elementData[i].key, this.elementData[i].value);
-                                    while (current.next != null) {
-                                        current = current.next;
-                                        callback(current.key, current.value);
-                                    }
-                                }
-                            }
-                        };
-                        IntHashMap.prototype.put = function (key, value) {
-                            var entry;
-                            var index = (key & 0x7FFFFFFF) % this.elementDataSize;
-                            entry = this.findNonNullKeyEntry(key, index);
-                            if (entry == null) {
-                                this.modCount++;
-                                if (++this.elementCount > this.threshold) {
-                                    this.rehash();
-                                    index = (key & 0x7FFFFFFF) % this.elementDataSize;
-                                }
-                                entry = this.createHashedEntry(key, index);
-                            }
-                            var result = entry.value;
-                            entry.value = value;
-                            return result;
-                        };
-                        IntHashMap.prototype.createHashedEntry = function (key, index) {
-                            var entry = this.reuseAfterDelete;
-                            if (entry == null) {
-                                entry = new org.kevoree.modeling.api.map.IntHashMap.Entry(key, null);
-                            }
-                            else {
-                                this.reuseAfterDelete = null;
-                                entry.key = key;
-                                entry.value = null;
-                            }
-                            entry.next = this.elementData[index];
-                            this.elementData[index] = entry;
-                            return entry;
-                        };
-                        IntHashMap.prototype.rehashCapacity = function (capacity) {
-                            var length = (capacity == 0 ? 1 : capacity << 1);
-                            var newData = this.newElementArray(length);
-                            for (var i = 0; i < this.elementDataSize; i++) {
-                                var entry = this.elementData[i];
-                                while (entry != null) {
-                                    var index = (entry.key & 0x7FFFFFFF) % length;
-                                    var next = entry.next;
-                                    entry.next = newData[index];
-                                    newData[index] = entry;
-                                    entry = next;
-                                }
-                            }
-                            this.elementData = newData;
-                            this.elementDataSize = length;
-                            this.computeMaxSize();
-                        };
-                        IntHashMap.prototype.rehash = function () {
-                            this.rehashCapacity(this.elementDataSize);
+                        IntHashMap.prototype.containsKey = function (key) {
+                            return this.internalMap.hasOwnProperty(key);
                         };
                         IntHashMap.prototype.remove = function (key) {
-                            var entry = this.removeEntry(key);
-                            if (entry == null) {
-                                return null;
-                            }
-                            var ret = entry.value;
-                            entry.value = null;
-                            entry.key = -1;
-                            this.reuseAfterDelete = entry;
-                            return ret;
-                        };
-                        IntHashMap.prototype.removeEntry = function (key) {
-                            var entry;
-                            var last = null;
-                            var hash = key;
-                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            entry = this.elementData[index];
-                            while (entry != null && !(key == entry.key)) {
-                                last = entry;
-                                entry = entry.next;
-                            }
-                            if (entry == null) {
-                                return null;
-                            }
-                            if (last == null) {
-                                this.elementData[index] = entry.next;
-                            }
-                            else {
-                                last.next = entry.next;
-                            }
-                            this.modCount++;
-                            this.elementCount--;
-                            return entry;
+                            var tmp = this.internalMap[key];
+                            delete this.internalMap[key];
+                            return tmp;
                         };
                         IntHashMap.prototype.size = function () {
-                            return this.elementCount;
+                            var c = 0;
+                            for (var p in this.internalMap) {
+                                if (this.internalMap.hasOwnProperty(p)) {
+                                    c++;
+                                }
+                            }
+                            return c;
+                        };
+                        IntHashMap.prototype.each = function (callback) {
+                            for (var p in this.internalMap) {
+                                callback(p, this.internalMap[p]);
+                            }
                         };
                         return IntHashMap;
                     })();
@@ -5810,164 +5697,48 @@ var org;
                     var IntHashMap;
                     (function (IntHashMap) {
                         var Entry = (function () {
-                            function Entry(theKey, theValue) {
-                                this.key = theKey;
-                                this.value = theValue;
+                            function Entry() {
                             }
                             return Entry;
                         })();
                         IntHashMap.Entry = Entry;
                     })(IntHashMap = map.IntHashMap || (map.IntHashMap = {}));
                     var LongHashMap = (function () {
-                        function LongHashMap(p_initalCapacity, p_loadFactor) {
-                            this.modCount = 0;
-                            this.reuseAfterDelete = null;
-                            this.initalCapacity = p_initalCapacity;
-                            this.loadFactor = p_loadFactor;
-                            this.elementCount = 0;
-                            this.elementData = this.newElementArray(this.initalCapacity);
-                            this.elementDataSize = this.initalCapacity;
-                            this.computeMaxSize();
+                        function LongHashMap(initalCapacity, loadFactor) {
+                            this.internalMap = {};
                         }
-                        LongHashMap.prototype.newElementArray = function (s) {
-                            return new Array();
-                        };
                         LongHashMap.prototype.clear = function () {
-                            if (this.elementCount > 0) {
-                                this.elementCount = 0;
-                                this.elementData = this.newElementArray(this.initalCapacity);
-                                this.elementDataSize = this.initalCapacity;
-                                this.modCount++;
-                            }
-                        };
-                        LongHashMap.prototype.computeMaxSize = function () {
-                            this.threshold = (this.elementDataSize * this.loadFactor);
-                        };
-                        LongHashMap.prototype.containsKey = function (key) {
-                            var hash = (key);
-                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            var m = this.findNonNullKeyEntry(key, index);
-                            return m != null;
+                            this.internalMap = {};
                         };
                         LongHashMap.prototype.get = function (key) {
-                            var m;
-                            var hash = (key);
-                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            m = this.findNonNullKeyEntry(key, index);
-                            if (m != null) {
-                                return m.value;
-                            }
-                            return null;
+                            return this.internalMap[key];
                         };
-                        LongHashMap.prototype.findNonNullKeyEntry = function (key, index) {
-                            var m = this.elementData[index];
-                            while (m != null) {
-                                if (key == m.key) {
-                                    return m;
-                                }
-                                m = m.next;
-                            }
-                            return null;
+                        LongHashMap.prototype.put = function (key, pval) {
+                            var previousVal = this.internalMap[key];
+                            this.internalMap[key] = pval;
+                            return previousVal;
                         };
-                        LongHashMap.prototype.each = function (callback) {
-                            for (var i = 0; i < this.elementDataSize; i++) {
-                                if (this.elementData[i] != null) {
-                                    var current = this.elementData[i];
-                                    callback(this.elementData[i].key, this.elementData[i].value);
-                                    while (current.next != null) {
-                                        current = current.next;
-                                        callback(current.key, current.value);
-                                    }
-                                }
-                            }
-                        };
-                        LongHashMap.prototype.put = function (key, value) {
-                            var entry;
-                            var hash = (key);
-                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            entry = this.findNonNullKeyEntry(key, index);
-                            if (entry == null) {
-                                this.modCount++;
-                                if (++this.elementCount > this.threshold) {
-                                    this.rehash();
-                                    index = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                                }
-                                entry = this.createHashedEntry(key, index);
-                            }
-                            var result = entry.value;
-                            entry.value = value;
-                            return result;
-                        };
-                        LongHashMap.prototype.createHashedEntry = function (key, index) {
-                            var entry = this.reuseAfterDelete;
-                            if (entry == null) {
-                                entry = new org.kevoree.modeling.api.map.LongHashMap.Entry(key, null);
-                            }
-                            else {
-                                this.reuseAfterDelete = null;
-                                entry.key = key;
-                                entry.value = null;
-                            }
-                            entry.next = this.elementData[index];
-                            this.elementData[index] = entry;
-                            return entry;
-                        };
-                        LongHashMap.prototype.rehashCapacity = function (capacity) {
-                            var length = (capacity == 0 ? 1 : capacity << 1);
-                            var newData = this.newElementArray(length);
-                            for (var i = 0; i < this.elementDataSize; i++) {
-                                var entry = this.elementData[i];
-                                while (entry != null) {
-                                    var index = (entry.key & 0x7FFFFFFF) % length;
-                                    var next = entry.next;
-                                    entry.next = newData[index];
-                                    newData[index] = entry;
-                                    entry = next;
-                                }
-                            }
-                            this.elementData = newData;
-                            this.elementDataSize = length;
-                            this.computeMaxSize();
-                        };
-                        LongHashMap.prototype.rehash = function () {
-                            this.rehashCapacity(this.elementDataSize);
+                        LongHashMap.prototype.containsKey = function (key) {
+                            return this.internalMap.hasOwnProperty(key);
                         };
                         LongHashMap.prototype.remove = function (key) {
-                            var entry = this.removeEntry(key);
-                            if (entry == null) {
-                                return null;
-                            }
-                            var ret = entry.value;
-                            entry.value = null;
-                            entry.key = org.kevoree.modeling.api.KConfig.BEGINNING_OF_TIME;
-                            this.reuseAfterDelete = entry;
-                            return ret;
-                        };
-                        LongHashMap.prototype.removeEntry = function (key) {
-                            var entry;
-                            var last = null;
-                            var hash = key;
-                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            entry = this.elementData[index];
-                            while (entry != null && !(key == entry.key)) {
-                                last = entry;
-                                entry = entry.next;
-                            }
-                            if (entry == null) {
-                                return null;
-                            }
-                            if (last == null) {
-                                this.elementData[index] = entry.next;
-                            }
-                            else {
-                                last.next = entry.next;
-                            }
-                            this.modCount++;
-                            this.elementCount--;
-                            return entry;
+                            var tmp = this.internalMap[key];
+                            delete this.internalMap[key];
+                            return tmp;
                         };
                         LongHashMap.prototype.size = function () {
-                            return this.elementCount;
+                            var c = 0;
+                            for (var p in this.internalMap) {
+                                if (this.internalMap.hasOwnProperty(p)) {
+                                    c++;
+                                }
+                            }
+                            return c;
+                        };
+                        LongHashMap.prototype.each = function (callback) {
+                            for (var p in this.internalMap) {
+                                callback(p, this.internalMap[p]);
+                            }
                         };
                         return LongHashMap;
                     })();
@@ -5975,27 +5746,52 @@ var org;
                     var LongHashMap;
                     (function (LongHashMap) {
                         var Entry = (function () {
-                            function Entry(theKey, theValue) {
-                                this.key = theKey;
-                                this.value = theValue;
+                            function Entry() {
                             }
                             return Entry;
                         })();
                         LongHashMap.Entry = Entry;
                     })(LongHashMap = map.LongHashMap || (map.LongHashMap = {}));
                     var LongLongHashMap = (function () {
-                        function LongLongHashMap(p_initalCapacity, p_loadFactor) {
-                            this.modCount = 0;
-                            this.reuseAfterDelete = null;
-                            this._isDirty = false;
+                        function LongLongHashMap(initalCapacity, loadFactor) {
                             this._counter = 0;
-                            this.initalCapacity = p_initalCapacity;
-                            this.loadFactor = p_loadFactor;
-                            this.elementCount = 0;
-                            this.elementData = new Array();
-                            this.elementDataSize = this.initalCapacity;
-                            this.computeMaxSize();
+                            this._isDirty = false;
+                            this.internalMap = {};
                         }
+                        LongLongHashMap.prototype.clear = function () {
+                            this.internalMap = {};
+                        };
+                        LongLongHashMap.prototype.get = function (key) {
+                            return this.internalMap[key];
+                        };
+                        LongLongHashMap.prototype.put = function (key, pval) {
+                            this._isDirty = false;
+                            var previousVal = this.internalMap[key];
+                            this.internalMap[key] = pval;
+                            return previousVal;
+                        };
+                        LongLongHashMap.prototype.containsKey = function (key) {
+                            return this.internalMap.hasOwnProperty(key);
+                        };
+                        LongLongHashMap.prototype.remove = function (key) {
+                            var tmp = this.internalMap[key];
+                            delete this.internalMap[key];
+                            return tmp;
+                        };
+                        LongLongHashMap.prototype.size = function () {
+                            var c = 0;
+                            for (var p in this.internalMap) {
+                                if (this.internalMap.hasOwnProperty(p)) {
+                                    c++;
+                                }
+                            }
+                            return c;
+                        };
+                        LongLongHashMap.prototype.each = function (callback) {
+                            for (var p in this.internalMap) {
+                                callback(p, this.internalMap[p]);
+                            }
+                        };
                         LongLongHashMap.prototype.counter = function () {
                             return this._counter;
                         };
@@ -6011,6 +5807,13 @@ var org;
                         LongLongHashMap.prototype.setClean = function () {
                             this._isDirty = false;
                         };
+                        LongLongHashMap.prototype.serialize = function () {
+                            var buffer = "" + this.size();
+                            this.each(function (key, value) {
+                                buffer = buffer + LongLongHashMap.CHUNK_SEP + key + LongLongHashMap.ELEMENT_SEP + value;
+                            });
+                            return buffer;
+                        };
                         LongLongHashMap.prototype.unserialize = function (key, payload, metaModel) {
                             if (payload == null || payload.length == 0) {
                                 return;
@@ -6020,7 +5823,6 @@ var org;
                                 cursor++;
                             }
                             var nbElement = java.lang.Integer.parseInt(payload.substring(0, cursor));
-                            this.rehashCapacity(nbElement);
                             while (cursor < payload.length) {
                                 cursor++;
                                 var beginChunk = cursor;
@@ -6037,152 +5839,6 @@ var org;
                             }
                             this._isDirty = false;
                         };
-                        LongLongHashMap.prototype.serialize = function () {
-                            var buffer = new java.lang.StringBuilder();
-                            buffer.append(this.elementCount);
-                            this.each(function (key, value) {
-                                buffer.append(LongLongHashMap.CHUNK_SEP);
-                                buffer.append(key);
-                                buffer.append(LongLongHashMap.ELEMENT_SEP);
-                                buffer.append(value);
-                            });
-                            return buffer.toString();
-                        };
-                        LongLongHashMap.prototype.clear = function () {
-                            if (this.elementCount > 0) {
-                                this.elementCount = 0;
-                                this.elementData = new Array();
-                                this.elementDataSize = this.initalCapacity;
-                                this.modCount++;
-                            }
-                        };
-                        LongLongHashMap.prototype.computeMaxSize = function () {
-                            this.threshold = (this.elementDataSize * this.loadFactor);
-                        };
-                        LongLongHashMap.prototype.containsKey = function (key) {
-                            var hash = (key);
-                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            var m = this.findNonNullKeyEntry(key, index);
-                            return m != null;
-                        };
-                        LongLongHashMap.prototype.get = function (key) {
-                            var m;
-                            var hash = (key);
-                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            m = this.findNonNullKeyEntry(key, index);
-                            if (m != null) {
-                                return m.value;
-                            }
-                            return org.kevoree.modeling.api.KConfig.NULL_LONG;
-                        };
-                        LongLongHashMap.prototype.findNonNullKeyEntry = function (key, index) {
-                            var m = this.elementData[index];
-                            while (m != null) {
-                                if (key == m.key) {
-                                    return m;
-                                }
-                                m = m.next;
-                            }
-                            return null;
-                        };
-                        LongLongHashMap.prototype.each = function (callback) {
-                            for (var i = 0; i < this.elementDataSize; i++) {
-                                if (this.elementData[i] != null) {
-                                    var current = this.elementData[i];
-                                    callback(this.elementData[i].key, this.elementData[i].value);
-                                    while (current.next != null) {
-                                        current = current.next;
-                                        callback(current.key, current.value);
-                                    }
-                                }
-                            }
-                        };
-                        LongLongHashMap.prototype.put = function (key, value) {
-                            this._isDirty = true;
-                            var entry;
-                            var hash = (key);
-                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            entry = this.findNonNullKeyEntry(key, index);
-                            if (entry == null) {
-                                this.modCount++;
-                                if (++this.elementCount > this.threshold) {
-                                    this.rehash();
-                                    index = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                                }
-                                entry = this.createHashedEntry(key, index);
-                            }
-                            entry.value = value;
-                        };
-                        LongLongHashMap.prototype.createHashedEntry = function (key, index) {
-                            var entry = this.reuseAfterDelete;
-                            if (entry == null) {
-                                entry = new org.kevoree.modeling.api.map.LongLongHashMap.Entry(key, org.kevoree.modeling.api.KConfig.NULL_LONG);
-                            }
-                            else {
-                                this.reuseAfterDelete = null;
-                                entry.key = key;
-                                entry.value = org.kevoree.modeling.api.KConfig.NULL_LONG;
-                            }
-                            entry.next = this.elementData[index];
-                            this.elementData[index] = entry;
-                            return entry;
-                        };
-                        LongLongHashMap.prototype.rehashCapacity = function (capacity) {
-                            var length = (capacity == 0 ? 1 : capacity << 1);
-                            var newData = new Array();
-                            for (var i = 0; i < this.elementDataSize; i++) {
-                                var entry = this.elementData[i];
-                                while (entry != null) {
-                                    var index = (entry.key & 0x7FFFFFFF) % length;
-                                    var next = entry.next;
-                                    entry.next = newData[index];
-                                    newData[index] = entry;
-                                    entry = next;
-                                }
-                            }
-                            this.elementData = newData;
-                            this.elementDataSize = length;
-                            this.computeMaxSize();
-                        };
-                        LongLongHashMap.prototype.rehash = function () {
-                            this.rehashCapacity(this.elementDataSize);
-                        };
-                        LongLongHashMap.prototype.remove = function (key) {
-                            var entry = this.removeEntry(key);
-                            if (entry == null) {
-                                return;
-                            }
-                            entry.value = org.kevoree.modeling.api.KConfig.NULL_LONG;
-                            entry.key = org.kevoree.modeling.api.KConfig.BEGINNING_OF_TIME;
-                            this.reuseAfterDelete = entry;
-                        };
-                        LongLongHashMap.prototype.removeEntry = function (key) {
-                            var index = 0;
-                            var entry;
-                            var last = null;
-                            var hash = (key);
-                            index = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            entry = this.elementData[index];
-                            while (entry != null && !(key == entry.key)) {
-                                last = entry;
-                                entry = entry.next;
-                            }
-                            if (entry == null) {
-                                return null;
-                            }
-                            if (last == null) {
-                                this.elementData[index] = entry.next;
-                            }
-                            else {
-                                last.next = entry.next;
-                            }
-                            this.modCount++;
-                            this.elementCount--;
-                            return entry;
-                        };
-                        LongLongHashMap.prototype.size = function () {
-                            return this.elementCount;
-                        };
                         LongLongHashMap.ELEMENT_SEP = ',';
                         LongLongHashMap.CHUNK_SEP = '/';
                         return LongLongHashMap;
@@ -6191,174 +5847,48 @@ var org;
                     var LongLongHashMap;
                     (function (LongLongHashMap) {
                         var Entry = (function () {
-                            function Entry(theKey, theValue) {
-                                this.key = theKey;
-                                this.value = theValue;
+                            function Entry() {
                             }
                             return Entry;
                         })();
                         LongLongHashMap.Entry = Entry;
                     })(LongLongHashMap = map.LongLongHashMap || (map.LongLongHashMap = {}));
                     var StringHashMap = (function () {
-                        function StringHashMap(p_initalCapacity, p_loadFactor) {
-                            this.modCount = 0;
-                            this.reuseAfterDelete = null;
-                            this.initalCapacity = p_initalCapacity;
-                            this.loadFactor = p_loadFactor;
-                            this.elementCount = 0;
-                            this.elementData = this.newElementArray(this.initalCapacity);
-                            this.elementDataSize = this.initalCapacity;
-                            this.computeMaxSize();
+                        function StringHashMap(initalCapacity, loadFactor) {
+                            this.internalMap = {};
                         }
-                        StringHashMap.prototype.newElementArray = function (s) {
-                            return new Array();
-                        };
                         StringHashMap.prototype.clear = function () {
-                            if (this.elementCount > 0) {
-                                this.elementCount = 0;
-                                this.elementData = this.newElementArray(this.initalCapacity);
-                                this.elementDataSize = this.initalCapacity;
-                                this.modCount++;
-                            }
-                        };
-                        StringHashMap.prototype.computeMaxSize = function () {
-                            this.threshold = (this.elementDataSize * this.loadFactor);
-                        };
-                        StringHashMap.prototype.containsKey = function (key) {
-                            if (this.elementDataSize == 0) {
-                                return false;
-                            }
-                            var hash = key.hashCode();
-                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            var m = this.findNonNullKeyEntry(key, index);
-                            return m != null;
+                            this.internalMap = {};
                         };
                         StringHashMap.prototype.get = function (key) {
-                            if (key == null || this.elementDataSize == 0) {
-                                return null;
-                            }
-                            var m;
-                            var hash = key.hashCode();
-                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            m = this.findNonNullKeyEntry(key, index);
-                            if (m != null) {
-                                return m.value;
-                            }
-                            return null;
+                            return this.internalMap[key];
                         };
-                        StringHashMap.prototype.findNonNullKeyEntry = function (key, index) {
-                            var m = this.elementData[index];
-                            while (m != null) {
-                                if (key.equals(m.key)) {
-                                    return m;
-                                }
-                                m = m.next;
-                            }
-                            return null;
+                        StringHashMap.prototype.put = function (key, pval) {
+                            var previousVal = this.internalMap[key];
+                            this.internalMap[key] = pval;
+                            return previousVal;
                         };
-                        StringHashMap.prototype.each = function (callback) {
-                            for (var i = 0; i < this.elementDataSize; i++) {
-                                if (this.elementData[i] != null) {
-                                    var current = this.elementData[i];
-                                    callback(this.elementData[i].key, this.elementData[i].value);
-                                    while (current.next != null) {
-                                        current = current.next;
-                                        callback(current.key, current.value);
-                                    }
-                                }
-                            }
-                        };
-                        StringHashMap.prototype.put = function (key, value) {
-                            if (key == null) {
-                                return value;
-                            }
-                            var entry;
-                            var hash = key.hashCode();
-                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            entry = this.findNonNullKeyEntry(key, index);
-                            if (entry == null) {
-                                this.modCount++;
-                                if (++this.elementCount > this.threshold) {
-                                    this.rehash();
-                                    index = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                                }
-                                entry = this.createHashedEntry(key, index);
-                            }
-                            var result = entry.value;
-                            entry.value = value;
-                            return result;
-                        };
-                        StringHashMap.prototype.createHashedEntry = function (key, index) {
-                            var entry = this.reuseAfterDelete;
-                            if (entry == null) {
-                                entry = new org.kevoree.modeling.api.map.StringHashMap.Entry(key, null);
-                            }
-                            else {
-                                this.reuseAfterDelete = null;
-                                entry.key = key;
-                                entry.value = null;
-                            }
-                            entry.next = this.elementData[index];
-                            this.elementData[index] = entry;
-                            return entry;
-                        };
-                        StringHashMap.prototype.rehashCapacity = function (capacity) {
-                            var length = (capacity == 0 ? 1 : capacity << 1);
-                            var newData = this.newElementArray(length);
-                            for (var i = 0; i < this.elementDataSize; i++) {
-                                var entry = this.elementData[i];
-                                while (entry != null) {
-                                    var hash = entry.key.hashCode();
-                                    var index = (hash & 0x7FFFFFFF) % length;
-                                    var next = entry.next;
-                                    entry.next = newData[index];
-                                    newData[index] = entry;
-                                    entry = next;
-                                }
-                            }
-                            this.elementData = newData;
-                            this.elementDataSize = length;
-                            this.computeMaxSize();
-                        };
-                        StringHashMap.prototype.rehash = function () {
-                            this.rehashCapacity(this.elementDataSize);
+                        StringHashMap.prototype.containsKey = function (key) {
+                            return this.internalMap.hasOwnProperty(key);
                         };
                         StringHashMap.prototype.remove = function (key) {
-                            var entry = this.removeEntry(key);
-                            if (entry == null) {
-                                return null;
-                            }
-                            var ret = entry.value;
-                            entry.value = null;
-                            entry.key = null;
-                            this.reuseAfterDelete = entry;
-                            return ret;
-                        };
-                        StringHashMap.prototype.removeEntry = function (key) {
-                            var entry;
-                            var last = null;
-                            var hash = key.hashCode();
-                            var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            entry = this.elementData[index];
-                            while (entry != null && !(key.equals(entry.key))) {
-                                last = entry;
-                                entry = entry.next;
-                            }
-                            if (entry == null) {
-                                return null;
-                            }
-                            if (last == null) {
-                                this.elementData[index] = entry.next;
-                            }
-                            else {
-                                last.next = entry.next;
-                            }
-                            this.modCount++;
-                            this.elementCount--;
-                            return entry;
+                            var tmp = this.internalMap[key];
+                            delete this.internalMap[key];
+                            return tmp;
                         };
                         StringHashMap.prototype.size = function () {
-                            return this.elementCount;
+                            var c = 0;
+                            for (var p in this.internalMap) {
+                                if (this.internalMap.hasOwnProperty(p)) {
+                                    c++;
+                                }
+                            }
+                            return c;
+                        };
+                        StringHashMap.prototype.each = function (callback) {
+                            for (var p in this.internalMap) {
+                                callback(p, this.internalMap[p]);
+                            }
                         };
                         return StringHashMap;
                     })();
@@ -6366,9 +5896,7 @@ var org;
                     var StringHashMap;
                     (function (StringHashMap) {
                         var Entry = (function () {
-                            function Entry(theKey, theValue) {
-                                this.key = theKey;
-                                this.value = theValue;
+                            function Entry() {
                             }
                             return Entry;
                         })();

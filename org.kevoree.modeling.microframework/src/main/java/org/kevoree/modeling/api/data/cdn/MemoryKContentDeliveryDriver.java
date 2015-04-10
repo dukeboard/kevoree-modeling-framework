@@ -1,7 +1,13 @@
 package org.kevoree.modeling.api.data.cdn;
 
-import org.kevoree.modeling.api.*;
-import org.kevoree.modeling.api.data.cache.*;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KConfig;
+import org.kevoree.modeling.api.KEventListener;
+import org.kevoree.modeling.api.KEventMultiListener;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KUniverse;
+import org.kevoree.modeling.api.ThrowableCallback;
+import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.event.LocalEventListeners;
 import org.kevoree.modeling.api.map.StringHashMap;

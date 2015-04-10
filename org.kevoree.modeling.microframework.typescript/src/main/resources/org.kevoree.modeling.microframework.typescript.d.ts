@@ -1115,154 +1115,83 @@ declare module org {
                 }
                 module map {
                     class IntHashMap<V> {
-                        elementCount: number;
-                        elementData: org.kevoree.modeling.api.map.IntHashMap.Entry<any>[];
-                        private elementDataSize;
-                        threshold: number;
-                        modCount: number;
-                        reuseAfterDelete: org.kevoree.modeling.api.map.IntHashMap.Entry<any>;
-                        private initalCapacity;
-                        private loadFactor;
-                        newElementArray(s: number): org.kevoree.modeling.api.map.IntHashMap.Entry<any>[];
-                        constructor(p_initalCapacity: number, p_loadFactor: number);
+                        private internalMap;
+                        constructor(initalCapacity: number, loadFactor: number);
                         clear(): void;
-                        private computeMaxSize();
-                        containsKey(key: number): boolean;
                         get(key: number): V;
-                        findNonNullKeyEntry(key: number, index: number): org.kevoree.modeling.api.map.IntHashMap.Entry<any>;
-                        each(callback: (p: number, p1: V) => void): void;
-                        put(key: number, value: V): V;
-                        createHashedEntry(key: number, index: number): org.kevoree.modeling.api.map.IntHashMap.Entry<any>;
-                        rehashCapacity(capacity: number): void;
-                        rehash(): void;
+                        put(key: number, pval: V): V;
+                        containsKey(key: number): boolean;
                         remove(key: number): V;
-                        removeEntry(key: number): org.kevoree.modeling.api.map.IntHashMap.Entry<any>;
                         size(): number;
+                        each(callback: (p: number, p1: V) => void): void;
                     }
                     module IntHashMap {
                         class Entry<V> {
-                            next: org.kevoree.modeling.api.map.IntHashMap.Entry<any>;
-                            key: number;
-                            value: V;
-                            constructor(theKey: number, theValue: V);
                         }
                     }
                     interface IntHashMapCallBack<V> {
                         on(key: number, value: V): void;
                     }
                     class LongHashMap<V> {
-                        elementCount: number;
-                        elementData: org.kevoree.modeling.api.map.LongHashMap.Entry<any>[];
-                        private elementDataSize;
-                        threshold: number;
-                        modCount: number;
-                        reuseAfterDelete: org.kevoree.modeling.api.map.LongHashMap.Entry<any>;
-                        private initalCapacity;
-                        private loadFactor;
-                        newElementArray(s: number): org.kevoree.modeling.api.map.LongHashMap.Entry<any>[];
-                        constructor(p_initalCapacity: number, p_loadFactor: number);
+                        private internalMap;
+                        constructor(initalCapacity: number, loadFactor: number);
                         clear(): void;
-                        private computeMaxSize();
-                        containsKey(key: number): boolean;
                         get(key: number): V;
-                        findNonNullKeyEntry(key: number, index: number): org.kevoree.modeling.api.map.LongHashMap.Entry<any>;
-                        each(callback: (p: number, p1: V) => void): void;
-                        put(key: number, value: V): V;
-                        createHashedEntry(key: number, index: number): org.kevoree.modeling.api.map.LongHashMap.Entry<any>;
-                        rehashCapacity(capacity: number): void;
-                        rehash(): void;
+                        put(key: number, pval: V): V;
+                        containsKey(key: number): boolean;
                         remove(key: number): V;
-                        removeEntry(key: number): org.kevoree.modeling.api.map.LongHashMap.Entry<any>;
                         size(): number;
+                        each(callback: (p: number, p1: V) => void): void;
                     }
                     module LongHashMap {
                         class Entry<V> {
-                            next: org.kevoree.modeling.api.map.LongHashMap.Entry<any>;
-                            key: number;
-                            value: V;
-                            constructor(theKey: number, theValue: V);
                         }
                     }
                     interface LongHashMapCallBack<V> {
                         on(key: number, value: V): void;
                     }
                     class LongLongHashMap implements org.kevoree.modeling.api.data.cache.KCacheObject {
-                        elementCount: number;
-                        elementData: org.kevoree.modeling.api.map.LongLongHashMap.Entry[];
-                        private elementDataSize;
-                        threshold: number;
-                        modCount: number;
-                        reuseAfterDelete: org.kevoree.modeling.api.map.LongLongHashMap.Entry;
-                        private initalCapacity;
-                        private loadFactor;
-                        private _isDirty;
-                        private static ELEMENT_SEP;
-                        private static CHUNK_SEP;
+                        private internalMap;
                         private _counter;
+                        private _isDirty;
+                        static ELEMENT_SEP: string;
+                        static CHUNK_SEP: string;
+                        constructor(initalCapacity: number, loadFactor: number);
+                        clear(): void;
+                        get(key: number): number;
+                        put(key: number, pval: number): number;
+                        containsKey(key: number): boolean;
+                        remove(key: number): number;
+                        size(): number;
+                        each(callback: (p: number, p1: number) => void): void;
                         counter(): number;
                         inc(): void;
                         dec(): void;
                         isDirty(): boolean;
                         setClean(): void;
-                        unserialize(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: string, metaModel: org.kevoree.modeling.api.meta.MetaModel): void;
                         serialize(): string;
-                        constructor(p_initalCapacity: number, p_loadFactor: number);
-                        clear(): void;
-                        private computeMaxSize();
-                        containsKey(key: number): boolean;
-                        get(key: number): number;
-                        findNonNullKeyEntry(key: number, index: number): org.kevoree.modeling.api.map.LongLongHashMap.Entry;
-                        each(callback: (p: number, p1: number) => void): void;
-                        put(key: number, value: number): void;
-                        createHashedEntry(key: number, index: number): org.kevoree.modeling.api.map.LongLongHashMap.Entry;
-                        rehashCapacity(capacity: number): void;
-                        rehash(): void;
-                        remove(key: number): void;
-                        removeEntry(key: number): org.kevoree.modeling.api.map.LongLongHashMap.Entry;
-                        size(): number;
+                        unserialize(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: string, metaModel: org.kevoree.modeling.api.meta.MetaModel): void;
                     }
                     module LongLongHashMap {
                         class Entry {
-                            next: org.kevoree.modeling.api.map.LongLongHashMap.Entry;
-                            key: number;
-                            value: number;
-                            constructor(theKey: number, theValue: number);
                         }
                     }
                     interface LongLongHashMapCallBack<V> {
                         on(key: number, value: number): void;
                     }
                     class StringHashMap<V> {
-                        elementCount: number;
-                        elementData: org.kevoree.modeling.api.map.StringHashMap.Entry<any>[];
-                        private elementDataSize;
-                        threshold: number;
-                        modCount: number;
-                        reuseAfterDelete: org.kevoree.modeling.api.map.StringHashMap.Entry<any>;
-                        private initalCapacity;
-                        private loadFactor;
-                        newElementArray(s: number): org.kevoree.modeling.api.map.StringHashMap.Entry<any>[];
-                        constructor(p_initalCapacity: number, p_loadFactor: number);
+                        private internalMap;
+                        constructor(initalCapacity: number, loadFactor: number);
                         clear(): void;
-                        private computeMaxSize();
-                        containsKey(key: string): boolean;
                         get(key: string): V;
-                        findNonNullKeyEntry(key: string, index: number): org.kevoree.modeling.api.map.StringHashMap.Entry<any>;
-                        each(callback: (p: string, p1: V) => void): void;
-                        put(key: string, value: V): V;
-                        createHashedEntry(key: string, index: number): org.kevoree.modeling.api.map.StringHashMap.Entry<any>;
-                        rehashCapacity(capacity: number): void;
-                        rehash(): void;
+                        put(key: string, pval: V): V;
+                        containsKey(key: string): boolean;
                         remove(key: string): V;
-                        removeEntry(key: string): org.kevoree.modeling.api.map.StringHashMap.Entry<any>;
                         size(): number;
+                        each(callback: (p: string, p1: V) => void): void;
                     }
                     module StringHashMap {
                         class Entry<V> {
-                            next: org.kevoree.modeling.api.map.StringHashMap.Entry<any>;
-                            key: string;
-                            value: V;
-                            constructor(theKey: string, theValue: V);
                         }
                     }
                     interface StringHashMapCallBack<V> {

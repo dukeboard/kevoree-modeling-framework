@@ -8,6 +8,46 @@ import org.kevoree.modeling.api.data.cache.KCacheObject;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.meta.MetaModel;
 
+/**
+ * @native:ts {@code
+ * private internalMap;
+ * private _counter = 0;
+ * private _isDirty = false;
+ * static ELEMENT_SEP = ',';
+ * static CHUNK_SEP = '/';
+ * constructor(initalCapacity: number, loadFactor : number) { this.internalMap = {}; }
+ * public clear():void { this.internalMap = {}; }
+ * public get(key:number):number { return this.internalMap[key]; }
+ * public put(key:number, pval : number):number { this._isDirty=false; var previousVal = this.internalMap[key];this.internalMap[key] = pval;return previousVal;}
+ * public containsKey(key:number):boolean { return this.internalMap.hasOwnProperty(key);}
+ * public remove(key:number):number { var tmp = this.internalMap[key]; delete this.internalMap[key]; return tmp; }
+ * public size():number { var c=0;for(var p in this.internalMap){ if(this.internalMap.hasOwnProperty(p)){ c++; } } return c; }
+ * public each(callback: (p : number, p1 : number) => void): void { for(var p in this.internalMap){ callback(<number>p,this.internalMap[p]); } }
+ * public counter():number { return this._counter; }
+ * public inc():void { this._counter++; }
+ * public dec():void { this._counter--; }
+ * public isDirty():boolean { return this._isDirty; }
+ * public setClean():void { this._isDirty = false; }
+ * public serialize(): string { var buffer = ""+this.size(); this.each( (key : number, value : number) => { buffer = buffer + LongLongHashMap.CHUNK_SEP + key + LongLongHashMap.ELEMENT_SEP + value; }); return buffer; }
+ * public unserialize(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: string, metaModel: org.kevoree.modeling.api.meta.MetaModel): void {
+ * if (payload == null || payload.length == 0) { return; }
+ * var cursor: number = 0;
+ * while (cursor < payload.length && payload.charAt(cursor) != LongLongHashMap.CHUNK_SEP){ cursor++; }
+ * var nbElement: number = java.lang.Integer.parseInt(payload.substring(0, cursor));
+ * while (cursor < payload.length){
+ * cursor++;
+ * var beginChunk: number = cursor;
+ * while (cursor < payload.length && payload.charAt(cursor) != LongLongHashMap.ELEMENT_SEP){ cursor++; }
+ * var middleChunk: number = cursor;
+ * while (cursor < payload.length && payload.charAt(cursor) != LongLongHashMap.CHUNK_SEP){ cursor++; }
+ * var loopKey: number = java.lang.Long.parseLong(payload.substring(beginChunk, middleChunk));
+ * var loopVal: number = java.lang.Long.parseLong(payload.substring(middleChunk + 1, cursor));
+ * this.put(loopKey, loopVal);
+ * }
+ * this._isDirty = false;
+ * }
+ * }
+ */
 public class LongLongHashMap implements KCacheObject {
 
     protected int elementCount;
@@ -103,6 +143,9 @@ public class LongLongHashMap implements KCacheObject {
         return buffer.toString();
     }
 
+    /**
+     * @native:ts {@code }
+     */
     static final class Entry {
         Entry next;
         long key;

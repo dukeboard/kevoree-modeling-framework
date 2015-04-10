@@ -20,11 +20,11 @@ import java.util.List;
  */
 public interface KDataManager {
 
-    public KContentDeliveryDriver cdn();
+    KContentDeliveryDriver cdn();
 
-    public KModel model();
+    KModel model();
 
-    public KCache cache();
+    KCache cache();
 
     void lookup(KView originView, long key, Callback<KObject> callback);
 
@@ -32,15 +32,15 @@ public interface KDataManager {
 
     KCacheEntry entry(KObject origin, AccessMode accessMode);
 
-    public void save(Callback<Throwable> callback);
+    void save(Callback<Throwable> callback);
 
-    public void discard(KUniverse universe, Callback<Throwable> callback);
+    void discard(KUniverse universe, Callback<Throwable> callback);
 
-    public void delete(KUniverse universe, Callback<Throwable> callback);
+    void delete(KUniverse universe, Callback<Throwable> callback);
 
-    public void initKObject(KObject obj, KView originView);
+    void initKObject(KObject obj, KView originView);
 
-    public void initUniverse(KUniverse universe, KUniverse parent);
+    void initUniverse(KUniverse universe, KUniverse parent);
 
     long nextUniverseKey();
 
@@ -50,26 +50,26 @@ public interface KDataManager {
 
     long nextGroupKey();
 
-    public void getRoot(KView originView, Callback<KObject> callback);
+    void getRoot(KView originView, Callback<KObject> callback);
 
-    public void setRoot(KObject newRoot, Callback<Throwable> callback);
+    void setRoot(KObject newRoot, Callback<Throwable> callback);
 
-    public void setContentDeliveryDriver(KContentDeliveryDriver driver);
+    void setContentDeliveryDriver(KContentDeliveryDriver driver);
 
-    public void setScheduler(KScheduler scheduler);
+    void setScheduler(KScheduler scheduler);
 
-    public KOperationManager operationManager();
+    KOperationManager operationManager();
 
-    public void connect(Callback<Throwable> callback);
+    void connect(Callback<Throwable> callback);
 
-    public void close(Callback<Throwable> callback);
+    void close(Callback<Throwable> callback);
 
-    public long parentUniverseKey(long currentUniverseKey);
+    long parentUniverseKey(long currentUniverseKey);
 
-    public long[] descendantsUniverseKeys(long currentUniverseKey);
+    long[] descendantsUniverseKeys(long currentUniverseKey);
 
-    public void reload(KContentKey[] keys, Callback<Throwable> callback);
+    void reload(KContentKey[] keys, Callback<Throwable> callback);
 
-    public void cleanObject(KObject objectToClean);
+    void cleanObject(KObject objectToClean);
 
 }

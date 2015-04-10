@@ -6337,186 +6337,59 @@ module org {
                 export module map {
                     export class IntHashMap<V> {
 
-                        public elementCount: number;
-                        public elementData: org.kevoree.modeling.api.map.IntHashMap.Entry<any>[];
-                        private elementDataSize: number;
-                        public threshold: number;
-                        public modCount: number = 0;
-                        public reuseAfterDelete: org.kevoree.modeling.api.map.IntHashMap.Entry<any> = null;
-                        private initalCapacity: number;
-                        private loadFactor: number;
-                        public newElementArray(s: number): org.kevoree.modeling.api.map.IntHashMap.Entry<any>[] {
-                            return new Array();
-                        }
-
-                        constructor(p_initalCapacity: number, p_loadFactor: number) {
-                            this.initalCapacity = p_initalCapacity;
-                            this.loadFactor = p_loadFactor;
-                            this.elementCount = 0;
-                            this.elementData = this.newElementArray(this.initalCapacity);
-                            this.elementDataSize = this.initalCapacity;
-                            this.computeMaxSize();
-                        }
-
-                        public clear(): void {
-                            if (this.elementCount > 0) {
-                                this.elementCount = 0;
-                                this.elementData = this.newElementArray(this.initalCapacity);
-                                this.elementDataSize = this.initalCapacity;
-                                this.modCount++;
-                            }
-                        }
-
-                        private computeMaxSize(): void {
-                            this.threshold = <number>(this.elementDataSize * this.loadFactor);
-                        }
-
-                        public containsKey(key: number): boolean {
-                            var hash: number = <number>(key);
-                            var index: number = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            var m: org.kevoree.modeling.api.map.IntHashMap.Entry<any> = this.findNonNullKeyEntry(key, index);
-                            return m != null;
-                        }
-
-                        public get(key: number): V {
-                            var m: org.kevoree.modeling.api.map.IntHashMap.Entry<any>;
-                            var hash: number = <number>(key);
-                            var index: number = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            m = this.findNonNullKeyEntry(key, index);
-                            if (m != null) {
-                                return m.value;
-                            }
-                            return null;
-                        }
-
-                        public findNonNullKeyEntry(key: number, index: number): org.kevoree.modeling.api.map.IntHashMap.Entry<any> {
-                            var m: org.kevoree.modeling.api.map.IntHashMap.Entry<any> = this.elementData[index];
-                            while (m != null){
-                                if (key == m.key) {
-                                    return m;
-                                }
-                                m = m.next;
-                            }
-                            return null;
-                        }
-
-                        public each(callback: (p : number, p1 : V) => void): void {
-                            for (var i: number = 0; i < this.elementDataSize; i++) {
-                                if (this.elementData[i] != null) {
-                                    var current: org.kevoree.modeling.api.map.IntHashMap.Entry<any> = this.elementData[i];
-                                    callback(this.elementData[i].key, this.elementData[i].value);
-                                    while (current.next != null){
-                                        current = current.next;
-                                        callback(current.key, current.value);
-                                    }
-                                }
-                            }
-                        }
-
-                        public put(key: number, value: V): V {
-                            var entry: org.kevoree.modeling.api.map.IntHashMap.Entry<any>;
-                            var index: number = (key & 0x7FFFFFFF) % this.elementDataSize;
-                            entry = this.findNonNullKeyEntry(key, index);
-                            if (entry == null) {
-                                this.modCount++;
-                                if (++this.elementCount > this.threshold) {
-                                    this.rehash();
-                                    index = (key & 0x7FFFFFFF) % this.elementDataSize;
-                                }
-                                entry = this.createHashedEntry(key, index);
-                            }
-                            var result: V = entry.value;
-                            entry.value = value;
-                            return result;
-                        }
-
-                        public createHashedEntry(key: number, index: number): org.kevoree.modeling.api.map.IntHashMap.Entry<any> {
-                            var entry: org.kevoree.modeling.api.map.IntHashMap.Entry<any> = this.reuseAfterDelete;
-                            if (entry == null) {
-                                entry = new org.kevoree.modeling.api.map.IntHashMap.Entry<any>(key, null);
-                            } else {
-                                this.reuseAfterDelete = null;
-                                entry.key = key;
-                                entry.value = null;
-                            }
-                            entry.next = this.elementData[index];
-                            this.elementData[index] = entry;
-                            return entry;
-                        }
-
-                        public rehashCapacity(capacity: number): void {
-                            var length: number = (capacity == 0 ? 1 : capacity << 1);
-                            var newData: org.kevoree.modeling.api.map.IntHashMap.Entry<any>[] = this.newElementArray(length);
-                            for (var i: number = 0; i < this.elementDataSize; i++) {
-                                var entry: org.kevoree.modeling.api.map.IntHashMap.Entry<any> = this.elementData[i];
-                                while (entry != null){
-                                    var index: number = (<number>entry.key & 0x7FFFFFFF) % length;
-                                    var next: org.kevoree.modeling.api.map.IntHashMap.Entry<any> = entry.next;
-                                    entry.next = newData[index];
-                                    newData[index] = entry;
-                                    entry = next;
-                                }
-                            }
-                            this.elementData = newData;
-                            this.elementDataSize = length;
-                            this.computeMaxSize();
-                        }
-
-                        public rehash(): void {
-                            this.rehashCapacity(this.elementDataSize);
-                        }
-
-                        public remove(key: number): V {
-                            var entry: org.kevoree.modeling.api.map.IntHashMap.Entry<any> = this.removeEntry(key);
-                            if (entry == null) {
-                                return null;
-                            }
-                            var ret: V = entry.value;
-                            entry.value = null;
-                            entry.key = -1;
-                            this.reuseAfterDelete = entry;
-                            return ret;
-                        }
-
-                        public removeEntry(key: number): org.kevoree.modeling.api.map.IntHashMap.Entry<any> {
-                            var entry: org.kevoree.modeling.api.map.IntHashMap.Entry<any>;
-                            var last: org.kevoree.modeling.api.map.IntHashMap.Entry<any> = null;
-                            var hash: number = <number>key;
-                            var index: number = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            entry = this.elementData[index];
-                            while (entry != null && !(key == entry.key)){
-                                last = entry;
-                                entry = entry.next;
-                            }
-                            if (entry == null) {
-                                return null;
-                            }
-                            if (last == null) {
-                                this.elementData[index] = entry.next;
-                            } else {
-                                last.next = entry.next;
-                            }
-                            this.modCount++;
-                            this.elementCount--;
-                            return entry;
-                        }
-
-                        public size(): number {
-                            return this.elementCount;
-                        }
-
+                    private internalMap;
+                     constructor(initalCapacity: number, loadFactor : number) 
+                    {
+                     this.internalMap = 
+                    {
+                    }
+                    ; 
+                    }
+                     public clear():void 
+                    {
+                     this.internalMap = 
+                    {
+                    }
+                    ; 
+                    }
+                     public get(key:number):V 
+                    {
+                     return this.internalMap[key]; 
+                    }
+                     public put(key:number, pval : V):V 
+                    {
+                     var previousVal = this.internalMap[key];this.internalMap[key] = pval;return previousVal;
+                    }
+                     public containsKey(key:number):boolean 
+                    {
+                     return this.internalMap.hasOwnProperty(key);
+                    }
+                     public remove(key:number):V 
+                    {
+                     var tmp = this.internalMap[key]; delete this.internalMap[key]; return tmp; 
+                    }
+                     public size():number 
+                    {
+                     var c=0;for(var p in this.internalMap)
+                    {
+                     if(this.internalMap.hasOwnProperty(p))
+                    {
+                     c++; 
+                    }
+                    }
+                     return c; 
+                    }
+                     public each(callback: (p : number, p1 : V) => void): void 
+                    {
+                     for(var p in this.internalMap)
+                    {
+                     callback(<number>p,this.internalMap[p]); 
+                    }
+                    }
                     }
 
                     export module IntHashMap { 
                         export class Entry<V> {
-
-                            public next: org.kevoree.modeling.api.map.IntHashMap.Entry<any>;
-                            public key: number;
-                            public value: V;
-                            constructor(theKey: number, theValue: V) {
-                                this.key = theKey;
-                                this.value = theValue;
-                            }
 
                         }
 
@@ -6530,187 +6403,59 @@ module org {
 
                     export class LongHashMap<V> {
 
-                        public elementCount: number;
-                        public elementData: org.kevoree.modeling.api.map.LongHashMap.Entry<any>[];
-                        private elementDataSize: number;
-                        public threshold: number;
-                        public modCount: number = 0;
-                        public reuseAfterDelete: org.kevoree.modeling.api.map.LongHashMap.Entry<any> = null;
-                        private initalCapacity: number;
-                        private loadFactor: number;
-                        public newElementArray(s: number): org.kevoree.modeling.api.map.LongHashMap.Entry<any>[] {
-                            return new Array();
-                        }
-
-                        constructor(p_initalCapacity: number, p_loadFactor: number) {
-                            this.initalCapacity = p_initalCapacity;
-                            this.loadFactor = p_loadFactor;
-                            this.elementCount = 0;
-                            this.elementData = this.newElementArray(this.initalCapacity);
-                            this.elementDataSize = this.initalCapacity;
-                            this.computeMaxSize();
-                        }
-
-                        public clear(): void {
-                            if (this.elementCount > 0) {
-                                this.elementCount = 0;
-                                this.elementData = this.newElementArray(this.initalCapacity);
-                                this.elementDataSize = this.initalCapacity;
-                                this.modCount++;
-                            }
-                        }
-
-                        private computeMaxSize(): void {
-                            this.threshold = <number>(this.elementDataSize * this.loadFactor);
-                        }
-
-                        public containsKey(key: number): boolean {
-                            var hash: number = <number>(key);
-                            var index: number = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            var m: org.kevoree.modeling.api.map.LongHashMap.Entry<any> = this.findNonNullKeyEntry(key, index);
-                            return m != null;
-                        }
-
-                        public get(key: number): V {
-                            var m: org.kevoree.modeling.api.map.LongHashMap.Entry<any>;
-                            var hash: number = <number>(key);
-                            var index: number = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            m = this.findNonNullKeyEntry(key, index);
-                            if (m != null) {
-                                return m.value;
-                            }
-                            return null;
-                        }
-
-                        public findNonNullKeyEntry(key: number, index: number): org.kevoree.modeling.api.map.LongHashMap.Entry<any> {
-                            var m: org.kevoree.modeling.api.map.LongHashMap.Entry<any> = this.elementData[index];
-                            while (m != null){
-                                if (key == m.key) {
-                                    return m;
-                                }
-                                m = m.next;
-                            }
-                            return null;
-                        }
-
-                        public each(callback: (p : number, p1 : V) => void): void {
-                            for (var i: number = 0; i < this.elementDataSize; i++) {
-                                if (this.elementData[i] != null) {
-                                    var current: org.kevoree.modeling.api.map.LongHashMap.Entry<any> = this.elementData[i];
-                                    callback(this.elementData[i].key, this.elementData[i].value);
-                                    while (current.next != null){
-                                        current = current.next;
-                                        callback(current.key, current.value);
-                                    }
-                                }
-                            }
-                        }
-
-                        public put(key: number, value: V): V {
-                            var entry: org.kevoree.modeling.api.map.LongHashMap.Entry<any>;
-                            var hash: number = <number>(key);
-                            var index: number = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            entry = this.findNonNullKeyEntry(key, index);
-                            if (entry == null) {
-                                this.modCount++;
-                                if (++this.elementCount > this.threshold) {
-                                    this.rehash();
-                                    index = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                                }
-                                entry = this.createHashedEntry(key, index);
-                            }
-                            var result: V = entry.value;
-                            entry.value = value;
-                            return result;
-                        }
-
-                        public createHashedEntry(key: number, index: number): org.kevoree.modeling.api.map.LongHashMap.Entry<any> {
-                            var entry: org.kevoree.modeling.api.map.LongHashMap.Entry<any> = this.reuseAfterDelete;
-                            if (entry == null) {
-                                entry = new org.kevoree.modeling.api.map.LongHashMap.Entry<any>(key, null);
-                            } else {
-                                this.reuseAfterDelete = null;
-                                entry.key = key;
-                                entry.value = null;
-                            }
-                            entry.next = this.elementData[index];
-                            this.elementData[index] = entry;
-                            return entry;
-                        }
-
-                        public rehashCapacity(capacity: number): void {
-                            var length: number = (capacity == 0 ? 1 : capacity << 1);
-                            var newData: org.kevoree.modeling.api.map.LongHashMap.Entry<any>[] = this.newElementArray(length);
-                            for (var i: number = 0; i < this.elementDataSize; i++) {
-                                var entry: org.kevoree.modeling.api.map.LongHashMap.Entry<any> = this.elementData[i];
-                                while (entry != null){
-                                    var index: number = (<number>entry.key & 0x7FFFFFFF) % length;
-                                    var next: org.kevoree.modeling.api.map.LongHashMap.Entry<any> = entry.next;
-                                    entry.next = newData[index];
-                                    newData[index] = entry;
-                                    entry = next;
-                                }
-                            }
-                            this.elementData = newData;
-                            this.elementDataSize = length;
-                            this.computeMaxSize();
-                        }
-
-                        public rehash(): void {
-                            this.rehashCapacity(this.elementDataSize);
-                        }
-
-                        public remove(key: number): V {
-                            var entry: org.kevoree.modeling.api.map.LongHashMap.Entry<any> = this.removeEntry(key);
-                            if (entry == null) {
-                                return null;
-                            }
-                            var ret: V = entry.value;
-                            entry.value = null;
-                            entry.key = org.kevoree.modeling.api.KConfig.BEGINNING_OF_TIME;
-                            this.reuseAfterDelete = entry;
-                            return ret;
-                        }
-
-                        public removeEntry(key: number): org.kevoree.modeling.api.map.LongHashMap.Entry<any> {
-                            var entry: org.kevoree.modeling.api.map.LongHashMap.Entry<any>;
-                            var last: org.kevoree.modeling.api.map.LongHashMap.Entry<any> = null;
-                            var hash: number = <number>key;
-                            var index: number = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            entry = this.elementData[index];
-                            while (entry != null && !(key == entry.key)){
-                                last = entry;
-                                entry = entry.next;
-                            }
-                            if (entry == null) {
-                                return null;
-                            }
-                            if (last == null) {
-                                this.elementData[index] = entry.next;
-                            } else {
-                                last.next = entry.next;
-                            }
-                            this.modCount++;
-                            this.elementCount--;
-                            return entry;
-                        }
-
-                        public size(): number {
-                            return this.elementCount;
-                        }
-
+                    private internalMap;
+                     constructor(initalCapacity: number, loadFactor : number) 
+                    {
+                     this.internalMap = 
+                    {
+                    }
+                    ; 
+                    }
+                     public clear():void 
+                    {
+                     this.internalMap = 
+                    {
+                    }
+                    ; 
+                    }
+                     public get(key:number):V 
+                    {
+                     return this.internalMap[key]; 
+                    }
+                     public put(key:number, pval : V):V 
+                    {
+                     var previousVal = this.internalMap[key];this.internalMap[key] = pval;return previousVal;
+                    }
+                     public containsKey(key:number):boolean 
+                    {
+                     return this.internalMap.hasOwnProperty(key);
+                    }
+                     public remove(key:number):V 
+                    {
+                     var tmp = this.internalMap[key]; delete this.internalMap[key]; return tmp; 
+                    }
+                     public size():number 
+                    {
+                     var c=0;for(var p in this.internalMap)
+                    {
+                     if(this.internalMap.hasOwnProperty(p))
+                    {
+                     c++; 
+                    }
+                    }
+                     return c; 
+                    }
+                     public each(callback: (p : number, p1 : V) => void): void 
+                    {
+                     for(var p in this.internalMap)
+                    {
+                     callback(<number>p,this.internalMap[p]); 
+                    }
+                    }
                     }
 
                     export module LongHashMap { 
                         export class Entry<V> {
-
-                            public next: org.kevoree.modeling.api.map.LongHashMap.Entry<any>;
-                            public key: number;
-                            public value: V;
-                            constructor(theKey: number, theValue: V) {
-                                this.key = theKey;
-                                this.value = theValue;
-                            }
 
                         }
 
@@ -6724,244 +6469,122 @@ module org {
 
                     export class LongLongHashMap implements org.kevoree.modeling.api.data.cache.KCacheObject {
 
-                        public elementCount: number;
-                        public elementData: org.kevoree.modeling.api.map.LongLongHashMap.Entry[];
-                        private elementDataSize: number;
-                        public threshold: number;
-                        public modCount: number = 0;
-                        public reuseAfterDelete: org.kevoree.modeling.api.map.LongLongHashMap.Entry = null;
-                        private initalCapacity: number;
-                        private loadFactor: number;
-                        private _isDirty: boolean = false;
-                        private static ELEMENT_SEP: string = ',';
-                        private static CHUNK_SEP: string = '/';
-                        private _counter: number = 0;
-                        public counter(): number {
-                            return this._counter;
-                        }
-
-                        public inc(): void {
-                            this._counter++;
-                        }
-
-                        public dec(): void {
-                            this._counter--;
-                        }
-
-                        public isDirty(): boolean {
-                            return this._isDirty;
-                        }
-
-                        public setClean(): void {
-                            this._isDirty = false;
-                        }
-
-                        public unserialize(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: string, metaModel: org.kevoree.modeling.api.meta.MetaModel): void {
-                            if (payload == null || payload.length == 0) {
-                                return;
-                            }
-                            var cursor: number = 0;
-                            while (cursor < payload.length && payload.charAt(cursor) != LongLongHashMap.CHUNK_SEP){
-                                cursor++;
-                            }
-                            var nbElement: number = java.lang.Integer.parseInt(payload.substring(0, cursor));
-                            this.rehashCapacity(nbElement);
-                            while (cursor < payload.length){
-                                cursor++;
-                                var beginChunk: number = cursor;
-                                while (cursor < payload.length && payload.charAt(cursor) != LongLongHashMap.ELEMENT_SEP){
-                                    cursor++;
-                                }
-                                var middleChunk: number = cursor;
-                                while (cursor < payload.length && payload.charAt(cursor) != LongLongHashMap.CHUNK_SEP){
-                                    cursor++;
-                                }
-                                var loopKey: number = java.lang.Long.parseLong(payload.substring(beginChunk, middleChunk));
-                                var loopVal: number = java.lang.Long.parseLong(payload.substring(middleChunk + 1, cursor));
-                                this.put(loopKey, loopVal);
-                            }
-                            this._isDirty = false;
-                        }
-
-                        public serialize(): string {
-                            var buffer: java.lang.StringBuilder = new java.lang.StringBuilder();
-                            buffer.append(this.elementCount);
-                            this.each( (key : number, value : number) => {
-                                buffer.append(LongLongHashMap.CHUNK_SEP);
-                                buffer.append(key);
-                                buffer.append(LongLongHashMap.ELEMENT_SEP);
-                                buffer.append(value);
-                            });
-                            return buffer.toString();
-                        }
-
-                        constructor(p_initalCapacity: number, p_loadFactor: number) {
-                            this.initalCapacity = p_initalCapacity;
-                            this.loadFactor = p_loadFactor;
-                            this.elementCount = 0;
-                            this.elementData = new Array();
-                            this.elementDataSize = this.initalCapacity;
-                            this.computeMaxSize();
-                        }
-
-                        public clear(): void {
-                            if (this.elementCount > 0) {
-                                this.elementCount = 0;
-                                this.elementData = new Array();
-                                this.elementDataSize = this.initalCapacity;
-                                this.modCount++;
-                            }
-                        }
-
-                        private computeMaxSize(): void {
-                            this.threshold = <number>(this.elementDataSize * this.loadFactor);
-                        }
-
-                        public containsKey(key: number): boolean {
-                            var hash: number = <number>(key);
-                            var index: number = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            var m: org.kevoree.modeling.api.map.LongLongHashMap.Entry = this.findNonNullKeyEntry(key, index);
-                            return m != null;
-                        }
-
-                        public get(key: number): number {
-                            var m: org.kevoree.modeling.api.map.LongLongHashMap.Entry;
-                            var hash: number = <number>(key);
-                            var index: number = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            m = this.findNonNullKeyEntry(key, index);
-                            if (m != null) {
-                                return m.value;
-                            }
-                            return org.kevoree.modeling.api.KConfig.NULL_LONG;
-                        }
-
-                        public findNonNullKeyEntry(key: number, index: number): org.kevoree.modeling.api.map.LongLongHashMap.Entry {
-                            var m: org.kevoree.modeling.api.map.LongLongHashMap.Entry = this.elementData[index];
-                            while (m != null){
-                                if (key == m.key) {
-                                    return m;
-                                }
-                                m = m.next;
-                            }
-                            return null;
-                        }
-
-                        public each(callback: (p : number, p1 : number) => void): void {
-                            for (var i: number = 0; i < this.elementDataSize; i++) {
-                                if (this.elementData[i] != null) {
-                                    var current: org.kevoree.modeling.api.map.LongLongHashMap.Entry = this.elementData[i];
-                                    callback(this.elementData[i].key, this.elementData[i].value);
-                                    while (current.next != null){
-                                        current = current.next;
-                                        callback(current.key, current.value);
-                                    }
-                                }
-                            }
-                        }
-
-                        public put(key: number, value: number): void {
-                            this._isDirty = true;
-                            var entry: org.kevoree.modeling.api.map.LongLongHashMap.Entry;
-                            var hash: number = <number>(key);
-                            var index: number = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            entry = this.findNonNullKeyEntry(key, index);
-                            if (entry == null) {
-                                this.modCount++;
-                                if (++this.elementCount > this.threshold) {
-                                    this.rehash();
-                                    index = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                                }
-                                entry = this.createHashedEntry(key, index);
-                            }
-                            entry.value = value;
-                        }
-
-                        public createHashedEntry(key: number, index: number): org.kevoree.modeling.api.map.LongLongHashMap.Entry {
-                            var entry: org.kevoree.modeling.api.map.LongLongHashMap.Entry = this.reuseAfterDelete;
-                            if (entry == null) {
-                                entry = new org.kevoree.modeling.api.map.LongLongHashMap.Entry(key, org.kevoree.modeling.api.KConfig.NULL_LONG);
-                            } else {
-                                this.reuseAfterDelete = null;
-                                entry.key = key;
-                                entry.value = org.kevoree.modeling.api.KConfig.NULL_LONG;
-                            }
-                            entry.next = this.elementData[index];
-                            this.elementData[index] = entry;
-                            return entry;
-                        }
-
-                        public rehashCapacity(capacity: number): void {
-                            var length: number = (capacity == 0 ? 1 : capacity << 1);
-                            var newData: org.kevoree.modeling.api.map.LongLongHashMap.Entry[] = new Array();
-                            for (var i: number = 0; i < this.elementDataSize; i++) {
-                                var entry: org.kevoree.modeling.api.map.LongLongHashMap.Entry = this.elementData[i];
-                                while (entry != null){
-                                    var index: number = (<number>entry.key & 0x7FFFFFFF) % length;
-                                    var next: org.kevoree.modeling.api.map.LongLongHashMap.Entry = entry.next;
-                                    entry.next = newData[index];
-                                    newData[index] = entry;
-                                    entry = next;
-                                }
-                            }
-                            this.elementData = newData;
-                            this.elementDataSize = length;
-                            this.computeMaxSize();
-                        }
-
-                        public rehash(): void {
-                            this.rehashCapacity(this.elementDataSize);
-                        }
-
-                        public remove(key: number): void {
-                            var entry: org.kevoree.modeling.api.map.LongLongHashMap.Entry = this.removeEntry(key);
-                            if (entry == null) {
-                                return;
-                            }
-                            entry.value = org.kevoree.modeling.api.KConfig.NULL_LONG;
-                            entry.key = org.kevoree.modeling.api.KConfig.BEGINNING_OF_TIME;
-                            this.reuseAfterDelete = entry;
-                        }
-
-                        public removeEntry(key: number): org.kevoree.modeling.api.map.LongLongHashMap.Entry {
-                            var index: number = 0;
-                            var entry: org.kevoree.modeling.api.map.LongLongHashMap.Entry;
-                            var last: org.kevoree.modeling.api.map.LongLongHashMap.Entry = null;
-                            var hash: number = <number>(key);
-                            index = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            entry = this.elementData[index];
-                            while (entry != null && !(key == entry.key)){
-                                last = entry;
-                                entry = entry.next;
-                            }
-                            if (entry == null) {
-                                return null;
-                            }
-                            if (last == null) {
-                                this.elementData[index] = entry.next;
-                            } else {
-                                last.next = entry.next;
-                            }
-                            this.modCount++;
-                            this.elementCount--;
-                            return entry;
-                        }
-
-                        public size(): number {
-                            return this.elementCount;
-                        }
-
+                    private internalMap;
+                     private _counter = 0;
+                     private _isDirty = false;
+                     static ELEMENT_SEP = ',';
+                     static CHUNK_SEP = '/';
+                     constructor(initalCapacity: number, loadFactor : number) 
+                    {
+                     this.internalMap = 
+                    {
+                    }
+                    ; 
+                    }
+                     public clear():void 
+                    {
+                     this.internalMap = 
+                    {
+                    }
+                    ; 
+                    }
+                     public get(key:number):number 
+                    {
+                     return this.internalMap[key]; 
+                    }
+                     public put(key:number, pval : number):number 
+                    {
+                     this._isDirty=false; var previousVal = this.internalMap[key];this.internalMap[key] = pval;return previousVal;
+                    }
+                     public containsKey(key:number):boolean 
+                    {
+                     return this.internalMap.hasOwnProperty(key);
+                    }
+                     public remove(key:number):number 
+                    {
+                     var tmp = this.internalMap[key]; delete this.internalMap[key]; return tmp; 
+                    }
+                     public size():number 
+                    {
+                     var c=0;for(var p in this.internalMap)
+                    {
+                     if(this.internalMap.hasOwnProperty(p))
+                    {
+                     c++; 
+                    }
+                    }
+                     return c; 
+                    }
+                     public each(callback: (p : number, p1 : number) => void): void 
+                    {
+                     for(var p in this.internalMap)
+                    {
+                     callback(<number>p,this.internalMap[p]); 
+                    }
+                    }
+                     public counter():number 
+                    {
+                     return this._counter; 
+                    }
+                     public inc():void 
+                    {
+                     this._counter++; 
+                    }
+                     public dec():void 
+                    {
+                     this._counter--; 
+                    }
+                     public isDirty():boolean 
+                    {
+                     return this._isDirty; 
+                    }
+                     public setClean():void 
+                    {
+                     this._isDirty = false; 
+                    }
+                     public serialize(): string 
+                    {
+                     var buffer = ""+this.size(); this.each( (key : number, value : number) => 
+                    {
+                     buffer = buffer + LongLongHashMap.CHUNK_SEP + key + LongLongHashMap.ELEMENT_SEP + value; 
+                    }
+                    ); return buffer; 
+                    }
+                     public unserialize(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: string, metaModel: org.kevoree.modeling.api.meta.MetaModel): void 
+                    {
+                     if (payload == null || payload.length == 0) 
+                    {
+                     return; 
+                    }
+                     var cursor: number = 0;
+                     while (cursor < payload.length && payload.charAt(cursor) != LongLongHashMap.CHUNK_SEP)
+                    {
+                     cursor++; 
+                    }
+                     var nbElement: number = java.lang.Integer.parseInt(payload.substring(0, cursor));
+                     while (cursor < payload.length)
+                    {
+                     cursor++;
+                     var beginChunk: number = cursor;
+                     while (cursor < payload.length && payload.charAt(cursor) != LongLongHashMap.ELEMENT_SEP)
+                    {
+                     cursor++; 
+                    }
+                     var middleChunk: number = cursor;
+                     while (cursor < payload.length && payload.charAt(cursor) != LongLongHashMap.CHUNK_SEP)
+                    {
+                     cursor++; 
+                    }
+                     var loopKey: number = java.lang.Long.parseLong(payload.substring(beginChunk, middleChunk));
+                     var loopVal: number = java.lang.Long.parseLong(payload.substring(middleChunk + 1, cursor));
+                     this.put(loopKey, loopVal);
+                    }
+                     this._isDirty = false;
+                    }
                     }
 
                     export module LongLongHashMap { 
                         export class Entry {
-
-                            public next: org.kevoree.modeling.api.map.LongLongHashMap.Entry;
-                            public key: number;
-                            public value: number;
-                            constructor(theKey: number, theValue: number) {
-                                this.key = theKey;
-                                this.value = theValue;
-                            }
 
                         }
 
@@ -6975,197 +6598,59 @@ module org {
 
                     export class StringHashMap<V> {
 
-                        public elementCount: number;
-                        public elementData: org.kevoree.modeling.api.map.StringHashMap.Entry<any>[];
-                        private elementDataSize: number;
-                        public threshold: number;
-                        public modCount: number = 0;
-                        public reuseAfterDelete: org.kevoree.modeling.api.map.StringHashMap.Entry<any> = null;
-                        private initalCapacity: number;
-                        private loadFactor: number;
-                        public newElementArray(s: number): org.kevoree.modeling.api.map.StringHashMap.Entry<any>[] {
-                            return new Array();
-                        }
-
-                        constructor(p_initalCapacity: number, p_loadFactor: number) {
-                            this.initalCapacity = p_initalCapacity;
-                            this.loadFactor = p_loadFactor;
-                            this.elementCount = 0;
-                            this.elementData = this.newElementArray(this.initalCapacity);
-                            this.elementDataSize = this.initalCapacity;
-                            this.computeMaxSize();
-                        }
-
-                        public clear(): void {
-                            if (this.elementCount > 0) {
-                                this.elementCount = 0;
-                                this.elementData = this.newElementArray(this.initalCapacity);
-                                this.elementDataSize = this.initalCapacity;
-                                this.modCount++;
-                            }
-                        }
-
-                        private computeMaxSize(): void {
-                            this.threshold = <number>(this.elementDataSize * this.loadFactor);
-                        }
-
-                        public containsKey(key: string): boolean {
-                            if (this.elementDataSize == 0) {
-                                return false;
-                            }
-                            var hash: number = key.hashCode();
-                            var index: number = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            var m: org.kevoree.modeling.api.map.StringHashMap.Entry<any> = this.findNonNullKeyEntry(key, index);
-                            return m != null;
-                        }
-
-                        public get(key: string): V {
-                            if (key == null || this.elementDataSize == 0) {
-                                return null;
-                            }
-                            var m: org.kevoree.modeling.api.map.StringHashMap.Entry<any>;
-                            var hash: number = key.hashCode();
-                            var index: number = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            m = this.findNonNullKeyEntry(key, index);
-                            if (m != null) {
-                                return m.value;
-                            }
-                            return null;
-                        }
-
-                        public findNonNullKeyEntry(key: string, index: number): org.kevoree.modeling.api.map.StringHashMap.Entry<any> {
-                            var m: org.kevoree.modeling.api.map.StringHashMap.Entry<any> = this.elementData[index];
-                            while (m != null){
-                                if (key.equals(m.key)) {
-                                    return m;
-                                }
-                                m = m.next;
-                            }
-                            return null;
-                        }
-
-                        public each(callback: (p : string, p1 : V) => void): void {
-                            for (var i: number = 0; i < this.elementDataSize; i++) {
-                                if (this.elementData[i] != null) {
-                                    var current: org.kevoree.modeling.api.map.StringHashMap.Entry<any> = this.elementData[i];
-                                    callback(this.elementData[i].key, this.elementData[i].value);
-                                    while (current.next != null){
-                                        current = current.next;
-                                        callback(current.key, current.value);
-                                    }
-                                }
-                            }
-                        }
-
-                        public put(key: string, value: V): V {
-                            if (key == null) {
-                                return value;
-                            }
-                            var entry: org.kevoree.modeling.api.map.StringHashMap.Entry<any>;
-                            var hash: number = key.hashCode();
-                            var index: number = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            entry = this.findNonNullKeyEntry(key, index);
-                            if (entry == null) {
-                                this.modCount++;
-                                if (++this.elementCount > this.threshold) {
-                                    this.rehash();
-                                    index = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                                }
-                                entry = this.createHashedEntry(key, index);
-                            }
-                            var result: V = entry.value;
-                            entry.value = value;
-                            return result;
-                        }
-
-                        public createHashedEntry(key: string, index: number): org.kevoree.modeling.api.map.StringHashMap.Entry<any> {
-                            var entry: org.kevoree.modeling.api.map.StringHashMap.Entry<any> = this.reuseAfterDelete;
-                            if (entry == null) {
-                                entry = new org.kevoree.modeling.api.map.StringHashMap.Entry<any>(key, null);
-                            } else {
-                                this.reuseAfterDelete = null;
-                                entry.key = key;
-                                entry.value = null;
-                            }
-                            entry.next = this.elementData[index];
-                            this.elementData[index] = entry;
-                            return entry;
-                        }
-
-                        public rehashCapacity(capacity: number): void {
-                            var length: number = (capacity == 0 ? 1 : capacity << 1);
-                            var newData: org.kevoree.modeling.api.map.StringHashMap.Entry<any>[] = this.newElementArray(length);
-                            for (var i: number = 0; i < this.elementDataSize; i++) {
-                                var entry: org.kevoree.modeling.api.map.StringHashMap.Entry<any> = this.elementData[i];
-                                while (entry != null){
-                                    var hash: number = entry.key.hashCode();
-                                    var index: number = (hash & 0x7FFFFFFF) % length;
-                                    var next: org.kevoree.modeling.api.map.StringHashMap.Entry<any> = entry.next;
-                                    entry.next = newData[index];
-                                    newData[index] = entry;
-                                    entry = next;
-                                }
-                            }
-                            this.elementData = newData;
-                            this.elementDataSize = length;
-                            this.computeMaxSize();
-                        }
-
-                        public rehash(): void {
-                            this.rehashCapacity(this.elementDataSize);
-                        }
-
-                        public remove(key: string): V {
-                            var entry: org.kevoree.modeling.api.map.StringHashMap.Entry<any> = this.removeEntry(key);
-                            if (entry == null) {
-                                return null;
-                            }
-                            var ret: V = entry.value;
-                            entry.value = null;
-                            entry.key = null;
-                            this.reuseAfterDelete = entry;
-                            return ret;
-                        }
-
-                        public removeEntry(key: string): org.kevoree.modeling.api.map.StringHashMap.Entry<any> {
-                            var entry: org.kevoree.modeling.api.map.StringHashMap.Entry<any>;
-                            var last: org.kevoree.modeling.api.map.StringHashMap.Entry<any> = null;
-                            var hash: number = key.hashCode();
-                            var index: number = (hash & 0x7FFFFFFF) % this.elementDataSize;
-                            entry = this.elementData[index];
-                            while (entry != null && !(key.equals(entry.key))){
-                                last = entry;
-                                entry = entry.next;
-                            }
-                            if (entry == null) {
-                                return null;
-                            }
-                            if (last == null) {
-                                this.elementData[index] = entry.next;
-                            } else {
-                                last.next = entry.next;
-                            }
-                            this.modCount++;
-                            this.elementCount--;
-                            return entry;
-                        }
-
-                        public size(): number {
-                            return this.elementCount;
-                        }
-
+                    private internalMap;
+                     constructor(initalCapacity: number, loadFactor : number) 
+                    {
+                     this.internalMap = 
+                    {
+                    }
+                    ; 
+                    }
+                     public clear():void 
+                    {
+                     this.internalMap = 
+                    {
+                    }
+                    ; 
+                    }
+                     public get(key:string):V 
+                    {
+                     return this.internalMap[key]; 
+                    }
+                     public put(key:string, pval : V):V 
+                    {
+                     var previousVal = this.internalMap[key];this.internalMap[key] = pval;return previousVal;
+                    }
+                     public containsKey(key:string):boolean 
+                    {
+                     return this.internalMap.hasOwnProperty(key);
+                    }
+                     public remove(key:string):V 
+                    {
+                     var tmp = this.internalMap[key]; delete this.internalMap[key]; return tmp; 
+                    }
+                     public size():number 
+                    {
+                     var c=0;for(var p in this.internalMap)
+                    {
+                     if(this.internalMap.hasOwnProperty(p))
+                    {
+                     c++; 
+                    }
+                    }
+                     return c; 
+                    }
+                     public each(callback: (p : string, p1 : V) => void): void 
+                    {
+                     for(var p in this.internalMap)
+                    {
+                     callback(<string>p,this.internalMap[p]); 
+                    }
+                    }
                     }
 
                     export module StringHashMap { 
                         export class Entry<V> {
-
-                            public next: org.kevoree.modeling.api.map.StringHashMap.Entry<any>;
-                            public key: string;
-                            public value: V;
-                            constructor(theKey: string, theValue: V) {
-                                this.key = theKey;
-                                this.value = theValue;
-                            }
 
                         }
 
