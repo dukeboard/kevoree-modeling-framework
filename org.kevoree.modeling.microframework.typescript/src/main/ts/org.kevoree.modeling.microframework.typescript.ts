@@ -226,8 +226,6 @@ module org {
 
                     uuid(): number;
 
-                    path(): org.kevoree.modeling.api.KDefer<any>;
-
                     view(): org.kevoree.modeling.api.KView;
 
                     delete(): org.kevoree.modeling.api.KDefer<any>;
@@ -864,20 +862,6 @@ module org {
 
                         public universe(): org.kevoree.modeling.api.KUniverse<any, any, any> {
                             return this._view.universe();
-                        }
-
-                        public path(): org.kevoree.modeling.api.KDefer<any> {
-                            var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
-                            this.parent().then( (parent : org.kevoree.modeling.api.KObject) => {
-                                if (parent == null) {
-                                    task.initCallback()("/");
-                                } else {
-                                    parent.path().then( (parentPath : string) => {
-                                        task.initCallback()(org.kevoree.modeling.api.util.PathHelper.path(parentPath, this.referenceInParent(), this));
-                                    });
-                                }
-                            });
-                            return task;
                         }
 
                         public parentUuid(): number {
@@ -12416,45 +12400,6 @@ module org {
                         call(source: org.kevoree.modeling.api.KObject, operation: org.kevoree.modeling.api.meta.MetaOperation, param: any[], callback: (p : any) => void): void;
 
                         operationEventReceived(operationEvent: org.kevoree.modeling.api.msg.KMessage): void;
-
-                    }
-
-                    export class PathHelper {
-
-                        public static pathSep: string = '/';
-                        private static pathIDOpen: string = '[';
-                        private static pathIDClose: string = ']';
-                        private static rootPath: string = "/";
-                        public static parentPath(currentPath: string): string {
-                            if (currentPath == null || currentPath.length == 0) {
-                                return null;
-                            }
-                            if (currentPath.length == 1) {
-                                return null;
-                            }
-                            var lastIndex: number = currentPath.lastIndexOf(PathHelper.pathSep);
-                            if (lastIndex != -1) {
-                                if (lastIndex == 0) {
-                                    return PathHelper.rootPath;
-                                } else {
-                                    return currentPath.substring(0, lastIndex);
-                                }
-                            } else {
-                                return null;
-                            }
-                        }
-
-                        public static isRoot(path: string): boolean {
-                            return path.length == 1 && path.charAt(0) == org.kevoree.modeling.api.util.PathHelper.pathSep;
-                        }
-
-                        public static path(parent: string, reference: org.kevoree.modeling.api.meta.MetaReference, target: org.kevoree.modeling.api.KObject): string {
-                            if (org.kevoree.modeling.api.util.PathHelper.isRoot(parent)) {
-                                return PathHelper.pathSep + reference.metaName() + PathHelper.pathIDOpen + target.domainKey() + PathHelper.pathIDClose;
-                            } else {
-                                return parent + PathHelper.pathSep + reference.metaName() + PathHelper.pathIDOpen + target.domainKey() + PathHelper.pathIDClose;
-                            }
-                        }
 
                     }
 

@@ -15,8 +15,6 @@ public interface KObject {
 
     long uuid();
 
-    KDefer<String> path();
-
     KView view();
 
     KDefer<Throwable> delete();

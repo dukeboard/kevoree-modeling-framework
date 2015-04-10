@@ -124,32 +124,8 @@ public class JSONSaveTest {
                 "\t}\n" +
                 "]\n";
 
-        Assert.assertEquals(result[0], payloadResult);
-        final String[] pathN2 = {null};
-        n2.path().then(new Callback<String>() {
-            @Override
-            public void on(String p) {
-                pathN2[0] = p;
-            }
-        });
-        Assert.assertEquals("/children[name=n2]", pathN2[0]);
-        final String[] pathN1 = {null};
-        n1.path().then(new Callback<String>() {
-            @Override
-            public void on(String p) {
-                pathN1[0] = p;
-            }
-        });
-        Assert.assertEquals("/children[name=n1]", pathN1[0]);
-        final String[] pathR = {null};
-        root.path().then(new Callback<String>() {
-            @Override
-            public void on(String p) {
-                pathR[0] = p;
-            }
-        });
-        Assert.assertEquals("/", pathR[0]);
 
+        Assert.assertEquals(result[0], payloadResult);
 
     }
 

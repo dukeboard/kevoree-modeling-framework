@@ -16,7 +16,6 @@ import org.kevoree.modeling.api.traversal.DefaultKTraversal;
 import org.kevoree.modeling.api.traversal.KTraversal;
 import org.kevoree.modeling.api.traversal.selector.KSelector;
 import org.kevoree.modeling.api.util.Checker;
-import org.kevoree.modeling.api.util.PathHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,27 +59,6 @@ public abstract class AbstractKObject implements KObject {
     @Override
     public KUniverse universe() {
         return _view.universe();
-    }
-
-    @Override
-    public KDefer<String> path() {
-        final AbstractKDeferWrapper<String> task = new AbstractKDeferWrapper<String>();
-        parent().then(new Callback<KObject>() {
-            @Override
-            public void on(KObject parent) {
-                if (parent == null) {
-                    task.initCallback().on("/");
-                } else {
-                    parent.path().then(new Callback<String>() {
-                        @Override
-                        public void on(String parentPath) {
-                            task.initCallback().on(PathHelper.path(parentPath, referenceInParent(), AbstractKObject.this));
-                        }
-                    });
-                }
-            }
-        });
-        return task;
     }
 
     @Override

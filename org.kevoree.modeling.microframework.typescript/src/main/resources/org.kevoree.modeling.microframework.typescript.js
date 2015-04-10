@@ -529,21 +529,6 @@ var org;
                         AbstractKObject.prototype.universe = function () {
                             return this._view.universe();
                         };
-                        AbstractKObject.prototype.path = function () {
-                            var _this = this;
-                            var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
-                            this.parent().then(function (parent) {
-                                if (parent == null) {
-                                    task.initCallback()("/");
-                                }
-                                else {
-                                    parent.path().then(function (parentPath) {
-                                        task.initCallback()(org.kevoree.modeling.api.util.PathHelper.path(parentPath, _this.referenceInParent(), _this));
-                                    });
-                                }
-                            });
-                            return task;
-                        };
                         AbstractKObject.prototype.parentUuid = function () {
                             var raw = this._view.universe().model().manager().entry(this, org.kevoree.modeling.api.data.manager.AccessMode.READ);
                             if (raw != null) {
@@ -11293,47 +11278,6 @@ var org;
                         return DefaultOperationManager;
                     })();
                     util.DefaultOperationManager = DefaultOperationManager;
-                    var PathHelper = (function () {
-                        function PathHelper() {
-                        }
-                        PathHelper.parentPath = function (currentPath) {
-                            if (currentPath == null || currentPath.length == 0) {
-                                return null;
-                            }
-                            if (currentPath.length == 1) {
-                                return null;
-                            }
-                            var lastIndex = currentPath.lastIndexOf(PathHelper.pathSep);
-                            if (lastIndex != -1) {
-                                if (lastIndex == 0) {
-                                    return PathHelper.rootPath;
-                                }
-                                else {
-                                    return currentPath.substring(0, lastIndex);
-                                }
-                            }
-                            else {
-                                return null;
-                            }
-                        };
-                        PathHelper.isRoot = function (path) {
-                            return path.length == 1 && path.charAt(0) == org.kevoree.modeling.api.util.PathHelper.pathSep;
-                        };
-                        PathHelper.path = function (parent, reference, target) {
-                            if (org.kevoree.modeling.api.util.PathHelper.isRoot(parent)) {
-                                return PathHelper.pathSep + reference.metaName() + PathHelper.pathIDOpen + target.domainKey() + PathHelper.pathIDClose;
-                            }
-                            else {
-                                return parent + PathHelper.pathSep + reference.metaName() + PathHelper.pathIDOpen + target.domainKey() + PathHelper.pathIDClose;
-                            }
-                        };
-                        PathHelper.pathSep = '/';
-                        PathHelper.pathIDOpen = '[';
-                        PathHelper.pathIDClose = ']';
-                        PathHelper.rootPath = "/";
-                        return PathHelper;
-                    })();
-                    util.PathHelper = PathHelper;
                 })(util = api.util || (api.util = {}));
                 var xmi;
                 (function (xmi) {

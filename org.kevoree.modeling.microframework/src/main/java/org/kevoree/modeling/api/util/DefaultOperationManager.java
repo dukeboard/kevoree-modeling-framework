@@ -1,6 +1,10 @@
 package org.kevoree.modeling.api.util;
 
-import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KConfig;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KOperation;
+import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.map.IntHashMap;

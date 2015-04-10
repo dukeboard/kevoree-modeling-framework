@@ -16,5 +16,5 @@ public interface KOperationManager {
 
     void call(KObject source, MetaOperation operation, Object[] param, Callback<Object> callback);
 
-    public void operationEventReceived(KMessage operationEvent);
+    void operationEventReceived(KMessage operationEvent);
 }

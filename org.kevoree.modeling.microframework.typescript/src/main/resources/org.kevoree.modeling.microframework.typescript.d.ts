@@ -106,7 +106,6 @@ declare module org {
                 interface KObject {
                     universe(): org.kevoree.modeling.api.KUniverse<any, any, any>;
                     uuid(): number;
-                    path(): org.kevoree.modeling.api.KDefer<any>;
                     view(): org.kevoree.modeling.api.KView;
                     delete(): org.kevoree.modeling.api.KDefer<any>;
                     parent(): org.kevoree.modeling.api.KDefer<any>;
@@ -297,7 +296,6 @@ declare module org {
                         metaClass(): org.kevoree.modeling.api.meta.MetaClass;
                         now(): number;
                         universe(): org.kevoree.modeling.api.KUniverse<any, any, any>;
-                        path(): org.kevoree.modeling.api.KDefer<any>;
                         parentUuid(): number;
                         timeWalker(): org.kevoree.modeling.api.KTimeWalker;
                         parent(): org.kevoree.modeling.api.KDefer<any>;
@@ -2062,15 +2060,6 @@ declare module org {
                         registerOperation(operation: org.kevoree.modeling.api.meta.MetaOperation, callback: (p: org.kevoree.modeling.api.KObject, p1: any[], p2: (p: any) => void) => void, target: org.kevoree.modeling.api.KObject): void;
                         call(source: org.kevoree.modeling.api.KObject, operation: org.kevoree.modeling.api.meta.MetaOperation, param: any[], callback: (p: any) => void): void;
                         operationEventReceived(operationEvent: org.kevoree.modeling.api.msg.KMessage): void;
-                    }
-                    class PathHelper {
-                        static pathSep: string;
-                        private static pathIDOpen;
-                        private static pathIDClose;
-                        private static rootPath;
-                        static parentPath(currentPath: string): string;
-                        static isRoot(path: string): boolean;
-                        static path(parent: string, reference: org.kevoree.modeling.api.meta.MetaReference, target: org.kevoree.modeling.api.KObject): string;
                     }
                 }
                 module xmi {

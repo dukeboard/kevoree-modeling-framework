@@ -3,6 +3,8 @@ package org.kevoree.modeling.api.map;
 
 /* From an original idea https://code.google.com/p/jdbm2/ */
 
+
+
 public class StringHashMap<V> {
 
     protected int elementCount;
