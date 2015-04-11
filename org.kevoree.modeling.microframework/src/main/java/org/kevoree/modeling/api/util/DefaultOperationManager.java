@@ -15,9 +15,6 @@ import org.kevoree.modeling.api.msg.KMessageLoader;
 import org.kevoree.modeling.api.msg.KOperationCallMessage;
 import org.kevoree.modeling.api.msg.KOperationResultMessage;
 
-/**
- * Created by gregory.nain on 28/11/14.
- */
 public class DefaultOperationManager implements KOperationManager {
 
     private IntHashMap<IntHashMap<KOperation>> staticOperations;

@@ -5,9 +5,6 @@ import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
 import org.kevoree.modeling.api.traversal.KTraversalHistory;
 
-/**
- * Created by duke on 19/12/14.
- */
 public class KFinalAction implements KTraversalAction {
 
     private Callback<KObject[]> _finalCallback;

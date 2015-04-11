@@ -1,24 +1,21 @@
 package org.kevoree.modeling.api.meta;
 
-/**
- * Created by duke on 10/9/14.
- */
 public interface MetaClass extends Meta {
 
-    public Meta[] metaElements();
+    Meta[] metaElements();
 
-    public Meta meta(int index);
+    Meta meta(int index);
 
-    public MetaAttribute[] metaAttributes();
+    MetaAttribute[] metaAttributes();
 
-    public MetaReference[] metaReferences();
+    MetaReference[] metaReferences();
 
-    public Meta metaByName(String name);
+    Meta metaByName(String name);
 
-    public MetaAttribute attribute(String name);
+    MetaAttribute attribute(String name);
 
-    public MetaReference reference(String name);
+    MetaReference reference(String name);
 
-    public MetaOperation operation(String name);
+    MetaOperation operation(String name);
 
 }

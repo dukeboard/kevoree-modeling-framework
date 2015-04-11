@@ -1,8 +1,5 @@
 package org.kevoree.modeling.api.traversal.selector;
 
-/**
- * Created by duke on 10/24/14.
- */
 public class KQueryParam {
 
     private String _name;

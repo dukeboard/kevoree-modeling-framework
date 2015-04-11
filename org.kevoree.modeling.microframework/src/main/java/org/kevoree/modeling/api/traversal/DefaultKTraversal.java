@@ -7,9 +7,6 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.traversal.actions.*;
 
-/**
- * Created by duke on 18/12/14.
- */
 public class DefaultKTraversal implements KTraversal {
 
     private static final String TERMINATED_MESSAGE = "Promise is terminated by the call of done method, please create another promise";

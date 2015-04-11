@@ -10,19 +10,18 @@ import org.kevoree.modeling.api.meta.MetaModel;
 
 /**
  * @native ts
- * private internalMap;
  * private _counter = 0;
  * private _isDirty = false;
  * static ELEMENT_SEP = ',';
  * static CHUNK_SEP = '/';
- * constructor(initalCapacity: number, loadFactor : number) { this.internalMap = {}; }
- * public clear():void { this.internalMap = {}; }
- * public get(key:number):number { return this.internalMap[key]; }
- * public put(key:number, pval : number):number { this._isDirty=false; var previousVal = this.internalMap[key];this.internalMap[key] = pval;return previousVal;}
- * public containsKey(key:number):boolean { return this.internalMap.hasOwnProperty(key);}
- * public remove(key:number):number { var tmp = this.internalMap[key]; delete this.internalMap[key]; return tmp; }
- * public size():number { var c=0;for(var p in this.internalMap){ if(this.internalMap.hasOwnProperty(p)){ c++; } } return c; }
- * public each(callback: (p : number, p1 : number) => void): void { for(var p in this.internalMap){ callback(<number>p,this.internalMap[p]); } }
+ * constructor(initalCapacity: number, loadFactor : number) { }
+ * public clear():void { for(var p in this){ if(this.hasOwnProperty(p) && p.indexOf('_') != 0){ delete this[p];}} }
+ * public get(key:number):number { return this[key]; }
+ * public put(key:number, pval : number):number { this._isDirty=false; var previousVal = this[key];this[key] = pval;return previousVal;}
+ * public containsKey(key:number):boolean { return this.hasOwnProperty(<any>key);}
+ * public remove(key:number):number { var tmp = this[key]; delete this[key]; return tmp; }
+ * public size():number { var c=0;for(var p in this){ if(this.hasOwnProperty(p) && p.indexOf('_') != 0){ c++; } } return c; }
+ * public each(callback: (p : number, p1 : number) => void): void { for(var p in this){ if(this.hasOwnProperty(p) && p.indexOf('_') != 0){ callback(<number>p,this[p]); } } }
  * public counter():number { return this._counter; }
  * public inc():void { this._counter++; }
  * public dec():void { this._counter--; }

@@ -1,7 +1,6 @@
 package org.kevoree.modeling.api;
 
 /**
- * Created by duke on 09/12/14.
  * TODO consider some strategy to avoid the boxing
  */
 public interface KInfer extends KObject {

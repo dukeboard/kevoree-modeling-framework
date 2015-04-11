@@ -6,9 +6,6 @@ import org.kevoree.modeling.api.traversal.KTraversal;
 
 import java.util.List;
 
-/**
- * Created by duke on 10/24/14.
- */
 public class KSelector {
 
     public static void select(final KObject root, String query, final Callback<KObject[]> callback) {

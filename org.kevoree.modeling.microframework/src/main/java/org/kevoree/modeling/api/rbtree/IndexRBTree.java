@@ -5,26 +5,19 @@ import org.kevoree.modeling.api.data.cache.KCacheObject;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.meta.MetaModel;
 
-/**
- * Created by duke on 10/7/14.
- */
 public class IndexRBTree implements KCacheObject {
 
     private TreeNode root = null;
-
     private int _size = 0;
-
+    private Long[] _previousOrEqualsCacheKeys = null;
+    private TreeNode[] _previousOrEqualsCacheValues = null;
+    private int _nextCacheElem;
+    private int _counter = 0;
     private boolean _dirty = false;
 
     public int size() {
         return _size;
     }
-
-    private Long[] _previousOrEqualsCacheKeys = null;
-    private TreeNode[] _previousOrEqualsCacheValues = null;
-    private int _nextCacheElem;
-
-    private int _counter = 0;
 
     @Override
     public int counter() {

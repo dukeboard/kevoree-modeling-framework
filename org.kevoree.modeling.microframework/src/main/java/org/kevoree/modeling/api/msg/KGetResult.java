@@ -2,9 +2,6 @@ package org.kevoree.modeling.api.msg;
 
 import org.kevoree.modeling.api.json.JsonString;
 
-/**
- * Created by duke on 24/02/15.
- */
 public class KGetResult implements KMessage {
 
     public long id;

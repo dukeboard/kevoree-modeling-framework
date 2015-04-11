@@ -12,20 +12,6 @@ var org;
         (function (modeling) {
             var api;
             (function (api) {
-                var InboundReference = (function () {
-                    function InboundReference(p_reference, p_source) {
-                        this._reference = p_reference;
-                        this._source = p_source;
-                    }
-                    InboundReference.prototype.reference = function () {
-                        return this._reference;
-                    };
-                    InboundReference.prototype.source = function () {
-                        return this._source;
-                    };
-                    return InboundReference;
-                })();
-                api.InboundReference = InboundReference;
                 var KActionType = (function () {
                     function KActionType(code) {
                         this._code = "";
@@ -5647,39 +5633,38 @@ var org;
                 (function (map) {
                     var IntHashMap = (function () {
                         function IntHashMap(initalCapacity, loadFactor) {
-                            this.internalMap = {};
                         }
                         IntHashMap.prototype.clear = function () {
-                            this.internalMap = {};
+                            for (var p in this) {
+                                if (this.hasOwnProperty(p)) {
+                                    delete this[p];
+                                }
+                            }
                         };
                         IntHashMap.prototype.get = function (key) {
-                            return this.internalMap[key];
+                            return this[key];
                         };
                         IntHashMap.prototype.put = function (key, pval) {
-                            var previousVal = this.internalMap[key];
-                            this.internalMap[key] = pval;
+                            var previousVal = this[key];
+                            this[key] = pval;
                             return previousVal;
                         };
                         IntHashMap.prototype.containsKey = function (key) {
-                            return this.internalMap.hasOwnProperty(key);
+                            return this.hasOwnProperty(key);
                         };
                         IntHashMap.prototype.remove = function (key) {
-                            var tmp = this.internalMap[key];
-                            delete this.internalMap[key];
+                            var tmp = this[key];
+                            delete this[key];
                             return tmp;
                         };
                         IntHashMap.prototype.size = function () {
-                            var c = 0;
-                            for (var p in this.internalMap) {
-                                if (this.internalMap.hasOwnProperty(p)) {
-                                    c++;
-                                }
-                            }
-                            return c;
+                            return Object.keys(this).length;
                         };
                         IntHashMap.prototype.each = function (callback) {
-                            for (var p in this.internalMap) {
-                                callback(p, this.internalMap[p]);
+                            for (var p in this) {
+                                if (this.hasOwnProperty(p)) {
+                                    callback(p, this[p]);
+                                }
                             }
                         };
                         return IntHashMap;
@@ -5687,39 +5672,38 @@ var org;
                     map.IntHashMap = IntHashMap;
                     var LongHashMap = (function () {
                         function LongHashMap(initalCapacity, loadFactor) {
-                            this.internalMap = {};
                         }
                         LongHashMap.prototype.clear = function () {
-                            this.internalMap = {};
+                            for (var p in this) {
+                                if (this.hasOwnProperty(p)) {
+                                    delete this[p];
+                                }
+                            }
                         };
                         LongHashMap.prototype.get = function (key) {
-                            return this.internalMap[key];
+                            return this[key];
                         };
                         LongHashMap.prototype.put = function (key, pval) {
-                            var previousVal = this.internalMap[key];
-                            this.internalMap[key] = pval;
+                            var previousVal = this[key];
+                            this[key] = pval;
                             return previousVal;
                         };
                         LongHashMap.prototype.containsKey = function (key) {
-                            return this.internalMap.hasOwnProperty(key);
+                            return this.hasOwnProperty(key);
                         };
                         LongHashMap.prototype.remove = function (key) {
-                            var tmp = this.internalMap[key];
-                            delete this.internalMap[key];
+                            var tmp = this[key];
+                            delete this[key];
                             return tmp;
                         };
                         LongHashMap.prototype.size = function () {
-                            var c = 0;
-                            for (var p in this.internalMap) {
-                                if (this.internalMap.hasOwnProperty(p)) {
-                                    c++;
-                                }
-                            }
-                            return c;
+                            return Object.keys(this).length;
                         };
                         LongHashMap.prototype.each = function (callback) {
-                            for (var p in this.internalMap) {
-                                callback(p, this.internalMap[p]);
+                            for (var p in this) {
+                                if (this.hasOwnProperty(p)) {
+                                    callback(p, this[p]);
+                                }
                             }
                         };
                         return LongHashMap;
@@ -5729,40 +5713,45 @@ var org;
                         function LongLongHashMap(initalCapacity, loadFactor) {
                             this._counter = 0;
                             this._isDirty = false;
-                            this.internalMap = {};
                         }
                         LongLongHashMap.prototype.clear = function () {
-                            this.internalMap = {};
+                            for (var p in this) {
+                                if (this.hasOwnProperty(p) && p.indexOf('_') != 0) {
+                                    delete this[p];
+                                }
+                            }
                         };
                         LongLongHashMap.prototype.get = function (key) {
-                            return this.internalMap[key];
+                            return this[key];
                         };
                         LongLongHashMap.prototype.put = function (key, pval) {
                             this._isDirty = false;
-                            var previousVal = this.internalMap[key];
-                            this.internalMap[key] = pval;
+                            var previousVal = this[key];
+                            this[key] = pval;
                             return previousVal;
                         };
                         LongLongHashMap.prototype.containsKey = function (key) {
-                            return this.internalMap.hasOwnProperty(key);
+                            return this.hasOwnProperty(key);
                         };
                         LongLongHashMap.prototype.remove = function (key) {
-                            var tmp = this.internalMap[key];
-                            delete this.internalMap[key];
+                            var tmp = this[key];
+                            delete this[key];
                             return tmp;
                         };
                         LongLongHashMap.prototype.size = function () {
                             var c = 0;
-                            for (var p in this.internalMap) {
-                                if (this.internalMap.hasOwnProperty(p)) {
+                            for (var p in this) {
+                                if (this.hasOwnProperty(p) && p.indexOf('_') != 0) {
                                     c++;
                                 }
                             }
                             return c;
                         };
                         LongLongHashMap.prototype.each = function (callback) {
-                            for (var p in this.internalMap) {
-                                callback(p, this.internalMap[p]);
+                            for (var p in this) {
+                                if (this.hasOwnProperty(p) && p.indexOf('_') != 0) {
+                                    callback(p, this[p]);
+                                }
                             }
                         };
                         LongLongHashMap.prototype.counter = function () {
@@ -5819,39 +5808,38 @@ var org;
                     map.LongLongHashMap = LongLongHashMap;
                     var StringHashMap = (function () {
                         function StringHashMap(initalCapacity, loadFactor) {
-                            this.internalMap = {};
                         }
                         StringHashMap.prototype.clear = function () {
-                            this.internalMap = {};
+                            for (var p in this) {
+                                if (this.hasOwnProperty(p)) {
+                                    delete this[p];
+                                }
+                            }
                         };
                         StringHashMap.prototype.get = function (key) {
-                            return this.internalMap[key];
+                            return this[key];
                         };
                         StringHashMap.prototype.put = function (key, pval) {
-                            var previousVal = this.internalMap[key];
-                            this.internalMap[key] = pval;
+                            var previousVal = this[key];
+                            this[key] = pval;
                             return previousVal;
                         };
                         StringHashMap.prototype.containsKey = function (key) {
-                            return this.internalMap.hasOwnProperty(key);
+                            return this.hasOwnProperty(key);
                         };
                         StringHashMap.prototype.remove = function (key) {
-                            var tmp = this.internalMap[key];
-                            delete this.internalMap[key];
+                            var tmp = this[key];
+                            delete this[key];
                             return tmp;
                         };
                         StringHashMap.prototype.size = function () {
-                            var c = 0;
-                            for (var p in this.internalMap) {
-                                if (this.internalMap.hasOwnProperty(p)) {
-                                    c++;
-                                }
-                            }
-                            return c;
+                            return Object.keys(this).length;
                         };
                         StringHashMap.prototype.each = function (callback) {
-                            for (var p in this.internalMap) {
-                                callback(p, this.internalMap[p]);
+                            for (var p in this) {
+                                if (this.hasOwnProperty(p)) {
+                                    callback(p, this[p]);
+                                }
                             }
                         };
                         return StringHashMap;
@@ -7494,10 +7482,10 @@ var org;
                         function IndexRBTree() {
                             this.root = null;
                             this._size = 0;
-                            this._dirty = false;
                             this._previousOrEqualsCacheKeys = null;
                             this._previousOrEqualsCacheValues = null;
                             this._counter = 0;
+                            this._dirty = false;
                         }
                         IndexRBTree.prototype.size = function () {
                             return this._size;

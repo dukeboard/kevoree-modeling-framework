@@ -4,9 +4,6 @@ import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
 import org.kevoree.modeling.api.traversal.KTraversalHistory;
 
-/**
- * Created by duke on 11/03/15.
- */
 public class KActivateHistoryAction implements KTraversalAction {
 
     private KTraversalAction _next;

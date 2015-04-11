@@ -1,8 +1,5 @@
 package org.kevoree.modeling.api;
 
-/**
- * Created by duke on 10/2/14.
- */
 public enum KActionType {
 
     CALL("CALL"),

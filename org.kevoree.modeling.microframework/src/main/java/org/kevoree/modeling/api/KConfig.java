@@ -1,8 +1,5 @@
 package org.kevoree.modeling.api;
 
-/**
- * Created by duke on 04/03/15.
- */
 public class KConfig {
 
     public static final int TREE_CACHE_SIZE = 3;

@@ -5,15 +5,14 @@ package org.kevoree.modeling.api.map;
 
 /**
  * @native ts
- * private internalMap;
- * constructor(initalCapacity: number, loadFactor : number) { this.internalMap = {}; }
- * public clear():void { this.internalMap = {}; }
- * public get(key:string):V { return this.internalMap[key]; }
- * public put(key:string, pval : V):V { var previousVal = this.internalMap[key];this.internalMap[key] = pval;return previousVal;}
- * public containsKey(key:string):boolean { return this.internalMap.hasOwnProperty(key);}
- * public remove(key:string):V { var tmp = this.internalMap[key]; delete this.internalMap[key]; return tmp; }
- * public size():number { var c=0;for(var p in this.internalMap){ if(this.internalMap.hasOwnProperty(p)){ c++; } } return c; }
- * public each(callback: (p : string, p1 : V) => void): void { for(var p in this.internalMap){ callback(<string>p,this.internalMap[p]); } }
+ * constructor(initalCapacity: number, loadFactor : number) { }
+ * public clear():void { for(var p in this){ if(this.hasOwnProperty(p)){ delete this[p];} } }
+ * public get(key:string):V { return this[key]; }
+ * public put(key:string, pval : V):V { var previousVal = this[key];this[key] = pval;return previousVal;}
+ * public containsKey(key:string):boolean { return this.hasOwnProperty(key);}
+ * public remove(key:string):V { var tmp = this[key]; delete this[key]; return tmp; }
+ * public size():number { return Object.keys(this).length; }
+ * public each(callback: (p : string, p1 : V) => void): void { for(var p in this){ if(this.hasOwnProperty(p)){ callback(<string>p,this[p]); } } }
  */
 public class StringHashMap<V> {
 

@@ -4,10 +4,6 @@ import org.kevoree.modeling.api.polynomial.PolynomialModel;
 import org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml;
 import org.kevoree.modeling.api.polynomial.util.Prioritization;
 
-
-/**
- * Created by assaad on 19/12/14.
- */
 public class DoublePolynomialModel implements PolynomialModel {
 
     private static final String sep = "/";

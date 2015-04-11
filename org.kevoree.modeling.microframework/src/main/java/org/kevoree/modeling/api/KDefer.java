@@ -1,8 +1,5 @@
 package org.kevoree.modeling.api;
 
-/**
- * Created by duke on 20/01/15.
- */
 public interface KDefer<A> {
 
     KDefer<A> wait(KDefer previous);

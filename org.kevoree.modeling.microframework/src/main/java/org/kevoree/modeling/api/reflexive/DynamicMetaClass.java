@@ -10,9 +10,6 @@ import org.kevoree.modeling.api.map.StringHashMapCallBack;
 import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.meta.MetaClass;
 
-/**
- * Created by duke on 16/01/15.
- */
 public class DynamicMetaClass extends AbstractMetaClass {
 
     private StringHashMap<Meta> cached_meta = new StringHashMap<Meta>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);

@@ -5,13 +5,6 @@ declare module org {
                 interface Callback<A> {
                     on(a: A): void;
                 }
-                class InboundReference {
-                    private _reference;
-                    private _source;
-                    constructor(p_reference: org.kevoree.modeling.api.meta.MetaReference, p_source: number);
-                    reference(): org.kevoree.modeling.api.meta.MetaReference;
-                    source(): number;
-                }
                 class KActionType {
                     static CALL: KActionType;
                     static CALL_RESPONSE: KActionType;
@@ -1112,7 +1105,6 @@ declare module org {
                 }
                 module map {
                     class IntHashMap<V> {
-                        private internalMap;
                         constructor(initalCapacity: number, loadFactor: number);
                         clear(): void;
                         get(key: number): V;
@@ -1126,7 +1118,6 @@ declare module org {
                         on(key: number, value: V): void;
                     }
                     class LongHashMap<V> {
-                        private internalMap;
                         constructor(initalCapacity: number, loadFactor: number);
                         clear(): void;
                         get(key: number): V;
@@ -1140,7 +1131,6 @@ declare module org {
                         on(key: number, value: V): void;
                     }
                     class LongLongHashMap implements org.kevoree.modeling.api.data.cache.KCacheObject {
-                        private internalMap;
                         private _counter;
                         private _isDirty;
                         static ELEMENT_SEP: string;
@@ -1165,7 +1155,6 @@ declare module org {
                         on(key: number, value: number): void;
                     }
                     class StringHashMap<V> {
-                        private internalMap;
                         constructor(initalCapacity: number, loadFactor: number);
                         clear(): void;
                         get(key: string): V;
@@ -1542,11 +1531,11 @@ declare module org {
                     class IndexRBTree implements org.kevoree.modeling.api.data.cache.KCacheObject {
                         private root;
                         private _size;
-                        private _dirty;
                         private _previousOrEqualsCacheKeys;
                         private _previousOrEqualsCacheValues;
                         private _nextCacheElem;
                         private _counter;
+                        private _dirty;
                         size(): number;
                         counter(): number;
                         inc(): void;

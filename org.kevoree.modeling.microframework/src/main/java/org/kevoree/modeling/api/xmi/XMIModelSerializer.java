@@ -12,11 +12,6 @@ import org.kevoree.modeling.api.VisitResult;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
 
-/*
-* Author : Gregory Nain
-* Date : 02/09/13
-*/
-
 public class XMIModelSerializer {
 
     public static void save(KObject model, final Callback<String> callback) {
@@ -44,7 +39,6 @@ public class XMIModelSerializer {
             context.printer = new StringBuilder();
             //First Pass for building address table
             context.addressTable.put(model.uuid(), "/");
-
 
             KDefer addressCreationTask = context.model.visit(VisitRequest.CONTAINED,new ModelVisitor() {
                 @Override

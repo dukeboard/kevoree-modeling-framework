@@ -13,9 +13,6 @@ import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
 import org.kevoree.modeling.api.traversal.KTraversalHistory;
 
-/**
- * Created by duke on 30/01/15.
- */
 public class KTraverseQueryAction implements KTraversalAction {
 
     private final String SEP = ",";

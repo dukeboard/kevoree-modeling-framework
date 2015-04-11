@@ -6,9 +6,6 @@ import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.traversal.KTraversal;
 
-/**
- * Created by thomas on 10/2/14.
- */
 public interface KObject {
 
     KUniverse universe();

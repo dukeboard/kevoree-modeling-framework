@@ -1,9 +1,5 @@
 package org.kevoree.modeling.api.polynomial.simplepolynomial;
 
-/**
- * Created by assaa_000 on 28/10/2014.
- */
-
 import org.kevoree.modeling.api.polynomial.PolynomialModel;
 import org.kevoree.modeling.api.polynomial.util.DataSample;
 import org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml;
@@ -12,14 +8,11 @@ import org.kevoree.modeling.api.polynomial.util.Prioritization;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by assaa_000 on 23/10/2014.
- */
 public class SimplePolynomialModel implements PolynomialModel {
 
     private double[] weights;
     private Long timeOrigin;
-    private List<DataSample> samples = new ArrayList<DataSample>();
+    private ArrayList<DataSample> samples = new ArrayList<DataSample>();
     private int degradeFactor;
     private Prioritization prioritization;
     private int maxDegree;

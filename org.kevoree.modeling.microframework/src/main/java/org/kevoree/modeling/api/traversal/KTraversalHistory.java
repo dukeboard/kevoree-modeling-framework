@@ -4,9 +4,6 @@ import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.map.LongHashMap;
 
-/**
- * Created by duke on 11/03/15.
- */
 public class KTraversalHistory {
 
     private LongHashMap<KObject> _valuesHistory;

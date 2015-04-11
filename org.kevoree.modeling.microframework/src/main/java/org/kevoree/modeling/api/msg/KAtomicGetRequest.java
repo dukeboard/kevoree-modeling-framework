@@ -3,9 +3,6 @@ package org.kevoree.modeling.api.msg;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.cdn.AtomicOperation;
 
-/**
- * Created by duke on 24/02/15.
- */
 public class KAtomicGetRequest implements KMessage {
 
     public long id;

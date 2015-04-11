@@ -2,9 +2,6 @@ package org.kevoree.modeling.api.msg;
 
 import org.kevoree.modeling.api.data.cache.KContentKey;
 
-/**
- * Created by duke on 23/02/15.
- */
 public class KOperationResultMessage implements KMessage {
 
     public long id;

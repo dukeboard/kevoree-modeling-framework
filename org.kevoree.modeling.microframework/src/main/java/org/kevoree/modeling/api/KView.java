@@ -2,9 +2,6 @@ package org.kevoree.modeling.api;
 
 import org.kevoree.modeling.api.meta.MetaClass;
 
-/**
- * Created by thomas on 10/2/14.
- */
 public interface KView {
 
     KObject createByName(String metaClassName);

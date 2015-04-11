@@ -2,9 +2,6 @@ package org.kevoree.modeling.api.msg;
 
 import org.kevoree.modeling.api.data.cache.KContentKey;
 
-/**
- * Created by duke on 09/03/15.
- */
 public class KEvents implements KMessage {
 
     protected KContentKey[] _objIds;

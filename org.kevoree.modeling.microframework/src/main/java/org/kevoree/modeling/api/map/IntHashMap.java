@@ -4,15 +4,14 @@ package org.kevoree.modeling.api.map;
 /* From an original idea https://code.google.com/p/jdbm2/ */
 /**
  * @native ts
- * private internalMap;
- * constructor(initalCapacity: number, loadFactor : number) { this.internalMap = {}; }
- * public clear():void { this.internalMap = {}; }
- * public get(key:number):V { return this.internalMap[key]; }
- * public put(key:number, pval : V):V { var previousVal = this.internalMap[key];this.internalMap[key] = pval;return previousVal;}
- * public containsKey(key:number):boolean { return this.internalMap.hasOwnProperty(key);}
- * public remove(key:number):V { var tmp = this.internalMap[key]; delete this.internalMap[key]; return tmp; }
- * public size():number { var c=0;for(var p in this.internalMap){ if(this.internalMap.hasOwnProperty(p)){ c++; } } return c; }
- * public each(callback: (p : number, p1 : V) => void): void { for(var p in this.internalMap){ callback(<number>p,this.internalMap[p]); } }
+ * constructor(initalCapacity: number, loadFactor : number) { }
+ * public clear():void { for(var p in this){if(this.hasOwnProperty(p)){delete this[p];}} }
+ * public get(key:number):V { return this[key]; }
+ * public put(key:number, pval : V):V { var previousVal = this[key];this[key] = pval;return previousVal;}
+ * public containsKey(key:number):boolean { return this.hasOwnProperty(<any>key);}
+ * public remove(key:number):V { var tmp = this[key]; delete this[key]; return tmp; }
+ * public size():number { return Object.keys(this).length; }
+ * public each(callback: (p : number, p1 : V) => void): void { for(var p in this){ if(this.hasOwnProperty(p)){ callback(<number>p,this[p]); } } }
  */
 public class IntHashMap<V> {
 

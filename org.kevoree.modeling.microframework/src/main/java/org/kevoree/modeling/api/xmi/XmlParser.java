@@ -1,10 +1,5 @@
 package org.kevoree.modeling.api.xmi;
 
-/*
-* Author : Gregory Nain (developer.name@uni.lu)
-* Date : 04/09/13
-*/
-
 import java.util.ArrayList;
 
 public class XmlParser {
@@ -21,7 +16,6 @@ public class XmlParser {
 
     private StringBuilder attributeName = new StringBuilder();
     private StringBuilder attributeValue = new StringBuilder();
-
 
     public XmlParser(String str) {
         this.payload = str;

@@ -12,10 +12,6 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.meta.MetaType;
 
-/*
-* Author : Gregory Nain
-* Date : 30/08/13
-*/
 public class XMIModelLoader {
 
     public static final String LOADER_XMI_LOCAL_NAME = "type";

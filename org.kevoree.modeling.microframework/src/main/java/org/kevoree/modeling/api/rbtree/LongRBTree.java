@@ -5,9 +5,6 @@ import org.kevoree.modeling.api.data.cache.KCacheObject;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.meta.MetaModel;
 
-/**
- * Created by duke on 10/7/14.
- */
 public class LongRBTree implements KCacheObject {
 
     private LongTreeNode root = null;

@@ -13,9 +13,6 @@ import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
 import org.kevoree.modeling.api.traversal.KTraversalHistory;
 
-/**
- * Created by duke on 18/12/14.
- */
 public class KTraverseAction implements KTraversalAction {
 
     private KTraversalAction _next;

@@ -2,9 +2,6 @@ package org.kevoree.modeling.api.polynomial.util;
 
 import java.util.Arrays;
 
-/**
- * Created by assaa_000 on 28/10/2014.
- */
 public class DenseMatrix64F {
     public int numRows;
     public int numCols;

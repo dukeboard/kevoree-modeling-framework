@@ -13,4 +13,5 @@ public class PrimitiveTypes {
     public static final KType DOUBLE = new AbstractKDataType("DOUBLE", false);
     public static final KType FLOAT = new AbstractKDataType("FLOAT", false);
     public static final KType TRANSIENT = new AbstractKDataType("TRANSIENT", false);
+
 }

@@ -1,8 +1,5 @@
 package org.kevoree.modeling.api.util;
 
-/**
- * Created by duke on 02/03/15.
- */
 public class ArrayUtils {
 
     public static long[] add(long[] previous, long toAdd) {

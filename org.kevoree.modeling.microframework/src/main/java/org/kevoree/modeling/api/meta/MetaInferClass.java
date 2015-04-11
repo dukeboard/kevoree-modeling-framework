@@ -4,9 +4,6 @@ import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
 import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation;
 
-/**
- * Created by duke on 10/02/15.
- */
 public class MetaInferClass implements MetaClass {
 
     private static MetaInferClass _INSTANCE = null;

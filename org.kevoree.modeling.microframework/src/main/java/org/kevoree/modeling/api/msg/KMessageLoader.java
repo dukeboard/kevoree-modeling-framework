@@ -5,9 +5,6 @@ import org.kevoree.modeling.api.data.cdn.AtomicOperationFactory;
 import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
 import org.kevoree.modeling.api.json.*;
 
-/**
- * Created by duke on 23/02/15.
- */
 public class KMessageLoader {
 
     public static String TYPE_NAME = "type";

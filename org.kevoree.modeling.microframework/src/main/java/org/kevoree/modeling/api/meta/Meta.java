@@ -1,14 +1,11 @@
 package org.kevoree.modeling.api.meta;
 
-/**
- * Created by duke on 10/9/14.
- */
 public interface Meta {
 
-    public int index();
+    int index();
 
-    public String metaName();
+    String metaName();
 
-    public MetaType metaType();
+    MetaType metaType();
 
 }

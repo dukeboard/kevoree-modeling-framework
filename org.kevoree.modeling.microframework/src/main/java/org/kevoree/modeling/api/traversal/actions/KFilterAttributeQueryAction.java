@@ -10,9 +10,6 @@ import org.kevoree.modeling.api.traversal.KTraversalAction;
 import org.kevoree.modeling.api.traversal.KTraversalHistory;
 import org.kevoree.modeling.api.traversal.selector.KQueryParam;
 
-/**
- * Created by duke on 01/02/15.
- */
 public class KFilterAttributeQueryAction implements KTraversalAction {
 
     private KTraversalAction _next;

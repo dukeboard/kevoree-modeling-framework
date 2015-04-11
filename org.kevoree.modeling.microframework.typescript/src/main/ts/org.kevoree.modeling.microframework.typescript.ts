@@ -8,25 +8,6 @@ module org {
 
                 }
 
-                export class InboundReference {
-
-                    private _reference: org.kevoree.modeling.api.meta.MetaReference;
-                    private _source: number;
-                    constructor(p_reference: org.kevoree.modeling.api.meta.MetaReference, p_source: number) {
-                        this._reference = p_reference;
-                        this._source = p_source;
-                    }
-
-                    public reference(): org.kevoree.modeling.api.meta.MetaReference {
-                        return this._reference;
-                    }
-
-                    public source(): number {
-                        return this._source;
-                    }
-
-                }
-
                 export class KActionType {
 
                     public static CALL: KActionType = new KActionType("CALL");
@@ -6326,15 +6307,14 @@ module org {
                 export module map {
                     export class IntHashMap<V> {
 
-                         private internalMap;
-                         constructor(initalCapacity: number, loadFactor : number) { this.internalMap = {}; }
-                         public clear():void { this.internalMap = {}; }
-                         public get(key:number):V { return this.internalMap[key]; }
-                         public put(key:number, pval : V):V { var previousVal = this.internalMap[key];this.internalMap[key] = pval;return previousVal;}
-                         public containsKey(key:number):boolean { return this.internalMap.hasOwnProperty(key);}
-                         public remove(key:number):V { var tmp = this.internalMap[key]; delete this.internalMap[key]; return tmp; }
-                         public size():number { var c=0;for(var p in this.internalMap){ if(this.internalMap.hasOwnProperty(p)){ c++; } } return c; }
-                         public each(callback: (p : number, p1 : V) => void): void { for(var p in this.internalMap){ callback(<number>p,this.internalMap[p]); } }
+                         constructor(initalCapacity: number, loadFactor : number) { }
+                         public clear():void { for(var p in this){if(this.hasOwnProperty(p)){delete this[p];}} }
+                         public get(key:number):V { return this[key]; }
+                         public put(key:number, pval : V):V { var previousVal = this[key];this[key] = pval;return previousVal;}
+                         public containsKey(key:number):boolean { return this.hasOwnProperty(<any>key);}
+                         public remove(key:number):V { var tmp = this[key]; delete this[key]; return tmp; }
+                         public size():number { return Object.keys(this).length; }
+                         public each(callback: (p : number, p1 : V) => void): void { for(var p in this){ if(this.hasOwnProperty(p)){ callback(<number>p,this[p]); } } }
                     }
 
                     export interface IntHashMapCallBack<V> {
@@ -6345,15 +6325,14 @@ module org {
 
                     export class LongHashMap<V> {
 
-                         private internalMap;
-                         constructor(initalCapacity: number, loadFactor : number) { this.internalMap = {}; }
-                         public clear():void { this.internalMap = {}; }
-                         public get(key:number):V { return this.internalMap[key]; }
-                         public put(key:number, pval : V):V { var previousVal = this.internalMap[key];this.internalMap[key] = pval;return previousVal;}
-                         public containsKey(key:number):boolean { return this.internalMap.hasOwnProperty(key);}
-                         public remove(key:number):V { var tmp = this.internalMap[key]; delete this.internalMap[key]; return tmp; }
-                         public size():number { var c=0;for(var p in this.internalMap){ if(this.internalMap.hasOwnProperty(p)){ c++; } } return c; }
-                         public each(callback: (p : number, p1 : V) => void): void { for(var p in this.internalMap){ callback(<number>p,this.internalMap[p]); } }
+                         constructor(initalCapacity: number, loadFactor : number) { }
+                         public clear():void { for(var p in this){if(this.hasOwnProperty(p)){delete this[p];} } }
+                         public get(key:number):V { return this[key]; }
+                         public put(key:number, pval : V):V { var previousVal = this[key];this[key] = pval;return previousVal;}
+                         public containsKey(key:number):boolean { return this.hasOwnProperty(<any>key);}
+                         public remove(key:number):V { var tmp = this[key]; delete this[key]; return tmp; }
+                         public size():number { return Object.keys(this).length; }
+                         public each(callback: (p : number, p1 : V) => void): void { for(var p in this){ if(this.hasOwnProperty(p)){ callback(<number>p,this[p]); } } }
                     }
 
                     export interface LongHashMapCallBack<V> {
@@ -6364,19 +6343,18 @@ module org {
 
                     export class LongLongHashMap implements org.kevoree.modeling.api.data.cache.KCacheObject {
 
-                         private internalMap;
                          private _counter = 0;
                          private _isDirty = false;
                          static ELEMENT_SEP = ',';
                          static CHUNK_SEP = '/';
-                         constructor(initalCapacity: number, loadFactor : number) { this.internalMap = {}; }
-                         public clear():void { this.internalMap = {}; }
-                         public get(key:number):number { return this.internalMap[key]; }
-                         public put(key:number, pval : number):number { this._isDirty=false; var previousVal = this.internalMap[key];this.internalMap[key] = pval;return previousVal;}
-                         public containsKey(key:number):boolean { return this.internalMap.hasOwnProperty(key);}
-                         public remove(key:number):number { var tmp = this.internalMap[key]; delete this.internalMap[key]; return tmp; }
-                         public size():number { var c=0;for(var p in this.internalMap){ if(this.internalMap.hasOwnProperty(p)){ c++; } } return c; }
-                         public each(callback: (p : number, p1 : number) => void): void { for(var p in this.internalMap){ callback(<number>p,this.internalMap[p]); } }
+                         constructor(initalCapacity: number, loadFactor : number) { }
+                         public clear():void { for(var p in this){ if(this.hasOwnProperty(p) && p.indexOf('_') != 0){ delete this[p];}} }
+                         public get(key:number):number { return this[key]; }
+                         public put(key:number, pval : number):number { this._isDirty=false; var previousVal = this[key];this[key] = pval;return previousVal;}
+                         public containsKey(key:number):boolean { return this.hasOwnProperty(<any>key);}
+                         public remove(key:number):number { var tmp = this[key]; delete this[key]; return tmp; }
+                         public size():number { var c=0;for(var p in this){ if(this.hasOwnProperty(p) && p.indexOf('_') != 0){ c++; } } return c; }
+                         public each(callback: (p : number, p1 : number) => void): void { for(var p in this){ if(this.hasOwnProperty(p) && p.indexOf('_') != 0){ callback(<number>p,this[p]); } } }
                          public counter():number { return this._counter; }
                          public inc():void { this._counter++; }
                          public dec():void { this._counter--; }
@@ -6410,15 +6388,14 @@ module org {
 
                     export class StringHashMap<V> {
 
-                         private internalMap;
-                         constructor(initalCapacity: number, loadFactor : number) { this.internalMap = {}; }
-                         public clear():void { this.internalMap = {}; }
-                         public get(key:string):V { return this.internalMap[key]; }
-                         public put(key:string, pval : V):V { var previousVal = this.internalMap[key];this.internalMap[key] = pval;return previousVal;}
-                         public containsKey(key:string):boolean { return this.internalMap.hasOwnProperty(key);}
-                         public remove(key:string):V { var tmp = this.internalMap[key]; delete this.internalMap[key]; return tmp; }
-                         public size():number { var c=0;for(var p in this.internalMap){ if(this.internalMap.hasOwnProperty(p)){ c++; } } return c; }
-                         public each(callback: (p : string, p1 : V) => void): void { for(var p in this.internalMap){ callback(<string>p,this.internalMap[p]); } }
+                         constructor(initalCapacity: number, loadFactor : number) { }
+                         public clear():void { for(var p in this){ if(this.hasOwnProperty(p)){ delete this[p];} } }
+                         public get(key:string):V { return this[key]; }
+                         public put(key:string, pval : V):V { var previousVal = this[key];this[key] = pval;return previousVal;}
+                         public containsKey(key:string):boolean { return this.hasOwnProperty(key);}
+                         public remove(key:string):V { var tmp = this[key]; delete this[key]; return tmp; }
+                         public size():number { return Object.keys(this).length; }
+                         public each(callback: (p : string, p1 : V) => void): void { for(var p in this){ if(this.hasOwnProperty(p)){ callback(<string>p,this[p]); } } }
                     }
 
                     export interface StringHashMapCallBack<V> {
@@ -7579,7 +7556,7 @@ module org {
 
                             private weights: number[];
                             private timeOrigin: number;
-                            private samples: java.util.List<org.kevoree.modeling.api.polynomial.util.DataSample> = new java.util.ArrayList<org.kevoree.modeling.api.polynomial.util.DataSample>();
+                            private samples: java.util.ArrayList<org.kevoree.modeling.api.polynomial.util.DataSample> = new java.util.ArrayList<org.kevoree.modeling.api.polynomial.util.DataSample>();
                             private degradeFactor: number;
                             private prioritization: org.kevoree.modeling.api.polynomial.util.Prioritization;
                             private maxDegree: number;
@@ -8279,11 +8256,11 @@ module org {
 
                         private root: org.kevoree.modeling.api.rbtree.TreeNode = null;
                         private _size: number = 0;
-                        private _dirty: boolean = false;
                         private _previousOrEqualsCacheKeys: number[] = null;
                         private _previousOrEqualsCacheValues: org.kevoree.modeling.api.rbtree.TreeNode[] = null;
                         private _nextCacheElem: number;
                         private _counter: number = 0;
+                        private _dirty: boolean = false;
                         public size(): number {
                             return this._size;
                         }
@@ -11528,7 +11505,6 @@ module org {
 
                         public static isDefined(param: any): boolean {
                              return param != undefined && param != null;
-                            
                         }
 
                     }

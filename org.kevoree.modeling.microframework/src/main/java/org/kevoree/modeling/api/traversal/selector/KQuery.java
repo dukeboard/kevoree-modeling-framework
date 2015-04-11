@@ -3,9 +3,6 @@ package org.kevoree.modeling.api.traversal.selector;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by duke on 10/24/14.
- */
 public class KQuery {
 
     public static char OPEN_BRACKET = '[';

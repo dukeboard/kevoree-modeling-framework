@@ -2,12 +2,9 @@ package org.kevoree.modeling.api.polynomial.doublepolynomial;
 
 import org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml;
 
-/**
- * Created by assaad on 19/12/14.
- */
 public class TimePolynomial {
 
-    //TODO change for live detectoin
+    //TODO change for live detection
     private static int toleratedErrorRatio = 10;
 
     private long _timeOrigin;

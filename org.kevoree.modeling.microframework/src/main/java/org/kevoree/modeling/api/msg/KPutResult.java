@@ -1,8 +1,5 @@
 package org.kevoree.modeling.api.msg;
 
-/**
- * Created by duke on 24/02/15.
- */
 public class KPutResult implements KMessage {
 
     public long id;

@@ -2,10 +2,6 @@ package org.kevoree.modeling.api;
 
 import java.util.List;
 
-/**
- * Created by duke on 9/30/14.
- */
-
 public interface KUniverse<A extends KView, B extends KUniverse, C extends KModel> {
 
     long key();

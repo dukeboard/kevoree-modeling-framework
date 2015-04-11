@@ -1,8 +1,5 @@
 package org.kevoree.modeling.api.msg;
 
-/**
- * Created by duke on 26/02/15.
- */
 public class KMessageHelper {
 
     public static void printJsonStart(StringBuilder builder) {

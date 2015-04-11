@@ -5,10 +5,6 @@ import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.meta.MetaModel;
 import org.kevoree.modeling.api.meta.MetaOperation;
 
-/**
- * Created by duke on 9/30/14.
- */
-
 public interface KModel<A extends KUniverse> {
 
     long key();
