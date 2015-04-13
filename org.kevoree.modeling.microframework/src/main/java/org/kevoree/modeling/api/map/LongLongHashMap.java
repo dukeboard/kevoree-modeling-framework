@@ -20,7 +20,7 @@ import org.kevoree.modeling.api.meta.MetaModel;
  * public put(key:number, pval : number):number { this._isDirty=false; var previousVal = this[key];this[key] = pval;return previousVal;}
  * public containsKey(key:number):boolean { return this.hasOwnProperty(<any>key);}
  * public remove(key:number):number { var tmp = this[key]; delete this[key]; return tmp; }
- * public size():number { var c=0;for(var p in this){ if(this.hasOwnProperty(p) && p.indexOf('_') != 0){ c++; } } return c; }
+ * public size():number { return Object.keys(this).length -2; }
  * public each(callback: (p : number, p1 : number) => void): void { for(var p in this){ if(this.hasOwnProperty(p) && p.indexOf('_') != 0){ callback(<number>p,this[p]); } } }
  * public counter():number { return this._counter; }
  * public inc():void { this._counter++; }

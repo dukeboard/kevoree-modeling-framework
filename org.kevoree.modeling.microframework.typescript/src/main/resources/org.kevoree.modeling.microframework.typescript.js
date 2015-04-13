@@ -5739,13 +5739,7 @@ var org;
                             return tmp;
                         };
                         LongLongHashMap.prototype.size = function () {
-                            var c = 0;
-                            for (var p in this) {
-                                if (this.hasOwnProperty(p) && p.indexOf('_') != 0) {
-                                    c++;
-                                }
-                            }
-                            return c;
+                            return Object.keys(this).length - 2;
                         };
                         LongLongHashMap.prototype.each = function (callback) {
                             for (var p in this) {

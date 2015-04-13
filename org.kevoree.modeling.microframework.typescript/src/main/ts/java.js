@@ -404,7 +404,9 @@ var java;
             };
             Map.prototype.clear = function () {
                 for (var p in this) {
-                    delete this[p];
+                    if (this.hasOwnProperty(p)) {
+                        delete this[p];
+                    }
                 }
             };
             return Map;
@@ -428,7 +430,9 @@ var java;
             };
             Set.prototype.clear = function () {
                 for (var p in this) {
-                    delete this[p];
+                    if (this.hasOwnProperty(p)) {
+                        delete this[p];
+                    }
                 }
             };
             Set.prototype.contains = function (val) {
