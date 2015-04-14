@@ -76,6 +76,9 @@ public class LongHashMap<V> {
     }
 
     public boolean containsKey(long key) {
+        if (elementDataSize == 0) {
+            return false;
+        }
         int hash = (int) (key);
         int index = (hash & 0x7FFFFFFF) % elementDataSize;
         Entry<V> m = findNonNullKeyEntry(key, index);
@@ -83,6 +86,9 @@ public class LongHashMap<V> {
     }
 
     public V get(long key) {
+        if(elementDataSize == 0){
+            return null;
+        }
         Entry<V> m;
         int hash = (int) (key);
         int index = (hash & 0x7FFFFFFF) % elementDataSize;
@@ -118,10 +124,13 @@ public class LongHashMap<V> {
     }
 
     public V put(long key, V value) {
-        Entry<V> entry;
+        Entry<V> entry=null;
         int hash = (int) (key);
-        int index = (hash & 0x7FFFFFFF) % elementDataSize;
-        entry = findNonNullKeyEntry(key, index);
+        int index = -1;
+        if(elementDataSize != 0){
+            index = (hash & 0x7FFFFFFF) % elementDataSize;
+            entry = findNonNullKeyEntry(key, index);
+        }
         if (entry == null) {
             modCount++;
             if (++elementCount > threshold) {
@@ -181,11 +190,13 @@ public class LongHashMap<V> {
         entry.value = null;
         entry.key = KConfig.BEGINNING_OF_TIME;
         reuseAfterDelete = entry;
-
         return ret;
     }
 
     Entry<V> removeEntry(long key) {
+        if(elementDataSize == 0){
+            return null;
+        }
         Entry<V> entry;
         Entry<V> last = null;
         int hash = (int) key;

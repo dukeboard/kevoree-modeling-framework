@@ -39,4 +39,16 @@ public class StringMapTest {
         Assert.assertEquals(nbLoop, loopElem[0]);
     }
 
+    @Test
+    public void emptyTest() {
+        StringHashMap<String> optimized = new StringHashMap<String>(0, KConfig.CACHE_LOAD_FACTOR);
+        Assert.assertEquals(optimized.size(),0);
+        Assert.assertTrue(!optimized.containsKey("randomKey"));
+        Assert.assertNull(optimized.get("randomKey"));
+        Assert.assertNull(optimized.put("randomKey", "randomVal"));
+        Assert.assertTrue(optimized.containsKey("randomKey"));
+        Assert.assertNotNull(optimized.get("randomKey"));
+
+    }
+
 }

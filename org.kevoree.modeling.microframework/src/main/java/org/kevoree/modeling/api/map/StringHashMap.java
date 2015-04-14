@@ -121,12 +121,15 @@ public class StringHashMap<V> {
 
     public V put(String key, V value) {
         if (key == null) {
-            return value;
+            return null;
         }
-        Entry<V> entry;
+        Entry<V> entry=null;
+        int index = -1;
         int hash = key.hashCode();
-        int index = (hash & 0x7FFFFFFF) % elementDataSize;
-        entry = findNonNullKeyEntry(key, index);
+        if(elementDataSize != 0){
+            index = (hash & 0x7FFFFFFF) % elementDataSize;
+            entry = findNonNullKeyEntry(key, index);
+        }
         if (entry == null) {
             modCount++;
             if (++elementCount > threshold) {
@@ -191,6 +194,9 @@ public class StringHashMap<V> {
     }
 
     Entry<V> removeEntry(String key) {
+        if(elementDataSize == 0){
+            return null;
+        }
         Entry<V> entry;
         Entry<V> last = null;
         int hash = key.hashCode();

@@ -2,6 +2,7 @@
 package org.kevoree.modeling.api.map;
 
 /* From an original idea https://code.google.com/p/jdbm2/ */
+
 /**
  * @native ts
  * constructor(initalCapacity: number, loadFactor : number) { }
@@ -31,11 +32,14 @@ public class IntHashMap<V> {
 
     private final float loadFactor;
 
-    /** @ignore ts */
+    /**
+     * @ignore ts
+     */
     static final class Entry<V> {
         Entry<V> next;
         int key;
         V value;
+
         Entry(int theKey, V theValue) {
             this.key = theKey;
             this.value = theValue;
@@ -112,9 +116,12 @@ public class IntHashMap<V> {
     }
 
     public V put(int key, V value) {
-        Entry<V> entry;
-        int index = (key & 0x7FFFFFFF) % elementDataSize;
-        entry = findNonNullKeyEntry(key, index);
+        Entry<V> entry = null;
+        int index = -1;
+        if (elementDataSize != 0) {
+            index = (key & 0x7FFFFFFF) % elementDataSize;
+            entry = findNonNullKeyEntry(key, index);
+        }
         if (entry == null) {
             modCount++;
             if (++elementCount > threshold) {

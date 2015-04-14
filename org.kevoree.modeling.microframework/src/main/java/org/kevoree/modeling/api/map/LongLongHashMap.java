@@ -141,7 +141,9 @@ public class LongLongHashMap implements KCacheObject {
         return buffer.toString();
     }
 
-    /** @ignore ts */
+    /**
+     * @ignore ts
+     */
     static final class Entry {
         Entry next;
         long key;
@@ -176,6 +178,9 @@ public class LongLongHashMap implements KCacheObject {
     }
 
     public boolean containsKey(long key) {
+        if (elementDataSize == 0) {
+            return false;
+        }
         int hash = (int) (key);
         int index = (hash & 0x7FFFFFFF) % elementDataSize;
         Entry m = findNonNullKeyEntry(key, index);
@@ -183,6 +188,9 @@ public class LongLongHashMap implements KCacheObject {
     }
 
     public long get(long key) {
+        if (elementDataSize == 0) {
+            return KConfig.NULL_LONG;
+        }
         Entry m;
         int hash = (int) (key);
         int index = (hash & 0x7FFFFFFF) % elementDataSize;
@@ -219,10 +227,13 @@ public class LongLongHashMap implements KCacheObject {
 
     public synchronized void put(long key, long value) {
         _isDirty = true;
-        Entry entry;
+        Entry entry=null;
+        int index = -1;
         int hash = (int) (key);
-        int index = (hash & 0x7FFFFFFF) % elementDataSize;
-        entry = findNonNullKeyEntry(key, index);
+        if(elementDataSize != 0){
+            index = (hash & 0x7FFFFFFF) % elementDataSize;
+            entry = findNonNullKeyEntry(key, index);
+        }
         if (entry == null) {
             modCount++;
             if (++elementCount > threshold) {
@@ -282,6 +293,9 @@ public class LongLongHashMap implements KCacheObject {
     }
 
     Entry removeEntry(long key) {
+        if(elementDataSize == 0){
+            return null;
+        }
         int index = 0;
         Entry entry;
         Entry last = null;
