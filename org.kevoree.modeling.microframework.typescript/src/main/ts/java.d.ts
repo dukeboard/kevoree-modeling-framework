@@ -88,19 +88,27 @@ declare module java {
             static reverse<A>(p: List<A>): void;
             static sort<A>(p: List<A>): void;
         }
-        class Collection<T> {
+        interface Collection<T> {
             add(val: T): void;
-            addAll(vals: Collection<T>): void;
-            remove(val: T): void;
-            clear(): void;
+            addAll(vals: Collection<T>): any;
+            remove(val: T): any;
+            clear(): any;
             isEmpty(): boolean;
             size(): number;
             contains(val: T): boolean;
             toArray(a: Array<T>): T[];
         }
-        class List<T> extends Collection<T> {
+        class XArray {
+            constructor();
+            pop(): any;
+            push(val: any): number;
+            splice(newS: any, arrL: any): void;
+            length: number;
+            indexOf(val: any): number;
+            shift(): any;
             sort(): void;
-            private internalArray;
+        }
+        class List<T> extends XArray implements Collection<T> {
             addAll(vals: Collection<T>): void;
             clear(): void;
             poll(): T;
@@ -128,7 +136,7 @@ declare module java {
         }
         class HashMap<K, V> extends Map<K, V> {
         }
-        class Set<T> extends Collection<T> {
+        class Set<T> implements Collection<T> {
             add(val: T): void;
             clear(): void;
             contains(val: T): boolean;
@@ -136,6 +144,7 @@ declare module java {
             remove(val: T): void;
             size(): number;
             isEmpty(): boolean;
+            toArray(a: Array<T>): T[];
         }
         class HashSet<T> extends Set<T> {
         }
@@ -149,6 +158,7 @@ declare module org {
             static assertEquals(p: any, p2: any): void;
             static assertNotEquals(p: any, p2: any): void;
             static assertTrue(b: boolean): void;
+            static assertFalse(b: boolean): void;
         }
     }
 }

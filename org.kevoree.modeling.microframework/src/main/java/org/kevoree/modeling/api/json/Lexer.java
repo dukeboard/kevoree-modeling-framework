@@ -1,31 +1,26 @@
 package org.kevoree.modeling.api.json;
 
-import java.util.HashSet;
-
-
+/**
+ * @ignore ts
+ */
 public class Lexer {
 
     private String bytes;
-    private JsonToken EOF;
-    private HashSet<Character> BOOLEAN_LETTERS = null;
-    private HashSet<Character> DIGIT = null;
-
     private int index = 0;
 
     public Lexer(String payload) {
         this.bytes = payload;
-        this.EOF = new JsonToken(Type.EOF, null);
     }
 
     public boolean isSpace(Character c) {
         return c == ' ' || c == '\r' || c == '\n' || c == '\t';
     }
 
-    private Character nextChar() {
+    private char nextChar() {
         return bytes.charAt(index++);
     }
 
-    private Character peekChar() {
+    private char peekChar() {
         return bytes.charAt(index);
     }
 
@@ -33,58 +28,36 @@ public class Lexer {
         return index >= bytes.length();
     }
 
-    private boolean isBooleanLetter(Character c) {
-        if (BOOLEAN_LETTERS == null) {
-            BOOLEAN_LETTERS = new HashSet<Character>();
-            BOOLEAN_LETTERS.add('f');
-            BOOLEAN_LETTERS.add('a');
-            BOOLEAN_LETTERS.add('l');
-            BOOLEAN_LETTERS.add('s');
-            BOOLEAN_LETTERS.add('e');
-            BOOLEAN_LETTERS.add('t');
-            BOOLEAN_LETTERS.add('r');
-            BOOLEAN_LETTERS.add('u');
-        }
-        return BOOLEAN_LETTERS.contains(c);
+    private boolean isBooleanLetter(char c) {
+        return c == 'f' || c == 'a' || c == 'l' || c == 's' || c == 'e' || c == 't' || c == 'r' || c == 'u';
     }
 
-    private boolean isDigit(Character c) {
-        if (DIGIT == null) {
-            DIGIT = new HashSet<Character>();
-            DIGIT.add('0');
-            DIGIT.add('1');
-            DIGIT.add('2');
-            DIGIT.add('3');
-            DIGIT.add('4');
-            DIGIT.add('5');
-            DIGIT.add('6');
-            DIGIT.add('7');
-            DIGIT.add('8');
-            DIGIT.add('9');
-        }
-
-        return DIGIT.contains(c);
+    private boolean isDigit(char c) {
+        return c >= '0' && c <= '9';
     }
 
     private boolean isValueLetter(Character c) {
         return c == '-' || c == '+' || c == '.' || isDigit(c) || isBooleanLetter(c);
     }
 
-    public JsonToken nextToken() {
+    private String _lastValue = null;
+
+    public String lastValue() {
+        return this._lastValue;
+    }
+
+    public JsonType nextToken() {
         if (isDone()) {
-            return EOF;
+            return JsonType.EOF;
         }
-        Type tokenType = Type.EOF;
         Character c = nextChar();
-        StringBuilder currentValue = new StringBuilder();
-        Object jsonValue = null;
         while (!isDone() && isSpace(c)) {
             c = nextChar();
         }
         if ('"' == c) {
-            tokenType = Type.VALUE;
             if (!isDone()) {
                 c = nextChar();
+                StringBuilder currentValue = new StringBuilder();
                 while (index < bytes.length() && c != '"') {
                     currentValue.append(c);
                     if (c == '\\' && index < bytes.length()) {
@@ -93,21 +66,23 @@ public class Lexer {
                     }
                     c = nextChar();
                 }
-                jsonValue = currentValue.toString();
+                _lastValue = currentValue.toString();
             }
+            return JsonType.VALUE;
         } else if ('{' == c) {
-            tokenType = Type.LEFT_BRACE;
+            return JsonType.LEFT_BRACE;
         } else if ('}' == c) {
-            tokenType = Type.RIGHT_BRACE;
+            return JsonType.RIGHT_BRACE;
         } else if ('[' == c) {
-            tokenType = Type.LEFT_BRACKET;
+            return JsonType.LEFT_BRACKET;
         } else if (']' == c) {
-            tokenType = Type.RIGHT_BRACKET;
+            return JsonType.RIGHT_BRACKET;
         } else if (':' == c) {
-            tokenType = Type.COLON;
+            return JsonType.COLON;
         } else if (',' == c) {
-            tokenType = Type.COMMA;
+            return JsonType.COMMA;
         } else if (!isDone()) {
+            StringBuilder currentValue = new StringBuilder();
             while (isValueLetter(c)) {
                 currentValue.append(c);
                 if (!isValueLetter(peekChar())) {
@@ -116,21 +91,11 @@ public class Lexer {
                     c = nextChar();
                 }
             }
-            String v = currentValue.toString();
-            if ("true".equals(v.toLowerCase())) {
-                jsonValue = true;
-            } else if ("false".equals(v.toLowerCase())) {
-                jsonValue = false;
-            } else {
-                jsonValue = v.toLowerCase();
-            }
-
-            tokenType = Type.VALUE;
+            _lastValue = currentValue.toString();
+            return JsonType.VALUE;
         } else {
-            tokenType = Type.EOF;
+            return JsonType.EOF;
         }
-
-        return new JsonToken(tokenType, jsonValue);
     }
 
 }

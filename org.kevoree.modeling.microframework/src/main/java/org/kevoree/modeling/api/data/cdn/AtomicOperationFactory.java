@@ -1,8 +1,5 @@
 package org.kevoree.modeling.api.data.cdn;
 
-/**
- * Created by gregory.nain on 24/02/15.
- */
 public class AtomicOperationFactory {
 
     public static final int PREFIX_MUTATE_OPERATION = 0;

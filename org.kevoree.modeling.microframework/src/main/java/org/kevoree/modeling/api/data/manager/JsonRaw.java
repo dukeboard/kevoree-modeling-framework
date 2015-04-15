@@ -26,7 +26,6 @@ public class JsonRaw {
         }
         JsonObjectReader objectReader = new JsonObjectReader();
         objectReader.parseObject(payload);
-
         //Consistency check
         if (objectReader.get(JsonModelSerializer.KEY_META) == null) {
             return false;
@@ -223,7 +222,6 @@ public class JsonRaw {
         } else {
             builder.append("\t}");
         }
-
         return builder.toString();
     }
 

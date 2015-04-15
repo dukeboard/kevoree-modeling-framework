@@ -5,13 +5,6 @@ import org.kevoree.modeling.api.map.StringHashMap;
 import org.kevoree.modeling.api.map.StringHashMapCallBack;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-/**
- * Created by duke on 10/03/15.
- */
 
 /**
  * @native ts
@@ -43,24 +36,23 @@ public class JsonObjectReader {
         Lexer lexer = new Lexer(payload);
         String currentAttributeName = null;
         ArrayList<String> arrayPayload = null;
-        //TODO replace by indexBaseStructure
-        JsonToken currentToken = lexer.nextToken();
-        while (currentToken.tokenType() != Type.EOF) {
-            if (currentToken.tokenType().equals(Type.LEFT_BRACKET)) {
+        JsonType currentToken = lexer.nextToken();
+        while (currentToken != JsonType.EOF) {
+            if (currentToken.equals(JsonType.LEFT_BRACKET)) {
                 arrayPayload = new ArrayList<String>();
-            } else if (currentToken.tokenType().equals(Type.RIGHT_BRACKET)) {
+            } else if (currentToken.equals(JsonType.RIGHT_BRACKET)) {
                 content.put(currentAttributeName, arrayPayload);
                 arrayPayload = null;
                 currentAttributeName = null;
-            } else if (currentToken.tokenType().equals(Type.VALUE)) {
+            } else if (currentToken.equals(JsonType.VALUE)) {
                 if (currentAttributeName == null) {
-                    currentAttributeName = currentToken.value().toString();
+                    currentAttributeName = lexer.lastValue();
                 } else {
                     if (arrayPayload == null) {
-                        content.put(currentAttributeName, currentToken.value().toString());
+                        content.put(currentAttributeName, lexer.lastValue());
                         currentAttributeName = null;
                     } else {
-                        arrayPayload.add(currentToken.value().toString());
+                        arrayPayload.add(lexer.lastValue());
                     }
                 }
             }

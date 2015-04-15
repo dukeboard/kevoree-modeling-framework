@@ -6,9 +6,6 @@ import org.kevoree.modeling.api.map.LongLongHashMapCallBack;
 import org.kevoree.modeling.api.rbtree.LongRBTree;
 import org.kevoree.modeling.api.rbtree.LongTreeNode;
 
-/**
- * Created by duke on 03/03/15.
- */
 public class ResolutionHelper {
 
     public static long resolve_universe(LongLongHashMap globalTree, LongLongHashMap objUniverseTree, long timeToResolve, long originUniverseId) {

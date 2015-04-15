@@ -48,7 +48,6 @@ public class StringMapTest {
         Assert.assertNull(optimized.put("randomKey", "randomVal"));
         Assert.assertTrue(optimized.containsKey("randomKey"));
         Assert.assertNotNull(optimized.get("randomKey"));
-
     }
 
 }

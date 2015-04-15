@@ -16,13 +16,12 @@ public class JSONLoadTest {
 
     @Test
     public void jsonTest() {
+
         CloudModel universe = new CloudModel();
         universe.connect();
-
         CloudUniverse dimension0 = universe.newUniverse();
-
         final int[] passed = new int[1];
-
+        passed[0] = 0;
         final CloudView time0 = dimension0.time(0l);
         time0.json().load("[\n" +
                 "\t{\n" +
@@ -69,9 +68,11 @@ public class JSONLoadTest {
         time0.select("/").then(new Callback<KObject[]>() {
             @Override
             public void on(KObject[] kObjects) {
+
                 time0.json().save(kObjects[0]).then(new Callback<String>() {
                     @Override
                     public void on(String s) {
+
                         Assert.assertEquals(s, "[\n" +
                                 "\t{\n" +
                                 "\t\t\"@meta\": \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +

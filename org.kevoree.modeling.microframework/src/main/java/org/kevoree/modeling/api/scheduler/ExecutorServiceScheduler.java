@@ -5,9 +5,6 @@ import org.kevoree.modeling.api.KScheduler;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * Created by duke on 23/01/15.
- */
 public class ExecutorServiceScheduler implements KScheduler {
 
     /**

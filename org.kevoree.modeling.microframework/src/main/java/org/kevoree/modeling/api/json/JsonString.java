@@ -1,12 +1,15 @@
 package org.kevoree.modeling.api.json;
 
-/**
- * Created by thomas on 10/3/14.
- */
 public class JsonString {
 
+    /*
+     * @ignore ts
+     */
     private final static Character ESCAPE_CHAR = '\\';
 
+    /*
+     * @ignore ts
+     */
     public static void encodeBuffer(StringBuilder buffer, String chain) {
         if (chain == null) {
             return;
@@ -50,30 +53,38 @@ public class JsonString {
         }
     }
 
-    public static String encode(String chain) {
+    /*
+     * @native ts
+     * return JSON.stringify(p_chain);
+     */
+    public static String encode(String p_chain) {
         StringBuilder sb = new StringBuilder();
-        encodeBuffer(sb, chain);
+        encodeBuffer(sb, p_chain);
         return sb.toString();
     }
 
-    public static String unescape(String src) {
-        if (src == null) {
+    /*
+     * @native ts
+     * return unescape(p_src);
+     */
+    public static String unescape(String p_src) {
+        if (p_src == null) {
             return null;
         }
-        if (src.length() == 0) {
-            return src;
+        if (p_src.length() == 0) {
+            return p_src;
         }
         StringBuilder builder = null;
         int i = 0;
-        while (i < src.length()) {
-            Character current = src.charAt(i);
+        while (i < p_src.length()) {
+            Character current = p_src.charAt(i);
             if (current == ESCAPE_CHAR) {
                 if (builder == null) {
                     builder = new StringBuilder();
-                    builder.append(src.substring(0, i));
+                    builder.append(p_src.substring(0, i));
                 }
                 i++;
-                Character current2 = src.charAt(i);
+                Character current2 = p_src.charAt(i);
                 switch (current2) {
                     case '"':
                         builder.append('\"');
@@ -126,7 +137,7 @@ public class JsonString {
         if (builder != null) {
             return builder.toString();
         } else {
-            return src;
+            return p_src;
         }
     }
 }

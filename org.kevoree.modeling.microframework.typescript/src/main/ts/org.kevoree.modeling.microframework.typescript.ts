@@ -3486,10 +3486,6 @@ module org {
                                  }
                             }
 
-                            public cleanObject(objectToClean: org.kevoree.modeling.api.KObject): void {
-                                System.err.println("ToClean=" + objectToClean.uuid());
-                            }
-
                         }
 
                         export class Index {
@@ -3789,8 +3785,6 @@ module org {
                             descendantsUniverseKeys(currentUniverseKey: number): number[];
 
                             reload(keys: org.kevoree.modeling.api.data.cache.KContentKey[], callback: (p : java.lang.Throwable) => void): void;
-
-                            cleanObject(objectToClean: org.kevoree.modeling.api.KObject): void;
 
                         }
 
@@ -5680,208 +5674,129 @@ module org {
                     export class JsonModelLoader {
 
                         public static load(factory: org.kevoree.modeling.api.KView, payload: string, callback: (p : java.lang.Throwable) => void): void {
-                            if (payload == null) {
-                                callback(null);
-                            } else {
-                                var metaModel: org.kevoree.modeling.api.meta.MetaModel = factory.universe().model().metaModel();
-                                var lexer: org.kevoree.modeling.api.json.Lexer = new org.kevoree.modeling.api.json.Lexer(payload);
-                                var currentToken: org.kevoree.modeling.api.json.JsonToken = lexer.nextToken();
-                                if (currentToken.tokenType() != org.kevoree.modeling.api.json.Type.LEFT_BRACKET) {
-                                    callback(null);
-                                } else {
-                                    var alls: java.util.List<org.kevoree.modeling.api.map.StringHashMap<any>> = new java.util.ArrayList<org.kevoree.modeling.api.map.StringHashMap<any>>();
-                                    var content: org.kevoree.modeling.api.map.StringHashMap<any> = new org.kevoree.modeling.api.map.StringHashMap<any>(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
-                                    var currentAttributeName: string = null;
-                                    var arrayPayload: java.util.ArrayList<string> = null;
-                                    currentToken = lexer.nextToken();
-                                    while (currentToken.tokenType() != org.kevoree.modeling.api.json.Type.EOF){
-                                        if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.LEFT_BRACKET)) {
-                                            arrayPayload = new java.util.ArrayList<string>();
-                                        } else {
-                                            if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.RIGHT_BRACKET)) {
-                                                content.put(currentAttributeName, arrayPayload);
-                                                arrayPayload = null;
-                                                currentAttributeName = null;
-                                            } else {
-                                                if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.LEFT_BRACE)) {
-                                                    content = new org.kevoree.modeling.api.map.StringHashMap<any>(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
-                                                } else {
-                                                    if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.RIGHT_BRACE)) {
-                                                        alls.add(content);
-                                                        content = new org.kevoree.modeling.api.map.StringHashMap<any>(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
-                                                    } else {
-                                                        if (currentToken.tokenType().equals(org.kevoree.modeling.api.json.Type.VALUE)) {
-                                                            if (currentAttributeName == null) {
-                                                                currentAttributeName = currentToken.value().toString();
-                                                            } else {
-                                                                if (arrayPayload == null) {
-                                                                    content.put(currentAttributeName, currentToken.value().toString());
-                                                                    currentAttributeName = null;
-                                                                } else {
-                                                                    arrayPayload.add(currentToken.value().toString());
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
+                             if (payload == null) {
+                             callback(null);
+                             } else {
+                             var metaModel: org.kevoree.modeling.api.meta.MetaModel = factory.universe().model().metaModel();
+                             var toLoadObj = JSON.parse(payload);
+                             var rootElem = [];
+                             var mappedKeys: org.kevoree.modeling.api.map.LongLongHashMap = new org.kevoree.modeling.api.map.LongLongHashMap(toLoadObj.length, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                             for(var i = 0; i < toLoadObj.length; i++) {
+                             var elem = toLoadObj[i];
+                             var kid = elem[org.kevoree.modeling.api.json.JsonModelSerializer.KEY_UUID];
+                             mappedKeys.put(<number>kid, factory.universe().model().manager().nextObjectKey());
+                             }
+                             for(var i = 0; i < toLoadObj.length; i++) {
+                             var elemRaw = toLoadObj[i];
+                             var elem2 = new org.kevoree.modeling.api.map.StringHashMap<any>(Object.keys(elemRaw).length, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                             for(var ik in elemRaw){ elem2[ik] = elemRaw[ik]; }
+                             try {
+                             org.kevoree.modeling.api.json.JsonModelLoader.loadObj(elem2, metaModel, factory, mappedKeys, rootElem);
+                             } catch(e){ console.error(e); }
+                             }
+                             if (rootElem[0] != null) { factory.setRoot(rootElem[0]).then( (throwable : java.lang.Throwable) => { if (callback != null) { callback(throwable); }}); } else { if (callback != null) { callback(null); } }
+                             }
+                        }
+
+                        private static loadObj(p_param: org.kevoree.modeling.api.map.StringHashMap<any>, p_metaModel: org.kevoree.modeling.api.meta.MetaModel, p_factory: org.kevoree.modeling.api.KView, p_mappedKeys: org.kevoree.modeling.api.map.LongLongHashMap, p_rootElem: org.kevoree.modeling.api.KObject[]): void {
+                            var kid: number = java.lang.Long.parseLong(p_param.get(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_UUID).toString());
+                            var meta: string = p_param.get(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_META).toString();
+                            var metaClass: org.kevoree.modeling.api.meta.MetaClass = p_metaModel.metaClass(meta);
+                            var current: org.kevoree.modeling.api.KObject = (<org.kevoree.modeling.api.abs.AbstractKView>p_factory).createProxy(metaClass, p_mappedKeys.get(kid));
+                            p_factory.universe().model().manager().initKObject(current, p_factory);
+                            var raw: org.kevoree.modeling.api.data.cache.KCacheEntry = p_factory.universe().model().manager().entry(current, org.kevoree.modeling.api.data.manager.AccessMode.WRITE);
+                            p_param.each( (metaKey : string, payload_content : any) => {
+                                if (metaKey.equals(org.kevoree.modeling.api.json.JsonModelSerializer.INBOUNDS_META)) {
+                                    try {
+                                        raw.set(org.kevoree.modeling.api.data.manager.Index.INBOUNDS_INDEX, org.kevoree.modeling.api.json.JsonModelLoader.transposeArr(<java.util.ArrayList<string>>payload_content, p_mappedKeys));
+                                    } catch ($ex$) {
+                                        if ($ex$ instanceof java.lang.Exception) {
+                                            var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                            e.printStackTrace();
                                         }
-                                        currentToken = lexer.nextToken();
-                                    }
-                                    var rootElem: org.kevoree.modeling.api.KObject[] = [null];
-                                    var mappedKeys: org.kevoree.modeling.api.map.LongLongHashMap = new org.kevoree.modeling.api.map.LongLongHashMap(alls.size(), org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
-                                    for (var i: number = 0; i < alls.size(); i++) {
+                                     }
+                                } else {
+                                    if (metaKey.equals(org.kevoree.modeling.api.json.JsonModelSerializer.PARENT_META)) {
                                         try {
-                                            var elem: org.kevoree.modeling.api.map.StringHashMap<any> = alls.get(i);
-                                            var kid: number = java.lang.Long.parseLong(elem.get(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_UUID).toString());
-                                            mappedKeys.put(kid, factory.universe().model().manager().nextObjectKey());
+                                            var parentKeys: java.util.ArrayList<string> = <java.util.ArrayList<string>>payload_content;
+                                            var parentTransposed: number[] = org.kevoree.modeling.api.json.JsonModelLoader.transposeArr(parentKeys, p_mappedKeys);
+                                            if (parentTransposed != null && parentTransposed.length > 0 && parentTransposed[0] != org.kevoree.modeling.api.KConfig.NULL_LONG) {
+                                                var parentKey: number[] = new Array();
+                                                parentKey[0] = parentTransposed[0];
+                                                raw.set(org.kevoree.modeling.api.data.manager.Index.PARENT_INDEX, parentKey);
+                                            }
                                         } catch ($ex$) {
                                             if ($ex$ instanceof java.lang.Exception) {
                                                 var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                                 e.printStackTrace();
                                             }
                                          }
-                                    }
-                                    for (var i: number = 0; i < alls.size(); i++) {
-                                        try {
-                                            var elem: org.kevoree.modeling.api.map.StringHashMap<any> = alls.get(i);
-                                            var kid: number = java.lang.Long.parseLong(elem.get(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_UUID).toString());
-                                            var meta: string = elem.get(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_META).toString();
-                                            var metaClass: org.kevoree.modeling.api.meta.MetaClass = metaModel.metaClass(meta);
-                                            var current: org.kevoree.modeling.api.KObject = (<org.kevoree.modeling.api.abs.AbstractKView>factory).createProxy(metaClass, mappedKeys.get(kid));
-                                            factory.universe().model().manager().initKObject(current, factory);
-                                            var raw: org.kevoree.modeling.api.data.cache.KCacheEntry = factory.universe().model().manager().entry(current, org.kevoree.modeling.api.data.manager.AccessMode.WRITE);
-                                            elem.each( (metaKey : string, payload_content : any) => {
-                                                if (metaKey.equals(org.kevoree.modeling.api.json.JsonModelSerializer.INBOUNDS_META)) {
-                                                    try {
-                                                        var raw_keys: java.util.ArrayList<string> = <java.util.ArrayList<string>>payload_content;
-                                                        var inbounds: number[] = new Array();
-                                                        for (var hh: number = 0; hh < raw_keys.size(); hh++) {
-                                                            try {
-                                                                var converted: number = java.lang.Long.parseLong(raw_keys.get(hh));
-                                                                if (mappedKeys.containsKey(converted)) {
-                                                                    converted = mappedKeys.get(converted);
-                                                                }
-                                                                inbounds[hh] = converted;
-                                                            } catch ($ex$) {
-                                                                if ($ex$ instanceof java.lang.Exception) {
-                                                                    var e: java.lang.Exception = <java.lang.Exception>$ex$;
-                                                                    e.printStackTrace();
-                                                                }
-                                                             }
-                                                        }
-                                                        raw.set(org.kevoree.modeling.api.data.manager.Index.INBOUNDS_INDEX, inbounds);
-                                                    } catch ($ex$) {
-                                                        if ($ex$ instanceof java.lang.Exception) {
-                                                            var e: java.lang.Exception = <java.lang.Exception>$ex$;
-                                                            e.printStackTrace();
-                                                        }
-                                                     }
-                                                } else {
-                                                    if (metaKey.equals(org.kevoree.modeling.api.json.JsonModelSerializer.PARENT_META)) {
-                                                        try {
-                                                            var parentKeys: java.util.ArrayList<string> = <java.util.ArrayList<string>>payload_content;
-                                                            for (var l: number = 0; l < parentKeys.size(); l++) {
-                                                                var raw_k: number = java.lang.Long.parseLong(parentKeys.get(l));
-                                                                if (mappedKeys.containsKey(raw_k)) {
-                                                                    raw_k = mappedKeys.get(raw_k);
-                                                                }
-                                                                if (raw_k != org.kevoree.modeling.api.KConfig.NULL_LONG) {
-                                                                    var parentKey: number[] = new Array();
-                                                                    parentKey[0] = raw_k;
-                                                                    raw.set(org.kevoree.modeling.api.data.manager.Index.PARENT_INDEX, parentKey);
-                                                                }
-                                                            }
-                                                        } catch ($ex$) {
-                                                            if ($ex$ instanceof java.lang.Exception) {
-                                                                var e: java.lang.Exception = <java.lang.Exception>$ex$;
-                                                                e.printStackTrace();
-                                                            }
-                                                         }
-                                                    } else {
-                                                        if (metaKey.equals(org.kevoree.modeling.api.json.JsonModelSerializer.PARENT_REF_META)) {
-                                                            try {
-                                                                var parentRef_payload: string = payload_content.toString();
-                                                                var elems: string[] = parentRef_payload.split(org.kevoree.modeling.api.data.manager.JsonRaw.SEP);
-                                                                if (elems.length == 2) {
-                                                                    var foundMeta: org.kevoree.modeling.api.meta.MetaClass = metaModel.metaClass(elems[0].trim());
-                                                                    if (foundMeta != null) {
-                                                                        var metaReference: org.kevoree.modeling.api.meta.Meta = foundMeta.metaByName(elems[1].trim());
-                                                                        if (metaReference != null && metaReference instanceof org.kevoree.modeling.api.abs.AbstractMetaReference) {
-                                                                            raw.set(org.kevoree.modeling.api.data.manager.Index.REF_IN_PARENT_INDEX, metaReference);
-                                                                        }
-                                                                    }
-                                                                }
-                                                            } catch ($ex$) {
-                                                                if ($ex$ instanceof java.lang.Exception) {
-                                                                    var e: java.lang.Exception = <java.lang.Exception>$ex$;
-                                                                    e.printStackTrace();
-                                                                }
-                                                             }
-                                                        } else {
-                                                            if (metaKey.equals(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_ROOT)) {
-                                                                if ("true".equals(payload_content)) {
-                                                                    rootElem[0] = current;
-                                                                }
-                                                            } else {
-                                                                var metaElement: org.kevoree.modeling.api.meta.Meta = metaClass.metaByName(metaKey);
-                                                                if (payload_content != null) {
-                                                                    if (metaElement != null && metaElement.metaType().equals(org.kevoree.modeling.api.meta.MetaType.ATTRIBUTE)) {
-                                                                        raw.set(metaElement.index(), (<org.kevoree.modeling.api.meta.MetaAttribute>metaElement).strategy().load(payload_content.toString(), <org.kevoree.modeling.api.meta.MetaAttribute>metaElement, factory.now()));
-                                                                    } else {
-                                                                        if (metaElement != null && metaElement instanceof org.kevoree.modeling.api.abs.AbstractMetaReference) {
-                                                                            try {
-                                                                                var plainRawSet: java.util.ArrayList<string> = <java.util.ArrayList<string>>payload_content;
-                                                                                var convertedRaw: number[] = new Array();
-                                                                                for (var l: number = 0; l < plainRawSet.size(); l++) {
-                                                                                    try {
-                                                                                        var converted: number = java.lang.Long.parseLong(plainRawSet.get(l));
-                                                                                        if (mappedKeys.containsKey(converted)) {
-                                                                                            converted = mappedKeys.get(converted);
-                                                                                        }
-                                                                                        convertedRaw[l] = converted;
-                                                                                    } catch ($ex$) {
-                                                                                        if ($ex$ instanceof java.lang.Exception) {
-                                                                                            var e: java.lang.Exception = <java.lang.Exception>$ex$;
-                                                                                            e.printStackTrace();
-                                                                                        }
-                                                                                     }
-                                                                                }
-                                                                                raw.set(metaElement.index(), convertedRaw);
-                                                                            } catch ($ex$) {
-                                                                                if ($ex$ instanceof java.lang.Exception) {
-                                                                                    var e: java.lang.Exception = <java.lang.Exception>$ex$;
-                                                                                    e.printStackTrace();
-                                                                                }
-                                                                             }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
+                                    } else {
+                                        if (metaKey.equals(org.kevoree.modeling.api.json.JsonModelSerializer.PARENT_REF_META)) {
+                                            try {
+                                                var parentRef_payload: string = payload_content.toString();
+                                                var elems: string[] = parentRef_payload.split(org.kevoree.modeling.api.data.manager.JsonRaw.SEP);
+                                                if (elems.length == 2) {
+                                                    var foundMeta: org.kevoree.modeling.api.meta.MetaClass = p_metaModel.metaClass(elems[0].trim());
+                                                    if (foundMeta != null) {
+                                                        var metaReference: org.kevoree.modeling.api.meta.Meta = foundMeta.metaByName(elems[1].trim());
+                                                        if (metaReference != null && metaReference instanceof org.kevoree.modeling.api.abs.AbstractMetaReference) {
+                                                            raw.set(org.kevoree.modeling.api.data.manager.Index.REF_IN_PARENT_INDEX, metaReference);
                                                         }
                                                     }
                                                 }
-                                            });
-                                        } catch ($ex$) {
-                                            if ($ex$ instanceof java.lang.Exception) {
-                                                var e: java.lang.Exception = <java.lang.Exception>$ex$;
-                                                e.printStackTrace();
+                                            } catch ($ex$) {
+                                                if ($ex$ instanceof java.lang.Exception) {
+                                                    var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                                    e.printStackTrace();
+                                                }
+                                             }
+                                        } else {
+                                            if (metaKey.equals(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_ROOT)) {
+                                                if ("true".equals(payload_content)) {
+                                                    p_rootElem[0] = current;
+                                                }
+                                            } else {
+                                                var metaElement: org.kevoree.modeling.api.meta.Meta = metaClass.metaByName(metaKey);
+                                                if (payload_content != null) {
+                                                    if (metaElement != null && metaElement.metaType().equals(org.kevoree.modeling.api.meta.MetaType.ATTRIBUTE)) {
+                                                        raw.set(metaElement.index(), (<org.kevoree.modeling.api.meta.MetaAttribute>metaElement).strategy().load(payload_content.toString(), <org.kevoree.modeling.api.meta.MetaAttribute>metaElement, p_factory.now()));
+                                                    } else {
+                                                        if (metaElement != null && metaElement instanceof org.kevoree.modeling.api.abs.AbstractMetaReference) {
+                                                            try {
+                                                                raw.set(metaElement.index(), org.kevoree.modeling.api.json.JsonModelLoader.transposeArr(<java.util.ArrayList<string>>payload_content, p_mappedKeys));
+                                                            } catch ($ex$) {
+                                                                if ($ex$ instanceof java.lang.Exception) {
+                                                                    var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                                                    e.printStackTrace();
+                                                                }
+                                                             }
+                                                        }
+                                                    }
+                                                }
                                             }
-                                         }
-                                    }
-                                    if (rootElem[0] != null) {
-                                        factory.setRoot(rootElem[0]).then( (throwable : java.lang.Throwable) => {
-                                            if (callback != null) {
-                                                callback(throwable);
-                                            }
-                                        });
-                                    } else {
-                                        if (callback != null) {
-                                            callback(null);
                                         }
                                     }
                                 }
-                            }
+                            });
+                        }
+
+                        private static transposeArr(plainRawSet: java.util.ArrayList<string>, p_mappedKeys: org.kevoree.modeling.api.map.LongLongHashMap): number[] {
+                             if (plainRawSet == null) { return null; }
+                             var convertedRaw: number[] = new Array();
+                             for (var l in plainRawSet) {
+                             try {
+                             var converted: number = java.lang.Long.parseLong(plainRawSet[l]);
+                             if (p_mappedKeys.containsKey(converted)) { converted = p_mappedKeys.get(converted); }
+                             convertedRaw[l] = converted;
+                             } catch ($ex$) {
+                             if ($ex$ instanceof java.lang.Exception) {
+                             var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                             e.printStackTrace();
+                             }
+                             }
+                             }
+                             return convertedRaw;
                         }
 
                     }
@@ -6016,30 +5931,30 @@ module org {
                             }
                         }
 
-                        public static encode(chain: string): string {
+                        public static encode(p_chain: string): string {
                             var sb: java.lang.StringBuilder = new java.lang.StringBuilder();
-                            org.kevoree.modeling.api.json.JsonString.encodeBuffer(sb, chain);
+                            org.kevoree.modeling.api.json.JsonString.encodeBuffer(sb, p_chain);
                             return sb.toString();
                         }
 
-                        public static unescape(src: string): string {
-                            if (src == null) {
+                        public static unescape(p_src: string): string {
+                            if (p_src == null) {
                                 return null;
                             }
-                            if (src.length == 0) {
-                                return src;
+                            if (p_src.length == 0) {
+                                return p_src;
                             }
                             var builder: java.lang.StringBuilder = null;
                             var i: number = 0;
-                            while (i < src.length){
-                                var current: string = src.charAt(i);
+                            while (i < p_src.length){
+                                var current: string = p_src.charAt(i);
                                 if (current == JsonString.ESCAPE_CHAR) {
                                     if (builder == null) {
                                         builder = new java.lang.StringBuilder();
-                                        builder.append(src.substring(0, i));
+                                        builder.append(p_src.substring(0, i));
                                     }
                                     i++;
-                                    var current2: string = src.charAt(i);
+                                    var current2: string = p_src.charAt(i);
                                     switch (current2) {
                                         case '"': 
                                         builder.append('\"');
@@ -6091,216 +6006,10 @@ module org {
                             if (builder != null) {
                                 return builder.toString();
                             } else {
-                                return src;
+                                return p_src;
                             }
                         }
 
-                    }
-
-                    export class JsonToken {
-
-                        private _tokenType: org.kevoree.modeling.api.json.Type;
-                        private _value: any;
-                        constructor(p_tokenType: org.kevoree.modeling.api.json.Type, p_value: any) {
-                            this._tokenType = p_tokenType;
-                            this._value = p_value;
-                        }
-
-                        public toString(): string {
-                            var v: string;
-                            if (this._value != null) {
-                                v = " (" + this._value + ")";
-                            } else {
-                                v = "";
-                            }
-                            var result: string = this._tokenType.toString() + v;
-                            return result;
-                        }
-
-                        public tokenType(): org.kevoree.modeling.api.json.Type {
-                            return this._tokenType;
-                        }
-
-                        public value(): any {
-                            return this._value;
-                        }
-
-                    }
-
-                    export class Lexer {
-
-                        private bytes: string;
-                        private EOF: org.kevoree.modeling.api.json.JsonToken;
-                        private BOOLEAN_LETTERS: java.util.HashSet<string> = null;
-                        private DIGIT: java.util.HashSet<string> = null;
-                        private index: number = 0;
-                        constructor(payload: string) {
-                            this.bytes = payload;
-                            this.EOF = new org.kevoree.modeling.api.json.JsonToken(org.kevoree.modeling.api.json.Type.EOF, null);
-                        }
-
-                        public isSpace(c: string): boolean {
-                            return c == ' ' || c == '\r' || c == '\n' || c == '\t';
-                        }
-
-                        private nextChar(): string {
-                            return this.bytes.charAt(this.index++);
-                        }
-
-                        private peekChar(): string {
-                            return this.bytes.charAt(this.index);
-                        }
-
-                        private isDone(): boolean {
-                            return this.index >= this.bytes.length;
-                        }
-
-                        private isBooleanLetter(c: string): boolean {
-                            if (this.BOOLEAN_LETTERS == null) {
-                                this.BOOLEAN_LETTERS = new java.util.HashSet<string>();
-                                this.BOOLEAN_LETTERS.add('f');
-                                this.BOOLEAN_LETTERS.add('a');
-                                this.BOOLEAN_LETTERS.add('l');
-                                this.BOOLEAN_LETTERS.add('s');
-                                this.BOOLEAN_LETTERS.add('e');
-                                this.BOOLEAN_LETTERS.add('t');
-                                this.BOOLEAN_LETTERS.add('r');
-                                this.BOOLEAN_LETTERS.add('u');
-                            }
-                            return this.BOOLEAN_LETTERS.contains(c);
-                        }
-
-                        private isDigit(c: string): boolean {
-                            if (this.DIGIT == null) {
-                                this.DIGIT = new java.util.HashSet<string>();
-                                this.DIGIT.add('0');
-                                this.DIGIT.add('1');
-                                this.DIGIT.add('2');
-                                this.DIGIT.add('3');
-                                this.DIGIT.add('4');
-                                this.DIGIT.add('5');
-                                this.DIGIT.add('6');
-                                this.DIGIT.add('7');
-                                this.DIGIT.add('8');
-                                this.DIGIT.add('9');
-                            }
-                            return this.DIGIT.contains(c);
-                        }
-
-                        private isValueLetter(c: string): boolean {
-                            return c == '-' || c == '+' || c == '.' || this.isDigit(c) || this.isBooleanLetter(c);
-                        }
-
-                        public nextToken(): org.kevoree.modeling.api.json.JsonToken {
-                            if (this.isDone()) {
-                                return this.EOF;
-                            }
-                            var tokenType: org.kevoree.modeling.api.json.Type = org.kevoree.modeling.api.json.Type.EOF;
-                            var c: string = this.nextChar();
-                            var currentValue: java.lang.StringBuilder = new java.lang.StringBuilder();
-                            var jsonValue: any = null;
-                            while (!this.isDone() && this.isSpace(c)){
-                                c = this.nextChar();
-                            }
-                            if ('"' == c) {
-                                tokenType = org.kevoree.modeling.api.json.Type.VALUE;
-                                if (!this.isDone()) {
-                                    c = this.nextChar();
-                                    while (this.index < this.bytes.length && c != '"'){
-                                        currentValue.append(c);
-                                        if (c == '\\' && this.index < this.bytes.length) {
-                                            c = this.nextChar();
-                                            currentValue.append(c);
-                                        }
-                                        c = this.nextChar();
-                                    }
-                                    jsonValue = currentValue.toString();
-                                }
-                            } else {
-                                if ('{' == c) {
-                                    tokenType = org.kevoree.modeling.api.json.Type.LEFT_BRACE;
-                                } else {
-                                    if ('}' == c) {
-                                        tokenType = org.kevoree.modeling.api.json.Type.RIGHT_BRACE;
-                                    } else {
-                                        if ('[' == c) {
-                                            tokenType = org.kevoree.modeling.api.json.Type.LEFT_BRACKET;
-                                        } else {
-                                            if (']' == c) {
-                                                tokenType = org.kevoree.modeling.api.json.Type.RIGHT_BRACKET;
-                                            } else {
-                                                if (':' == c) {
-                                                    tokenType = org.kevoree.modeling.api.json.Type.COLON;
-                                                } else {
-                                                    if (',' == c) {
-                                                        tokenType = org.kevoree.modeling.api.json.Type.COMMA;
-                                                    } else {
-                                                        if (!this.isDone()) {
-                                                            while (this.isValueLetter(c)){
-                                                                currentValue.append(c);
-                                                                if (!this.isValueLetter(this.peekChar())) {
-                                                                    break;
-                                                                } else {
-                                                                    c = this.nextChar();
-                                                                }
-                                                            }
-                                                            var v: string = currentValue.toString();
-                                                            if ("true".equals(v.toLowerCase())) {
-                                                                jsonValue = true;
-                                                            } else {
-                                                                if ("false".equals(v.toLowerCase())) {
-                                                                    jsonValue = false;
-                                                                } else {
-                                                                    jsonValue = v.toLowerCase();
-                                                                }
-                                                            }
-                                                            tokenType = org.kevoree.modeling.api.json.Type.VALUE;
-                                                        } else {
-                                                            tokenType = org.kevoree.modeling.api.json.Type.EOF;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            return new org.kevoree.modeling.api.json.JsonToken(tokenType, jsonValue);
-                        }
-
-                    }
-
-                    export class Type {
-
-                        public static VALUE: Type = new Type(0);
-                        public static LEFT_BRACE: Type = new Type(1);
-                        public static RIGHT_BRACE: Type = new Type(2);
-                        public static LEFT_BRACKET: Type = new Type(3);
-                        public static RIGHT_BRACKET: Type = new Type(4);
-                        public static COMMA: Type = new Type(5);
-                        public static COLON: Type = new Type(6);
-                        public static EOF: Type = new Type(42);
-                        private _value: number;
-                        constructor(p_value: number) {
-                            this._value = p_value;
-                        }
-
-                        public equals(other: any): boolean {
-                            return this == other;
-                        }
-                        public static _TypeVALUES : Type[] = [
-                            Type.VALUE
-                            ,Type.LEFT_BRACE
-                            ,Type.RIGHT_BRACE
-                            ,Type.LEFT_BRACKET
-                            ,Type.RIGHT_BRACKET
-                            ,Type.COMMA
-                            ,Type.COLON
-                            ,Type.EOF
-                        ];
-                        public static values():Type[]{
-                            return Type._TypeVALUES;
-                        }
                     }
 
                 }

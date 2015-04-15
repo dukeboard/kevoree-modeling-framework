@@ -32,9 +32,6 @@ import org.kevoree.modeling.api.util.KOperationManager;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by duke on 10/17/14.
- */
 public class DefaultKDataManager implements KDataManager {
 
     private KContentDeliveryDriver _db;
@@ -673,11 +670,6 @@ public class DefaultKDataManager implements KDataManager {
             e.printStackTrace();
             return null;
         }
-    }
-
-    public void cleanObject(KObject objectToClean) {
-
-        System.err.println("ToClean=" + objectToClean.uuid());
     }
 
 }

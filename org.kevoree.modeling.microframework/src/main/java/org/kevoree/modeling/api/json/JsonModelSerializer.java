@@ -9,13 +9,6 @@ import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.data.manager.JsonRaw;
 
-/**
- * Created with IntelliJ IDEA.
- * User: duke
- * Date: 28/08/13
- * Time: 11:08
- */
-
 public class JsonModelSerializer {
 
     public static final String KEY_META = "@meta";

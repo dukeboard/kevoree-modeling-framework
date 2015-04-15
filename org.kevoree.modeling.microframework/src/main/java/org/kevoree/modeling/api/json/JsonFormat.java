@@ -1,6 +1,5 @@
 package org.kevoree.modeling.api.json;
 
-
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KDefer;
 import org.kevoree.modeling.api.KObject;
@@ -9,9 +8,6 @@ import org.kevoree.modeling.api.ModelFormat;
 import org.kevoree.modeling.api.abs.AbstractKDeferWrapper;
 import org.kevoree.modeling.api.util.Checker;
 
-/**
- * Created by duke on 11/5/14.
- */
 public class JsonFormat implements ModelFormat {
 
     private KView _view;

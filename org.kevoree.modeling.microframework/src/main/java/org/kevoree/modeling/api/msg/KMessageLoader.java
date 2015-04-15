@@ -36,11 +36,9 @@ public class KMessageLoader {
     public static final int ATOMIC_OPERATION_RESULT_TYPE = 8;
 
     public static KMessage load(String payload) {
-
         if(payload == null){
             return null;
         }
-
         JsonObjectReader objectReader = new JsonObjectReader();
         objectReader.parseObject(payload);
         try {

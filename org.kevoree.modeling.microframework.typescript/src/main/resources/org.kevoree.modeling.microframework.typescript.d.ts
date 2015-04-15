@@ -682,7 +682,6 @@ declare module org {
                             bumpKeyToCache(contentKey: org.kevoree.modeling.api.data.cache.KContentKey, callback: (p: org.kevoree.modeling.api.data.cache.KCacheObject) => void): void;
                             bumpKeysToCache(contentKeys: org.kevoree.modeling.api.data.cache.KContentKey[], callback: (p: org.kevoree.modeling.api.data.cache.KCacheObject[]) => void): void;
                             private internal_unserialize(key, payload);
-                            cleanObject(objectToClean: org.kevoree.modeling.api.KObject): void;
                         }
                         class Index {
                             static PARENT_INDEX: number;
@@ -722,7 +721,6 @@ declare module org {
                             parentUniverseKey(currentUniverseKey: number): number;
                             descendantsUniverseKeys(currentUniverseKey: number): number[];
                             reload(keys: org.kevoree.modeling.api.data.cache.KContentKey[], callback: (p: java.lang.Throwable) => void): void;
-                            cleanObject(objectToClean: org.kevoree.modeling.api.KObject): void;
                         }
                         class KeyCalculator {
                             private _prefix;
@@ -1039,6 +1037,8 @@ declare module org {
                     }
                     class JsonModelLoader {
                         static load(factory: org.kevoree.modeling.api.KView, payload: string, callback: (p: java.lang.Throwable) => void): void;
+                        private static loadObj(p_param, p_metaModel, p_factory, p_mappedKeys, p_rootElem);
+                        private static transposeArr(plainRawSet, p_mappedKeys);
                     }
                     class JsonModelSerializer {
                         static KEY_META: string;
@@ -1060,47 +1060,8 @@ declare module org {
                     class JsonString {
                         private static ESCAPE_CHAR;
                         static encodeBuffer(buffer: java.lang.StringBuilder, chain: string): void;
-                        static encode(chain: string): string;
-                        static unescape(src: string): string;
-                    }
-                    class JsonToken {
-                        private _tokenType;
-                        private _value;
-                        constructor(p_tokenType: org.kevoree.modeling.api.json.Type, p_value: any);
-                        toString(): string;
-                        tokenType(): org.kevoree.modeling.api.json.Type;
-                        value(): any;
-                    }
-                    class Lexer {
-                        private bytes;
-                        private EOF;
-                        private BOOLEAN_LETTERS;
-                        private DIGIT;
-                        private index;
-                        constructor(payload: string);
-                        isSpace(c: string): boolean;
-                        private nextChar();
-                        private peekChar();
-                        private isDone();
-                        private isBooleanLetter(c);
-                        private isDigit(c);
-                        private isValueLetter(c);
-                        nextToken(): org.kevoree.modeling.api.json.JsonToken;
-                    }
-                    class Type {
-                        static VALUE: Type;
-                        static LEFT_BRACE: Type;
-                        static RIGHT_BRACE: Type;
-                        static LEFT_BRACKET: Type;
-                        static RIGHT_BRACKET: Type;
-                        static COMMA: Type;
-                        static COLON: Type;
-                        static EOF: Type;
-                        private _value;
-                        constructor(p_value: number);
-                        equals(other: any): boolean;
-                        static _TypeVALUES: Type[];
-                        static values(): Type[];
+                        static encode(p_chain: string): string;
+                        static unescape(p_src: string): string;
                     }
                 }
                 module map {

@@ -15,9 +15,6 @@ import org.kevoree.modeling.api.util.KOperationManager;
 
 import java.util.List;
 
-/**
- * Created by duke on 10/17/14.
- */
 public interface KDataManager {
 
     KContentDeliveryDriver cdn();
@@ -69,7 +66,5 @@ public interface KDataManager {
     long[] descendantsUniverseKeys(long currentUniverseKey);
 
     void reload(KContentKey[] keys, Callback<Throwable> callback);
-
-    void cleanObject(KObject objectToClean);
 
 }

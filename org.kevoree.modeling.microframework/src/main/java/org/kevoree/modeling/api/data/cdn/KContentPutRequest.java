@@ -2,9 +2,6 @@ package org.kevoree.modeling.api.data.cdn;
 
 import org.kevoree.modeling.api.data.cache.KContentKey;
 
-/**
- * Created by duke on 19/02/15.
- */
 public class KContentPutRequest {
 
     private Object[][] _content;

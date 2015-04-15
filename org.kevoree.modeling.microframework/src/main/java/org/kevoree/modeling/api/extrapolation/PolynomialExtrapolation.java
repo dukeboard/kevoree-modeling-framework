@@ -9,9 +9,6 @@ import org.kevoree.modeling.api.polynomial.doublepolynomial.DoublePolynomialMode
 import org.kevoree.modeling.api.polynomial.PolynomialModel;
 import org.kevoree.modeling.api.polynomial.util.Prioritization;
 
-/**
- * Created by duke on 10/28/14.
- */
 public class PolynomialExtrapolation implements Extrapolation {
 
     @Override

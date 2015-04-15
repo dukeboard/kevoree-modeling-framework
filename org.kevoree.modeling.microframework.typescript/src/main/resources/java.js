@@ -74,20 +74,10 @@ String.prototype.hashCode = function () {
     return hash;
 };
 String.prototype.startsWith = function (other) {
-    for (var i = 0; i < other.length; i++) {
-        if (other.charAt(i) != this.charAt(i)) {
-            return false;
-        }
-    }
-    return true;
+    return this.slice(0, other.length) == other;
 };
 String.prototype.endsWith = function (other) {
-    for (var i = other.length - 1; i >= 0; i--) {
-        if (other.charAt(i) != this.charAt(i)) {
-            return false;
-        }
-    }
-    return true;
+    return this.slice(-other.length) == other;
 };
 Boolean.prototype.equals = function (other) {
     return this == other;
@@ -249,102 +239,73 @@ var java;
             return Collections;
         })();
         util.Collections = Collections;
-        var Collection = (function () {
-            function Collection() {
+        var XArray = (function () {
+            function XArray() {
+                Array.apply(this, arguments);
+                return new Array();
             }
-            Collection.prototype.add = function (val) {
-                throw new java.lang.Exception("Abstract implementation");
+            XArray.prototype.pop = function () {
+                return "";
             };
-            Collection.prototype.addAll = function (vals) {
-                throw new java.lang.Exception("Abstract implementation");
+            XArray.prototype.push = function (val) {
+                return 0;
             };
-            Collection.prototype.remove = function (val) {
-                throw new java.lang.Exception("Abstract implementation");
+            XArray.prototype.splice = function (newS, arrL) {
             };
-            Collection.prototype.clear = function () {
-                throw new java.lang.Exception("Abstract implementation");
+            XArray.prototype.indexOf = function (val) {
+                return 0;
             };
-            Collection.prototype.isEmpty = function () {
-                throw new java.lang.Exception("Abstract implementation");
+            XArray.prototype.shift = function () {
+                return "";
             };
-            Collection.prototype.size = function () {
-                throw new java.lang.Exception("Abstract implementation");
+            XArray.prototype.sort = function () {
             };
-            Collection.prototype.contains = function (val) {
-                throw new java.lang.Exception("Abstract implementation");
-            };
-            Collection.prototype.toArray = function (a) {
-                throw new java.lang.Exception("Abstract implementation");
-            };
-            return Collection;
+            return XArray;
         })();
-        util.Collection = Collection;
+        util.XArray = XArray;
+        XArray["prototype"] = new Array();
         var List = (function (_super) {
             __extends(List, _super);
             function List() {
                 _super.apply(this, arguments);
-                this.internalArray = [];
             }
-            List.prototype.sort = function () {
-                this.internalArray = this.internalArray.sort(function (a, b) {
-                    if (a == b) {
-                        return 0;
-                    }
-                    else {
-                        if (a < b) {
-                            return -1;
-                        }
-                        else {
-                            return 1;
-                        }
-                    }
-                });
-            };
             List.prototype.addAll = function (vals) {
                 var tempArray = vals.toArray(null);
                 for (var i = 0; i < tempArray.length; i++) {
-                    this.internalArray.push(tempArray[i]);
+                    this.push(tempArray[i]);
                 }
             };
             List.prototype.clear = function () {
-                this.internalArray = [];
+                this.length = 0;
             };
             List.prototype.poll = function () {
-                return this.internalArray.shift();
+                return this.shift();
             };
             List.prototype.remove = function (val) {
-                //TODO with filter
             };
             List.prototype.toArray = function (a) {
-                //TODO
-                var result = new Array(this.internalArray.length);
-                this.internalArray.forEach(function (value, index, p1) {
-                    result[index] = value;
-                });
-                return result;
+                for (var ik in this) {
+                    a.push(this[ik]);
+                }
+                return a;
             };
             List.prototype.size = function () {
-                return this.internalArray.length;
+                return this.length;
             };
             List.prototype.add = function (val) {
-                this.internalArray.push(val);
+                this.push(val);
             };
             List.prototype.get = function (index) {
-                return this.internalArray[index];
+                return this[index];
             };
             List.prototype.contains = function (val) {
-                for (var i = 0; i < this.internalArray.length; i++) {
-                    if (this.internalArray[i] == val) {
-                        return true;
-                    }
-                }
-                return false;
+                return this.indexOf(val) != -1;
             };
             List.prototype.isEmpty = function () {
-                return this.internalArray.length == 0;
+                return this.length == 0;
             };
             return List;
-        })(Collection);
+        })(XArray);
         util.List = List;
         var ArrayList = (function (_super) {
             __extends(ArrayList, _super);
@@ -420,10 +381,8 @@ var java;
             return HashMap;
         })(Map);
         util.HashMap = HashMap;
-        var Set = (function (_super) {
-            __extends(Set, _super);
+        var Set = (function () {
             function Set() {
-                _super.apply(this, arguments);
             }
             Set.prototype.add = function (val) {
                 this[val] = val;
@@ -453,8 +412,14 @@ var java;
             Set.prototype.isEmpty = function () {
                 return this.size() == 0;
             };
+            Set.prototype.toArray = function (a) {
+                for (var ik in this) {
+                    a.push(this[ik]);
+                }
+                return a;
+            };
             return Set;
-        })(Collection);
+        })();
         util.Set = Set;
         var HashSet = (function (_super) {
             __extends(HashSet, _super);
@@ -510,6 +475,11 @@ var org;
             Assert.assertTrue = function (b) {
                 if (!b) {
                     throw "Assert Error " + b + " must be true";
+                }
+            };
+            Assert.assertFalse = function (b) {
+                if (b) {
+                    throw "Assert Error " + b + " must be false";
                 }
             };
             return Assert;
