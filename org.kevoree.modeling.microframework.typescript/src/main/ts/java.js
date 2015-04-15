@@ -122,6 +122,15 @@ var java;
             return Long;
         })();
         lang.Long = Long;
+        var Boolean = (function () {
+            function Boolean() {
+            }
+            Boolean.parseBoolean = function (val) {
+                return val == "true";
+            };
+            return Boolean;
+        })();
+        lang.Boolean = Boolean;
         var Short = (function () {
             function Short() {
             }

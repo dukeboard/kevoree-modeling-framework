@@ -480,7 +480,7 @@ module org {
                                 return java.lang.Integer.parseInt(payload);
                             }
                             if (this == org.kevoree.modeling.api.meta.PrimitiveTypes.BOOL) {
-                                return payload.equals("true");
+                                return java.lang.Boolean.parseBoolean(payload);
                             }
                             if (this == org.kevoree.modeling.api.meta.PrimitiveTypes.SHORT) {
                                 return java.lang.Short.parseShort(payload);

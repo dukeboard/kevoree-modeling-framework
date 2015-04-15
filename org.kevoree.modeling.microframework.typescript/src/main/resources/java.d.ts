@@ -45,6 +45,9 @@ declare module java {
         class Long {
             static parseLong(val: string): number;
         }
+        class Boolean {
+            static parseBoolean(val: string): boolean;
+        }
         class Short {
             static MIN_VALUE: number;
             static MAX_VALUE: number;

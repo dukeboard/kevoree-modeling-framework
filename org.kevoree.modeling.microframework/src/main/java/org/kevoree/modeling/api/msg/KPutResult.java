@@ -8,7 +8,7 @@ public class KPutResult implements KMessage {
     public String json() {
         StringBuilder buffer = new StringBuilder();
         KMessageHelper.printJsonStart(buffer);
-        KMessageHelper.printType(buffer,type());
+        KMessageHelper.printType(buffer, type());
         KMessageHelper.printElem(id, KMessageLoader.ID_NAME, buffer);
         KMessageHelper.printJsonEnd(buffer);
         return buffer.toString();

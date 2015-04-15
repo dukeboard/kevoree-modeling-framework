@@ -55,7 +55,7 @@ public class AbstractKDataType implements KType {
             return Integer.parseInt(payload);
         }
         if (this == PrimitiveTypes.BOOL) {
-            return payload.equals("true");
+            return Boolean.parseBoolean(payload);
         }
         if (this == PrimitiveTypes.SHORT) {
             return Short.parseShort(payload);
