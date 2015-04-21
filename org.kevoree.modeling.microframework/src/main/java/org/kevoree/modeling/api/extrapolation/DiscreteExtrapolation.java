@@ -5,9 +5,6 @@ import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 
-/**
- * Created by duke on 10/28/14.
- */
 public class DiscreteExtrapolation implements Extrapolation {
 
     private static DiscreteExtrapolation INSTANCE;
