@@ -55,16 +55,25 @@ public class LongRBTree implements KCacheObject {
 
     private Long[] _previousOrEqualsCacheKeys = null;
     private LongTreeNode[] _previousOrEqualsCacheValues = null;
-    private int _nextCacheElem;
+    private int _previousOrEqualsNextCacheElem;
 
     private Long[] _lookupCacheKeys = null;
     private LongTreeNode[] _lookupCacheValues = null;
-    private int _lookupCacheElem;
+    private int _lookupNextCacheElem;
+
+    public LongRBTree() {
+        _lookupCacheKeys = new Long[KConfig.TREE_CACHE_SIZE];
+        _lookupCacheValues = new LongTreeNode[KConfig.TREE_CACHE_SIZE];
+        _previousOrEqualsCacheKeys = new Long[KConfig.TREE_CACHE_SIZE];
+        _previousOrEqualsCacheValues = new LongTreeNode[KConfig.TREE_CACHE_SIZE];
+        _previousOrEqualsNextCacheElem = 0;
+        _lookupNextCacheElem = 0;
+    }
 
     /* Cache management */
     private synchronized LongTreeNode tryPreviousOrEqualsCache(long key) {
         if (_previousOrEqualsCacheKeys != null && _previousOrEqualsCacheValues != null) {
-            for (int i = 0; i < KConfig.TREE_CACHE_SIZE; i++) {
+            for (int i = 0; i < _previousOrEqualsNextCacheElem; i++) {
                 if (_previousOrEqualsCacheKeys[i] != null && key == _previousOrEqualsCacheKeys[i]) {
                     return _previousOrEqualsCacheValues[i];
                 }
@@ -75,7 +84,7 @@ public class LongRBTree implements KCacheObject {
 
     private synchronized LongTreeNode tryLookupCache(long key) {
         if (_lookupCacheKeys != null && _lookupCacheValues != null) {
-            for (int i = 0; i < KConfig.TREE_CACHE_SIZE; i++) {
+            for (int i = 0; i < _lookupNextCacheElem; i++) {
                 if (_lookupCacheKeys[i] != null && key == _lookupCacheKeys[i]) {
                     return _lookupCacheValues[i];
                 }
@@ -85,38 +94,26 @@ public class LongRBTree implements KCacheObject {
     }
 
     private void resetCache() {
-        _previousOrEqualsCacheKeys = null;
-        _previousOrEqualsCacheValues = null;
-        _lookupCacheKeys = null;
-        _lookupCacheValues = null;
-        _nextCacheElem = 0;
-        _lookupCacheElem = 0;
+        _previousOrEqualsNextCacheElem = 0;
+        _lookupNextCacheElem = 0;
     }
 
     private void putInPreviousOrEqualsCache(long key, LongTreeNode resolved) {
-        if (_previousOrEqualsCacheKeys == null || _previousOrEqualsCacheValues == null) {
-            _previousOrEqualsCacheKeys = new Long[KConfig.TREE_CACHE_SIZE];
-            _previousOrEqualsCacheValues = new LongTreeNode[KConfig.TREE_CACHE_SIZE];
-            _nextCacheElem = 0;
-        } else if (_nextCacheElem == KConfig.TREE_CACHE_SIZE) {
-            _nextCacheElem = 0;
+        if(_previousOrEqualsNextCacheElem == KConfig.TREE_CACHE_SIZE){
+            _previousOrEqualsNextCacheElem = 0;
         }
-        _previousOrEqualsCacheKeys[_nextCacheElem] = key;
-        _previousOrEqualsCacheValues[_nextCacheElem] = resolved;
-        _nextCacheElem++;
+        _previousOrEqualsCacheKeys[_previousOrEqualsNextCacheElem] = key;
+        _previousOrEqualsCacheValues[_previousOrEqualsNextCacheElem] = resolved;
+        _previousOrEqualsNextCacheElem++;
     }
 
     private void putInLookupCache(long key, LongTreeNode resolved) {
-        if (_lookupCacheKeys == null || _lookupCacheValues == null) {
-            _lookupCacheKeys = new Long[KConfig.TREE_CACHE_SIZE];
-            _lookupCacheValues = new LongTreeNode[KConfig.TREE_CACHE_SIZE];
-            _lookupCacheElem = 0;
-        } else if (_lookupCacheElem == KConfig.TREE_CACHE_SIZE) {
-            _lookupCacheElem = 0;
+        if(_lookupNextCacheElem == KConfig.TREE_CACHE_SIZE){
+            _lookupNextCacheElem = 0;
         }
-        _lookupCacheKeys[_lookupCacheElem] = key;
-        _lookupCacheValues[_lookupCacheElem] = resolved;
-        _lookupCacheElem++;
+        _lookupCacheKeys[_lookupNextCacheElem] = key;
+        _lookupCacheValues[_lookupNextCacheElem] = resolved;
+        _lookupNextCacheElem++;
     }
 
     @Override

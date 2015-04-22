@@ -293,10 +293,14 @@ var java;
             List.prototype.remove = function (val) {
             };
             List.prototype.toArray = function (a) {
+                return this;
+                /*
                 for (var ik in this) {
-                    a.push(this[ik]);
+                    if (this.hasOwnProperty(ik) && ik != "length") {
+                        a.push(this[ik]);
+                    }
                 }
-                return a;
+                return a;*/
             };
             List.prototype.size = function () {
                 return this.length;

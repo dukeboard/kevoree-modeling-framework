@@ -21,7 +21,11 @@ public class KCacheLayer {
 
     public KCacheObject resolve(KContentKey p_key, int current) {
         if (current == KConfig.KEY_SIZE - 1) {
-            return _cachedObjects.get(p_key.part(current));
+            if(_cachedObjects != null){
+                return _cachedObjects.get(p_key.part(current));
+            } else {
+                return null;
+            }
         } else {
             if (_nestedLayers != null) {
                 KCacheLayer nextLayer = _nestedLayers.get(p_key.part(current));

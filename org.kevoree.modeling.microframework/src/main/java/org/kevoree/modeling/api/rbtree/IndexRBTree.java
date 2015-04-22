@@ -34,10 +34,16 @@ public class IndexRBTree implements KCacheObject {
         _counter--;
     }
 
+    public IndexRBTree() {
+        _previousOrEqualsCacheKeys = new Long[KConfig.TREE_CACHE_SIZE];
+        _previousOrEqualsCacheValues = new TreeNode[KConfig.TREE_CACHE_SIZE];
+        _nextCacheElem = 0;
+    }
+
     /* Cache management */
     private TreeNode tryPreviousOrEqualsCache(long key) {
         if (_previousOrEqualsCacheKeys != null && _previousOrEqualsCacheValues != null) {
-            for (int i = 0; i < KConfig.TREE_CACHE_SIZE; i++) {
+            for (int i = 0; i < _nextCacheElem; i++) {
                 if (_previousOrEqualsCacheKeys[i] != null && key == _previousOrEqualsCacheKeys[i]) {
                     return _previousOrEqualsCacheValues[i];
                 }
@@ -49,17 +55,11 @@ public class IndexRBTree implements KCacheObject {
     }
 
     private void resetCache() {
-        _previousOrEqualsCacheKeys = null;
-        _previousOrEqualsCacheValues = null;
         _nextCacheElem = 0;
     }
 
     private synchronized void putInPreviousOrEqualsCache(long key, TreeNode resolved) {
-        if (_previousOrEqualsCacheKeys == null || _previousOrEqualsCacheValues == null) {
-            _previousOrEqualsCacheKeys = new Long[KConfig.TREE_CACHE_SIZE];
-            _previousOrEqualsCacheValues = new TreeNode[KConfig.TREE_CACHE_SIZE];
-            _nextCacheElem = 0;
-        } else if (_nextCacheElem == KConfig.TREE_CACHE_SIZE) {
+        if(_nextCacheElem == KConfig.TREE_CACHE_SIZE){
             _nextCacheElem = 0;
         }
         _previousOrEqualsCacheKeys[_nextCacheElem] = key;

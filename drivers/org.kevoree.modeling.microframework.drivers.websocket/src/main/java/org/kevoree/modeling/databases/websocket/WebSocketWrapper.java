@@ -72,7 +72,9 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
             wrapped.close(new Callback<Throwable>() {
                 @Override
                 public void on(Throwable throwable) {
-                    _server.stop();
+                    if(_server!= null){
+                        _server.stop();
+                    }
                     callback.on(throwable);
                 }
             });

@@ -361,7 +361,6 @@ public class DefaultKDataManager implements KDataManager {
             boolean needUniverseCopy = accessMode.equals(AccessMode.WRITE) && (resolvedUniverse != origin.universe().key());
             KCacheEntry entry = (KCacheEntry) _cache.get(KContentKey.createObject(resolvedUniverse, resolvedTime, origin.uuid()));
             if (entry == null) {
-                System.err.println(OUT_OF_CACHE_MESSAGE);
                 return null;
             }
             if (accessMode.equals(AccessMode.DELETE)) {
@@ -375,6 +374,7 @@ public class DefaultKDataManager implements KDataManager {
                 return entry;
             } else {
                 KCacheEntry clonedEntry = entry.clone();
+                _cache.put(KContentKey.createObject(origin.universe().key(), origin.now(), origin.uuid()), clonedEntry);
                 if (!needUniverseCopy) {
                     timeTree.insert(origin.now());
                 } else {
@@ -383,7 +383,6 @@ public class DefaultKDataManager implements KDataManager {
                     _cache.put(KContentKey.createTimeTree(origin.universe().key(), origin.uuid()), newTemporalTree);
                     objectUniverseTree.put(origin.universe().key(), origin.now());//insert this time as a divergence point for this object
                 }
-                _cache.put(KContentKey.createObject(origin.universe().key(), origin.now(), origin.uuid()), clonedEntry);
                 entry.dec();
                 return clonedEntry;
             }
