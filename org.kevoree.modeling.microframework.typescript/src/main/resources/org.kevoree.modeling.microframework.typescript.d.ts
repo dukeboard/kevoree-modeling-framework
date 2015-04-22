@@ -1501,6 +1501,7 @@ declare module org {
                         counter(): number;
                         inc(): void;
                         dec(): void;
+                        constructor();
                         private tryPreviousOrEqualsCache(key);
                         private resetCache();
                         private putInPreviousOrEqualsCache(key, resolved);
@@ -1541,10 +1542,10 @@ declare module org {
                         private _counter;
                         private _previousOrEqualsCacheKeys;
                         private _previousOrEqualsCacheValues;
-                        private _nextCacheElem;
+                        private _previousOrEqualsNextCacheElem;
                         private _lookupCacheKeys;
                         private _lookupCacheValues;
-                        private _lookupCacheElem;
+                        private _lookupNextCacheElem;
                         size(): number;
                         counter(): number;
                         inc(): void;
@@ -1552,6 +1553,7 @@ declare module org {
                         toString(): string;
                         isDirty(): boolean;
                         serialize(): string;
+                        constructor();
                         private tryPreviousOrEqualsCache(key);
                         private tryLookupCache(key);
                         private resetCache();

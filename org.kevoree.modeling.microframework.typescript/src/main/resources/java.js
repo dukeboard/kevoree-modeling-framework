@@ -294,13 +294,6 @@ var java;
             };
             List.prototype.toArray = function (a) {
                 return this;
-                /*
-                for (var ik in this) {
-                    if (this.hasOwnProperty(ik) && ik != "length") {
-                        a.push(this[ik]);
-                    }
-                }
-                return a;*/
             };
             List.prototype.size = function () {
                 return this.length;
@@ -500,3 +493,4 @@ var org;
         junit.Assert = Assert;
     })(junit = org.junit || (org.junit = {}));
 })(org || (org = {}));
+//# sourceMappingURL=java.js.map

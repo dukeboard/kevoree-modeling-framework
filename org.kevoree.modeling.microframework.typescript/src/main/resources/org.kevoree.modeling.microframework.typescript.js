@@ -1881,7 +1881,12 @@ var org;
                             };
                             KCacheLayer.prototype.resolve = function (p_key, current) {
                                 if (current == org.kevoree.modeling.api.KConfig.KEY_SIZE - 1) {
-                                    return this._cachedObjects.get(p_key.part(current));
+                                    if (this._cachedObjects != null) {
+                                        return this._cachedObjects.get(p_key.part(current));
+                                    }
+                                    else {
+                                        return null;
+                                    }
                                 }
                                 else {
                                     if (this._nestedLayers != null) {
@@ -2680,7 +2685,6 @@ var org;
                                     var needUniverseCopy = accessMode.equals(org.kevoree.modeling.api.data.manager.AccessMode.WRITE) && (resolvedUniverse != origin.universe().key());
                                     var entry = this._cache.get(org.kevoree.modeling.api.data.cache.KContentKey.createObject(resolvedUniverse, resolvedTime, origin.uuid()));
                                     if (entry == null) {
-                                        System.err.println(DefaultKDataManager.OUT_OF_CACHE_MESSAGE);
                                         return null;
                                     }
                                     if (accessMode.equals(org.kevoree.modeling.api.data.manager.AccessMode.DELETE)) {
@@ -2695,6 +2699,7 @@ var org;
                                     }
                                     else {
                                         var clonedEntry = entry.clone();
+                                        this._cache.put(org.kevoree.modeling.api.data.cache.KContentKey.createObject(origin.universe().key(), origin.now(), origin.uuid()), clonedEntry);
                                         if (!needUniverseCopy) {
                                             timeTree.insert(origin.now());
                                         }
@@ -2704,7 +2709,6 @@ var org;
                                             this._cache.put(org.kevoree.modeling.api.data.cache.KContentKey.createTimeTree(origin.universe().key(), origin.uuid()), newTemporalTree);
                                             objectUniverseTree.put(origin.universe().key(), origin.now());
                                         }
-                                        this._cache.put(org.kevoree.modeling.api.data.cache.KContentKey.createObject(origin.universe().key(), origin.now(), origin.uuid()), clonedEntry);
                                         entry.dec();
                                         return clonedEntry;
                                     }
@@ -7206,6 +7210,9 @@ var org;
                             this._previousOrEqualsCacheValues = null;
                             this._counter = 0;
                             this._dirty = false;
+                            this._previousOrEqualsCacheKeys = new Array();
+                            this._previousOrEqualsCacheValues = new Array();
+                            this._nextCacheElem = 0;
                         }
                         IndexRBTree.prototype.size = function () {
                             return this._size;
@@ -7221,7 +7228,7 @@ var org;
                         };
                         IndexRBTree.prototype.tryPreviousOrEqualsCache = function (key) {
                             if (this._previousOrEqualsCacheKeys != null && this._previousOrEqualsCacheValues != null) {
-                                for (var i = 0; i < org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE; i++) {
+                                for (var i = 0; i < this._nextCacheElem; i++) {
                                     if (this._previousOrEqualsCacheKeys[i] != null && key == this._previousOrEqualsCacheKeys[i]) {
                                         return this._previousOrEqualsCacheValues[i];
                                     }
@@ -7233,20 +7240,11 @@ var org;
                             }
                         };
                         IndexRBTree.prototype.resetCache = function () {
-                            this._previousOrEqualsCacheKeys = null;
-                            this._previousOrEqualsCacheValues = null;
                             this._nextCacheElem = 0;
                         };
                         IndexRBTree.prototype.putInPreviousOrEqualsCache = function (key, resolved) {
-                            if (this._previousOrEqualsCacheKeys == null || this._previousOrEqualsCacheValues == null) {
-                                this._previousOrEqualsCacheKeys = new Array();
-                                this._previousOrEqualsCacheValues = new Array();
+                            if (this._nextCacheElem == org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE) {
                                 this._nextCacheElem = 0;
-                            }
-                            else {
-                                if (this._nextCacheElem == org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE) {
-                                    this._nextCacheElem = 0;
-                                }
                             }
                             this._previousOrEqualsCacheKeys[this._nextCacheElem] = key;
                             this._previousOrEqualsCacheValues[this._nextCacheElem] = resolved;
@@ -7717,6 +7715,12 @@ var org;
                             this._previousOrEqualsCacheValues = null;
                             this._lookupCacheKeys = null;
                             this._lookupCacheValues = null;
+                            this._lookupCacheKeys = new Array();
+                            this._lookupCacheValues = new Array();
+                            this._previousOrEqualsCacheKeys = new Array();
+                            this._previousOrEqualsCacheValues = new Array();
+                            this._previousOrEqualsNextCacheElem = 0;
+                            this._lookupNextCacheElem = 0;
                         }
                         LongRBTree.prototype.size = function () {
                             return this._size;
@@ -7746,7 +7750,7 @@ var org;
                         };
                         LongRBTree.prototype.tryPreviousOrEqualsCache = function (key) {
                             if (this._previousOrEqualsCacheKeys != null && this._previousOrEqualsCacheValues != null) {
-                                for (var i = 0; i < org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE; i++) {
+                                for (var i = 0; i < this._previousOrEqualsNextCacheElem; i++) {
                                     if (this._previousOrEqualsCacheKeys[i] != null && key == this._previousOrEqualsCacheKeys[i]) {
                                         return this._previousOrEqualsCacheValues[i];
                                     }
@@ -7756,7 +7760,7 @@ var org;
                         };
                         LongRBTree.prototype.tryLookupCache = function (key) {
                             if (this._lookupCacheKeys != null && this._lookupCacheValues != null) {
-                                for (var i = 0; i < org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE; i++) {
+                                for (var i = 0; i < this._lookupNextCacheElem; i++) {
                                     if (this._lookupCacheKeys[i] != null && key == this._lookupCacheKeys[i]) {
                                         return this._lookupCacheValues[i];
                                     }
@@ -7765,42 +7769,24 @@ var org;
                             return null;
                         };
                         LongRBTree.prototype.resetCache = function () {
-                            this._previousOrEqualsCacheKeys = null;
-                            this._previousOrEqualsCacheValues = null;
-                            this._lookupCacheKeys = null;
-                            this._lookupCacheValues = null;
-                            this._nextCacheElem = 0;
-                            this._lookupCacheElem = 0;
+                            this._previousOrEqualsNextCacheElem = 0;
+                            this._lookupNextCacheElem = 0;
                         };
                         LongRBTree.prototype.putInPreviousOrEqualsCache = function (key, resolved) {
-                            if (this._previousOrEqualsCacheKeys == null || this._previousOrEqualsCacheValues == null) {
-                                this._previousOrEqualsCacheKeys = new Array();
-                                this._previousOrEqualsCacheValues = new Array();
-                                this._nextCacheElem = 0;
+                            if (this._previousOrEqualsNextCacheElem == org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE) {
+                                this._previousOrEqualsNextCacheElem = 0;
                             }
-                            else {
-                                if (this._nextCacheElem == org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE) {
-                                    this._nextCacheElem = 0;
-                                }
-                            }
-                            this._previousOrEqualsCacheKeys[this._nextCacheElem] = key;
-                            this._previousOrEqualsCacheValues[this._nextCacheElem] = resolved;
-                            this._nextCacheElem++;
+                            this._previousOrEqualsCacheKeys[this._previousOrEqualsNextCacheElem] = key;
+                            this._previousOrEqualsCacheValues[this._previousOrEqualsNextCacheElem] = resolved;
+                            this._previousOrEqualsNextCacheElem++;
                         };
                         LongRBTree.prototype.putInLookupCache = function (key, resolved) {
-                            if (this._lookupCacheKeys == null || this._lookupCacheValues == null) {
-                                this._lookupCacheKeys = new Array();
-                                this._lookupCacheValues = new Array();
-                                this._lookupCacheElem = 0;
+                            if (this._lookupNextCacheElem == org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE) {
+                                this._lookupNextCacheElem = 0;
                             }
-                            else {
-                                if (this._lookupCacheElem == org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE) {
-                                    this._lookupCacheElem = 0;
-                                }
-                            }
-                            this._lookupCacheKeys[this._lookupCacheElem] = key;
-                            this._lookupCacheValues[this._lookupCacheElem] = resolved;
-                            this._lookupCacheElem++;
+                            this._lookupCacheKeys[this._lookupNextCacheElem] = key;
+                            this._lookupCacheValues[this._lookupNextCacheElem] = resolved;
+                            this._lookupNextCacheElem++;
                         };
                         LongRBTree.prototype.setClean = function () {
                             this._dirty = false;

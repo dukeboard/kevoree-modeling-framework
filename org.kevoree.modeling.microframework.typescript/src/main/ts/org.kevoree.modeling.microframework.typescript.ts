@@ -2319,7 +2319,11 @@ module org {
 
                             public resolve(p_key: org.kevoree.modeling.api.data.cache.KContentKey, current: number): org.kevoree.modeling.api.data.cache.KCacheObject {
                                 if (current == org.kevoree.modeling.api.KConfig.KEY_SIZE - 1) {
-                                    return this._cachedObjects.get(p_key.part(current));
+                                    if (this._cachedObjects != null) {
+                                        return this._cachedObjects.get(p_key.part(current));
+                                    } else {
+                                        return null;
+                                    }
                                 } else {
                                     if (this._nestedLayers != null) {
                                         var nextLayer: org.kevoree.modeling.api.data.cache.KCacheLayer = this._nestedLayers.get(p_key.part(current));
@@ -3206,7 +3210,6 @@ module org {
                                     var needUniverseCopy: boolean = accessMode.equals(org.kevoree.modeling.api.data.manager.AccessMode.WRITE) && (resolvedUniverse != origin.universe().key());
                                     var entry: org.kevoree.modeling.api.data.cache.KCacheEntry = <org.kevoree.modeling.api.data.cache.KCacheEntry>this._cache.get(org.kevoree.modeling.api.data.cache.KContentKey.createObject(resolvedUniverse, resolvedTime, origin.uuid()));
                                     if (entry == null) {
-                                        System.err.println(DefaultKDataManager.OUT_OF_CACHE_MESSAGE);
                                         return null;
                                     }
                                     if (accessMode.equals(org.kevoree.modeling.api.data.manager.AccessMode.DELETE)) {
@@ -3220,6 +3223,7 @@ module org {
                                         return entry;
                                     } else {
                                         var clonedEntry: org.kevoree.modeling.api.data.cache.KCacheEntry = entry.clone();
+                                        this._cache.put(org.kevoree.modeling.api.data.cache.KContentKey.createObject(origin.universe().key(), origin.now(), origin.uuid()), clonedEntry);
                                         if (!needUniverseCopy) {
                                             timeTree.insert(origin.now());
                                         } else {
@@ -3228,7 +3232,6 @@ module org {
                                             this._cache.put(org.kevoree.modeling.api.data.cache.KContentKey.createTimeTree(origin.universe().key(), origin.uuid()), newTemporalTree);
                                             objectUniverseTree.put(origin.universe().key(), origin.now());
                                         }
-                                        this._cache.put(org.kevoree.modeling.api.data.cache.KContentKey.createObject(origin.universe().key(), origin.now(), origin.uuid()), clonedEntry);
                                         entry.dec();
                                         return clonedEntry;
                                     }
@@ -7986,9 +7989,15 @@ module org {
                             this._counter--;
                         }
 
+                        constructor() {
+                            this._previousOrEqualsCacheKeys = new Array();
+                            this._previousOrEqualsCacheValues = new Array();
+                            this._nextCacheElem = 0;
+                        }
+
                         private tryPreviousOrEqualsCache(key: number): org.kevoree.modeling.api.rbtree.TreeNode {
                             if (this._previousOrEqualsCacheKeys != null && this._previousOrEqualsCacheValues != null) {
-                                for (var i: number = 0; i < org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE; i++) {
+                                for (var i: number = 0; i < this._nextCacheElem; i++) {
                                     if (this._previousOrEqualsCacheKeys[i] != null && key == this._previousOrEqualsCacheKeys[i]) {
                                         return this._previousOrEqualsCacheValues[i];
                                     }
@@ -8000,20 +8009,12 @@ module org {
                         }
 
                         private resetCache(): void {
-                            this._previousOrEqualsCacheKeys = null;
-                            this._previousOrEqualsCacheValues = null;
                             this._nextCacheElem = 0;
                         }
 
                         private putInPreviousOrEqualsCache(key: number, resolved: org.kevoree.modeling.api.rbtree.TreeNode): void {
-                            if (this._previousOrEqualsCacheKeys == null || this._previousOrEqualsCacheValues == null) {
-                                this._previousOrEqualsCacheKeys = new Array();
-                                this._previousOrEqualsCacheValues = new Array();
+                            if (this._nextCacheElem == org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE) {
                                 this._nextCacheElem = 0;
-                            } else {
-                                if (this._nextCacheElem == org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE) {
-                                    this._nextCacheElem = 0;
-                                }
                             }
                             this._previousOrEqualsCacheKeys[this._nextCacheElem] = key;
                             this._previousOrEqualsCacheValues[this._nextCacheElem] = resolved;
@@ -8472,10 +8473,10 @@ module org {
                         private _counter: number = 0;
                         private _previousOrEqualsCacheKeys: number[] = null;
                         private _previousOrEqualsCacheValues: org.kevoree.modeling.api.rbtree.LongTreeNode[] = null;
-                        private _nextCacheElem: number;
+                        private _previousOrEqualsNextCacheElem: number;
                         private _lookupCacheKeys: number[] = null;
                         private _lookupCacheValues: org.kevoree.modeling.api.rbtree.LongTreeNode[] = null;
-                        private _lookupCacheElem: number;
+                        private _lookupNextCacheElem: number;
                         public size(): number {
                             return this._size;
                         }
@@ -8509,9 +8510,18 @@ module org {
                             return builder.toString();
                         }
 
+                        constructor() {
+                            this._lookupCacheKeys = new Array();
+                            this._lookupCacheValues = new Array();
+                            this._previousOrEqualsCacheKeys = new Array();
+                            this._previousOrEqualsCacheValues = new Array();
+                            this._previousOrEqualsNextCacheElem = 0;
+                            this._lookupNextCacheElem = 0;
+                        }
+
                         private tryPreviousOrEqualsCache(key: number): org.kevoree.modeling.api.rbtree.LongTreeNode {
                             if (this._previousOrEqualsCacheKeys != null && this._previousOrEqualsCacheValues != null) {
-                                for (var i: number = 0; i < org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE; i++) {
+                                for (var i: number = 0; i < this._previousOrEqualsNextCacheElem; i++) {
                                     if (this._previousOrEqualsCacheKeys[i] != null && key == this._previousOrEqualsCacheKeys[i]) {
                                         return this._previousOrEqualsCacheValues[i];
                                     }
@@ -8522,7 +8532,7 @@ module org {
 
                         private tryLookupCache(key: number): org.kevoree.modeling.api.rbtree.LongTreeNode {
                             if (this._lookupCacheKeys != null && this._lookupCacheValues != null) {
-                                for (var i: number = 0; i < org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE; i++) {
+                                for (var i: number = 0; i < this._lookupNextCacheElem; i++) {
                                     if (this._lookupCacheKeys[i] != null && key == this._lookupCacheKeys[i]) {
                                         return this._lookupCacheValues[i];
                                     }
@@ -8532,42 +8542,26 @@ module org {
                         }
 
                         private resetCache(): void {
-                            this._previousOrEqualsCacheKeys = null;
-                            this._previousOrEqualsCacheValues = null;
-                            this._lookupCacheKeys = null;
-                            this._lookupCacheValues = null;
-                            this._nextCacheElem = 0;
-                            this._lookupCacheElem = 0;
+                            this._previousOrEqualsNextCacheElem = 0;
+                            this._lookupNextCacheElem = 0;
                         }
 
                         private putInPreviousOrEqualsCache(key: number, resolved: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
-                            if (this._previousOrEqualsCacheKeys == null || this._previousOrEqualsCacheValues == null) {
-                                this._previousOrEqualsCacheKeys = new Array();
-                                this._previousOrEqualsCacheValues = new Array();
-                                this._nextCacheElem = 0;
-                            } else {
-                                if (this._nextCacheElem == org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE) {
-                                    this._nextCacheElem = 0;
-                                }
+                            if (this._previousOrEqualsNextCacheElem == org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE) {
+                                this._previousOrEqualsNextCacheElem = 0;
                             }
-                            this._previousOrEqualsCacheKeys[this._nextCacheElem] = key;
-                            this._previousOrEqualsCacheValues[this._nextCacheElem] = resolved;
-                            this._nextCacheElem++;
+                            this._previousOrEqualsCacheKeys[this._previousOrEqualsNextCacheElem] = key;
+                            this._previousOrEqualsCacheValues[this._previousOrEqualsNextCacheElem] = resolved;
+                            this._previousOrEqualsNextCacheElem++;
                         }
 
                         private putInLookupCache(key: number, resolved: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
-                            if (this._lookupCacheKeys == null || this._lookupCacheValues == null) {
-                                this._lookupCacheKeys = new Array();
-                                this._lookupCacheValues = new Array();
-                                this._lookupCacheElem = 0;
-                            } else {
-                                if (this._lookupCacheElem == org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE) {
-                                    this._lookupCacheElem = 0;
-                                }
+                            if (this._lookupNextCacheElem == org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE) {
+                                this._lookupNextCacheElem = 0;
                             }
-                            this._lookupCacheKeys[this._lookupCacheElem] = key;
-                            this._lookupCacheValues[this._lookupCacheElem] = resolved;
-                            this._lookupCacheElem++;
+                            this._lookupCacheKeys[this._lookupNextCacheElem] = key;
+                            this._lookupCacheValues[this._lookupNextCacheElem] = resolved;
+                            this._lookupNextCacheElem++;
                         }
 
                         public setClean(): void {
