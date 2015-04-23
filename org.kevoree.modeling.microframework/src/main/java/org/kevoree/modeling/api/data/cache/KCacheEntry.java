@@ -52,7 +52,7 @@ public class KCacheEntry implements KCacheObject {
 
     @Override
     public String serialize() {
-        return JsonRaw.encode(this, KConfig.NULL_LONG, metaClass, true, false);
+        return JsonRaw.encode(this, KConfig.NULL_LONG, metaClass, false);
     }
 
     @Override

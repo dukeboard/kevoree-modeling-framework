@@ -251,6 +251,7 @@ declare module org {
                     }
                     class AbstractKDeferWrapper<A> extends org.kevoree.modeling.api.abs.AbstractKDefer<any> {
                         private _callback;
+                        private static FORBIDDEN_TASK;
                         constructor();
                         initCallback(): (p: A) => void;
                         wait(previous: org.kevoree.modeling.api.KDefer<any>): org.kevoree.modeling.api.KDefer<any>;
@@ -283,6 +284,7 @@ declare module org {
                         private _view;
                         private _uuid;
                         private _metaClass;
+                        private static OUT_OF_CACHE_MSG;
                         constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_metaClass: org.kevoree.modeling.api.meta.MetaClass);
                         view(): org.kevoree.modeling.api.KView;
                         uuid(): number;
@@ -693,7 +695,7 @@ declare module org {
                         class JsonRaw {
                             static SEP: string;
                             static decode(payload: string, now: number, metaModel: org.kevoree.modeling.api.meta.MetaModel, entry: org.kevoree.modeling.api.data.cache.KCacheEntry): boolean;
-                            static encode(raw: org.kevoree.modeling.api.data.cache.KCacheEntry, uuid: number, p_metaClass: org.kevoree.modeling.api.meta.MetaClass, endline: boolean, isRoot: boolean): string;
+                            static encode(raw: org.kevoree.modeling.api.data.cache.KCacheEntry, uuid: number, p_metaClass: org.kevoree.modeling.api.meta.MetaClass, isRoot: boolean): string;
                         }
                         interface KDataManager {
                             cdn(): org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
@@ -1029,7 +1031,14 @@ declare module org {
                 }
                 module json {
                     class JsonFormat implements org.kevoree.modeling.api.ModelFormat {
+                        static KEY_META: string;
+                        static KEY_UUID: string;
+                        static KEY_ROOT: string;
+                        static PARENT_META: string;
+                        static PARENT_REF_META: string;
+                        static INBOUNDS_META: string;
                         private _view;
+                        private static NULL_PARAM_MSG;
                         constructor(p_view: org.kevoree.modeling.api.KView);
                         save(model: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any>;
                         saveRoot(): org.kevoree.modeling.api.KDefer<any>;
@@ -1041,12 +1050,6 @@ declare module org {
                         private static transposeArr(plainRawSet, p_mappedKeys);
                     }
                     class JsonModelSerializer {
-                        static KEY_META: string;
-                        static KEY_UUID: string;
-                        static KEY_ROOT: string;
-                        static PARENT_META: string;
-                        static PARENT_REF_META: string;
-                        static INBOUNDS_META: string;
                         static serialize(model: org.kevoree.modeling.api.KObject, callback: (p: string) => void): void;
                         static printJSON(elem: org.kevoree.modeling.api.KObject, builder: java.lang.StringBuilder, isRoot: boolean): void;
                     }

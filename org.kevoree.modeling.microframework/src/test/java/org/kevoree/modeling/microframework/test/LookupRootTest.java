@@ -7,9 +7,6 @@ import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.data.cdn.MemoryKContentDeliveryDriver;
 import org.kevoree.modeling.microframework.test.cloud.*;
 
-/**
- * Created by thomas on 06/01/15.
- */
 public class LookupRootTest {
 
     @Test

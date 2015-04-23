@@ -691,6 +691,7 @@ module org {
                     export class AbstractKDeferWrapper<A> extends org.kevoree.modeling.api.abs.AbstractKDefer<any> {
 
                         private _callback: (p : A) => void = null;
+                        private static FORBIDDEN_TASK: string = "Await and SetJob actions are forbidden on wrapped tasks, please create a sub defer";
                         constructor() {
                             super();
                             var selfPointer: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = this;
@@ -706,11 +707,11 @@ module org {
                         }
 
                         public wait(previous: org.kevoree.modeling.api.KDefer<any>): org.kevoree.modeling.api.KDefer<any> {
-                            throw new java.lang.RuntimeException("Wait action is forbidden on wrapped tasks, please create a sub defer");
+                            throw new java.lang.RuntimeException(AbstractKDeferWrapper.FORBIDDEN_TASK);
                         }
 
                         public setJob(p_kjob: (p : org.kevoree.modeling.api.KCurrentDefer<any>) => void): org.kevoree.modeling.api.KDefer<any> {
-                            throw new java.lang.RuntimeException("setJob action is forbidden on wrapped tasks, please create a sub defer");
+                            throw new java.lang.RuntimeException(AbstractKDeferWrapper.FORBIDDEN_TASK);
                         }
 
                         public ready(): org.kevoree.modeling.api.KDefer<any> {
@@ -818,6 +819,7 @@ module org {
                         private _view: org.kevoree.modeling.api.KView;
                         private _uuid: number;
                         private _metaClass: org.kevoree.modeling.api.meta.MetaClass;
+                        private static OUT_OF_CACHE_MSG: string = "Out of cache Error";
                         constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
                             this._view = p_view;
                             this._uuid = p_uuid;
@@ -885,7 +887,7 @@ module org {
                             var toRemove: org.kevoree.modeling.api.KObject = this;
                             var rawPayload: org.kevoree.modeling.api.data.cache.KCacheEntry = this._view.universe().model().manager().entry(this, org.kevoree.modeling.api.data.manager.AccessMode.DELETE);
                             if (rawPayload == null) {
-                                task.initCallback()(new java.lang.Exception("Out of cache Error"));
+                                task.initCallback()(new java.lang.Exception(AbstractKObject.OUT_OF_CACHE_MSG));
                             } else {
                                 var inboundsKeys: number[] = rawPayload.getRef(org.kevoree.modeling.api.data.manager.Index.INBOUNDS_INDEX);
                                 if (inboundsKeys != null) {
@@ -908,7 +910,7 @@ module org {
                                         }
                                      }
                                 } else {
-                                    task.initCallback()(new java.lang.Exception("Out of cache error"));
+                                    task.initCallback()(new java.lang.Exception(AbstractKObject.OUT_OF_CACHE_MSG));
                                 }
                             }
                             return task;
@@ -1344,9 +1346,9 @@ module org {
                         public toJSON(): string {
                             var raw: org.kevoree.modeling.api.data.cache.KCacheEntry = this.view().universe().model().manager().entry(this, org.kevoree.modeling.api.data.manager.AccessMode.READ);
                             if (raw != null) {
-                                return org.kevoree.modeling.api.data.manager.JsonRaw.encode(raw, this._uuid, this._metaClass, true, false);
+                                return org.kevoree.modeling.api.data.manager.JsonRaw.encode(raw, this._uuid, this._metaClass, false);
                             } else {
-                                return "";
+                                return null;
                             }
                         }
 
@@ -2213,7 +2215,7 @@ module org {
                             }
 
                             public serialize(): string {
-                                return org.kevoree.modeling.api.data.manager.JsonRaw.encode(this, org.kevoree.modeling.api.KConfig.NULL_LONG, this.metaClass, true, false);
+                                return org.kevoree.modeling.api.data.manager.JsonRaw.encode(this, org.kevoree.modeling.api.KConfig.NULL_LONG, this.metaClass, false);
                             }
 
                             public setClean(): void {
@@ -3509,14 +3511,14 @@ module org {
                                 }
                                 var objectReader: org.kevoree.modeling.api.json.JsonObjectReader = new org.kevoree.modeling.api.json.JsonObjectReader();
                                 objectReader.parseObject(payload);
-                                if (objectReader.get(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_META) == null) {
+                                if (objectReader.get(org.kevoree.modeling.api.json.JsonFormat.KEY_META) == null) {
                                     return false;
                                 } else {
-                                    entry.metaClass = metaModel.metaClass(objectReader.get(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_META).toString());
+                                    entry.metaClass = metaModel.metaClass(objectReader.get(org.kevoree.modeling.api.json.JsonFormat.KEY_META).toString());
                                     entry.initRaw(org.kevoree.modeling.api.data.manager.Index.RESERVED_INDEXES + entry.metaClass.metaElements().length);
                                     var metaKeys: string[] = objectReader.keys();
                                     for (var i: number = 0; i < metaKeys.length; i++) {
-                                        if (metaKeys[i].equals(org.kevoree.modeling.api.json.JsonModelSerializer.INBOUNDS_META)) {
+                                        if (metaKeys[i].equals(org.kevoree.modeling.api.json.JsonFormat.INBOUNDS_META)) {
                                             try {
                                                 var raw_keys: string[] = objectReader.getAsStringArray(metaKeys[i]);
                                                 var inbounds: number[] = new Array();
@@ -3538,7 +3540,7 @@ module org {
                                                 }
                                              }
                                         } else {
-                                            if (metaKeys[i].equals(org.kevoree.modeling.api.json.JsonModelSerializer.PARENT_META)) {
+                                            if (metaKeys[i].equals(org.kevoree.modeling.api.json.JsonFormat.PARENT_META)) {
                                                 try {
                                                     var parentKeyStrings: string[] = objectReader.getAsStringArray(metaKeys[i]);
                                                     var parentKey: number[] = new Array();
@@ -3553,7 +3555,7 @@ module org {
                                                     }
                                                  }
                                             } else {
-                                                if (metaKeys[i].equals(org.kevoree.modeling.api.json.JsonModelSerializer.PARENT_REF_META)) {
+                                                if (metaKeys[i].equals(org.kevoree.modeling.api.json.JsonFormat.PARENT_REF_META)) {
                                                     try {
                                                         var raw_payload_ref: string = objectReader.get(metaKeys[i]).toString();
                                                         var elemsRefs: string[] = raw_payload_ref.split(JsonRaw.SEP);
@@ -3612,127 +3614,30 @@ module org {
                                 }
                             }
 
-                            public static encode(raw: org.kevoree.modeling.api.data.cache.KCacheEntry, uuid: number, p_metaClass: org.kevoree.modeling.api.meta.MetaClass, endline: boolean, isRoot: boolean): string {
-                                var metaElements: org.kevoree.modeling.api.meta.Meta[] = p_metaClass.metaElements();
-                                var builder: java.lang.StringBuilder = new java.lang.StringBuilder();
-                                builder.append("\t{\n");
-                                builder.append("\t\t\"" + org.kevoree.modeling.api.json.JsonModelSerializer.KEY_META + "\": \"");
-                                builder.append(p_metaClass.metaName());
-                                builder.append("\"");
-                                if (uuid != org.kevoree.modeling.api.KConfig.NULL_LONG) {
-                                    builder.append(",\n");
-                                    builder.append("\t\t\"" + org.kevoree.modeling.api.json.JsonModelSerializer.KEY_UUID + "\": \"");
-                                    builder.append(uuid);
-                                    builder.append("\"");
-                                }
-                                if (isRoot) {
-                                    builder.append(",\n");
-                                    builder.append("\t\t\"" + org.kevoree.modeling.api.json.JsonModelSerializer.KEY_ROOT + "\": \"");
-                                    builder.append("true");
-                                    builder.append("\"");
-                                }
-                                var parentKey: number[] = raw.getRef(org.kevoree.modeling.api.data.manager.Index.PARENT_INDEX);
-                                if (parentKey != null) {
-                                    builder.append(",\n");
-                                    builder.append("\t\t\"" + org.kevoree.modeling.api.json.JsonModelSerializer.PARENT_META + "\": [");
-                                    var isFirst: boolean = true;
-                                    for (var j: number = 0; j < parentKey.length; j++) {
-                                        if (!isFirst) {
-                                            builder.append(",");
-                                        }
-                                        builder.append("\"");
-                                        builder.append(parentKey[j]);
-                                        builder.append("\"");
-                                        isFirst = false;
-                                    }
-                                    builder.append("]");
-                                }
-                                if (raw.get(org.kevoree.modeling.api.data.manager.Index.REF_IN_PARENT_INDEX) != null) {
-                                    builder.append(",\n");
-                                    builder.append("\t\t\"" + org.kevoree.modeling.api.json.JsonModelSerializer.PARENT_REF_META + "\": \"");
-                                    try {
-                                        builder.append((<org.kevoree.modeling.api.meta.MetaReference>raw.get(org.kevoree.modeling.api.data.manager.Index.REF_IN_PARENT_INDEX)).origin().metaName());
-                                        builder.append(JsonRaw.SEP);
-                                        builder.append((<org.kevoree.modeling.api.meta.MetaReference>raw.get(org.kevoree.modeling.api.data.manager.Index.REF_IN_PARENT_INDEX)).metaName());
-                                    } catch ($ex$) {
-                                        if ($ex$ instanceof java.lang.Exception) {
-                                            var e: java.lang.Exception = <java.lang.Exception>$ex$;
-                                            e.printStackTrace();
-                                        }
-                                     }
-                                    builder.append("\"");
-                                }
-                                if (raw.get(org.kevoree.modeling.api.data.manager.Index.INBOUNDS_INDEX) != null) {
-                                    builder.append(",\n");
-                                    builder.append("\t\t\"" + org.kevoree.modeling.api.json.JsonModelSerializer.INBOUNDS_META + "\": [");
-                                    try {
-                                        var elemsInRaw: number[] = <number[]>raw.get(org.kevoree.modeling.api.data.manager.Index.INBOUNDS_INDEX);
-                                        var isFirst: boolean = true;
-                                        for (var j: number = 0; j < elemsInRaw.length; j++) {
-                                            if (!isFirst) {
-                                                builder.append(",");
-                                            }
-                                            builder.append("\"");
-                                            builder.append(elemsInRaw[j]);
-                                            builder.append("\"");
-                                            isFirst = false;
-                                        }
-                                    } catch ($ex$) {
-                                        if ($ex$ instanceof java.lang.Exception) {
-                                            var e: java.lang.Exception = <java.lang.Exception>$ex$;
-                                            e.printStackTrace();
-                                        }
-                                     }
-                                    builder.append("]");
-                                }
-                                for (var i: number = 0; i < metaElements.length; i++) {
-                                    if (metaElements[i] != null && metaElements[i].metaType().equals(org.kevoree.modeling.api.meta.MetaType.ATTRIBUTE)) {
-                                        var payload_res: any = raw.get(metaElements[i].index());
-                                        if (payload_res != null) {
-                                            if ((<org.kevoree.modeling.api.meta.MetaAttribute>metaElements[i]).attributeType() != org.kevoree.modeling.api.meta.PrimitiveTypes.TRANSIENT) {
-                                                var attrsPayload: string = (<org.kevoree.modeling.api.meta.MetaAttribute>metaElements[i]).strategy().save(payload_res, <org.kevoree.modeling.api.meta.MetaAttribute>metaElements[i]);
-                                                if (attrsPayload != null) {
-                                                    builder.append(",\n");
-                                                    builder.append("\t\t");
-                                                    builder.append("\"");
-                                                    builder.append(metaElements[i].metaName());
-                                                    builder.append("\": \"");
-                                                    builder.append(attrsPayload);
-                                                    builder.append("\"");
-                                                }
-                                            }
-                                        }
-                                    } else {
-                                        if (metaElements[i] != null && metaElements[i].metaType().equals(org.kevoree.modeling.api.meta.MetaType.REFERENCE)) {
-                                            var refPayload: any = raw.get(metaElements[i].index());
-                                            if (refPayload != null) {
-                                                builder.append(",\n");
-                                                builder.append("\t\t");
-                                                builder.append("\"");
-                                                builder.append(metaElements[i].metaName());
-                                                builder.append("\":");
-                                                var elems: number[] = <number[]>refPayload;
-                                                builder.append(" [");
-                                                for (var j: number = 0; j < elems.length; j++) {
-                                                    builder.append("\"");
-                                                    builder.append(elems[j]);
-                                                    builder.append("\"");
-                                                    if (j != elems.length - 1) {
-                                                        builder.append(",");
-                                                    }
-                                                }
-                                                builder.append("]");
-                                            }
-                                        }
-                                    }
-                                }
-                                builder.append("\n");
-                                if (endline) {
-                                    builder.append("\t}\n");
-                                } else {
-                                    builder.append("\t}");
-                                }
-                                return builder.toString();
+                            public static encode(raw: org.kevoree.modeling.api.data.cache.KCacheEntry, uuid: number, p_metaClass: org.kevoree.modeling.api.meta.MetaClass, isRoot: boolean): string {
+                                 var builder = {};
+                                 builder[org.kevoree.modeling.api.json.JsonFormat.KEY_META] = p_metaClass.metaName();
+                                 if(uuid != null){ builder[org.kevoree.modeling.api.json.JsonFormat.KEY_UUID] = uuid; }
+                                 if(isRoot){ builder[org.kevoree.modeling.api.json.JsonFormat.KEY_ROOT] = true; }
+                                 var parentKey = raw.getRef(org.kevoree.modeling.api.data.manager.Index.PARENT_INDEX);
+                                 if(parentKey != null){ builder[org.kevoree.modeling.api.json.JsonFormat.PARENT_META] = parentKey; }
+                                 var refInParent = raw.get(org.kevoree.modeling.api.data.manager.Index.REF_IN_PARENT_INDEX);
+                                 if(refInParent != null){ builder[org.kevoree.modeling.api.json.JsonFormat.PARENT_REF_META] = refInParent.origin().metaName()+'@'+refInParent.metaName(); }
+                                 var inboundsKeys = raw.getRef(org.kevoree.modeling.api.data.manager.Index.INBOUNDS_INDEX);
+                                 if(inboundsKeys != null){ builder[org.kevoree.modeling.api.json.JsonFormat.INBOUNDS_META] = inboundsKeys; }
+                                 var metaElements = p_metaClass.metaElements();
+                                 var payload_res;
+                                 for (var i = 0; i < metaElements.length; i++) {
+                                 if (metaElements[i] != null && metaElements[i].metaType().equals(org.kevoree.modeling.api.meta.MetaType.ATTRIBUTE)) {
+                                 if(metaElements[i]['attributeType']() != org.kevoree.modeling.api.meta.PrimitiveTypes.TRANSIENT){
+                                    var attrsPayload = metaElements[i]['strategy']().save(payload_res, metaElements[i]);
+                                    builder[metaElements[i].metaName()] = attrsPayload;
+                                 }
+                                 } else {
+                                    builder[metaElements[i].metaName()] = payload_res;
+                                 }
+                                 }
+                                 return JSON.stringify(builder);
                             }
 
                         }
@@ -5635,7 +5540,14 @@ module org {
                 export module json {
                     export class JsonFormat implements org.kevoree.modeling.api.ModelFormat {
 
+                        public static KEY_META: string = "@meta";
+                        public static KEY_UUID: string = "@uuid";
+                        public static KEY_ROOT: string = "@root";
+                        public static PARENT_META: string = "@parent";
+                        public static PARENT_REF_META: string = "@ref";
+                        public static INBOUNDS_META: string = "@inbounds";
                         private _view: org.kevoree.modeling.api.KView;
+                        private static NULL_PARAM_MSG: string = "one parameter is null";
                         constructor(p_view: org.kevoree.modeling.api.KView) {
                             this._view = p_view;
                         }
@@ -5646,7 +5558,7 @@ module org {
                                 org.kevoree.modeling.api.json.JsonModelSerializer.serialize(model, wrapper.initCallback());
                                 return wrapper;
                             } else {
-                                throw new java.lang.RuntimeException("one parameter is null");
+                                throw new java.lang.RuntimeException(JsonFormat.NULL_PARAM_MSG);
                             }
                         }
 
@@ -5668,7 +5580,7 @@ module org {
                                 org.kevoree.modeling.api.json.JsonModelLoader.load(this._view, payload, wrapper.initCallback());
                                 return wrapper;
                             } else {
-                                throw new java.lang.RuntimeException("one parameter is null");
+                                throw new java.lang.RuntimeException(JsonFormat.NULL_PARAM_MSG);
                             }
                         }
 
@@ -5686,7 +5598,7 @@ module org {
                              var mappedKeys: org.kevoree.modeling.api.map.LongLongHashMap = new org.kevoree.modeling.api.map.LongLongHashMap(toLoadObj.length, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                              for(var i = 0; i < toLoadObj.length; i++) {
                              var elem = toLoadObj[i];
-                             var kid = elem[org.kevoree.modeling.api.json.JsonModelSerializer.KEY_UUID];
+                             var kid = elem[org.kevoree.modeling.api.json.JsonFormat.KEY_UUID];
                              mappedKeys.put(<number>kid, factory.universe().model().manager().nextObjectKey());
                              }
                              for(var i = 0; i < toLoadObj.length; i++) {
@@ -5702,14 +5614,14 @@ module org {
                         }
 
                         private static loadObj(p_param: org.kevoree.modeling.api.map.StringHashMap<any>, p_metaModel: org.kevoree.modeling.api.meta.MetaModel, p_factory: org.kevoree.modeling.api.KView, p_mappedKeys: org.kevoree.modeling.api.map.LongLongHashMap, p_rootElem: org.kevoree.modeling.api.KObject[]): void {
-                            var kid: number = java.lang.Long.parseLong(p_param.get(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_UUID).toString());
-                            var meta: string = p_param.get(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_META).toString();
+                            var kid: number = java.lang.Long.parseLong(p_param.get(org.kevoree.modeling.api.json.JsonFormat.KEY_UUID).toString());
+                            var meta: string = p_param.get(org.kevoree.modeling.api.json.JsonFormat.KEY_META).toString();
                             var metaClass: org.kevoree.modeling.api.meta.MetaClass = p_metaModel.metaClass(meta);
                             var current: org.kevoree.modeling.api.KObject = (<org.kevoree.modeling.api.abs.AbstractKView>p_factory).createProxy(metaClass, p_mappedKeys.get(kid));
                             p_factory.universe().model().manager().initKObject(current, p_factory);
                             var raw: org.kevoree.modeling.api.data.cache.KCacheEntry = p_factory.universe().model().manager().entry(current, org.kevoree.modeling.api.data.manager.AccessMode.WRITE);
                             p_param.each( (metaKey : string, payload_content : any) => {
-                                if (metaKey.equals(org.kevoree.modeling.api.json.JsonModelSerializer.INBOUNDS_META)) {
+                                if (metaKey.equals(org.kevoree.modeling.api.json.JsonFormat.INBOUNDS_META)) {
                                     try {
                                         raw.set(org.kevoree.modeling.api.data.manager.Index.INBOUNDS_INDEX, org.kevoree.modeling.api.json.JsonModelLoader.transposeArr(<java.util.ArrayList<string>>payload_content, p_mappedKeys));
                                     } catch ($ex$) {
@@ -5719,7 +5631,7 @@ module org {
                                         }
                                      }
                                 } else {
-                                    if (metaKey.equals(org.kevoree.modeling.api.json.JsonModelSerializer.PARENT_META)) {
+                                    if (metaKey.equals(org.kevoree.modeling.api.json.JsonFormat.PARENT_META)) {
                                         try {
                                             var parentKeys: java.util.ArrayList<string> = <java.util.ArrayList<string>>payload_content;
                                             var parentTransposed: number[] = org.kevoree.modeling.api.json.JsonModelLoader.transposeArr(parentKeys, p_mappedKeys);
@@ -5735,7 +5647,7 @@ module org {
                                             }
                                          }
                                     } else {
-                                        if (metaKey.equals(org.kevoree.modeling.api.json.JsonModelSerializer.PARENT_REF_META)) {
+                                        if (metaKey.equals(org.kevoree.modeling.api.json.JsonFormat.PARENT_REF_META)) {
                                             try {
                                                 var parentRef_payload: string = payload_content.toString();
                                                 var elems: string[] = parentRef_payload.split(org.kevoree.modeling.api.data.manager.JsonRaw.SEP);
@@ -5755,10 +5667,8 @@ module org {
                                                 }
                                              }
                                         } else {
-                                            if (metaKey.equals(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_ROOT)) {
-                                                if ("true".equals(payload_content)) {
-                                                    p_rootElem[0] = current;
-                                                }
+                                            if (metaKey.equals(org.kevoree.modeling.api.json.JsonFormat.KEY_ROOT)) {
+                                                p_rootElem[0] = current;
                                             } else {
                                                 var metaElement: org.kevoree.modeling.api.meta.Meta = metaClass.metaByName(metaKey);
                                                 if (payload_content != null) {
@@ -5806,12 +5716,6 @@ module org {
 
                     export class JsonModelSerializer {
 
-                        public static KEY_META: string = "@meta";
-                        public static KEY_UUID: string = "@uuid";
-                        public static KEY_ROOT: string = "@root";
-                        public static PARENT_META: string = "@parent";
-                        public static PARENT_REF_META: string = "@ref";
-                        public static INBOUNDS_META: string = "@inbounds";
                         public static serialize(model: org.kevoree.modeling.api.KObject, callback: (p : string) => void): void {
                             model.view().getRoot().then( (rootObj : org.kevoree.modeling.api.KObject) => {
                                 var isRoot: boolean = false;
@@ -5848,7 +5752,7 @@ module org {
                             if (elem != null) {
                                 var raw: org.kevoree.modeling.api.data.cache.KCacheEntry = elem.view().universe().model().manager().entry(elem, org.kevoree.modeling.api.data.manager.AccessMode.READ);
                                 if (raw != null) {
-                                    builder.append(org.kevoree.modeling.api.data.manager.JsonRaw.encode(raw, elem.uuid(), elem.metaClass(), false, isRoot));
+                                    builder.append(org.kevoree.modeling.api.data.manager.JsonRaw.encode(raw, elem.uuid(), elem.metaClass(), isRoot));
                                 }
                             }
                         }

@@ -4,7 +4,8 @@ import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
 import org.kevoree.modeling.api.abs.AbstractMetaReference;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
-import org.kevoree.modeling.api.json.*;
+import org.kevoree.modeling.api.json.JsonFormat;
+import org.kevoree.modeling.api.json.JsonObjectReader;
 import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
@@ -107,66 +108,80 @@ public class JsonRaw {
         }
     }
 
-    public static String encode(KCacheEntry raw, long uuid, MetaClass p_metaClass, boolean endline, boolean isRoot) {
-        Meta[] metaElements = p_metaClass.metaElements();
+    /**
+     * @native ts
+     * var builder = {};
+     * builder[org.kevoree.modeling.api.json.JsonFormat.KEY_META] = p_metaClass.metaName();
+     * if(uuid != null){ builder[org.kevoree.modeling.api.json.JsonFormat.KEY_UUID] = uuid; }
+     * if(isRoot){ builder[org.kevoree.modeling.api.json.JsonFormat.KEY_ROOT] = true; }
+     * var parentKey = raw.getRef(org.kevoree.modeling.api.data.manager.Index.PARENT_INDEX);
+     * if(parentKey != null){ builder[org.kevoree.modeling.api.json.JsonFormat.PARENT_META] = parentKey; }
+     * var refInParent = raw.get(org.kevoree.modeling.api.data.manager.Index.REF_IN_PARENT_INDEX);
+     * if(refInParent != null){ builder[org.kevoree.modeling.api.json.JsonFormat.PARENT_REF_META] = refInParent.origin().metaName()+'@'+refInParent.metaName(); }
+     * var inboundsKeys = raw.getRef(org.kevoree.modeling.api.data.manager.Index.INBOUNDS_INDEX);
+     * if(inboundsKeys != null){ builder[org.kevoree.modeling.api.json.JsonFormat.INBOUNDS_META] = inboundsKeys; }
+     * var metaElements = p_metaClass.metaElements();
+     * var payload_res;
+     * for (var i = 0; i < metaElements.length; i++) {
+     * if (metaElements[i] != null && metaElements[i].metaType().equals(org.kevoree.modeling.api.meta.MetaType.ATTRIBUTE)) {
+     * if(metaElements[i]['attributeType']() != org.kevoree.modeling.api.meta.PrimitiveTypes.TRANSIENT){
+     *    var attrsPayload = metaElements[i]['strategy']().save(payload_res, metaElements[i]);
+     *    builder[metaElements[i].metaName()] = attrsPayload;
+     * }
+     * } else {
+     *    builder[metaElements[i].metaName()] = payload_res;
+     * }
+     * }
+     * return JSON.stringify(builder);
+     */
+    public static String encode(KCacheEntry raw, long uuid, MetaClass p_metaClass, boolean isRoot) {
         StringBuilder builder = new StringBuilder();
-        builder.append("\t{\n");
-        builder.append("\t\t\"" + JsonFormat.KEY_META + "\": \"");
+        builder.append("{");
+        builder.append("\"" + JsonFormat.KEY_META + "\":\"");
         builder.append(p_metaClass.metaName());
         builder.append("\"");
         if (uuid != KConfig.NULL_LONG) {
-            builder.append(",\n");
-            builder.append("\t\t\"" + JsonFormat.KEY_UUID + "\": \"");
+            builder.append(",\"" + JsonFormat.KEY_UUID + "\":");
             builder.append(uuid);
-            builder.append("\"");
         }
         if (isRoot) {
-            builder.append(",\n");
-            builder.append("\t\t\"" + JsonFormat.KEY_ROOT + "\": \"");
-            builder.append("true");
-            builder.append("\"");
+            builder.append(",\"" + JsonFormat.KEY_ROOT + "\":true");
         }
         long[] parentKey = raw.getRef(Index.PARENT_INDEX);
         if (parentKey != null) {
-            builder.append(",\n");
-            builder.append("\t\t\"" + JsonFormat.PARENT_META + "\": [");
+            builder.append(",\"" + JsonFormat.PARENT_META + "\":[");
             boolean isFirst = true;
             for (int j = 0; j < parentKey.length; j++) {
                 if (!isFirst) {
                     builder.append(",");
                 }
-                builder.append("\"");
                 builder.append(parentKey[j]);
-                builder.append("\"");
                 isFirst = false;
             }
             builder.append("]");
         }
-        if (raw.get(Index.REF_IN_PARENT_INDEX) != null) {
-            builder.append(",\n");
-            builder.append("\t\t\"" + JsonFormat.PARENT_REF_META + "\": \"");
+        Object refInParent = raw.get(Index.REF_IN_PARENT_INDEX);
+        if (refInParent != null) {
+            builder.append(",\"" + JsonFormat.PARENT_REF_META + "\":\"");
             try {
-                builder.append(((MetaReference) raw.get(Index.REF_IN_PARENT_INDEX)).origin().metaName());
+                builder.append(((MetaReference) refInParent).origin().metaName());
                 builder.append(SEP);
-                builder.append(((MetaReference) raw.get(Index.REF_IN_PARENT_INDEX)).metaName());
+                builder.append(((MetaReference) refInParent).metaName());
             } catch (Exception e) {
                 e.printStackTrace();
             }
             builder.append("\"");
         }
-        if (raw.get(Index.INBOUNDS_INDEX) != null) {
-            builder.append(",\n");
-            builder.append("\t\t\"" + JsonFormat.INBOUNDS_META + "\": [");
+        long[] inboundsKeys = raw.getRef(Index.INBOUNDS_INDEX);
+        if (inboundsKeys != null) {
+            builder.append(",\"" + JsonFormat.INBOUNDS_META + "\":[");
             try {
-                long[] elemsInRaw = (long[]) raw.get(Index.INBOUNDS_INDEX);
                 boolean isFirst = true;
-                for (int j = 0; j < elemsInRaw.length; j++) {
+                for (int j = 0; j < inboundsKeys.length; j++) {
                     if (!isFirst) {
                         builder.append(",");
                     }
-                    builder.append("\"");
-                    builder.append(elemsInRaw[j]);
-                    builder.append("\"");
+                    builder.append(inboundsKeys[j]);
                     isFirst = false;
                 }
             } catch (Exception e) {
@@ -174,6 +189,7 @@ public class JsonRaw {
             }
             builder.append("]");
         }
+        Meta[] metaElements = p_metaClass.metaElements();
         for (int i = 0; i < metaElements.length; i++) {
             if (metaElements[i] != null && metaElements[i].metaType().equals(MetaType.ATTRIBUTE)) {
                 Object payload_res = raw.get(metaElements[i].index());
@@ -181,31 +197,24 @@ public class JsonRaw {
                     if (((MetaAttribute) metaElements[i]).attributeType() != PrimitiveTypes.TRANSIENT) {
                         String attrsPayload = ((MetaAttribute) metaElements[i]).strategy().save(payload_res, (MetaAttribute) metaElements[i]);
                         if (attrsPayload != null) {
-                            builder.append(",\n");
-                            builder.append("\t\t");
-                            builder.append("\"");
+                            builder.append(",\"");
                             builder.append(metaElements[i].metaName());
-                            builder.append("\": \"");
+                            builder.append("\":\"");
                             builder.append(attrsPayload);
                             builder.append("\"");
                         }
                     }
                 }
             } else if (metaElements[i] != null && metaElements[i].metaType().equals(MetaType.REFERENCE)) {
-                Object refPayload = raw.get(metaElements[i].index());
+                long[] refPayload = raw.getRef(metaElements[i].index());
                 if (refPayload != null) {
-                    builder.append(",\n");
-                    builder.append("\t\t");
-                    builder.append("\"");
+                    builder.append(",\"");
                     builder.append(metaElements[i].metaName());
                     builder.append("\":");
-                    long[] elems = (long[]) refPayload;
-                    builder.append(" [");
-                    for (int j = 0; j < elems.length; j++) {
-                        builder.append("\"");
-                        builder.append(elems[j]);
-                        builder.append("\"");
-                        if (j != elems.length - 1) {
+                    builder.append("[");
+                    for (int j = 0; j < refPayload.length; j++) {
+                        builder.append(refPayload[j]);
+                        if (j != refPayload.length - 1) {
                             builder.append(",");
                         }
                     }
@@ -213,12 +222,7 @@ public class JsonRaw {
                 }
             }
         }
-        builder.append("\n");
-        if (endline) {
-            builder.append("\t}\n");
-        } else {
-            builder.append("\t}");
-        }
+        builder.append("}");
         return builder.toString();
     }
 

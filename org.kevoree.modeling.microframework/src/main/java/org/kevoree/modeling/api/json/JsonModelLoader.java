@@ -35,7 +35,7 @@ public class JsonModelLoader {
      * var mappedKeys: org.kevoree.modeling.api.map.LongLongHashMap = new org.kevoree.modeling.api.map.LongLongHashMap(toLoadObj.length, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
      * for(var i = 0; i < toLoadObj.length; i++) {
      * var elem = toLoadObj[i];
-     * var kid = elem[org.kevoree.modeling.api.json.JsonModelSerializer.KEY_UUID];
+     * var kid = elem[org.kevoree.modeling.api.json.JsonFormat.KEY_UUID];
      * mappedKeys.put(<number>kid, factory.universe().model().manager().nextObjectKey());
      * }
      * for(var i = 0; i < toLoadObj.length; i++) {
@@ -172,9 +172,9 @@ public class JsonModelLoader {
                         e.printStackTrace();
                     }
                 } else if (metaKey.equals(JsonFormat.KEY_ROOT)) {
-                    if ("true".equals(payload_content)) {
+                    //if ("true".equals(payload_content) || true == payload_content) {
                         p_rootElem[0] = current;
-                    }
+                    //}
                 } else {
                     Meta metaElement = metaClass.metaByName(metaKey);
                     if (payload_content != null) {

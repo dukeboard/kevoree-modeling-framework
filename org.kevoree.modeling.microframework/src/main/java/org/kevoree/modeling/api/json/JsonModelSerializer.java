@@ -53,7 +53,7 @@ public class JsonModelSerializer {
         if (elem != null) {
             KCacheEntry raw = elem.view().universe().model().manager().entry(elem, AccessMode.READ);
             if (raw != null) {
-                builder.append(JsonRaw.encode(raw, elem.uuid(), elem.metaClass(), false, isRoot));
+                builder.append(JsonRaw.encode(raw, elem.uuid(), elem.metaClass(), isRoot));
             }
         }
     }
