@@ -10,11 +10,25 @@ import org.kevoree.modeling.api.util.Checker;
 
 public class JsonFormat implements ModelFormat {
 
+    public static final String KEY_META = "@meta";
+
+    public static final String KEY_UUID = "@uuid";
+
+    public static final String KEY_ROOT = "@root";
+
+    public static final String PARENT_META = "@parent";
+
+    public static final String PARENT_REF_META = "@ref";
+
+    public static final String INBOUNDS_META = "@inbounds";
+
     private KView _view;
 
     public JsonFormat(KView p_view) {
         this._view = p_view;
     }
+
+    private static final String NULL_PARAM_MSG = "one parameter is null";
 
     @Override
     public KDefer<String> save(KObject model) {
@@ -23,7 +37,7 @@ public class JsonFormat implements ModelFormat {
             JsonModelSerializer.serialize(model, wrapper.initCallback());
             return wrapper;
         } else {
-            throw new RuntimeException("one parameter is null");
+            throw new RuntimeException(NULL_PARAM_MSG);
         }
     }
 
@@ -50,7 +64,7 @@ public class JsonFormat implements ModelFormat {
             JsonModelLoader.load(_view, payload, wrapper.initCallback());
             return wrapper;
         } else {
-            throw new RuntimeException("one parameter is null");
+            throw new RuntimeException(NULL_PARAM_MSG);
         }
     }
 

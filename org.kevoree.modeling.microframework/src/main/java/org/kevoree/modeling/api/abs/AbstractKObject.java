@@ -20,14 +20,12 @@ import org.kevoree.modeling.api.util.Checker;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by duke on 10/9/14.
- */
 public abstract class AbstractKObject implements KObject {
 
     private KView _view;
     private long _uuid;
     private MetaClass _metaClass;
+    private static final String OUT_OF_CACHE_MSG = "Out of cache Error";
 
     public AbstractKObject(KView p_view, long p_uuid, MetaClass p_metaClass) {
         this._view = p_view;
@@ -106,7 +104,7 @@ public abstract class AbstractKObject implements KObject {
         final KObject toRemove = this;
         KCacheEntry rawPayload = _view.universe().model().manager().entry(this, AccessMode.DELETE);
         if (rawPayload == null) {
-            task.initCallback().on(new Exception("Out of cache Error"));
+            task.initCallback().on(new Exception(OUT_OF_CACHE_MSG));
         } else {
             long[] inboundsKeys = rawPayload.getRef(Index.INBOUNDS_INDEX);
             if (inboundsKeys != null) {
@@ -129,7 +127,7 @@ public abstract class AbstractKObject implements KObject {
                     e.printStackTrace();
                 }
             } else {
-                task.initCallback().on(new Exception("Out of cache error"));
+                task.initCallback().on(new Exception(OUT_OF_CACHE_MSG));
             }
         }
         return task;

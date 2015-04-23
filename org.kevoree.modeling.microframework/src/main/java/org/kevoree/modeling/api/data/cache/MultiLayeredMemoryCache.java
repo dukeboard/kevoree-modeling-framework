@@ -16,9 +16,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-/**
- * Created by duke on 20/02/15.
- */
 public class MultiLayeredMemoryCache implements KCache {
 
     public static boolean DEBUG = false;

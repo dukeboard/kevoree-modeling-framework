@@ -95,7 +95,7 @@ public class JsonModelLoader {
                 for (int i = 0; i < alls.size(); i++) {
                     try {
                         StringHashMap<Object> elem = alls.get(i);
-                        long kid = Long.parseLong(elem.get(JsonModelSerializer.KEY_UUID).toString());
+                        long kid = Long.parseLong(elem.get(JsonFormat.KEY_UUID).toString());
                         mappedKeys.put(kid, factory.universe().model().manager().nextObjectKey());
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -128,8 +128,8 @@ public class JsonModelLoader {
     }
 
     private static void loadObj(StringHashMap<Object> p_param, MetaModel p_metaModel, KView p_factory, LongLongHashMap p_mappedKeys, KObject[] p_rootElem) {
-        long kid = Long.parseLong(p_param.get(JsonModelSerializer.KEY_UUID).toString());
-        String meta = p_param.get(JsonModelSerializer.KEY_META).toString();
+        long kid = Long.parseLong(p_param.get(JsonFormat.KEY_UUID).toString());
+        String meta = p_param.get(JsonFormat.KEY_META).toString();
         MetaClass metaClass = p_metaModel.metaClass(meta);
         KObject current = ((AbstractKView) p_factory).createProxy(metaClass, p_mappedKeys.get(kid));
         p_factory.universe().model().manager().initKObject(current, p_factory);
@@ -137,13 +137,13 @@ public class JsonModelLoader {
         p_param.each(new StringHashMapCallBack<Object>() {
             @Override
             public void on(String metaKey, Object payload_content) {
-                if (metaKey.equals(JsonModelSerializer.INBOUNDS_META)) {
+                if (metaKey.equals(JsonFormat.INBOUNDS_META)) {
                     try {
                         raw.set(Index.INBOUNDS_INDEX, transposeArr((ArrayList<String>) payload_content, p_mappedKeys));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                } else if (metaKey.equals(JsonModelSerializer.PARENT_META)) {
+                } else if (metaKey.equals(JsonFormat.PARENT_META)) {
                     try {
                         ArrayList<String> parentKeys = (ArrayList<String>) payload_content;
                         long[] parentTransposed = transposeArr(parentKeys,p_mappedKeys);
@@ -155,7 +155,7 @@ public class JsonModelLoader {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                } else if (metaKey.equals(JsonModelSerializer.PARENT_REF_META)) {
+                } else if (metaKey.equals(JsonFormat.PARENT_REF_META)) {
                     try {
                         String parentRef_payload = payload_content.toString();
                         String[] elems = parentRef_payload.split(JsonRaw.SEP);
@@ -171,7 +171,7 @@ public class JsonModelLoader {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                } else if (metaKey.equals(JsonModelSerializer.KEY_ROOT)) {
+                } else if (metaKey.equals(JsonFormat.KEY_ROOT)) {
                     if ("true".equals(payload_content)) {
                         p_rootElem[0] = current;
                     }

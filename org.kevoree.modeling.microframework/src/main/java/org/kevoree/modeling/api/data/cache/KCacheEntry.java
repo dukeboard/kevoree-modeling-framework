@@ -9,9 +9,6 @@ import org.kevoree.modeling.api.meta.MetaModel;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by duke on 26/11/14.
- */
 public class KCacheEntry implements KCacheObject {
 
     public MetaClass metaClass;

@@ -10,9 +10,6 @@ import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaInferClass;
 import org.kevoree.modeling.api.rbtree.LongRBTree;
 
-/**
- * Created by duke on 09/12/14.
- */
 public abstract class AbstractKObjectInfer extends AbstractKObject implements KInfer {
 
     public AbstractKObjectInfer(KView p_view, long p_uuid, LongRBTree p_universeTree, MetaClass p_metaClass) {

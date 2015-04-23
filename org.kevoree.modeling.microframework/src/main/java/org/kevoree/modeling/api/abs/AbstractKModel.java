@@ -8,9 +8,6 @@ import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.meta.MetaModel;
 import org.kevoree.modeling.api.meta.MetaOperation;
 
-/**
- * Created by duke on 10/10/14.
- */
 public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
 
     private final KDataManager _manager;

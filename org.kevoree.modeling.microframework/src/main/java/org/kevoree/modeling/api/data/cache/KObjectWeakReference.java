@@ -4,10 +4,6 @@ import org.kevoree.modeling.api.KObject;
 
 import java.lang.ref.WeakReference;
 
-/**
- * Created by duke on 30/03/15.
- */
-
 /** @ignore ts */
 public class KObjectWeakReference extends WeakReference<KObject> {
 

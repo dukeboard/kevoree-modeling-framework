@@ -6,9 +6,6 @@ import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaModel;
 import org.kevoree.modeling.api.meta.MetaType;
 
-/**
- * Created by duke on 07/12/14.
- */
 public class AbstractMetaModel implements MetaModel {
 
     private String _name;

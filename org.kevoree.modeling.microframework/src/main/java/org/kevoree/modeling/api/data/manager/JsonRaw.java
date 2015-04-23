@@ -13,9 +13,6 @@ import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.meta.MetaType;
 import org.kevoree.modeling.api.meta.PrimitiveTypes;
 
-/**
- * Created by duke on 11/25/14.
- */
 public class JsonRaw {
 
     public static final String SEP = "@";
@@ -27,17 +24,17 @@ public class JsonRaw {
         JsonObjectReader objectReader = new JsonObjectReader();
         objectReader.parseObject(payload);
         //Consistency check
-        if (objectReader.get(JsonModelSerializer.KEY_META) == null) {
+        if (objectReader.get(JsonFormat.KEY_META) == null) {
             return false;
         } else {
             //Init metaClass before everything
-            entry.metaClass = metaModel.metaClass(objectReader.get(JsonModelSerializer.KEY_META).toString());
+            entry.metaClass = metaModel.metaClass(objectReader.get(JsonFormat.KEY_META).toString());
             //Init the Raw manager
             entry.initRaw(Index.RESERVED_INDEXES + entry.metaClass.metaElements().length);
             //Now Fill the Raw Storage
             String[] metaKeys = objectReader.keys();
             for (int i = 0; i < metaKeys.length; i++) {
-                if (metaKeys[i].equals(JsonModelSerializer.INBOUNDS_META)) {
+                if (metaKeys[i].equals(JsonFormat.INBOUNDS_META)) {
                     try {
                         String[] raw_keys = objectReader.getAsStringArray(metaKeys[i]);
                         long[] inbounds = new long[raw_keys.length];
@@ -52,7 +49,7 @@ public class JsonRaw {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                } else if (metaKeys[i].equals(JsonModelSerializer.PARENT_META)) {
+                } else if (metaKeys[i].equals(JsonFormat.PARENT_META)) {
                     try {
                         String[] parentKeyStrings = objectReader.getAsStringArray(metaKeys[i]);
                         long[] parentKey = new long[1];
@@ -63,7 +60,7 @@ public class JsonRaw {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                } else if (metaKeys[i].equals(JsonModelSerializer.PARENT_REF_META)) {
+                } else if (metaKeys[i].equals(JsonFormat.PARENT_REF_META)) {
                     try {
                         String raw_payload_ref = objectReader.get(metaKeys[i]).toString();
                         String[] elemsRefs = raw_payload_ref.split(SEP);
@@ -114,25 +111,25 @@ public class JsonRaw {
         Meta[] metaElements = p_metaClass.metaElements();
         StringBuilder builder = new StringBuilder();
         builder.append("\t{\n");
-        builder.append("\t\t\"" + JsonModelSerializer.KEY_META + "\": \"");
+        builder.append("\t\t\"" + JsonFormat.KEY_META + "\": \"");
         builder.append(p_metaClass.metaName());
         builder.append("\"");
         if (uuid != KConfig.NULL_LONG) {
             builder.append(",\n");
-            builder.append("\t\t\"" + JsonModelSerializer.KEY_UUID + "\": \"");
+            builder.append("\t\t\"" + JsonFormat.KEY_UUID + "\": \"");
             builder.append(uuid);
             builder.append("\"");
         }
         if (isRoot) {
             builder.append(",\n");
-            builder.append("\t\t\"" + JsonModelSerializer.KEY_ROOT + "\": \"");
+            builder.append("\t\t\"" + JsonFormat.KEY_ROOT + "\": \"");
             builder.append("true");
             builder.append("\"");
         }
         long[] parentKey = raw.getRef(Index.PARENT_INDEX);
         if (parentKey != null) {
             builder.append(",\n");
-            builder.append("\t\t\"" + JsonModelSerializer.PARENT_META + "\": [");
+            builder.append("\t\t\"" + JsonFormat.PARENT_META + "\": [");
             boolean isFirst = true;
             for (int j = 0; j < parentKey.length; j++) {
                 if (!isFirst) {
@@ -147,7 +144,7 @@ public class JsonRaw {
         }
         if (raw.get(Index.REF_IN_PARENT_INDEX) != null) {
             builder.append(",\n");
-            builder.append("\t\t\"" + JsonModelSerializer.PARENT_REF_META + "\": \"");
+            builder.append("\t\t\"" + JsonFormat.PARENT_REF_META + "\": \"");
             try {
                 builder.append(((MetaReference) raw.get(Index.REF_IN_PARENT_INDEX)).origin().metaName());
                 builder.append(SEP);
@@ -159,7 +156,7 @@ public class JsonRaw {
         }
         if (raw.get(Index.INBOUNDS_INDEX) != null) {
             builder.append(",\n");
-            builder.append("\t\t\"" + JsonModelSerializer.INBOUNDS_META + "\": [");
+            builder.append("\t\t\"" + JsonFormat.INBOUNDS_META + "\": [");
             try {
                 long[] elemsInRaw = (long[]) raw.get(Index.INBOUNDS_INDEX);
                 boolean isFirst = true;

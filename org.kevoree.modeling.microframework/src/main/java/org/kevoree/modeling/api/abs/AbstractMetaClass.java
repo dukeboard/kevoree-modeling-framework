@@ -5,9 +5,6 @@ import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.map.StringHashMap;
 import org.kevoree.modeling.api.meta.*;
 
-/**
- * Created by duke on 07/12/14.
- */
 public class AbstractMetaClass implements MetaClass {
 
     private String _name;

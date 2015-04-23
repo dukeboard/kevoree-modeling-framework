@@ -4,9 +4,6 @@ import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaType;
 
-/**
- * Created by duke on 07/12/14.
- */
 public class AbstractMetaOperation implements MetaOperation {
 
     private String _name;

@@ -4,9 +4,6 @@ import org.kevoree.modeling.api.KType;
 import org.kevoree.modeling.api.json.JsonString;
 import org.kevoree.modeling.api.meta.PrimitiveTypes;
 
-/**
- * Created by duke on 12/01/15.
- */
 public class AbstractKDataType implements KType {
 
     private String _name;

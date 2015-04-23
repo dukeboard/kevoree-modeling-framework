@@ -2,9 +2,6 @@ package org.kevoree.modeling.api.data.cache;
 
 import org.kevoree.modeling.api.KConfig;
 
-/**
- * Created by duke on 18/02/15.
- */
 public class KContentKey {
 
     private long[] elem;

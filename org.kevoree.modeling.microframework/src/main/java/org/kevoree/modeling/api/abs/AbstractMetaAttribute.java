@@ -5,9 +5,6 @@ import org.kevoree.modeling.api.extrapolation.Extrapolation;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaType;
 
-/**
- * Created by duke on 07/12/14.
- */
 public class AbstractMetaAttribute implements MetaAttribute {
 
     private String _name;

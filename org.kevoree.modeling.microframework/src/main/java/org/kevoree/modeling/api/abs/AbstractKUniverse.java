@@ -6,9 +6,6 @@ import org.kevoree.modeling.api.data.cache.KContentKey;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by duke on 10/10/14.
- */
 public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C extends KModel> implements KUniverse<A, B, C> {
 
     private KModel _model;

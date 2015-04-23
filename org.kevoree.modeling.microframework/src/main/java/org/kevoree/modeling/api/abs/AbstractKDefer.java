@@ -11,9 +11,6 @@ import org.kevoree.modeling.api.map.StringHashMapCallBack;
 
 import java.util.ArrayList;
 
-/**
- * Created by duke on 20/01/15.
- */
 //TODO OPTIMIZE THIS CLASS
 public class AbstractKDefer<A> implements KCurrentDefer<A> {
 

@@ -17,9 +17,6 @@ import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.msg.KEvents;
 import org.kevoree.modeling.api.msg.KMessage;
 
-/**
- * Created by gregory.nain on 11/11/14.
- */
 public class LocalEventListeners {
 
     private KDataManager _manager;

@@ -13,9 +13,6 @@ import org.kevoree.modeling.api.traversal.selector.KSelector;
 import org.kevoree.modeling.api.util.Checker;
 import org.kevoree.modeling.api.xmi.XmiFormat;
 
-/**
- * Created by duke on 10/10/14.
- */
 public abstract class AbstractKView implements KView {
 
     private long _now;

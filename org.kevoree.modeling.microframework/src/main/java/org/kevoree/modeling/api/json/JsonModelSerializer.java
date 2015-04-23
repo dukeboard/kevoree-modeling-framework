@@ -11,18 +11,6 @@ import org.kevoree.modeling.api.data.manager.JsonRaw;
 
 public class JsonModelSerializer {
 
-    public static final String KEY_META = "@meta";
-
-    public static final String KEY_UUID = "@uuid";
-
-    public static final String KEY_ROOT = "@root";
-
-    public static final String PARENT_META = "@parent";
-
-    public static final String PARENT_REF_META = "@ref";
-
-    public static final String INBOUNDS_META = "@inbounds";
-
     public static void serialize(final KObject model, final Callback<String> callback) {
         model.view().getRoot().then(new Callback<KObject>() {
             @Override
