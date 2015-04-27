@@ -36,11 +36,8 @@ declare module org {
                     static CACHE_LOAD_FACTOR: number;
                 }
                 interface KCurrentDefer<A> extends org.kevoree.modeling.api.KDefer<any> {
-                    resultKeys(): string[];
-                    resultByName(name: string): any;
                     resultByDefer(defer: org.kevoree.modeling.api.KDefer<any>): any;
-                    addDeferResult(result: A): void;
-                    clearResults(): void;
+                    setResult(result: A): void;
                 }
                 interface KDefer<A> {
                     wait(previous: org.kevoree.modeling.api.KDefer<any>): org.kevoree.modeling.api.KDefer<any>;
@@ -227,7 +224,6 @@ declare module org {
                         _isReady: boolean;
                         private _nbRecResult;
                         private _nbExpectedResult;
-                        private _results;
                         private _nextTasks;
                         private _job;
                         private _result;
@@ -240,11 +236,8 @@ declare module org {
                         setName(p_taskName: string): org.kevoree.modeling.api.KDefer<any>;
                         getName(): string;
                         chain(p_block: (p: org.kevoree.modeling.api.KDefer<any>) => org.kevoree.modeling.api.KDefer<any>): org.kevoree.modeling.api.KDefer<any>;
-                        resultKeys(): string[];
-                        resultByName(p_name: string): any;
                         resultByDefer(defer: org.kevoree.modeling.api.KDefer<any>): any;
-                        addDeferResult(p_result: A): void;
-                        clearResults(): void;
+                        setResult(p_result: A): void;
                         getResult(): A;
                         isDone(): boolean;
                         setJob(p_kjob: (p: org.kevoree.modeling.api.KCurrentDefer<any>) => void): org.kevoree.modeling.api.KDefer<any>;

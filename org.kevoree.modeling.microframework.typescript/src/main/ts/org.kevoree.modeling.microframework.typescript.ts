@@ -73,15 +73,9 @@ module org {
 
                 export interface KCurrentDefer<A> extends org.kevoree.modeling.api.KDefer<any> {
 
-                    resultKeys(): string[];
-
-                    resultByName(name: string): any;
-
                     resultByDefer(defer: org.kevoree.modeling.api.KDefer<any>): any;
 
-                    addDeferResult(result: A): void;
-
-                    clearResults(): void;
+                    setResult(result: A): void;
 
                 }
 
@@ -503,7 +497,6 @@ module org {
                         public _isReady: boolean = false;
                         private _nbRecResult: number = 0;
                         private _nbExpectedResult: number = 0;
-                        private _results: org.kevoree.modeling.api.map.StringHashMap<any> = new org.kevoree.modeling.api.map.StringHashMap<any>(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                         private _nextTasks: java.util.ArrayList<org.kevoree.modeling.api.KDefer<any>> = new java.util.ArrayList<org.kevoree.modeling.api.KDefer<any>>();
                         private _job: (p : org.kevoree.modeling.api.KCurrentDefer<any>) => void;
                         private _result: A = null;
@@ -526,20 +519,6 @@ module org {
                             } else {
                                 if (end != this) {
                                     var castedEnd: org.kevoree.modeling.api.abs.AbstractKDefer<any> = <org.kevoree.modeling.api.abs.AbstractKDefer<any>>end;
-                                    if (castedEnd._results != null) {
-                                        if (this._results == null) {
-                                            this._results = new org.kevoree.modeling.api.map.StringHashMap<any>(castedEnd._results.size(), org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
-                                        }
-                                        castedEnd._results.each( (key : string, value : any) => {
-                                            this._results.put(key, value);
-                                        });
-                                    }
-                                    if (castedEnd._result != null) {
-                                        if (this._results == null) {
-                                            this._results = new org.kevoree.modeling.api.map.StringHashMap<any>(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
-                                        }
-                                        this._results.put(end.getName(), castedEnd._result);
-                                    }
                                     this._nbRecResult--;
                                 }
                             }
@@ -555,22 +534,6 @@ module org {
                             if (p_previous != this) {
                                 if (!(<org.kevoree.modeling.api.abs.AbstractKDefer<any>>p_previous).setDoneOrRegister(this)) {
                                     this._nbExpectedResult++;
-                                } else {
-                                    var castedEnd: org.kevoree.modeling.api.abs.AbstractKDefer<any> = <org.kevoree.modeling.api.abs.AbstractKDefer<any>>p_previous;
-                                    if (castedEnd._results != null) {
-                                        if (this._results == null) {
-                                            this._results = new org.kevoree.modeling.api.map.StringHashMap<any>(castedEnd._results.size(), org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
-                                        }
-                                        castedEnd._results.each( (key : string, value : any) => {
-                                            this._results.put(key, value);
-                                        });
-                                    }
-                                    if (castedEnd._result != null) {
-                                        if (this._results == null) {
-                                            this._results = new org.kevoree.modeling.api.map.StringHashMap<any>(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
-                                        }
-                                        this._results.put(p_previous.getName(), castedEnd._result);
-                                    }
                                 }
                             }
                             return this;
@@ -631,42 +594,12 @@ module org {
                             return potentialNext;
                         }
 
-                        public resultKeys(): string[] {
-                            if (this._results == null) {
-                                return new Array();
-                            } else {
-                                var resultKeys: string[] = new Array();
-                                var indexInsert: number[] = [0];
-                                this._results.each( (key : string, value : any) => {
-                                    resultKeys[indexInsert[0]] = key;
-                                    indexInsert[0]++;
-                                });
-                                return resultKeys;
-                            }
-                        }
-
-                        public resultByName(p_name: string): any {
-                            if (this._results == null) {
-                                return null;
-                            }
-                            return this._results.get(p_name);
-                        }
-
                         public resultByDefer(defer: org.kevoree.modeling.api.KDefer<any>): any {
-                            if (this._results == null) {
-                                return null;
-                            }
-                            return this._results.get(defer.getName());
+                            return null;
                         }
 
-                        public addDeferResult(p_result: A): void {
+                        public setResult(p_result: A): void {
                             this._result = p_result;
-                        }
-
-                        public clearResults(): void {
-                            if (this._results != null) {
-                                this._results = null;
-                            }
                         }
 
                         public getResult(): A {
@@ -697,7 +630,7 @@ module org {
                             var selfPointer: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = this;
                             this._callback =  (a : A) => {
                                 selfPointer._isReady = true;
-                                selfPointer.addDeferResult(a);
+                                selfPointer.setResult(a);
                                 selfPointer.setDoneOrRegister(null);
                             };
                         }
@@ -3628,13 +3561,16 @@ module org {
                                  var metaElements = p_metaClass.metaElements();
                                  var payload_res;
                                  for (var i = 0; i < metaElements.length; i++) {
-                                 if (metaElements[i] != null && metaElements[i].metaType().equals(org.kevoree.modeling.api.meta.MetaType.ATTRIBUTE)) {
+                                 payload_res = raw.get(metaElements[i].index());
+                                 if(payload_res != null && payload_res !== undefined){
+                                 if (metaElements[i] != null && metaElements[i].metaType() === org.kevoree.modeling.api.meta.MetaType.ATTRIBUTE) {
                                  if(metaElements[i]['attributeType']() != org.kevoree.modeling.api.meta.PrimitiveTypes.TRANSIENT){
                                     var attrsPayload = metaElements[i]['strategy']().save(payload_res, metaElements[i]);
                                     builder[metaElements[i].metaName()] = attrsPayload;
                                  }
                                  } else {
                                     builder[metaElements[i].metaName()] = payload_res;
+                                 }
                                  }
                                  }
                                  return JSON.stringify(builder);
