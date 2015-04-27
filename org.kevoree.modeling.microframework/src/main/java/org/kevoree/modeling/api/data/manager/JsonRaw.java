@@ -123,13 +123,16 @@ public class JsonRaw {
      * var metaElements = p_metaClass.metaElements();
      * var payload_res;
      * for (var i = 0; i < metaElements.length; i++) {
-     * if (metaElements[i] != null && metaElements[i].metaType().equals(org.kevoree.modeling.api.meta.MetaType.ATTRIBUTE)) {
+     * payload_res = raw.get(metaElements[i].index());
+     * if(payload_res != null && payload_res !== undefined){
+     * if (metaElements[i] != null && metaElements[i].metaType() === org.kevoree.modeling.api.meta.MetaType.ATTRIBUTE) {
      * if(metaElements[i]['attributeType']() != org.kevoree.modeling.api.meta.PrimitiveTypes.TRANSIENT){
      *    var attrsPayload = metaElements[i]['strategy']().save(payload_res, metaElements[i]);
      *    builder[metaElements[i].metaName()] = attrsPayload;
      * }
      * } else {
      *    builder[metaElements[i].metaName()] = payload_res;
+     * }
      * }
      * }
      * return JSON.stringify(builder);
