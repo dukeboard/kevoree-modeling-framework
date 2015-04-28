@@ -12,13 +12,13 @@ public class KCacheLayer {
 
     private LongHashMap<KCacheObject> _cachedObjects;
 
-    public boolean empty(){
-        return (_nestedLayers == null || _nestedLayers.size() == 0) && (_cachedObjects == null ||_cachedObjects.size() == 0);
+    public boolean empty() {
+        return (_nestedLayers == null || _nestedLayers.size() == 0) && (_cachedObjects == null || _cachedObjects.size() == 0);
     }
 
     public KCacheObject resolve(KContentKey p_key, int current) {
         if (current == KConfig.KEY_SIZE - 1) {
-            if(_cachedObjects != null){
+            if (_cachedObjects != null) {
                 return _cachedObjects.get(p_key.part(current));
             } else {
                 return null;
@@ -40,10 +40,10 @@ public class KCacheLayer {
     public void decClean(KContentKey p_key, int current) {
         if (current == KConfig.KEY_SIZE - 1) {
             KCacheObject obj = _cachedObjects.get(p_key.part(current));
-            if(obj != null){
+            if (obj != null) {
                 obj.dec();
-                if(obj.counter()<= 0){
-                    if(!obj.isDirty()){
+                if (obj.counter() <= 0) {
+                    if (!obj.isDirty()) {
                         _cachedObjects.remove(p_key.part(current));
                     }
                 }
@@ -53,7 +53,7 @@ public class KCacheLayer {
                 KCacheLayer nextLayer = _nestedLayers.get(p_key.part(current));
                 if (nextLayer != null) {
                     nextLayer.decClean(p_key, current + 1);
-                    if(nextLayer.empty()){
+                    if (nextLayer.empty()) {
                         _nestedLayers.remove(p_key.part(current));
                     }
                 }

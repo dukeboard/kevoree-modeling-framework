@@ -16,10 +16,6 @@ public interface KDefer<A> {
 
     void then(Callback<A> callback);
 
-    KDefer<A> setName(String taskName);
-
-    String getName();
-
     KDefer<Object> chain(KDeferBlock block);
 
 }

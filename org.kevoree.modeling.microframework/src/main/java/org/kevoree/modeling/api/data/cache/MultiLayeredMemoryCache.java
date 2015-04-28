@@ -103,22 +103,23 @@ public class MultiLayeredMemoryCache implements KCache {
     }
 
     @Override
-    public void clearDataSegment() {
-        _nestedLayers.remove(KContentKey.GLOBAL_SEGMENT_DATA_RAW);
-        _nestedLayers.remove(KContentKey.GLOBAL_SEGMENT_DATA_INDEX);
-        _nestedLayers.remove(KContentKey.GLOBAL_SEGMENT_DATA_HASH_INDEX);
-        _nestedLayers.remove(KContentKey.GLOBAL_SEGMENT_DATA_ROOT);
-        _nestedLayers.remove(KContentKey.GLOBAL_SEGMENT_DATA_ROOT_INDEX);
+    public void clear() {
+        _nestedLayers = new LongHashMap<KCacheLayer>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
     }
 
-    /** @ignore ts */
+    /**
+     * @ignore ts
+     */
+    //TODO very bad idea, for performance... drop this...
     private LinkedList<KObjectWeakReference> references = new LinkedList<KObjectWeakReference>();
 
-    /** @native ts */
+    /**
+     * @native ts
+     */
     @Override
     public void monitor(KObject origin) {
-        KObjectWeakReference phantomRef = new KObjectWeakReference(origin);
-        references.add(phantomRef);
+        //KObjectWeakReference phantomRef = new KObjectWeakReference(origin);
+        //references.add(phantomRef);
     }
 
     private void decCleanKey(KContentKey key) {
@@ -130,10 +131,12 @@ public class MultiLayeredMemoryCache implements KCache {
         }
     }
 
-    /** @native ts */
+    /**
+     * @native ts
+     */
     @Override
     public synchronized void clean() {
-        if(_manager != null){
+        if (_manager != null) {
             ListIterator<KObjectWeakReference> iterator = references.listIterator();
             while (iterator.hasNext()) {
                 KObjectWeakReference loopRef = iterator.next();

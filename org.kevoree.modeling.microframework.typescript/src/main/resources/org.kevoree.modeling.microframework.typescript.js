@@ -1054,6 +1054,13 @@ var org;
                             });
                             return task;
                         };
+                        AbstractKObject.prototype.jump2 = function (time, callback) {
+                            var keys = new Array();
+                            keys[0] = time;
+                            this.view().universe().time(time).internalLookupAll(keys, function (kObjects) {
+                                callback(kObjects[0]);
+                            });
+                        };
                         AbstractKObject.prototype.internal_transpose_ref = function (p) {
                             if (!org.kevoree.modeling.api.util.Checker.isDefined(p)) {
                                 return null;

@@ -247,6 +247,8 @@ module org {
 
                     jump<U extends org.kevoree.modeling.api.KObject> (time: number): org.kevoree.modeling.api.KDefer<any>;
 
+                    jump2(time: number, callback: (p : org.kevoree.modeling.api.KObject) => void): void;
+
                     referencesWith(o: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.meta.MetaReference[];
 
                     inferObjects(): org.kevoree.modeling.api.KDefer<any>;
@@ -1358,6 +1360,14 @@ module org {
                                 task.initCallback()(casted);
                             });
                             return task;
+                        }
+
+                        public jump2(time: number, callback: (p : org.kevoree.modeling.api.KObject) => void): void {
+                            var keys: number[] = new Array();
+                            keys[0] = time;
+                            (<org.kevoree.modeling.api.abs.AbstractKView>this.view().universe().time(time)).internalLookupAll(keys,  (kObjects : org.kevoree.modeling.api.KObject[]) => {
+                                callback(kObjects[0]);
+                            });
                         }
 
                         public internal_transpose_ref(p: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.meta.MetaReference {

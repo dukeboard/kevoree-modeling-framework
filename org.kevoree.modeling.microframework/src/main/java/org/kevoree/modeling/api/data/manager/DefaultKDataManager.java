@@ -8,12 +8,7 @@ import org.kevoree.modeling.api.KScheduler;
 import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.data.cache.KCache;
-import org.kevoree.modeling.api.data.cache.KCacheDirty;
-import org.kevoree.modeling.api.data.cache.KCacheEntry;
-import org.kevoree.modeling.api.data.cache.KCacheObject;
-import org.kevoree.modeling.api.data.cache.KContentKey;
-import org.kevoree.modeling.api.data.cache.MultiLayeredMemoryCache;
+import org.kevoree.modeling.api.data.cache.*;
 import org.kevoree.modeling.api.data.cdn.AtomicOperationFactory;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
@@ -34,34 +29,29 @@ import java.util.List;
 
 public class DefaultKDataManager implements KDataManager {
 
+    private static final String OUT_OF_CACHE_MESSAGE = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
+    private static final String UNIVERSE_NOT_CONNECTED_ERROR = "Please connect your model prior to create a universe or an object";
+
     private KContentDeliveryDriver _db;
     private KOperationManager _operationManager;
     private KScheduler _scheduler;
     private KModel _model;
     private KeyCalculator _objectKeyCalculator = null;
     private KeyCalculator _universeKeyCalculator = null;
-
     private KeyCalculator _modelKeyCalculator;
     private KeyCalculator _groupKeyCalculator;
-
     private boolean isConnected = false;
-
-    private static final String OUT_OF_CACHE_MESSAGE = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
-    private static final String UNIVERSE_NOT_CONNECTED_ERROR = "Please connect your model prior to create a universe or an object";
-
     private final int UNIVERSE_INDEX = 0;
     private final int OBJ_INDEX = 1;
     private final int GLO_TREE_INDEX = 2;
-
-    private MultiLayeredMemoryCache _cache;
-
+    private KCache _cache;
     private static final short zeroPrefix = 0;
 
     public DefaultKDataManager(KModel model) {
-        _cache = new MultiLayeredMemoryCache(this);
+        //_cache = new MultiLayeredMemoryCache(this);
+        _cache = new HashMemoryCache();
         _modelKeyCalculator = new KeyCalculator(zeroPrefix, 0);
         _groupKeyCalculator = new KeyCalculator(zeroPrefix, 0);
-
         this._db = new MemoryKContentDeliveryDriver();
         this._db.setManager(this);
         this._operationManager = new DefaultOperationManager(this);
@@ -394,7 +384,8 @@ public class DefaultKDataManager implements KDataManager {
 
     @Override
     public void discard(KUniverse p_universe, final Callback<Throwable> callback) {
-        _cache.clearDataSegment();
+        //save prefix to not negociate again prefix
+        _cache.clear();
         KContentKey[] globalUniverseTree = new KContentKey[1];
         globalUniverseTree[0] = KContentKey.createGlobalUniverseTree();
         reload(globalUniverseTree, new Callback<Throwable>() {

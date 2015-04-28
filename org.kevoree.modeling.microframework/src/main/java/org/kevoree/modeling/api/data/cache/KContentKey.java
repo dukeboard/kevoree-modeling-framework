@@ -4,9 +4,15 @@ import org.kevoree.modeling.api.KConfig;
 
 public class KContentKey {
 
-    private long[] elem;
+    private long _segment;
 
-    private static long GLOBAL_SEGMENT_META = 0;
+    private long _universe;
+
+    private long _time;
+
+    private long _obj;
+
+    //private static long GLOBAL_SEGMENT_META = 0;
 
     public static long GLOBAL_SEGMENT_DATA_RAW = 1;
 
@@ -26,36 +32,43 @@ public class KContentKey {
 
     private static long GLOBAL_SUB_SEGMENT_PREFIX_UNI = 1;
 
-    public KContentKey(long p_prefixID, long p_universeID, long p_timeID, long p_objID) {
-        elem = new long[KConfig.KEY_SIZE];
-        elem[0] = p_prefixID;
-        elem[1] = p_universeID;
-        elem[2] = p_timeID;
-        elem[3] = p_objID;
+    public KContentKey(long p_segmentID, long p_universeID, long p_timeID, long p_objID) {
+        _segment = p_segmentID;
+        _universe = p_universeID;
+        _time = p_timeID;
+        _obj = p_objID;
     }
 
     public long segment() {
-        return elem[0];
+        return _segment;
     }
 
     public long universe() {
-        return elem[1];
+        return _universe;
     }
 
     public long time() {
-        return elem[2];
+        return _time;
     }
 
     public long obj() {
-        return elem[3];
+        return _obj;
     }
 
     public long part(int i) {
-        if (i >= 0 && i < KConfig.KEY_SIZE) {
-            return elem[i];
-        } else {
-            return KConfig.NULL_LONG;
+        if (i == 0) {
+            return _segment;
         }
+        if (i == 1) {
+            return _segment;
+        }
+        if (i == 2) {
+            return _segment;
+        }
+        if (i == 3) {
+            return _segment;
+        }
+        return KConfig.NULL_LONG;
     }
 
     public static KContentKey createGlobal(long p_prefixID) {
@@ -150,15 +163,31 @@ public class KContentKey {
     @Override
     public String toString() {
         StringBuilder buffer = new StringBuilder();
-        for (int i = 0; i < KConfig.KEY_SIZE; i++) {
-            if (i != 0) {
-                buffer.append(KConfig.KEY_SEP);
-            }
-            if (elem[i] != KConfig.NULL_LONG) {
-                buffer.append(elem[i]);
-            }
+        if (_segment != KConfig.NULL_LONG) {
+            buffer.append(_segment);
+        }
+        buffer.append(KConfig.KEY_SEP);
+        if (_universe != KConfig.NULL_LONG) {
+            buffer.append(_universe);
+        }
+        buffer.append(KConfig.KEY_SEP);
+        if (_time != KConfig.NULL_LONG) {
+            buffer.append(_time);
+        }
+        buffer.append(KConfig.KEY_SEP);
+        if (_obj != KConfig.NULL_LONG) {
+            buffer.append(_obj);
         }
         return buffer.toString();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof KContentKey) {
+            KContentKey remote = (KContentKey) obj;
+            return remote.segment() == _segment && remote.universe() == _universe && remote.time() == _time && remote.obj() == _obj;
+        } else {
+            return false;
+        }
+    }
 }

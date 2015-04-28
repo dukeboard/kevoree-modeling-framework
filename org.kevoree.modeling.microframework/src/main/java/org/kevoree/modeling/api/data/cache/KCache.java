@@ -10,7 +10,7 @@ public interface KCache {
 
     KCacheDirty[] dirties();
 
-    void clearDataSegment();
+    void clear();
 
     void clean();
 

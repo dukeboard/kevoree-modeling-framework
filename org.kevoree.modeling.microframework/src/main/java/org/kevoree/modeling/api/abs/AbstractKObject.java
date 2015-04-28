@@ -674,6 +674,17 @@ public abstract class AbstractKObject implements KObject {
         return task;
     }
 
+    public void jump2(long time, Callback<KObject> p_callback){
+        long[] keys = new long[1];
+        keys[0] = uuid();
+        ((AbstractKView)view().universe().time(time)).internalLookupAll(keys, new Callback<KObject[]>() {
+            @Override
+            public void on(KObject[] kObjects) {
+                p_callback.on(kObjects[0]);
+            }
+        });
+    }
+
     public MetaReference internal_transpose_ref(MetaReference p) {
         if (!Checker.isDefined(p)) {
             return null;

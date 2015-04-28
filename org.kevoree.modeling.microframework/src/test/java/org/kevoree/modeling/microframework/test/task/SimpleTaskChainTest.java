@@ -22,14 +22,14 @@ public class SimpleTaskChainTest {
         fakePromise1.setJob(new KJob() {
             @Override
             public void run(KCurrentDefer currentTask) {
-                currentTask.addDeferResult("Sample1");
+                currentTask.setResult("Sample1");
             }
         });
         final KDefer fakePromise2 = dynamicKModel.defer();
         fakePromise2.setJob(new KJob() {
             @Override
             public void run(KCurrentDefer currentTask) {
-                currentTask.addDeferResult("Sample2");
+                currentTask.setResult("Sample2");
             }
         });
 
@@ -65,14 +65,14 @@ public class SimpleTaskChainTest {
         fakePromise1.setJob(new KJob() {
             @Override
             public void run(KCurrentDefer currentTask) {
-                currentTask.addDeferResult("Sample1");
+                currentTask.setResult("Sample1");
             }
         });
         final KDefer fakePromise2 = dynamicKModel.defer();
         fakePromise2.setJob(new KJob() {
             @Override
             public void run(KCurrentDefer currentTask) {
-                currentTask.addDeferResult("Sample2");
+                currentTask.setResult("Sample2");
             }
         });
 
@@ -150,14 +150,14 @@ public class SimpleTaskChainTest {
         rootTask.setJob(new KJob() {
             @Override
             public void run(KCurrentDefer currentTask) {
-                res[0] = currentTask.resultKeys().length;
+                // res[0] = currentTask.resultKeys().length;
                 res2[0] = currentTask.resultByDefer(previousSelect);
                 res2[1] = currentTask.resultByDefer(previousSelect2);
             }
         });
         rootTask.ready();
 
-        Assert.assertEquals(res[0], 2);
+        //    Assert.assertEquals(res[0], 2);
         Assert.assertTrue(res2[0] != null);
         Assert.assertTrue(res2[1] != null);
 

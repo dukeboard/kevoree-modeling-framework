@@ -1,38 +1,38 @@
 package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KCurrentDefer;
 import org.kevoree.modeling.api.KDefer;
 import org.kevoree.modeling.api.KDeferBlock;
 import org.kevoree.modeling.api.KJob;
-import org.kevoree.modeling.api.map.StringHashMap;
-import org.kevoree.modeling.api.map.StringHashMapCallBack;
 
 import java.util.ArrayList;
 
-//TODO OPTIMIZE THIS CLASS
 public class AbstractKDefer<A> implements KCurrentDefer<A> {
 
-    private String _name = null;
     private boolean _isDone = false;
     protected boolean _isReady = false;
     private int _nbRecResult = 0;
     private int _nbExpectedResult = 0;
-    private StringHashMap<Object> _results = new StringHashMap<Object>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
-    private ArrayList<KDefer> _nextTasks = new ArrayList<KDefer>();
-    private KJob _job;
+    private ArrayList<KDefer> _nextTasks = null;
+    private KJob _job = null;
     private A _result = null;
+    private ArrayList<AbstractKDefer> _parentResults = null;
 
     protected synchronized boolean setDoneOrRegister(KDefer next) {
         if (next != null) {
+            if (_nextTasks == null) {
+                _nextTasks = new ArrayList<KDefer>();
+            }
             _nextTasks.add(next);
             return _isDone;
         } else {
             _isDone = true;
             //inform child to decrease
-            for (int i = 0; i < _nextTasks.size(); i++) {
-                ((AbstractKDefer) _nextTasks.get(i)).informParentEnd(this);
+            if (_nextTasks != null) {
+                for (int i = 0; i < _nextTasks.size(); i++) {
+                    ((AbstractKDefer) _nextTasks.get(i)).informParentEnd(this);
+                }
             }
             return _isDone;
         }
@@ -45,22 +45,11 @@ public class AbstractKDefer<A> implements KCurrentDefer<A> {
         } else {
             if (end != this) {
                 AbstractKDefer castedEnd = (AbstractKDefer) end;
-                if(castedEnd._results != null){
-                    if(_results == null){
-                        _results = new StringHashMap<Object>(castedEnd._results.size(),KConfig.CACHE_LOAD_FACTOR);
+                if (castedEnd._result != null) {
+                    if (_parentResults == null) {
+                        _parentResults = new ArrayList<AbstractKDefer>();
                     }
-                    castedEnd._results.each(new StringHashMapCallBack() {
-                        @Override
-                        public void on(String key, Object value) {
-                            _results.put(key, value);
-                        }
-                    });
-                }
-                if(castedEnd._result != null){
-                    if(_results == null){
-                        _results = new StringHashMap<Object>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
-                    }
-                    _results.put(end.getName(), castedEnd._result);
+                    _parentResults.add(castedEnd);
                 }
                 _nbRecResult--;
             }
@@ -80,25 +69,10 @@ public class AbstractKDefer<A> implements KCurrentDefer<A> {
             if (!((AbstractKDefer) p_previous).setDoneOrRegister(this)) {
                 _nbExpectedResult++;
             } else {
-                //previous is already finished, no need to count, copy the result
-                AbstractKDefer castedEnd = (AbstractKDefer) p_previous;
-                if(castedEnd._results != null){
-                    if(_results == null){
-                        _results = new StringHashMap<Object>(castedEnd._results.size(),KConfig.CACHE_LOAD_FACTOR);
-                    }
-                    castedEnd._results.each(new StringHashMapCallBack() {
-                        @Override
-                        public void on(String key, Object value) {
-                            _results.put(key, value);
-                        }
-                    });
+                if (_parentResults == null) {
+                    _parentResults = new ArrayList<AbstractKDefer>();
                 }
-                if(castedEnd._result != null){
-                    if(_results == null){
-                        _results = new StringHashMap<Object>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
-                    }
-                    _results.put(p_previous.getName(), castedEnd._result);
-                }
+                _parentResults.add((AbstractKDefer) p_previous);
             }
         }
         return this;
@@ -137,21 +111,6 @@ public class AbstractKDefer<A> implements KCurrentDefer<A> {
     }
 
     @Override
-    public KDefer<A> setName(String p_taskName) {
-        _name = p_taskName;
-        return this;
-    }
-
-    @Override
-    public String getName() {
-        if (_name == null) {
-            return this.toString();
-        } else {
-            return _name;
-        }
-    }
-
-    @Override
     public KDefer<Object> chain(final KDeferBlock p_block) {
         KDefer<Object> nextDefer = next();
         final KDefer<Object> potentialNext = new AbstractKDefer<Object>();
@@ -169,49 +128,32 @@ public class AbstractKDefer<A> implements KCurrentDefer<A> {
     }
 
     @Override
-    public String[] resultKeys() {
-        if(_results == null){
-            return new String[0];
-        } else {
-            String[] resultKeys = new String[_results.size()];
-            final int[] indexInsert = {0};
-            _results.each(new StringHashMapCallBack<Object>() {
-                @Override
-                public void on(String key, Object value) {
-                    resultKeys[indexInsert[0]] = key;
-                    indexInsert[0]++;
-                }
-            });
-            return resultKeys;
-        }
-    }
-
-    @Override
-    public Object resultByName(String p_name) {
-        if(_results == null){
-            return null;
-        }
-        return _results.get(p_name);
-    }
-
-    @Override
     public Object resultByDefer(KDefer defer) {
-        if(_results == null){
-            return null;
+        if (defer == this) {
+            return _result;
+        } else {
+            ArrayList<AbstractKDefer> loopParents = _parentResults;
+            while (loopParents != null && loopParents.size() > 0) {
+                ArrayList<AbstractKDefer> loopParentsCopy = loopParents;
+                loopParents = null;
+                for (int i = 0; i < loopParentsCopy.size(); i++) {
+                    if(loopParentsCopy.get(i).equals(defer)){
+                        return loopParentsCopy.get(i)._result;
+                    } else {
+                        if(loopParents==null){
+                            loopParents = new ArrayList<AbstractKDefer>();
+                        }
+                        loopParents.add(loopParentsCopy.get(i));
+                    }
+                }
+            }
         }
-        return _results.get(defer.getName());
+        return null;
     }
 
     @Override
-    public void addDeferResult(A p_result) {
+    public void setResult(A p_result) {
         _result = p_result;
-    }
-
-    @Override
-    public void clearResults() {
-        if(_results != null){
-            _results = null;
-        }
     }
 
     @Override

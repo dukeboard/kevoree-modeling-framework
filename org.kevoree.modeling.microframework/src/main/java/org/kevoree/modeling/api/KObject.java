@@ -62,6 +62,8 @@ public interface KObject {
 
     <U extends KObject> KDefer<U> jump(long time);
 
+    void jump2(long time, Callback<KObject> callback);
+
     MetaReference[] referencesWith(KObject o);
 
     /* Inference Objects Management */

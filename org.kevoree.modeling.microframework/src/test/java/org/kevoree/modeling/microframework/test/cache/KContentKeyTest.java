@@ -17,11 +17,9 @@ public class KContentKeyTest {
         testKeys[2] = "1///4";
         testKeys[3] = "1/2/3/4";
         testKeys[4] = "111/222/333/444";
-
         for (int i = 0; i < testKeys.length; i++) {
             Assert.assertEquals(testKeys[i], KContentKey.create(testKeys[i]).toString());
         }
-
     }
 
 }

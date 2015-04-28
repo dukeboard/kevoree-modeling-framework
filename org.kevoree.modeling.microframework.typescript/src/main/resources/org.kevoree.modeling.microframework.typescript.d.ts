@@ -119,6 +119,7 @@ declare module org {
                     toJSON(): string;
                     equals(other: any): boolean;
                     jump<U extends org.kevoree.modeling.api.KObject>(time: number): org.kevoree.modeling.api.KDefer<any>;
+                    jump2(time: number, callback: (p: org.kevoree.modeling.api.KObject) => void): void;
                     referencesWith(o: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.meta.MetaReference[];
                     inferObjects(): org.kevoree.modeling.api.KDefer<any>;
                     inferAttribute(attribute: org.kevoree.modeling.api.meta.MetaAttribute): any;
@@ -311,6 +312,7 @@ declare module org {
                         equals(obj: any): boolean;
                         hashCode(): number;
                         jump<U extends org.kevoree.modeling.api.KObject>(time: number): org.kevoree.modeling.api.KDefer<any>;
+                        jump2(time: number, callback: (p: org.kevoree.modeling.api.KObject) => void): void;
                         internal_transpose_ref(p: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.meta.MetaReference;
                         internal_transpose_att(p: org.kevoree.modeling.api.meta.MetaAttribute): org.kevoree.modeling.api.meta.MetaAttribute;
                         internal_transpose_op(p: org.kevoree.modeling.api.meta.MetaOperation): org.kevoree.modeling.api.meta.MetaOperation;
