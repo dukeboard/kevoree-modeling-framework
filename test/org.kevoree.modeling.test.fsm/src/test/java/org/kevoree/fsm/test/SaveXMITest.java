@@ -82,13 +82,13 @@ public class SaveXMITest {
                             if (kObjects.length == 1) {
 
                                 KObject kObject = kObjects[0];
-                                kObject.visit(new ModelVisitor() {
+                                kObject.visit(VisitRequest.CONTAINED, new ModelVisitor() {
                                     @Override
                                     public VisitResult visit(KObject elem) {
                                         System.out.println(elem.uuid());
                                         return VisitResult.CONTINUE;
                                     }
-                                }, VisitRequest.CONTAINED);
+                                });
                                 sema.release();
                             }
                         }
