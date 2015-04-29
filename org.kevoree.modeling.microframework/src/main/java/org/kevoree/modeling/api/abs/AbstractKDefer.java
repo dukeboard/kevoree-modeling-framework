@@ -38,6 +38,11 @@ public class AbstractKDefer<A> implements KCurrentDefer<A> {
         }
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj == this;
+    }
+
     private synchronized void informParentEnd(KDefer end) {
         if (end == null) {
             //initCase

@@ -235,6 +235,9 @@ var org;
                                 return this._isDone;
                             }
                         };
+                        AbstractKDefer.prototype.equals = function (obj) {
+                            return obj == this;
+                        };
                         AbstractKDefer.prototype.informParentEnd = function (end) {
                             if (end == null) {
                                 this._nbRecResult = this._nbRecResult + this._nbExpectedResult;
@@ -3444,12 +3447,7 @@ var org;
                             }
                         };
                         PolynomialExtrapolation.prototype.castNumber = function (payload) {
-                            if (payload instanceof number) {
-                                return payload;
-                            }
-                            else {
-                                return java.lang.Double.parseDouble(payload.toString());
-                            }
+                            return +payload;
                         };
                         PolynomialExtrapolation.prototype.save = function (cache, attribute) {
                             try {

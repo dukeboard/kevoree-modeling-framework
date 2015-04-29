@@ -60,6 +60,9 @@ public class PolynomialExtrapolation implements Extrapolation {
     }
 
 
+    /** @native ts
+     * return +payload;
+     */
     private Double castNumber(Object payload){
         if(payload instanceof Double){
            return (Double) payload;

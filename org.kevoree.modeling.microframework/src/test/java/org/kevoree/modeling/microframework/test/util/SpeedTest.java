@@ -16,9 +16,10 @@ import org.kevoree.modeling.api.reflexive.DynamicMetaModel;
  */
 public class SpeedTest {
 
+    /** @native ts
+    * */
     @Test
     public void test(){
-
         DynamicMetaModel dynamicMetaModel = new DynamicMetaModel("MyMetaModel");
         final DynamicMetaClass sensorMetaClass = dynamicMetaModel.createMetaClass("Sensor");
         sensorMetaClass

@@ -212,12 +212,15 @@ public class DefaultKDataManager implements KDataManager {
         cacheEntry._dirty = true;
         cacheEntry.metaClass = obj.metaClass();
         cacheEntry.inc();
+        //initiate time management
         IndexRBTree timeTree = new IndexRBTree();
         timeTree.inc();
         timeTree.insert(obj.now());
+        //initiate universe management
         LongLongHashMap universeTree = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         universeTree.inc();
         universeTree.put(obj.view().universe().key(), obj.now());
+        //save related objects to cache
         _cache.put(obj.universe().key(), KConfig.NULL_LONG, obj.uuid(), timeTree);
         _cache.put(KConfig.NULL_LONG, KConfig.NULL_LONG, obj.uuid(), universeTree);
         _cache.put(obj.universe().key(), obj.now(), obj.uuid(), cacheEntry);

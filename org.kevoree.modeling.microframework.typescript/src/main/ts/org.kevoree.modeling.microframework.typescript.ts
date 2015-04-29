@@ -516,6 +516,10 @@ module org {
                             }
                         }
 
+                        public equals(obj: any): boolean {
+                            return obj == this;
+                        }
+
                         private informParentEnd(end: org.kevoree.modeling.api.KDefer<any>): void {
                             if (end == null) {
                                 this._nbRecResult = this._nbRecResult + this._nbExpectedResult;
@@ -4012,11 +4016,7 @@ module org {
                         }
 
                         private castNumber(payload: any): number {
-                            if (payload instanceof number) {
-                                return <number>payload;
-                            } else {
-                                return java.lang.Double.parseDouble(payload.toString());
-                            }
+                             return +payload;
                         }
 
                         public save(cache: any, attribute: org.kevoree.modeling.api.meta.MetaAttribute): string {
