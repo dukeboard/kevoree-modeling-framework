@@ -7,6 +7,7 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.PrimitiveTypes;
 import org.kevoree.modeling.api.polynomial.doublepolynomial.DoublePolynomialModel;
 import org.kevoree.modeling.api.polynomial.PolynomialModel;
+import org.kevoree.modeling.api.polynomial.simplepolynomial.SimplePolynomialModel;
 import org.kevoree.modeling.api.polynomial.util.Prioritization;
 
 public class PolynomialExtrapolation implements Extrapolation {
@@ -40,14 +41,14 @@ public class PolynomialExtrapolation implements Extrapolation {
         Object previous = raw.get(attribute.index());
         if (previous == null) {
             PolynomialModel pol = createPolynomialModel(current.now(), attribute.precision());
-            pol.insert(current.now(), Double.parseDouble(payload.toString()));
+            pol.insert(current.now(), castNumber(payload));
             current.view().universe().model().manager().entry(current, AccessMode.WRITE).set(attribute.index(), pol);
         } else {
             PolynomialModel previousPol = (PolynomialModel) previous;
-            if (!previousPol.insert(current.now(), Double.parseDouble(payload.toString()))) {
+            if (!previousPol.insert(current.now(), castNumber(payload))) {
                 PolynomialModel pol = createPolynomialModel(previousPol.lastIndex(), attribute.precision());
                 pol.insert(previousPol.lastIndex(), previousPol.extrapolate(previousPol.lastIndex()));
-                pol.insert(current.now(), Double.parseDouble(payload.toString()));
+                pol.insert(current.now(), castNumber(payload));
                 current.view().universe().model().manager().entry(current, AccessMode.WRITE).set(attribute.index(), pol);
             } else {
                 //Value fit the previous polynomial, but if degrees has changed we have to set the object to dirty for the next save batch
@@ -55,6 +56,15 @@ public class PolynomialExtrapolation implements Extrapolation {
                     raw.set(attribute.index(), previousPol);//this re-set operation trigger the set dirty operation
                 }
             }
+        }
+    }
+
+
+    private Double castNumber(Object payload){
+        if(payload instanceof Double){
+           return (Double) payload;
+        } else {
+            return Double.parseDouble(payload.toString());
         }
     }
 

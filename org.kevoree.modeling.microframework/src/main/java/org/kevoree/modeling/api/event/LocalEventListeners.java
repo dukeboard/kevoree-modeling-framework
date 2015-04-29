@@ -138,14 +138,14 @@ public class LocalEventListeners {
                 //first step, we filter and select relevant keys
                 for (int i = 0; i < messages.size(); i++) {
                     KContentKey loopKey = messages.getKey(i);
-                    LongLongHashMap listeners = _obj2Listener.get(loopKey.obj());
+                    LongLongHashMap listeners = _obj2Listener.get(loopKey.obj);
 
                     final boolean[] isSelect = {false};
                     if (listeners != null) {
                         listeners.each(new LongLongHashMapCallBack() {
                             @Override
                             public void on(long listenerKey, long universeKey) {
-                                if (universeKey == loopKey.universe()) {
+                                if (universeKey == loopKey.universe) {
                                     isSelect[0] = true;
                                     if (_multiListener.containsKey(listenerKey)) {
                                         if (multiCounters[0] == null) {
@@ -188,14 +188,14 @@ public class LocalEventListeners {
                         for (int i = 0; i < messages.size(); i++) {
                             if (kCacheObjects[i] != null && kCacheObjects[i] instanceof KCacheEntry) {
                                 KContentKey correspondingKey = toLoad[i];
-                                listeners = _obj2Listener.get(correspondingKey.obj());
+                                listeners = _obj2Listener.get(correspondingKey.obj);
                                 if (listeners != null) {
-                                    KUniverse cachedUniverse = _cacheUniverse.get(correspondingKey.universe());
+                                    KUniverse cachedUniverse = _cacheUniverse.get(correspondingKey.universe);
                                     if (cachedUniverse == null) {
-                                        cachedUniverse = _manager.model().universe(correspondingKey.universe());
-                                        _cacheUniverse.put(correspondingKey.universe(), cachedUniverse);
+                                        cachedUniverse = _manager.model().universe(correspondingKey.universe);
+                                        _cacheUniverse.put(correspondingKey.universe, cachedUniverse);
                                     }
-                                    KObject toDispatch = ((AbstractKView) cachedUniverse.time(correspondingKey.time())).createProxy(((KCacheEntry) kCacheObjects[i]).metaClass, correspondingKey.obj());
+                                    KObject toDispatch = ((AbstractKView) cachedUniverse.time(correspondingKey.time)).createProxy(((KCacheEntry) kCacheObjects[i]).metaClass, correspondingKey.obj);
                                     if(toDispatch != null){
                                         kCacheObjects[i].inc();
                                     }

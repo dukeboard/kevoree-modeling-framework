@@ -4,9 +4,9 @@ import org.kevoree.modeling.api.KObject;
 
 public interface KCache {
 
-    KCacheObject get(KContentKey key);
+    KCacheObject get(long universe, long time, long obj);
 
-    void put(KContentKey key, KCacheObject payload);
+    void put(long universe, long time, long obj, KCacheObject payload);
 
     KCacheDirty[] dirties();
 

@@ -6,6 +6,7 @@ import org.kevoree.modeling.api.map.LongHashMapCallBack;
 
 import java.util.List;
 
+/*
 public class KCacheLayer {
 
     private LongHashMap<KCacheLayer> _nestedLayers;
@@ -130,4 +131,4 @@ public class KCacheLayer {
         }
     }
 
-}
+}*/

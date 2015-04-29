@@ -1,17 +1,11 @@
 package org.kevoree.modeling.microframework.test.cache;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.kevoree.modeling.api.data.cache.KCacheObject;
-import org.kevoree.modeling.api.data.cache.KContentKey;
-import org.kevoree.modeling.api.data.cache.MultiLayeredMemoryCache;
-import org.kevoree.modeling.api.meta.MetaModel;
-
 /**
  * Created by duke on 20/02/15.
  */
 public class MultiLayeredCacheTest {
 
+    /*
     @Test
     public void test() {
         MultiLayeredMemoryCache cache = new MultiLayeredMemoryCache(null);
@@ -59,6 +53,6 @@ public class MultiLayeredCacheTest {
         cache.put(KContentKey.create("1///2"), temp);
         Assert.assertEquals(temp, cache.get(KContentKey.create("1///2")));
     }
-
+*/
 
 }

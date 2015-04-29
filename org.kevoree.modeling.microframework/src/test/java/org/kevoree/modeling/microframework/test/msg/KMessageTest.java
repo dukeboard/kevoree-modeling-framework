@@ -23,7 +23,7 @@ public class KMessageTest {
 
         Assert.assertEquals("{\n" +
                 "\"type\":\"0\"\n" +
-                ",\"keys\":[\"1/0/1/2\"]\n" +
+                ",\"keys\":[\"0/1/2\"]\n" +
                 ",\"values\":[\"0%1\"]\n" +
                 "}\n", event.json());
         KMessage parsed = KMessageLoader.load(event.json());
@@ -38,7 +38,7 @@ public class KMessageTest {
         Assert.assertEquals("{\n" +
                 "\"type\":\"1\"\n" +
                 ",\"id\":\"0\"\n" +
-                ",\"keys\":[\"1/0/1/2\",\"1/3/4/5\",\"1/6/7/8\"]\n" +
+                ",\"keys\":[\"0/1/2\",\"3/4/5\",\"6/7/8\"]\n" +
                 "}\n",msgGet.json());
         KMessage parsedGet = KMessageLoader.load(msgGet.json());
         Assert.assertEquals(parsedGet.json(), msgGet.json());
@@ -51,7 +51,7 @@ public class KMessageTest {
         Assert.assertEquals("{\n" +
                 "\"type\":\"3\"\n" +
                 ",\"id\":\"0\"\n" +
-                ",\"keys\":[\"1/0/1/2\",\"1/3/4/5\"]\n" +
+                ",\"keys\":[\"0/1/2\",\"3/4/5\"]\n" +
                 ",\"values\":[\"hello0\",\"hello1\"]\n" +
                 "}\n", msgPut.json());
         KMessage parsedPut = KMessageLoader.load(msgPut.json());
@@ -67,7 +67,7 @@ public class KMessageTest {
         Assert.assertEquals("{\n" +
             "\"type\":\"5\"\n" +
             ",\"id\":\"1\"\n" +
-            ",\"key\":\"1/0/1/2\"\n" +
+            ",\"key\":\"0/1/2\"\n" +
             ",\"class\":\"0\",\"op\":\"0\",\"params\":[\"param0\",\"param1\",\"param2\"]\n" +
             "}\n", msgCall.json());
 
@@ -81,7 +81,7 @@ public class KMessageTest {
         Assert.assertEquals("{\n" +
             "\"type\":\"6\"\n" +
             ",\"id\":\"1\"\n" +
-            ",\"key\":\"1/0/1/2\"\n" +
+            ",\"key\":\"0/1/2\"\n" +
             ",\"value\":\"hello\"\n" +
             "}\n", msgResult.json());
 

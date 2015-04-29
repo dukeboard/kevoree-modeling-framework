@@ -12,7 +12,7 @@ public class SimplePolynomialModel implements PolynomialModel {
 
     private double[] weights;
     private Long timeOrigin;
-    private ArrayList<DataSample> samples = new ArrayList<DataSample>();
+ //   private ArrayList<DataSample> samples = new ArrayList<DataSample>();
     private int degradeFactor;
     private Prioritization prioritization;
     private int maxDegree;
@@ -28,9 +28,10 @@ public class SimplePolynomialModel implements PolynomialModel {
         this.toleratedError = toleratedError;
     }
 
+    /*
     public List<DataSample> getSamples() {
         return samples;
-    }
+    }*/
 
     public int getDegree() {
         if (weights == null) {
@@ -45,7 +46,8 @@ public class SimplePolynomialModel implements PolynomialModel {
     }
 
     private double getMaxErr(int degree, double toleratedError, int maxDegree, Prioritization prioritization) {
-        double tol = toleratedError;
+        return toleratedError;
+        /*
         if (prioritization == Prioritization.HIGHDEGREES) {
             tol = toleratedError / Math.pow(2, maxDegree - degree);
         } else if (prioritization == Prioritization.LOWDEGREES) {
@@ -53,7 +55,7 @@ public class SimplePolynomialModel implements PolynomialModel {
         } else if (prioritization == Prioritization.SAMEPRIORITY) {
             tol = toleratedError * degree * 2 / (2 * maxDegree);
         }
-        return tol;
+        return tol;*/
     }
 
 
@@ -63,7 +65,7 @@ public class SimplePolynomialModel implements PolynomialModel {
             weights = new double[1];
             weights[0] = value;
             timeOrigin = time;
-            samples.add(new DataSample(time, value));
+           // samples.add(new DataSample(time, value));
         }
     }
 
@@ -71,6 +73,7 @@ public class SimplePolynomialModel implements PolynomialModel {
         double maxErr = 0;
         double temp = 0;
         DataSample ds;
+        /*
         for (int i = 0; i < samples.size(); i++) {
             ds = samples.get(i);
             double val = internal_extrapolate(ds.time, computedWeights);
@@ -79,6 +82,7 @@ public class SimplePolynomialModel implements PolynomialModel {
                 maxErr = temp;
             }
         }
+        */
         temp = Math.abs(internal_extrapolate(time, computedWeights) - value);
         if (temp > maxErr) {
             maxErr = temp;
@@ -117,6 +121,13 @@ public class SimplePolynomialModel implements PolynomialModel {
 
     @Override
     public boolean insert(long time, double value) {
+
+        if(true){
+            return true;
+        }
+
+
+
         //If this is the first point in the cset, add it and return
         if (weights == null) {
             internal_feed(time, value);
@@ -127,12 +138,13 @@ public class SimplePolynomialModel implements PolynomialModel {
         double maxError = getMaxErr(this.getDegree(), toleratedError, maxDegree, prioritization);
         //If the current model fits well the new value, return
         if (Math.abs(extrapolate(time) - value) <= maxError) {
-            samples.add(new DataSample(time, value));
+            //samples.add(new DataSample(time, value));
             _lastIndex = time;
             return true;
         }
         //If not, first check if we can increase the degree
         int deg = getDegree();
+        /*
         if (deg < maxDegree) {
             deg++;
             int ss = Math.min(deg * 2, samples.size());
@@ -159,7 +171,7 @@ public class SimplePolynomialModel implements PolynomialModel {
                 _isDirty = true;
                 return true;
             }
-        }
+        }*/
         return false;
     }
 

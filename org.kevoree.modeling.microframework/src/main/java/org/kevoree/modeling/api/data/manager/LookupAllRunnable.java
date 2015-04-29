@@ -57,7 +57,7 @@ public class LookupAllRunnable implements Runnable {
                                 IndexRBTree cachedIndexTree = (IndexRBTree) timeIndexes[i];
                                 TreeNode resolvedNode = cachedIndexTree.previousOrEqual(_originView.now());
                                 if (resolvedNode != null) {
-                                    resolvedContentKey = KContentKey.createObject(tempKeys[i].universe(), resolvedNode.getKey(), _keys[i]);
+                                    resolvedContentKey = KContentKey.createObject(tempKeys[i].universe, resolvedNode.getKey(), _keys[i]);
 
                                 }
                             }

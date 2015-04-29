@@ -63,7 +63,7 @@ public class KCacheEntry implements KCacheObject {
 
     @Override
     public void unserialize(KContentKey key, String payload, MetaModel metaModel) throws Exception {
-        JsonRaw.decode(payload, key.time(), metaModel, this);
+        JsonRaw.decode(payload, key.time, metaModel, this);
     }
 
     private int _counter = 0;

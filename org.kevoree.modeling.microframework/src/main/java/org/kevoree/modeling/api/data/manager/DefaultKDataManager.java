@@ -86,7 +86,7 @@ public class DefaultKDataManager implements KDataManager {
             throw new RuntimeException(UNIVERSE_NOT_CONNECTED_ERROR);
         }
         long nextGeneratedKey = _universeKeyCalculator.nextKey();
-        if (nextGeneratedKey == KConfig.NULL_LONG) {
+        if (nextGeneratedKey == KConfig.NULL_LONG || nextGeneratedKey == KConfig.END_OF_TIME) {
             nextGeneratedKey = _universeKeyCalculator.nextKey();
         }
         return nextGeneratedKey;
@@ -98,7 +98,7 @@ public class DefaultKDataManager implements KDataManager {
             throw new RuntimeException(UNIVERSE_NOT_CONNECTED_ERROR);
         }
         long nextGeneratedKey = _objectKeyCalculator.nextKey();
-        if (nextGeneratedKey == KConfig.NULL_LONG) {
+        if (nextGeneratedKey == KConfig.NULL_LONG || nextGeneratedKey == KConfig.END_OF_TIME) {
             nextGeneratedKey = _objectKeyCalculator.nextKey();
         }
         return nextGeneratedKey;
@@ -120,16 +120,7 @@ public class DefaultKDataManager implements KDataManager {
     private LongLongHashMap cachedGlobalUniverse = null;
 
     public LongLongHashMap globalUniverseOrder() {
-        if (cachedGlobalUniverse != null) {
-            return cachedGlobalUniverse;
-        } else {
-            return internal_load_global_universe();
-        }
-    }
-
-    private synchronized LongLongHashMap internal_load_global_universe() {
-        cachedGlobalUniverse = (LongLongHashMap) _cache.get(KContentKey.createGlobalUniverseTree());
-        return cachedGlobalUniverse;
+        return (LongLongHashMap) _cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, KConfig.NULL_LONG);
     }
 
     @Override
@@ -227,9 +218,9 @@ public class DefaultKDataManager implements KDataManager {
         LongLongHashMap universeTree = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         universeTree.inc();
         universeTree.put(obj.view().universe().key(), obj.now());
-        _cache.put(KContentKey.createTimeTree(obj.universe().key(), obj.uuid()), timeTree);
-        _cache.put(KContentKey.createUniverseTree(obj.uuid()), universeTree);
-        _cache.put(KContentKey.createObject(obj.universe().key(), obj.now(), obj.uuid()), cacheEntry);
+        _cache.put(obj.universe().key(), KConfig.NULL_LONG, obj.uuid(), timeTree);
+        _cache.put(KConfig.NULL_LONG, KConfig.NULL_LONG, obj.uuid(), universeTree);
+        _cache.put(obj.universe().key(), obj.now(), obj.uuid(), cacheEntry);
     }
 
     @Override
@@ -303,7 +294,7 @@ public class DefaultKDataManager implements KDataManager {
                                                                 } else {
                                                                     globalUniverseTree = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
                                                                 }
-                                                                _cache.put(KContentKey.createGlobalUniverseTree(), globalUniverseTree);
+                                                                _cache.put(KConfig.NULL_LONG, KConfig.NULL_LONG, KConfig.NULL_LONG, globalUniverseTree);
                                                                 long newUniIndex = Long.parseLong(uniIndexPayload);
                                                                 long newObjIndex = Long.parseLong(objIndexPayload);
                                                                 _universeKeyCalculator = new KeyCalculator(finalNewPrefix, newUniIndex);
@@ -338,9 +329,9 @@ public class DefaultKDataManager implements KDataManager {
 
     @Override
     public KCacheEntry entry(KObject origin, AccessMode accessMode) {
-        LongLongHashMap objectUniverseTree = (LongLongHashMap) _cache.get(KContentKey.createUniverseTree(origin.uuid()));
+        LongLongHashMap objectUniverseTree = (LongLongHashMap) _cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, origin.uuid());
         long resolvedUniverse = ResolutionHelper.resolve_universe(globalUniverseOrder(), objectUniverseTree, origin.now(), origin.view().universe().key());
-        IndexRBTree timeTree = (IndexRBTree) _cache.get(KContentKey.createTimeTree(resolvedUniverse, origin.uuid()));
+        IndexRBTree timeTree = (IndexRBTree) _cache.get(resolvedUniverse, KConfig.NULL_LONG, origin.uuid());
         if (timeTree == null) {
             throw new RuntimeException(OUT_OF_CACHE_MESSAGE + " : TimeTree not found for " + KContentKey.createTimeTree(resolvedUniverse, origin.uuid()) + " from " + origin.universe().key() + "/" + resolvedUniverse);
         }
@@ -349,7 +340,7 @@ public class DefaultKDataManager implements KDataManager {
             long resolvedTime = resolvedNode.getKey();
             boolean needTimeCopy = accessMode.equals(AccessMode.WRITE) && (resolvedTime != origin.now());
             boolean needUniverseCopy = accessMode.equals(AccessMode.WRITE) && (resolvedUniverse != origin.universe().key());
-            KCacheEntry entry = (KCacheEntry) _cache.get(KContentKey.createObject(resolvedUniverse, resolvedTime, origin.uuid()));
+            KCacheEntry entry = (KCacheEntry) _cache.get(resolvedUniverse, resolvedTime, origin.uuid());
             if (entry == null) {
                 return null;
             }
@@ -364,13 +355,13 @@ public class DefaultKDataManager implements KDataManager {
                 return entry;
             } else {
                 KCacheEntry clonedEntry = entry.clone();
-                _cache.put(KContentKey.createObject(origin.universe().key(), origin.now(), origin.uuid()), clonedEntry);
+                _cache.put(origin.universe().key(), origin.now(), origin.uuid(), clonedEntry);
                 if (!needUniverseCopy) {
                     timeTree.insert(origin.now());
                 } else {
                     IndexRBTree newTemporalTree = new IndexRBTree();
                     newTemporalTree.insert(origin.now());
-                    _cache.put(KContentKey.createTimeTree(origin.universe().key(), origin.uuid()), newTemporalTree);
+                    _cache.put(origin.universe().key(), KConfig.NULL_LONG, origin.uuid(), newTemporalTree);
                     objectUniverseTree.put(origin.universe().key(), origin.now());//insert this time as a divergence point for this object
                 }
                 entry.dec();
@@ -487,7 +478,7 @@ public class DefaultKDataManager implements KDataManager {
                 LongLongHashMap cleanedTree = (LongLongHashMap) globalRootTree;
                 if (cleanedTree == null) {
                     cleanedTree = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
-                    _cache.put(KContentKey.createRootUniverseTree(), cleanedTree);
+                    _cache.put(KConfig.NULL_LONG, KConfig.NULL_LONG, KConfig.END_OF_TIME, cleanedTree);
                 }
                 long closestUniverse = ResolutionHelper.resolve_universe(globalUniverseOrder(), cleanedTree, newRoot.now(), newRoot.universe().key());
                 cleanedTree.put(newRoot.universe().key(), newRoot.now());
@@ -495,7 +486,7 @@ public class DefaultKDataManager implements KDataManager {
                     LongRBTree newTimeTree = new LongRBTree();
                     newTimeTree.insert(newRoot.now(), newRoot.uuid());
                     KContentKey universeTreeRootKey = KContentKey.createRootTimeTree(newRoot.universe().key());
-                    _cache.put(universeTreeRootKey, newTimeTree);
+                    _cache.put(universeTreeRootKey.universe, universeTreeRootKey.time, universeTreeRootKey.obj, newTimeTree);
                     if (callback != null) {
                         callback.on(null);
                     }
@@ -507,7 +498,7 @@ public class DefaultKDataManager implements KDataManager {
                             LongRBTree initializedTree = (LongRBTree) resolvedRootTimeTree;
                             if (initializedTree == null) {
                                 initializedTree = new LongRBTree();
-                                _cache.put(universeTreeRootKey, initializedTree);
+                                _cache.put(universeTreeRootKey.universe, universeTreeRootKey.time, universeTreeRootKey.obj, initializedTree);
                             }
                             initializedTree.insert(newRoot.now(), newRoot.uuid());
                             if (callback != null) {
@@ -525,7 +516,7 @@ public class DefaultKDataManager implements KDataManager {
     public void reload(KContentKey[] keys, final Callback<Throwable> callback) {
         List<KContentKey> toReload = new ArrayList<KContentKey>();
         for (int i = 0; i < keys.length; i++) {
-            KCacheObject cached = _cache.get(keys[i]);
+            KCacheObject cached = _cache.get(keys[i].universe, keys[i].time, keys[i].obj);
             if (cached != null && !cached.isDirty()) {
                 toReload.add(keys[i]);
             }
@@ -543,12 +534,12 @@ public class DefaultKDataManager implements KDataManager {
                     for (int i = 0; i < strings.length; i++) {
                         if (strings[i] != null) {
                             KContentKey correspondingKey = toReload_flat[i];
-                            KCacheObject cachedObj = _cache.get(correspondingKey);
+                            KCacheObject cachedObj = _cache.get(correspondingKey.universe, correspondingKey.time, correspondingKey.obj);
                             if (cachedObj != null && !cachedObj.isDirty()) {
                                 cachedObj = internal_unserialize(correspondingKey, strings[i]);
                                 if (cachedObj != null) {
                                     //replace the cache value
-                                    _cache.put(correspondingKey, cachedObj);
+                                    _cache.put(correspondingKey.universe, correspondingKey.time, correspondingKey.obj, cachedObj);
                                 }
                             }
                         }
@@ -562,7 +553,7 @@ public class DefaultKDataManager implements KDataManager {
     }
 
     public void bumpKeyToCache(final KContentKey contentKey, final Callback<KCacheObject> callback) {
-        KCacheObject cached = _cache.get(contentKey);
+        KCacheObject cached = _cache.get(contentKey.universe, contentKey.time, contentKey.obj);
         if (cached != null) {
             callback.on(cached);
         } else {
@@ -574,7 +565,7 @@ public class DefaultKDataManager implements KDataManager {
                     if (strings[0] != null) {
                         KCacheObject newObject = internal_unserialize(contentKey, strings[0]);
                         if (newObject != null) {
-                            _cache.put(contentKey, newObject);
+                            _cache.put(contentKey.universe, contentKey.time, contentKey.obj, newObject);
                         }
                         callback.on(newObject);
                     } else {
@@ -591,7 +582,7 @@ public class DefaultKDataManager implements KDataManager {
         final KCacheObject[] result = new KCacheObject[contentKeys.length];
         for (int i = 0; i < contentKeys.length; i++) {
             if (contentKeys[i] != null) {
-                result[i] = _cache.get(contentKeys[i]);
+                result[i] = _cache.get(contentKeys[i].universe, contentKeys[i].time, contentKeys[i].obj);
                 if (result[i] == null) {
                     if (toLoadIndexes == null) {
                         toLoadIndexes = new boolean[contentKeys.length];
@@ -622,7 +613,7 @@ public class DefaultKDataManager implements KDataManager {
                             KContentKey newObjKey = toLoadDbKeys[i];
                             KCacheObject newObject = internal_unserialize(newObjKey, payloads[i]);
                             if (newObject != null) {
-                                _cache.put(newObjKey, newObject);
+                                _cache.put(newObjKey.universe, newObjKey.time, newObjKey.obj, newObject);
                                 int originIndex = originIndexes[i];
                                 result[originIndex] = newObject;
                             }
@@ -637,25 +628,27 @@ public class DefaultKDataManager implements KDataManager {
     /* This method unserialize objects according to KContentKey specification */
     private KCacheObject internal_unserialize(KContentKey key, String payload) {
         KCacheObject result;
-        long segment = key.segment();
-        if (segment == KContentKey.GLOBAL_SEGMENT_DATA_INDEX) {
-            result = new IndexRBTree();
-        } else if (segment == KContentKey.GLOBAL_SEGMENT_DATA_RAW) {
-            result = new KCacheEntry();
-        } else if (segment == KContentKey.GLOBAL_SEGMENT_DATA_ROOT_INDEX) {
-            result = new LongRBTree();
-        } else if (segment == KContentKey.GLOBAL_SEGMENT_DATA_HASH_INDEX || segment == KContentKey.GLOBAL_SEGMENT_UNIVERSE_TREE || segment == KContentKey.GLOBAL_SEGMENT_DATA_ROOT) {
-            result = new LongLongHashMap(0, KConfig.CACHE_LOAD_FACTOR);
+        boolean isUniverseNotNull = key.universe != KConfig.NULL_LONG;
+        if (KConfig.END_OF_TIME == key.obj) {
+            if (isUniverseNotNull) {
+                result = new LongRBTree();
+            } else {
+                result = new LongLongHashMap(0, KConfig.CACHE_LOAD_FACTOR);
+            }
         } else {
-            result = null;
+            boolean isTimeNotNull = key.time != KConfig.NULL_LONG;
+            boolean isObjNotNull = key.obj != KConfig.NULL_LONG;
+            if (isUniverseNotNull && isTimeNotNull && isObjNotNull) {
+                result = new KCacheEntry();
+            } else if (isUniverseNotNull && !isTimeNotNull && isObjNotNull) {
+                result = new IndexRBTree();
+            } else {
+                result = new LongLongHashMap(0, KConfig.CACHE_LOAD_FACTOR);
+            }
         }
         try {
-            if (result == null) {
-                return null;
-            } else {
-                result.unserialize(key, payload, model().metaModel());
-                return result;
-            }
+            result.unserialize(key, payload, model().metaModel());
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             return null;

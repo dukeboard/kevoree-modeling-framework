@@ -9,7 +9,7 @@ public class IndexRBTree implements KCacheObject {
 
     private TreeNode root = null;
     private int _size = 0;
-    private Long[] _previousOrEqualsCacheKeys = null;
+    private long[] _previousOrEqualsCacheKeys = null;
     private TreeNode[] _previousOrEqualsCacheValues = null;
     private int _nextCacheElem;
     private int _counter = 0;
@@ -35,7 +35,10 @@ public class IndexRBTree implements KCacheObject {
     }
 
     public IndexRBTree() {
-        _previousOrEqualsCacheKeys = new Long[KConfig.TREE_CACHE_SIZE];
+        _previousOrEqualsCacheKeys = new long[KConfig.TREE_CACHE_SIZE];
+        for(int i=0;i<KConfig.TREE_CACHE_SIZE;i++){
+            _previousOrEqualsCacheKeys[i] = KConfig.NULL_LONG;
+        }
         _previousOrEqualsCacheValues = new TreeNode[KConfig.TREE_CACHE_SIZE];
         _nextCacheElem = 0;
     }
@@ -44,7 +47,7 @@ public class IndexRBTree implements KCacheObject {
     private TreeNode tryPreviousOrEqualsCache(long key) {
         if (_previousOrEqualsCacheKeys != null && _previousOrEqualsCacheValues != null) {
             for (int i = 0; i < _nextCacheElem; i++) {
-                if (_previousOrEqualsCacheKeys[i] != null && key == _previousOrEqualsCacheKeys[i]) {
+                if (_previousOrEqualsCacheKeys[i] != KConfig.NULL_LONG && key == _previousOrEqualsCacheKeys[i]) {
                     return _previousOrEqualsCacheValues[i];
                 }
             }

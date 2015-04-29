@@ -23,7 +23,7 @@ public class KConfig {
 
     public static final char KEY_SEP = '/';
 
-    public static final int KEY_SIZE = 4;
+    public static final int KEY_SIZE = 3;
 
     public static final int CACHE_INIT_SIZE = 16;
 

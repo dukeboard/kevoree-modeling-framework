@@ -16,6 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+/*
 public class MultiLayeredMemoryCache implements KCache {
 
     public static boolean DEBUG = false;
@@ -107,15 +108,9 @@ public class MultiLayeredMemoryCache implements KCache {
         _nestedLayers = new LongHashMap<KCacheLayer>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
     }
 
-    /**
-     * @ignore ts
-     */
     //TODO very bad idea, for performance... drop this...
     private LinkedList<KObjectWeakReference> references = new LinkedList<KObjectWeakReference>();
 
-    /**
-     * @native ts
-     */
     @Override
     public void monitor(KObject origin) {
         //KObjectWeakReference phantomRef = new KObjectWeakReference(origin);
@@ -131,9 +126,6 @@ public class MultiLayeredMemoryCache implements KCache {
         }
     }
 
-    /**
-     * @native ts
-     */
     @Override
     public synchronized void clean() {
         if (_manager != null) {
@@ -163,4 +155,4 @@ public class MultiLayeredMemoryCache implements KCache {
         }
     }
 
-}
+}*/

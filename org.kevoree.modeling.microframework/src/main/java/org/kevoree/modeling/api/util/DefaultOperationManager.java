@@ -79,7 +79,7 @@ public class DefaultOperationManager implements KOperationManager {
         for (int i = 0; i < param.length; i++) {
             stringParams[i] = param[i].toString();
         }
-        KContentKey contentKey = new KContentKey(KContentKey.GLOBAL_SEGMENT_DATA_RAW, source.universe().key(), source.now(), source.uuid());
+        KContentKey contentKey = new KContentKey(source.universe().key(), source.now(), source.uuid());
         KOperationCallMessage operationCall = new KOperationCallMessage();
         operationCall.id = nextKey();
         operationCall.key = contentKey;
@@ -109,10 +109,10 @@ public class DefaultOperationManager implements KOperationManager {
         } else if (operationEvent.type() == KMessageLoader.OPERATION_CALL_TYPE) {
             final KOperationCallMessage operationCall = (KOperationCallMessage) operationEvent;
             KContentKey sourceKey = operationCall.key;
-            final KOperation operationCore = searchOperation(sourceKey.obj(), operationCall.classIndex, operationCall.opIndex);
+            final KOperation operationCore = searchOperation(sourceKey.obj, operationCall.classIndex, operationCall.opIndex);
             if (operationCore != null) {
-                KView view = _manager.model().universe(sourceKey.universe()).time(sourceKey.time());
-                view.lookup(sourceKey.obj()).then(new Callback<KObject>() {
+                KView view = _manager.model().universe(sourceKey.universe).time(sourceKey.time);
+                view.lookup(sourceKey.obj).then(new Callback<KObject>() {
                     public void on(KObject kObject) {
                         if (kObject != null) {
                             operationCore.on(kObject, operationCall.params, new Callback<Object>() {
