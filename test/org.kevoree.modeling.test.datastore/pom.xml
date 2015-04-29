@@ -37,7 +37,21 @@
                         <configuration>
                             <metaModelFile>metamodel/Geometry.mm</metaModelFile>
                             <js>true</js>
+                            <jsWorkingDir>${project.basedir}/src/main/resources</jsWorkingDir>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.kevoree.modeling</groupId>
+                <artifactId>org.kevoree.modeling.java2typescript.mavenplugin</artifactId>
+                <version>${java2typescript.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>compile-ts</id>
+                        <goals>
+                            <goal>extract</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
