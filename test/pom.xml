@@ -20,7 +20,7 @@
     </licenses>
 
     <properties>
-        <kmf.version>4.18.3</kmf.version>
+        <kmf.version>4.18.4-SNAPSHOT</kmf.version>
         <java2typescript.plugin.version>27</java2typescript.plugin.version>
     </properties>
 

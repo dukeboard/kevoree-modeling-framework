@@ -35,7 +35,7 @@
                     var lib = root;
                     displayShapes(lib);
 
-                    lib.listen(function(source, metas) {
+                    lib.listen(0, function(source, metas) {
                         console.log(source, metas);
                         displayShapes(source);
                         /*
@@ -62,7 +62,7 @@
                 for(var i = 0; i < shapes.length; i++) {
                     if(shapesContainer.find('div#'+ shapes[i].getName()).length == 0) {
                         $('<div id="'+shapes[i].getName()+'" style="height:50px;width:50px;display: inline-block; margin: 10px;background-color: '+shapes[i].getColor()+';"></div>').appendTo(shapesContainer);
-                        shapes[i].listen(function(newShape){
+                        shapes[i].listen(0, function(newShape){
                             $('div#' + newShape.getName()).css('background-color', newShape.getColor());
                         });
                         /*
