@@ -11,7 +11,7 @@ public class AbstractMetaAttribute implements MetaAttribute {
 
     private int _index;
 
-    private double _precision;
+    public double _precision;
 
     private boolean _key;
 

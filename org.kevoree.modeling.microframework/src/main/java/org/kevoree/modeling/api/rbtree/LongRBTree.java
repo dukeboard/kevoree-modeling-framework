@@ -53,28 +53,24 @@ public class LongRBTree implements KCacheObject {
         return builder.toString();
     }
 
-    private Long[] _previousOrEqualsCacheKeys = null;
     private LongTreeNode[] _previousOrEqualsCacheValues = null;
     private int _previousOrEqualsNextCacheElem;
 
-    private Long[] _lookupCacheKeys = null;
     private LongTreeNode[] _lookupCacheValues = null;
     private int _lookupNextCacheElem;
 
     public LongRBTree() {
-        _lookupCacheKeys = new Long[KConfig.TREE_CACHE_SIZE];
         _lookupCacheValues = new LongTreeNode[KConfig.TREE_CACHE_SIZE];
-        _previousOrEqualsCacheKeys = new Long[KConfig.TREE_CACHE_SIZE];
         _previousOrEqualsCacheValues = new LongTreeNode[KConfig.TREE_CACHE_SIZE];
         _previousOrEqualsNextCacheElem = 0;
         _lookupNextCacheElem = 0;
     }
 
     /* Cache management */
-    private synchronized LongTreeNode tryPreviousOrEqualsCache(long key) {
-        if (_previousOrEqualsCacheKeys != null && _previousOrEqualsCacheValues != null) {
+    private LongTreeNode tryPreviousOrEqualsCache(long key) {
+        if (_previousOrEqualsCacheValues != null) {
             for (int i = 0; i < _previousOrEqualsNextCacheElem; i++) {
-                if (_previousOrEqualsCacheKeys[i] != null && key == _previousOrEqualsCacheKeys[i]) {
+                if (_previousOrEqualsCacheValues[i] != null && key == _previousOrEqualsCacheValues[i].key) {
                     return _previousOrEqualsCacheValues[i];
                 }
             }
@@ -82,10 +78,10 @@ public class LongRBTree implements KCacheObject {
         return null;
     }
 
-    private synchronized LongTreeNode tryLookupCache(long key) {
-        if (_lookupCacheKeys != null && _lookupCacheValues != null) {
+    private LongTreeNode tryLookupCache(long key) {
+        if (_lookupCacheValues != null) {
             for (int i = 0; i < _lookupNextCacheElem; i++) {
-                if (_lookupCacheKeys[i] != null && key == _lookupCacheKeys[i]) {
+                if (_lookupCacheValues[i] != null && key == _lookupCacheValues[i].key) {
                     return _lookupCacheValues[i];
                 }
             }
@@ -98,20 +94,18 @@ public class LongRBTree implements KCacheObject {
         _lookupNextCacheElem = 0;
     }
 
-    private void putInPreviousOrEqualsCache(long key, LongTreeNode resolved) {
+    private void putInPreviousOrEqualsCache(LongTreeNode resolved) {
         if(_previousOrEqualsNextCacheElem == KConfig.TREE_CACHE_SIZE){
             _previousOrEqualsNextCacheElem = 0;
         }
-        _previousOrEqualsCacheKeys[_previousOrEqualsNextCacheElem] = key;
         _previousOrEqualsCacheValues[_previousOrEqualsNextCacheElem] = resolved;
         _previousOrEqualsNextCacheElem++;
     }
 
-    private void putInLookupCache(long key, LongTreeNode resolved) {
+    private void putInLookupCache(LongTreeNode resolved) {
         if(_lookupNextCacheElem == KConfig.TREE_CACHE_SIZE){
             _lookupNextCacheElem = 0;
         }
-        _lookupCacheKeys[_lookupNextCacheElem] = key;
         _lookupCacheValues[_lookupNextCacheElem] = resolved;
         _lookupNextCacheElem++;
     }
@@ -155,7 +149,7 @@ public class LongRBTree implements KCacheObject {
         }
         while (n != null) {
             if (key == n.key) {
-                putInLookupCache(key, n);
+                putInLookupCache(n);
                 return n;
             } else {
                 if (key < n.key) {
@@ -165,7 +159,7 @@ public class LongRBTree implements KCacheObject {
                 }
             }
         }
-        putInLookupCache(key, null);
+        putInLookupCache(null);
         return n;
     }
 
@@ -180,14 +174,14 @@ public class LongRBTree implements KCacheObject {
         }
         while (p != null) {
             if (key == p.key) {
-                putInPreviousOrEqualsCache(key, p);
+                putInPreviousOrEqualsCache(p);
                 return p;
             }
             if (key > p.key) {
                 if (p.getRight() != null) {
                     p = p.getRight();
                 } else {
-                    putInPreviousOrEqualsCache(key, p);
+                    putInPreviousOrEqualsCache(p);
                     return p;
                 }
             } else {
@@ -200,7 +194,7 @@ public class LongRBTree implements KCacheObject {
                         ch = parent;
                         parent = parent.getParent();
                     }
-                    putInPreviousOrEqualsCache(key, parent);
+                    putInPreviousOrEqualsCache(parent);
                     return parent;
                 }
             }

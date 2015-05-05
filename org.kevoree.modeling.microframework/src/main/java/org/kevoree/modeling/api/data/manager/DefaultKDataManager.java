@@ -48,7 +48,6 @@ public class DefaultKDataManager implements KDataManager {
     private static final short zeroPrefix = 0;
 
     public DefaultKDataManager(KModel model) {
-        //_cache = new MultiLayeredMemoryCache(this);
         _cache = new HashMemoryCache();
         _modelKeyCalculator = new KeyCalculator(zeroPrefix, 0);
         _groupKeyCalculator = new KeyCalculator(zeroPrefix, 0);
@@ -115,10 +114,6 @@ public class DefaultKDataManager implements KDataManager {
     }
 
     /* End Key Management Section */
-
-    /* Global Universe Local Caching */
-    private LongLongHashMap cachedGlobalUniverse = null;
-
     public LongLongHashMap globalUniverseOrder() {
         return (LongLongHashMap) _cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, KConfig.NULL_LONG);
     }
@@ -385,7 +380,6 @@ public class DefaultKDataManager implements KDataManager {
         reload(globalUniverseTree, new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
-                cachedGlobalUniverse = null;
                 callback.on(throwable);
             }
         });

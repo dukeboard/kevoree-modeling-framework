@@ -9,7 +9,6 @@ public class IndexRBTree implements KCacheObject {
 
     private TreeNode root = null;
     private int _size = 0;
-    private long[] _previousOrEqualsCacheKeys = null;
     private TreeNode[] _previousOrEqualsCacheValues = null;
     private int _nextCacheElem;
     private int _counter = 0;
@@ -35,19 +34,15 @@ public class IndexRBTree implements KCacheObject {
     }
 
     public IndexRBTree() {
-        _previousOrEqualsCacheKeys = new long[KConfig.TREE_CACHE_SIZE];
-        for(int i=0;i<KConfig.TREE_CACHE_SIZE;i++){
-            _previousOrEqualsCacheKeys[i] = KConfig.NULL_LONG;
-        }
         _previousOrEqualsCacheValues = new TreeNode[KConfig.TREE_CACHE_SIZE];
         _nextCacheElem = 0;
     }
 
     /* Cache management */
     private TreeNode tryPreviousOrEqualsCache(long key) {
-        if (_previousOrEqualsCacheKeys != null && _previousOrEqualsCacheValues != null) {
+        if (_previousOrEqualsCacheValues != null) {
             for (int i = 0; i < _nextCacheElem; i++) {
-                if (_previousOrEqualsCacheKeys[i] != KConfig.NULL_LONG && key == _previousOrEqualsCacheKeys[i]) {
+                if (_previousOrEqualsCacheValues[i] != null && _previousOrEqualsCacheValues[i].key == key) {
                     return _previousOrEqualsCacheValues[i];
                 }
             }
@@ -61,11 +56,10 @@ public class IndexRBTree implements KCacheObject {
         _nextCacheElem = 0;
     }
 
-    private synchronized void putInPreviousOrEqualsCache(long key, TreeNode resolved) {
+    private void putInPreviousOrEqualsCache(TreeNode resolved) {
         if(_nextCacheElem == KConfig.TREE_CACHE_SIZE){
             _nextCacheElem = 0;
         }
-        _previousOrEqualsCacheKeys[_nextCacheElem] = key;
         _previousOrEqualsCacheValues[_nextCacheElem] = resolved;
         _nextCacheElem++;
     }
@@ -115,7 +109,7 @@ public class IndexRBTree implements KCacheObject {
         resetCache();
     }
 
-    public TreeNode previousOrEqual(long key) {
+    public synchronized TreeNode previousOrEqual(long key) {
         TreeNode cachedVal = tryPreviousOrEqualsCache(key);
         if (cachedVal != null) {
             return cachedVal;
@@ -126,14 +120,14 @@ public class IndexRBTree implements KCacheObject {
         }
         while (p != null) {
             if (key == p.key) {
-                putInPreviousOrEqualsCache(key, p);
+                putInPreviousOrEqualsCache(p);
                 return p;
             }
             if (key > p.key) {
                 if (p.getRight() != null) {
                     p = p.getRight();
                 } else {
-                    putInPreviousOrEqualsCache(key, p);
+                    putInPreviousOrEqualsCache(p);
                     return p;
                 }
             } else {
@@ -146,7 +140,7 @@ public class IndexRBTree implements KCacheObject {
                         ch = parent;
                         parent = parent.getParent();
                     }
-                    putInPreviousOrEqualsCache(key, parent);
+                    putInPreviousOrEqualsCache(parent);
                     return parent;
                 }
             }

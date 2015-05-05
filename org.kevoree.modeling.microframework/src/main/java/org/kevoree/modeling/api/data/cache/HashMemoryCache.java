@@ -20,10 +20,6 @@ public class HashMemoryCache implements KCache {
 
     transient int modCount = 0;
 
-    private int hashKey(KContentKey p_key) {
-        return (int) (p_key.universe ^ p_key.time ^ p_key.obj);
-    }
-
     @Override
     public KCacheObject get(long universe, long time, long obj) {
         if (elementDataSize == 0) {
@@ -56,19 +52,39 @@ public class HashMemoryCache implements KCache {
             }
         }
         if (entry == null) {
-            modCount++;
-            if (++elementCount > threshold) {
-                rehashCapacity(elementDataSize);
-                index = (hash & 0x7FFFFFFF) % elementDataSize;
-            }
-            entry = new Entry();
-            entry.universe = universe;
-            entry.time = time;
-            entry.obj = obj;
-            entry.next = elementData[index];
-            elementData[index] = entry;
+            entry = complex_insert(index,hash,universe,time,obj);
         }
         entry.value = payload;
+    }
+
+    private synchronized Entry complex_insert(int previousIndex, int hash,long universe, long time, long obj){
+        modCount++;
+        int index = previousIndex;
+        if (++elementCount > threshold) {
+            int length = (elementDataSize == 0 ? 1 : elementDataSize << 1);
+            Entry[] newData = new Entry[length];
+            for (int i = 0; i < elementDataSize; i++) {
+                Entry entry = elementData[i];
+                while (entry != null) {
+                    index = ((int) (entry.universe ^ entry.time ^ entry.obj) & 0x7FFFFFFF) % length;
+                    Entry next = entry.next;
+                    entry.next = newData[index];
+                    newData[index] = entry;
+                    entry = next;
+                }
+            }
+            elementData = newData;
+            elementDataSize = length;
+            threshold = (int) (elementDataSize * loadFactor);
+            index = (hash & 0x7FFFFFFF) % elementDataSize;
+        }
+        Entry entry = new Entry();
+        entry.universe = universe;
+        entry.time = time;
+        entry.obj = obj;
+        entry.next = elementData[index];
+        elementData[index] = entry;
+        return entry;
     }
 
     @Override
@@ -91,19 +107,23 @@ public class HashMemoryCache implements KCache {
         KCacheDirty[] collectedDirties = new KCacheDirty[nbDirties];
         nbDirties = 0;
         for (int i = 0; i < elementDataSize; i++) {
-            if (elementData[i] != null) {
-                Entry current = elementData[i];
-                if (elementData[i].value.isDirty()) {
-                    KCacheDirty dirty = new KCacheDirty(new KContentKey(current.universe,current.time,current.obj), elementData[i].value);
-                    collectedDirties[nbDirties] = dirty;
-                    nbDirties++;
-                }
-                while (current.next != null) {
-                    current = current.next;
-                    if (current.value.isDirty()) {
-                        KCacheDirty dirty = new KCacheDirty(new KContentKey(current.universe,current.time,current.obj), current.value);
+            if(nbDirties < collectedDirties.length){ //the rest will saved next round due to concurrent tagged values
+                if (elementData[i] != null) {
+                    Entry current = elementData[i];
+                    if (elementData[i].value.isDirty()) {
+                        KCacheDirty dirty = new KCacheDirty(new KContentKey(current.universe,current.time,current.obj), elementData[i].value);
                         collectedDirties[nbDirties] = dirty;
+                        elementData[i].value.setClean();
                         nbDirties++;
+                    }
+                    while (current.next != null) {
+                        current = current.next;
+                        if (current.value.isDirty()) {
+                            KCacheDirty dirty = new KCacheDirty(new KContentKey(current.universe,current.time,current.obj), current.value);
+                            collectedDirties[nbDirties] = dirty;
+                            current.value.setClean();
+                            nbDirties++;
+                        }
                     }
                 }
             }
@@ -135,7 +155,7 @@ public class HashMemoryCache implements KCache {
         elementCount = 0;
         elementData = new Entry[initalCapacity];
         elementDataSize = initalCapacity;
-        computeMaxSize();
+        threshold = (int) (elementDataSize * loadFactor);
     }
 
     public void clear() {
@@ -145,28 +165,6 @@ public class HashMemoryCache implements KCache {
             this.elementDataSize = initalCapacity;
             modCount++;
         }
-    }
-
-    private void computeMaxSize() {
-        threshold = (int) (elementDataSize * loadFactor);
-    }
-
-    void rehashCapacity(int capacity) {
-        int length = (capacity == 0 ? 1 : capacity << 1);
-        Entry[] newData = new Entry[length];
-        for (int i = 0; i < elementDataSize; i++) {
-            Entry entry = elementData[i];
-            while (entry != null) {
-                int index = ((int) (entry.universe ^ entry.time ^ entry.obj) & 0x7FFFFFFF) % length;
-                Entry next = entry.next;
-                entry.next = newData[index];
-                newData[index] = entry;
-                entry = next;
-            }
-        }
-        elementData = newData;
-        elementDataSize = length;
-        computeMaxSize();
     }
 
 }

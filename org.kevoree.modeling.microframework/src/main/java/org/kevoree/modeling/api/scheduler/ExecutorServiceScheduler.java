@@ -10,7 +10,7 @@ public class ExecutorServiceScheduler implements KScheduler {
     /**
      * @ignore ts
      */
-    private ExecutorService _service = Executors.newCachedThreadPool();
+    private ExecutorService _service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     /**
      * @native ts
