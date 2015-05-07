@@ -82,6 +82,7 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
     public void close(Callback<Throwable> callback) {
         _localEventListeners.clear();
         backend.clear();
+        callback.on(null);
     }
 
 
