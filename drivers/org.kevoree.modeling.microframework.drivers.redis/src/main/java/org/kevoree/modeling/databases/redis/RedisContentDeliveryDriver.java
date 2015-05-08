@@ -33,9 +33,6 @@ public class RedisContentDeliveryDriver implements KContentDeliveryDriver {
                     jedis2.subscribe(new JedisPubSub() {
                         @Override
                         public void onMessage(String channel, String message) {
-
-                            System.err.println("Hello " + message);
-
                             KMessage msg = KMessageLoader.load(message);
                             _localEventListeners.dispatch(msg);
                         }
