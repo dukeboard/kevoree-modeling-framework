@@ -13,7 +13,6 @@
     <properties>
     </properties>
 
-
     <dependencies>
         <dependency>
             <groupId>org.kevoree.modeling</groupId>

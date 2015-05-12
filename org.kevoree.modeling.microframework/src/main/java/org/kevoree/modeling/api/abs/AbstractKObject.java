@@ -207,11 +207,29 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
+    public Object getByName(String atributeName) {
+        MetaAttribute transposed = _metaClass.attribute(atributeName);
+        if (transposed != null) {
+            return transposed.strategy().extrapolate(this, transposed);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public void set(MetaAttribute p_attribute, Object payload) {
         MetaAttribute transposed = internal_transpose_att(p_attribute);
         if (transposed == null) {
             throw new RuntimeException("Bad KMF usage, the attribute named " + p_attribute.metaName() + " is not part of " + metaClass().metaName());
         } else {
+            transposed.strategy().mutate(this, transposed, payload);
+        }
+    }
+
+    @Override
+    public void setByName(String atributeName, Object payload) {
+        MetaAttribute transposed = _metaClass.attribute(atributeName);
+        if (transposed != null) {
             transposed.strategy().mutate(this, transposed, payload);
         }
     }

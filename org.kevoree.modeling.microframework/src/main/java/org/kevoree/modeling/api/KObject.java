@@ -53,7 +53,11 @@ public interface KObject {
 
     Object get(MetaAttribute attribute);
 
+    Object getByName(String atributeName);
+
     void set(MetaAttribute attribute, Object payload);
+
+    void setByName(String atributeName, Object payload);
 
     String toJSON();
 

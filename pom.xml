@@ -89,6 +89,8 @@
         <module>drivers/org.kevoree.modeling.microframework.drivers.rocksdb</module>
         <module>drivers/org.kevoree.modeling.microframework.drivers.websocket</module>
         <module>drivers/org.kevoree.modeling.microframework.drivers.redis</module>
+        <module>drivers/org.kevoree.modeling.microframework.drivers.mapdb</module>
+        <module>drivers/org.kevoree.modeling.microframework.drivers.mongodb</module>
         <!--Addons -->
         <module>addons/org.kevoree.modeling.microframework.addons.nunjucks</module>
         <module>addons/org.kevoree.modeling.microframework.addons.swing</module>
