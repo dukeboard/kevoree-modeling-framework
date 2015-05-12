@@ -38,6 +38,14 @@ public class ${context.metaModelName}Model extends org.kevoree.modeling.api.abs.
         }
     }
 
+    #foreach($class in $context.model.getClasses())
+        #set($lastIdx = $class.fqn.lastIndexOf(".")+1)
+
+    public $class.fqn create$class.fqn.substring($lastIdx)(long universe,long time) {
+            return ($class.fqn) this.create(${class.pack}.meta.Meta${class.name}.getInstance(), universe, time);
+    }
+    #end
+
 }
     
 #* @vtlvariable name="context" type="org.kevoree.modeling.generator.GenerationContext" *#

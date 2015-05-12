@@ -27,7 +27,7 @@ public class CloudOperationTest {
         CloudView view = universe.time(0L);
         model.setOperation(MetaElement.OP_TRIGGER, new KOperation() {
             public void on(KObject source, Object[] params, Callback<Object> result) {
-                result.on("Hey. I received Parameter:" + Arrays.toString(params) + " on element:(" + source.universe().key() + "," + source.now() + "," + source.uuid() + ")");
+                result.on("Hey. I received Parameter:" + Arrays.toString(params) + " on element:(" + source.universe() + "," + source.now() + "," + source.uuid() + ")");
             }
         });
 

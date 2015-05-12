@@ -6,6 +6,7 @@ import geometry.meta.MetaShape;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KOperation;
+import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.cdn.MemoryKContentDeliveryDriver;
 import org.kevoree.modeling.api.data.manager.AccessMode;
@@ -71,7 +72,7 @@ public class MainServerTest {
                         public void on(KObject kObject) {
                             if (kObject == null) {
                                 Library lib = geoFactory.createLibrary();
-                                KCacheEntry libEntry = lib.universe().model().manager().entry(lib, AccessMode.READ);
+                                KCacheEntry libEntry = ((AbstractKObject)lib)._manager.entry(lib, AccessMode.READ);
                                 long[] uuids = (long[]) libEntry.get(MetaLibrary.REF_SHAPES.index());
                                 geoFactory.setRoot(lib).then(new Callback<Throwable>() {
                                     @Override
@@ -120,7 +121,7 @@ public class MainServerTest {
                                 System.err.println("Root not found");
                             } else {
                                 Library root = (Library) kObject;
-                                KCacheEntry entry = root.view().universe().model().manager().entry(root, AccessMode.READ);
+                                KCacheEntry entry = ((AbstractKObject)root)._manager.entry(root, AccessMode.READ);
                                 root.getShapes().then((shapes) -> {
                                     System.out.println("Shapes:" + shapes.length);
                                     if (shapes != null) {
