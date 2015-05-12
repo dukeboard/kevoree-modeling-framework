@@ -47,7 +47,7 @@ public class LocalEventListenersTest {
         KEvents events = new KEvents(1);
         int metaNameIndex = obj.metaClass().attribute("name").index();
         int[] metas = new int[]{metaNameIndex};
-        events.setEvent(0, KContentKey.createObject(obj.universe().key(), obj.now(), obj.uuid()), metas);
+        events.setEvent(0, KContentKey.createObject(obj.universe(), obj.now(), obj.uuid()), metas);
         localEventListeners.dispatch(events);
         Assert.assertEquals(counter[0], 1);
         localEventListeners.registerListener(0, obj, listener);
@@ -77,7 +77,7 @@ public class LocalEventListenersTest {
         KEvents events = new KEvents(1);
         int metaNameIndex = obj.metaClass().attribute("name").index();
         int[] metas = new int[]{metaNameIndex};
-        events.setEvent(0, KContentKey.createObject(obj.universe().key(), obj.now(), obj.uuid()), metas);
+        events.setEvent(0, KContentKey.createObject(obj.universe(), obj.now(), obj.uuid()), metas);
         localEventListeners.dispatch(events);
         Assert.assertEquals(counter[0], 1);
         counter[0] = 0;
@@ -85,8 +85,8 @@ public class LocalEventListenersTest {
         localEventListeners.dispatch(events);
         Assert.assertEquals(counter[0], 0);
         KEvents events2 = new KEvents(2);
-        events2.setEvent(0, KContentKey.createObject(obj.universe().key(), obj.now(), obj.uuid()), metas);
-        events2.setEvent(1, KContentKey.createObject(obj2.universe().key(), obj.now(), obj.uuid()), metas);
+        events2.setEvent(0, KContentKey.createObject(obj.universe(), obj.now(), obj.uuid()), metas);
+        events2.setEvent(1, KContentKey.createObject(obj2.universe(), obj.now(), obj.uuid()), metas);
         long[] toListen2 = new long[2];
         toListen2[0] = obj.uuid();
         toListen2[1] = obj2.uuid();

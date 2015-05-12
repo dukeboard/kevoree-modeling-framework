@@ -5,6 +5,7 @@ import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ModelVisitor;
 import org.kevoree.modeling.api.VisitRequest;
 import org.kevoree.modeling.api.VisitResult;
+import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.data.manager.JsonRaw;
@@ -12,7 +13,7 @@ import org.kevoree.modeling.api.data.manager.JsonRaw;
 public class JsonModelSerializer {
 
     public static void serialize(final KObject model, final Callback<String> callback) {
-        model.view().getRoot().then(new Callback<KObject>() {
+        ((AbstractKObject) model)._manager.getRoot(model.universe(), model.now(), new Callback<KObject>() {
             @Override
             public void on(final KObject rootObj) {
                 boolean isRoot = false;
@@ -22,7 +23,7 @@ public class JsonModelSerializer {
                 final StringBuilder builder = new StringBuilder();
                 builder.append("[\n");
                 printJSON(model, builder, isRoot);
-                model.visit(VisitRequest.ALL,new ModelVisitor() {
+                model.visit(VisitRequest.ALL, new ModelVisitor() {
                     @Override
                     public VisitResult visit(KObject elem) {
                         boolean isRoot2 = false;
@@ -51,7 +52,7 @@ public class JsonModelSerializer {
 
     public static void printJSON(KObject elem, StringBuilder builder, boolean isRoot) {
         if (elem != null) {
-            KCacheEntry raw = elem.view().universe().model().manager().entry(elem, AccessMode.READ);
+            KCacheEntry raw = ((AbstractKObject) elem)._manager.entry(elem, AccessMode.READ);
             if (raw != null) {
                 builder.append(JsonRaw.encode(raw, elem.uuid(), elem.metaClass(), isRoot));
             }

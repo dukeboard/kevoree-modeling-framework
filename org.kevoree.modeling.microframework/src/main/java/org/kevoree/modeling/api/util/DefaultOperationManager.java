@@ -79,7 +79,7 @@ public class DefaultOperationManager implements KOperationManager {
         for (int i = 0; i < param.length; i++) {
             stringParams[i] = param[i].toString();
         }
-        KContentKey contentKey = new KContentKey(source.universe().key(), source.now(), source.uuid());
+        KContentKey contentKey = new KContentKey(source.universe(), source.now(), source.uuid());
         KOperationCallMessage operationCall = new KOperationCallMessage();
         operationCall.id = nextKey();
         operationCall.key = contentKey;

@@ -2,22 +2,21 @@ package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KInfer;
-import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.KInferState;
+import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaInferClass;
-import org.kevoree.modeling.api.rbtree.LongRBTree;
 
 public abstract class AbstractKObjectInfer extends AbstractKObject implements KInfer {
 
-    public AbstractKObjectInfer(KView p_view, long p_uuid, LongRBTree p_universeTree, MetaClass p_metaClass) {
-        super(p_view, p_uuid, p_metaClass);
+    public AbstractKObjectInfer(long p_universe, long p_time, long p_uuid, MetaClass p_metaClass, KDataManager p_manager) {
+        super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
     }
 
     public KInferState readOnlyState() {
-        KCacheEntry raw = view().universe().model().manager().entry(this, AccessMode.READ);
+        KCacheEntry raw = _manager.entry(this, AccessMode.READ);
         if (raw != null) {
             if (raw.get(MetaInferClass.getInstance().getCache().index()) == null) {
                 internal_load(raw);
@@ -29,7 +28,7 @@ public abstract class AbstractKObjectInfer extends AbstractKObject implements KI
     }
 
     public KInferState modifyState() {
-        KCacheEntry raw = view().universe().model().manager().entry(this, AccessMode.WRITE);
+        KCacheEntry raw = _manager.entry(this, AccessMode.WRITE);
         if (raw != null) {
             if (raw.get(MetaInferClass.getInstance().getCache().index()) == null) {
                 internal_load(raw);

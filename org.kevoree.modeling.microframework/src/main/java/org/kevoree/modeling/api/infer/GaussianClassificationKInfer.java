@@ -4,6 +4,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KInferState;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObjectInfer;
+import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.infer.states.GaussianArrayKInferState;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.rbtree.LongRBTree;
@@ -13,8 +14,9 @@ import org.kevoree.modeling.api.rbtree.LongRBTree;
  */
 public class GaussianClassificationKInfer extends AbstractKObjectInfer {
 
-    public GaussianClassificationKInfer(KView p_view, long p_uuid, LongRBTree p_universeTree, MetaClass p_metaClass) {
-        super(p_view, p_uuid, p_universeTree, p_metaClass);
+
+    public GaussianClassificationKInfer(long p_universe, long p_time, long p_uuid, MetaClass p_metaClass, KDataManager p_manager) {
+        super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
     }
 
     public double getAlpha() {

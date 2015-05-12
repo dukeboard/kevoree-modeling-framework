@@ -39,7 +39,7 @@ public class KFilterNotAttributeAction implements KTraversalAction {
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
-                    KCacheEntry raw = loopObj.universe().model().manager().entry(loopObj, AccessMode.READ);
+                    KCacheEntry raw = loopObj._manager.entry(loopObj, AccessMode.READ);
                     if (raw != null) {
                         if (_attribute == null) {
                             if (_expectedValue == null) {

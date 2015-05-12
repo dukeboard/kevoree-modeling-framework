@@ -2,6 +2,7 @@ package org.kevoree.modeling.api.traversal.actions;
 
 import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.data.manager.Index;
@@ -28,7 +29,7 @@ public class KReverseAction implements KTraversalAction {
         }
         LongHashMap<KObject> selected = new LongHashMap<KObject>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         for (int i = 0; i < p_inputs.length; i++) {
-            KCacheEntry rawPayload = p_inputs[i].view().universe().model().manager().entry(p_inputs[i], AccessMode.READ);
+            KCacheEntry rawPayload = ((AbstractKObject)p_inputs[i])._manager.entry(p_inputs[i], AccessMode.READ);
             if (rawPayload != null) {
                 long[] loopInbounds = rawPayload.getRef(Index.INBOUNDS_INDEX);
                 if (loopInbounds != null) {

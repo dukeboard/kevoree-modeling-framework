@@ -43,7 +43,7 @@ public class LookupRootTest {
                 });
 
                 final CloudView lookupView = dimension0.time(0l);
-                cloudModel.manager().getRoot(lookupView, new Callback<KObject>() {
+                cloudModel.manager().getRoot(lookupView.universe(),lookupView.now(), new Callback<KObject>() {
                     @Override
                     public void on(KObject kObject) {
                         Assert.assertNotNull(kObject);

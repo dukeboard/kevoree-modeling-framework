@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.extrapolation;
 
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.meta.MetaAttribute;
@@ -14,7 +15,7 @@ public class PolynomialExtrapolation implements Extrapolation {
 
     @Override
     public Object extrapolate(KObject current, MetaAttribute attribute) {
-        PolynomialModel pol = (PolynomialModel) current.view().universe().model().manager().entry(current, AccessMode.READ).get(attribute.index());
+        PolynomialModel pol = (PolynomialModel) ((AbstractKObject)current)._manager.entry(current, AccessMode.READ).get(attribute.index());
         if (pol != null) {
             Double extrapolatedValue = pol.extrapolate(current.now());
             if (attribute.attributeType() == PrimitiveTypes.DOUBLE) {
@@ -37,19 +38,19 @@ public class PolynomialExtrapolation implements Extrapolation {
 
     @Override
     public void mutate(KObject current, MetaAttribute attribute, Object payload) {
-        KCacheEntry raw = current.view().universe().model().manager().entry(current, AccessMode.READ);
+        KCacheEntry raw = ((AbstractKObject)current)._manager.entry(current, AccessMode.READ);
         Object previous = raw.get(attribute.index());
         if (previous == null) {
             PolynomialModel pol = createPolynomialModel(current.now(), attribute.precision());
             pol.insert(current.now(), castNumber(payload));
-            current.view().universe().model().manager().entry(current, AccessMode.WRITE).set(attribute.index(), pol);
+            ((AbstractKObject)current)._manager.entry(current, AccessMode.WRITE).set(attribute.index(), pol);
         } else {
             PolynomialModel previousPol = (PolynomialModel) previous;
             if (!previousPol.insert(current.now(), castNumber(payload))) {
                 PolynomialModel pol = createPolynomialModel(previousPol.lastIndex(), attribute.precision());
                 pol.insert(previousPol.lastIndex(), previousPol.extrapolate(previousPol.lastIndex()));
                 pol.insert(current.now(), castNumber(payload));
-                current.view().universe().model().manager().entry(current, AccessMode.WRITE).set(attribute.index(), pol);
+                ((AbstractKObject)current)._manager.entry(current, AccessMode.WRITE).set(attribute.index(), pol);
             } else {
                 //Value fit the previous polynomial, but if degrees has changed we have to set the object to dirty for the next save batch
                 if (previousPol.isDirty()) {

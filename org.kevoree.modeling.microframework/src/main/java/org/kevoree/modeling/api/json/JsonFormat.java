@@ -3,9 +3,9 @@ package org.kevoree.modeling.api.json;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KDefer;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ModelFormat;
 import org.kevoree.modeling.api.abs.AbstractKDeferWrapper;
+import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.util.Checker;
 
 public class JsonFormat implements ModelFormat {
@@ -22,10 +22,16 @@ public class JsonFormat implements ModelFormat {
 
     public static final String INBOUNDS_META = "@inbounds";
 
-    private KView _view;
+    private KDataManager _manager;
 
-    public JsonFormat(KView p_view) {
-        this._view = p_view;
+    private long _universe;
+
+    private long _time;
+
+    public JsonFormat(long p_universe, long p_time, KDataManager p_manager) {
+        this._manager = p_manager;
+        this._universe = p_universe;
+        this._time = p_time;
     }
 
     private static final String NULL_PARAM_MSG = "one parameter is null";
@@ -44,7 +50,7 @@ public class JsonFormat implements ModelFormat {
     @Override
     public KDefer<String> saveRoot() {
         final AbstractKDeferWrapper<String> wrapper = new AbstractKDeferWrapper<String>();
-        _view.universe().model().manager().getRoot(_view, new Callback<KObject>() {
+        _manager.getRoot(_universe, _time, new Callback<KObject>() {
             @Override
             public void on(KObject root) {
                 if (root == null) {
@@ -61,7 +67,7 @@ public class JsonFormat implements ModelFormat {
     public KDefer<Throwable> load(String payload) {
         if (Checker.isDefined(payload)) {
             AbstractKDeferWrapper<Throwable> wrapper = new AbstractKDeferWrapper<Throwable>();
-            JsonModelLoader.load(_view, payload, wrapper.initCallback());
+            JsonModelLoader.load(_manager,_universe,_time, payload, wrapper.initCallback());
             return wrapper;
         } else {
             throw new RuntimeException(NULL_PARAM_MSG);

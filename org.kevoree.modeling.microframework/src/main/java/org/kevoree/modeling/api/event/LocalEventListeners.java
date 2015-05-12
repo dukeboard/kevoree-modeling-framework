@@ -1,7 +1,12 @@
 package org.kevoree.modeling.api.event;
 
-import org.kevoree.modeling.api.*;
-import org.kevoree.modeling.api.abs.AbstractKView;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KConfig;
+import org.kevoree.modeling.api.KEventListener;
+import org.kevoree.modeling.api.KEventMultiListener;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KUniverse;
+import org.kevoree.modeling.api.abs.AbstractKModel;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.cache.KCacheObject;
 import org.kevoree.modeling.api.data.cache.KContentKey;
@@ -48,13 +53,13 @@ public class LocalEventListeners {
     public synchronized void registerListener(long groupId, KObject origin, KEventListener listener) {
         long generateNewID = _internalListenerKeyGen.nextKey();
         _simpleListener.put(generateNewID, listener);
-        _listener2Object.put(generateNewID, origin.universe().key());
+        _listener2Object.put(generateNewID, origin.universe());
         LongLongHashMap subLayer = _obj2Listener.get(origin.uuid());
         if (subLayer == null) {
             subLayer = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
             _obj2Listener.put(origin.uuid(), subLayer);
         }
-        subLayer.put(generateNewID, origin.universe().key());
+        subLayer.put(generateNewID, origin.universe());
         subLayer = _group2Listener.get(groupId);
         if (subLayer == null) {
             subLayer = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
@@ -63,7 +68,7 @@ public class LocalEventListeners {
         subLayer.put(generateNewID, 1);
     }
 
-    public synchronized void registerListenerAll(long groupId, KUniverse origin, long[] objects, KEventMultiListener listener) {
+    public synchronized void registerListenerAll(long groupId, long universe, long[] objects, KEventMultiListener listener) {
         long generateNewID = _internalListenerKeyGen.nextKey();
         _multiListener.put(generateNewID, listener);
         _listener2Objects.put(generateNewID, objects);
@@ -74,7 +79,7 @@ public class LocalEventListeners {
                 subLayer = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
                 _obj2Listener.put(objects[i], subLayer);
             }
-            subLayer.put(generateNewID, origin.key());
+            subLayer.put(generateNewID, universe);
         }
         subLayer = _group2Listener.get(groupId);
         if (subLayer == null) {
@@ -195,8 +200,8 @@ public class LocalEventListeners {
                                         cachedUniverse = _manager.model().universe(correspondingKey.universe);
                                         _cacheUniverse.put(correspondingKey.universe, cachedUniverse);
                                     }
-                                    KObject toDispatch = ((AbstractKView) cachedUniverse.time(correspondingKey.time)).createProxy(((KCacheEntry) kCacheObjects[i]).metaClass, correspondingKey.obj);
-                                    if(toDispatch != null){
+                                    KObject toDispatch = ((AbstractKModel) _manager.model()).createProxy(correspondingKey.universe, correspondingKey.time, correspondingKey.obj, ((KCacheEntry) kCacheObjects[i]).metaClass);
+                                    if (toDispatch != null) {
                                         kCacheObjects[i].inc();
                                     }
                                     Meta[] meta = new Meta[messages.getIndexes(i).length];

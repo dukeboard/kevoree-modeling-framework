@@ -4,6 +4,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.abs.AbstractKObject;
+import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.rbtree.LongRBTree;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
@@ -16,8 +17,8 @@ import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
  */
 public class NodeImpl extends AbstractKObject implements Node {
 
-    public NodeImpl(CloudView p_factory, long p_uuid, MetaClass p_clazz) {
-        super(p_factory, p_uuid, p_clazz);
+    public NodeImpl(long p_universe, long p_time, long p_uuid, MetaClass p_metaClass, KDataManager p_manager) {
+        super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
     }
 
     @Override
@@ -92,7 +93,7 @@ public class NodeImpl extends AbstractKObject implements Node {
     public void trigger(String param, final Callback<String> callback) {
         Object[] internal_params = new Object[1];
         internal_params[0] = param;
-        view().universe().model().manager().operationManager().call(this, MetaNode.OP_TRIGGER, internal_params, new Callback<Object>() {
+        _manager.operationManager().call(this, MetaNode.OP_TRIGGER, internal_params, new Callback<Object>() {
             @Override
             public void on(Object o) {
                 if (callback != null) {
@@ -100,11 +101,6 @@ public class NodeImpl extends AbstractKObject implements Node {
                 }
             }
         });
-    }
-
-    @Override
-    public CloudView view() {
-        return (CloudView) super.view();
     }
 
 }

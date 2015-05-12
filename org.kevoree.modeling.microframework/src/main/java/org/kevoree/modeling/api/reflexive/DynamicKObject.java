@@ -1,14 +1,12 @@
 package org.kevoree.modeling.api.reflexive;
 
-import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObject;
+import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.rbtree.LongRBTree;
 
 public class DynamicKObject extends AbstractKObject {
 
-    public DynamicKObject(KView p_view, long p_uuid, MetaClass p_metaClass) {
-        super(p_view, p_uuid, p_metaClass);
+    public DynamicKObject(long p_universe, long p_time, long p_uuid, MetaClass p_metaClass, KDataManager p_manager) {
+        super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
     }
-
 }

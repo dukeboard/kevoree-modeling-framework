@@ -1,27 +1,57 @@
 package org.kevoree.modeling.microframework.test.util;
 
 import org.junit.Test;
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KActionType;
-import org.kevoree.modeling.api.KModel;
-import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
+import org.kevoree.modeling.api.map.LongHashMap;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.meta.PrimitiveTypes;
+import org.kevoree.modeling.api.rbtree.IndexRBTree;
+import org.kevoree.modeling.api.reflexive.DynamicKObject;
 import org.kevoree.modeling.api.reflexive.DynamicMetaClass;
 import org.kevoree.modeling.api.reflexive.DynamicMetaModel;
 import org.kevoree.modeling.api.scheduler.ExecutorServiceScheduler;
+
+import java.util.HashMap;
 
 /**
  * Created by duke on 29/04/15.
  */
 public class SpeedTest {
 
-    /** @native ts
-    * */
-    //@Test
-    public void test(){
+    /**
+     * @native ts
+     */
+    @Test
+    public void test2() {
+        long before = System.currentTimeMillis();
+        Object[] hello = new Object[10];
+        for (int j = 0; j < 5; j++) {
+            //IndexRBTree tree = new IndexRBTree();
+            LongHashMap helloMap = new LongHashMap(1000000, KConfig.CACHE_LOAD_FACTOR);
+            for (int i = 0; i < 1000000; i++) {
+                Object[] hello2 = new Object[10];
+                hello2[0] = 3;
+
+                //tree.insert(i);
+                // tree.previousOrEqual(i + 1);
+                //KObject hello = new DynamicKObject(0,i,3,null,null);
+                helloMap.put(i, hello2);
+            }
+        }
+
+
+        long after = System.currentTimeMillis();
+        System.out.println(after - before);
+    }
+
+
+    /**
+     * @native ts
+     */
+    @Test
+    public void test() {
         DynamicMetaModel dynamicMetaModel = new DynamicMetaModel("MyMetaModel");
         final DynamicMetaClass sensorMetaClass = dynamicMetaModel.createMetaClass("Sensor");
         sensorMetaClass
@@ -38,7 +68,7 @@ public class SpeedTest {
             @Override
             public void on(Throwable throwable) {
 
-                universe.manager().setScheduler(new ExecutorServiceScheduler());
+                //  universe.manager().setScheduler(new ExecutorServiceScheduler());
 
                 KObject home = universe.universe(0).time(0).create(universe.metaModel().metaClass("Home"));
                 home.set(home.metaClass().attribute("name"), "MainHome");
@@ -50,18 +80,19 @@ public class SpeedTest {
 
                 long before = System.currentTimeMillis();
                 MetaAttribute att = sensor.metaClass().attribute("value");
-             //   att.setExtrapolation(new PolynomialExtrapolation());
-                ((AbstractMetaAttribute)att)._precision = 0.1;
+                //   att.setExtrapolation(new PolynomialExtrapolation());
+                ((AbstractMetaAttribute) att)._precision = 0.1;
 
-                for(int i=0;i<5000000;i++){
+                for (int i = 0; i < 5000000; i++) {
                     sensor.jump2(i, new Callback<KObject>() {
                         @Override
-                        public void on(KObject kObject) {
-                            kObject.set(att,3d);
+                        public void on(KObject timedObject) {
+                            timedObject.set(att, 3d);
                         }
                     });
                 }
                 long middle = System.currentTimeMillis();
+                /*
                 for(int i=0;i<5000000;i++){
                     sensor.jump2(i, new Callback<KObject>() {
                         @Override
@@ -70,9 +101,10 @@ public class SpeedTest {
                         }
                     });
                 }
+                */
                 long after = System.currentTimeMillis();
-                System.out.println(middle-before);
-                System.out.println(after-middle);
+                System.out.println(middle - before);
+                System.out.println(after - middle);
 
             }
         });

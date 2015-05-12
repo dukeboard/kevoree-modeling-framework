@@ -6,16 +6,24 @@ import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ModelFormat;
 import org.kevoree.modeling.api.abs.AbstractKDeferWrapper;
+import org.kevoree.modeling.api.abs.AbstractKView;
+import org.kevoree.modeling.api.data.manager.KDataManager;
 
 /**
  * Created by duke on 11/5/14.
  */
 public class XmiFormat implements ModelFormat {
 
-    private KView _view;
+    private KDataManager _manager;
 
-    public XmiFormat(KView p_view) {
-        this._view = p_view;
+    private long _universe;
+
+    private long _time;
+
+    public XmiFormat(long p_universe, long p_time, KDataManager p_manager) {
+        this._universe = p_universe;
+        this._time = p_time;
+        this._manager = p_manager;
     }
 
     @Override
@@ -27,7 +35,7 @@ public class XmiFormat implements ModelFormat {
 
     public KDefer<String> saveRoot() {
         final AbstractKDeferWrapper<String> wrapper = new AbstractKDeferWrapper<String>();
-        _view.universe().model().manager().getRoot(_view, new Callback<KObject>() {
+        _manager.getRoot(_universe, _time, new Callback<KObject>() {
             @Override
             public void on(KObject root) {
                 if (root == null) {
@@ -43,7 +51,7 @@ public class XmiFormat implements ModelFormat {
     @Override
     public KDefer<Throwable> load(String payload) {
         AbstractKDeferWrapper<Throwable> wrapper = new AbstractKDeferWrapper<Throwable>();
-        XMIModelLoader.load(this._view, payload, wrapper.initCallback());
+        XMIModelLoader.load(_manager, _universe, _time, payload, wrapper.initCallback());
         return wrapper;
     }
 }

@@ -3,8 +3,7 @@ package org.kevoree.modeling.api.data.manager;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.abs.AbstractKView;
+import org.kevoree.modeling.api.abs.AbstractKModel;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.cache.KCacheObject;
 import org.kevoree.modeling.api.data.cache.KContentKey;
@@ -17,13 +16,17 @@ import org.kevoree.modeling.api.rbtree.TreeNode;
  */
 public class LookupAllRunnable implements Runnable {
 
-    private KView _originView;
+    private long _universe;
+    private long _time;
+
     private long[] _keys;
     private Callback<KObject[]> _callback;
     private DefaultKDataManager _store;
 
-    public LookupAllRunnable(KView p_originView, long[] p_keys, Callback<KObject[]> p_callback, DefaultKDataManager p_store) {
-        this._originView = p_originView;
+    public LookupAllRunnable(long p_universe, long p_time, long[] p_keys, Callback<KObject[]> p_callback, DefaultKDataManager p_store) {
+        this._universe = p_universe;
+        this._time = p_time;
+
         this._keys = p_keys;
         this._callback = p_callback;
         this._store = p_store;
@@ -43,7 +46,7 @@ public class LookupAllRunnable implements Runnable {
                 for (int i = 0; i < _keys.length; i++) {
                     KContentKey toLoadKey = null;
                     if (universeIndexes[i] != null) {
-                        long closestUniverse = ResolutionHelper.resolve_universe(_store.globalUniverseOrder(), (LongLongHashMap) universeIndexes[i], _originView.now(), _originView.universe().key());
+                        long closestUniverse = ResolutionHelper.resolve_universe(_store.globalUniverseOrder(), (LongLongHashMap) universeIndexes[i], _time, _universe);
                         toLoadKey = KContentKey.createTimeTree(closestUniverse, _keys[i]);
                     }
                     tempKeys[i] = toLoadKey;
@@ -55,7 +58,7 @@ public class LookupAllRunnable implements Runnable {
                             KContentKey resolvedContentKey = null;
                             if (timeIndexes[i] != null) {
                                 IndexRBTree cachedIndexTree = (IndexRBTree) timeIndexes[i];
-                                TreeNode resolvedNode = cachedIndexTree.previousOrEqual(_originView.now());
+                                TreeNode resolvedNode = cachedIndexTree.previousOrEqual(_time);
                                 if (resolvedNode != null) {
                                     resolvedContentKey = KContentKey.createObject(tempKeys[i].universe, resolvedNode.getKey(), _keys[i]);
 
@@ -69,7 +72,7 @@ public class LookupAllRunnable implements Runnable {
                                 KObject[] proxies = new KObject[_keys.length];
                                 for (int i = 0; i < _keys.length; i++) {
                                     if (cachedObjects[i] != null && cachedObjects[i] instanceof KCacheEntry) {
-                                        proxies[i] = ((AbstractKView) _originView).createProxy(((KCacheEntry) cachedObjects[i]).metaClass, _keys[i]);
+                                        proxies[i] = ((AbstractKModel) _store.model()).createProxy(_universe,_time,_keys[i],((KCacheEntry) cachedObjects[i]).metaClass);
                                         if (proxies[i] != null) {
                                             IndexRBTree cachedIndexTree = (IndexRBTree) timeIndexes[i];
                                             cachedObjects[i].inc();

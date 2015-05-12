@@ -2,10 +2,10 @@ package org.kevoree.modeling.api.infer;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KInferState;
-import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObjectInfer;
+import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.infer.states.AnalyticKInferState;
-import org.kevoree.modeling.api.rbtree.LongRBTree;
+import org.kevoree.modeling.api.meta.MetaClass;
 
 /**
  * This class is a basic live learning of the average of a field.
@@ -18,8 +18,8 @@ import org.kevoree.modeling.api.rbtree.LongRBTree;
  */
 public class AnalyticKInfer extends AbstractKObjectInfer {
 
-    public AnalyticKInfer(KView p_view, long p_uuid, LongRBTree p_universeTree) {
-        super(p_view, p_uuid,p_universeTree, null);
+    public AnalyticKInfer(long p_universe, long p_time, long p_uuid, MetaClass p_metaClass, KDataManager p_manager) {
+        super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
     }
 
     @Override

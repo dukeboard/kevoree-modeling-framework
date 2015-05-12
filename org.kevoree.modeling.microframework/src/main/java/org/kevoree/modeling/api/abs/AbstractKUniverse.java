@@ -1,30 +1,30 @@
 package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.*;
-import org.kevoree.modeling.api.data.cache.KContentKey;
+import org.kevoree.modeling.api.data.manager.KDataManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C extends KModel> implements KUniverse<A, B, C> {
 
-    private KModel _model;
+    protected long _universe;
 
-    private long _key;
+    protected KDataManager _manager;
 
-    protected AbstractKUniverse(KModel p_model, long p_key) {
-        this._model = p_model;
-        this._key = p_key;
+    protected AbstractKUniverse(long p_key,KDataManager p_manager) {
+        this._universe = p_key;
+        this._manager = p_manager;
     }
 
     @Override
     public long key() {
-        return _key;
+        return _universe;
     }
 
     @Override
     public C model() {
-        return (C) _model;
+        return (C) this._manager.model();
     }
 
     @Override
@@ -51,30 +51,30 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
             return false;
         } else {
             AbstractKUniverse casted = (AbstractKUniverse) obj;
-            return casted._key == _key;
+            return casted._universe == _universe;
         }
     }
 
     @Override
     public B origin() {
-        return (B) _model.universe(_model.manager().parentUniverseKey(_key));
+        return (B) _manager.model().universe(_manager.parentUniverseKey(_universe));
     }
 
     @Override
     public B diverge() {
-        AbstractKModel casted = (AbstractKModel) _model;
-        long nextKey = _model.manager().nextUniverseKey();
-        B newUniverse = (B) casted.internal_create(nextKey);
-        _model.manager().initUniverse(newUniverse, this);
+        AbstractKModel casted = (AbstractKModel) _manager.model();
+        long nextKey = _manager.nextUniverseKey();
+        B newUniverse = (B) casted.internalCreateUniverse(nextKey);
+        _manager.initUniverse(newUniverse, this);
         return newUniverse;
     }
 
     @Override
     public List<B> descendants() {
-        long[] descendentsKey = _model.manager().descendantsUniverseKeys(_key);
+        long[] descendentsKey = _manager.descendantsUniverseKeys(_universe);
         List<B> childs = new ArrayList<B>();
         for (int i = 0; i < descendentsKey.length; i++) {
-            childs.add((B) _model.universe(descendentsKey[i]));
+            childs.add((B) _manager.model().universe(descendentsKey[i]));
         }
         return childs;
     }

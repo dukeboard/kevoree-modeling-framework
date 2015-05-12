@@ -4,6 +4,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KInferState;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObjectInfer;
+import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.infer.states.DoubleArrayKInferState;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.rbtree.LongRBTree;
@@ -17,6 +18,10 @@ import org.kevoree.modeling.api.rbtree.LongRBTree;
  * Created by assaad on 10/02/15.
  */
 public class LinearRegressionKInfer extends AbstractKObjectInfer {
+
+    public LinearRegressionKInfer(long p_universe, long p_time, long p_uuid, MetaClass p_metaClass, KDataManager p_manager) {
+        super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
+    }
 
     public double getAlpha() {
         return alpha;
@@ -43,10 +48,6 @@ public class LinearRegressionKInfer extends AbstractKObjectInfer {
      * @param iterations is the number of passes of the live learning on the training set
      */
     private int iterations = 100;
-
-    public LinearRegressionKInfer(KView p_view, long p_uuid, LongRBTree p_universeTree, MetaClass p_metaClass) {
-        super(p_view, p_uuid, p_universeTree, p_metaClass);
-    }
 
     private double calculate(double[] weights, double[] features) {
         double result = 0;

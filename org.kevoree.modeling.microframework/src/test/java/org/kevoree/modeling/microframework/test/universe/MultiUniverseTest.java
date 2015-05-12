@@ -142,6 +142,7 @@ public class MultiUniverseTest {
             public void on(KObject kObject) {
                 myvalue[0] = kObject.get(kObject.metaClass().attribute("value"));
             }
+
         });
         return (double) myvalue[0];
     }

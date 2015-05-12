@@ -132,6 +132,8 @@ public class KCacheEntry implements KCacheObject {
             return new KCacheEntry();
         } else {
             Object[] cloned = new Object[raw.length];
+            //TODO
+            //System.arraycopy(raw,0,cloned,0, raw.length);
             for (int i = 0; i < raw.length; i++) {
                 Object resolved = raw[i];
                 if (resolved != null) {
@@ -142,6 +144,7 @@ public class KCacheEntry implements KCacheObject {
                     }
                 }
             }
+
             KCacheEntry clonedEntry = new KCacheEntry();
             clonedEntry._dirty = true;
             clonedEntry.raw = cloned;

@@ -319,20 +319,22 @@ public class IndexRBTree implements KCacheObject {
     }
 
     public synchronized void insert(long key) {
-        resetCache();
         this._dirty = true;
-        TreeNode insertedNode = new TreeNode(key, Color.RED, null, null);
+        TreeNode insertedNode;
         if (root == null) {
             _size++;
+            insertedNode = new TreeNode(key, Color.RED, null, null);
             root = insertedNode;
         } else {
             TreeNode n = root;
             while (true) {
                 if (key == n.key) {
+                    putInPreviousOrEqualsCache(n);
                     //nop _size
                     return;
                 } else if (key < n.key) {
                     if (n.getLeft() == null) {
+                        insertedNode = new TreeNode(key, Color.RED, null, null);
                         n.setLeft(insertedNode);
                         _size++;
                         break;
@@ -341,6 +343,7 @@ public class IndexRBTree implements KCacheObject {
                     }
                 } else {
                     if (n.getRight() == null) {
+                        insertedNode = new TreeNode(key, Color.RED, null, null);
                         n.setRight(insertedNode);
                         _size++;
                         break;
@@ -352,6 +355,7 @@ public class IndexRBTree implements KCacheObject {
             insertedNode.setParent(n);
         }
         insertCase1(insertedNode);
+        putInPreviousOrEqualsCache(insertedNode);
     }
 
     private void insertCase1(TreeNode n) {

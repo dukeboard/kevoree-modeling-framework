@@ -4,9 +4,9 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KDefer;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ModelFormat;
+import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.json.JsonFormat;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.traversal.selector.KSelector;
@@ -15,42 +15,40 @@ import org.kevoree.modeling.api.xmi.XmiFormat;
 
 public abstract class AbstractKView implements KView {
 
-    private long _now;
+    protected long _time;
 
-    private KUniverse _universe;
+    protected long _universe;
 
-    protected AbstractKView(long p_now, KUniverse p_universe) {
-        this._now = p_now;
+    protected KDataManager _manager;
+
+    protected AbstractKView(long p_universe, long _time, KDataManager p_manager) {
         this._universe = p_universe;
+        this._time = _time;
+        this._manager = p_manager;
     }
 
     @Override
     public long now() {
-        return _now;
+        return _time;
     }
 
     @Override
-    public KUniverse universe() {
+    public long universe() {
         return _universe;
-    }
-
-    @Override
-    public KObject createByName(String metaClassName) {
-        return create(universe().model().metaModel().metaClass(metaClassName));
     }
 
     @Override
     public KDefer<Throwable> setRoot(KObject elem) {
         AbstractKDeferWrapper<Throwable> task = new AbstractKDeferWrapper<Throwable>();
         ((AbstractKObject) elem).set_parent(KConfig.NULL_LONG, null);
-        universe().model().manager().setRoot(elem, task.initCallback());
+        _manager.setRoot(elem, task.initCallback());
         return task;
     }
 
     @Override
     public KDefer<KObject> getRoot() {
         AbstractKDeferWrapper<KObject> task = new AbstractKDeferWrapper<KObject>();
-        universe().model().manager().getRoot(this, task.initCallback());
+        _manager.getRoot(_universe, _time, task.initCallback());
         return task;
     }
 
@@ -60,7 +58,7 @@ public abstract class AbstractKView implements KView {
         if (query == null || query.length() == 0) {
             task.initCallback().on(new KObject[0]);
         } else {
-            universe().model().manager().getRoot(this, new Callback<KObject>() {
+            _manager.getRoot(_universe, _time, new Callback<KObject>() {
                 @Override
                 public void on(KObject rootObj) {
                     if (rootObj == null) {
@@ -87,46 +85,34 @@ public abstract class AbstractKView implements KView {
     @Override
     public KDefer<KObject> lookup(long kid) {
         AbstractKDeferWrapper<KObject> task = new AbstractKDeferWrapper<KObject>();
-        universe().model().manager().lookup(this, kid, task.initCallback());
+        _manager.lookup(_universe, _time, kid, task.initCallback());
         return task;
     }
 
     @Override
     public KDefer<KObject[]> lookupAll(long[] keys) {
         AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
-        universe().model().manager().lookupAll(this, keys, task.initCallback());
+        _manager.lookupAllobjects(_universe, _time, keys, task.initCallback());
         return task;
-    }
-
-    public void internalLookupAll(long[] keys, Callback<KObject[]> callback) {
-        universe().model().manager().lookupAll(this, keys, callback);
-    }
-
-    public KObject createProxy(MetaClass clazz, long key) {
-        return internalCreate(clazz, key);
     }
 
     @Override
     public KObject create(MetaClass clazz) {
-        if (!Checker.isDefined(clazz)) {
-            return null;
-        }
-        KObject newObj = internalCreate(clazz, universe().model().manager().nextObjectKey());
-        if (newObj != null) {
-            universe().model().manager().initKObject(newObj, this);
-        }
-        return newObj;
+        return _manager.model().create(clazz, _universe, _time);
     }
 
-    protected abstract KObject internalCreate(MetaClass clazz, long key);
+    @Override
+    public KObject createByName(String metaClassName) {
+        return create(_manager.model().metaModel().metaClass(metaClassName));
+    }
 
     @Override
     public ModelFormat json() {
-        return new JsonFormat(this);
+        return new JsonFormat(_universe, _time, _manager);
     }
 
     public ModelFormat xmi() {
-        return new XmiFormat(this);
+        return new XmiFormat(_universe, _time, _manager);
     }
 
     @Override
@@ -138,7 +124,7 @@ public abstract class AbstractKView implements KView {
             return false;
         } else {
             AbstractKView casted = (AbstractKView) obj;
-            return (casted._now == _now) && _universe.equals(casted._universe);
+            return casted._time == _time && casted._universe == _universe;
         }
     }
 

@@ -1,7 +1,7 @@
 package org.kevoree.modeling.microframework.test.cloud;
 
-import org.kevoree.modeling.api.KModel;
 import org.kevoree.modeling.api.abs.AbstractKUniverse;
+import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.microframework.test.cloud.impl.CloudViewImpl;
 
 /**
@@ -9,13 +9,13 @@ import org.kevoree.modeling.microframework.test.cloud.impl.CloudViewImpl;
  */
 public class CloudUniverse extends AbstractKUniverse<CloudView, CloudUniverse, CloudModel> {
 
-    protected CloudUniverse(KModel univers, long key) {
-        super(univers, key);
+    protected CloudUniverse(long p_universe, KDataManager p_manager) {
+        super(p_universe, p_manager);
     }
 
     @Override
     protected CloudView internal_create(long timePoint) {
-        return new CloudViewImpl(timePoint,this);
+        return new CloudViewImpl(_universe, timePoint, _manager);
     }
 
 }

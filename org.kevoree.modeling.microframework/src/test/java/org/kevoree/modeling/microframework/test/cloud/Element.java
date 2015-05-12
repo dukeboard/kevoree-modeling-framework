@@ -8,15 +8,12 @@ import org.kevoree.modeling.microframework.test.cloud.meta.MetaElement;
  */
 public interface Element extends KObject {
 
-    public String getName();
+    String getName();
 
-    public Element setName(String name);
+    Element setName(String name);
 
-    public Double getValue();
+    Double getValue();
 
-    public Element setValue(Double name);
-
-    @Override
-    public CloudView view();
+    Element setValue(Double name);
 
 }

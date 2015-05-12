@@ -4,6 +4,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KInferState;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObjectInfer;
+import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.infer.states.DoubleArrayKInferState;
 import org.kevoree.modeling.api.infer.states.PolynomialKInferState;
 import org.kevoree.modeling.api.meta.MetaClass;
@@ -16,6 +17,10 @@ import org.kevoree.modeling.api.rbtree.LongRBTree;
 public class PolynomialOfflineKInfer extends AbstractKObjectInfer {
 
     public int maxDegree =20;
+
+    public PolynomialOfflineKInfer(long p_universe, long p_time, long p_uuid, MetaClass p_metaClass, KDataManager p_manager) {
+        super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
+    }
 
     public double getToleratedErr() {
         return toleratedErr;
@@ -34,13 +39,6 @@ public class PolynomialOfflineKInfer extends AbstractKObjectInfer {
     }
 
     public double toleratedErr=0.01;
-
-
-
-    public PolynomialOfflineKInfer(KView p_view, long p_uuid, LongRBTree p_universeTree, MetaClass p_metaClass) {
-        super(p_view, p_uuid,p_universeTree, p_metaClass);
-    }
-
 
     private double calculateLong (long time,  double[] weights, long timeOrigin, long unit) {
        double t= ((double)(time-timeOrigin))/unit;

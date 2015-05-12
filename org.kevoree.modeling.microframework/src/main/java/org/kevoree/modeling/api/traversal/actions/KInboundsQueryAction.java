@@ -42,13 +42,13 @@ public class KInboundsQueryAction implements KTraversalAction {
             _next.execute(p_inputs, p_history);
             return;
         } else {
-            final AbstractKView currentView = (AbstractKView) p_inputs[0].view();
+            final AbstractKObject currentObject = (AbstractKObject) p_inputs[0];
             final LongLongHashMap nextIds = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
             final LongHashMap<KObject> toFilter = new LongHashMap<KObject>(p_inputs.length, KConfig.CACHE_LOAD_FACTOR);
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
-                    KCacheEntry raw = currentView.universe().model().manager().entry(loopObj, AccessMode.READ);
+                    KCacheEntry raw = loopObj._manager.entry(loopObj, AccessMode.READ);
                     if (raw != null) {
                         long[] inboundsKeys = raw.getRef(Index.INBOUNDS_INDEX);
                         if (inboundsKeys != null) {
@@ -77,7 +77,7 @@ public class KInboundsQueryAction implements KTraversalAction {
                         inserted[0]++;
                     }
                 });
-                currentView.internalLookupAll(trimmed, new Callback<KObject[]>() {
+                currentObject._manager.lookupAllobjects(currentObject.universe(), currentObject.now(), trimmed, new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         _next.execute(kObjects, p_history);
@@ -93,7 +93,7 @@ public class KInboundsQueryAction implements KTraversalAction {
                         inserted[0]++;
                     }
                 });
-                currentView.internalLookupAll(trimmed, new Callback<KObject[]>() {
+                currentObject._manager.lookupAllobjects(currentObject.universe(), currentObject.now(), trimmed, new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         for (int i = 0; i < trimmed.length; i++) {
@@ -115,7 +115,7 @@ public class KInboundsQueryAction implements KTraversalAction {
                                 inserted2[0]++;
                             }
                         });
-                        currentView.internalLookupAll(trimmed2, new Callback<KObject[]>() {
+                        currentObject._manager.lookupAllobjects(currentObject.universe(), currentObject.now(), trimmed2, new Callback<KObject[]>() {
                             @Override
                             public void on(KObject[] kObjects) {
                                 if (p_history != null) {

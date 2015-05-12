@@ -5,15 +5,11 @@ import org.kevoree.modeling.api.KModel;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KScheduler;
 import org.kevoree.modeling.api.KUniverse;
-import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.data.cache.KCache;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
-import org.kevoree.modeling.api.rbtree.IndexRBTree;
 import org.kevoree.modeling.api.util.KOperationManager;
-
-import java.util.List;
 
 public interface KDataManager {
 
@@ -23,9 +19,11 @@ public interface KDataManager {
 
     KCache cache();
 
-    void lookup(KView originView, long key, Callback<KObject> callback);
+    void lookup(long universe, long time, long uuid, Callback<KObject> callback);
 
-    void lookupAll(KView originView, long[] key, Callback<KObject[]> callback);
+    void lookupAllobjects(long universe, long time, long[] uuid, Callback<KObject[]> callback);
+
+    void lookupAlltimes(long universe, long[] time, long uuid, Callback<KObject[]> callback);
 
     KCacheEntry entry(KObject origin, AccessMode accessMode);
 
@@ -35,7 +33,7 @@ public interface KDataManager {
 
     void delete(KUniverse universe, Callback<Throwable> callback);
 
-    void initKObject(KObject obj, KView originView);
+    void initKObject(KObject obj);
 
     void initUniverse(KUniverse universe, KUniverse parent);
 
@@ -47,7 +45,7 @@ public interface KDataManager {
 
     long nextGroupKey();
 
-    void getRoot(KView originView, Callback<KObject> callback);
+    void getRoot(long universe, long time, Callback<KObject> callback);
 
     void setRoot(KObject newRoot, Callback<Throwable> callback);
 

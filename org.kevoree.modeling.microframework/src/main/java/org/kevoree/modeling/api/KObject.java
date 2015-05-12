@@ -8,11 +8,11 @@ import org.kevoree.modeling.api.traversal.KTraversal;
 
 public interface KObject {
 
-    KUniverse universe();
+    long universe();
+
+    long now();
 
     long uuid();
-
-    KView view();
 
     KDefer<Throwable> delete();
 
@@ -26,10 +26,9 @@ public interface KObject {
 
     void visitAttributes(ModelAttributeVisitor visitor);
 
-    KDefer<Throwable> visit(VisitRequest request,ModelVisitor visitor);
+    KDefer<Throwable> visit(VisitRequest request, ModelVisitor visitor);
 
     /* Time navigation */
-    long now();
 
     KTimeWalker timeWalker();
 

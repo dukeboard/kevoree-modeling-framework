@@ -1,9 +1,13 @@
 package org.kevoree.modeling.microframework.test.cloud;
 
+import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.abs.AbstractKModel;
 import org.kevoree.modeling.api.abs.AbstractMetaModel;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaModel;
+import org.kevoree.modeling.api.reflexive.DynamicKObject;
+import org.kevoree.modeling.microframework.test.cloud.impl.ElementImpl;
+import org.kevoree.modeling.microframework.test.cloud.impl.NodeImpl;
 import org.kevoree.modeling.microframework.test.cloud.meta.MetaElement;
 import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
 
@@ -24,10 +28,24 @@ public class CloudModel extends AbstractKModel<CloudUniverse> {
     }
 
     @Override
-    protected CloudUniverse internal_create(long key) {
-        return new CloudUniverse(this, key);
+    protected CloudUniverse internalCreateUniverse(long universe) {
+        return new CloudUniverse(universe, _manager);
     }
 
+    @Override
+    protected KObject internalCreateObject(long universe, long time, long uuid, MetaClass clazz) {
+        if (clazz == null) {
+            return null;
+        }
+        switch (clazz.index()) {
+            case 0:
+                return new NodeImpl(universe, time, uuid, clazz, _manager);
+            case 1:
+                return new ElementImpl(universe, time, uuid, clazz, _manager);
+            default:
+                return new DynamicKObject(universe, time, uuid, clazz, _manager);
+        }
+    }
 
     @Override
     public MetaModel metaModel() {

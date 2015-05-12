@@ -38,8 +38,6 @@ public class KDeepCollectAction implements KTraversalAction {
 
     private LongHashMap<KObject> _finalElements = null;
 
-    private AbstractKView currentView;
-
     @Override
     public void execute(KObject[] p_inputs, KTraversalHistory p_history) {
         if (p_inputs == null || p_inputs.length == 0) {
@@ -49,7 +47,6 @@ public class KDeepCollectAction implements KTraversalAction {
             _next.execute(p_inputs, p_history);
             return;
         } else {
-            currentView = (AbstractKView) p_inputs[0].view();
             _alreadyPassed = new LongHashMap<KObject>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
             _finalElements = new LongHashMap<KObject>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
             KObject[] filtered_inputs = new KObject[p_inputs.length];
@@ -100,12 +97,13 @@ public class KDeepCollectAction implements KTraversalAction {
     }
 
     private void executeStep(KObject[] p_inputStep, Callback<KObject[]> private_callback) {
+        AbstractKObject currentObject = (AbstractKObject) p_inputStep[0];
         LongLongHashMap nextIds = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         for (int i = 0; i < p_inputStep.length; i++) {
             if (p_inputStep[i] != null) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputStep[i];
-                    KCacheEntry raw = currentView.universe().model().manager().entry(loopObj, AccessMode.READ);
+                    KCacheEntry raw = loopObj._manager.entry(loopObj, AccessMode.READ);
                     if (raw != null) {
                         if (_reference == null) {
                             for (int j = 0; j < loopObj.metaClass().metaReferences().length; j++) {
@@ -144,7 +142,7 @@ public class KDeepCollectAction implements KTraversalAction {
             }
         });
         //call
-        currentView.internalLookupAll(trimmed, new Callback<KObject[]>() {
+        currentObject._manager.lookupAllobjects(currentObject.universe(), currentObject.now(), trimmed, new Callback<KObject[]>() {
             @Override
             public void on(KObject[] kObjects) {
                 private_callback.on(kObjects);

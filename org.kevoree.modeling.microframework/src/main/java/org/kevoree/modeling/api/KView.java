@@ -14,7 +14,7 @@ public interface KView {
 
     KDefer<KObject[]> lookupAll(long[] keys);
 
-    KUniverse universe();
+    long universe();
 
     long now();
 

@@ -5,12 +5,15 @@ import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.data.manager.JsonRaw;
+import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.map.LongLongHashMap;
 import org.kevoree.modeling.api.map.LongLongHashMapCallBack;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
+import org.kevoree.modeling.api.rbtree.IndexRBTree;
+import org.kevoree.modeling.api.rbtree.TreeNode;
 import org.kevoree.modeling.api.util.ArrayUtils;
 import org.kevoree.modeling.api.traversal.DefaultKTraversal;
 import org.kevoree.modeling.api.traversal.KTraversal;
@@ -22,21 +25,20 @@ import java.util.List;
 
 public abstract class AbstractKObject implements KObject {
 
-    private KView _view;
-    private long _uuid;
+    protected long _uuid;
+    protected long _time;
+    protected long _universe;
     private MetaClass _metaClass;
+    public KDataManager _manager;
     private static final String OUT_OF_CACHE_MSG = "Out of cache Error";
 
-    public AbstractKObject(KView p_view, long p_uuid, MetaClass p_metaClass) {
-        this._view = p_view;
+    public AbstractKObject(long p_universe, long p_time, long p_uuid, MetaClass p_metaClass, KDataManager p_manager) {
+        this._universe = p_universe;
+        this._time = p_time;
         this._uuid = p_uuid;
         this._metaClass = p_metaClass;
-        p_view.universe().model().manager().cache().monitor(this);
-    }
-
-    @Override
-    public KView view() {
-        return _view;
+        this._manager = p_manager;
+        this._manager.cache().monitor(this);
     }
 
     @Override
@@ -51,17 +53,17 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public long now() {
-        return _view.now();
+        return _time;
     }
 
     @Override
-    public KUniverse universe() {
-        return _view.universe();
+    public long universe() {
+        return _universe;
     }
 
     @Override
     public long parentUuid() {
-        KCacheEntry raw = _view.universe().model().manager().entry(this, AccessMode.READ);
+        KCacheEntry raw = _manager.entry(this, AccessMode.READ);
         if (raw != null) {
             long[] parentKey = raw.getRef(Index.PARENT_INDEX);
             if (parentKey != null && parentKey.length > 0) {
@@ -79,18 +81,18 @@ public abstract class AbstractKObject implements KObject {
     @Override
     public KDefer<KObject> parent() {
         long parentKID = parentUuid();
+        AbstractKDeferWrapper<KObject> task = new AbstractKDeferWrapper<KObject>();
         if (parentKID == KConfig.NULL_LONG) {
-            AbstractKDeferWrapper<KObject> task = new AbstractKDeferWrapper<KObject>();
             task.initCallback().on(null);
-            return task;
         } else {
-            return _view.lookup(parentKID);
+            _manager.lookup(_universe, _time, parentKID, task.initCallback());
         }
+        return task;
     }
 
     @Override
     public MetaReference referenceInParent() {
-        KCacheEntry raw = _view.universe().model().manager().entry(this, AccessMode.READ);
+        KCacheEntry raw = _manager.entry(this, AccessMode.READ);
         if (raw == null) {
             return null;
         } else {
@@ -102,14 +104,14 @@ public abstract class AbstractKObject implements KObject {
     public KDefer<Throwable> delete() {
         final AbstractKDeferWrapper<Throwable> task = new AbstractKDeferWrapper<Throwable>();
         final KObject toRemove = this;
-        KCacheEntry rawPayload = _view.universe().model().manager().entry(this, AccessMode.DELETE);
+        KCacheEntry rawPayload = _manager.entry(this, AccessMode.DELETE);
         if (rawPayload == null) {
             task.initCallback().on(new Exception(OUT_OF_CACHE_MSG));
         } else {
             long[] inboundsKeys = rawPayload.getRef(Index.INBOUNDS_INDEX);
             if (inboundsKeys != null) {
                 try {
-                    ((AbstractKView) view()).internalLookupAll(inboundsKeys, new Callback<KObject[]>() {
+                    _manager.lookupAllobjects(_universe, _time, inboundsKeys, new Callback<KObject[]>() {
                         @Override
                         public void on(KObject[] resolved) {
                             for (int i = 0; i < resolved.length; i++) {
@@ -145,7 +147,7 @@ public abstract class AbstractKObject implements KObject {
             }
             if (query.startsWith("/")) {
                 final String finalCleanedQuery = cleanedQuery;
-                universe().model().manager().getRoot(this.view(), new Callback<KObject>() {
+                _manager.getRoot(_universe, _time, new Callback<KObject>() {
                     @Override
                     public void on(KObject rootObj) {
                         if (rootObj == null) {
@@ -164,7 +166,7 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public void listen(long groupId, KEventListener listener) {
-        universe().model().manager().cdn().registerListener(groupId, this, listener);
+        _manager.cdn().registerListener(groupId, this, listener);
     }
 
     @Override
@@ -216,7 +218,7 @@ public abstract class AbstractKObject implements KObject {
 
     private void removeFromContainer(final KObject param) {
         if (param != null && param.parentUuid() != KConfig.NULL_LONG && param.parentUuid() != _uuid) {
-            view().lookup(param.parentUuid()).then(new Callback<KObject>() {
+            _manager.lookup(_universe, _time, param.parentUuid(), new Callback<KObject>() {
                 @Override
                 public void on(KObject parent) {
                     ((AbstractKObject) parent).internal_mutate(KActionType.REMOVE, param.referenceInParent(), param, true, false);
@@ -243,7 +245,7 @@ public abstract class AbstractKObject implements KObject {
             if (metaReference.single()) {
                 internal_mutate(KActionType.SET, metaReference, param, setOpposite, inDelete);
             } else {
-                KCacheEntry raw = view().universe().model().manager().entry(this, AccessMode.WRITE);
+                KCacheEntry raw = _manager.entry(this, AccessMode.WRITE);
                 long[] previousList = raw.getRef(metaReference.index());
                 if (previousList == null) {
                     previousList = new long[1];
@@ -263,7 +265,7 @@ public abstract class AbstractKObject implements KObject {
                     ((AbstractKObject) param).set_parent(_uuid, metaReference);
                 }
                 //Inbound
-                KCacheEntry rawParam = view().universe().model().manager().entry(param, AccessMode.WRITE);
+                KCacheEntry rawParam = _manager.entry(param, AccessMode.WRITE);
                 long[] previousInbounds = rawParam.getRef(Index.INBOUNDS_INDEX);
                 if (previousInbounds == null) {
                     previousInbounds = new long[1];
@@ -282,7 +284,7 @@ public abstract class AbstractKObject implements KObject {
                     internal_mutate(KActionType.REMOVE, metaReference, null, setOpposite, inDelete);
                 } else {
                     //Actual add
-                    KCacheEntry payload = view().universe().model().manager().entry(this, AccessMode.WRITE);
+                    KCacheEntry payload = _manager.entry(this, AccessMode.WRITE);
                     long[] previous = payload.getRef(metaReference.index());
                     if (previous != null) {
                         internal_mutate(KActionType.REMOVE, metaReference, null, setOpposite, inDelete);
@@ -296,7 +298,7 @@ public abstract class AbstractKObject implements KObject {
                         ((AbstractKObject) param).set_parent(_uuid, metaReference);
                     }
                     //Inbound
-                    KCacheEntry rawParam = view().universe().model().manager().entry(param, AccessMode.WRITE);
+                    KCacheEntry rawParam = _manager.entry(param, AccessMode.WRITE);
                     long[] previousInbounds = rawParam.getRef(Index.INBOUNDS_INDEX);
                     if (previousInbounds == null) {
                         previousInbounds = new long[1];
@@ -309,7 +311,7 @@ public abstract class AbstractKObject implements KObject {
                     final KObject self = this;
                     if (metaReference.opposite() != null && setOpposite) {
                         if (previous != null) {
-                            ((AbstractKView) view()).internalLookupAll(previous, new Callback<KObject[]>() {
+                            _manager.lookupAllobjects(_universe, _time, previous, new Callback<KObject[]>() {
                                 @Override
                                 public void on(KObject[] kObjects) {
                                     for (int i = 0; i < kObjects.length; i++) {
@@ -324,12 +326,12 @@ public abstract class AbstractKObject implements KObject {
             }
         } else if (actionType.equals(KActionType.REMOVE)) {
             if (metaReference.single()) {
-                KCacheEntry raw = view().universe().model().manager().entry(this, AccessMode.WRITE);
+                KCacheEntry raw = _manager.entry(this, AccessMode.WRITE);
                 long[] previousKid = raw.getRef(metaReference.index());
                 raw.set(metaReference.index(), null);
                 if (previousKid != null) {
                     final KObject self = this;
-                    _view.universe().model().manager().lookupAll(_view, previousKid, new Callback<KObject[]>() {
+                    _manager.lookupAllobjects(_universe, _time, previousKid, new Callback<KObject[]>() {
                         @Override
                         public void on(KObject[] resolvedParams) {
                             if (resolvedParams != null) {
@@ -343,7 +345,7 @@ public abstract class AbstractKObject implements KObject {
                                             ((AbstractKObject) resolvedParam).internal_mutate(KActionType.REMOVE, metaReference.opposite(), self, false, inDelete);
                                         }
                                         //Inbound
-                                        KCacheEntry rawParam = view().universe().model().manager().entry(resolvedParam, AccessMode.WRITE);
+                                        KCacheEntry rawParam = _manager.entry(resolvedParam, AccessMode.WRITE);
                                         if (rawParam != null) {
                                             long[] previousInbounds = rawParam.getRef(Index.INBOUNDS_INDEX);
                                             if (previousInbounds != null) {
@@ -358,7 +360,7 @@ public abstract class AbstractKObject implements KObject {
                     });
                 }
             } else {
-                KCacheEntry payload = view().universe().model().manager().entry(this, AccessMode.WRITE);
+                KCacheEntry payload = _manager.entry(this, AccessMode.WRITE);
                 long[] previous = payload.getRef(metaReference.index());
                 if (previous != null) {
                     try {
@@ -377,7 +379,7 @@ public abstract class AbstractKObject implements KObject {
                 //Inbounds
                 if (!inDelete) {
                     //Inbound
-                    KCacheEntry rawParam = view().universe().model().manager().entry(param, AccessMode.WRITE);
+                    KCacheEntry rawParam = _manager.entry(param, AccessMode.WRITE);
                     if (rawParam != null && rawParam.get(Index.INBOUNDS_INDEX) != null) {
                         long[] previousInbounds;
                         try {
@@ -398,7 +400,7 @@ public abstract class AbstractKObject implements KObject {
         if (transposed == null) {
             throw new RuntimeException("Bad KMF usage, the attribute named " + p_metaReference.metaName() + " is not part of " + metaClass().metaName());
         } else {
-            KCacheEntry raw = view().universe().model().manager().entry(this, AccessMode.READ);
+            KCacheEntry raw = _manager.entry(this, AccessMode.READ);
             if (raw != null) {
                 Object ref = raw.get(transposed.index());
                 if (ref == null) {
@@ -423,15 +425,15 @@ public abstract class AbstractKObject implements KObject {
         if (transposed == null) {
             throw new RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + metaClass().metaName());
         } else {
-            KCacheEntry raw = view().universe().model().manager().entry(this, AccessMode.READ);
+            KCacheEntry raw = _manager.entry(this, AccessMode.READ);
             if (raw == null) {
                 callback.on(new KObject[0]);
             } else {
-                Object o = raw.get(transposed.index());
+                long[] o = raw.getRef(transposed.index());
                 if (o == null) {
                     callback.on(new KObject[0]);
                 } else {
-                    ((AbstractKView) view()).internalLookupAll((long[]) o, callback);
+                    _manager.lookupAllobjects(_universe, _time, o, callback);
                 }
             }
         }
@@ -486,7 +488,7 @@ public abstract class AbstractKObject implements KObject {
         for (int i = 0; i < metaClass().metaReferences().length; i++) {
             final MetaReference reference = metaClass().metaReferences()[i];
             if (!(containedOnly && !reference.contained())) {
-                KCacheEntry raw = view().universe().model().manager().entry(this, AccessMode.READ);
+                KCacheEntry raw = _manager.entry(this, AccessMode.READ);
                 if (raw != null) {
                     Object obj = raw.get(reference.index());
                     if (obj != null) {
@@ -518,7 +520,7 @@ public abstract class AbstractKObject implements KObject {
                     inserted[0]++;
                 }
             });
-            ((AbstractKView) view()).internalLookupAll(trimmed, new Callback<KObject[]>() {
+            _manager.lookupAllobjects(_universe, _time, trimmed, new Callback<KObject[]>() {
                 @Override
                 public void on(KObject[] resolvedArr) {
                     final List<KObject> nextDeep = new ArrayList<KObject>();
@@ -588,7 +590,7 @@ public abstract class AbstractKObject implements KObject {
     }
 
     public String toJSON() {
-        KCacheEntry raw = view().universe().model().manager().entry(this, AccessMode.READ);
+        KCacheEntry raw = _manager.entry(this, AccessMode.READ);
         if (raw != null) {
             return JsonRaw.encode(raw, _uuid, _metaClass, false);
         } else {
@@ -603,21 +605,16 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public KDefer<KObject[]> inbounds() {
-        KCacheEntry rawPayload = view().universe().model().manager().entry(this, AccessMode.READ);
+        KCacheEntry rawPayload = _manager.entry(this, AccessMode.READ);
         if (rawPayload != null) {
             long[] payload = rawPayload.getRef(Index.INBOUNDS_INDEX);
+            AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
             if (payload != null) {
-                try {
-                    return _view.lookupAll((long[]) payload);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return _view.lookupAll(new long[0]);
-                }
+                _manager.lookupAllobjects(_universe, _time, payload, task.initCallback());
             } else {
-                AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
                 task.initCallback().on(new KObject[0]);
-                return task;
             }
+            return task;
         } else {
             AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
             task.initCallback().on(new KObject[0]);
@@ -626,7 +623,7 @@ public abstract class AbstractKObject implements KObject {
     }
 
     public void set_parent(long p_parentKID, MetaReference p_metaReference) {
-        KCacheEntry raw = _view.universe().model().manager().entry(this, AccessMode.WRITE);
+        KCacheEntry raw = _manager.entry(this, AccessMode.WRITE);
         if (raw != null) {
             if (p_parentKID != KConfig.NULL_LONG) {
                 long[] parentKey = new long[1];
@@ -645,21 +642,19 @@ public abstract class AbstractKObject implements KObject {
             return false;
         } else {
             AbstractKObject casted = (AbstractKObject) obj;
-            return (casted.uuid() == _uuid) && _view.equals(casted._view);
+            return casted._uuid == _uuid && casted._time == _time && casted._universe == _universe;
         }
     }
 
     @Override
     public int hashCode() {
-        //TODO use Array hash function to be more efficient
-        String hashString = uuid() + "-" + view().now() + "-" + view().universe().key();
-        return hashString.hashCode();
+        return (int) (_universe ^ _time ^ _uuid);
     }
 
     @Override
-    public <U extends KObject> KDefer<U> jump(long time) {
+    public <U extends KObject> KDefer<U> jump(long p_time) {
         final AbstractKDeferWrapper<U> task = new AbstractKDeferWrapper<U>();
-        view().universe().time(time).lookup(_uuid).then(new Callback<KObject>() {
+        _manager.lookup(_universe, p_time, _uuid, new Callback<KObject>() {
             @Override
             public void on(KObject kObject) {
                 U casted = null;
@@ -674,15 +669,27 @@ public abstract class AbstractKObject implements KObject {
         return task;
     }
 
-    public void jump2(long time, Callback<KObject> p_callback){
-        long[] keys = new long[1];
-        keys[0] = uuid();
-        ((AbstractKView)view().universe().time(time)).internalLookupAll(keys, new Callback<KObject[]>() {
-            @Override
-            public void on(KObject[] kObjects) {
-                p_callback.on(kObjects[0]);
+    public void jump2(long p_time, Callback<KObject> p_callback) {
+        KCacheEntry resolve_entry = (KCacheEntry) _manager.cache().get(_universe, p_time, _uuid);
+        if (resolve_entry != null) {
+            p_callback.on(((AbstractKModel) _manager.model()).createProxy(_universe, p_time, _uuid, _metaClass));
+        } else {
+            IndexRBTree timeTree = (IndexRBTree) _manager.cache().get(_universe, KConfig.NULL_LONG, _uuid);
+            if (timeTree != null) {
+                final TreeNode resolvedTime = timeTree.previousOrEqual(p_time);
+                if (resolvedTime != null) {
+                    KCacheEntry entry = (KCacheEntry) _manager.cache().get(_universe, resolvedTime.getKey(), _uuid);
+                    if (entry != null) {
+                        p_callback.on(((AbstractKModel) _manager.model()).createProxy(_universe, p_time, _uuid, _metaClass));
+                    } else {
+                        //TODO optimize
+                        _manager.lookup(_universe, p_time, _uuid, p_callback);
+                    }
+                }
+            } else {
+                _manager.lookup(_universe, p_time, _uuid, p_callback);
             }
-        });
+        }
     }
 
     public MetaReference internal_transpose_ref(MetaReference p) {
@@ -717,7 +724,7 @@ public abstract class AbstractKObject implements KObject {
     @Override
     public MetaReference[] referencesWith(KObject o) {
         if (Checker.isDefined(o)) {
-            KCacheEntry raw = _view.universe().model().manager().entry(this, AccessMode.READ);
+            KCacheEntry raw = _manager.entry(this, AccessMode.READ);
             if (raw != null) {
                 MetaReference[] allReferences = metaClass().metaReferences();
                 List<MetaReference> selected = new ArrayList<MetaReference>();
@@ -741,7 +748,7 @@ public abstract class AbstractKObject implements KObject {
     @Override
     public KDefer<Object> call(MetaOperation p_operation, Object[] p_params) {
         AbstractKDeferWrapper<Object> temp_task = new AbstractKDeferWrapper<Object>();
-        view().universe().model().manager().operationManager().call(this, p_operation, p_params, temp_task.initCallback());
+        _manager.operationManager().call(this, p_operation, p_params, temp_task.initCallback());
         return temp_task;
     }
 

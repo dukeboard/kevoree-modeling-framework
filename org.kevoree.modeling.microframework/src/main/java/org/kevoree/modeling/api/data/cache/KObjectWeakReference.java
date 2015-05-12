@@ -7,17 +7,16 @@ import java.lang.ref.WeakReference;
 /** @ignore ts */
 public class KObjectWeakReference extends WeakReference<KObject> {
 
-    public long[] keyParts() {
-        return _keyParts;
-    }
+    public long universe;
 
-    private long[] _keyParts;
+    public long time;
+
+    public long uuid;
 
     public KObjectWeakReference(KObject referent) {
         super(referent);
-        _keyParts = new long[3];
-        _keyParts[0] = referent.universe().key();
-        _keyParts[1] = referent.view().now();
-        _keyParts[2] = referent.uuid();
+        universe = referent.universe();
+        time = referent.now();
+        uuid = referent.uuid();
     }
 }

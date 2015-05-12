@@ -1,9 +1,8 @@
 package org.kevoree.modeling.microframework.test.cloud.impl;
 
 import org.kevoree.modeling.api.abs.AbstractKObject;
+import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.rbtree.LongRBTree;
-import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Element;
 import org.kevoree.modeling.microframework.test.cloud.meta.MetaElement;
 
@@ -12,8 +11,8 @@ import org.kevoree.modeling.microframework.test.cloud.meta.MetaElement;
  */
 public class ElementImpl extends AbstractKObject implements Element {
 
-    public ElementImpl(CloudView factory, long kid, MetaClass p_metaclass) {
-        super(factory, kid, p_metaclass);
+    public ElementImpl(long p_universe, long p_time, long p_uuid, MetaClass p_metaClass, KDataManager p_manager) {
+        super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
     }
 
     @Override
@@ -36,11 +35,6 @@ public class ElementImpl extends AbstractKObject implements Element {
     public Element setValue(Double p_name) {
         this.set(MetaElement.ATT_VALUE, p_name);
         return this;
-    }
-
-    @Override
-    public CloudView view() {
-        return (CloudView) super.view();
     }
 
 }

@@ -31,12 +31,12 @@ public class KParentsAction implements KTraversalAction {
             _next.execute(p_inputs, p_history);
             return;
         } else {
-            AbstractKView currentView = (AbstractKView) p_inputs[0].view();
+            AbstractKObject currentObject = (AbstractKObject) p_inputs[0];
             LongLongHashMap selected = new LongLongHashMap(p_inputs.length, KConfig.CACHE_LOAD_FACTOR);
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
-                    KCacheEntry raw = loopObj.universe().model().manager().entry(loopObj, AccessMode.READ);
+                    KCacheEntry raw = currentObject._manager.entry(loopObj, AccessMode.READ);
                     long[] resolved = raw.getRef(Index.PARENT_INDEX);
                     if (resolved != null && resolved.length > 0) {
                         selected.put(resolved[0], resolved[0]);
@@ -55,7 +55,7 @@ public class KParentsAction implements KTraversalAction {
                 }
             });
             //call
-            currentView.internalLookupAll(trimmed, new Callback<KObject[]>() {
+            currentObject._manager.lookupAllobjects(currentObject.universe(), currentObject.now(), trimmed, new Callback<KObject[]>() {
                 @Override
                 public void on(KObject[] kObjects) {
                     if (p_history != null) {

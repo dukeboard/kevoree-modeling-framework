@@ -40,7 +40,7 @@ public class KFilterAttributeAction implements KTraversalAction {
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
-                    KCacheEntry raw = p_inputs[0].universe().model().manager().entry(loopObj, AccessMode.READ);
+                    KCacheEntry raw = (loopObj)._manager.entry(loopObj, AccessMode.READ);
                     if (raw != null) {
                         if (_attribute == null) {
                             if (_expectedValue == null) {

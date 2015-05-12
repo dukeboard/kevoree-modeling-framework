@@ -98,7 +98,7 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
 
     @Override
     public void registerMultiListener(long groupId, KUniverse origin, long[] objects, KEventMultiListener listener) {
-        _localEventListeners.registerListenerAll(groupId, origin, objects, listener);
+        _localEventListeners.registerListenerAll(groupId, origin.key(), objects, listener);
     }
 
     @Override

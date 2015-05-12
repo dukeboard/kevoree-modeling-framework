@@ -7,11 +7,8 @@ import org.kevoree.modeling.api.KView;
  */
 public interface CloudView extends KView {
 
-    public Node createNode();
+    Node createNode();
 
-    public Element createElement();
-
-    @Override
-    public CloudUniverse universe();
+    Element createElement();
 
 }
