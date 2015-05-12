@@ -14,6 +14,7 @@ import org.kevoree.modeling.api.reflexive.DynamicMetaModel;
 import org.kevoree.modeling.api.scheduler.ExecutorServiceScheduler;
 
 import java.util.HashMap;
+import java.util.WeakHashMap;
 
 /**
  * Created by duke on 29/04/15.
@@ -27,21 +28,32 @@ public class SpeedTest {
     public void test2() {
         long before = System.currentTimeMillis();
         Object[] hello = new Object[10];
-        for (int j = 0; j < 5; j++) {
-            //IndexRBTree tree = new IndexRBTree();
-            LongHashMap helloMap = new LongHashMap(1000000, KConfig.CACHE_LOAD_FACTOR);
-            for (int i = 0; i < 1000000; i++) {
-                Object[] hello2 = new Object[10];
-                hello2[0] = 3;
+        //for (int j = 0; j < 5; j++) {
+        IndexRBTree tree = new IndexRBTree();
+        //LongHashMap helloMap = new LongHashMap(16, KConfig.CACHE_LOAD_FACTOR);
 
-                //tree.insert(i);
-                // tree.previousOrEqual(i + 1);
-                //KObject hello = new DynamicKObject(0,i,3,null,null);
-                helloMap.put(i, hello2);
-            }
+        WeakHashMap helloMap = new WeakHashMap();
+
+
+        for (int i = 0; i < 5000000; i++) {
+            Object[] hello2 = new Object[10];
+
+            boolean[] indexes = new boolean[10];
+
+            hello2[0] = 3;
+
+            tree.insert(i);
+            tree.previousOrEqual(i + 1);
+            //KObject hello = new DynamicKObject(0,i,3,null,null);
+            helloMap.put(i, indexes);
+
+            /*
+            if (i % 10000 == 0) {
+                helloMap.clear();
+            }*/
+
         }
-
-
+        // }
         long after = System.currentTimeMillis();
         System.out.println(after - before);
     }
