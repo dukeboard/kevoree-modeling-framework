@@ -1,20 +1,23 @@
 package org.kevoree.modeling.microframework.test.util;
 
+import net.openhft.chronicle.map.ChronicleMapBuilder;
 import org.junit.Test;
-import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KActionType;
+import org.kevoree.modeling.api.KModel;
+import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
-import org.kevoree.modeling.api.map.LongHashMap;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.meta.PrimitiveTypes;
 import org.kevoree.modeling.api.rbtree.IndexRBTree;
-import org.kevoree.modeling.api.reflexive.DynamicKObject;
 import org.kevoree.modeling.api.reflexive.DynamicMetaClass;
 import org.kevoree.modeling.api.reflexive.DynamicMetaModel;
-import org.kevoree.modeling.api.scheduler.ExecutorServiceScheduler;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by duke on 29/04/15.
@@ -26,36 +29,52 @@ public class SpeedTest {
      */
     @Test
     public void test2() {
-        long before = System.currentTimeMillis();
-        Object[] hello = new Object[10];
-        //for (int j = 0; j < 5; j++) {
-        IndexRBTree tree = new IndexRBTree();
-        //LongHashMap helloMap = new LongHashMap(16, KConfig.CACHE_LOAD_FACTOR);
+        try {
+            long before = System.currentTimeMillis();
+            Object[] hello = new Object[10];
+            //for (int j = 0; j < 5; j++) {
+            IndexRBTree tree = new IndexRBTree();
+            //LongHashMap helloMap = new LongHashMap(16, KConfig.CACHE_LOAD_FACTOR);
 
-        WeakHashMap helloMap = new WeakHashMap();
+            HashMap helloMap = new HashMap();
+
+           // String tmp = System.getProperty("java.io.tmpdir");
+           // String pathname = tmp + "/shm-test/myfile.dat";
+
+            File file = File.createTempFile("chronicle","dat");
+
+            ChronicleMapBuilder<Integer, CharSequence> builder =
+                    ChronicleMapBuilder.of(Integer.class, CharSequence.class).entries(5000000);
+            ConcurrentMap<Integer, CharSequence> map = builder.createPersistedTo(file);
 
 
-        for (int i = 0; i < 5000000; i++) {
-            Object[] hello2 = new Object[10];
+            for (int i = 0; i < 5000000; i++) {
+                Object[] hello2 = new Object[10];
 
-            boolean[] indexes = new boolean[10];
+                //boolean[] indexes = new boolean[10];
+                String indexes = new String("test");
 
-            hello2[0] = 3;
+                hello2[0] = 3;
 
-            tree.insert(i);
-            tree.previousOrEqual(i + 1);
-            //KObject hello = new DynamicKObject(0,i,3,null,null);
-            helloMap.put(i, indexes);
+                tree.insert(i);
+                tree.previousOrEqual(i + 1);
+                //KObject hello = new DynamicKObject(0,i,3,null,null);
+                //helloMap.put(i, indexes);
+
+               map.put(i, indexes);
 
             /*
             if (i % 10000 == 0) {
                 helloMap.clear();
             }*/
 
+            }
+            // }
+            long after = System.currentTimeMillis();
+            System.out.println(after - before);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        // }
-        long after = System.currentTimeMillis();
-        System.out.println(after - before);
     }
 
 
