@@ -15,14 +15,29 @@ public class ${context.metaModelName}Model extends org.kevoree.modeling.api.abs.
     }
 
     @Override
-    protected ${context.metaModelName}Universe internal_create(long key) {
-        return new ${context.metaModelName}Universe(this,key);
+    protected ${context.metaModelName}Universe internalCreateUniverse(long key) {
+        return new ${context.metaModelName}Universe(key,_manager);
     }
 
     @Override
     public org.kevoree.modeling.api.meta.MetaModel metaModel() {
         return _metaModel;
     }
+
+    @Override
+    protected org.kevoree.modeling.api.KObject internalCreateObject(long universe, long time, long uuid, org.kevoree.modeling.api.meta.MetaClass p_clazz) {
+        if (p_clazz == null) {
+            return null;
+        }
+        switch (p_clazz.index()) {
+#foreach($class in $context.model.getClasses())
+    #set($lastIdx = $class.fqn.lastIndexOf(".")+1)
+            case ${class.index} : return new ${class.fqn.substring(0,$class.fqn.lastIndexOf("."))}.impl.${class.fqn.substring($lastIdx)}Impl(universe, time, uuid, p_clazz, _manager);
+#end
+            default : return new org.kevoree.modeling.api.reflexive.DynamicKObject(universe, time, uuid, p_clazz, _manager);
+        }
+    }
+
 }
     
 #* @vtlvariable name="context" type="org.kevoree.modeling.generator.GenerationContext" *#

@@ -7,9 +7,6 @@ public interface ${context.metaModelName}View extends org.kevoree.modeling.api.K
     public $class.fqn create$class.fqn.substring($lastIdx)();
 #end
 
-    @Override
-    public ${context.metaModelPackage}.${context.metaModelName}Universe universe();
-
 }
 
 #* @vtlvariable name="context" type="org.kevoree.modeling.generator.GenerationContext" *#

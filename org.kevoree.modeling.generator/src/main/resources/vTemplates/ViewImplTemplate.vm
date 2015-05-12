@@ -2,22 +2,8 @@ package ${context.metaModelPackage}.impl;
 
 public class ${context.metaModelName}ViewImpl extends org.kevoree.modeling.api.abs.AbstractKView implements ${context.metaModelPackage}.${context.metaModelName}View {
 
-    public ${context.metaModelName}ViewImpl(long p_now, org.kevoree.modeling.api.KUniverse p_universe) {
-        super(p_now, p_universe);
-    }
-
-    @Override
-    protected org.kevoree.modeling.api.KObject internalCreate(org.kevoree.modeling.api.meta.MetaClass p_clazz, long p_key) {
-        if (p_clazz == null) {
-            return null;
-        }
-        switch (p_clazz.index()) {
-#foreach($class in $context.model.getClasses())
-    #set($lastIdx = $class.fqn.lastIndexOf(".")+1)
-            case ${class.index} : return new ${class.fqn.substring(0,$class.fqn.lastIndexOf("."))}.impl.${class.fqn.substring($lastIdx)}Impl(this, p_key, p_clazz);
-#end
-            default : return new org.kevoree.modeling.api.reflexive.DynamicKObject(this, p_key, p_clazz);
-        }
+    public ${context.metaModelName}ViewImpl(long p_universe, long _time, org.kevoree.modeling.api.data.manager.KDataManager p_manager) {
+        super(p_universe, _time, p_manager);
     }
 
 #foreach($class in $context.model.getClasses())
@@ -27,11 +13,6 @@ public class ${context.metaModelName}ViewImpl extends org.kevoree.modeling.api.a
         return ($class.fqn) this.create(${class.pack}.meta.Meta${class.name}.getInstance());
     }
 #end
-
-    @Override
-    public ${context.metaModelPackage}.${context.metaModelName}Universe universe() {
-        return (${context.metaModelPackage}.${context.metaModelName}Universe) super.universe();
-    }
 
 }
 

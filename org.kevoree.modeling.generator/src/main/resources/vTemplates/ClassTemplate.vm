@@ -30,9 +30,6 @@ public interface ${classDeclaration.name} extends org.kevoree.modeling.api.KObje
     public void ${operation.name}(#foreach($p in $operation.inputParams)$p.type $p.name, #{end}org.kevoree.modeling.api.Callback<#if(${operation.returnParam})$operation.returnParam.type#{else}Boolean#end> result);
 #end
 
-    @Override
-    public ${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}View view();
-
 }
 #* @vtlvariable name="context" type="org.kevoree.modeling.generator.ClassGenerationContext" *#
 #* @vtlvariable name="classDeclaration" type="org.kevoree.modeling.ast.MModelClass" *#
