@@ -253,8 +253,8 @@ declare module org {
                     class AbstractKModel<A extends org.kevoree.modeling.api.KUniverse<any, any, any>> implements org.kevoree.modeling.api.KModel<any> {
                         _manager: org.kevoree.modeling.api.data.manager.KDataManager;
                         private _key;
-                        metaModel(): org.kevoree.modeling.api.meta.MetaModel;
                         constructor();
+                        metaModel(): org.kevoree.modeling.api.meta.MetaModel;
                         connect(): org.kevoree.modeling.api.KDefer<any>;
                         close(): org.kevoree.modeling.api.KDefer<any>;
                         manager(): org.kevoree.modeling.api.data.manager.KDataManager;

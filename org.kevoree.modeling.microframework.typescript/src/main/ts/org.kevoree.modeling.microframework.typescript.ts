@@ -435,7 +435,7 @@ module org {
                     export class AbstractKDataType implements org.kevoree.modeling.api.KType {
 
                         private _name: string;
-                        private _isEnum: boolean = false;
+                        private _isEnum: boolean;
                         constructor(p_name: string, p_isEnum: boolean) {
                             this._name = p_name;
                             this._isEnum = p_isEnum;
@@ -683,13 +683,13 @@ module org {
 
                         public _manager: org.kevoree.modeling.api.data.manager.KDataManager;
                         private _key: number;
-                        public metaModel(): org.kevoree.modeling.api.meta.MetaModel {
-                            throw "Abstract method";
-                        }
-
                         constructor() {
                             this._manager = new org.kevoree.modeling.api.data.manager.DefaultKDataManager(this);
                             this._key = this._manager.nextModelKey();
+                        }
+
+                        public metaModel(): org.kevoree.modeling.api.meta.MetaModel {
+                            throw "Abstract method";
                         }
 
                         public connect(): org.kevoree.modeling.api.KDefer<any> {
@@ -1401,7 +1401,25 @@ module org {
                         }
 
                         public jump2(p_time: number, p_callback: (p : org.kevoree.modeling.api.KObject) => void): void {
-                            this._manager.lookup(this._universe, p_time, this._uuid, p_callback);
+                            var resolve_entry: org.kevoree.modeling.api.data.cache.KCacheEntry = <org.kevoree.modeling.api.data.cache.KCacheEntry>this._manager.cache().get(this._universe, p_time, this._uuid);
+                            if (resolve_entry != null) {
+                                p_callback((<org.kevoree.modeling.api.abs.AbstractKModel<any>>this._manager.model()).createProxy(this._universe, p_time, this._uuid, this._metaClass));
+                            } else {
+                                var timeTree: org.kevoree.modeling.api.rbtree.IndexRBTree = <org.kevoree.modeling.api.rbtree.IndexRBTree>this._manager.cache().get(this._universe, org.kevoree.modeling.api.KConfig.NULL_LONG, this._uuid);
+                                if (timeTree != null) {
+                                    var resolvedTime: org.kevoree.modeling.api.rbtree.TreeNode = timeTree.previousOrEqual(p_time);
+                                    if (resolvedTime != null) {
+                                        var entry: org.kevoree.modeling.api.data.cache.KCacheEntry = <org.kevoree.modeling.api.data.cache.KCacheEntry>this._manager.cache().get(this._universe, resolvedTime.getKey(), this._uuid);
+                                        if (entry != null) {
+                                            p_callback((<org.kevoree.modeling.api.abs.AbstractKModel<any>>this._manager.model()).createProxy(this._universe, p_time, this._uuid, this._metaClass));
+                                        } else {
+                                            this._manager.lookup(this._universe, p_time, this._uuid, p_callback);
+                                        }
+                                    }
+                                } else {
+                                    this._manager.lookup(this._universe, p_time, this._uuid, p_callback);
+                                }
+                            }
                         }
 
                         public internal_transpose_ref(p: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.meta.MetaReference {

@@ -330,9 +330,9 @@ public class DefaultKDataManager implements KDataManager {
         if (currentEntry != null) {
             return currentEntry;
         }
-        IndexRBTree timeTree = (IndexRBTree) _cache.get(origin.universe(), KConfig.NULL_LONG, origin.uuid());
         LongLongHashMap objectUniverseTree = (LongLongHashMap) _cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, origin.uuid());
         long resolvedUniverse = ResolutionHelper.resolve_universe(globalUniverseOrder(), objectUniverseTree, origin.now(), origin.universe());
+        IndexRBTree timeTree = (IndexRBTree) _cache.get(resolvedUniverse, KConfig.NULL_LONG, origin.uuid());
         if (timeTree == null) {
             throw new RuntimeException(OUT_OF_CACHE_MESSAGE + " : TimeTree not found for " + KContentKey.createTimeTree(resolvedUniverse, origin.uuid()) + " from " + origin.universe() + "/" + resolvedUniverse);
         }

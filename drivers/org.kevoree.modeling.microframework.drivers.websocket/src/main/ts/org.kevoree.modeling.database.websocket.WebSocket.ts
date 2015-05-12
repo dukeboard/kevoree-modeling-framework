@@ -139,7 +139,7 @@ module org {
                         }
 
                         public registerMultiListener(groupId:number, origin:org.kevoree.modeling.api.KUniverse<any,any,any>, objects:number[], listener:(objs:org.kevoree.modeling.api.KObject[])=>void) {
-                            this._localEventListeners.registerListenerAll(groupId, origin, objects, listener);
+                            this._localEventListeners.registerListenerAll(groupId, origin.key(), objects, listener);
                         }
 
                         public unregisterGroup(groupId:number) {

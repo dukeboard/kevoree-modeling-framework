@@ -145,7 +145,7 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
 
     @Override
     public void registerMultiListener(long p_groupId, KUniverse p_origin, long[] p_objects, KEventMultiListener p_listener) {
-        localEventListeners.registerListenerAll(p_groupId, p_origin, p_objects, p_listener);
+        localEventListeners.registerListenerAll(p_groupId, p_origin.key(), p_objects, p_listener);
     }
 
     @Override

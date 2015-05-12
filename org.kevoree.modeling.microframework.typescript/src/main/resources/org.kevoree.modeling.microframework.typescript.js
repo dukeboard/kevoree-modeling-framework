@@ -155,7 +155,6 @@ var org;
                 (function (abs) {
                     var AbstractKDataType = (function () {
                         function AbstractKDataType(p_name, p_isEnum) {
-                            this._isEnum = false;
                             this._name = p_name;
                             this._isEnum = p_isEnum;
                         }
@@ -1093,7 +1092,28 @@ var org;
                             return task;
                         };
                         AbstractKObject.prototype.jump2 = function (p_time, p_callback) {
-                            this._manager.lookup(this._universe, p_time, this._uuid, p_callback);
+                            var resolve_entry = this._manager.cache().get(this._universe, p_time, this._uuid);
+                            if (resolve_entry != null) {
+                                p_callback(this._manager.model().createProxy(this._universe, p_time, this._uuid, this._metaClass));
+                            }
+                            else {
+                                var timeTree = this._manager.cache().get(this._universe, org.kevoree.modeling.api.KConfig.NULL_LONG, this._uuid);
+                                if (timeTree != null) {
+                                    var resolvedTime = timeTree.previousOrEqual(p_time);
+                                    if (resolvedTime != null) {
+                                        var entry = this._manager.cache().get(this._universe, resolvedTime.getKey(), this._uuid);
+                                        if (entry != null) {
+                                            p_callback(this._manager.model().createProxy(this._universe, p_time, this._uuid, this._metaClass));
+                                        }
+                                        else {
+                                            this._manager.lookup(this._universe, p_time, this._uuid, p_callback);
+                                        }
+                                    }
+                                }
+                                else {
+                                    this._manager.lookup(this._universe, p_time, this._uuid, p_callback);
+                                }
+                            }
                         };
                         AbstractKObject.prototype.internal_transpose_ref = function (p) {
                             if (!org.kevoree.modeling.api.util.Checker.isDefined(p)) {

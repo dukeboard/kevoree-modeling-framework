@@ -6,6 +6,7 @@ import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.abs.AbstractKDeferWrapper;
+import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.meta.MetaReference;
@@ -56,7 +57,7 @@ public class GraphBuilder {
 
     private static void createEdges(Graph graph, KObject elem) {
         Node n = graph.getNode(elem.uuid() + "");
-        KCacheEntry rawPayload = elem.view().universe().model().manager().entry(elem, AccessMode.READ);
+        KCacheEntry rawPayload = ((AbstractKObject)elem)._manager.entry(elem, AccessMode.READ);
         for (MetaReference metaRef : elem.metaClass().metaReferences()) {
             long[] relatedElems = rawPayload.getRef(metaRef.index());
             if (relatedElems != null) {

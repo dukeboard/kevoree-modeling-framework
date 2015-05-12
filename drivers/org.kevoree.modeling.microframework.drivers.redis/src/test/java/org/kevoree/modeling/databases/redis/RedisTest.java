@@ -19,8 +19,8 @@ public class RedisTest {
     @Test
     public void test() throws IOException, InterruptedException {
 
-       // RedisServer redisServer = new RedisServer(6379);
-       // redisServer.start();
+        RedisServer redisServer = new RedisServer(6379);
+        redisServer.start();
 
         RedisContentDeliveryDriver driver = new RedisContentDeliveryDriver("0.0.0.0", 6379);
         driver.connect(new Callback<Throwable>() {
@@ -57,7 +57,7 @@ public class RedisTest {
             }
         });
 
-        // redisServer.stop();
+         redisServer.stop();
 
     }
 

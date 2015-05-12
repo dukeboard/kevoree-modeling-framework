@@ -27,7 +27,7 @@ public class SpeedTest {
     /**
      * @native ts
      */
-    @Test
+   // @Test
     public void test2() {
         try {
             long before = System.currentTimeMillis();
@@ -81,7 +81,7 @@ public class SpeedTest {
     /**
      * @native ts
      */
-    @Test
+   // @Test
     public void test() {
         DynamicMetaModel dynamicMetaModel = new DynamicMetaModel("MyMetaModel");
         final DynamicMetaClass sensorMetaClass = dynamicMetaModel.createMetaClass("Sensor");
