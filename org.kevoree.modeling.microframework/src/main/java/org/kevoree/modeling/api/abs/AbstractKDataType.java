@@ -6,9 +6,9 @@ import org.kevoree.modeling.api.meta.PrimitiveTypes;
 
 public class AbstractKDataType implements KType {
 
-    private String _name;
+    final private String _name;
 
-    private boolean _isEnum = false;
+    final private boolean _isEnum;
 
     public AbstractKDataType(String p_name, boolean p_isEnum) {
         this._name = p_name;

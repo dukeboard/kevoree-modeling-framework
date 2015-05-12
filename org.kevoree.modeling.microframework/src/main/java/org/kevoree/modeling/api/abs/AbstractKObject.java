@@ -25,12 +25,12 @@ import java.util.List;
 
 public abstract class AbstractKObject implements KObject {
 
-    protected long _uuid;
-    protected long _time;
-    protected long _universe;
-    private MetaClass _metaClass;
-    public KDataManager _manager;
-    private static final String OUT_OF_CACHE_MSG = "Out of cache Error";
+    final protected long _uuid;
+    final protected long _time;
+    final protected long _universe;
+    final private MetaClass _metaClass;
+    final public KDataManager _manager;
+    final private static String OUT_OF_CACHE_MSG = "Out of cache Error";
 
     public AbstractKObject(long p_universe, long p_time, long p_uuid, MetaClass p_metaClass, KDataManager p_manager) {
         this._universe = p_universe;

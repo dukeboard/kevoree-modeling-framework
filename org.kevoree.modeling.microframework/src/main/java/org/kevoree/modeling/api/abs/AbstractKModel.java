@@ -11,16 +11,16 @@ import org.kevoree.modeling.api.util.Checker;
 
 public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
 
-    protected final KDataManager _manager;
+    final protected KDataManager _manager;
 
-    public abstract MetaModel metaModel();
-
-    private long _key;
+    final private long _key;
 
     protected AbstractKModel() {
         _manager = new DefaultKDataManager(this);
         _key = _manager.nextModelKey();
     }
+
+    public abstract MetaModel metaModel();
 
     @Override
     public KDefer<Throwable> connect() {

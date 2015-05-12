@@ -15,11 +15,11 @@ import org.kevoree.modeling.api.xmi.XmiFormat;
 
 public abstract class AbstractKView implements KView {
 
-    protected long _time;
+    final protected long _time;
 
-    protected long _universe;
+    final protected long _universe;
 
-    protected KDataManager _manager;
+    final protected KDataManager _manager;
 
     protected AbstractKView(long p_universe, long _time, KDataManager p_manager) {
         this._universe = p_universe;

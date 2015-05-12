@@ -8,11 +8,11 @@ import java.util.List;
 
 public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C extends KModel> implements KUniverse<A, B, C> {
 
-    protected long _universe;
+    final protected long _universe;
 
-    protected KDataManager _manager;
+    final protected KDataManager _manager;
 
-    protected AbstractKUniverse(long p_key,KDataManager p_manager) {
+    protected AbstractKUniverse(long p_key, KDataManager p_manager) {
         this._universe = p_key;
         this._manager = p_manager;
     }
@@ -88,6 +88,6 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
 
     @Override
     public void listenAll(long groupId, long[] objects, KEventMultiListener multiListener) {
-        model().manager().cdn().registerMultiListener(groupId,this, objects, multiListener);
+        model().manager().cdn().registerMultiListener(groupId, this, objects, multiListener);
     }
 }
