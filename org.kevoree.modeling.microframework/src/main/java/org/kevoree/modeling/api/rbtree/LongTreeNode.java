@@ -9,7 +9,7 @@ public class LongTreeNode {
 
     public long value;
 
-    public Color color;
+    public boolean color;
 
     private LongTreeNode left;
 
@@ -17,7 +17,7 @@ public class LongTreeNode {
 
     private LongTreeNode parent = null;
 
-    public LongTreeNode(long key, long value, Color color, LongTreeNode left, LongTreeNode right) {
+    public LongTreeNode(long key, long value, boolean color, LongTreeNode left, LongTreeNode right) {
         this.key = key;
         this.value = value;
         this.color = color;
@@ -86,7 +86,7 @@ public class LongTreeNode {
 
     public void serialize(StringBuilder builder) {
         builder.append("|");
-        if (color == Color.BLACK) {
+        if (color == true) {
             builder.append(BLACK);
         } else {
             builder.append(RED);
@@ -182,9 +182,9 @@ public class LongTreeNode {
         }
         ctx.index = ctx.index + 1;
         ch = ctx.payload.charAt(ctx.index);
-        Color color = Color.BLACK;
+        boolean colorLoaded = true;
         if (ch == RED) {
-            color = Color.RED;
+            colorLoaded = false;
         }
         ctx.index = ctx.index + 1;
         ch = ctx.payload.charAt(ctx.index);
@@ -214,7 +214,7 @@ public class LongTreeNode {
             i++;
         }
         Long value = Long.parseLong(String.copyValueOf(ctx.buffer, 0, i));
-        LongTreeNode p = new LongTreeNode(key, value, color, null, null);
+        LongTreeNode p = new LongTreeNode(key, value, colorLoaded, null, null);
         LongTreeNode left = internal_unserialize(false, ctx);
         if (left != null) {
             left.setParent(p);

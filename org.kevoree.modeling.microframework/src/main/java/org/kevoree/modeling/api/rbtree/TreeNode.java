@@ -11,7 +11,7 @@ public class TreeNode {
         return key;
     }
 
-    protected Color color;
+    protected boolean color;
 
     private TreeNode left;
 
@@ -19,7 +19,7 @@ public class TreeNode {
 
     private TreeNode parent = null;
 
-    public TreeNode(long key, Color color, TreeNode left, TreeNode right) {
+    public TreeNode(long key, boolean color, TreeNode left, TreeNode right) {
         this.key = key;
         this.color = color;
         this.left = left;
@@ -87,7 +87,7 @@ public class TreeNode {
 
     public void serialize(StringBuilder builder) {
         builder.append("|");
-        if (color == Color.BLACK) {
+        if (color == true) {
             builder.append(BLACK);
         } else {
             builder.append(RED);
@@ -182,11 +182,11 @@ public class TreeNode {
         }
         ctx.index = ctx.index + 1;
         ch = ctx.payload.charAt(ctx.index);
-        Color color;
+        boolean colorLoaded;
         if (ch == TreeNode.BLACK) {
-            color = Color.BLACK;
+            colorLoaded = true;
         } else {
-            color = Color.RED;
+            colorLoaded = false;
         }
         ctx.index = ctx.index + 1;
         ch = ctx.payload.charAt(ctx.index);
@@ -198,7 +198,7 @@ public class TreeNode {
         if (ch != '|' && ch != '#' && ch != '%') {
             tokenBuild.append(ch);
         }
-        TreeNode p = new TreeNode(Long.parseLong(tokenBuild.toString()), color, null, null);
+        TreeNode p = new TreeNode(Long.parseLong(tokenBuild.toString()), colorLoaded, null, null);
         TreeNode left = internal_unserialize(false, ctx);
         if (left != null) {
             left.setParent(p);

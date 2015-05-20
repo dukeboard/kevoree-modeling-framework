@@ -57,7 +57,7 @@ public class IndexRBTree implements KCacheObject {
     }
 
     private void putInPreviousOrEqualsCache(TreeNode resolved) {
-        if(_nextCacheElem == KConfig.TREE_CACHE_SIZE){
+        if (_nextCacheElem == KConfig.TREE_CACHE_SIZE) {
             _nextCacheElem = 0;
         }
         _previousOrEqualsCacheValues[_nextCacheElem] = resolved;
@@ -323,7 +323,7 @@ public class IndexRBTree implements KCacheObject {
         TreeNode insertedNode;
         if (root == null) {
             _size++;
-            insertedNode = new TreeNode(key, Color.RED, null, null);
+            insertedNode = new TreeNode(key, false, null, null);
             root = insertedNode;
         } else {
             TreeNode n = root;
@@ -334,7 +334,7 @@ public class IndexRBTree implements KCacheObject {
                     return;
                 } else if (key < n.key) {
                     if (n.getLeft() == null) {
-                        insertedNode = new TreeNode(key, Color.RED, null, null);
+                        insertedNode = new TreeNode(key, false, null, null);
                         n.setLeft(insertedNode);
                         _size++;
                         break;
@@ -343,7 +343,7 @@ public class IndexRBTree implements KCacheObject {
                     }
                 } else {
                     if (n.getRight() == null) {
-                        insertedNode = new TreeNode(key, Color.RED, null, null);
+                        insertedNode = new TreeNode(key, false, null, null);
                         n.setRight(insertedNode);
                         _size++;
                         break;
@@ -360,14 +360,14 @@ public class IndexRBTree implements KCacheObject {
 
     private void insertCase1(TreeNode n) {
         if (n.getParent() == null) {
-            n.color = Color.BLACK;
+            n.color = true;
         } else {
             insertCase2(n);
         }
     }
 
     private void insertCase2(TreeNode n) {
-        if (nodeColor(n.getParent()) == Color.BLACK) {
+        if (nodeColor(n.getParent()) == true) {
             return;
         } else {
             insertCase3(n);
@@ -375,10 +375,10 @@ public class IndexRBTree implements KCacheObject {
     }
 
     private void insertCase3(TreeNode n) {
-        if (nodeColor(n.uncle()) == Color.RED) {
-            n.getParent().color = Color.BLACK;
-            n.uncle().color = Color.BLACK;
-            n.grandparent().color = Color.RED;
+        if (nodeColor(n.uncle()) == false) {
+            n.getParent().color = true;
+            n.uncle().color = true;
+            n.grandparent().color = false;
             insertCase1(n.grandparent());
         } else {
             insertCase4(n);
@@ -400,8 +400,8 @@ public class IndexRBTree implements KCacheObject {
     }
 
     private void insertCase5(TreeNode n) {
-        n.getParent().color = Color.BLACK;
-        n.grandparent().color = Color.RED;
+        n.getParent().color = true;
+        n.grandparent().color = false;
         if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getLeft()) {
             rotateRight(n.grandparent());
         } else {
@@ -430,7 +430,7 @@ public class IndexRBTree implements KCacheObject {
             } else {
                 child = n.getRight();
             }
-            if (nodeColor(n) == Color.BLACK) {
+            if (nodeColor(n) == true) {
                 n.color = nodeColor(child);
                 deleteCase1(n);
             }
@@ -447,9 +447,9 @@ public class IndexRBTree implements KCacheObject {
     }
 
     private void deleteCase2(TreeNode n) {
-        if (nodeColor(n.sibling()) == Color.RED) {
-            n.getParent().color = Color.RED;
-            n.sibling().color = Color.BLACK;
+        if (nodeColor(n.sibling()) == false) {
+            n.getParent().color = false;
+            n.sibling().color = true;
             if (n == n.getParent().getLeft()) {
                 rotateLeft(n.getParent());
             } else {
@@ -460,8 +460,8 @@ public class IndexRBTree implements KCacheObject {
     }
 
     private void deleteCase3(TreeNode n) {
-        if (nodeColor(n.getParent()) == Color.BLACK && nodeColor(n.sibling()) == Color.BLACK && nodeColor(n.sibling().getLeft()) == Color.BLACK && nodeColor(n.sibling().getRight()) == Color.BLACK) {
-            n.sibling().color = Color.RED;
+        if (nodeColor(n.getParent()) == true && nodeColor(n.sibling()) == true && nodeColor(n.sibling().getLeft()) == true && nodeColor(n.sibling().getRight()) == true) {
+            n.sibling().color = false;
             deleteCase1(n.getParent());
         } else {
             deleteCase4(n);
@@ -469,22 +469,22 @@ public class IndexRBTree implements KCacheObject {
     }
 
     private void deleteCase4(TreeNode n) {
-        if (nodeColor(n.getParent()) == Color.RED && nodeColor(n.sibling()) == Color.BLACK && nodeColor(n.sibling().getLeft()) == Color.BLACK && nodeColor(n.sibling().getRight()) == Color.BLACK) {
-            n.sibling().color = Color.RED;
-            n.getParent().color = Color.BLACK;
+        if (nodeColor(n.getParent()) == false && nodeColor(n.sibling()) == true && nodeColor(n.sibling().getLeft()) == true && nodeColor(n.sibling().getRight()) == true) {
+            n.sibling().color = false;
+            n.getParent().color = true;
         } else {
             deleteCase5(n);
         }
     }
 
     private void deleteCase5(TreeNode n) {
-        if (n == n.getParent().getLeft() && nodeColor(n.sibling()) == Color.BLACK && nodeColor(n.sibling().getLeft()) == Color.RED && nodeColor(n.sibling().getRight()) == Color.BLACK) {
-            n.sibling().color = Color.RED;
-            n.sibling().getLeft().color = Color.BLACK;
+        if (n == n.getParent().getLeft() && nodeColor(n.sibling()) == true && nodeColor(n.sibling().getLeft()) == false && nodeColor(n.sibling().getRight()) == true) {
+            n.sibling().color = false;
+            n.sibling().getLeft().color = true;
             rotateRight(n.sibling());
-        } else if (n == n.getParent().getRight() && nodeColor(n.sibling()) == Color.BLACK && nodeColor(n.sibling().getRight()) == Color.RED && nodeColor(n.sibling().getLeft()) == Color.BLACK) {
-            n.sibling().color = Color.RED;
-            n.sibling().getRight().color = Color.BLACK;
+        } else if (n == n.getParent().getRight() && nodeColor(n.sibling()) == true && nodeColor(n.sibling().getRight()) == false && nodeColor(n.sibling().getLeft()) == true) {
+            n.sibling().color = false;
+            n.sibling().getRight().color = true;
             rotateLeft(n.sibling());
         }
         deleteCase6(n);
@@ -492,19 +492,19 @@ public class IndexRBTree implements KCacheObject {
 
     private void deleteCase6(TreeNode n) {
         n.sibling().color = nodeColor(n.getParent());
-        n.getParent().color = Color.BLACK;
+        n.getParent().color = true;
         if (n == n.getParent().getLeft()) {
-            n.sibling().getRight().color = Color.BLACK;
+            n.sibling().getRight().color = true;
             rotateLeft(n.getParent());
         } else {
-            n.sibling().getLeft().color = Color.BLACK;
+            n.sibling().getLeft().color = true;
             rotateRight(n.getParent());
         }
     }
 
-    private Color nodeColor(TreeNode n) {
+    private boolean nodeColor(TreeNode n) {
         if (n == null) {
-            return Color.BLACK;
+            return true;
         } else {
             return n.color;
         }
