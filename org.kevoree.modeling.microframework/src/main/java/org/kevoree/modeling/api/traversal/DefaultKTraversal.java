@@ -70,21 +70,6 @@ public class DefaultKTraversal implements KTraversal {
     }
 
     @Override
-    public KTraversal inbounds(MetaReference p_metaReference) {
-        return internal_chain_action(new KInboundsAction(p_metaReference));
-    }
-
-    @Override
-    public KTraversal inboundsQuery(String p_metaReferenceQuery) {
-        return internal_chain_action(new KInboundsQueryAction(p_metaReferenceQuery));
-    }
-
-    @Override
-    public KTraversal removeDuplicate() {
-        return internal_chain_action(new KRemoveDuplicateAction());
-    }
-
-    @Override
     public KTraversal deepTraverse(MetaReference metaReference, KTraversalFilter continueCondition) {
         return internal_chain_action(new KDeepTraverseAction(metaReference, continueCondition));
     }
@@ -95,23 +80,13 @@ public class DefaultKTraversal implements KTraversal {
     }
 
     @Override
-    public KTraversal activateHistory() {
-        return internal_chain_action(new KActivateHistoryAction());
-    }
-
-    @Override
-    public KTraversal reverse() {
-        return internal_chain_action(new KReverseAction());
-    }
-
-    @Override
     public KDefer<KObject[]> done() {
         AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
         //set the terminal leaf action
         internal_chain_action(new KFinalAction(task.initCallback()));
         _terminated = true;
         //execute the first element of the chain of actions
-        _initAction.execute(_initObjs, null);
+        _initAction.execute(_initObjs);
         return task;
     }
 
@@ -122,7 +97,7 @@ public class DefaultKTraversal implements KTraversal {
         internal_chain_action(new KMapAction(attribute, task.initCallback()));
         _terminated = true;
         //execute the first element of the chain of actions
-        _initAction.execute(_initObjs, null);
+        _initAction.execute(_initObjs);
         return task;
     }
 

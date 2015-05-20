@@ -4,14 +4,12 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.abs.AbstractKObject;
-import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.map.LongLongHashMap;
 import org.kevoree.modeling.api.map.LongLongHashMapCallBack;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
-import org.kevoree.modeling.api.traversal.KTraversalHistory;
 
 public class KTraverseQueryAction implements KTraversalAction {
 
@@ -31,12 +29,9 @@ public class KTraverseQueryAction implements KTraversalAction {
     }
 
     @Override
-    public void execute(KObject[] p_inputs, KTraversalHistory p_history) {
+    public void execute(KObject[] p_inputs) {
         if (p_inputs == null || p_inputs.length == 0) {
-            if (p_history != null) {
-                p_history.addResult(p_inputs);
-            }
-            _next.execute(p_inputs, p_history);
+            _next.execute(p_inputs);
             return;
         } else {
             AbstractKObject currentFirstObject = (AbstractKObject) p_inputs[0];
@@ -102,10 +97,7 @@ public class KTraverseQueryAction implements KTraversalAction {
             currentFirstObject._manager.lookupAllobjects(currentFirstObject.universe(), currentFirstObject.now(), trimmed, new Callback<KObject[]>() {
                 @Override
                 public void on(KObject[] kObjects) {
-                    if (p_history != null) {
-                        p_history.addResult(kObjects);
-                    }
-                    _next.execute(kObjects, p_history);
+                    _next.execute(kObjects);
                 }
             });
         }

@@ -5,7 +5,6 @@ import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.map.LongHashMap;
 import org.kevoree.modeling.api.map.LongHashMapCallBack;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
-import org.kevoree.modeling.api.traversal.KTraversalHistory;
 
 public class KRemoveDuplicateAction implements KTraversalAction {
 
@@ -17,7 +16,7 @@ public class KRemoveDuplicateAction implements KTraversalAction {
     }
 
     @Override
-    public void execute(KObject[] p_inputs, KTraversalHistory p_history) {
+    public void execute(KObject[] p_inputs) {
         LongHashMap elems = new LongHashMap(p_inputs.length, KConfig.CACHE_LOAD_FACTOR);
         for (int i = 0; i < p_inputs.length; i++) {
             elems.put(p_inputs[i].uuid(), p_inputs[i]);
@@ -31,10 +30,7 @@ public class KRemoveDuplicateAction implements KTraversalAction {
                 nbInserted[0]++;
             }
         });
-        if (p_history != null) {
-            p_history.addResult(trimmed);
-        }
-        _next.execute(trimmed, p_history);
+        _next.execute(trimmed);
     }
 
 }

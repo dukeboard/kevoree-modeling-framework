@@ -4,7 +4,6 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
-import org.kevoree.modeling.api.traversal.KTraversalHistory;
 
 public class KMapAction implements KTraversalAction {
 
@@ -23,7 +22,7 @@ public class KMapAction implements KTraversalAction {
     }
 
     @Override
-    public void execute(KObject[] inputs, KTraversalHistory p_history) {
+    public void execute(KObject[] inputs) {
         Object[] selected = new Object[inputs.length];
         int nbElem = 0;
         for (int i = 0; i < inputs.length; i++) {

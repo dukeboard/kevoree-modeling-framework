@@ -19,12 +19,6 @@ public interface KTraversal {
 
     KTraversal filter(KTraversalFilter filter);
 
-    KTraversal inbounds(MetaReference metaReference);
-
-    KTraversal inboundsQuery(String metaReferenceQuery);
-
-    KTraversal removeDuplicate();
-
     KDefer<KObject[]> done();
 
     KDefer<Object[]> map(MetaAttribute attribute);
@@ -32,10 +26,6 @@ public interface KTraversal {
     KTraversal deepTraverse(MetaReference metaReference, KTraversalFilter continueCondition);
 
     KTraversal deepCollect(MetaReference metaReference, KTraversalFilter continueCondition);
-
-    KTraversal activateHistory();
-
-    KTraversal reverse();
 
 }
 

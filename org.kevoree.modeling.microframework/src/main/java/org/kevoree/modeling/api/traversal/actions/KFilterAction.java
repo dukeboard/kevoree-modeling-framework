@@ -3,7 +3,6 @@ package org.kevoree.modeling.api.traversal.actions;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
 import org.kevoree.modeling.api.traversal.KTraversalFilter;
-import org.kevoree.modeling.api.traversal.KTraversalHistory;
 
 public class KFilterAction implements KTraversalAction {
 
@@ -21,12 +20,12 @@ public class KFilterAction implements KTraversalAction {
     }
 
     @Override
-    public void execute(KObject[] p_inputs, KTraversalHistory p_history) {
+    public void execute(KObject[] p_inputs) {
         boolean[] selectedIndex = new boolean[p_inputs.length];
         int selected = 0;
         for (int i = 0; i < p_inputs.length; i++) {
             try {
-                if (_filter.filter(p_inputs[i], p_history)) {
+                if (_filter.filter(p_inputs[i])) {
                     selectedIndex[i] = true;
                     selected++;
                 }
@@ -42,10 +41,7 @@ public class KFilterAction implements KTraversalAction {
                 inserted++;
             }
         }
-        if(p_history!=null){
-            p_history.addResult(nextStepElement);
-        }
-        _next.execute(nextStepElement, p_history);
+        _next.execute(nextStepElement);
     }
 
 }

@@ -17,21 +17,9 @@ public class KSelector {
         if(extracted != null){
             for (int i = 0; i < extracted.size(); i++) {
                 if (current == null) {
-                    if (extracted.get(i).relationName.equals("..")) {
-                        current = root.traversal().inboundsQuery("*");
-                    } else if (extracted.get(i).relationName.startsWith("..")) {
-                        current = root.traversal().inboundsQuery(extracted.get(i).relationName.substring(2));
-                    } else {
-                        current = root.traversal().traverseQuery(extracted.get(i).relationName);
-                    }
+                    current = root.traversal().traverseQuery(extracted.get(i).relationName);
                 } else {
-                    if (extracted.get(i).relationName.equals("..")) {
-                        current = current.inboundsQuery("*");
-                    } else if (extracted.get(i).relationName.startsWith("..")) {
-                        current = current.inboundsQuery(extracted.get(i).relationName.substring(2));
-                    } else {
-                        current = current.traverseQuery(extracted.get(i).relationName);
-                    }
+                    current = current.traverseQuery(extracted.get(i).relationName);
                 }
                 current = current.attributeQuery(extracted.get(i).params);
             }

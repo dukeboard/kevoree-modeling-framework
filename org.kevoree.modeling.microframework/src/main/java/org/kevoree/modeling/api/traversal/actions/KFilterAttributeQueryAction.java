@@ -7,7 +7,6 @@ import org.kevoree.modeling.api.map.StringHashMap;
 import org.kevoree.modeling.api.map.StringHashMapCallBack;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
-import org.kevoree.modeling.api.traversal.KTraversalHistory;
 import org.kevoree.modeling.api.traversal.selector.KQueryParam;
 
 public class KFilterAttributeQueryAction implements KTraversalAction {
@@ -26,12 +25,9 @@ public class KFilterAttributeQueryAction implements KTraversalAction {
     }
 
     @Override
-    public void execute(KObject[] p_inputs, KTraversalHistory p_history) {
+    public void execute(KObject[] p_inputs) {
         if (p_inputs == null || p_inputs.length == 0) {
-            if (p_history != null) {
-                p_history.addResult(p_inputs);
-            }
-            _next.execute(p_inputs, p_history);
+            _next.execute(p_inputs);
             return;
         } else {
             boolean[] selectedIndexes = new boolean[p_inputs.length];
@@ -95,10 +91,7 @@ public class KFilterAttributeQueryAction implements KTraversalAction {
                     inserted++;
                 }
             }
-            if (p_history != null) {
-                p_history.addResult(nextStepElement);
-            }
-            _next.execute(nextStepElement,p_history);
+            _next.execute(nextStepElement);
         }
     }
 

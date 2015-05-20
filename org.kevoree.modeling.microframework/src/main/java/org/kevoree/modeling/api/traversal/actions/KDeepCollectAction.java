@@ -4,7 +4,6 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.abs.AbstractKObject;
-import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.map.LongHashMap;
@@ -14,7 +13,6 @@ import org.kevoree.modeling.api.map.LongLongHashMapCallBack;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
 import org.kevoree.modeling.api.traversal.KTraversalFilter;
-import org.kevoree.modeling.api.traversal.KTraversalHistory;
 
 public class KDeepCollectAction implements KTraversalAction {
 
@@ -39,19 +37,16 @@ public class KDeepCollectAction implements KTraversalAction {
     private LongHashMap<KObject> _finalElements = null;
 
     @Override
-    public void execute(KObject[] p_inputs, KTraversalHistory p_history) {
+    public void execute(KObject[] p_inputs) {
         if (p_inputs == null || p_inputs.length == 0) {
-            if (p_history != null) {
-                p_history.addResult(p_inputs);
-            }
-            _next.execute(p_inputs, p_history);
+            _next.execute(p_inputs);
             return;
         } else {
             _alreadyPassed = new LongHashMap<KObject>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
             _finalElements = new LongHashMap<KObject>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
             KObject[] filtered_inputs = new KObject[p_inputs.length];
             for (int i = 0; i < p_inputs.length; i++) {
-                if (_continueCondition == null || _continueCondition.filter(p_inputs[i], p_history)) {
+                if (_continueCondition == null || _continueCondition.filter(p_inputs[i])) {
                     filtered_inputs[i] = p_inputs[i];
                     _alreadyPassed.put(p_inputs[i].uuid(), p_inputs[i]);
                 }
@@ -63,7 +58,7 @@ public class KDeepCollectAction implements KTraversalAction {
                     KObject[] filtered_inputs2 = new KObject[traversed.length];
                     int nbSize = 0;
                     for (int i = 0; i < traversed.length; i++) {
-                        if ((_continueCondition == null || _continueCondition.filter(traversed[i], p_history)) && !_alreadyPassed.containsKey(traversed[i].uuid())) {
+                        if ((_continueCondition == null || _continueCondition.filter(traversed[i])) && !_alreadyPassed.containsKey(traversed[i].uuid())) {
                             filtered_inputs2[i] = traversed[i];
                             _alreadyPassed.put(traversed[i].uuid(), traversed[i]);
                             _finalElements.put(traversed[i].uuid(), traversed[i]);
@@ -71,9 +66,6 @@ public class KDeepCollectAction implements KTraversalAction {
                         }
                     }
                     if (nbSize > 0) {
-                        if(p_history != null){
-                            p_history.addResult(filtered_inputs2);
-                        }
                         executeStep(filtered_inputs2, iterationCallbacks[0]);
                     } else {
                         KObject[] trimmed = new KObject[_finalElements.size()];
@@ -85,10 +77,7 @@ public class KDeepCollectAction implements KTraversalAction {
                                 nbInserted[0]++;
                             }
                         });
-                        if (p_history != null) {
-                            p_history.addResult(trimmed);
-                        }
-                        _next.execute(trimmed, p_history);
+                        _next.execute(trimmed);
                     }
                 }
             };

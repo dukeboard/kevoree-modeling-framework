@@ -6,7 +6,6 @@ import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
-import org.kevoree.modeling.api.traversal.KTraversalHistory;
 
 public class KFilterNotAttributeAction implements KTraversalAction {
 
@@ -27,12 +26,9 @@ public class KFilterNotAttributeAction implements KTraversalAction {
     }
 
     @Override
-    public void execute(KObject[] p_inputs, KTraversalHistory p_history) {
+    public void execute(KObject[] p_inputs) {
         if (p_inputs == null || p_inputs.length == 0) {
-            if (p_history != null) {
-                p_history.addResult(p_inputs);
-            }
-            _next.execute(p_inputs, p_history);
+            _next.execute(p_inputs);
         } else {
             boolean[] selectedIndexes = new boolean[p_inputs.length];
             int nbSelected = 0;
@@ -115,10 +111,7 @@ public class KFilterNotAttributeAction implements KTraversalAction {
                     inserted++;
                 }
             }
-            if (p_history != null) {
-                p_history.addResult(nextStepElement);
-            }
-            _next.execute(nextStepElement, p_history);
+            _next.execute(nextStepElement);
         }
     }
 

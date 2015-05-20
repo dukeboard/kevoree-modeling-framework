@@ -3,7 +3,6 @@ package org.kevoree.modeling.api.traversal.actions;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
-import org.kevoree.modeling.api.traversal.KTraversalHistory;
 
 public class KFinalAction implements KTraversalAction {
 
@@ -19,7 +18,7 @@ public class KFinalAction implements KTraversalAction {
     }
 
     @Override
-    public void execute(KObject[] inputs, KTraversalHistory p_history) {
+    public void execute(KObject[] inputs) {
         _finalCallback.on(inputs);
     }
 }
