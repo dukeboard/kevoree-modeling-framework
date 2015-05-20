@@ -7,10 +7,6 @@ public class TreeNode {
 
     protected long key;
 
-    public long getKey() {
-        return key;
-    }
-
     protected boolean color;
 
     private TreeNode left;
@@ -31,6 +27,10 @@ public class TreeNode {
             right.parent = this;
         }
         this.parent = null;
+    }
+
+    public long getKey() {
+        return key;
     }
 
     public TreeNode grandparent() {

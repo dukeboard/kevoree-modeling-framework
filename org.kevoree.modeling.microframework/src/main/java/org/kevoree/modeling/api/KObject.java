@@ -16,10 +16,6 @@ public interface KObject {
 
     KDefer<Throwable> delete();
 
-    KDefer<KObject> parent();
-
-    long parentUuid();
-
     KDefer<KObject[]> select(String query);
 
     void listen(long groupId, KEventListener listener);
@@ -33,7 +29,6 @@ public interface KObject {
     KTimeWalker timeWalker();
 
     /* Reflexive API */
-    MetaReference referenceInParent();
 
     String domainKey();
 
@@ -46,8 +41,6 @@ public interface KObject {
     KDefer<KObject[]> inferRef(MetaReference metaReference);
 
     KTraversal traversal();
-
-    KDefer<KObject[]> inbounds();
 
     /* End Reflexive API */
 

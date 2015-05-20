@@ -11,7 +11,6 @@ import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.cache.KCacheObject;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.manager.DefaultKDataManager;
-import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.data.manager.KeyCalculator;
 import org.kevoree.modeling.api.map.LongHashMap;
@@ -206,9 +205,7 @@ public class LocalEventListeners {
                                     }
                                     Meta[] meta = new Meta[messages.getIndexes(i).length];
                                     for (int j = 0; j < messages.getIndexes(i).length; j++) {
-                                        if (messages.getIndexes(i)[j] >= Index.RESERVED_INDEXES) {
-                                            meta[j] = toDispatch.metaClass().meta(messages.getIndexes(i)[j]);
-                                        }
+                                        meta[j] = toDispatch.metaClass().meta(messages.getIndexes(i)[j]);
                                     }
                                     listeners.each(new LongLongHashMapCallBack() {
                                         @Override

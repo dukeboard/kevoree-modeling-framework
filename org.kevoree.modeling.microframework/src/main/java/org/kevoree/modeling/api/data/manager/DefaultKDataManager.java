@@ -202,7 +202,7 @@ public class DefaultKDataManager implements KDataManager {
     @Override
     public void initKObject(KObject obj) {
         KCacheEntry cacheEntry = new KCacheEntry();
-        cacheEntry.initRaw(Index.RESERVED_INDEXES + obj.metaClass().metaElements().length);
+        cacheEntry.initRaw(obj.metaClass().metaElements().length);
         cacheEntry._dirty = true;
         cacheEntry.metaClass = obj.metaClass();
         cacheEntry.inc();

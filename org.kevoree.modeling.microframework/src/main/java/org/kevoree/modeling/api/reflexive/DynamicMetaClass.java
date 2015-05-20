@@ -3,7 +3,6 @@ package org.kevoree.modeling.api.reflexive;
 import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KType;
 import org.kevoree.modeling.api.abs.*;
-import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation;
 import org.kevoree.modeling.api.map.StringHashMap;
 import org.kevoree.modeling.api.map.StringHashMapCallBack;
@@ -12,12 +11,11 @@ import org.kevoree.modeling.api.meta.MetaClass;
 
 public class DynamicMetaClass extends AbstractMetaClass {
 
-    private StringHashMap<Meta> cached_meta = new StringHashMap<Meta>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
-    private int _globalIndex = -1;
+    private StringHashMap<Meta> cached_meta = new StringHashMap<Meta>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+    private int _globalIndex = 0;
 
     public DynamicMetaClass(String p_name, int p_index) {
         super(p_name, p_index);
-        _globalIndex = Index.RESERVED_INDEXES;
         internalInit();
     }
 

@@ -3,7 +3,6 @@ package org.kevoree.modeling.api.abs;
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
-import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.data.manager.JsonRaw;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.map.LongLongHashMap;
@@ -62,42 +61,8 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public long parentUuid() {
-        KCacheEntry raw = _manager.entry(this, AccessMode.READ);
-        if (raw != null) {
-            long[] parentKey = raw.getRef(Index.PARENT_INDEX);
-            if (parentKey != null && parentKey.length > 0) {
-                return parentKey[0];
-            }
-        }
-        return KConfig.NULL_LONG;
-    }
-
-    @Override
     public KTimeWalker timeWalker() {
         return new AbstractTimeWalker(this);
-    }
-
-    @Override
-    public KDefer<KObject> parent() {
-        long parentKID = parentUuid();
-        AbstractKDeferWrapper<KObject> task = new AbstractKDeferWrapper<KObject>();
-        if (parentKID == KConfig.NULL_LONG) {
-            task.initCallback().on(null);
-        } else {
-            _manager.lookup(_universe, _time, parentKID, task.initCallback());
-        }
-        return task;
-    }
-
-    @Override
-    public MetaReference referenceInParent() {
-        KCacheEntry raw = _manager.entry(this, AccessMode.READ);
-        if (raw == null) {
-            return null;
-        } else {
-            return (MetaReference) raw.get(Index.REF_IN_PARENT_INDEX);
-        }
     }
 
     @Override
@@ -108,6 +73,13 @@ public abstract class AbstractKObject implements KObject {
         if (rawPayload == null) {
             task.initCallback().on(new Exception(OUT_OF_CACHE_MSG));
         } else {
+
+            for(int i=0;i<_metaClass.metaReferences().length;i++){
+
+            }
+
+
+            /*
             long[] inboundsKeys = rawPayload.getRef(Index.INBOUNDS_INDEX);
             if (inboundsKeys != null) {
                 try {
@@ -118,7 +90,7 @@ public abstract class AbstractKObject implements KObject {
                                 if (resolved[i] != null) {
                                     MetaReference[] linkedReferences = resolved[i].referencesWith(toRemove);
                                     for (int j = 0; j < linkedReferences.length; j++) {
-                                        ((AbstractKObject) resolved[i]).internal_mutate(KActionType.REMOVE, linkedReferences[j], toRemove, false, true);
+                                        ((AbstractKObject) resolved[i]).internal_mutate(KActionType.REMOVE, linkedReferences[j], toRemove, false);
                                     }
                                 }
                             }
@@ -130,7 +102,7 @@ public abstract class AbstractKObject implements KObject {
                 }
             } else {
                 task.initCallback().on(new Exception(OUT_OF_CACHE_MSG));
-            }
+            }*/
         }
         return task;
     }
@@ -234,23 +206,12 @@ public abstract class AbstractKObject implements KObject {
         }
     }
 
-    private void removeFromContainer(final KObject param) {
-        if (param != null && param.parentUuid() != KConfig.NULL_LONG && param.parentUuid() != _uuid) {
-            _manager.lookup(_universe, _time, param.parentUuid(), new Callback<KObject>() {
-                @Override
-                public void on(KObject parent) {
-                    ((AbstractKObject) parent).internal_mutate(KActionType.REMOVE, param.referenceInParent(), param, true, false);
-                }
-            });
-        }
-    }
-
     @Override
     public void mutate(KActionType actionType, final MetaReference metaReference, KObject param) {
-        internal_mutate(actionType, metaReference, param, true, false);
+        internal_mutate(actionType, metaReference, param, true);
     }
 
-    public void internal_mutate(KActionType actionType, final MetaReference metaReferenceP, KObject param, final boolean setOpposite, final boolean inDelete) {
+    public void internal_mutate(KActionType actionType, final MetaReference metaReferenceP, KObject param, final boolean setOpposite) {
         final MetaReference metaReference = internal_transpose_ref(metaReferenceP);
         if (metaReference == null) {
             if (metaReferenceP == null) {
@@ -261,7 +222,7 @@ public abstract class AbstractKObject implements KObject {
         }
         if (actionType.equals(KActionType.ADD)) {
             if (metaReference.single()) {
-                internal_mutate(KActionType.SET, metaReference, param, setOpposite, inDelete);
+                internal_mutate(KActionType.SET, metaReference, param, setOpposite);
             } else {
                 KCacheEntry raw = _manager.entry(this, AccessMode.WRITE);
                 long[] previousList = raw.getRef(metaReference.index());
@@ -269,76 +230,44 @@ public abstract class AbstractKObject implements KObject {
                     previousList = new long[1];
                     previousList[0] = param.uuid();
                 } else {
+                    //TODO move to KCacheEntry API to hide it
                     previousList = ArrayUtils.add(previousList, param.uuid());
                 }
                 //In all the case we reset the value (set dirty is true now)
                 raw.set(metaReference.index(), previousList);
                 //Opposite
-                if (metaReference.opposite() != null && setOpposite) {
-                    ((AbstractKObject) param).internal_mutate(KActionType.ADD, metaReference.opposite(), this, false, inDelete);
+                if (setOpposite) {
+                    ((AbstractKObject) param).internal_mutate(KActionType.ADD, metaReference.opposite(), this, false);
                 }
-                //Container
-                if (metaReference.contained()) {
-                    removeFromContainer(param);
-                    ((AbstractKObject) param).set_parent(_uuid, metaReference);
-                }
-                //Inbound
-                KCacheEntry rawParam = _manager.entry(param, AccessMode.WRITE);
-                long[] previousInbounds = rawParam.getRef(Index.INBOUNDS_INDEX);
-                if (previousInbounds == null) {
-                    previousInbounds = new long[1];
-                    previousInbounds[0] = uuid();
-                } else {
-                    previousInbounds = ArrayUtils.add(previousInbounds, uuid());
-                }
-                //In all the case we reset the value (set dirty to true now);
-                rawParam.set(Index.INBOUNDS_INDEX, previousInbounds);
             }
         } else if (actionType.equals(KActionType.SET)) {
             if (!metaReference.single()) {
-                internal_mutate(KActionType.ADD, metaReference, param, setOpposite, inDelete);
+                internal_mutate(KActionType.ADD, metaReference, param, setOpposite);
             } else {
                 if (param == null) {
-                    internal_mutate(KActionType.REMOVE, metaReference, null, setOpposite, inDelete);
+                    internal_mutate(KActionType.REMOVE, metaReference, null, setOpposite);
                 } else {
-                    //Actual add
                     KCacheEntry payload = _manager.entry(this, AccessMode.WRITE);
                     long[] previous = payload.getRef(metaReference.index());
-                    if (previous != null) {
-                        internal_mutate(KActionType.REMOVE, metaReference, null, setOpposite, inDelete);
-                    }
+                    //override
                     long[] singleValue = new long[1];
                     singleValue[0] = param.uuid();
                     payload.set(metaReference.index(), singleValue);
-                    //Container
-                    if (metaReference.contained()) {
-                        removeFromContainer(param);
-                        ((AbstractKObject) param).set_parent(_uuid, metaReference);
-                    }
-                    //Inbound
-                    KCacheEntry rawParam = _manager.entry(param, AccessMode.WRITE);
-                    long[] previousInbounds = rawParam.getRef(Index.INBOUNDS_INDEX);
-                    if (previousInbounds == null) {
-                        previousInbounds = new long[1];
-                        previousInbounds[0] = uuid();
-                    } else {
-                        previousInbounds = ArrayUtils.add(previousInbounds, uuid());
-                    }
-                    rawParam.set(Index.INBOUNDS_INDEX, previousInbounds);
-                    //Opposite
-                    final KObject self = this;
-                    if (metaReference.opposite() != null && setOpposite) {
+                    if (setOpposite) {
                         if (previous != null) {
+                            KObject self = this;
                             _manager.lookupAllobjects(_universe, _time, previous, new Callback<KObject[]>() {
                                 @Override
                                 public void on(KObject[] kObjects) {
                                     for (int i = 0; i < kObjects.length; i++) {
-                                        ((AbstractKObject) kObjects[i]).internal_mutate(KActionType.REMOVE, metaReference.opposite(), self, false, inDelete);
+                                        ((AbstractKObject) kObjects[i]).internal_mutate(KActionType.REMOVE, metaReference.opposite(), self, false);
                                     }
+                                    ((AbstractKObject) param).internal_mutate(KActionType.ADD, metaReference.opposite(), self, false);
                                 }
                             });
+                        } else {
+                            ((AbstractKObject) param).internal_mutate(KActionType.ADD, metaReference.opposite(), this, false);
                         }
-                        ((AbstractKObject) param).internal_mutate(KActionType.ADD, metaReference.opposite(), this, false, inDelete);
                     }
                 }
             }
@@ -347,35 +276,22 @@ public abstract class AbstractKObject implements KObject {
                 KCacheEntry raw = _manager.entry(this, AccessMode.WRITE);
                 long[] previousKid = raw.getRef(metaReference.index());
                 raw.set(metaReference.index(), null);
-                if (previousKid != null) {
-                    final KObject self = this;
-                    _manager.lookupAllobjects(_universe, _time, previousKid, new Callback<KObject[]>() {
-                        @Override
-                        public void on(KObject[] resolvedParams) {
-                            if (resolvedParams != null) {
-                                for (int dd = 0; dd < resolvedParams.length; dd++) {
-                                    if (resolvedParams[dd] != null) {
-                                        KObject resolvedParam = resolvedParams[dd];
-                                        if (metaReference.contained()) {
-                                            ((AbstractKObject) resolvedParam).set_parent(KConfig.NULL_LONG, null);
-                                        }
-                                        if (metaReference.opposite() != null && setOpposite) {
-                                            ((AbstractKObject) resolvedParam).internal_mutate(KActionType.REMOVE, metaReference.opposite(), self, false, inDelete);
-                                        }
-                                        //Inbound
-                                        KCacheEntry rawParam = _manager.entry(resolvedParam, AccessMode.WRITE);
-                                        if (rawParam != null) {
-                                            long[] previousInbounds = rawParam.getRef(Index.INBOUNDS_INDEX);
-                                            if (previousInbounds != null) {
-                                                previousInbounds = ArrayUtils.remove(previousInbounds, uuid());
-                                                rawParam.set(Index.INBOUNDS_INDEX, previousInbounds);
-                                            }
+                if (setOpposite) {
+                    if (previousKid != null) {
+                        final KObject self = this;
+                        _manager.lookupAllobjects(_universe, _time, previousKid, new Callback<KObject[]>() {
+                            @Override
+                            public void on(KObject[] resolvedParams) {
+                                if (resolvedParams != null) {
+                                    for (int dd = 0; dd < resolvedParams.length; dd++) {
+                                        if (resolvedParams[dd] != null) {
+                                            ((AbstractKObject) resolvedParams[dd]).internal_mutate(KActionType.REMOVE, metaReference.opposite(), self, false);
                                         }
                                     }
                                 }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
             } else {
                 KCacheEntry payload = _manager.entry(this, AccessMode.WRITE);
@@ -387,26 +303,8 @@ public abstract class AbstractKObject implements KObject {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    if (!inDelete && metaReference.contained()) {
-                        ((AbstractKObject) param).set_parent(KConfig.NULL_LONG, null);
-                    }
-                    if (metaReference.opposite() != null && setOpposite) {
-                        ((AbstractKObject) param).internal_mutate(KActionType.REMOVE, metaReference.opposite(), this, false, inDelete);
-                    }
-                }
-                //Inbounds
-                if (!inDelete) {
-                    //Inbound
-                    KCacheEntry rawParam = _manager.entry(param, AccessMode.WRITE);
-                    if (rawParam != null && rawParam.get(Index.INBOUNDS_INDEX) != null) {
-                        long[] previousInbounds;
-                        try {
-                            previousInbounds = (long[]) rawParam.get(Index.INBOUNDS_INDEX);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            previousInbounds = new long[0];
-                        }
-                        rawParam.set(Index.INBOUNDS_INDEX, previousInbounds);
+                    if (setOpposite) {
+                        ((AbstractKObject) param).internal_mutate(KActionType.REMOVE, metaReference.opposite(), this, false);
                     }
                 }
             }
@@ -619,39 +517,6 @@ public abstract class AbstractKObject implements KObject {
     @Override
     public String toString() {
         return toJSON();
-    }
-
-    @Override
-    public KDefer<KObject[]> inbounds() {
-        KCacheEntry rawPayload = _manager.entry(this, AccessMode.READ);
-        if (rawPayload != null) {
-            long[] payload = rawPayload.getRef(Index.INBOUNDS_INDEX);
-            AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
-            if (payload != null) {
-                _manager.lookupAllobjects(_universe, _time, payload, task.initCallback());
-            } else {
-                task.initCallback().on(new KObject[0]);
-            }
-            return task;
-        } else {
-            AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
-            task.initCallback().on(new KObject[0]);
-            return task;
-        }
-    }
-
-    public void set_parent(long p_parentKID, MetaReference p_metaReference) {
-        KCacheEntry raw = _manager.entry(this, AccessMode.WRITE);
-        if (raw != null) {
-            if (p_parentKID != KConfig.NULL_LONG) {
-                long[] parentKey = new long[1];
-                parentKey[0] = p_parentKID;
-                raw.set(Index.PARENT_INDEX, parentKey);
-            } else {
-                raw.set(Index.PARENT_INDEX, null);
-            }
-            raw.set(Index.REF_IN_PARENT_INDEX, p_metaReference);
-        }
     }
 
     @Override

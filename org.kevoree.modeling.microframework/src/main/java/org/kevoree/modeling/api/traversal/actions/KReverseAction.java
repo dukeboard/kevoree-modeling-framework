@@ -5,11 +5,8 @@ import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
-import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.map.LongHashMap;
 import org.kevoree.modeling.api.map.LongHashMapCallBack;
-import org.kevoree.modeling.api.map.LongLongHashMap;
-import org.kevoree.modeling.api.map.LongLongHashMapCallBack;
 import org.kevoree.modeling.api.traversal.KTraversalAction;
 import org.kevoree.modeling.api.traversal.KTraversalHistory;
 
@@ -29,14 +26,17 @@ public class KReverseAction implements KTraversalAction {
         }
         LongHashMap<KObject> selected = new LongHashMap<KObject>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         for (int i = 0; i < p_inputs.length; i++) {
-            KCacheEntry rawPayload = ((AbstractKObject)p_inputs[i])._manager.entry(p_inputs[i], AccessMode.READ);
+            AbstractKObject loopObj = (AbstractKObject)p_inputs[i];
+            KCacheEntry rawPayload = loopObj._manager.entry(p_inputs[i], AccessMode.READ);
             if (rawPayload != null) {
-                long[] loopInbounds = rawPayload.getRef(Index.INBOUNDS_INDEX);
-                if (loopInbounds != null) {
-                    for (int j = 0; j < loopInbounds.length; j++) {
-                        KObject previous = p_history.get(loopInbounds[j]);
-                        if (previous != null) {
-                            selected.put(loopInbounds[j], previous);
+                for(int j=0;j<loopObj.metaClass().metaReferences().length;j++){
+                    long[] loopInbounds = rawPayload.getRef(loopObj.metaClass().metaReferences()[j].index());
+                    if (loopInbounds != null) {
+                        for (int h = 0; h < loopInbounds.length; h++) {
+                            KObject previous = p_history.get(loopInbounds[h]);
+                            if (previous != null) {
+                                selected.put(loopInbounds[j], previous);
+                            }
                         }
                     }
                 }

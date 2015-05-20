@@ -4,10 +4,8 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.abs.AbstractKObject;
-import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
-import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.map.LongHashMap;
 import org.kevoree.modeling.api.map.LongHashMapCallBack;
 import org.kevoree.modeling.api.map.LongLongHashMap;
@@ -48,15 +46,17 @@ public class KInboundsAction implements KTraversalAction {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
                     KCacheEntry raw = currentObject._manager.entry(loopObj, AccessMode.READ);
                     if (raw != null) {
-                        long[] elementsKeys = raw.getRef(Index.INBOUNDS_INDEX);
-                        if (elementsKeys != null) {
-                            if (_reference == null) {
-                                for (int j = 0; j < elementsKeys.length; j++) {
-                                    nextIds.put(elementsKeys[j], elementsKeys[j]);
-                                }
-                            } else {
-                                for (int j = 0; j < elementsKeys.length; j++) {
-                                    toFilter.put(elementsKeys[j], p_inputs[i]);
+                        for (int h = 0; h < loopObj.metaClass().metaReferences().length; h++) {
+                            long[] elementsKeys = raw.getRef(loopObj.metaClass().metaReferences()[h].index());
+                            if (elementsKeys != null) {
+                                if (_reference == null) {
+                                    for (int j = 0; j < elementsKeys.length; j++) {
+                                        nextIds.put(elementsKeys[j], elementsKeys[j]);
+                                    }
+                                } else {
+                                    for (int j = 0; j < elementsKeys.length; j++) {
+                                        toFilter.put(elementsKeys[j], p_inputs[i]);
+                                    }
                                 }
                             }
                         }

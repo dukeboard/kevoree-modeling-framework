@@ -82,6 +82,7 @@ public class HelloTest {
                             Assert.assertEquals(kObject, root);
                         }
                     });
+                    /*
                     n1.inbounds().then(new Callback<KObject[]>() {
                         @Override
                         public void on(KObject[] kObjects) {
@@ -95,6 +96,7 @@ public class HelloTest {
                             Assert.assertEquals(kObjects[0].uuid(), root.uuid());
                         }
                     });
+                    */
                 }
             }
         });

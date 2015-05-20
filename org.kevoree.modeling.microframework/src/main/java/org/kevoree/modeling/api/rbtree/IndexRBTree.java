@@ -7,12 +7,17 @@ import org.kevoree.modeling.api.meta.MetaModel;
 
 public class IndexRBTree implements KCacheObject {
 
-    private TreeNode root = null;
     private int _size = 0;
+    private TreeNode root = null;
     private TreeNode[] _previousOrEqualsCacheValues = null;
     private int _nextCacheElem;
     private int _counter = 0;
     private boolean _dirty = false;
+
+    public IndexRBTree() {
+        _previousOrEqualsCacheValues = new TreeNode[KConfig.TREE_CACHE_SIZE];
+        _nextCacheElem = 0;
+    }
 
     public int size() {
         return _size;
@@ -31,11 +36,6 @@ public class IndexRBTree implements KCacheObject {
     @Override
     public void dec() {
         _counter--;
-    }
-
-    public IndexRBTree() {
-        _previousOrEqualsCacheValues = new TreeNode[KConfig.TREE_CACHE_SIZE];
-        _nextCacheElem = 0;
     }
 
     /* Cache management */

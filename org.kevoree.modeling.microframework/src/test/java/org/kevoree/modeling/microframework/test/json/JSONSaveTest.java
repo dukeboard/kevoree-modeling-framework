@@ -90,8 +90,8 @@ public class JSONSaveTest {
         });
         String payloadResult = "[\n" +
                 "{\"@meta\":\"org.kevoree.modeling.microframework.test.cloud.Node\",\"@uuid\":1,\"@root\":true,\"name\":\"root\",\"children\":[2,3]},\n" +
-                "{\"@meta\":\"org.kevoree.modeling.microframework.test.cloud.Node\",\"@uuid\":2,\"@parent\":[1],\"@ref\":\"org.kevoree.modeling.microframework.test.cloud.Node@children\",\"@inbounds\":[1],\"name\":\"n1\"},\n" +
-                "{\"@meta\":\"org.kevoree.modeling.microframework.test.cloud.Node\",\"@uuid\":3,\"@parent\":[1],\"@ref\":\"org.kevoree.modeling.microframework.test.cloud.Node@children\",\"@inbounds\":[1],\"name\":\"n2\"}\n" +
+                "{\"@meta\":\"org.kevoree.modeling.microframework.test.cloud.Node\",\"@uuid\":2,\"name\":\"n1\",\"op_children\":[1]},\n" +
+                "{\"@meta\":\"org.kevoree.modeling.microframework.test.cloud.Node\",\"@uuid\":3,\"name\":\"n2\",\"op_children\":[1]}\n" +
                 "]\n";
 
 

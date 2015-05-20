@@ -33,7 +33,7 @@ public class SchedulerTest {
                 n2.setName("n2");
                 root.addChildren(n1);
                 root.addChildren(n2);
-
+/*
                 n1.inbounds().then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
@@ -46,6 +46,7 @@ public class SchedulerTest {
                         Assert.assertEquals(kObjects[0].uuid(), root.uuid());
                     }
                 });
+                */
             }
         });
 

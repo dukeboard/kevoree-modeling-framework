@@ -18,30 +18,62 @@ public class MetaNode extends AbstractMetaClass {
         return INSTANCE;
     }
 
-    public static final MetaAttribute ATT_NAME = new AbstractMetaAttribute("name", 4, 5, true, PrimitiveTypes.STRING, DiscreteExtrapolation.instance());
+    public static final MetaAttribute ATT_NAME = new AbstractMetaAttribute("name", 0, 5, true, PrimitiveTypes.STRING, DiscreteExtrapolation.instance());
 
-    public static final MetaAttribute ATT_VALUE = new AbstractMetaAttribute("value", 5, 5, false, PrimitiveTypes.STRING, DiscreteExtrapolation.instance());
+    public static final MetaAttribute ATT_VALUE = new AbstractMetaAttribute("value", 1, 5, false, PrimitiveTypes.STRING, DiscreteExtrapolation.instance());
 
-    public static final MetaReference REF_CHILDREN = new AbstractMetaReference("children", 6, true, false, new LazyResolver() {
+    public static final MetaReference REF_CHILDREN = new AbstractMetaReference("children", 2, true, false, new LazyResolver() {
         @Override
         public Meta meta() {
             return MetaNode.getInstance();
         }
-    }, null, new LazyResolver() {
+    }, new LazyResolver() {
+        @Override
+        public Meta meta() {
+            return MetaNode.getInstance().REF_OP_CHILDREN;
+        }
+    }, new LazyResolver() {
         @Override
         public Meta meta() {
             return MetaNode.getInstance();
         }
     });
 
-    public static final MetaReference REF_ELEMENT = new AbstractMetaReference("element", 7, true, true, null, null, new LazyResolver() {
+    public static final MetaReference REF_OP_CHILDREN = new AbstractMetaReference("op_children", 3, true, false, new LazyResolver() {
+        @Override
+        public Meta meta() {
+            return MetaNode.getInstance();
+        }
+    }, new LazyResolver() {
+        @Override
+        public Meta meta() {
+            return MetaNode.getInstance().REF_CHILDREN;
+        }
+    }, new LazyResolver() {
         @Override
         public Meta meta() {
             return MetaNode.getInstance();
         }
     });
 
-    public static final MetaOperation OP_TRIGGER = new AbstractMetaOperation("trigger", 8, new LazyResolver() {
+    public static final MetaReference REF_ELEMENT = new AbstractMetaReference("element", 4, true, true, new LazyResolver() {
+        @Override
+        public Meta meta() {
+            return MetaElement.getInstance();
+        }
+    }, new LazyResolver() {
+        @Override
+        public Meta meta() {
+            return MetaElement.getInstance().REF_OP_ELEMENT;
+        }
+    }, new LazyResolver() {
+        @Override
+        public Meta meta() {
+            return MetaNode.getInstance();
+        }
+    });
+
+    public static final MetaOperation OP_TRIGGER = new AbstractMetaOperation("trigger", 5, new LazyResolver() {
         @Override
         public Meta meta() {
             return MetaNode.getInstance();
@@ -50,12 +82,13 @@ public class MetaNode extends AbstractMetaClass {
 
     public MetaNode() {
         super("org.kevoree.modeling.microframework.test.cloud.Node", 0);
-        Meta[] temp = new Meta[5];
+        Meta[] temp = new Meta[6];
         temp[0] = ATT_NAME;
         temp[1] = ATT_VALUE;
         temp[2] = REF_CHILDREN;
-        temp[3] = REF_ELEMENT;
-        temp[4] = OP_TRIGGER;
+        temp[3] = REF_OP_CHILDREN;
+        temp[4] = REF_ELEMENT;
+        temp[5] = OP_TRIGGER;
         init(temp);
     }
 

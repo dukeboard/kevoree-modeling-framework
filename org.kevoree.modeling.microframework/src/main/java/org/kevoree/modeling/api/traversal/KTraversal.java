@@ -23,8 +23,6 @@ public interface KTraversal {
 
     KTraversal inboundsQuery(String metaReferenceQuery);
 
-    KTraversal parents();
-
     KTraversal removeDuplicate();
 
     KDefer<KObject[]> done();

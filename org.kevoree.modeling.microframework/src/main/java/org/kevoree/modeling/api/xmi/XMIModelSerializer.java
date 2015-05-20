@@ -16,9 +16,9 @@ import org.kevoree.modeling.api.meta.MetaReference;
 public class XMIModelSerializer {
 
     public static void save(KObject model, final Callback<String> callback) {
-
+        callback.on(null);
+/*
         if (model == null) {
-            callback.on(null);
         } else {
             final SerializationContext context = new SerializationContext();
             context.model = model;
@@ -222,5 +222,6 @@ public class XMIModelSerializer {
         });
         thisTask.ready();
         return thisTask;
+        */
     }
 }

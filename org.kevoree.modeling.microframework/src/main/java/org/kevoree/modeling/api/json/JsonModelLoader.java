@@ -3,14 +3,10 @@ package org.kevoree.modeling.api.json;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKModel;
-import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.abs.AbstractMetaReference;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
-import org.kevoree.modeling.api.data.manager.Index;
-import org.kevoree.modeling.api.data.manager.JsonRaw;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.map.LongLongHashMap;
 import org.kevoree.modeling.api.map.StringHashMap;
@@ -18,7 +14,6 @@ import org.kevoree.modeling.api.map.StringHashMapCallBack;
 import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.meta.MetaModel;
 import org.kevoree.modeling.api.meta.MetaType;
 
 import java.util.ArrayList;
@@ -137,41 +132,7 @@ public class JsonModelLoader {
         p_param.each(new StringHashMapCallBack<Object>() {
             @Override
             public void on(String metaKey, Object payload_content) {
-                if (metaKey.equals(JsonFormat.INBOUNDS_META)) {
-                    try {
-                        raw.set(Index.INBOUNDS_INDEX, transposeArr((ArrayList<String>) payload_content, p_mappedKeys));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else if (metaKey.equals(JsonFormat.PARENT_META)) {
-                    try {
-                        ArrayList<String> parentKeys = (ArrayList<String>) payload_content;
-                        long[] parentTransposed = transposeArr(parentKeys,p_mappedKeys);
-                        if(parentTransposed != null && parentTransposed.length >0 && parentTransposed[0]!=KConfig.NULL_LONG){
-                            long[] parentKey = new long[1];
-                            parentKey[0] = parentTransposed[0];
-                            raw.set(Index.PARENT_INDEX, parentKey);
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else if (metaKey.equals(JsonFormat.PARENT_REF_META)) {
-                    try {
-                        String parentRef_payload = payload_content.toString();
-                        String[] elems = parentRef_payload.split(JsonRaw.SEP);
-                        if (elems.length == 2) {
-                            MetaClass foundMeta = manager.model().metaModel().metaClass(elems[0].trim());
-                            if (foundMeta != null) {
-                                Meta metaReference = foundMeta.metaByName(elems[1].trim());
-                                if (metaReference != null && metaReference instanceof AbstractMetaReference) {
-                                    raw.set(Index.REF_IN_PARENT_INDEX, metaReference);
-                                }
-                            }
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else if (metaKey.equals(JsonFormat.KEY_ROOT)) {
+                if (metaKey.equals(JsonFormat.KEY_ROOT)) {
                     //if ("true".equals(payload_content) || true == payload_content) {
                         p_rootElem[0] = current;
                     //}

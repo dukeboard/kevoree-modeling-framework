@@ -7713,22 +7713,6 @@ module org {
                     }
                 }
                 export module rbtree {
-                    export class Color {
-
-                        public static RED: Color = new Color();
-                        public static BLACK: Color = new Color();
-                        public equals(other: any): boolean {
-                            return this == other;
-                        }
-                        public static _ColorVALUES : Color[] = [
-                            Color.RED
-                            ,Color.BLACK
-                        ];
-                        public static values():Color[]{
-                            return Color._ColorVALUES;
-                        }
-                    }
-
                     export class IndexRBTree implements org.kevoree.modeling.api.data.cache.KCacheObject {
 
                         private root: org.kevoree.modeling.api.rbtree.TreeNode = null;
@@ -8040,7 +8024,7 @@ module org {
                             var insertedNode: org.kevoree.modeling.api.rbtree.TreeNode;
                             if (this.root == null) {
                                 this._size++;
-                                insertedNode = new org.kevoree.modeling.api.rbtree.TreeNode(key, org.kevoree.modeling.api.rbtree.Color.RED, null, null);
+                                insertedNode = new org.kevoree.modeling.api.rbtree.TreeNode(key, false, null, null);
                                 this.root = insertedNode;
                             } else {
                                 var n: org.kevoree.modeling.api.rbtree.TreeNode = this.root;
@@ -8051,7 +8035,7 @@ module org {
                                     } else {
                                         if (key < n.key) {
                                             if (n.getLeft() == null) {
-                                                insertedNode = new org.kevoree.modeling.api.rbtree.TreeNode(key, org.kevoree.modeling.api.rbtree.Color.RED, null, null);
+                                                insertedNode = new org.kevoree.modeling.api.rbtree.TreeNode(key, false, null, null);
                                                 n.setLeft(insertedNode);
                                                 this._size++;
                                                 break;
@@ -8060,7 +8044,7 @@ module org {
                                             }
                                         } else {
                                             if (n.getRight() == null) {
-                                                insertedNode = new org.kevoree.modeling.api.rbtree.TreeNode(key, org.kevoree.modeling.api.rbtree.Color.RED, null, null);
+                                                insertedNode = new org.kevoree.modeling.api.rbtree.TreeNode(key, false, null, null);
                                                 n.setRight(insertedNode);
                                                 this._size++;
                                                 break;
@@ -8078,14 +8062,14 @@ module org {
 
                         private insertCase1(n: org.kevoree.modeling.api.rbtree.TreeNode): void {
                             if (n.getParent() == null) {
-                                n.color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                n.color = true;
                             } else {
                                 this.insertCase2(n);
                             }
                         }
 
                         private insertCase2(n: org.kevoree.modeling.api.rbtree.TreeNode): void {
-                            if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                            if (this.nodeColor(n.getParent()) == true) {
                                 return;
                             } else {
                                 this.insertCase3(n);
@@ -8093,10 +8077,10 @@ module org {
                         }
 
                         private insertCase3(n: org.kevoree.modeling.api.rbtree.TreeNode): void {
-                            if (this.nodeColor(n.uncle()) == org.kevoree.modeling.api.rbtree.Color.RED) {
-                                n.getParent().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
-                                n.uncle().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
-                                n.grandparent().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                            if (this.nodeColor(n.uncle()) == false) {
+                                n.getParent().color = true;
+                                n.uncle().color = true;
+                                n.grandparent().color = false;
                                 this.insertCase1(n.grandparent());
                             } else {
                                 this.insertCase4(n);
@@ -8118,8 +8102,8 @@ module org {
                         }
 
                         private insertCase5(n: org.kevoree.modeling.api.rbtree.TreeNode): void {
-                            n.getParent().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
-                            n.grandparent().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                            n.getParent().color = true;
+                            n.grandparent().color = false;
                             if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getLeft()) {
                                 this.rotateRight(n.grandparent());
                             } else {
@@ -8147,7 +8131,7 @@ module org {
                                 } else {
                                     child = n.getRight();
                                 }
-                                if (this.nodeColor(n) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                if (this.nodeColor(n) == true) {
                                     n.color = this.nodeColor(child);
                                     this.deleteCase1(n);
                                 }
@@ -8164,9 +8148,9 @@ module org {
                         }
 
                         private deleteCase2(n: org.kevoree.modeling.api.rbtree.TreeNode): void {
-                            if (this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.RED) {
-                                n.getParent().color = org.kevoree.modeling.api.rbtree.Color.RED;
-                                n.sibling().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            if (this.nodeColor(n.sibling()) == false) {
+                                n.getParent().color = false;
+                                n.sibling().color = true;
                                 if (n == n.getParent().getLeft()) {
                                     this.rotateLeft(n.getParent());
                                 } else {
@@ -8177,8 +8161,8 @@ module org {
                         }
 
                         private deleteCase3(n: org.kevoree.modeling.api.rbtree.TreeNode): void {
-                            if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
-                                n.sibling().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                            if (this.nodeColor(n.getParent()) == true && this.nodeColor(n.sibling()) == true && this.nodeColor(n.sibling().getLeft()) == true && this.nodeColor(n.sibling().getRight()) == true) {
+                                n.sibling().color = false;
                                 this.deleteCase1(n.getParent());
                             } else {
                                 this.deleteCase4(n);
@@ -8186,23 +8170,23 @@ module org {
                         }
 
                         private deleteCase4(n: org.kevoree.modeling.api.rbtree.TreeNode): void {
-                            if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.rbtree.Color.RED && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
-                                n.sibling().color = org.kevoree.modeling.api.rbtree.Color.RED;
-                                n.getParent().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            if (this.nodeColor(n.getParent()) == false && this.nodeColor(n.sibling()) == true && this.nodeColor(n.sibling().getLeft()) == true && this.nodeColor(n.sibling().getRight()) == true) {
+                                n.sibling().color = false;
+                                n.getParent().color = true;
                             } else {
                                 this.deleteCase5(n);
                             }
                         }
 
                         private deleteCase5(n: org.kevoree.modeling.api.rbtree.TreeNode): void {
-                            if (n == n.getParent().getLeft() && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.rbtree.Color.RED && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
-                                n.sibling().color = org.kevoree.modeling.api.rbtree.Color.RED;
-                                n.sibling().getLeft().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            if (n == n.getParent().getLeft() && this.nodeColor(n.sibling()) == true && this.nodeColor(n.sibling().getLeft()) == false && this.nodeColor(n.sibling().getRight()) == true) {
+                                n.sibling().color = false;
+                                n.sibling().getLeft().color = true;
                                 this.rotateRight(n.sibling());
                             } else {
-                                if (n == n.getParent().getRight() && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.rbtree.Color.RED && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
-                                    n.sibling().color = org.kevoree.modeling.api.rbtree.Color.RED;
-                                    n.sibling().getRight().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                if (n == n.getParent().getRight() && this.nodeColor(n.sibling()) == true && this.nodeColor(n.sibling().getRight()) == false && this.nodeColor(n.sibling().getLeft()) == true) {
+                                    n.sibling().color = false;
+                                    n.sibling().getRight().color = true;
                                     this.rotateLeft(n.sibling());
                                 }
                             }
@@ -8211,19 +8195,19 @@ module org {
 
                         private deleteCase6(n: org.kevoree.modeling.api.rbtree.TreeNode): void {
                             n.sibling().color = this.nodeColor(n.getParent());
-                            n.getParent().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            n.getParent().color = true;
                             if (n == n.getParent().getLeft()) {
-                                n.sibling().getRight().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                n.sibling().getRight().color = true;
                                 this.rotateLeft(n.getParent());
                             } else {
-                                n.sibling().getLeft().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                n.sibling().getLeft().color = true;
                                 this.rotateRight(n.getParent());
                             }
                         }
 
-                        private nodeColor(n: org.kevoree.modeling.api.rbtree.TreeNode): org.kevoree.modeling.api.rbtree.Color {
+                        private nodeColor(n: org.kevoree.modeling.api.rbtree.TreeNode): boolean {
                             if (n == null) {
-                                return org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                return true;
                             } else {
                                 return n.color;
                             }
@@ -8570,7 +8554,7 @@ module org {
                         public insert(key: number, value: number): void {
                             this.resetCache();
                             this._dirty = true;
-                            var insertedNode: org.kevoree.modeling.api.rbtree.LongTreeNode = new org.kevoree.modeling.api.rbtree.LongTreeNode(key, value, org.kevoree.modeling.api.rbtree.Color.RED, null, null);
+                            var insertedNode: org.kevoree.modeling.api.rbtree.LongTreeNode = new org.kevoree.modeling.api.rbtree.LongTreeNode(key, value, false, null, null);
                             if (this.root == null) {
                                 this._size++;
                                 this.root = insertedNode;
@@ -8607,14 +8591,14 @@ module org {
 
                         private insertCase1(n: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
                             if (n.getParent() == null) {
-                                n.color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                n.color = true;
                             } else {
                                 this.insertCase2(n);
                             }
                         }
 
                         private insertCase2(n: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
-                            if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                            if (this.nodeColor(n.getParent()) == true) {
                                 return;
                             } else {
                                 this.insertCase3(n);
@@ -8622,10 +8606,10 @@ module org {
                         }
 
                         private insertCase3(n: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
-                            if (this.nodeColor(n.uncle()) == org.kevoree.modeling.api.rbtree.Color.RED) {
-                                n.getParent().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
-                                n.uncle().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
-                                n.grandparent().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                            if (this.nodeColor(n.uncle()) == false) {
+                                n.getParent().color = true;
+                                n.uncle().color = true;
+                                n.grandparent().color = false;
                                 this.insertCase1(n.grandparent());
                             } else {
                                 this.insertCase4(n);
@@ -8647,8 +8631,8 @@ module org {
                         }
 
                         private insertCase5(n: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
-                            n.getParent().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
-                            n.grandparent().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                            n.getParent().color = true;
+                            n.grandparent().color = false;
                             if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getLeft()) {
                                 this.rotateRight(n.grandparent());
                             } else {
@@ -8677,7 +8661,7 @@ module org {
                                 } else {
                                     child = n.getRight();
                                 }
-                                if (this.nodeColor(n) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                                if (this.nodeColor(n) == true) {
                                     n.color = this.nodeColor(child);
                                     this.deleteCase1(n);
                                 }
@@ -8694,9 +8678,9 @@ module org {
                         }
 
                         private deleteCase2(n: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
-                            if (this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.RED) {
-                                n.getParent().color = org.kevoree.modeling.api.rbtree.Color.RED;
-                                n.sibling().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            if (this.nodeColor(n.sibling()) == false) {
+                                n.getParent().color = false;
+                                n.sibling().color = true;
                                 if (n == n.getParent().getLeft()) {
                                     this.rotateLeft(n.getParent());
                                 } else {
@@ -8707,8 +8691,8 @@ module org {
                         }
 
                         private deleteCase3(n: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
-                            if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
-                                n.sibling().color = org.kevoree.modeling.api.rbtree.Color.RED;
+                            if (this.nodeColor(n.getParent()) == true && this.nodeColor(n.sibling()) == true && this.nodeColor(n.sibling().getLeft()) == true && this.nodeColor(n.sibling().getRight()) == true) {
+                                n.sibling().color = false;
                                 this.deleteCase1(n.getParent());
                             } else {
                                 this.deleteCase4(n);
@@ -8716,23 +8700,23 @@ module org {
                         }
 
                         private deleteCase4(n: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
-                            if (this.nodeColor(n.getParent()) == org.kevoree.modeling.api.rbtree.Color.RED && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
-                                n.sibling().color = org.kevoree.modeling.api.rbtree.Color.RED;
-                                n.getParent().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            if (this.nodeColor(n.getParent()) == false && this.nodeColor(n.sibling()) == true && this.nodeColor(n.sibling().getLeft()) == true && this.nodeColor(n.sibling().getRight()) == true) {
+                                n.sibling().color = false;
+                                n.getParent().color = true;
                             } else {
                                 this.deleteCase5(n);
                             }
                         }
 
                         private deleteCase5(n: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
-                            if (n == n.getParent().getLeft() && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.rbtree.Color.RED && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
-                                n.sibling().color = org.kevoree.modeling.api.rbtree.Color.RED;
-                                n.sibling().getLeft().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            if (n == n.getParent().getLeft() && this.nodeColor(n.sibling()) == true && this.nodeColor(n.sibling().getLeft()) == false && this.nodeColor(n.sibling().getRight()) == true) {
+                                n.sibling().color = false;
+                                n.sibling().getLeft().color = true;
                                 this.rotateRight(n.sibling());
                             } else {
-                                if (n == n.getParent().getRight() && this.nodeColor(n.sibling()) == org.kevoree.modeling.api.rbtree.Color.BLACK && this.nodeColor(n.sibling().getRight()) == org.kevoree.modeling.api.rbtree.Color.RED && this.nodeColor(n.sibling().getLeft()) == org.kevoree.modeling.api.rbtree.Color.BLACK) {
-                                    n.sibling().color = org.kevoree.modeling.api.rbtree.Color.RED;
-                                    n.sibling().getRight().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                if (n == n.getParent().getRight() && this.nodeColor(n.sibling()) == true && this.nodeColor(n.sibling().getRight()) == false && this.nodeColor(n.sibling().getLeft()) == true) {
+                                    n.sibling().color = false;
+                                    n.sibling().getRight().color = true;
                                     this.rotateLeft(n.sibling());
                                 }
                             }
@@ -8741,19 +8725,19 @@ module org {
 
                         private deleteCase6(n: org.kevoree.modeling.api.rbtree.LongTreeNode): void {
                             n.sibling().color = this.nodeColor(n.getParent());
-                            n.getParent().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            n.getParent().color = true;
                             if (n == n.getParent().getLeft()) {
-                                n.sibling().getRight().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                n.sibling().getRight().color = true;
                                 this.rotateLeft(n.getParent());
                             } else {
-                                n.sibling().getLeft().color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                n.sibling().getLeft().color = true;
                                 this.rotateRight(n.getParent());
                             }
                         }
 
-                        private nodeColor(n: org.kevoree.modeling.api.rbtree.LongTreeNode): org.kevoree.modeling.api.rbtree.Color {
+                        private nodeColor(n: org.kevoree.modeling.api.rbtree.LongTreeNode): boolean {
                             if (n == null) {
-                                return org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                return true;
                             } else {
                                 return n.color;
                             }
@@ -8767,11 +8751,11 @@ module org {
                         public static RED: string = '2';
                         public key: number;
                         public value: number;
-                        public color: org.kevoree.modeling.api.rbtree.Color;
+                        public color: boolean;
                         private left: org.kevoree.modeling.api.rbtree.LongTreeNode;
                         private right: org.kevoree.modeling.api.rbtree.LongTreeNode;
                         private parent: org.kevoree.modeling.api.rbtree.LongTreeNode = null;
-                        constructor(key: number, value: number, color: org.kevoree.modeling.api.rbtree.Color, left: org.kevoree.modeling.api.rbtree.LongTreeNode, right: org.kevoree.modeling.api.rbtree.LongTreeNode) {
+                        constructor(key: number, value: number, color: boolean, left: org.kevoree.modeling.api.rbtree.LongTreeNode, right: org.kevoree.modeling.api.rbtree.LongTreeNode) {
                             this.key = key;
                             this.value = value;
                             this.color = color;
@@ -8840,7 +8824,7 @@ module org {
 
                         public serialize(builder: java.lang.StringBuilder): void {
                             builder.append("|");
-                            if (this.color == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                            if (this.color == true) {
                                 builder.append(LongTreeNode.BLACK);
                             } else {
                                 builder.append(LongTreeNode.RED);
@@ -8936,9 +8920,9 @@ module org {
                             }
                             ctx.index = ctx.index + 1;
                             ch = ctx.payload.charAt(ctx.index);
-                            var color: org.kevoree.modeling.api.rbtree.Color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                            var colorLoaded: boolean = true;
                             if (ch == LongTreeNode.RED) {
-                                color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                colorLoaded = false;
                             }
                             ctx.index = ctx.index + 1;
                             ch = ctx.payload.charAt(ctx.index);
@@ -8968,7 +8952,7 @@ module org {
                                 i++;
                             }
                             var value: number = java.lang.Long.parseLong(StringUtils.copyValueOf(ctx.buffer, 0, i));
-                            var p: org.kevoree.modeling.api.rbtree.LongTreeNode = new org.kevoree.modeling.api.rbtree.LongTreeNode(key, value, color, null, null);
+                            var p: org.kevoree.modeling.api.rbtree.LongTreeNode = new org.kevoree.modeling.api.rbtree.LongTreeNode(key, value, colorLoaded, null, null);
                             var left: org.kevoree.modeling.api.rbtree.LongTreeNode = org.kevoree.modeling.api.rbtree.LongTreeNode.internal_unserialize(false, ctx);
                             if (left != null) {
                                 left.setParent(p);
@@ -8989,15 +8973,11 @@ module org {
                         public static BLACK: string = '0';
                         public static RED: string = '1';
                         public key: number;
-                        public color: org.kevoree.modeling.api.rbtree.Color;
+                        public color: boolean;
                         private left: org.kevoree.modeling.api.rbtree.TreeNode;
                         private right: org.kevoree.modeling.api.rbtree.TreeNode;
                         private parent: org.kevoree.modeling.api.rbtree.TreeNode = null;
-                        public getKey(): number {
-                            return this.key;
-                        }
-
-                        constructor(key: number, color: org.kevoree.modeling.api.rbtree.Color, left: org.kevoree.modeling.api.rbtree.TreeNode, right: org.kevoree.modeling.api.rbtree.TreeNode) {
+                        constructor(key: number, color: boolean, left: org.kevoree.modeling.api.rbtree.TreeNode, right: org.kevoree.modeling.api.rbtree.TreeNode) {
                             this.key = key;
                             this.color = color;
                             this.left = left;
@@ -9009,6 +8989,10 @@ module org {
                                 right.parent = this;
                             }
                             this.parent = null;
+                        }
+
+                        public getKey(): number {
+                            return this.key;
                         }
 
                         public grandparent(): org.kevoree.modeling.api.rbtree.TreeNode {
@@ -9065,7 +9049,7 @@ module org {
 
                         public serialize(builder: java.lang.StringBuilder): void {
                             builder.append("|");
-                            if (this.color == org.kevoree.modeling.api.rbtree.Color.BLACK) {
+                            if (this.color == true) {
                                 builder.append(TreeNode.BLACK);
                             } else {
                                 builder.append(TreeNode.RED);
@@ -9160,11 +9144,11 @@ module org {
                             }
                             ctx.index = ctx.index + 1;
                             ch = ctx.payload.charAt(ctx.index);
-                            var color: org.kevoree.modeling.api.rbtree.Color;
+                            var colorLoaded: boolean;
                             if (ch == org.kevoree.modeling.api.rbtree.TreeNode.BLACK) {
-                                color = org.kevoree.modeling.api.rbtree.Color.BLACK;
+                                colorLoaded = true;
                             } else {
-                                color = org.kevoree.modeling.api.rbtree.Color.RED;
+                                colorLoaded = false;
                             }
                             ctx.index = ctx.index + 1;
                             ch = ctx.payload.charAt(ctx.index);
@@ -9176,7 +9160,7 @@ module org {
                             if (ch != '|' && ch != '#' && ch != '%') {
                                 tokenBuild.append(ch);
                             }
-                            var p: org.kevoree.modeling.api.rbtree.TreeNode = new org.kevoree.modeling.api.rbtree.TreeNode(java.lang.Long.parseLong(tokenBuild.toString()), color, null, null);
+                            var p: org.kevoree.modeling.api.rbtree.TreeNode = new org.kevoree.modeling.api.rbtree.TreeNode(java.lang.Long.parseLong(tokenBuild.toString()), colorLoaded, null, null);
                             var left: org.kevoree.modeling.api.rbtree.TreeNode = org.kevoree.modeling.api.rbtree.TreeNode.internal_unserialize(false, ctx);
                             if (left != null) {
                                 left.setParent(p);

@@ -21,8 +21,6 @@ public class KSelector {
                         current = root.traversal().inboundsQuery("*");
                     } else if (extracted.get(i).relationName.startsWith("..")) {
                         current = root.traversal().inboundsQuery(extracted.get(i).relationName.substring(2));
-                    } else if (extracted.get(i).relationName.equals("@parent")) {
-                        current = root.traversal().parents();
                     } else {
                         current = root.traversal().traverseQuery(extracted.get(i).relationName);
                     }
@@ -31,8 +29,6 @@ public class KSelector {
                         current = current.inboundsQuery("*");
                     } else if (extracted.get(i).relationName.startsWith("..")) {
                         current = current.inboundsQuery(extracted.get(i).relationName.substring(2));
-                    } else if (extracted.get(i).relationName.equals("@parent")) {
-                        current = current.parents();
                     } else {
                         current = current.traverseQuery(extracted.get(i).relationName);
                     }

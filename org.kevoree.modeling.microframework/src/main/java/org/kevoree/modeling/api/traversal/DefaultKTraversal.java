@@ -80,11 +80,6 @@ public class DefaultKTraversal implements KTraversal {
     }
 
     @Override
-    public KTraversal parents() {
-        return internal_chain_action(new KParentsAction());
-    }
-
-    @Override
     public KTraversal removeDuplicate() {
         return internal_chain_action(new KRemoveDuplicateAction());
     }

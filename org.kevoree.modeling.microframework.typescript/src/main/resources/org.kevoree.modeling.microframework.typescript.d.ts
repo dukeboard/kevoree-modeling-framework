@@ -1470,13 +1470,6 @@ declare module org {
                     }
                 }
                 module rbtree {
-                    class Color {
-                        static RED: Color;
-                        static BLACK: Color;
-                        equals(other: any): boolean;
-                        static _ColorVALUES: Color[];
-                        static values(): Color[];
-                    }
                     class IndexRBTree implements org.kevoree.modeling.api.data.cache.KCacheObject {
                         private root;
                         private _size;
@@ -1576,11 +1569,11 @@ declare module org {
                         static RED: string;
                         key: number;
                         value: number;
-                        color: org.kevoree.modeling.api.rbtree.Color;
+                        color: boolean;
                         private left;
                         private right;
                         private parent;
-                        constructor(key: number, value: number, color: org.kevoree.modeling.api.rbtree.Color, left: org.kevoree.modeling.api.rbtree.LongTreeNode, right: org.kevoree.modeling.api.rbtree.LongTreeNode);
+                        constructor(key: number, value: number, color: boolean, left: org.kevoree.modeling.api.rbtree.LongTreeNode, right: org.kevoree.modeling.api.rbtree.LongTreeNode);
                         grandparent(): org.kevoree.modeling.api.rbtree.LongTreeNode;
                         sibling(): org.kevoree.modeling.api.rbtree.LongTreeNode;
                         uncle(): org.kevoree.modeling.api.rbtree.LongTreeNode;
@@ -1600,12 +1593,12 @@ declare module org {
                         static BLACK: string;
                         static RED: string;
                         key: number;
-                        color: org.kevoree.modeling.api.rbtree.Color;
+                        color: boolean;
                         private left;
                         private right;
                         private parent;
+                        constructor(key: number, color: boolean, left: org.kevoree.modeling.api.rbtree.TreeNode, right: org.kevoree.modeling.api.rbtree.TreeNode);
                         getKey(): number;
-                        constructor(key: number, color: org.kevoree.modeling.api.rbtree.Color, left: org.kevoree.modeling.api.rbtree.TreeNode, right: org.kevoree.modeling.api.rbtree.TreeNode);
                         grandparent(): org.kevoree.modeling.api.rbtree.TreeNode;
                         sibling(): org.kevoree.modeling.api.rbtree.TreeNode;
                         uncle(): org.kevoree.modeling.api.rbtree.TreeNode;

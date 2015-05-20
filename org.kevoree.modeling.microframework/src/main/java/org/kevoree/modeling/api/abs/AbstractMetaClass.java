@@ -1,9 +1,13 @@
 package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.KConfig;
-import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.map.StringHashMap;
-import org.kevoree.modeling.api.meta.*;
+import org.kevoree.modeling.api.meta.Meta;
+import org.kevoree.modeling.api.meta.MetaAttribute;
+import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaOperation;
+import org.kevoree.modeling.api.meta.MetaReference;
+import org.kevoree.modeling.api.meta.MetaType;
 
 public class AbstractMetaClass implements MetaClass {
 
@@ -118,9 +122,8 @@ public class AbstractMetaClass implements MetaClass {
 
     @Override
     public Meta meta(int index) {
-        int transposedIndex = index - Index.RESERVED_INDEXES;
-        if (transposedIndex >= 0 && transposedIndex < this._meta.length) {
-            return this._meta[transposedIndex];
+        if (index >= 0 && index < this._meta.length) {
+            return this._meta[index];
         } else {
             return null;
         }

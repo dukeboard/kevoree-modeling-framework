@@ -1,11 +1,12 @@
 package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KDefer;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ModelFormat;
+import org.kevoree.modeling.api.data.cache.KCacheEntry;
+import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.json.JsonFormat;
 import org.kevoree.modeling.api.meta.MetaClass;
@@ -40,7 +41,6 @@ public abstract class AbstractKView implements KView {
     @Override
     public KDefer<Throwable> setRoot(KObject elem) {
         AbstractKDeferWrapper<Throwable> task = new AbstractKDeferWrapper<Throwable>();
-        ((AbstractKObject) elem).set_parent(KConfig.NULL_LONG, null);
         _manager.setRoot(elem, task.initCallback());
         return task;
     }

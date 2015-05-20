@@ -1,7 +1,6 @@
 package org.kevoree.modeling.api.meta;
 
 import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
-import org.kevoree.modeling.api.data.manager.Index;
 import org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation;
 
 public class MetaInferClass implements MetaClass {
@@ -29,8 +28,8 @@ public class MetaInferClass implements MetaClass {
 
     private MetaInferClass() {
         _attributes = new MetaAttribute[2];
-        _attributes[0] = new AbstractMetaAttribute("RAW", Index.RESERVED_INDEXES, -1, false, PrimitiveTypes.STRING, new DiscreteExtrapolation());
-        _attributes[1] = new AbstractMetaAttribute("CACHE", Index.RESERVED_INDEXES + 1, -1, false, PrimitiveTypes.TRANSIENT, new DiscreteExtrapolation());
+        _attributes[0] = new AbstractMetaAttribute("RAW", 0, -1, false, PrimitiveTypes.STRING, new DiscreteExtrapolation());
+        _attributes[1] = new AbstractMetaAttribute("CACHE", 1, -1, false, PrimitiveTypes.TRANSIENT, new DiscreteExtrapolation());
     }
 
     @Override
@@ -40,9 +39,8 @@ public class MetaInferClass implements MetaClass {
 
     @Override
     public Meta meta(int index) {
-        int offset = index - Index.RESERVED_INDEXES;
-        if (offset == 0 || offset == 1) {
-            return _attributes[offset];
+        if (index == 0 || index == 1) {
+            return _attributes[index];
         } else {
             return null;
         }
