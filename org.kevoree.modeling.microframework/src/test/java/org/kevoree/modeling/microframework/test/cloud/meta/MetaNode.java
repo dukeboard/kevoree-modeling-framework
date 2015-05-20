@@ -27,7 +27,7 @@ public class MetaNode extends AbstractMetaClass {
         public Meta meta() {
             return MetaNode.getInstance();
         }
-    }, "children", new LazyResolver() {
+    }, "op_children", new LazyResolver() {
         @Override
         public Meta meta() {
             return MetaNode.getInstance();

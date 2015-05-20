@@ -15,11 +15,6 @@ import org.kevoree.modeling.microframework.test.cloud.Node;
 public class ParentAndReverseTest {
 
     @Test
-    public void parentQueryTest() {
-
-    }
-
-    @Test
     public void reverseQueryTest() {
         final CloudModel universe = new CloudModel();
         universe.connect().then(new Callback<Throwable>() {
@@ -72,22 +67,6 @@ public class ParentAndReverseTest {
                 });
 
                 root.select("children[*]/children[*]/../..").then(new Callback<KObject[]>() {
-                    @Override
-                    public void on(KObject[] kObjects) {
-                        Assert.assertEquals(kObjects[0], root);
-                        Assert.assertEquals(kObjects.length, 1);
-                    }
-                });
-
-                root.select("children[*]/children[*]/@parent/..").then(new Callback<KObject[]>() {
-                    @Override
-                    public void on(KObject[] kObjects) {
-                        Assert.assertEquals(kObjects[0], root);
-                        Assert.assertEquals(kObjects.length, 1);
-                    }
-                });
-
-                root.select("children[*]/children[*]/@parent/@parent").then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(kObjects[0], root);
