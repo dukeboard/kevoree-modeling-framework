@@ -46,14 +46,10 @@ public class ParentAndReverseTest {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(kObjects[0], n1);
-                        Assert.assertEquals(kObjects.length, 1);
-                    }
-                });
 
-                root.select("children[*]/children[*]/@parent[]").then(new Callback<KObject[]>() {
-                    @Override
-                    public void on(KObject[] kObjects) {
-                        Assert.assertEquals(kObjects[0], n1);
+                        System.err.println(kObjects[0]);
+                        System.err.println(kObjects[1]);
+
                         Assert.assertEquals(kObjects.length, 1);
                     }
                 });

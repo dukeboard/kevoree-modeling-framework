@@ -49,15 +49,18 @@ public class KInboundsQueryAction implements KTraversalAction {
                     KCacheEntry raw = loopObj._manager.entry(loopObj, AccessMode.READ);
                     if (raw != null) {
                         for (int h = 0; h < loopObj.metaClass().metaReferences().length; h++) {
-                            long[] inboundsKeys = raw.getRef(loopObj.metaClass().metaReferences()[h].index());
-                            if (inboundsKeys != null) {
-                                if (_referenceQuery == null) {
-                                    for (int j = 0; j < inboundsKeys.length; j++) {
-                                        nextIds.put(inboundsKeys[j], inboundsKeys[j]);
-                                    }
-                                } else {
-                                    for (int j = 0; j < inboundsKeys.length; j++) {
-                                        toFilter.put(inboundsKeys[j], p_inputs[i]);
+                            MetaReference loopRef = loopObj.metaClass().metaReferences()[h];
+                            if (loopRef.metaName().matches(_referenceQuery)) {
+                                long[] inboundsKeys = raw.getRef(loopRef.index());
+                                if (inboundsKeys != null) {
+                                    if (_referenceQuery == null) {
+                                        for (int j = 0; j < inboundsKeys.length; j++) {
+                                            nextIds.put(inboundsKeys[j], inboundsKeys[j]);
+                                        }
+                                    } else {
+                                        for (int j = 0; j < inboundsKeys.length; j++) {
+                                            toFilter.put(inboundsKeys[j], p_inputs[i]);
+                                        }
                                     }
                                 }
                             }
