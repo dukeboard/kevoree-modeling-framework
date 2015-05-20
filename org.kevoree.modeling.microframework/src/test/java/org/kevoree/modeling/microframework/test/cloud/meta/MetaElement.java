@@ -31,12 +31,7 @@ public class MetaElement extends AbstractMetaClass {
         public Meta meta() {
             return MetaNode.getInstance();
         }
-    }, new LazyResolver() {
-        @Override
-        public Meta meta() {
-            return MetaNode.getInstance().REF_ELEMENT;
-        }
-    }, new LazyResolver() {
+    }, "element", new LazyResolver() {
         @Override
         public Meta meta() {
             return MetaElement.getInstance();

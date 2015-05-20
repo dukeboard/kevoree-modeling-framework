@@ -32,7 +32,7 @@ public class MultiUniverseTest {
 
         sensorMetaClass
                 .addAttribute("value", PrimitiveTypes.DOUBLE)
-                .addReference("siblings", sensorMetaClass, false);
+                .addReference("siblings", sensorMetaClass, false,null);
 
         model = dynamicMetaModel.model();
         model.connect();

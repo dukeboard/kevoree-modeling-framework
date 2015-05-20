@@ -27,12 +27,7 @@ public class MetaNode extends AbstractMetaClass {
         public Meta meta() {
             return MetaNode.getInstance();
         }
-    }, new LazyResolver() {
-        @Override
-        public Meta meta() {
-            return MetaNode.getInstance().REF_OP_CHILDREN;
-        }
-    }, new LazyResolver() {
+    }, "children", new LazyResolver() {
         @Override
         public Meta meta() {
             return MetaNode.getInstance();
@@ -44,12 +39,7 @@ public class MetaNode extends AbstractMetaClass {
         public Meta meta() {
             return MetaNode.getInstance();
         }
-    }, new LazyResolver() {
-        @Override
-        public Meta meta() {
-            return MetaNode.getInstance().REF_CHILDREN;
-        }
-    }, new LazyResolver() {
+    }, "children", new LazyResolver() {
         @Override
         public Meta meta() {
             return MetaNode.getInstance();
@@ -61,12 +51,7 @@ public class MetaNode extends AbstractMetaClass {
         public Meta meta() {
             return MetaElement.getInstance();
         }
-    }, new LazyResolver() {
-        @Override
-        public Meta meta() {
-            return MetaElement.getInstance().REF_OP_ELEMENT;
-        }
-    }, new LazyResolver() {
+    }, "op_element", new LazyResolver() {
         @Override
         public Meta meta() {
             return MetaNode.getInstance();

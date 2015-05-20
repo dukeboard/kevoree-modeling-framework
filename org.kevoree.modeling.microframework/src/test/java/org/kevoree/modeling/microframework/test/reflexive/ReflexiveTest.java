@@ -23,12 +23,12 @@ public class ReflexiveTest {
         sensorMetaClass
                 .addAttribute("name", PrimitiveTypes.STRING)
                 .addAttribute("value", PrimitiveTypes.FLOAT)
-                .addReference("siblings", sensorMetaClass, false);
+                .addReference("siblings", sensorMetaClass, false,null);
 
         DynamicMetaClass homeMetaClass = dynamicMetaModel.createMetaClass("Home");
         homeMetaClass
                 .addAttribute("name", PrimitiveTypes.STRING)
-                .addReference("sensors", sensorMetaClass, true);
+                .addReference("sensors", sensorMetaClass, true,null);
 
         final KModel universe = dynamicMetaModel.model();
         universe.connect().then(new Callback<Throwable>() {

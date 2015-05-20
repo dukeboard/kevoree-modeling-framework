@@ -27,14 +27,42 @@ public class DynamicMetaClass extends AbstractMetaClass {
         return this;
     }
 
-    public DynamicMetaClass addReference(String p_name, final MetaClass p_metaClass, boolean contained) {
+    private AbstractMetaReference getOrCreate(String p_name, String p_oppositeName, MetaClass p_oppositeClass, boolean p_contained, boolean p_single) {
+        AbstractMetaReference previous = (AbstractMetaReference) reference(p_name);
+        if(previous != null){
+            return previous;
+        }
         final MetaClass tempOrigin = this;
+        AbstractMetaReference tempReference = new AbstractMetaReference(p_name, _globalIndex, p_contained, p_single, new LazyResolver() {
+            @Override
+            public Meta meta() {
+                return p_oppositeClass;
+            }
+        }, p_oppositeName, new LazyResolver() {
+            @Override
+            public Meta meta() {
+                return tempOrigin;
+            }
+        });
+        cached_meta.put(tempReference.metaName(), tempReference);
+        _globalIndex = _globalIndex + 1;
+        internalInit();
+        return tempReference;
+    }
+
+    public DynamicMetaClass addReference(String p_name, final MetaClass p_metaClass, boolean contained, String oppositeName) {
+        final MetaClass tempOrigin = this;
+        String opName = oppositeName;
+        if (opName == null) {
+            opName = "op_" + p_name;
+        }
+        AbstractMetaReference opRef = ((DynamicMetaClass) p_metaClass).getOrCreate(opName, p_name, this, contained, false);
         AbstractMetaReference tempReference = new AbstractMetaReference(p_name, _globalIndex, contained, false, new LazyResolver() {
             @Override
             public Meta meta() {
                 return p_metaClass;
             }
-        }, null, new LazyResolver() {
+        }, opName, new LazyResolver() {
             @Override
             public Meta meta() {
                 return tempOrigin;

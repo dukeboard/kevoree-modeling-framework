@@ -16,7 +16,7 @@ public class AbstractMetaReference implements MetaReference {
 
     private LazyResolver _lazyMetaType;
 
-    private LazyResolver _lazyMetaOpposite;
+    private String _op_name;
 
     private LazyResolver _lazyMetaOrigin;
 
@@ -24,7 +24,7 @@ public class AbstractMetaReference implements MetaReference {
         return _single;
     }
 
-    public MetaClass attributeType() {
+    public MetaClass type() {
         if (_lazyMetaType != null) {
             return (MetaClass) _lazyMetaType.meta();
         } else {
@@ -33,8 +33,8 @@ public class AbstractMetaReference implements MetaReference {
     }
 
     public MetaReference opposite() {
-        if (_lazyMetaOpposite != null) {
-            return (MetaReference) _lazyMetaOpposite.meta();
+        if (_op_name != null) {
+            return type().reference(_op_name);
         }
         return null;
     }
@@ -64,13 +64,13 @@ public class AbstractMetaReference implements MetaReference {
         return _contained;
     }
 
-    public AbstractMetaReference(String p_name, int p_index, boolean p_contained, boolean p_single, LazyResolver p_lazyMetaType, LazyResolver p_lazyMetaOpposite, LazyResolver p_lazyMetaOrigin) {
+    public AbstractMetaReference(String p_name, int p_index, boolean p_contained, boolean p_single, LazyResolver p_lazyMetaType, String op_name, LazyResolver p_lazyMetaOrigin) {
         this._name = p_name;
         this._index = p_index;
         this._contained = p_contained;
         this._single = p_single;
         this._lazyMetaType = p_lazyMetaType;
-        this._lazyMetaOpposite = p_lazyMetaOpposite;
+        this._op_name = op_name;
         this._lazyMetaOrigin = p_lazyMetaOrigin;
     }
 
