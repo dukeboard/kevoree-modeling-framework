@@ -101,12 +101,13 @@ public class KDeepTraverseAction implements KTraversalAction {
     }
 
     private void executeStep(KObject[] p_inputStep, Callback<KObject[]> private_callback, KTraversalHistory p_history) {
-        AbstractKObject currentObject = (AbstractKObject) p_inputStep[0];
+        AbstractKObject currentObject = null;
         LongLongHashMap nextIds = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         for (int i = 0; i < p_inputStep.length; i++) {
             if (p_inputStep[i] != null) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputStep[i];
+                    currentObject = loopObj;
                     KCacheEntry raw = currentObject._manager.entry(loopObj, AccessMode.READ);
                     if (raw != null) {
                         if (_reference == null) {

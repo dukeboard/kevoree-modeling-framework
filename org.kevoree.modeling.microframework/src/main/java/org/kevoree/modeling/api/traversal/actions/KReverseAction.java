@@ -35,7 +35,7 @@ public class KReverseAction implements KTraversalAction {
                         for (int h = 0; h < loopInbounds.length; h++) {
                             KObject previous = p_history.get(loopInbounds[h]);
                             if (previous != null) {
-                                selected.put(loopInbounds[j], previous);
+                                selected.put(loopInbounds[h], previous);
                             }
                         }
                     }

@@ -15,7 +15,9 @@ public class KTraversalHistory {
     public void addResult(KObject[] resolved) {
         if (resolved != null) {
             for (int i = 0; i < resolved.length; i++) {
-                _valuesHistory.put(resolved[i].uuid(), resolved[i]);
+                if(resolved[i] != null){
+                    _valuesHistory.put(resolved[i].uuid(), resolved[i]);
+                }
             }
         }
     }
