@@ -41,7 +41,6 @@ public class HelloTest {
                     root.addChildren(n1);
                     root.addChildren(n2);
 
-
                     time0.lookup(42).then(new Callback<KObject>() {
                         @Override
                         public void on(KObject kObject) {
@@ -137,7 +136,9 @@ public class HelloTest {
         nodeT0.addChildren(nodeT1);
 
 //        assertTrue(nodeT1.path().endsWith("/children[name=n1]"));
+
         final int[] i = {0};
+        final int[] j = {0};
         nodeT0.getChildren(new Callback<Node[]>() {
             @Override
             public void on(Node[] n) {
@@ -150,102 +151,6 @@ public class HelloTest {
         Node nodeT3 = t0.createNode();
         nodeT3.setName("n3");
         nodeT1.addChildren(nodeT3);
-
-//        assertTrue(nodeT3.path().endsWith("/children[name=n1]/children[name=n3]"));
-//        assertTrue(nodeT3.parentPath().endsWith("/children[name=n1]"));
-
-        /*
-        KObject[] parent = new KObject[1];
-
-        nodeT3.parent((p) -> {
-            parent[0] = p;
-        });
-        assertTrue(parent[0] == nodeT1);
-*/
-        i[0] = 0;
-        final int[] j = {0};
-        nodeT0.visit(VisitRequest.CHILDREN, new ModelVisitor() {
-            @Override
-            public VisitResult visit(KObject elem) {
-                i[0]++;
-                return VisitResult.CONTINUE;
-            }
-        }).then(new Callback<Throwable>() {
-            @Override
-            public void on(Throwable t) {
-                j[0]++;
-            }
-        });
-        Assert.assertEquals(1, i[0]);
-        Assert.assertEquals(1, j[0]);
-
-        i[0] = 0;
-        j[0] = 0;
-        nodeT1.visit(VisitRequest.CHILDREN, new ModelVisitor() {
-            @Override
-            public VisitResult visit(KObject elem) {
-                i[0]++;
-                return VisitResult.CONTINUE;
-            }
-        }).then(new Callback<Throwable>() {
-            @Override
-            public void on(Throwable t) {
-                j[0]++;
-            }
-        });
-        Assert.assertEquals(1, i[0]);
-        Assert.assertEquals(1, j[0]);
-
-        i[0] = 0;
-        j[0] = 0;
-        nodeT3.visit(VisitRequest.CHILDREN, new ModelVisitor() {
-            @Override
-            public VisitResult visit(KObject elem) {
-                i[0]++;
-                return VisitResult.CONTINUE;
-            }
-        }).then(new Callback<Throwable>() {
-            @Override
-            public void on(Throwable t) {
-                j[0]++;
-            }
-        });
-        Assert.assertEquals(0, i[0]);
-        Assert.assertEquals(1, j[0]);
-
-        i[0] = 0;
-        j[0] = 0;
-        nodeT0.visit(VisitRequest.CONTAINED, new ModelVisitor() {
-            @Override
-            public VisitResult visit(KObject elem) {
-                i[0]++;
-                return VisitResult.CONTINUE;
-            }
-        }).then(new Callback<Throwable>() {
-            @Override
-            public void on(Throwable t) {
-                j[0]++;
-            }
-        });
-        Assert.assertEquals(2, i[0]);
-        Assert.assertEquals(1, j[0]);
-
-        i[0] = 0;
-        j[0] = 0;
-        nodeT0.visit(VisitRequest.ALL, new ModelVisitor() {
-            @Override
-            public VisitResult visit(KObject elem) {
-                i[0]++;
-                return VisitResult.CONTINUE;
-            }
-        }).then(new Callback<Throwable>() {
-            @Override
-            public void on(Throwable t) {
-                j[0]++;
-            }
-        });
-        Assert.assertEquals(2, i[0]);
-        Assert.assertEquals(1, j[0]);
 
 
         i[0] = 0;
