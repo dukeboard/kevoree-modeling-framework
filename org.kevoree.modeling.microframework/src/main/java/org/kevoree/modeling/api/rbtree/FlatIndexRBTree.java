@@ -1,152 +1,154 @@
 package org.kevoree.modeling.api.rbtree;
 
 import org.kevoree.modeling.api.KConfig;
-import org.kevoree.modeling.api.data.cache.KCacheObject;
-import org.kevoree.modeling.api.data.cache.KContentKey;
-import org.kevoree.modeling.api.meta.MetaModel;
 
-public class IndexRBTree implements KCacheObject {
+public class FlatIndexRBTree {
 
+    private long[] _back = null;
+    private long _root_index = -1;
     private int _size = 0;
-    private TreeNode root = null;
-    private TreeNode[] _previousOrEqualsCacheValues = null;
-    private int _nextCacheElem;
-    private int _counter = 0;
-    private boolean _dirty = false;
+    private int _threshold;
+    private float loadFactor;
 
-    public IndexRBTree() {
-        _previousOrEqualsCacheValues = new TreeNode[KConfig.TREE_CACHE_SIZE];
-        _nextCacheElem = 0;
+    public FlatIndexRBTree() {
+        _back = new long[30000000 * SIZE_NODE];
+        loadFactor = KConfig.CACHE_LOAD_FACTOR;
+        _threshold = (int) (_size * loadFactor);
     }
 
     public int size() {
         return _size;
     }
 
-    @Override
-    public int counter() {
-        return _counter;
+    private static final int SIZE_NODE = 5;
+
+
+        /* offheap start */
+
+
+    private long left(long currentIndex) {
+        if (currentIndex == -1) {
+            return -1;
+        }
+        return _back[(int) currentIndex];
     }
 
-    @Override
-    public void inc() {
-        _counter++;
+    private void setLeft(long currentIndex, long paramIndex) {
+        _back[(int) currentIndex] = paramIndex;
     }
 
-    @Override
-    public void dec() {
-        _counter--;
+    private long right(long currentIndex) {
+        if (currentIndex == -1) {
+            return -1;
+        }
+        return _back[(int) currentIndex + 1];
     }
 
-    /* Cache management */
-    private TreeNode tryPreviousOrEqualsCache(long key) {
-        if (_previousOrEqualsCacheValues != null) {
-            for (int i = 0; i < _nextCacheElem; i++) {
-                if (_previousOrEqualsCacheValues[i] != null && _previousOrEqualsCacheValues[i].key == key) {
-                    return _previousOrEqualsCacheValues[i];
-                }
-            }
-            return null;
+    private void setRight(long currentIndex, long paramIndex) {
+        _back[(int) currentIndex + 1] = paramIndex;
+    }
+
+    private long parent(long currentIndex) {
+        if (currentIndex == -1) {
+            return -1;
+        }
+        return _back[(int) currentIndex + 2];
+    }
+
+    private void setParent(long currentIndex, long paramIndex) {
+        _back[(int) currentIndex + 2] = paramIndex;
+    }
+
+    private long key(long currentIndex) {
+        if (currentIndex == -1) {
+            return -1;
+        }
+        return _back[(int) currentIndex + 3];
+    }
+
+    private void setKey(long currentIndex, long paramIndex) {
+        _back[(int) currentIndex + 3] = paramIndex;
+    }
+
+    private long color(long currentIndex) {
+        if (currentIndex == -1) {
+            return -1;
+        }
+        return _back[(int) currentIndex + 4];
+    }
+
+    private void setColor(long currentIndex, long paramIndex) {
+        _back[(int) currentIndex + 4] = paramIndex;
+    }
+
+    /* offheap end */
+
+
+    public long grandParent(long currentIndex) {
+        if (currentIndex == -1) {
+            return -1;
+        }
+        if (parent(currentIndex) != -1) {
+            return parent(parent(currentIndex));
         } else {
+            return -1;
+        }
+    }
+
+    public long sibling(long currentIndex) {
+        if (parent(currentIndex) == -1) {
+            return -1;
+        } else {
+            if (currentIndex == left(parent(currentIndex))) {
+                return right(parent(currentIndex));
+            } else {
+                return left(parent(currentIndex));
+            }
+        }
+    }
+
+    public long uncle(long currentIndex) {
+        if (parent(currentIndex) != -1) {
+            return sibling(parent(currentIndex));
+        } else {
+            return -1;
+        }
+    }
+
+
+    /*
+    public synchronized Long previousOrEqual(long key) {
+        long p = _root_index;
+        if (p == -1) {
             return null;
         }
-    }
-
-    private void resetCache() {
-        _nextCacheElem = 0;
-    }
-
-    private void putInPreviousOrEqualsCache(TreeNode resolved) {
-        if (_nextCacheElem == KConfig.TREE_CACHE_SIZE) {
-            _nextCacheElem = 0;
-        }
-        _previousOrEqualsCacheValues[_nextCacheElem] = resolved;
-        _nextCacheElem++;
-    }
-
-    @Override
-    public boolean isDirty() {
-        return this._dirty;
-    }
-
-    @Override
-    public void setClean() {
-        this._dirty = false;
-    }
-
-    public String serialize() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(_size);
-        if (root != null) {
-            root.serialize(builder);
-        }
-        return builder.toString();
-    }
-
-    @Override
-    public String toString() {
-        return serialize();
-    }
-
-    @Override
-    public void unserialize(KContentKey key, String payload, MetaModel metaModel) throws Exception {
-        if (payload == null || payload.length() == 0) {
-            return;
-        }
-        int i = 0;
-        StringBuilder buffer = new StringBuilder();
-        char ch = payload.charAt(i);
-        while (i < payload.length() && ch != '|') {
-            buffer.append(ch);
-            i = i + 1;
-            ch = payload.charAt(i);
-        }
-        _size = Integer.parseInt(buffer.toString());
-        TreeReaderContext ctx = new TreeReaderContext();
-        ctx.index = i;
-        ctx.payload = payload;
-        root = TreeNode.unserialize(ctx);
-        resetCache();
-    }
-
-    public synchronized TreeNode previousOrEqual(long key) {
-        TreeNode cachedVal = tryPreviousOrEqualsCache(key);
-        if (cachedVal != null) {
-            return cachedVal;
-        }
-        TreeNode p = root;
-        if (p == null) {
-            return null;
-        }
-        while (p != null) {
-            if (key == p.key) {
-                putInPreviousOrEqualsCache(p);
+        while (p != -1) {
+            if (key == key(p)) {
                 return p;
             }
-            if (key > p.key) {
-                if (p.getRight() != null) {
-                    p = p.getRight();
+            if (key > key(p)) {
+                if (right(p) != -1) {
+                    p = right(p);
                 } else {
-                    putInPreviousOrEqualsCache(p);
                     return p;
                 }
             } else {
-                if (p.getLeft() != null) {
-                    p = p.getLeft();
+                if (left(p) != -1) {
+                    p = left(p);
                 } else {
-                    TreeNode parent = p.getParent();
-                    TreeNode ch = p;
-                    while (parent != null && ch == parent.getLeft()) {
+                    long parent = parent(p);
+                    long ch = p;
+                    while (parent != -1 && ch == left(parent)) {
                         ch = parent;
-                        parent = parent.getParent();
+                        parent = parent(parent);
                     }
-                    putInPreviousOrEqualsCache(parent);
                     return parent;
                 }
             }
         }
         return null;
     }
+
 
     public TreeNode nextOrEqual(long key) {
         TreeNode p = root;
@@ -258,157 +260,185 @@ public class IndexRBTree implements KCacheObject {
             }
         }
         return null;
-    }
+    }*/
 
     /* Time never use direct lookup, sadly for performance, anyway this method is private to ensure the correctness of caching mechanism */
-    public TreeNode lookup(long key) {
-        TreeNode n = root;
-        if (n == null) {
+    public Long lookup(long key) {
+        long n = _root_index;
+        if (n == -1) {
             return null;
         }
-        while (n != null) {
-            if (key == n.key) {
-                return n;
+        while (n != -1) {
+            if (key == key(n)) {
+                return key(n);
             } else {
-                if (key < n.key) {
-                    n = n.getLeft();
+                if (key < key(n)) {
+                    n = left(n);
                 } else {
-                    n = n.getRight();
+                    n = right(n);
                 }
             }
         }
         return n;
     }
 
-    private void rotateLeft(TreeNode n) {
-        TreeNode r = n.getRight();
+    private void rotateLeft(long n) {
+        long r = right(n);
         replaceNode(n, r);
-        n.setRight(r.getLeft());
-        if (r.getLeft() != null) {
-            r.getLeft().setParent(n);
+        setRight(n, left(r));
+        if (left(r) != -1) {
+            setParent(left(r), n);
         }
-        r.setLeft(n);
-        n.setParent(r);
+        setLeft(r, n);
+        setParent(n, r);
     }
 
-    private void rotateRight(TreeNode n) {
-        TreeNode l = n.getLeft();
+    private void rotateRight(long n) {
+        long l = left(n);
         replaceNode(n, l);
-        n.setLeft(l.getRight());
-        if (l.getRight() != null) {
-            l.getRight().setParent(n);
+        setLeft(n, right(l));
+        if (right(l) != -1) {
+            setParent(right(l), n);
         }
-        l.setRight(n);
-        ;
-        n.setParent(l);
+        setRight(l, n);
+        setParent(n, l);
     }
 
-    private void replaceNode(TreeNode oldn, TreeNode newn) {
-        if (oldn.getParent() == null) {
-            root = newn;
+    private void replaceNode(long oldn, long newn) {
+        if (parent(oldn) == -1) {
+            _root_index = newn;
         } else {
-            if (oldn == oldn.getParent().getLeft()) {
-                oldn.getParent().setLeft(newn);
+            if (oldn == left(parent(oldn))) {
+                setLeft(parent(oldn), newn);
             } else {
-                oldn.getParent().setRight(newn);
+                setRight(parent(oldn), newn);
             }
         }
-        if (newn != null) {
-            newn.setParent(oldn.getParent());
+        if (newn != -1) {
+            setParent(newn, parent(oldn));
         }
     }
 
     public synchronized void insert(long key) {
-        this._dirty = true;
-        TreeNode insertedNode;
-        if (root == null) {
-            _size++;
-            insertedNode = new TreeNode(key, false, null, null);
-            root = insertedNode;
+
+        /*
+        if (++_size > _threshold) {
+            int length = (_size == 0 ? 1 : _size << 1);
+            long[] new_back = new long[length * SIZE_NODE];
+            System.arraycopy(_back, 0, new_back, 0, _size * SIZE_NODE);
+            _threshold = (int) (_size * loadFactor);
+            _back = new_back;
+        }
+        */
+
+        long insertedNode = (_size) * SIZE_NODE;
+        if (_size == 0) {
+            _size = 1;
+            setKey(insertedNode, key);
+            setColor(insertedNode, 0);
+            setLeft(insertedNode, -1);
+            setRight(insertedNode, -1);
+            setParent(insertedNode, -1);
+
+            _root_index = insertedNode;
         } else {
-            TreeNode n = root;
+            long n = _root_index;
             while (true) {
-                if (key == n.key) {
-                    putInPreviousOrEqualsCache(n);
+                if (key == key(n)) {
                     //nop _size
                     return;
-                } else if (key < n.key) {
-                    if (n.getLeft() == null) {
-                        insertedNode = new TreeNode(key, false, null, null);
-                        n.setLeft(insertedNode);
+                } else if (key < key(n)) {
+                    if (left(n) == -1) {
+
+                        setKey(insertedNode, key);
+                        setColor(insertedNode, 0);
+                        setLeft(insertedNode, -1);
+                        setRight(insertedNode, -1);
+                        setParent(insertedNode, -1);
+
+                        setLeft(n, insertedNode);
+
                         _size++;
                         break;
                     } else {
-                        n = n.getLeft();
+                        n = left(n);
                     }
                 } else {
-                    if (n.getRight() == null) {
-                        insertedNode = new TreeNode(key, false, null, null);
-                        n.setRight(insertedNode);
+                    if (right(n) == -1) {
+
+                        setKey(insertedNode, key);
+                        setColor(insertedNode, 0);
+                        setLeft(insertedNode, -1);
+                        setRight(insertedNode, -1);
+                        setParent(insertedNode, -1);
+
+                        setRight(n, insertedNode);
+
                         _size++;
                         break;
                     } else {
-                        n = n.getRight();
+                        n = right(n);
                     }
                 }
             }
-            insertedNode.setParent(n);
+
+            setParent(insertedNode, n);
         }
         insertCase1(insertedNode);
-        putInPreviousOrEqualsCache(insertedNode);
     }
 
-    private void insertCase1(TreeNode n) {
-        if (n.getParent() == null) {
-            n.color = true;
+    private void insertCase1(long n) {
+        if (parent(n) == -1) {
+            setColor(n, 1);
         } else {
             insertCase2(n);
         }
     }
 
-    private void insertCase2(TreeNode n) {
-        if (nodeColor(n.getParent()) == true) {
+    private void insertCase2(long n) {
+        if (nodeColor(parent(n)) == true) {
             return;
         } else {
             insertCase3(n);
         }
     }
 
-    private void insertCase3(TreeNode n) {
-        if (nodeColor(n.uncle()) == false) {
-            n.getParent().color = true;
-            n.uncle().color = true;
-            n.grandparent().color = false;
-            insertCase1(n.grandparent());
+    private void insertCase3(long n) {
+        if (nodeColor(uncle(n)) == false) {
+            setColor(parent(n), 1);
+            setColor(uncle(n), 1);
+            setColor(grandParent(n), 0);
+            insertCase1(grandParent(n));
         } else {
             insertCase4(n);
         }
     }
 
-    private void insertCase4(TreeNode n_n) {
-        TreeNode n = n_n;
-        if (n == n.getParent().getRight() && n.getParent() == n.grandparent().getLeft()) {
-            rotateLeft(n.getParent());
-            n = n.getLeft();
+    private void insertCase4(long n_n) {
+        long n = n_n;
+        if (n == right(parent(n)) && parent(n) == left(grandParent(n))) {
+            rotateLeft(parent(n));
+            n = left(n);
         } else {
-            if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getRight()) {
-                rotateRight(n.getParent());
-                n = n.getRight();
+            if (n == left(parent(n)) && parent(n) == right(grandParent(n))) {
+                rotateRight(parent(n));
+                n = right(n);
             }
         }
         insertCase5(n);
     }
 
-    private void insertCase5(TreeNode n) {
-        n.getParent().color = true;
-        n.grandparent().color = false;
-        if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getLeft()) {
-            rotateRight(n.grandparent());
+    private void insertCase5(long n) {
+        setColor(parent(n), 1);
+        setColor(grandParent(n), 0);
+        if (n == left(parent(n)) && parent(n) == left(grandParent(n))) {
+            rotateRight(grandParent(n));
         } else {
-            rotateLeft(n.grandparent());
+            rotateLeft(grandParent(n));
         }
     }
 
+    /*
     public void delete(long key) {
         TreeNode n = lookup(key);
         if (n == null) {
@@ -500,13 +530,47 @@ public class IndexRBTree implements KCacheObject {
             n.sibling().getLeft().color = true;
             rotateRight(n.getParent());
         }
-    }
+    }*/
 
-    private boolean nodeColor(TreeNode n) {
-        if (n == null) {
+
+    private boolean nodeColor(long n) {
+        if (n == -1) {
             return true;
         } else {
-            return n.color;
+            return color(n) == 1;
+        }
+    }
+
+    public String serialize() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(_size);
+        if (_root_index != -1) {
+            node_serialize(builder, _root_index);
+        }
+        return builder.toString();
+    }
+
+    public void node_serialize(StringBuilder builder, long current) {
+        builder.append("|");
+        if (nodeColor(current) == true) {
+            builder.append(TreeNode.BLACK);
+        } else {
+            builder.append(TreeNode.RED);
+        }
+        builder.append(key(current));
+        if (left(current) == -1 && right(current) == -1) {
+            builder.append("%");
+        } else {
+            if (left(current) != -1) {
+                node_serialize(builder, left(current));
+            } else {
+                builder.append("#");
+            }
+            if (right(current) != -1) {
+                node_serialize(builder, right(current));
+            } else {
+                builder.append("#");
+            }
         }
     }
 

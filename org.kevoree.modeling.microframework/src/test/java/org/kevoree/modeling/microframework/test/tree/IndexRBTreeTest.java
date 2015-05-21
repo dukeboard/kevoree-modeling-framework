@@ -3,6 +3,7 @@ package org.kevoree.modeling.microframework.test.tree;
 
 import org.junit.Test;
 import org.junit.Assert;
+import org.kevoree.modeling.api.rbtree.FlatIndexRBTree;
 import org.kevoree.modeling.api.rbtree.TreeNode;
 import org.kevoree.modeling.api.rbtree.IndexRBTree;
 
@@ -14,7 +15,6 @@ import java.util.LinkedList;
  */
 
 public class IndexRBTreeTest {
-
 
     @Test
     public void printTest() {
@@ -193,6 +193,36 @@ public class IndexRBTreeTest {
         //Assert.assertTrue(tree.previousOrEqual(7).getKey() == 7l);
         Assert.assertTrue(tree.previousOrEqual(10).getKey() == 7l);
         Assert.assertTrue(tree.previousOrEqual(7).getKey() == 7l);
+
+    }
+
+
+    @Test
+    public void equivalenceTest() {
+        //FlatIndexRBTree flatTree = new FlatIndexRBTree();
+        long before = System.currentTimeMillis();
+        IndexRBTree indexTree = new IndexRBTree();
+        for (long i = 0; i < 30000000; i++) {
+            indexTree.insert(i);
+            //flatTree.insert(i);
+        }
+
+      //  Assert.assertEquals(indexTree.serialize(),flatTree.serialize());
+
+
+         System.err.print(System.currentTimeMillis()-before);
+        //Thread.sleep(50000);
+
+       // System.err.println("o=" + indexTree.serialize());
+      //  System.err.println("f=" + flatTree.serialize());
+
+/*
+        for (long i = 0; i < 10000; i++) {
+            TreeNode resolved = indexTree.lookup(i);
+            Long resolved2 = flatTree.lookup(i);
+            Assert.assertEquals((long) resolved2, resolved.getKey());
+        }*/
+
 
     }
 
