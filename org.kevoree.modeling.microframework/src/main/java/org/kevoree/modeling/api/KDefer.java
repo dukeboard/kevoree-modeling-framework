@@ -10,7 +10,9 @@ public interface KDefer {
 
     Object getResult(String resultName) throws Exception;
 
-    /** @ignore:ts */
+    /**
+     * @ignore ts
+     */
     <A> A getResult(String resultName, Class<A> casted) throws Exception;
 
     void then(Callback cb);

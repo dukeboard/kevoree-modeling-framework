@@ -105,7 +105,9 @@ public class AbstractKDefer implements KDefer {
         }
     }
 
-    /** @ignore:ts */
+    /**
+     * @ignore ts
+     */
     @Override
     public <A> A getResult(String resultName, Class<A> casted) throws Exception {
         return (A) getResult(resultName);

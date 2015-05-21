@@ -9,7 +9,7 @@ import org.kevoree.modeling.api.map.StringHashMap;
 
 import java.util.ArrayList;
 
-class SerializationContext {
+public class SerializationContext {
     public boolean ignoreGeneratedID = false;
     public KObject model;
     public Callback<String> finishCallback;
