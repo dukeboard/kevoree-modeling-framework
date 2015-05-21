@@ -24,9 +24,7 @@ public interface KTraversal {
 
     void map(MetaAttribute attribute, Callback<Object[]> cb);
 
-    KTraversal deepTraverse(MetaReference metaReference, KTraversalFilter continueCondition);
-
-    KTraversal deepCollect(MetaReference metaReference, KTraversalFilter continueCondition);
+    KTraversal collect(MetaReference metaReference, KTraversalFilter continueCondition);
 
 }
 
