@@ -66,15 +66,13 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public KDefer<Throwable> delete() {
-        final AbstractKDeferWrapper<Throwable> task = new AbstractKDeferWrapper<Throwable>();
+    public void delete(Callback cb) {
         final KObject toRemove = this;
         KCacheEntry rawPayload = _manager.entry(this, AccessMode.DELETE);
         if (rawPayload == null) {
-            task.initCallback().on(new Exception(OUT_OF_CACHE_MSG));
+            cb.on(new Exception(OUT_OF_CACHE_MSG));
         } else {
-
-            for(int i=0;i<_metaClass.metaReferences().length;i++){
+            for (int i = 0; i < _metaClass.metaReferences().length; i++) {
 
             }
 
@@ -104,14 +102,12 @@ public abstract class AbstractKObject implements KObject {
                 task.initCallback().on(new Exception(OUT_OF_CACHE_MSG));
             }*/
         }
-        return task;
     }
 
     @Override
-    public KDefer<KObject[]> select(String query) {
-        final AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
+    public void select(String query, Callback<KObject[]> cb) {
         if (!Checker.isDefined(query)) {
-            task.initCallback().on(new KObject[0]);
+            cb.on(new KObject[0]);
         } else {
             String cleanedQuery = query;
             if (cleanedQuery.startsWith("/")) {
@@ -123,17 +119,16 @@ public abstract class AbstractKObject implements KObject {
                     @Override
                     public void on(KObject rootObj) {
                         if (rootObj == null) {
-                            task.initCallback().on(new KObject[0]);
+                            cb.on(new KObject[0]);
                         } else {
-                            KSelector.select(rootObj, finalCleanedQuery, task.initCallback());
+                            KSelector.select(rootObj, finalCleanedQuery, cb);
                         }
                     }
                 });
             } else {
-                KSelector.select(this, query, task.initCallback());
+                KSelector.select(this, query, cb);
             }
         }
-        return task;
     }
 
     @Override
@@ -356,21 +351,12 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public KDefer<KObject[]> ref(MetaReference p_metaReference) {
-        AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
-        internal_ref(p_metaReference, task.initCallback());
-        return task;
+    public void ref(MetaReference p_metaReference, Callback<KObject[]> cb) {
+        internal_ref(p_metaReference, cb);
     }
 
     @Override
-    public KDefer<KObject[]> inferRef(MetaReference p_metaReference) {
-        AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
-        //TODO
-        return task;
-    }
-
-    @Override
-    public void visitAttributes(ModelAttributeVisitor visitor) {
+    public void visitAttributes(KModelAttributeVisitor visitor) {
         if (!Checker.isDefined(visitor)) {
             return;
         }
@@ -381,19 +367,11 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public KDefer<Throwable> visit(VisitRequest p_request, ModelVisitor p_visitor) {
-        AbstractKDeferWrapper<Throwable> task = new AbstractKDeferWrapper<Throwable>();
-        if (p_request.equals(VisitRequest.CHILDREN)) {
-            internal_visit(p_visitor, task.initCallback(), false, false, null, null);
-        } else if (p_request.equals(VisitRequest.ALL)) {
-            internal_visit(p_visitor, task.initCallback(), true, false, new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR), new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR));
-        } else if (p_request.equals(VisitRequest.CONTAINED)) {
-            internal_visit(p_visitor, task.initCallback(), true, true, null, null);
-        }
-        return task;
+    public void visit(KModelVisitor p_visitor, Callback cb) {
+        internal_visit(p_visitor, cb, new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR), new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR));
     }
 
-    private void internal_visit(final ModelVisitor visitor, final Callback<Throwable> end, final boolean deep, final boolean containedOnly, final LongLongHashMap visited, final LongLongHashMap traversed) {
+    private void internal_visit(final KModelVisitor visitor, final Callback end, final LongLongHashMap visited, final LongLongHashMap traversed) {
         if (!Checker.isDefined(visitor)) {
             return;
         }
@@ -403,21 +381,19 @@ public abstract class AbstractKObject implements KObject {
         final LongLongHashMap toResolveIds = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         for (int i = 0; i < metaClass().metaReferences().length; i++) {
             final MetaReference reference = metaClass().metaReferences()[i];
-            if (!(containedOnly && !reference.contained())) {
-                KCacheEntry raw = _manager.entry(this, AccessMode.READ);
-                if (raw != null) {
-                    Object obj = raw.get(reference.index());
-                    if (obj != null) {
-                        try {
-                            long[] idArr = (long[]) obj;
-                            for (int k = 0; k < idArr.length; k++) {
-                                if (traversed == null || !traversed.containsKey(idArr[k])) { // this is for optimization
-                                    toResolveIds.put(idArr[k], idArr[k]);
-                                }
+            KCacheEntry raw = _manager.entry(this, AccessMode.READ);
+            if (raw != null) {
+                Object obj = raw.get(reference.index());
+                if (obj != null) {
+                    try {
+                        long[] idArr = (long[]) obj;
+                        for (int k = 0; k < idArr.length; k++) {
+                            if (traversed == null || !traversed.containsKey(idArr[k])) { // this is for optimization
+                                toResolveIds.put(idArr[k], idArr[k]);
                             }
-                        } catch (Exception e) {
-                            e.printStackTrace();
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -443,7 +419,7 @@ public abstract class AbstractKObject implements KObject {
 
                     for (int i = 0; i < resolvedArr.length; i++) {
                         final KObject resolved = resolvedArr[i];
-                        VisitResult result = VisitResult.CONTINUE;
+                        KVisitResult result = KVisitResult.CONTINUE;
                         if (resolved != null) {
                             if (visitor != null && (visited == null || !visited.containsKey(resolved.uuid()))) {
                                 result = visitor.visit(resolved);
@@ -452,16 +428,14 @@ public abstract class AbstractKObject implements KObject {
                                 visited.put(resolved.uuid(), resolved.uuid());
                             }
                         }
-                        if (result != null && result.equals(VisitResult.STOP)) {
+                        if (result != null && result.equals(KVisitResult.STOP)) {
                             if (Checker.isDefined(end)) {
                                 end.on(null);
                             }
                         } else {
-                            if (deep) {
-                                if (result.equals(VisitResult.CONTINUE)) {
-                                    if (traversed == null || !traversed.containsKey(resolved.uuid())) {
-                                        nextDeep.add(resolved);
-                                    }
+                            if (result.equals(KVisitResult.CONTINUE)) {
+                                if (traversed == null || !traversed.containsKey(resolved.uuid())) {
+                                    nextDeep.add(resolved);
                                 }
                             }
                         }
@@ -480,21 +454,12 @@ public abstract class AbstractKObject implements KObject {
                                     }
                                 } else {
                                     final AbstractKObject abstractKObject = (AbstractKObject) nextDeep.get(index[0]);
-                                    if (containedOnly) {
-                                        abstractKObject.internal_visit(visitor, next.get(0), true, true, visited, traversed);
-                                    } else {
-                                        abstractKObject.internal_visit(visitor, next.get(0), true, false, visited, traversed);
-                                    }
+                                    abstractKObject.internal_visit(visitor, next.get(0), visited, traversed);
                                 }
                             }
                         });
-
                         final AbstractKObject abstractKObject = (AbstractKObject) nextDeep.get(index[0]);
-                        if (containedOnly) {
-                            abstractKObject.internal_visit(visitor, next.get(0), true, true, visited, traversed);
-                        } else {
-                            abstractKObject.internal_visit(visitor, next.get(0), true, false, visited, traversed);
-                        }
+                        abstractKObject.internal_visit(visitor, next.get(0), visited, traversed);
                     } else {
                         if (Checker.isDefined(end)) {
                             end.on(null);
@@ -535,24 +500,7 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public <U extends KObject> KDefer<U> jump(long p_time) {
-        final AbstractKDeferWrapper<U> task = new AbstractKDeferWrapper<U>();
-        _manager.lookup(_universe, p_time, _uuid, new Callback<KObject>() {
-            @Override
-            public void on(KObject kObject) {
-                U casted = null;
-                try {
-                    casted = (U) kObject;
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                }
-                task.initCallback().on(casted);
-            }
-        });
-        return task;
-    }
-
-    public void jump2(long p_time, Callback<KObject> p_callback) {
+    public void jump(long p_time, Callback<KObject> p_callback) {
         KCacheEntry resolve_entry = (KCacheEntry) _manager.cache().get(_universe, p_time, _uuid);
         if (resolve_entry != null) {
             p_callback.on(((AbstractKModel) _manager.model()).createProxy(_universe, p_time, _uuid, _metaClass));
@@ -629,30 +577,8 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public KDefer<Object> call(MetaOperation p_operation, Object[] p_params) {
-        AbstractKDeferWrapper<Object> temp_task = new AbstractKDeferWrapper<Object>();
-        _manager.operationManager().call(this, p_operation, p_params, temp_task.initCallback());
-        return temp_task;
-    }
-
-    @Override
-    public KDefer<KInfer[]> inferObjects() {
-        AbstractKDeferWrapper<KInfer[]> task = new AbstractKDeferWrapper<KInfer[]>();
-        //TODO
-        return task;
-    }
-
-    @Override
-    public Object inferAttribute(MetaAttribute attribute) {
-        //TODO
-        return null;
-    }
-
-    @Override
-    public KDefer<Object> inferCall(MetaOperation operation, Object[] params) {
-        AbstractKDeferWrapper<Object> temp_task = new AbstractKDeferWrapper<Object>();
-        //TODO
-        return temp_task;
+    public void call(MetaOperation p_operation, Object[] p_params, Callback<Object> cb) {
+        _manager.operationManager().call(this, p_operation, p_params, cb);
     }
 
 }

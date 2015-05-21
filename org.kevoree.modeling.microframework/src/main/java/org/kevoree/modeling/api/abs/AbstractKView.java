@@ -1,12 +1,9 @@
 package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KDefer;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.ModelFormat;
-import org.kevoree.modeling.api.data.cache.KCacheEntry;
-import org.kevoree.modeling.api.data.manager.AccessMode;
+import org.kevoree.modeling.api.KModelFormat;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.json.JsonFormat;
 import org.kevoree.modeling.api.meta.MetaClass;
@@ -39,61 +36,53 @@ public abstract class AbstractKView implements KView {
     }
 
     @Override
-    public KDefer<Throwable> setRoot(KObject elem) {
-        AbstractKDeferWrapper<Throwable> task = new AbstractKDeferWrapper<Throwable>();
-        _manager.setRoot(elem, task.initCallback());
-        return task;
+    public void setRoot(KObject elem, Callback cb) {
+        _manager.setRoot(elem, cb);
     }
 
     @Override
-    public KDefer<KObject> getRoot() {
-        AbstractKDeferWrapper<KObject> task = new AbstractKDeferWrapper<KObject>();
-        _manager.getRoot(_universe, _time, task.initCallback());
-        return task;
+    public void getRoot(Callback cb) {
+        _manager.getRoot(_universe, _time, cb);
     }
 
     @Override
-    public KDefer<KObject[]> select(final String query) {
-        final AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
-        if (query == null || query.length() == 0) {
-            task.initCallback().on(new KObject[0]);
-        } else {
-            _manager.getRoot(_universe, _time, new Callback<KObject>() {
-                @Override
-                public void on(KObject rootObj) {
-                    if (rootObj == null) {
-                        task.initCallback().on(new KObject[0]);
-                    } else {
-                        String cleanedQuery = query;
-                        if (query.length() == 1 && query.charAt(0) == '/') {
-                            KObject[] param = new KObject[1];
-                            param[0] = rootObj;
-                            task.initCallback().on(param);
+    public void select(final String query, Callback<KObject[]> cb) {
+        if (Checker.isDefined(cb)) {
+            if (query == null || query.length() == 0) {
+                cb.on(new KObject[0]);
+            } else {
+                _manager.getRoot(_universe, _time, new Callback<KObject>() {
+                    @Override
+                    public void on(KObject rootObj) {
+                        if (rootObj == null) {
+                            cb.on(new KObject[0]);
                         } else {
-                            if (cleanedQuery.charAt(0) == '/') {
-                                cleanedQuery = cleanedQuery.substring(1);
+                            String cleanedQuery = query;
+                            if (query.length() == 1 && query.charAt(0) == '/') {
+                                KObject[] param = new KObject[1];
+                                param[0] = rootObj;
+                                cb.on(param);
+                            } else {
+                                if (cleanedQuery.charAt(0) == '/') {
+                                    cleanedQuery = cleanedQuery.substring(1);
+                                }
+                                KSelector.select(rootObj, cleanedQuery, cb);
                             }
-                            KSelector.select(rootObj, cleanedQuery, task.initCallback());
                         }
                     }
-                }
-            });
+                });
+            }
         }
-        return task;
     }
 
     @Override
-    public KDefer<KObject> lookup(long kid) {
-        AbstractKDeferWrapper<KObject> task = new AbstractKDeferWrapper<KObject>();
-        _manager.lookup(_universe, _time, kid, task.initCallback());
-        return task;
+    public void lookup(long kid, Callback<KObject> cb) {
+        _manager.lookup(_universe, _time, kid, cb);
     }
 
     @Override
-    public KDefer<KObject[]> lookupAll(long[] keys) {
-        AbstractKDeferWrapper<KObject[]> task = new AbstractKDeferWrapper<KObject[]>();
-        _manager.lookupAllobjects(_universe, _time, keys, task.initCallback());
-        return task;
+    public void lookupAll(long[] keys, Callback<KObject[]> cb) {
+        _manager.lookupAllobjects(_universe, _time, keys, cb);
     }
 
     @Override
@@ -107,11 +96,11 @@ public abstract class AbstractKView implements KView {
     }
 
     @Override
-    public ModelFormat json() {
+    public KModelFormat json() {
         return new JsonFormat(_universe, _time, _manager);
     }
 
-    public ModelFormat xmi() {
+    public KModelFormat xmi() {
         return new XmiFormat(_universe, _time, _manager);
     }
 

@@ -2,12 +2,12 @@ package org.kevoree.modeling.api;
 
 public interface KTimeWalker {
 
-    KDefer<long[]> allTimes();
+    void allTimes(Callback<long[]> cb);
 
-    KDefer<long[]> timesBefore(long endOfSearch);
+    void timesBefore(long endOfSearch,Callback<long[]> cb);
 
-    KDefer<long[]> timesAfter(long beginningOfSearch);
+    void timesAfter(long beginningOfSearch,Callback<long[]> cb);
 
-    KDefer<long[]> timesBetween(long beginningOfSearch,long endOfSearch);
+    void timesBetween(long beginningOfSearch,long endOfSearch,Callback<long[]> cb);
 
 }

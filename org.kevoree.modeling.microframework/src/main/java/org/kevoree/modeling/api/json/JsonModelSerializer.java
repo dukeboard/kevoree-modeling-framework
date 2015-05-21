@@ -2,9 +2,8 @@ package org.kevoree.modeling.api.json;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ModelVisitor;
-import org.kevoree.modeling.api.VisitRequest;
-import org.kevoree.modeling.api.VisitResult;
+import org.kevoree.modeling.api.KModelVisitor;
+import org.kevoree.modeling.api.KVisitResult;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
@@ -23,9 +22,9 @@ public class JsonModelSerializer {
                 final StringBuilder builder = new StringBuilder();
                 builder.append("[\n");
                 printJSON(model, builder, isRoot);
-                model.visit(VisitRequest.ALL, new ModelVisitor() {
+                model.visit(new KModelVisitor() {
                     @Override
-                    public VisitResult visit(KObject elem) {
+                    public KVisitResult visit(KObject elem) {
                         boolean isRoot2 = false;
                         if (rootObj != null) {
                             isRoot2 = rootObj.uuid() == elem.uuid();
@@ -37,9 +36,9 @@ public class JsonModelSerializer {
                             e.printStackTrace();
                             builder.append("{}");
                         }
-                        return VisitResult.CONTINUE;
+                        return KVisitResult.CONTINUE;
                     }
-                }).then(new Callback<Throwable>() {
+                },new Callback<Throwable>() {
                     @Override
                     public void on(Throwable throwable) {
                         builder.append("\n]\n");

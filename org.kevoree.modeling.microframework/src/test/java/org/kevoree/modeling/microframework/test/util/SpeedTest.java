@@ -95,7 +95,7 @@ public class SpeedTest {
                 .addReference("sensors", sensorMetaClass, true,null);
         final KModel universe = dynamicMetaModel.model();
 
-        universe.connect().then(new Callback<Throwable>() {
+        universe.connect(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
 
@@ -115,7 +115,7 @@ public class SpeedTest {
                 ((AbstractMetaAttribute) att)._precision = 0.1;
 
                 for (int i = 0; i < 5000000; i++) {
-                    sensor.jump2(i, new Callback<KObject>() {
+                    sensor.jump(i, new Callback<KObject>() {
                         @Override
                         public void on(KObject timedObject) {
                             timedObject.set(att, 3d);

@@ -35,7 +35,7 @@ public class MultiUniverseTest {
                 .addReference("siblings", sensorMetaClass, false,null);
 
         model = dynamicMetaModel.model();
-        model.connect();
+        model.connect(null);
 
         object = model.universe(0).time(timeOrigine).create(sensorMetaClass);
 
@@ -126,7 +126,7 @@ public class MultiUniverseTest {
 
     private void insert(long uId, long time, final double value) {
 
-        model.universe(uId).time(time).lookup(object.uuid()).then(new Callback<KObject>() {
+        model.universe(uId).time(time).lookup(object.uuid(),new Callback<KObject>() {
             @Override
             public void on(KObject kObject) {
                 kObject.set(kObject.metaClass().attribute("value"), value);
@@ -136,7 +136,7 @@ public class MultiUniverseTest {
 
     public double get(long uId, long time) {
         final Object[] myvalue = {null};
-        model.universe(uId).time(time).lookup(object.uuid()).then(new Callback<KObject>() {
+        model.universe(uId).time(time).lookup(object.uuid(),new Callback<KObject>() {
 
             @Override
             public void on(KObject kObject) {

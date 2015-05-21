@@ -28,13 +28,13 @@ public interface KModel<A extends KUniverse> {
 
     KDefer defer();
 
-    KDefer<Throwable> save();
+    void save(Callback cb);
 
-    KDefer<Throwable> discard();
+    void discard(Callback cb);
 
-    KDefer<Throwable> connect();
+    void connect(Callback cb);
 
-    KDefer<Throwable> close();
+    void close(Callback cb);
 
     void clearListenerGroup(long groupID);
 

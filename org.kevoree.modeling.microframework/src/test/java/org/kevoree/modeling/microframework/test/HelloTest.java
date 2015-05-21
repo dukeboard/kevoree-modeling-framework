@@ -4,9 +4,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ModelVisitor;
-import org.kevoree.modeling.api.VisitRequest;
-import org.kevoree.modeling.api.VisitResult;
+import org.kevoree.modeling.api.KModelVisitor;
+import org.kevoree.modeling.api.KVisitResult;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
@@ -22,7 +21,7 @@ public class HelloTest {
     @Test
     public void badLookupTest() {
         final CloudModel model = new CloudModel();
-        model.connect().then(new Callback<Throwable>() {
+        model.connect(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
@@ -31,7 +30,7 @@ public class HelloTest {
                     CloudUniverse universe = model.newUniverse();
                     CloudView time0 = universe.time(0l);
                     Node root = time0.createNode();
-                    time0.setRoot(root);
+                    time0.setRoot(root,null);
                     root.setName("root");
                     Assert.assertEquals("root", root.getName());
                     Node n1 = time0.createNode();
@@ -41,7 +40,7 @@ public class HelloTest {
                     root.addChildren(n1);
                     root.addChildren(n2);
 
-                    time0.lookup(42).then(new Callback<KObject>() {
+                    time0.lookup(42,new Callback<KObject>() {
                         @Override
                         public void on(KObject kObject) {
                             Assert.assertNull(kObject);
@@ -56,7 +55,7 @@ public class HelloTest {
     @Test
     public void simpleTest() {
         final CloudModel model = new CloudModel();
-        model.connect().then(new Callback<Throwable>() {
+        model.connect(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
@@ -74,7 +73,7 @@ public class HelloTest {
                     n2.setName("n2");
                     root.addChildren(n1);
                     root.addChildren(n2);
-                    time0.lookup(root.uuid()).then(new Callback<KObject>() {
+                    time0.lookup(root.uuid(),new Callback<KObject>() {
                         @Override
                         public void on(KObject kObject) {
                             Assert.assertNotNull(kObject);
@@ -104,7 +103,7 @@ public class HelloTest {
     @Test
     public void helloTest() {
         CloudModel universe = new CloudModel();
-        universe.connect();
+        universe.connect(null);
 
         CloudUniverse dimension0 = universe.newUniverse();
 
@@ -155,13 +154,13 @@ public class HelloTest {
 
         i[0] = 0;
         j[0] = 0;
-        nodeT0.visit(VisitRequest.ALL, new ModelVisitor() {
+        nodeT0.visit(new KModelVisitor() {
             @Override
-            public VisitResult visit(KObject elem) {
+            public KVisitResult visit(KObject elem) {
                 i[0]++;
-                return VisitResult.CONTINUE;
+                return KVisitResult.CONTINUE;
             }
-        }).then(new Callback<Throwable>() {
+        },new Callback<Throwable>() {
             @Override
             public void on(Throwable t) {
                 j[0]++;

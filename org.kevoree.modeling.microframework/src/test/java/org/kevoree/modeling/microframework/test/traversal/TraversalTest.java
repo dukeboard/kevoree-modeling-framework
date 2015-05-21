@@ -21,7 +21,7 @@ public class TraversalTest {
     @Test
     public void simpleTraversalTest() {
         final CloudModel universe = new CloudModel();
-        universe.connect();
+        universe.connect(null);
         final CloudUniverse dimension0 = universe.newUniverse();
         final CloudView t0 = dimension0.time(0l);
 
@@ -29,7 +29,7 @@ public class TraversalTest {
         final Element elem0_0 = t0.createElement();
         node0.setElement(elem0_0);
 
-        t0.setRoot(node0).then(new Callback<Throwable>() {
+        t0.setRoot(node0,new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
 
@@ -47,21 +47,21 @@ public class TraversalTest {
                 node0.addChildren(node2);
 
                 // traversal promise
-                node0.traversal().traverse((MetaReference) node0.metaClass().metaByName("children")).done().then(new Callback<KObject[]>() {
+                node0.traversal().traverse((MetaReference) node0.metaClass().metaByName("children")).then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(kObjects.length, 2);
                     }
                 });
 
-                node0.traversal().traverse((MetaReference) node0.metaClass().metaByName("children")).withAttribute(MetaNode.ATT_NAME, "child*").map(MetaNode.ATT_NAME).then(new Callback<Object[]>() {
+                node0.traversal().traverse((MetaReference) node0.metaClass().metaByName("children")).withAttribute(MetaNode.ATT_NAME, "child*").map(MetaNode.ATT_NAME,new Callback<Object[]>() {
                     @Override
                     public void on(Object[] objects) {
                         Assert.assertEquals(objects.length, 2);
                     }
                 });
 
-                node0.traversal().traverse((MetaReference) node0.metaClass().metaByName("children")).withAttribute(MetaNode.ATT_NAME, "child1").map(MetaNode.ATT_NAME).then(new Callback<Object[]>() {
+                node0.traversal().traverse((MetaReference) node0.metaClass().metaByName("children")).withAttribute(MetaNode.ATT_NAME, "child1").map(MetaNode.ATT_NAME,new Callback<Object[]>() {
                     @Override
                     public void on(Object[] objects) {
                         Assert.assertEquals(objects.length, 1);
@@ -69,7 +69,7 @@ public class TraversalTest {
                     }
                 });
 
-                node0.traversal().traverse((MetaReference) node0.metaClass().metaByName("children")).withoutAttribute(MetaNode.ATT_NAME, "child1").map(MetaNode.ATT_NAME).then(new Callback<Object[]>() {
+                node0.traversal().traverse((MetaReference) node0.metaClass().metaByName("children")).withoutAttribute(MetaNode.ATT_NAME, "child1").map(MetaNode.ATT_NAME,new Callback<Object[]>() {
                     @Override
                     public void on(Object[] objects) {
                         Assert.assertEquals(objects.length, 1);
@@ -77,28 +77,28 @@ public class TraversalTest {
                     }
                 });
 
-                node0.traversal().traverse((MetaReference) node0.metaClass().metaByName("children")).withAttribute(MetaNode.ATT_NAME, null).map(MetaNode.ATT_NAME).then(new Callback<Object[]>() {
+                node0.traversal().traverse((MetaReference) node0.metaClass().metaByName("children")).withAttribute(MetaNode.ATT_NAME, null).map(MetaNode.ATT_NAME,new Callback<Object[]>() {
                     @Override
                     public void on(Object[] objects) {
                         Assert.assertEquals(objects.length, 0);
                     }
                 });
 
-                node0.traversal().traverse((MetaReference) node0.metaClass().metaByName("children")).withAttribute(MetaNode.ATT_NAME, "*").map(MetaNode.ATT_NAME).then(new Callback<Object[]>() {
+                node0.traversal().traverse((MetaReference) node0.metaClass().metaByName("children")).withAttribute(MetaNode.ATT_NAME, "*").map(MetaNode.ATT_NAME,new Callback<Object[]>() {
                     @Override
                     public void on(Object[] objects) {
                         Assert.assertEquals(objects.length, 2);
                     }
                 });
 
-                node0.traversal().traverse((MetaReference) node0.metaClass().metaByName("children")).withoutAttribute(MetaNode.ATT_NAME, null).map(MetaNode.ATT_NAME).then(new Callback<Object[]>() {
+                node0.traversal().traverse((MetaReference) node0.metaClass().metaByName("children")).withoutAttribute(MetaNode.ATT_NAME, null).map(MetaNode.ATT_NAME,new Callback<Object[]>() {
                     @Override
                     public void on(Object[] objects) {
                         Assert.assertEquals(objects.length, 2);
                     }
                 });
 
-                node0.traversal().traverse((MetaReference) node0.metaClass().metaByName("children")).withoutAttribute(MetaNode.ATT_NAME, "*").map(MetaNode.ATT_NAME).then(new Callback<Object[]>() {
+                node0.traversal().traverse((MetaReference) node0.metaClass().metaByName("children")).withoutAttribute(MetaNode.ATT_NAME, "*").map(MetaNode.ATT_NAME,new Callback<Object[]>() {
                     @Override
                     public void on(Object[] objects) {
                         Assert.assertEquals(objects.length, 0);
@@ -112,7 +112,7 @@ public class TraversalTest {
     @Test
     public void chainedTraversalTest() {
         final CloudModel universe = new CloudModel();
-        universe.connect();
+        universe.connect(null);
         final CloudUniverse dimension0 = universe.newUniverse();
         final CloudView t0 = dimension0.time(0l);
 
@@ -120,7 +120,7 @@ public class TraversalTest {
         final Element elem0_0 = t0.createElement();
         node0.setElement(elem0_0);
 
-        t0.setRoot(node0).then(new Callback<Throwable>() {
+        t0.setRoot(node0,new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
 
@@ -140,7 +140,7 @@ public class TraversalTest {
                 node0.addChildren(node2);
 
                 // chained traversal promise
-                node0.traversal().traverse((MetaReference) node0.metaClass().metaByName("children")).traverse((MetaReference) node0.metaClass().metaByName("element")).done().then(new Callback<KObject[]>() {
+                node0.traversal().traverse((MetaReference) node0.metaClass().metaByName("children")).traverse((MetaReference) node0.metaClass().metaByName("element")).then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(kObjects.length, 2);
@@ -154,7 +154,7 @@ public class TraversalTest {
     @Test
     public void filterTest() {
         final CloudModel universe = new CloudModel();
-        universe.connect();
+        universe.connect(null);
         final CloudUniverse dimension0 = universe.newUniverse();
         final CloudView t0 = dimension0.time(0l);
 
@@ -162,7 +162,7 @@ public class TraversalTest {
         final Element elem0_0 = t0.createElement();
         node0.setElement(elem0_0);
 
-        t0.setRoot(node0).then(new Callback<Throwable>() {
+        t0.setRoot(node0,new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
 
@@ -187,7 +187,7 @@ public class TraversalTest {
                     public boolean filter(KObject obj) {
                         return ((Node) obj).getName().equals("child1");
                     }
-                }).done().then(new Callback<KObject[]>() {
+                }).then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(kObjects.length, 1);
@@ -203,7 +203,7 @@ public class TraversalTest {
     @Test
     public void parentTest() {
         final CloudModel model = new CloudModel();
-        model.connect().then(new Callback<Throwable>() {
+        model.connect(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 final CloudUniverse universe = model.newUniverse();
@@ -211,7 +211,7 @@ public class TraversalTest {
                 final Node node0 = t0.createNode();
                 final Element elem0_0 = t0.createElement();
                 node0.setElement(elem0_0);
-                t0.setRoot(node0).then(new Callback<Throwable>() {
+                t0.setRoot(node0,new Callback<Throwable>() {
                     @Override
                     public void on(Throwable throwable) {
                         final Node node1 = t0.createNode();
@@ -235,7 +235,7 @@ public class TraversalTest {
     @Test
     public void traverseQueryTest() {
         final CloudModel universe = new CloudModel();
-        universe.connect().then(new Callback<Throwable>() {
+        universe.connect(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 final CloudUniverse dimension0 = universe.newUniverse();
@@ -245,7 +245,7 @@ public class TraversalTest {
                 final Element elem0_0 = t0.createElement();
                 node0.setElement(elem0_0);
 
-                t0.setRoot(node0).then(new Callback<Throwable>() {
+                t0.setRoot(node0,new Callback<Throwable>() {
                     @Override
                     public void on(Throwable throwable) {
 
@@ -271,7 +271,7 @@ public class TraversalTest {
                             public boolean filter(KObject obj) {
                                 return ((Node) obj).getName().equals("child1");
                             }
-                        }).done().then(new Callback<KObject[]>() {
+                        }).then(new Callback<KObject[]>() {
                             @Override
                             public void on(KObject[] kObjects) {
                                 Assert.assertEquals(kObjects.length, 1);
@@ -285,7 +285,7 @@ public class TraversalTest {
                             public boolean filter(KObject obj) {
                                 return ((Node) obj).getName().equals("child1");
                             }
-                        }).done().then(new Callback<KObject[]>() {
+                        }).then(new Callback<KObject[]>() {
                             @Override
                             public void on(KObject[] kObjects) {
                                 Assert.assertEquals(kObjects.length, 1);
@@ -299,7 +299,7 @@ public class TraversalTest {
                             public boolean filter(KObject obj) {
                                 return ((Node) obj).getName().equals("child1");
                             }
-                        }).done().then(new Callback<KObject[]>() {
+                        }).then(new Callback<KObject[]>() {
                             @Override
                             public void on(KObject[] kObjects) {
                                 Assert.assertEquals(kObjects.length, 1);
@@ -313,7 +313,7 @@ public class TraversalTest {
                             public boolean filter(KObject obj) {
                                 return ((Node) obj).getName().equals("child1");
                             }
-                        }).done().then(new Callback<KObject[]>() {
+                        }).then(new Callback<KObject[]>() {
                             @Override
                             public void on(KObject[] kObjects) {
                                 Assert.assertEquals(kObjects.length, 1);
@@ -330,7 +330,7 @@ public class TraversalTest {
     @Test
     public void attributeQueryTest() {
         final CloudModel universe = new CloudModel();
-        universe.connect();
+        universe.connect(null);
         final CloudUniverse dimension0 = universe.newUniverse();
         final CloudView t0 = dimension0.time(0l);
 
@@ -338,7 +338,7 @@ public class TraversalTest {
         final Element elem0_0 = t0.createElement();
         node0.setElement(elem0_0);
 
-        t0.setRoot(node0).then(new Callback<Throwable>() {
+        t0.setRoot(node0,new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
 
@@ -356,14 +356,14 @@ public class TraversalTest {
                 node0.addChildren(node2);
 
 
-                node0.traversal().traverseQuery("children").attributeQuery("name=*").done().then(new Callback<KObject[]>() {
+                node0.traversal().traverseQuery("children").attributeQuery("name=*").then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(2, kObjects.length);
                     }
                 });
 
-                node0.traversal().traverseQuery("children").attributeQuery("name=child1").done().then(new Callback<KObject[]>() {
+                node0.traversal().traverseQuery("children").attributeQuery("name=child1").then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(1, kObjects.length);
@@ -371,14 +371,14 @@ public class TraversalTest {
                     }
                 });
 
-                node0.traversal().traverseQuery("children").attributeQuery("name=child*,value=null").done().then(new Callback<KObject[]>() {
+                node0.traversal().traverseQuery("children").attributeQuery("name=child*,value=null").then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(2, kObjects.length);
                     }
                 });
 
-                node0.traversal().traverseQuery("children").attributeQuery("name=child*,value!=null").done().then(new Callback<KObject[]>() {
+                node0.traversal().traverseQuery("children").attributeQuery("name=child*,value!=null").then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(0, kObjects.length);
@@ -386,7 +386,7 @@ public class TraversalTest {
                 });
 
 
-                node0.traversal().traverseQuery("children").attributeQuery("name=child*,value=*").done().then(new Callback<KObject[]>() {
+                node0.traversal().traverseQuery("children").attributeQuery("name=child*,value=*").then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(2, kObjects.length);
@@ -399,21 +399,21 @@ public class TraversalTest {
                 node3.setValue("3");
                 node0.addChildren(node3);
 
-                node0.traversal().traverseQuery("children").attributeQuery("name=child*,value=*").done().then(new Callback<KObject[]>() {
+                node0.traversal().traverseQuery("children").attributeQuery("name=child*,value=*").then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(3, kObjects.length);
                     }
                 });
 
-                node0.traversal().traverseQuery("children").attributeQuery("name=child*,value=null").done().then(new Callback<KObject[]>() {
+                node0.traversal().traverseQuery("children").attributeQuery("name=child*,value=null").then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(2, kObjects.length);
                     }
                 });
 
-                node0.traversal().traverseQuery("children").attributeQuery("name=child*,value!=null").done().then(new Callback<KObject[]>() {
+                node0.traversal().traverseQuery("children").attributeQuery("name=child*,value!=null").then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertEquals(1, kObjects.length);
@@ -428,7 +428,7 @@ public class TraversalTest {
     @Test
     public void deepCollectorTest() {
         final CloudModel universe = new CloudModel();
-        universe.connect();
+        universe.connect(null);
         final CloudUniverse dimension0 = universe.newUniverse();
         final CloudView t0 = dimension0.time(0l);
 
@@ -438,7 +438,7 @@ public class TraversalTest {
         elem0_0.setName("c0_e1");
         node0.setElement(elem0_0);
 
-        t0.setRoot(node0).then(new Callback<Throwable>() {
+        t0.setRoot(node0,new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
 
@@ -461,14 +461,14 @@ public class TraversalTest {
                 node1_1.setName("c1_1");
                 node1.addChildren(node1_1);
 
-                node0.traversal().deepCollect(null, null).done().then(new Callback<KObject[]>() {
+                node0.traversal().deepCollect(null, null).then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] collectedObjs) {
                         Assert.assertEquals(6, collectedObjs.length);
                     }
                 });
 
-                node0.traversal().deepCollect(MetaNode.REF_CHILDREN, null).done().then(new Callback<KObject[]>() {
+                node0.traversal().deepCollect(MetaNode.REF_CHILDREN, null).then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] collectedObjs) {
                         Assert.assertEquals(3, collectedObjs.length);
@@ -484,7 +484,7 @@ public class TraversalTest {
                             return true;
                         }
                     }
-                }).done().then(new Callback<KObject[]>() {
+                }).then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] collectedObjs) {
                         Assert.assertEquals(3, collectedObjs.length);
@@ -500,7 +500,7 @@ public class TraversalTest {
                             return true;
                         }
                     }
-                }).done().then(new Callback<KObject[]>() {
+                }).then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] collectedObjs) {
                         Assert.assertEquals(5, collectedObjs.length);
@@ -516,7 +516,7 @@ public class TraversalTest {
                             return true;
                         }
                     }
-                }).done().then(new Callback<KObject[]>() {
+                }).then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] collectedObjs) {
                         Assert.assertEquals(2, collectedObjs.length);
@@ -529,7 +529,7 @@ public class TraversalTest {
     @Test
     public void deepTraversalTest() {
         final CloudModel universe = new CloudModel();
-        universe.connect();
+        universe.connect(null);
         final CloudUniverse dimension0 = universe.newUniverse();
         final CloudView t0 = dimension0.time(0l);
 
@@ -539,7 +539,7 @@ public class TraversalTest {
         elem0_0.setName("c0_e1");
         node0.setElement(elem0_0);
 
-        t0.setRoot(node0).then(new Callback<Throwable>() {
+        t0.setRoot(node0,new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
 
@@ -562,14 +562,21 @@ public class TraversalTest {
                 node1_1.setName("c1_1");
                 node1.addChildren(node1_1);
 
-                node0.traversal().deepTraverse(null, null).done().then(new Callback<KObject[]>() {
+                System.err.println(node1);
+
+                node0.traversal().deepTraverse(null, null).then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] collectedObjs) {
+
+                        for(int i=0;i<collectedObjs.length;i++){
+                            System.err.println(collectedObjs[i]);
+                        }
+
                         Assert.assertEquals(4, collectedObjs.length);
                     }
                 });
 
-                node0.traversal().deepTraverse(MetaNode.REF_CHILDREN, null).done().then(new Callback<KObject[]>() {
+                node0.traversal().deepTraverse(MetaNode.REF_CHILDREN, null).then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] collectedObjs) {
                         Assert.assertEquals(2, collectedObjs.length);
@@ -585,7 +592,7 @@ public class TraversalTest {
                             return true;
                         }
                     }
-                }).done().then(new Callback<KObject[]>() {
+                }).then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] collectedObjs) {
                         Assert.assertEquals(2, collectedObjs.length);
@@ -601,7 +608,7 @@ public class TraversalTest {
                             return true;
                         }
                     }
-                }).done().then(new Callback<KObject[]>() {
+                }).then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] collectedObjs) {
                         Assert.assertEquals(2, collectedObjs.length);
@@ -617,7 +624,7 @@ public class TraversalTest {
                             return true;
                         }
                     }
-                }).done().then(new Callback<KObject[]>() {
+                }).then(new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] collectedObjs) {
                         Assert.assertEquals(1, collectedObjs.length);
@@ -630,7 +637,7 @@ public class TraversalTest {
     @Test
     public void deepHistoryTest() {
         final CloudModel universe = new CloudModel();
-        universe.connect();
+        universe.connect(null);
         final CloudUniverse dimension0 = universe.newUniverse();
         final CloudView t0 = dimension0.time(0l);
 
@@ -640,7 +647,7 @@ public class TraversalTest {
         elem0_0.setName("c0_e1");
         node0.setElement(elem0_0);
 
-        t0.setRoot(node0).then(new Callback<Throwable>() {
+        t0.setRoot(node0,new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
 
@@ -671,7 +678,7 @@ public class TraversalTest {
     @Test
     public void deepReverseTest() {
         final CloudModel universe = new CloudModel();
-        universe.connect();
+        universe.connect(null);
         final CloudUniverse dimension0 = universe.newUniverse();
         final CloudView t0 = dimension0.time(0l);
 
@@ -681,7 +688,7 @@ public class TraversalTest {
         elem0_0.setName("c0_e1");
         node0.setElement(elem0_0);
 
-        t0.setRoot(node0).then(new Callback<Throwable>() {
+        t0.setRoot(node0,new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
 

@@ -14,21 +14,17 @@ public interface KObject {
 
     long uuid();
 
-    KDefer<Throwable> delete();
+    void delete(Callback cb);
 
-    KDefer<KObject[]> select(String query);
+    void select(String query, Callback<KObject[]> cb);
 
     void listen(long groupId, KEventListener listener);
 
-    void visitAttributes(ModelAttributeVisitor visitor);
+    void visitAttributes(KModelAttributeVisitor visitor);
 
-    KDefer<Throwable> visit(VisitRequest request, ModelVisitor visitor);
-
-    /* Time navigation */
+    void visit(KModelVisitor visitor, Callback cb);
 
     KTimeWalker timeWalker();
-
-    /* Reflexive API */
 
     String domainKey();
 
@@ -36,13 +32,9 @@ public interface KObject {
 
     void mutate(KActionType actionType, MetaReference metaReference, KObject param);
 
-    KDefer<KObject[]> ref(MetaReference metaReference);
-
-    KDefer<KObject[]> inferRef(MetaReference metaReference);
+    void ref(MetaReference metaReference, Callback<KObject[]> cb);
 
     KTraversal traversal();
-
-    /* End Reflexive API */
 
     Object get(MetaAttribute attribute);
 
@@ -56,19 +48,10 @@ public interface KObject {
 
     boolean equals(Object other);
 
-    <U extends KObject> KDefer<U> jump(long time);
-
-    void jump2(long time, Callback<KObject> callback);
+    void jump(long time, Callback<KObject> callback);
 
     MetaReference[] referencesWith(KObject o);
 
-    /* Inference Objects Management */
-    KDefer<KInfer[]> inferObjects();
-
-    Object inferAttribute(MetaAttribute attribute);
-
-    KDefer<Object> call(MetaOperation operation, Object[] params);
-
-    KDefer<Object> inferCall(MetaOperation operation, Object[] params);
+    void call(MetaOperation operation, Object[] params, Callback<Object> cb);
 
 }

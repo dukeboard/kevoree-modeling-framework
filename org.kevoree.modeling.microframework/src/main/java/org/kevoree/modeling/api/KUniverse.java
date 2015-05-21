@@ -18,9 +18,9 @@ public interface KUniverse<A extends KView, B extends KUniverse, C extends KMode
 
     List<B> descendants();
 
-    KDefer<Throwable> delete();
+    void delete(Callback cb);
 
-    KDefer<KObject[]> lookupAllTimes(long uuid, long[] times);
+    void lookupAllTimes(long uuid, long[] times, Callback<KObject[]> cb);
 
     void listenAll(long groupId, long[] objects, KEventMultiListener multiListener);
 

@@ -29,7 +29,7 @@ public class LocalEventListenersTest {
         _model = metaModel.model();
         localEventListeners = new LocalEventListeners();
         localEventListeners.setManager(_model.manager());
-        _model.connect();
+        _model.connect(null);
         t0 = _model.universe(0).time(0);
     }
 

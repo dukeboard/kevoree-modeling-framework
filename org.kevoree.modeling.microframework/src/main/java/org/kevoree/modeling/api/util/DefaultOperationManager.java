@@ -112,7 +112,7 @@ public class DefaultOperationManager implements KOperationManager {
             final KOperation operationCore = searchOperation(sourceKey.obj, operationCall.classIndex, operationCall.opIndex);
             if (operationCore != null) {
                 KView view = _manager.model().universe(sourceKey.universe).time(sourceKey.time);
-                view.lookup(sourceKey.obj).then(new Callback<KObject>() {
+                view.lookup(sourceKey.obj,new Callback<KObject>() {
                     public void on(KObject kObject) {
                         if (kObject != null) {
                             operationCore.on(kObject, operationCall.params, new Callback<Object>() {

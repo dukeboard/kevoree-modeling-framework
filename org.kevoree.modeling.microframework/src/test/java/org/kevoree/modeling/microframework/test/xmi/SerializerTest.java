@@ -18,21 +18,21 @@ public class SerializerTest {
     @Test
     public void serializeTest() throws InterruptedException {
         CloudModel universe = new CloudModel();
-        universe.connect();
+        universe.connect(null);
         CloudUniverse dimension0 = universe.newUniverse();
         final CloudView t0 = dimension0.time(0l);
         Node nodeT0 = t0.createNode();
         nodeT0.setName("node0");
-        t0.setRoot(nodeT0);
+        t0.setRoot(nodeT0,null);
         Element child0 = t0.createElement();
         nodeT0.setElement(child0);
         Node nodeT1 = t0.createNode();
         nodeT1.setName("n1");
         nodeT0.addChildren(nodeT1);
-        t0.lookup(nodeT0.uuid()).then(new Callback<KObject>() {
+        t0.lookup(nodeT0.uuid(),new Callback<KObject>() {
             @Override
             public void on(KObject root) {
-                t0.xmi().save(root).then(new Callback<String>() {
+                t0.xmi().save(root,new Callback<String>() {
                     @Override
                     public void on(String result) {
 

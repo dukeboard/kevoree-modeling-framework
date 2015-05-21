@@ -1,5 +1,6 @@
 package org.kevoree.modeling.api.traversal;
 
+import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KDefer;
 import org.kevoree.modeling.api.meta.MetaAttribute;
@@ -19,9 +20,9 @@ public interface KTraversal {
 
     KTraversal filter(KTraversalFilter filter);
 
-    KDefer<KObject[]> done();
+    void then(Callback<KObject[]> cb);
 
-    KDefer<Object[]> map(MetaAttribute attribute);
+    void map(MetaAttribute attribute, Callback<Object[]> cb);
 
     KTraversal deepTraverse(MetaReference metaReference, KTraversalFilter continueCondition);
 

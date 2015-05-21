@@ -19,12 +19,12 @@ public class BasicSelectTest {
     @Test
     public void rootSelectTest() throws Exception {
         CloudModel universe = new CloudModel();
-        universe.connect();
+        universe.connect(null);
         CloudUniverse dimension0 = universe.newUniverse();
         CloudView t0 = dimension0.time(0l);
         final Node node = t0.createNode();
         node.setName("n0");
-        t0.setRoot(node).then(new Callback<Throwable>() {
+        t0.setRoot(node,new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
@@ -32,28 +32,28 @@ public class BasicSelectTest {
                 }
             }
         });
-        t0.getRoot().then(new Callback<KObject>() {
+        t0.getRoot(new Callback<KObject>() {
             @Override
             public void on(KObject kObject) {
                 Assert.assertEquals(kObject.uuid(), node.uuid());
                 Assert.assertEquals(kObject, node);
             }
         });
-        t0.select("/").then(new Callback<KObject[]>() {
+        t0.select("/",new Callback<KObject[]>() {
             @Override
             public void on(KObject[] kObjects) {
                 Assert.assertEquals(kObjects[0], node);
             }
         });
         final CloudView t1 = dimension0.time(1l);
-        t1.getRoot().then(new Callback<KObject>() {
+        t1.getRoot(new Callback<KObject>() {
             @Override
             public void on(KObject kObject) {
                 Assert.assertEquals(node.uuid(), kObject.uuid());
                 Assert.assertEquals(t1.now(), kObject.now());
             }
         });
-        t1.select("/").then(new Callback<KObject[]>() {
+        t1.select("/",new Callback<KObject[]>() {
             @Override
             public void on(KObject[] kObjects) {
                 Assert.assertEquals(node.uuid(), kObjects[0].uuid());
@@ -66,13 +66,13 @@ public class BasicSelectTest {
     @Test
     public void selectTest() throws Exception {
         CloudModel universe = new CloudModel();
-        universe.connect();
+        universe.connect(null);
 
         CloudUniverse dimension0 = universe.newUniverse();
         CloudView t0 = dimension0.time(0l);
         Node node = t0.createNode();
         node.setName("n0");
-        t0.setRoot(node);
+        t0.setRoot(node,null);
         final Node node2 = t0.createNode();
         node2.setName("n1");
         node.addChildren(node2);
@@ -89,7 +89,7 @@ public class BasicSelectTest {
         node5.setName("n5");
         node3.addChildren(node5);
 
-        t0.select("children[]").then(new Callback<KObject[]>() {
+        t0.select("children[]",new Callback<KObject[]>() {
             @Override
             public void on(KObject[] selecteds) {
                 Assert.assertEquals(1, selecteds.length);
@@ -97,7 +97,7 @@ public class BasicSelectTest {
             }
         });
 
-        t0.select("children[name=*]").then(new Callback<KObject[]>() {
+        t0.select("children[name=*]",new Callback<KObject[]>() {
             @Override
             public void on(KObject[] selecteds) {
                 Assert.assertEquals(1, selecteds.length);
@@ -105,7 +105,7 @@ public class BasicSelectTest {
             }
         });
 
-        t0.select("children[name=n*]").then(new Callback<KObject[]>() {
+        t0.select("children[name=n*]",new Callback<KObject[]>() {
             @Override
             public void on(KObject[] selecteds) {
                 Assert.assertEquals(1, selecteds.length);
@@ -113,7 +113,7 @@ public class BasicSelectTest {
             }
         });
 
-        t0.select("children[name=n1]").then(new Callback<KObject[]>() {
+        t0.select("children[name=n1]",new Callback<KObject[]>() {
             @Override
             public void on(KObject[] selecteds) {
                 Assert.assertEquals(1, selecteds.length);
@@ -121,21 +121,21 @@ public class BasicSelectTest {
             }
         });
 
-        t0.select("children[name=!n1]").then(new Callback<KObject[]>() {
+        t0.select("children[name=!n1]",new Callback<KObject[]>() {
             @Override
             public void on(KObject[] selecteds) {
                 Assert.assertEquals(0, selecteds.length);
             }
         });
 
-        t0.select("children[name!=n1]").then(new Callback<KObject[]>() {
+        t0.select("children[name!=n1]",new Callback<KObject[]>() {
             @Override
             public void on(KObject[] selecteds) {
                 Assert.assertEquals(0, selecteds.length);
             }
         });
 
-        t0.select("children[name=n1]/children[name=n2]").then(new Callback<KObject[]>() {
+        t0.select("children[name=n1]/children[name=n2]",new Callback<KObject[]>() {
             @Override
             public void on(KObject[] selecteds) {
                 Assert.assertEquals(1, selecteds.length);
@@ -143,7 +143,7 @@ public class BasicSelectTest {
             }
         });
 
-        t0.select("/children[name=n1]/children[name=n2]").then(new Callback<KObject[]>() {
+        t0.select("/children[name=n1]/children[name=n2]",new Callback<KObject[]>() {
             @Override
             public void on(KObject[] selecteds) {
                 Assert.assertEquals(1, selecteds.length);
@@ -151,7 +151,7 @@ public class BasicSelectTest {
             }
         });
 
-        node.select("children[name=n1]/children[name=n2]").then(new Callback<KObject[]>() {
+        node.select("children[name=n1]/children[name=n2]",new Callback<KObject[]>() {
             @Override
             public void on(KObject[] selecteds) {
                 Assert.assertEquals(1, selecteds.length);
@@ -159,7 +159,7 @@ public class BasicSelectTest {
             }
         });
 
-        node.select("children[name=n1]/children[name=n2]/children[name=*]").then(new Callback<KObject[]>() {
+        node.select("children[name=n1]/children[name=n2]/children[name=*]",new Callback<KObject[]>() {
             @Override
             public void on(KObject[] selecteds) {
                 Assert.assertEquals(2, selecteds.length);
@@ -172,14 +172,14 @@ public class BasicSelectTest {
     @Test
     public void selectTest2() throws Exception {
         CloudModel universe = new CloudModel();
-        universe.connect();
+        universe.connect(null);
 
         CloudUniverse dimension0 = universe.newUniverse();
         CloudView t0 = dimension0.time(0l);
         Node n0 = t0.createNode();
         n0.setName("n0");
         n0.setValue("v0");
-        t0.setRoot(n0);
+        t0.setRoot(n0,null);
 
         final Node n1 = t0.createNode();
         n1.setName("n1");
@@ -191,21 +191,21 @@ public class BasicSelectTest {
         n2.setValue("v2");
         n0.addChildren(n2);
 
-        t0.select("children[value=v2,name=n1]").then(new Callback<KObject[]>() {
+        t0.select("children[value=v2,name=n1]",new Callback<KObject[]>() {
             @Override
             public void on(KObject[] selecteds) {
                 Assert.assertEquals(selecteds.length,0);
             }
         });
 
-        t0.select("children[value=v2,name=n2]").then(new Callback<KObject[]>() {
+        t0.select("children[value=v2,name=n2]",new Callback<KObject[]>() {
             @Override
             public void on(KObject[] selecteds) {
                 Assert.assertEquals(selecteds.length,1);
             }
         });
 
-        t0.select("children[name=*]").then(new Callback<KObject[]>() {
+        t0.select("children[name=*]",new Callback<KObject[]>() {
             @Override
             public void on(KObject[] selecteds) {
                 Assert.assertEquals(selecteds.length, 2);

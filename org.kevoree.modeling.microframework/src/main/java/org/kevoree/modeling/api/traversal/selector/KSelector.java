@@ -25,7 +25,7 @@ public class KSelector {
             }
         }
         if (current != null) {
-            current.done().then(callback);
+            current.then(callback);
         } else {
             callback.on(new KObject[0]);
         }

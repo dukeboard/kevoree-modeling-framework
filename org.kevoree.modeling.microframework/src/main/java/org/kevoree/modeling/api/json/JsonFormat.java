@@ -1,26 +1,18 @@
 package org.kevoree.modeling.api.json;
 
 import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KDefer;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ModelFormat;
-import org.kevoree.modeling.api.abs.AbstractKDeferWrapper;
+import org.kevoree.modeling.api.KModelFormat;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.util.Checker;
 
-public class JsonFormat implements ModelFormat {
+public class JsonFormat implements KModelFormat {
 
-    public static final String KEY_META = "@meta";
+    public static final String KEY_META = "@class";
 
     public static final String KEY_UUID = "@uuid";
 
     public static final String KEY_ROOT = "@root";
-
-    public static final String PARENT_META = "@parent";
-
-    public static final String PARENT_REF_META = "@ref";
-
-    public static final String INBOUNDS_META = "@inbounds";
 
     private KDataManager _manager;
 
@@ -37,38 +29,34 @@ public class JsonFormat implements ModelFormat {
     private static final String NULL_PARAM_MSG = "one parameter is null";
 
     @Override
-    public KDefer<String> save(KObject model) {
-        if (Checker.isDefined(model)) {
-            AbstractKDeferWrapper<String> wrapper = new AbstractKDeferWrapper<String>();
-            JsonModelSerializer.serialize(model, wrapper.initCallback());
-            return wrapper;
+    public void save(KObject model, Callback<String> cb) {
+        if (Checker.isDefined(model) && Checker.isDefined(cb)) {
+            JsonModelSerializer.serialize(model, cb);
         } else {
             throw new RuntimeException(NULL_PARAM_MSG);
         }
     }
 
     @Override
-    public KDefer<String> saveRoot() {
-        final AbstractKDeferWrapper<String> wrapper = new AbstractKDeferWrapper<String>();
-        _manager.getRoot(_universe, _time, new Callback<KObject>() {
-            @Override
-            public void on(KObject root) {
-                if (root == null) {
-                    wrapper.initCallback().on(null);
-                } else {
-                    JsonModelSerializer.serialize(root, wrapper.initCallback());
+    public void saveRoot(Callback<String> cb) {
+        if (Checker.isDefined(cb)) {
+            _manager.getRoot(_universe, _time, new Callback<KObject>() {
+                @Override
+                public void on(KObject root) {
+                    if (root == null) {
+                        cb.on(null);
+                    } else {
+                        JsonModelSerializer.serialize(root, cb);
+                    }
                 }
-            }
-        });
-        return wrapper;
+            });
+        }
     }
 
     @Override
-    public KDefer<Throwable> load(String payload) {
+    public void load(String payload, Callback cb) {
         if (Checker.isDefined(payload)) {
-            AbstractKDeferWrapper<Throwable> wrapper = new AbstractKDeferWrapper<Throwable>();
-            JsonModelLoader.load(_manager,_universe,_time, payload, wrapper.initCallback());
-            return wrapper;
+            JsonModelLoader.load(_manager, _universe, _time, payload, cb);
         } else {
             throw new RuntimeException(NULL_PARAM_MSG);
         }

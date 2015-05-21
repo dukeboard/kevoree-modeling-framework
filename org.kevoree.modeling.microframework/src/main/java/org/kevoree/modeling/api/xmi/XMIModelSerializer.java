@@ -1,17 +1,7 @@
 package org.kevoree.modeling.api.xmi;
 
 import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KCurrentDefer;
-import org.kevoree.modeling.api.KDefer;
-import org.kevoree.modeling.api.KJob;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ModelAttributeVisitor;
-import org.kevoree.modeling.api.ModelVisitor;
-import org.kevoree.modeling.api.VisitRequest;
-import org.kevoree.modeling.api.VisitResult;
-import org.kevoree.modeling.api.abs.AbstractKObject;
-import org.kevoree.modeling.api.meta.MetaAttribute;
-import org.kevoree.modeling.api.meta.MetaReference;
 
 public class XMIModelSerializer {
 

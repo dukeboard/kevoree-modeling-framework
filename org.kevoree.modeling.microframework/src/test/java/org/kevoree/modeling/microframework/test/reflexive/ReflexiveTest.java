@@ -31,7 +31,7 @@ public class ReflexiveTest {
                 .addReference("sensors", sensorMetaClass, true,null);
 
         final KModel universe = dynamicMetaModel.model();
-        universe.connect().then(new Callback<Throwable>() {
+        universe.connect(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 KObject home = universe.universe(0).time(0).create(universe.metaModel().metaClass("Home"));
@@ -42,7 +42,7 @@ public class ReflexiveTest {
 
                 home.mutate(KActionType.ADD, (MetaReference) home.metaClass().metaByName("sensors"), sensor);
 
-                universe.universe(0).time(0).json().save(home).then(new Callback<String>() {
+                universe.universe(0).time(0).json().save(home,new Callback<String>() {
                     @Override
                     public void on(String s) {
 

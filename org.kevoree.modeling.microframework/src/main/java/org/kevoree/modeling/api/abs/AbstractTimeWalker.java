@@ -20,8 +20,7 @@ public class AbstractTimeWalker implements KTimeWalker {
 
     private AbstractKObject _origin = null;
 
-    private KDefer<long[]> internal_times(final long start, final long end) {
-        final AbstractKDeferWrapper<long[]> wrapper = new AbstractKDeferWrapper<long[]>();
+    private void internal_times(final long start, final long end, Callback<long[]> cb) {
         KContentKey[] keys = new KContentKey[2];
         keys[0] = KContentKey.createGlobalUniverseTree();
         keys[1] = KContentKey.createUniverseTree(_origin.uuid());
@@ -31,7 +30,7 @@ public class AbstractTimeWalker implements KTimeWalker {
             public void on(KCacheObject[] kCacheObjects) {
                 final LongLongHashMap objUniverse = (LongLongHashMap) kCacheObjects[1];
                 if (kCacheObjects[0] == null || kCacheObjects[1] == null) {
-                    wrapper.initCallback().on(null);
+                    cb.on(null);
                 } else {
                     final long[] collectedUniverse = ResolutionHelper.universeSelectByRange((LongLongHashMap) kCacheObjects[0], (LongLongHashMap) kCacheObjects[1], start, end, _origin.universe());
                     KContentKey[] timeTreeToLoad = new KContentKey[collectedUniverse.length];
@@ -64,33 +63,32 @@ public class AbstractTimeWalker implements KTimeWalker {
                             for (int i = 0; i < collector.size(); i++) {
                                 orderedTime[i] = collector.get(i);
                             }
-                            wrapper.initCallback().on(orderedTime);
+                            cb.on(orderedTime);
                         }
                     });
                 }
             }
         });
-        return wrapper;
     }
 
     @Override
-    public KDefer<long[]> allTimes() {
-        return internal_times(KConfig.BEGINNING_OF_TIME, KConfig.END_OF_TIME);
+    public void allTimes(Callback<long[]> cb) {
+        internal_times(KConfig.BEGINNING_OF_TIME, KConfig.END_OF_TIME, cb);
     }
 
     @Override
-    public KDefer<long[]> timesBefore(long endOfSearch) {
-        return internal_times(KConfig.BEGINNING_OF_TIME, endOfSearch);
+    public void timesBefore(long endOfSearch, Callback<long[]> cb) {
+        internal_times(KConfig.BEGINNING_OF_TIME, endOfSearch, cb);
     }
 
     @Override
-    public KDefer<long[]> timesAfter(long beginningOfSearch) {
-        return internal_times(beginningOfSearch, KConfig.END_OF_TIME);
+    public void timesAfter(long beginningOfSearch, Callback<long[]> cb) {
+        internal_times(beginningOfSearch, KConfig.END_OF_TIME, cb);
     }
 
     @Override
-    public KDefer<long[]> timesBetween(long beginningOfSearch, long endOfSearch) {
-        return internal_times(beginningOfSearch, endOfSearch);
+    public void timesBetween(long beginningOfSearch, long endOfSearch, Callback<long[]> cb) {
+        internal_times(beginningOfSearch, endOfSearch, cb);
     }
 
 }

@@ -23,17 +23,13 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
     public abstract MetaModel metaModel();
 
     @Override
-    public KDefer<Throwable> connect() {
-        AbstractKDeferWrapper<Throwable> task = new AbstractKDeferWrapper<Throwable>();
-        _manager.connect(task.initCallback());
-        return task;
+    public void connect(Callback cb) {
+        _manager.connect(cb);
     }
 
     @Override
-    public KDefer<Throwable> close() {
-        AbstractKDeferWrapper<Throwable> task = new AbstractKDeferWrapper<Throwable>();
-        _manager.close(task.initCallback());
-        return task;
+    public void close(Callback cb) {
+        _manager.close(cb);
     }
 
     @Override
@@ -65,17 +61,13 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
     }
 
     @Override
-    public KDefer<Throwable> save() {
-        AbstractKDeferWrapper<Throwable> task = new AbstractKDeferWrapper<Throwable>();
-        _manager.save(task.initCallback());
-        return task;
+    public void save(Callback cb) {
+        _manager.save(cb);
     }
 
     @Override
-    public KDefer<Throwable> discard() {
-        AbstractKDeferWrapper<Throwable> task = new AbstractKDeferWrapper<Throwable>();
-        _manager.discard(null, task.initCallback());
-        return task;
+    public void discard(Callback cb) {
+        _manager.discard(null, cb);
     }
 
     @Override

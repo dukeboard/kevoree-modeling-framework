@@ -19,7 +19,7 @@ public class ParentStorageTest {
     public void discardTest() {
 
         CloudModel cloudModel = new CloudModel();
-        cloudModel.connect();
+        cloudModel.connect(null);
         //model.connect(null);
 
         CloudUniverse dimension0 = cloudModel.newUniverse();
@@ -27,7 +27,7 @@ public class ParentStorageTest {
 
         Node root = time0.createNode();
         root.setName("root");
-        time0.setRoot(root);
+        time0.setRoot(root,null);
 
         final Node n1 = time0.createNode();
         n1.setName("n1");
@@ -47,10 +47,10 @@ public class ParentStorageTest {
         }
         //We clear the cache
 
-        cloudModel.discard().then(new Callback<Throwable>() {
+        cloudModel.discard(new Callback<Throwable>() {
             @Override
             public void on(Throwable aBoolean) {
-                time0.lookup(n1.uuid()).then(new Callback<KObject>() {
+                time0.lookup(n1.uuid(),new Callback<KObject>() {
                     @Override
                     public void on(KObject r_n1) {
                         Assert.assertNull(r_n1);
@@ -77,14 +77,14 @@ public class ParentStorageTest {
         //MemoryKContentDeliveryDriver.DEBUG = true;
 
         final CloudModel cloudModel = new CloudModel();
-        cloudModel.connect();
+        cloudModel.connect(null);
 
         CloudUniverse dimension0 = cloudModel.newUniverse();
         CloudView time0 = dimension0.time(0l);
 
         Node root = time0.createNode();
         root.setName("root");
-        time0.setRoot(root);
+        time0.setRoot(root,null);
 
         Node n1 = time0.createNode();
         n1.setName("n1");
@@ -102,10 +102,10 @@ public class ParentStorageTest {
         }
         //We clear the cache
 
-        cloudModel.save().then(new Callback<Throwable>() {
+        cloudModel.save(new Callback<Throwable>() {
             @Override
             public void on(Throwable aBoolean) {
-                cloudModel.discard().then(new Callback<Throwable>() {
+                cloudModel.discard(new Callback<Throwable>() {
                     @Override
                     public void on(Throwable aBoolean) {
 

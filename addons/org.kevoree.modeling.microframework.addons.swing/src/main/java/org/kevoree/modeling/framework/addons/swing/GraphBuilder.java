@@ -20,20 +20,20 @@ public class GraphBuilder {
         AbstractKDeferWrapper wrapper = new AbstractKDeferWrapper();
         final Graph graph = new SingleGraph("Model_" + modelRoot.metaClass().metaName());
         createNode(graph, modelRoot);
-        modelRoot.visit(VisitRequest.ALL,new ModelVisitor() {
+        modelRoot.visit(VisitRequest.ALL,new KModelVisitor() {
             @Override
-            public VisitResult visit(KObject elem) {
+            public KVisitResult visit(KObject elem) {
                 createNode(graph, elem);
-                return VisitResult.CONTINUE;
+                return KVisitResult.CONTINUE;
             }
         }).then(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
-                modelRoot.visit(VisitRequest.ALL, new ModelVisitor() {
+                modelRoot.visit(VisitRequest.ALL, new KModelVisitor() {
                     @Override
-                    public VisitResult visit(KObject elem) {
+                    public KVisitResult visit(KObject elem) {
                         createEdges(graph, elem);
-                        return VisitResult.CONTINUE;
+                        return KVisitResult.CONTINUE;
                     }
                 }).then(new Callback<Throwable>() {
                     @Override

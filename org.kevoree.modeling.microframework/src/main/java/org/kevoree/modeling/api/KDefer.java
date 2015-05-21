@@ -1,21 +1,20 @@
 package org.kevoree.modeling.api;
 
-public interface KDefer<A> {
+public interface KDefer {
 
-    KDefer<A> wait(KDefer previous);
+    Callback wait(String resultName);
 
-    A getResult() throws Exception;
+    KDefer waitDefer(KDefer previous);
 
     boolean isDone();
 
-    KDefer<A> setJob(KJob kjob);
+    Object getResult(String resultName) throws Exception;
 
-    KDefer<A> ready();
+    /** @ignore:ts */
+    <A> A getResult(String resultName, Class<A> casted) throws Exception;
 
-    KDefer<Object> next();
+    void then(Callback cb);
 
-    void then(Callback<A> callback);
-
-    KDefer<Object> chain(KDeferBlock block);
+    KDefer next();
 
 }

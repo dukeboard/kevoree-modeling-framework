@@ -1,6 +1,6 @@
 package org.kevoree.modeling.api;
 
-public enum VisitResult {
+public enum KVisitResult {
     CONTINUE,
     SKIP,
     STOP

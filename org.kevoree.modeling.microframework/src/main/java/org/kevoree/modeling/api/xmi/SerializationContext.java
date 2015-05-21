@@ -3,7 +3,7 @@ package org.kevoree.modeling.api.xmi;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ModelAttributeVisitor;
+import org.kevoree.modeling.api.KModelAttributeVisitor;
 import org.kevoree.modeling.api.map.LongHashMap;
 import org.kevoree.modeling.api.map.StringHashMap;
 
@@ -14,7 +14,7 @@ class SerializationContext {
     public KObject model;
     public Callback<String> finishCallback;
     public StringBuilder printer;
-    public ModelAttributeVisitor attributesVisitor;
+    public KModelAttributeVisitor attributesVisitor;
 
     // KPath -> XMIPath
     LongHashMap<String> addressTable = new LongHashMap<String>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);

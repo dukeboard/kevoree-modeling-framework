@@ -21,12 +21,12 @@ public class LookupTest {
         //  MultiLayeredMemoryCache.DEBUG = true;
 
         final CloudModel cloudModel = new CloudModel();
-        cloudModel.connect();
+        cloudModel.connect(null);
         final CloudUniverse dimension0 = cloudModel.newUniverse();
         CloudView t0 = dimension0.time(0l);
         final Node node = t0.createNode();
         node.setName("n0");
-        t0.setRoot(node);
+        t0.setRoot(node,null);
         //Assert.assertTrue(node.isRoot());
         cloudModel.manager().getRoot(t0.universe(),t0.now(), new Callback<KObject>() {
             @Override
@@ -36,10 +36,10 @@ public class LookupTest {
         });
         //Assert.assertTrue(node.isRoot());
 
-        cloudModel.save().then(new Callback<Throwable>() {
+        cloudModel.save(new Callback<Throwable>() {
             @Override
             public void on(Throwable error) {
-                cloudModel.discard().then(new Callback<Throwable>() {
+                cloudModel.discard(new Callback<Throwable>() {
                     @Override
                     public void on(Throwable throwable) {
 
@@ -54,11 +54,11 @@ public class LookupTest {
                                 Assert.assertEquals(node.uuid(), resolvedRoot.uuid());
                             }
                         });
-                        t0_2.lookup(node.uuid()).then(new Callback<KObject>() {
+                        t0_2.lookup(node.uuid(),new Callback<KObject>() {
                             @Override
                             public void on(final KObject resolved) {
                                 Assert.assertNotNull(resolved);
-                                t0_2.lookup(node.uuid()).then(new Callback<KObject>() {
+                                t0_2.lookup(node.uuid(),new Callback<KObject>() {
                                     @Override
                                     public void on(KObject resolved2) {
                                         Assert.assertEquals(resolved, resolved2);

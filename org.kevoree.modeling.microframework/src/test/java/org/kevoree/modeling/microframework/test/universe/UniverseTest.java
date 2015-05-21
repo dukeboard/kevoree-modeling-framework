@@ -18,7 +18,7 @@ public class UniverseTest {
     @Test
     public void testCreation() {
         final CloudModel universe = new CloudModel();
-        universe.connect().then(new Callback<Throwable>() {
+        universe.connect(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 CloudUniverse dimension0 = universe.newUniverse();
@@ -44,14 +44,14 @@ public class UniverseTest {
     @Test
     public void testTimeWalker() {
         final CloudModel universe = new CloudModel();
-        universe.connect().then(new Callback<Throwable>() {
+        universe.connect(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 CloudUniverse dimension0 = universe.newUniverse();
                 Node n0 = dimension0.time(0).createNode();
                 n0.setName("n0");
 
-                n0.timeWalker().allTimes().then(new Callback<long[]>() {
+                n0.timeWalker().allTimes(new Callback<long[]>() {
                     @Override
                     public void on(long[] longs) {
                         Assert.assertEquals(1, longs.length);
@@ -60,11 +60,11 @@ public class UniverseTest {
                 });
 
                 CloudUniverse forkedUniverse = dimension0.diverge();
-                forkedUniverse.time(1).lookup(n0.uuid()).then(new Callback<KObject>() {
+                forkedUniverse.time(1).lookup(n0.uuid(),new Callback<KObject>() {
                     @Override
                     public void on(KObject forkedN1) {
                         Node forkedNode = (Node) forkedN1;
-                        forkedNode.timeWalker().allTimes().then(new Callback<long[]>() {
+                        forkedNode.timeWalker().allTimes(new Callback<long[]>() {
                             @Override
                             public void on(long[] longs) {
                                 Assert.assertEquals(1, longs.length);
@@ -72,7 +72,7 @@ public class UniverseTest {
                             }
                         });
                         forkedNode.setName("n0bias");
-                        forkedNode.timeWalker().allTimes().then(new Callback<long[]>() {
+                        forkedNode.timeWalker().allTimes(new Callback<long[]>() {
                             @Override
                             public void on(long[] longs) {
                                 Assert.assertEquals(2, longs.length);

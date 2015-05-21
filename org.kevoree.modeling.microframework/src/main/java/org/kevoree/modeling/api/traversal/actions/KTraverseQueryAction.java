@@ -63,9 +63,16 @@ public class KTraverseQueryAction implements KTraversalAction {
                                 MetaReference ref = loopRefs[h];
                                 boolean selected = false;
                                 for (int k = 0; k < queries.length; k++) {
-                                    if (ref.metaName().matches(queries[k])) {
-                                        selected = true;
-                                        break;
+                                    if (queries[k] != null && queries[k].startsWith("#")) {
+                                        if (ref.opposite().metaName().matches(queries[k].substring(1))) {
+                                            selected = true;
+                                            break;
+                                        }
+                                    } else {
+                                        if (ref.metaName().matches(queries[k])) {
+                                            selected = true;
+                                            break;
+                                        }
                                     }
                                 }
                                 if (selected) {

@@ -19,7 +19,7 @@ public class PolynomialSaveLoadTest {
         final int[] nbAssert = new int[1];
         nbAssert[0] = 0;
         final CloudModel model = new CloudModel();
-        model.connect();
+        model.connect(null);
 
         CloudUniverse universe = model.newUniverse();
 
@@ -28,7 +28,7 @@ public class PolynomialSaveLoadTest {
         CloudView t0 = universe.time(0l);
         Node node = t0.createNode();
         node.setName("n0");
-        t0.setRoot(node);
+        t0.setRoot(node,null);
         final Element element = t0.createElement();
         element.setName("e0");
         node.setElement(element);
@@ -53,7 +53,7 @@ public class PolynomialSaveLoadTest {
             }
             final double vv = val[i];
             final long finalI = i;
-            universe.time(finalI).lookup(element.uuid()).then(new Callback<KObject>() {
+            universe.time(finalI).lookup(element.uuid(),new Callback<KObject>() {
                 @Override
                 public void on(KObject kObject) {
                     Element casted = (Element) kObject;
@@ -62,10 +62,10 @@ public class PolynomialSaveLoadTest {
             });
         }
 
-        model.save().then(new Callback<Throwable>() {
+        model.save(new Callback<Throwable>() {
             @Override
             public void on(Throwable aBoolean) {
-                model.discard().then(new Callback<Throwable>() {
+                model.discard(new Callback<Throwable>() {
                     @Override
                     public void on(Throwable aBoolean) {
 
@@ -79,7 +79,7 @@ public class PolynomialSaveLoadTest {
         nbAssert[0]++;
         for (int i = 200; i < 1000; i++) {
             final int finalI = i;
-            element.jump((long) finalI).then(new Callback<KObject>() {
+            element.jump((long) finalI,new Callback<KObject>() {
                 @Override
                 public void on(KObject element) {
                     nbAssert[0]++;
@@ -91,10 +91,10 @@ public class PolynomialSaveLoadTest {
         //TODO reinsert following test
         //Assert.assertEquals(element.timeTree().size(), 2);
         
-        model.save().then(new Callback<Throwable>() {
+        model.save(new Callback<Throwable>() {
             @Override
             public void on(Throwable aBoolean) {
-                model.discard().then(new Callback<Throwable>() {
+                model.discard(new Callback<Throwable>() {
                     @Override
                     public void on(Throwable aBoolean) {
 

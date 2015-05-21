@@ -28,10 +28,8 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
     }
 
     @Override
-    public KDefer<Throwable> delete() {
-        AbstractKDeferWrapper<Throwable> task = new AbstractKDeferWrapper<Throwable>();
-        model().manager().delete(this, task.initCallback());
-        return task;
+    public void delete(Callback cb) {
+        model().manager().delete(this, cb);
     }
 
     @Override
@@ -80,10 +78,9 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
     }
 
     @Override
-    public KDefer<KObject[]> lookupAllTimes(long uuid, long[] times) {
-        AbstractKDeferWrapper<KObject[]> deferWrapper = new AbstractKDeferWrapper<KObject[]>();
+    public void lookupAllTimes(long uuid, long[] times, Callback<KObject[]> cb) {
         //TODO
-        return deferWrapper;
+        throw new RuntimeException("Not implemented Yet !");
     }
 
     @Override

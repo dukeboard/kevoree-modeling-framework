@@ -8,24 +8,24 @@ public interface KView {
 
     KObject create(MetaClass clazz);
 
-    KDefer<KObject[]> select(String query);
+    void select(String query, Callback<KObject[]> cb);
 
-    KDefer<KObject> lookup(long key);
+    void lookup(long key, Callback<KObject> cb);
 
-    KDefer<KObject[]> lookupAll(long[] keys);
+    void lookupAll(long[] keys, Callback<KObject[]> cb);
 
     long universe();
 
     long now();
 
-    ModelFormat json();
+    KModelFormat json();
 
-    ModelFormat xmi();
+    KModelFormat xmi();
 
     boolean equals(Object other);
 
-    KDefer<Throwable> setRoot(KObject elem);
+    void setRoot(KObject elem, Callback cb);
 
-    KDefer<KObject> getRoot();
+    void getRoot(Callback<KObject> cb);
 
 }
