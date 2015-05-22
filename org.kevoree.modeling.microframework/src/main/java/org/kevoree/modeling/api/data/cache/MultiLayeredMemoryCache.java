@@ -1,21 +1,5 @@
 package org.kevoree.modeling.api.data.cache;
 
-import org.kevoree.modeling.api.KConfig;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.data.manager.DefaultKDataManager;
-import org.kevoree.modeling.api.data.manager.KDataManager;
-import org.kevoree.modeling.api.data.manager.ResolutionHelper;
-import org.kevoree.modeling.api.map.LongHashMap;
-import org.kevoree.modeling.api.map.LongHashMapCallBack;
-import org.kevoree.modeling.api.map.LongLongHashMap;
-import org.kevoree.modeling.api.rbtree.IndexRBTree;
-import org.kevoree.modeling.api.rbtree.TreeNode;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-
 /*
 public class MultiLayeredMemoryCache implements KCache {
 

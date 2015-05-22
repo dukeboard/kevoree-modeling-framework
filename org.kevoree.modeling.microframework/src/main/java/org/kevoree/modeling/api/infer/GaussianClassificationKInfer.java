@@ -2,12 +2,10 @@ package org.kevoree.modeling.api.infer;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KInferState;
-import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObjectInfer;
 import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.infer.states.GaussianArrayKInferState;
 import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.rbtree.LongRBTree;
 
 /**
  * Created by assaad on 13/02/15.

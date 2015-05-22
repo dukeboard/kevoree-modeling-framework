@@ -1,22 +1,25 @@
-package org.kevoree.modeling.api.rbtree;
+package org.kevoree.modeling.api.rbtree.ooheap;
 
-public class TreeNode {
+public class LongTreeNode {
 
     public static final char BLACK = '0';
-    public static final char RED = '1';
+    public static final char RED = '2';
 
-    protected long key;
+    public long key;
 
-    protected boolean color;
+    public long value;
 
-    private TreeNode left;
+    public boolean color;
 
-    private TreeNode right;
+    private LongTreeNode left;
 
-    private TreeNode parent = null;
+    private LongTreeNode right;
 
-    public TreeNode(long key, boolean color, TreeNode left, TreeNode right) {
+    private LongTreeNode parent = null;
+
+    public LongTreeNode(long key, long value, boolean color, LongTreeNode left, LongTreeNode right) {
         this.key = key;
+        this.value = value;
         this.color = color;
         this.left = left;
         this.right = right;
@@ -29,11 +32,7 @@ public class TreeNode {
         this.parent = null;
     }
 
-    public long getKey() {
-        return key;
-    }
-
-    public TreeNode grandparent() {
+    public LongTreeNode grandparent() {
         if (parent != null) {
             return parent.parent;
         } else {
@@ -41,7 +40,7 @@ public class TreeNode {
         }
     }
 
-    public TreeNode sibling() {
+    public LongTreeNode sibling() {
         if (parent == null) {
             return null;
         } else {
@@ -53,7 +52,7 @@ public class TreeNode {
         }
     }
 
-    public TreeNode uncle() {
+    public LongTreeNode uncle() {
         if (parent != null) {
             return parent.sibling();
         } else {
@@ -61,27 +60,27 @@ public class TreeNode {
         }
     }
 
-    public TreeNode getLeft() {
+    public LongTreeNode getLeft() {
         return left;
     }
 
-    public void setLeft(TreeNode left) {
+    public void setLeft(LongTreeNode left) {
         this.left = left;
     }
 
-    public TreeNode getRight() {
+    public LongTreeNode getRight() {
         return right;
     }
 
-    public void setRight(TreeNode right) {
+    public void setRight(LongTreeNode right) {
         this.right = right;
     }
 
-    public TreeNode getParent() {
+    public LongTreeNode getParent() {
         return parent;
     }
 
-    public void setParent(TreeNode parent) {
+    public void setParent(LongTreeNode parent) {
         this.parent = parent;
     }
 
@@ -93,6 +92,8 @@ public class TreeNode {
             builder.append(RED);
         }
         builder.append(key);
+        builder.append("@");
+        builder.append(value);
         if (left == null && right == null) {
             builder.append("%");
         } else {
@@ -109,8 +110,8 @@ public class TreeNode {
         }
     }
 
-    public TreeNode next() {
-        TreeNode p = this;
+    public LongTreeNode next() {
+        LongTreeNode p = this;
         if (p.right != null) {
             p = p.right;
             while (p.left != null) {
@@ -133,8 +134,8 @@ public class TreeNode {
         }
     }
 
-    public TreeNode previous() {
-        TreeNode p = this;
+    public LongTreeNode previous() {
+        LongTreeNode p = this;
         if (p.left != null) {
             p = p.left;
             while (p.right != null) {
@@ -157,15 +158,14 @@ public class TreeNode {
         }
     }
 
-    public static TreeNode unserialize(TreeReaderContext ctx) throws Exception {
+    public static LongTreeNode unserialize(TreeReaderContext ctx) throws Exception {
         return internal_unserialize(true, ctx);
     }
 
-    public static TreeNode internal_unserialize(boolean rightBranch, TreeReaderContext ctx) throws Exception {
+    public static LongTreeNode internal_unserialize(boolean rightBranch, TreeReaderContext ctx) throws Exception {
         if (ctx.index >= ctx.payload.length()) {
             return null;
         }
-        StringBuilder tokenBuild = new StringBuilder();
         char ch = ctx.payload.charAt(ctx.index);
         if (ch == '%') {
             if (rightBranch) {
@@ -182,28 +182,44 @@ public class TreeNode {
         }
         ctx.index = ctx.index + 1;
         ch = ctx.payload.charAt(ctx.index);
-        boolean colorLoaded;
-        if (ch == TreeNode.BLACK) {
-            colorLoaded = true;
-        } else {
+        boolean colorLoaded = true;
+        if (ch == RED) {
             colorLoaded = false;
         }
         ctx.index = ctx.index + 1;
         ch = ctx.payload.charAt(ctx.index);
-        while (ctx.index + 1 < ctx.payload.length() && ch != '|' && ch != '#' && ch != '%') {
-            tokenBuild.append(ch);
+        int i = 0;
+        while (ctx.index + 1 < ctx.payload.length() && ch != '|' && ch != '#' && ch != '%' && ch != '@') {
+            ctx.buffer[i] = ch;
+            i++;
             ctx.index = ctx.index + 1;
             ch = ctx.payload.charAt(ctx.index);
         }
-        if (ch != '|' && ch != '#' && ch != '%') {
-            tokenBuild.append(ch);
+        if (ch != '|' && ch != '#' && ch != '%' && ch != '@') {
+            ctx.buffer[i] = ch;
+            i++;
         }
-        TreeNode p = new TreeNode(Long.parseLong(tokenBuild.toString()), colorLoaded, null, null);
-        TreeNode left = internal_unserialize(false, ctx);
+        Long key = Long.parseLong(String.copyValueOf(ctx.buffer, 0, i));
+        i=0;
+        ctx.index = ctx.index + 1; //We drop separator
+        ch = ctx.payload.charAt(ctx.index);
+        while (ctx.index + 1 < ctx.payload.length() && ch != '|' && ch != '#' && ch != '%' && ch != '@') {
+            ctx.buffer[i] = ch;
+            i++;
+            ctx.index = ctx.index + 1;
+            ch = ctx.payload.charAt(ctx.index);
+        }
+        if (ch != '|' && ch != '#' && ch != '%' && ch != '@') {
+            ctx.buffer[i] = ch;
+            i++;
+        }
+        Long value = Long.parseLong(String.copyValueOf(ctx.buffer, 0, i));
+        LongTreeNode p = new LongTreeNode(key, value, colorLoaded, null, null);
+        LongTreeNode left = internal_unserialize(false, ctx);
         if (left != null) {
             left.setParent(p);
         }
-        TreeNode right = internal_unserialize(true, ctx);
+        LongTreeNode right = internal_unserialize(true, ctx);
         if (right != null) {
             right.setParent(p);
         }
@@ -211,5 +227,6 @@ public class TreeNode {
         p.setRight(right);
         return p;
     }
+
 
 }

@@ -2,8 +2,8 @@ package org.kevoree.modeling.microframework.test.tree;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.api.rbtree.LongRBTree;
-import org.kevoree.modeling.api.rbtree.IndexRBTree;
+import org.kevoree.modeling.api.rbtree.ooheap.LongRBTree;
+import org.kevoree.modeling.api.rbtree.ooheap.IndexRBTree;
 
 /**
  * Created by duke on 01/12/14.

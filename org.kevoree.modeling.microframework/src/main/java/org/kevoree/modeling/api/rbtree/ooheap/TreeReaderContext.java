@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.rbtree;
+package org.kevoree.modeling.api.rbtree.ooheap;
 
 public class TreeReaderContext {
 

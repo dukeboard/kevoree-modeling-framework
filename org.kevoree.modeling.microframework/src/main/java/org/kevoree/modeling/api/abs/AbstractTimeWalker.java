@@ -2,15 +2,14 @@ package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KConfig;
-import org.kevoree.modeling.api.KDefer;
 import org.kevoree.modeling.api.KTimeWalker;
 import org.kevoree.modeling.api.data.cache.KCacheObject;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.manager.DefaultKDataManager;
 import org.kevoree.modeling.api.data.manager.ResolutionHelper;
 import org.kevoree.modeling.api.map.LongLongHashMap;
-import org.kevoree.modeling.api.rbtree.IndexRBTree;
-import org.kevoree.modeling.api.rbtree.TreeNode;
+import org.kevoree.modeling.api.rbtree.ooheap.IndexRBTree;
+import org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
 
 public class AbstractTimeWalker implements KTimeWalker {
 

@@ -2,14 +2,11 @@ package org.kevoree.modeling.api.data.manager;
 
 import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.map.LongLongHashMap;
-import org.kevoree.modeling.api.map.LongLongHashMapCallBack;
-import org.kevoree.modeling.api.rbtree.LongRBTree;
-import org.kevoree.modeling.api.rbtree.LongTreeNode;
 
 public class ResolutionHelper {
 
     public static long resolve_universe(LongLongHashMap globalTree, LongLongHashMap objUniverseTree, long timeToResolve, long originUniverseId) {
-        if (globalTree == null || objUniverseTree == null)  {
+        if (globalTree == null || objUniverseTree == null) {
             return originUniverseId;
         }
         long currentUniverse = originUniverseId;

@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.data.manager.ResolutionHelper;
 import org.kevoree.modeling.api.map.LongLongHashMap;
-import org.kevoree.modeling.api.rbtree.LongRBTree;
 
 /**
  * Created by duke on 03/03/15.

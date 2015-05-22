@@ -8,8 +8,7 @@ import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.cache.KCacheObject;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.map.LongLongHashMap;
-import org.kevoree.modeling.api.rbtree.IndexRBTree;
-import org.kevoree.modeling.api.rbtree.TreeNode;
+import org.kevoree.modeling.api.rbtree.ooheap.IndexRBTree;
 
 /**
  * Created by duke on 05/02/15.
@@ -58,10 +57,9 @@ public class LookupAllRunnable implements Runnable {
                             KContentKey resolvedContentKey = null;
                             if (timeIndexes[i] != null) {
                                 IndexRBTree cachedIndexTree = (IndexRBTree) timeIndexes[i];
-                                TreeNode resolvedNode = cachedIndexTree.previousOrEqual(_time);
-                                if (resolvedNode != null) {
-                                    resolvedContentKey = KContentKey.createObject(tempKeys[i].universe, resolvedNode.getKey(), _keys[i]);
-
+                                long resolvedNode = cachedIndexTree.previousOrEqual(_time);
+                                if (resolvedNode != KConfig.NULL_LONG) {
+                                    resolvedContentKey = KContentKey.createObject(tempKeys[i].universe, resolvedNode, _keys[i]);
                                 }
                             }
                             tempKeys[i] = resolvedContentKey;
@@ -72,7 +70,7 @@ public class LookupAllRunnable implements Runnable {
                                 KObject[] proxies = new KObject[_keys.length];
                                 for (int i = 0; i < _keys.length; i++) {
                                     if (cachedObjects[i] != null && cachedObjects[i] instanceof KCacheEntry) {
-                                        proxies[i] = ((AbstractKModel) _store.model()).createProxy(_universe,_time,_keys[i],((KCacheEntry) cachedObjects[i]).metaClass);
+                                        proxies[i] = ((AbstractKModel) _store.model()).createProxy(_universe, _time, _keys[i], ((KCacheEntry) cachedObjects[i]).metaClass);
                                         if (proxies[i] != null) {
                                             IndexRBTree cachedIndexTree = (IndexRBTree) timeIndexes[i];
                                             cachedObjects[i].inc();

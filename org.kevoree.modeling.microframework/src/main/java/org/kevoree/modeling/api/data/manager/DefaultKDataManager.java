@@ -16,10 +16,9 @@ import org.kevoree.modeling.api.map.LongLongHashMap;
 import org.kevoree.modeling.api.map.LongLongHashMapCallBack;
 import org.kevoree.modeling.api.msg.KEvents;
 import org.kevoree.modeling.api.scheduler.DirectScheduler;
-import org.kevoree.modeling.api.rbtree.IndexRBTree;
-import org.kevoree.modeling.api.rbtree.LongRBTree;
-import org.kevoree.modeling.api.rbtree.LongTreeNode;
-import org.kevoree.modeling.api.rbtree.TreeNode;
+import org.kevoree.modeling.api.rbtree.ooheap.IndexRBTree;
+import org.kevoree.modeling.api.rbtree.ooheap.LongRBTree;
+import org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
 import org.kevoree.modeling.api.util.DefaultOperationManager;
 import org.kevoree.modeling.api.util.KOperationManager;
 
@@ -336,9 +335,8 @@ public class DefaultKDataManager implements KDataManager {
         if (timeTree == null) {
             throw new RuntimeException(OUT_OF_CACHE_MESSAGE + " : TimeTree not found for " + KContentKey.createTimeTree(resolvedUniverse, origin.uuid()) + " from " + origin.universe() + "/" + resolvedUniverse);
         }
-        TreeNode resolvedNode = timeTree.previousOrEqual(origin.now());
-        if (resolvedNode != null) {
-            long resolvedTime = resolvedNode.getKey();
+        long resolvedTime = timeTree.previousOrEqual(origin.now());
+        if (resolvedTime != KConfig.NULL_LONG) {
             boolean needTimeCopy = accessMode.equals(AccessMode.WRITE) && (resolvedTime != origin.now());
             boolean needUniverseCopy = accessMode.equals(AccessMode.WRITE) && (resolvedUniverse != origin.universe());
             KCacheEntry entry = (KCacheEntry) _cache.get(resolvedUniverse, resolvedTime, origin.uuid());
