@@ -11,7 +11,7 @@ public class FlatIndexRBTree {
     private float loadFactor;
 
     public FlatIndexRBTree() {
-        _back = new long[30000000 * SIZE_NODE];
+        _back = new long[_size * SIZE_NODE];
         loadFactor = KConfig.CACHE_LOAD_FACTOR;
         _threshold = (int) (_size * loadFactor);
     }
@@ -21,10 +21,6 @@ public class FlatIndexRBTree {
     }
 
     private static final int SIZE_NODE = 5;
-
-
-        /* offheap start */
-
 
     private long left(long currentIndex) {
         if (currentIndex == -1) {
@@ -80,9 +76,6 @@ public class FlatIndexRBTree {
     private void setColor(long currentIndex, long paramIndex) {
         _back[(int) currentIndex + 4] = paramIndex;
     }
-
-    /* offheap end */
-
 
     public long grandParent(long currentIndex) {
         if (currentIndex == -1) {
@@ -321,15 +314,13 @@ public class FlatIndexRBTree {
 
     public synchronized void insert(long key) {
 
-        /*
-        if (++_size > _threshold) {
+        if ((_size + 1) > _threshold) {
             int length = (_size == 0 ? 1 : _size << 1);
             long[] new_back = new long[length * SIZE_NODE];
             System.arraycopy(_back, 0, new_back, 0, _size * SIZE_NODE);
             _threshold = (int) (_size * loadFactor);
             _back = new_back;
         }
-        */
 
         long insertedNode = (_size) * SIZE_NODE;
         if (_size == 0) {
