@@ -141,9 +141,9 @@ public class OOKLongLongTree implements KCacheObject, KLongLongTree {
 
     public long lookupValue(long key) {
         LongTreeNode result = internal_lookup(key);
-        if(result!=null){
+        if (result != null) {
             return result.value;
-        }else {
+        } else {
             return KConfig.NULL_LONG;
         }
     }
@@ -173,11 +173,11 @@ public class OOKLongLongTree implements KCacheObject, KLongLongTree {
         return n;
     }
 
-    public long previousOrEqualValue(long key){
+    public long previousOrEqualValue(long key) {
         LongTreeNode result = internal_previousOrEqual(key);
-        if(result!=null){
+        if (result != null) {
             return result.value;
-        }else {
+        } else {
             return KConfig.NULL_LONG;
         }
     }

@@ -4,7 +4,9 @@ import org.kevoree.modeling.api.KObject;
 
 import java.lang.ref.WeakReference;
 
-/** @ignore ts */
+/**
+ * @ignore ts
+ */
 public class KObjectWeakReference extends WeakReference<KObject> {
 
     public long universe;
@@ -12,6 +14,8 @@ public class KObjectWeakReference extends WeakReference<KObject> {
     public long time;
 
     public long uuid;
+
+    public KObjectWeakReference next;
 
     public KObjectWeakReference(KObject referent) {
         super(referent);
