@@ -11,4 +11,8 @@ public interface KLongTree {
 
     long lookup(long key);
 
+    void range(long startKey, long endKey, KTreeWalker walker);
+
+    void delete(long key);
+
 }

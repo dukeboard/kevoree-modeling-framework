@@ -3,8 +3,8 @@ package org.kevoree.modeling.api.rbtree;
 /**
  * Created by duke on 22/05/15.
  */
-public interface KTree {
+public interface KTreeWalker {
 
-    int size();
+    void elem(long t);
 
 }

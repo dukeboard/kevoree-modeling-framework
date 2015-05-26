@@ -15,6 +15,7 @@ import org.kevoree.modeling.api.data.cdn.MemoryKContentDeliveryDriver;
 import org.kevoree.modeling.api.map.LongLongHashMap;
 import org.kevoree.modeling.api.map.LongLongHashMapCallBack;
 import org.kevoree.modeling.api.msg.KEvents;
+import org.kevoree.modeling.api.rbtree.KLongTree;
 import org.kevoree.modeling.api.scheduler.DirectScheduler;
 import org.kevoree.modeling.api.rbtree.ooheap.IndexRBTree;
 import org.kevoree.modeling.api.rbtree.ooheap.LongRBTree;
@@ -331,7 +332,7 @@ public class DefaultKDataManager implements KDataManager {
         }
         LongLongHashMap objectUniverseTree = (LongLongHashMap) _cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, origin.uuid());
         long resolvedUniverse = ResolutionHelper.resolve_universe(globalUniverseOrder(), objectUniverseTree, origin.now(), origin.universe());
-        IndexRBTree timeTree = (IndexRBTree) _cache.get(resolvedUniverse, KConfig.NULL_LONG, origin.uuid());
+        KLongTree timeTree = (KLongTree) _cache.get(resolvedUniverse, KConfig.NULL_LONG, origin.uuid());
         if (timeTree == null) {
             throw new RuntimeException(OUT_OF_CACHE_MESSAGE + " : TimeTree not found for " + KContentKey.createTimeTree(resolvedUniverse, origin.uuid()) + " from " + origin.universe() + "/" + resolvedUniverse);
         }

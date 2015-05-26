@@ -8,6 +8,8 @@ import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.manager.DefaultKDataManager;
 import org.kevoree.modeling.api.data.manager.ResolutionHelper;
 import org.kevoree.modeling.api.map.LongLongHashMap;
+import org.kevoree.modeling.api.rbtree.KLongTree;
+import org.kevoree.modeling.api.rbtree.KTreeWalker;
 import org.kevoree.modeling.api.rbtree.ooheap.IndexRBTree;
 import org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
 
@@ -19,6 +21,7 @@ public class AbstractTimeWalker implements KTimeWalker {
 
     private AbstractKObject _origin = null;
 
+    //TODO check the correct usage of start and end regarding multi universe
     private void internal_times(final long start, final long end, Callback<long[]> cb) {
         KContentKey[] keys = new KContentKey[2];
         keys[0] = KContentKey.createGlobalUniverseTree();
@@ -42,19 +45,23 @@ public class AbstractTimeWalker implements KTimeWalker {
                             LongLongHashMap collector = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
                             long previousDivergenceTime = end;
                             for (int i = 0; i < collectedUniverse.length; i++) {
-                                IndexRBTree timeTree = (IndexRBTree) timeTrees[i];
+                                KLongTree timeTree = (KLongTree) timeTrees[i];
                                 if (timeTree != null) {
                                     long currentDivergenceTime = objUniverse.get(collectedUniverse[i]);
-                                    TreeNode initNode;
-                                    if (i == 0) { //first iteration, right side inclusive
-                                        initNode = timeTree.previousOrEqual(previousDivergenceTime);
-                                    } else {
-                                        initNode = timeTree.previous(previousDivergenceTime);
-                                    }
-                                    while (initNode != null && initNode.getKey() >= currentDivergenceTime) {
-                                        collector.put(collector.size(), initNode.getKey());
-                                        initNode = initNode.previous();
-                                    }
+                                    final int finalI = i;
+                                    final long finalPreviousDivergenceTime = previousDivergenceTime;
+                                    timeTree.range(currentDivergenceTime, previousDivergenceTime, new KTreeWalker() {
+                                        @Override
+                                        public void elem(long t) {
+                                            if (collector.size() == 0) {
+                                                collector.put(collector.size(), t);
+                                            } else {
+                                                if (t != finalPreviousDivergenceTime) {
+                                                    collector.put(collector.size(), t);
+                                                }
+                                            }
+                                        }
+                                    });
                                     previousDivergenceTime = currentDivergenceTime;
                                 }
                             }

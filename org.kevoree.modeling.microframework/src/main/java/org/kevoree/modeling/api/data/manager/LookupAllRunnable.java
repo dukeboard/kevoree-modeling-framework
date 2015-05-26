@@ -8,7 +8,7 @@ import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.cache.KCacheObject;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.map.LongLongHashMap;
-import org.kevoree.modeling.api.rbtree.ooheap.IndexRBTree;
+import org.kevoree.modeling.api.rbtree.KLongTree;
 
 /**
  * Created by duke on 05/02/15.
@@ -56,7 +56,7 @@ public class LookupAllRunnable implements Runnable {
                         for (int i = 0; i < _keys.length; i++) {
                             KContentKey resolvedContentKey = null;
                             if (timeIndexes[i] != null) {
-                                IndexRBTree cachedIndexTree = (IndexRBTree) timeIndexes[i];
+                                KLongTree cachedIndexTree = (KLongTree) timeIndexes[i];
                                 long resolvedNode = cachedIndexTree.previousOrEqual(_time);
                                 if (resolvedNode != KConfig.NULL_LONG) {
                                     resolvedContentKey = KContentKey.createObject(tempKeys[i].universe, resolvedNode, _keys[i]);
@@ -72,9 +72,9 @@ public class LookupAllRunnable implements Runnable {
                                     if (cachedObjects[i] != null && cachedObjects[i] instanceof KCacheEntry) {
                                         proxies[i] = ((AbstractKModel) _store.model()).createProxy(_universe, _time, _keys[i], ((KCacheEntry) cachedObjects[i]).metaClass);
                                         if (proxies[i] != null) {
-                                            IndexRBTree cachedIndexTree = (IndexRBTree) timeIndexes[i];
+                                            KLongTree cachedIndexTree = (KLongTree) timeIndexes[i];
                                             cachedObjects[i].inc();
-                                            cachedIndexTree.inc();
+                                            ((KCacheObject) cachedIndexTree).inc();
                                         }
                                     }
                                 }

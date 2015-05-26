@@ -5,6 +5,7 @@ import org.kevoree.modeling.api.data.cache.KCacheObject;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.meta.MetaModel;
 import org.kevoree.modeling.api.rbtree.KLongTree;
+import org.kevoree.modeling.api.rbtree.KTreeWalker;
 
 public class IndexRBTree implements KCacheObject, KLongTree {
 
@@ -111,25 +112,33 @@ public class IndexRBTree implements KCacheObject, KLongTree {
     }
 
     public synchronized long previousOrEqual(long key) {
+        TreeNode resolvedNode = internal_previousOrEqual(key);
+        if (resolvedNode != null) {
+            return resolvedNode.key;
+        }
+        return KConfig.NULL_LONG;
+    }
+
+    public synchronized TreeNode internal_previousOrEqual(long key) {
         TreeNode cachedVal = tryPreviousOrEqualsCache(key);
         if (cachedVal != null) {
-            return cachedVal.key;
+            return cachedVal;
         }
         TreeNode p = root;
         if (p == null) {
-            return KConfig.NULL_LONG;
+            return null;
         }
         while (p != null) {
             if (key == p.key) {
                 putInPreviousOrEqualsCache(p);
-                return p.key;
+                return p;
             }
             if (key > p.key) {
                 if (p.getRight() != null) {
                     p = p.getRight();
                 } else {
                     putInPreviousOrEqualsCache(p);
-                    return p.key;
+                    return p;
                 }
             } else {
                 if (p.getLeft() != null) {
@@ -142,15 +151,11 @@ public class IndexRBTree implements KCacheObject, KLongTree {
                         parent = parent.getParent();
                     }
                     putInPreviousOrEqualsCache(parent);
-                    if (parent != null) {
-                        return parent.key;
-                    } else {
-                        return KConfig.NULL_LONG;
-                    }
+                    return parent;
                 }
             }
         }
-        return KConfig.NULL_LONG;
+        return null;
     }
 
     public TreeNode nextOrEqual(long key) {
@@ -286,6 +291,15 @@ public class IndexRBTree implements KCacheObject, KLongTree {
         return KConfig.NULL_LONG;
     }
 
+    @Override
+    public void range(long start, long end, KTreeWalker walker) {
+        TreeNode it = internal_previousOrEqual(end);
+        while (it != null) {
+            walker.elem(it.key);
+            it = it.previous();
+        }
+    }
+
     private void rotateLeft(TreeNode n) {
         TreeNode r = n.getRight();
         replaceNode(n, r);
@@ -416,7 +430,19 @@ public class IndexRBTree implements KCacheObject, KLongTree {
     }
 
     public void delete(long key) {
-        TreeNode n = lookup(key);
+        TreeNode n = null;
+        TreeNode nn = root;
+        while (nn != null) {
+            if (key == nn.key) {
+                n = nn;
+            } else {
+                if (key < nn.key) {
+                    nn = nn.getLeft();
+                } else {
+                    nn = nn.getRight();
+                }
+            }
+        }
         if (n == null) {
             return;
         } else {

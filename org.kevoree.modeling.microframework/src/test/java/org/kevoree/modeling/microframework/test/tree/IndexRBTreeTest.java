@@ -3,6 +3,8 @@ package org.kevoree.modeling.microframework.test.tree;
 
 import org.junit.Test;
 import org.junit.Assert;
+import org.kevoree.modeling.api.KConfig;
+import org.kevoree.modeling.api.rbtree.KLongTree;
 import org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
 import org.kevoree.modeling.api.rbtree.ooheap.IndexRBTree;
 
@@ -140,15 +142,15 @@ public class IndexRBTreeTest {
         tree.insert(11L);
         tree.insert(13L);
         //printTree(tree.root);
-        Assert.assertNull(tree.previousOrEqual(-1));
-        Assert.assertEquals(tree.previousOrEqual(0).getKey(), 0L);
-        Assert.assertEquals(tree.previousOrEqual(1).getKey(), 1L);
-        Assert.assertEquals(tree.previousOrEqual(7).getKey(), 6L);
-        Assert.assertEquals(tree.previousOrEqual(8).getKey(), 8L);
-        Assert.assertEquals(tree.previousOrEqual(9).getKey(), 8L);
-        Assert.assertEquals(tree.previousOrEqual(10).getKey(), 10L);
-        Assert.assertEquals(tree.previousOrEqual(13).getKey(), 13L);
-        Assert.assertEquals(tree.previousOrEqual(14).getKey(), 13L);
+        Assert.assertEquals(tree.previousOrEqual(-1), KConfig.NULL_LONG);
+        Assert.assertEquals(tree.previousOrEqual(0), 0L);
+        Assert.assertEquals(tree.previousOrEqual(1), 1L);
+        Assert.assertEquals(tree.previousOrEqual(7), 6L);
+        Assert.assertEquals(tree.previousOrEqual(8), 8L);
+        Assert.assertEquals(tree.previousOrEqual(9), 8L);
+        Assert.assertEquals(tree.previousOrEqual(10), 10L);
+        Assert.assertEquals(tree.previousOrEqual(13), 13L);
+        Assert.assertEquals(tree.previousOrEqual(14), 13L);
     }
 
     @Test
@@ -175,56 +177,25 @@ public class IndexRBTreeTest {
 
     @Test
     public void cacheEffectTest() {
-        IndexRBTree tree = new IndexRBTree();
+        KLongTree tree = new IndexRBTree();
         for (long i = 0; i <= 6; i++) {
             tree.insert(i);
         }
-        Assert.assertTrue(tree.previousOrEqual(-1) == null);
-        Assert.assertTrue(tree.previousOrEqual(0).getKey() == 0l);
-        Assert.assertTrue(tree.previousOrEqual(1).getKey() == 1l);
-        Assert.assertTrue(tree.previousOrEqual(0).getKey() == 0l);
+        Assert.assertTrue(tree.previousOrEqual(-1) == KConfig.NULL_LONG);
+        Assert.assertTrue(tree.previousOrEqual(0) == 0l);
+        Assert.assertTrue(tree.previousOrEqual(1) == 1l);
+        Assert.assertTrue(tree.previousOrEqual(0) == 0l);
 
         tree.insert(7);
-        Assert.assertTrue(tree.previousOrEqual(7).getKey() == 7l);
-        Assert.assertTrue(tree.previousOrEqual(7).getKey() == 7l);
-        Assert.assertTrue(tree.previousOrEqual(8).getKey() == 7l);
-        Assert.assertTrue(tree.previousOrEqual(9).getKey() == 7l);
+        Assert.assertTrue(tree.previousOrEqual(7) == 7l);
+        Assert.assertTrue(tree.previousOrEqual(7) == 7l);
+        Assert.assertTrue(tree.previousOrEqual(8) == 7l);
+        Assert.assertTrue(tree.previousOrEqual(9) == 7l);
         //Assert.assertTrue(tree.previousOrEqual(7).getKey() == 7l);
-        Assert.assertTrue(tree.previousOrEqual(10).getKey() == 7l);
-        Assert.assertTrue(tree.previousOrEqual(7).getKey() == 7l);
+        Assert.assertTrue(tree.previousOrEqual(10) == 7l);
+        Assert.assertTrue(tree.previousOrEqual(7) == 7l);
 
     }
-
-
-    @Test
-    public void equivalenceTest() {
-        //FlatIndexRBTree flatTree = new FlatIndexRBTree();
-        long before = System.currentTimeMillis();
-        IndexRBTree indexTree = new IndexRBTree();
-        for (long i = 0; i < 30000000; i++) {
-            indexTree.insert(i);
-            //flatTree.insert(i);
-        }
-
-      //  Assert.assertEquals(indexTree.serialize(),flatTree.serialize());
-
-
-         System.err.print(System.currentTimeMillis()-before);
-        //Thread.sleep(50000);
-
-       // System.err.println("o=" + indexTree.serialize());
-      //  System.err.println("f=" + flatTree.serialize());
-
-/*
-        for (long i = 0; i < 10000; i++) {
-            TreeNode resolved = indexTree.lookup(i);
-            Long resolved2 = flatTree.lookup(i);
-            Assert.assertEquals((long) resolved2, resolved.getKey());
-        }*/
-
-
-    }
-
 
 }
 

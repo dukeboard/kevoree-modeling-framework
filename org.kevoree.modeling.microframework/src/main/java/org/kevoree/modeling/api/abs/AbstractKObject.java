@@ -11,6 +11,7 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
+import org.kevoree.modeling.api.rbtree.KLongTree;
 import org.kevoree.modeling.api.rbtree.ooheap.IndexRBTree;
 import org.kevoree.modeling.api.util.ArrayUtils;
 import org.kevoree.modeling.api.traversal.DefaultKTraversal;
@@ -504,7 +505,7 @@ public abstract class AbstractKObject implements KObject {
         if (resolve_entry != null) {
             p_callback.on(((AbstractKModel) _manager.model()).createProxy(_universe, p_time, _uuid, _metaClass));
         } else {
-            IndexRBTree timeTree = (IndexRBTree) _manager.cache().get(_universe, KConfig.NULL_LONG, _uuid);
+            KLongTree timeTree = (KLongTree) _manager.cache().get(_universe, KConfig.NULL_LONG, _uuid);
             if (timeTree != null) {
                 final long resolvedTime = timeTree.previousOrEqual(p_time);
                 if (resolvedTime != KConfig.NULL_LONG) {
