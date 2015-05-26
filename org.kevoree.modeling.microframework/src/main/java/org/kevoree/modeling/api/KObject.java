@@ -1,5 +1,6 @@
 package org.kevoree.modeling.api;
 
+import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaOperation;
@@ -53,5 +54,7 @@ public interface KObject {
     MetaReference[] referencesWith(KObject o);
 
     void call(MetaOperation operation, Object[] params, Callback<Object> cb);
+
+    KDataManager manager();
 
 }

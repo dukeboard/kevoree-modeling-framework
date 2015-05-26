@@ -762,8 +762,8 @@ var org;
                                 var timeTree = this._manager.cache().get(this._universe, org.kevoree.modeling.api.KConfig.NULL_LONG, this._uuid);
                                 if (timeTree != null) {
                                     var resolvedTime = timeTree.previousOrEqual(p_time);
-                                    if (resolvedTime != null) {
-                                        var entry = this._manager.cache().get(this._universe, resolvedTime.getKey(), this._uuid);
+                                    if (resolvedTime != org.kevoree.modeling.api.KConfig.NULL_LONG) {
+                                        var entry = this._manager.cache().get(this._universe, resolvedTime, this._uuid);
                                         if (entry != null) {
                                             p_callback(this._manager.model().createProxy(this._universe, p_time, this._uuid, this._metaClass));
                                         }
@@ -830,6 +830,9 @@ var org;
                         };
                         AbstractKObject.prototype.call = function (p_operation, p_params, cb) {
                             this._manager.operationManager().call(this, p_operation, p_params, cb);
+                        };
+                        AbstractKObject.prototype.manager = function () {
+                            return this._manager;
                         };
                         AbstractKObject.OUT_OF_CACHE_MSG = "Out of cache Error";
                         return AbstractKObject;
@@ -1314,17 +1317,18 @@ var org;
                                             var timeTree = timeTrees[i];
                                             if (timeTree != null) {
                                                 var currentDivergenceTime = objUniverse.get(collectedUniverse[i]);
-                                                var initNode;
-                                                if (i == 0) {
-                                                    initNode = timeTree.previousOrEqual(previousDivergenceTime);
-                                                }
-                                                else {
-                                                    initNode = timeTree.previous(previousDivergenceTime);
-                                                }
-                                                while (initNode != null && initNode.getKey() >= currentDivergenceTime) {
-                                                    collector.put(collector.size(), initNode.getKey());
-                                                    initNode = initNode.previous();
-                                                }
+                                                var finalI = i;
+                                                var finalPreviousDivergenceTime = previousDivergenceTime;
+                                                timeTree.range(currentDivergenceTime, previousDivergenceTime, function (t) {
+                                                    if (collector.size() == 0) {
+                                                        collector.put(collector.size(), t);
+                                                    }
+                                                    else {
+                                                        if (t != finalPreviousDivergenceTime) {
+                                                            collector.put(collector.size(), t);
+                                                        }
+                                                    }
+                                                });
                                                 previousDivergenceTime = currentDivergenceTime;
                                             }
                                         }
@@ -2058,7 +2062,7 @@ var org;
                                 cacheEntry._dirty = true;
                                 cacheEntry.metaClass = obj.metaClass();
                                 cacheEntry.inc();
-                                var timeTree = new org.kevoree.modeling.api.rbtree.IndexRBTree();
+                                var timeTree = new org.kevoree.modeling.api.rbtree.ooheap.OOKLongTree();
                                 timeTree.inc();
                                 timeTree.insert(obj.now());
                                 var universeTree = new org.kevoree.modeling.api.map.LongLongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
@@ -2190,9 +2194,8 @@ var org;
                                 if (timeTree == null) {
                                     throw new java.lang.RuntimeException(DefaultKDataManager.OUT_OF_CACHE_MESSAGE + " : TimeTree not found for " + org.kevoree.modeling.api.data.cache.KContentKey.createTimeTree(resolvedUniverse, origin.uuid()) + " from " + origin.universe() + "/" + resolvedUniverse);
                                 }
-                                var resolvedNode = timeTree.previousOrEqual(origin.now());
-                                if (resolvedNode != null) {
-                                    var resolvedTime = resolvedNode.getKey();
+                                var resolvedTime = timeTree.previousOrEqual(origin.now());
+                                if (resolvedTime != org.kevoree.modeling.api.KConfig.NULL_LONG) {
                                     var needTimeCopy = accessMode.equals(org.kevoree.modeling.api.data.manager.AccessMode.WRITE) && (resolvedTime != origin.now());
                                     var needUniverseCopy = accessMode.equals(org.kevoree.modeling.api.data.manager.AccessMode.WRITE) && (resolvedUniverse != origin.universe());
                                     var entry = this._cache.get(resolvedUniverse, resolvedTime, origin.uuid());
@@ -2216,7 +2219,7 @@ var org;
                                             timeTree.insert(origin.now());
                                         }
                                         else {
-                                            var newTemporalTree = new org.kevoree.modeling.api.rbtree.IndexRBTree();
+                                            var newTemporalTree = new org.kevoree.modeling.api.rbtree.ooheap.OOKLongTree();
                                             newTemporalTree.insert(origin.now());
                                             this._cache.put(origin.universe(), org.kevoree.modeling.api.KConfig.NULL_LONG, origin.uuid(), newTemporalTree);
                                             objectUniverseTree.put(origin.universe(), origin.now());
@@ -2292,12 +2295,12 @@ var org;
                                                 callback(null);
                                             }
                                             else {
-                                                var resolvedNode = universeTree.previousOrEqual(time);
-                                                if (resolvedNode == null) {
+                                                var resolvedVal = universeTree.previousOrEqualValue(time);
+                                                if (resolvedVal == org.kevoree.modeling.api.KConfig.NULL_LONG) {
                                                     callback(null);
                                                 }
                                                 else {
-                                                    _this.lookup(universe, time, resolvedNode.value, callback);
+                                                    _this.lookup(universe, time, resolvedVal, callback);
                                                 }
                                             }
                                         });
@@ -2315,7 +2318,7 @@ var org;
                                     var closestUniverse = org.kevoree.modeling.api.data.manager.ResolutionHelper.resolve_universe(_this.globalUniverseOrder(), cleanedTree, newRoot.now(), newRoot.universe());
                                     cleanedTree.put(newRoot.universe(), newRoot.now());
                                     if (closestUniverse != newRoot.universe()) {
-                                        var newTimeTree = new org.kevoree.modeling.api.rbtree.LongRBTree();
+                                        var newTimeTree = new org.kevoree.modeling.api.rbtree.ooheap.OOKLongLongTree();
                                         newTimeTree.insert(newRoot.now(), newRoot.uuid());
                                         var universeTreeRootKey = org.kevoree.modeling.api.data.cache.KContentKey.createRootTimeTree(newRoot.universe());
                                         _this._cache.put(universeTreeRootKey.universe, universeTreeRootKey.time, universeTreeRootKey.obj, newTimeTree);
@@ -2328,7 +2331,7 @@ var org;
                                         _this.bumpKeyToCache(universeTreeRootKey, function (resolvedRootTimeTree) {
                                             var initializedTree = resolvedRootTimeTree;
                                             if (initializedTree == null) {
-                                                initializedTree = new org.kevoree.modeling.api.rbtree.LongRBTree();
+                                                initializedTree = new org.kevoree.modeling.api.rbtree.ooheap.OOKLongLongTree();
                                                 _this._cache.put(universeTreeRootKey.universe, universeTreeRootKey.time, universeTreeRootKey.obj, initializedTree);
                                             }
                                             initializedTree.insert(newRoot.now(), newRoot.uuid());
@@ -2450,7 +2453,7 @@ var org;
                                 var isUniverseNotNull = key.universe != org.kevoree.modeling.api.KConfig.NULL_LONG;
                                 if (org.kevoree.modeling.api.KConfig.END_OF_TIME == key.obj) {
                                     if (isUniverseNotNull) {
-                                        result = new org.kevoree.modeling.api.rbtree.LongRBTree();
+                                        result = new org.kevoree.modeling.api.rbtree.ooheap.OOKLongLongTree();
                                     }
                                     else {
                                         result = new org.kevoree.modeling.api.map.LongLongHashMap(0, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
@@ -2464,7 +2467,7 @@ var org;
                                     }
                                     else {
                                         if (isUniverseNotNull && !isTimeNotNull && isObjNotNull) {
-                                            result = new org.kevoree.modeling.api.rbtree.IndexRBTree();
+                                            result = new org.kevoree.modeling.api.rbtree.ooheap.OOKLongTree();
                                         }
                                         else {
                                             result = new org.kevoree.modeling.api.map.LongLongHashMap(0, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
@@ -2631,8 +2634,8 @@ var org;
                                             if (timeIndexes[i] != null) {
                                                 var cachedIndexTree = timeIndexes[i];
                                                 var resolvedNode = cachedIndexTree.previousOrEqual(_this._time);
-                                                if (resolvedNode != null) {
-                                                    resolvedContentKey = org.kevoree.modeling.api.data.cache.KContentKey.createObject(tempKeys[i].universe, resolvedNode.getKey(), _this._keys[i]);
+                                                if (resolvedNode != org.kevoree.modeling.api.KConfig.NULL_LONG) {
+                                                    resolvedContentKey = org.kevoree.modeling.api.data.cache.KContentKey.createObject(tempKeys[i].universe, resolvedNode, _this._keys[i]);
                                                 }
                                             }
                                             tempKeys[i] = resolvedContentKey;
@@ -6403,749 +6406,511 @@ var org;
                 })(polynomial = api.polynomial || (api.polynomial = {}));
                 var rbtree;
                 (function (rbtree) {
-                    var IndexRBTree = (function () {
-                        function IndexRBTree() {
-                            this._size = 0;
-                            this.root = null;
-                            this._previousOrEqualsCacheValues = null;
-                            this._counter = 0;
-                            this._dirty = false;
-                            this._previousOrEqualsCacheValues = new Array();
-                            this._nextCacheElem = 0;
-                        }
-                        IndexRBTree.prototype.size = function () {
-                            return this._size;
-                        };
-                        IndexRBTree.prototype.counter = function () {
-                            return this._counter;
-                        };
-                        IndexRBTree.prototype.inc = function () {
-                            this._counter++;
-                        };
-                        IndexRBTree.prototype.dec = function () {
-                            this._counter--;
-                        };
-                        IndexRBTree.prototype.tryPreviousOrEqualsCache = function (key) {
-                            if (this._previousOrEqualsCacheValues != null) {
-                                for (var i = 0; i < this._nextCacheElem; i++) {
-                                    if (this._previousOrEqualsCacheValues[i] != null && this._previousOrEqualsCacheValues[i].key == key) {
-                                        return this._previousOrEqualsCacheValues[i];
+                    var ooheap;
+                    (function (ooheap) {
+                        var LongTreeNode = (function () {
+                            function LongTreeNode(key, value, color, left, right) {
+                                this.parent = null;
+                                this.key = key;
+                                this.value = value;
+                                this.color = color;
+                                this.left = left;
+                                this.right = right;
+                                if (left != null) {
+                                    left.parent = this;
+                                }
+                                if (right != null) {
+                                    right.parent = this;
+                                }
+                                this.parent = null;
+                            }
+                            LongTreeNode.prototype.grandparent = function () {
+                                if (this.parent != null) {
+                                    return this.parent.parent;
+                                }
+                                else {
+                                    return null;
+                                }
+                            };
+                            LongTreeNode.prototype.sibling = function () {
+                                if (this.parent == null) {
+                                    return null;
+                                }
+                                else {
+                                    if (this == this.parent.left) {
+                                        return this.parent.right;
+                                    }
+                                    else {
+                                        return this.parent.left;
                                     }
                                 }
-                                return null;
-                            }
-                            else {
-                                return null;
-                            }
-                        };
-                        IndexRBTree.prototype.resetCache = function () {
-                            this._nextCacheElem = 0;
-                        };
-                        IndexRBTree.prototype.putInPreviousOrEqualsCache = function (resolved) {
-                            if (this._nextCacheElem == org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE) {
-                                this._nextCacheElem = 0;
-                            }
-                            this._previousOrEqualsCacheValues[this._nextCacheElem] = resolved;
-                            this._nextCacheElem++;
-                        };
-                        IndexRBTree.prototype.isDirty = function () {
-                            return this._dirty;
-                        };
-                        IndexRBTree.prototype.setClean = function () {
-                            this._dirty = false;
-                        };
-                        IndexRBTree.prototype.serialize = function () {
-                            var builder = new java.lang.StringBuilder();
-                            builder.append(this._size);
-                            if (this.root != null) {
-                                this.root.serialize(builder);
-                            }
-                            return builder.toString();
-                        };
-                        IndexRBTree.prototype.toString = function () {
-                            return this.serialize();
-                        };
-                        IndexRBTree.prototype.unserialize = function (key, payload, metaModel) {
-                            if (payload == null || payload.length == 0) {
-                                return;
-                            }
-                            var i = 0;
-                            var buffer = new java.lang.StringBuilder();
-                            var ch = payload.charAt(i);
-                            while (i < payload.length && ch != '|') {
-                                buffer.append(ch);
-                                i = i + 1;
-                                ch = payload.charAt(i);
-                            }
-                            this._size = java.lang.Integer.parseInt(buffer.toString());
-                            var ctx = new org.kevoree.modeling.api.rbtree.TreeReaderContext();
-                            ctx.index = i;
-                            ctx.payload = payload;
-                            this.root = org.kevoree.modeling.api.rbtree.TreeNode.unserialize(ctx);
-                            this.resetCache();
-                        };
-                        IndexRBTree.prototype.previousOrEqual = function (key) {
-                            var cachedVal = this.tryPreviousOrEqualsCache(key);
-                            if (cachedVal != null) {
-                                return cachedVal;
-                            }
-                            var p = this.root;
-                            if (p == null) {
-                                return null;
-                            }
-                            while (p != null) {
-                                if (key == p.key) {
-                                    this.putInPreviousOrEqualsCache(p);
+                            };
+                            LongTreeNode.prototype.uncle = function () {
+                                if (this.parent != null) {
+                                    return this.parent.sibling();
+                                }
+                                else {
+                                    return null;
+                                }
+                            };
+                            LongTreeNode.prototype.getLeft = function () {
+                                return this.left;
+                            };
+                            LongTreeNode.prototype.setLeft = function (left) {
+                                this.left = left;
+                            };
+                            LongTreeNode.prototype.getRight = function () {
+                                return this.right;
+                            };
+                            LongTreeNode.prototype.setRight = function (right) {
+                                this.right = right;
+                            };
+                            LongTreeNode.prototype.getParent = function () {
+                                return this.parent;
+                            };
+                            LongTreeNode.prototype.setParent = function (parent) {
+                                this.parent = parent;
+                            };
+                            LongTreeNode.prototype.serialize = function (builder) {
+                                builder.append("|");
+                                if (this.color == true) {
+                                    builder.append(LongTreeNode.BLACK);
+                                }
+                                else {
+                                    builder.append(LongTreeNode.RED);
+                                }
+                                builder.append(this.key);
+                                builder.append("@");
+                                builder.append(this.value);
+                                if (this.left == null && this.right == null) {
+                                    builder.append("%");
+                                }
+                                else {
+                                    if (this.left != null) {
+                                        this.left.serialize(builder);
+                                    }
+                                    else {
+                                        builder.append("#");
+                                    }
+                                    if (this.right != null) {
+                                        this.right.serialize(builder);
+                                    }
+                                    else {
+                                        builder.append("#");
+                                    }
+                                }
+                            };
+                            LongTreeNode.prototype.next = function () {
+                                var p = this;
+                                if (p.right != null) {
+                                    p = p.right;
+                                    while (p.left != null) {
+                                        p = p.left;
+                                    }
                                     return p;
                                 }
-                                if (key > p.key) {
-                                    if (p.getRight() != null) {
-                                        p = p.getRight();
-                                    }
-                                    else {
-                                        this.putInPreviousOrEqualsCache(p);
-                                        return p;
-                                    }
-                                }
                                 else {
-                                    if (p.getLeft() != null) {
-                                        p = p.getLeft();
-                                    }
-                                    else {
-                                        var parent = p.getParent();
-                                        var ch = p;
-                                        while (parent != null && ch == parent.getLeft()) {
-                                            ch = parent;
-                                            parent = parent.getParent();
-                                        }
-                                        this.putInPreviousOrEqualsCache(parent);
-                                        return parent;
-                                    }
-                                }
-                            }
-                            return null;
-                        };
-                        IndexRBTree.prototype.nextOrEqual = function (key) {
-                            var p = this.root;
-                            if (p == null) {
-                                return null;
-                            }
-                            while (p != null) {
-                                if (key == p.key) {
-                                    return p;
-                                }
-                                if (key < p.key) {
-                                    if (p.getLeft() != null) {
-                                        p = p.getLeft();
-                                    }
-                                    else {
-                                        return p;
-                                    }
-                                }
-                                else {
-                                    if (p.getRight() != null) {
-                                        p = p.getRight();
-                                    }
-                                    else {
-                                        var parent = p.getParent();
-                                        var ch = p;
-                                        while (parent != null && ch == parent.getRight()) {
-                                            ch = parent;
-                                            parent = parent.getParent();
-                                        }
-                                        return parent;
-                                    }
-                                }
-                            }
-                            return null;
-                        };
-                        IndexRBTree.prototype.previous = function (key) {
-                            var p = this.root;
-                            if (p == null) {
-                                return null;
-                            }
-                            while (p != null) {
-                                if (key < p.key) {
-                                    if (p.getLeft() != null) {
-                                        p = p.getLeft();
-                                    }
-                                    else {
-                                        return p.previous();
-                                    }
-                                }
-                                else {
-                                    if (key > p.key) {
-                                        if (p.getRight() != null) {
-                                            p = p.getRight();
+                                    if (p.parent != null) {
+                                        if (p == p.parent.left) {
+                                            return p.parent;
                                         }
                                         else {
-                                            return p;
+                                            while (p.parent != null && p == p.parent.right) {
+                                                p = p.parent;
+                                            }
+                                            return p.parent;
                                         }
                                     }
                                     else {
-                                        return p.previous();
+                                        return null;
                                     }
                                 }
-                            }
-                            return null;
-                        };
-                        IndexRBTree.prototype.next = function (key) {
-                            var p = this.root;
-                            if (p == null) {
-                                return null;
-                            }
-                            while (p != null) {
-                                if (key < p.key) {
-                                    if (p.getLeft() != null) {
-                                        p = p.getLeft();
+                            };
+                            LongTreeNode.prototype.previous = function () {
+                                var p = this;
+                                if (p.left != null) {
+                                    p = p.left;
+                                    while (p.right != null) {
+                                        p = p.right;
                                     }
-                                    else {
-                                        return p;
-                                    }
-                                }
-                                else {
-                                    if (key > p.key) {
-                                        if (p.getRight() != null) {
-                                            p = p.getRight();
-                                        }
-                                        else {
-                                            return p.next();
-                                        }
-                                    }
-                                    else {
-                                        return p.next();
-                                    }
-                                }
-                            }
-                            return null;
-                        };
-                        IndexRBTree.prototype.first = function () {
-                            var p = this.root;
-                            if (p == null) {
-                                return null;
-                            }
-                            while (p != null) {
-                                if (p.getLeft() != null) {
-                                    p = p.getLeft();
-                                }
-                                else {
                                     return p;
                                 }
-                            }
-                            return null;
-                        };
-                        IndexRBTree.prototype.last = function () {
-                            var p = this.root;
-                            if (p == null) {
-                                return null;
-                            }
-                            while (p != null) {
-                                if (p.getRight() != null) {
-                                    p = p.getRight();
-                                }
                                 else {
-                                    return p;
-                                }
-                            }
-                            return null;
-                        };
-                        IndexRBTree.prototype.lookup = function (key) {
-                            var n = this.root;
-                            if (n == null) {
-                                return null;
-                            }
-                            while (n != null) {
-                                if (key == n.key) {
-                                    return n;
-                                }
-                                else {
-                                    if (key < n.key) {
-                                        n = n.getLeft();
-                                    }
-                                    else {
-                                        n = n.getRight();
-                                    }
-                                }
-                            }
-                            return n;
-                        };
-                        IndexRBTree.prototype.rotateLeft = function (n) {
-                            var r = n.getRight();
-                            this.replaceNode(n, r);
-                            n.setRight(r.getLeft());
-                            if (r.getLeft() != null) {
-                                r.getLeft().setParent(n);
-                            }
-                            r.setLeft(n);
-                            n.setParent(r);
-                        };
-                        IndexRBTree.prototype.rotateRight = function (n) {
-                            var l = n.getLeft();
-                            this.replaceNode(n, l);
-                            n.setLeft(l.getRight());
-                            if (l.getRight() != null) {
-                                l.getRight().setParent(n);
-                            }
-                            l.setRight(n);
-                            n.setParent(l);
-                        };
-                        IndexRBTree.prototype.replaceNode = function (oldn, newn) {
-                            if (oldn.getParent() == null) {
-                                this.root = newn;
-                            }
-                            else {
-                                if (oldn == oldn.getParent().getLeft()) {
-                                    oldn.getParent().setLeft(newn);
-                                }
-                                else {
-                                    oldn.getParent().setRight(newn);
-                                }
-                            }
-                            if (newn != null) {
-                                newn.setParent(oldn.getParent());
-                            }
-                        };
-                        IndexRBTree.prototype.insert = function (key) {
-                            this._dirty = true;
-                            var insertedNode;
-                            if (this.root == null) {
-                                this._size++;
-                                insertedNode = new org.kevoree.modeling.api.rbtree.TreeNode(key, false, null, null);
-                                this.root = insertedNode;
-                            }
-                            else {
-                                var n = this.root;
-                                while (true) {
-                                    if (key == n.key) {
-                                        this.putInPreviousOrEqualsCache(n);
-                                        return;
-                                    }
-                                    else {
-                                        if (key < n.key) {
-                                            if (n.getLeft() == null) {
-                                                insertedNode = new org.kevoree.modeling.api.rbtree.TreeNode(key, false, null, null);
-                                                n.setLeft(insertedNode);
-                                                this._size++;
-                                                break;
-                                            }
-                                            else {
-                                                n = n.getLeft();
-                                            }
+                                    if (p.parent != null) {
+                                        if (p == p.parent.right) {
+                                            return p.parent;
                                         }
                                         else {
-                                            if (n.getRight() == null) {
-                                                insertedNode = new org.kevoree.modeling.api.rbtree.TreeNode(key, false, null, null);
-                                                n.setRight(insertedNode);
-                                                this._size++;
-                                                break;
+                                            while (p.parent != null && p == p.parent.left) {
+                                                p = p.parent;
                                             }
-                                            else {
-                                                n = n.getRight();
-                                            }
+                                            return p.parent;
                                         }
                                     }
-                                }
-                                insertedNode.setParent(n);
-                            }
-                            this.insertCase1(insertedNode);
-                            this.putInPreviousOrEqualsCache(insertedNode);
-                        };
-                        IndexRBTree.prototype.insertCase1 = function (n) {
-                            if (n.getParent() == null) {
-                                n.color = true;
-                            }
-                            else {
-                                this.insertCase2(n);
-                            }
-                        };
-                        IndexRBTree.prototype.insertCase2 = function (n) {
-                            if (this.nodeColor(n.getParent()) == true) {
-                                return;
-                            }
-                            else {
-                                this.insertCase3(n);
-                            }
-                        };
-                        IndexRBTree.prototype.insertCase3 = function (n) {
-                            if (this.nodeColor(n.uncle()) == false) {
-                                n.getParent().color = true;
-                                n.uncle().color = true;
-                                n.grandparent().color = false;
-                                this.insertCase1(n.grandparent());
-                            }
-                            else {
-                                this.insertCase4(n);
-                            }
-                        };
-                        IndexRBTree.prototype.insertCase4 = function (n_n) {
-                            var n = n_n;
-                            if (n == n.getParent().getRight() && n.getParent() == n.grandparent().getLeft()) {
-                                this.rotateLeft(n.getParent());
-                                n = n.getLeft();
-                            }
-                            else {
-                                if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getRight()) {
-                                    this.rotateRight(n.getParent());
-                                    n = n.getRight();
-                                }
-                            }
-                            this.insertCase5(n);
-                        };
-                        IndexRBTree.prototype.insertCase5 = function (n) {
-                            n.getParent().color = true;
-                            n.grandparent().color = false;
-                            if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getLeft()) {
-                                this.rotateRight(n.grandparent());
-                            }
-                            else {
-                                this.rotateLeft(n.grandparent());
-                            }
-                        };
-                        IndexRBTree.prototype.delete = function (key) {
-                            var n = this.lookup(key);
-                            if (n == null) {
-                                return;
-                            }
-                            else {
-                                this._size--;
-                                if (n.getLeft() != null && n.getRight() != null) {
-                                    var pred = n.getLeft();
-                                    while (pred.getRight() != null) {
-                                        pred = pred.getRight();
-                                    }
-                                    n.key = pred.key;
-                                    n = pred;
-                                }
-                                var child;
-                                if (n.getRight() == null) {
-                                    child = n.getLeft();
-                                }
-                                else {
-                                    child = n.getRight();
-                                }
-                                if (this.nodeColor(n) == true) {
-                                    n.color = this.nodeColor(child);
-                                    this.deleteCase1(n);
-                                }
-                                this.replaceNode(n, child);
-                            }
-                        };
-                        IndexRBTree.prototype.deleteCase1 = function (n) {
-                            if (n.getParent() == null) {
-                                return;
-                            }
-                            else {
-                                this.deleteCase2(n);
-                            }
-                        };
-                        IndexRBTree.prototype.deleteCase2 = function (n) {
-                            if (this.nodeColor(n.sibling()) == false) {
-                                n.getParent().color = false;
-                                n.sibling().color = true;
-                                if (n == n.getParent().getLeft()) {
-                                    this.rotateLeft(n.getParent());
-                                }
-                                else {
-                                    this.rotateRight(n.getParent());
-                                }
-                            }
-                            this.deleteCase3(n);
-                        };
-                        IndexRBTree.prototype.deleteCase3 = function (n) {
-                            if (this.nodeColor(n.getParent()) == true && this.nodeColor(n.sibling()) == true && this.nodeColor(n.sibling().getLeft()) == true && this.nodeColor(n.sibling().getRight()) == true) {
-                                n.sibling().color = false;
-                                this.deleteCase1(n.getParent());
-                            }
-                            else {
-                                this.deleteCase4(n);
-                            }
-                        };
-                        IndexRBTree.prototype.deleteCase4 = function (n) {
-                            if (this.nodeColor(n.getParent()) == false && this.nodeColor(n.sibling()) == true && this.nodeColor(n.sibling().getLeft()) == true && this.nodeColor(n.sibling().getRight()) == true) {
-                                n.sibling().color = false;
-                                n.getParent().color = true;
-                            }
-                            else {
-                                this.deleteCase5(n);
-                            }
-                        };
-                        IndexRBTree.prototype.deleteCase5 = function (n) {
-                            if (n == n.getParent().getLeft() && this.nodeColor(n.sibling()) == true && this.nodeColor(n.sibling().getLeft()) == false && this.nodeColor(n.sibling().getRight()) == true) {
-                                n.sibling().color = false;
-                                n.sibling().getLeft().color = true;
-                                this.rotateRight(n.sibling());
-                            }
-                            else {
-                                if (n == n.getParent().getRight() && this.nodeColor(n.sibling()) == true && this.nodeColor(n.sibling().getRight()) == false && this.nodeColor(n.sibling().getLeft()) == true) {
-                                    n.sibling().color = false;
-                                    n.sibling().getRight().color = true;
-                                    this.rotateLeft(n.sibling());
-                                }
-                            }
-                            this.deleteCase6(n);
-                        };
-                        IndexRBTree.prototype.deleteCase6 = function (n) {
-                            n.sibling().color = this.nodeColor(n.getParent());
-                            n.getParent().color = true;
-                            if (n == n.getParent().getLeft()) {
-                                n.sibling().getRight().color = true;
-                                this.rotateLeft(n.getParent());
-                            }
-                            else {
-                                n.sibling().getLeft().color = true;
-                                this.rotateRight(n.getParent());
-                            }
-                        };
-                        IndexRBTree.prototype.nodeColor = function (n) {
-                            if (n == null) {
-                                return true;
-                            }
-                            else {
-                                return n.color;
-                            }
-                        };
-                        return IndexRBTree;
-                    })();
-                    rbtree.IndexRBTree = IndexRBTree;
-                    var LongRBTree = (function () {
-                        function LongRBTree() {
-                            this.root = null;
-                            this._size = 0;
-                            this._dirty = false;
-                            this._counter = 0;
-                            this._previousOrEqualsCacheValues = null;
-                            this._lookupCacheValues = null;
-                            this._lookupCacheValues = new Array();
-                            this._previousOrEqualsCacheValues = new Array();
-                            this._previousOrEqualsNextCacheElem = 0;
-                            this._lookupNextCacheElem = 0;
-                        }
-                        LongRBTree.prototype.size = function () {
-                            return this._size;
-                        };
-                        LongRBTree.prototype.counter = function () {
-                            return this._counter;
-                        };
-                        LongRBTree.prototype.inc = function () {
-                            this._counter++;
-                        };
-                        LongRBTree.prototype.dec = function () {
-                            this._counter--;
-                        };
-                        LongRBTree.prototype.toString = function () {
-                            return this.serialize();
-                        };
-                        LongRBTree.prototype.isDirty = function () {
-                            return this._dirty;
-                        };
-                        LongRBTree.prototype.serialize = function () {
-                            var builder = new java.lang.StringBuilder();
-                            builder.append(this._size);
-                            if (this.root != null) {
-                                this.root.serialize(builder);
-                            }
-                            return builder.toString();
-                        };
-                        LongRBTree.prototype.tryPreviousOrEqualsCache = function (key) {
-                            if (this._previousOrEqualsCacheValues != null) {
-                                for (var i = 0; i < this._previousOrEqualsNextCacheElem; i++) {
-                                    if (this._previousOrEqualsCacheValues[i] != null && key == this._previousOrEqualsCacheValues[i].key) {
-                                        return this._previousOrEqualsCacheValues[i];
+                                    else {
+                                        return null;
                                     }
                                 }
-                            }
-                            return null;
-                        };
-                        LongRBTree.prototype.tryLookupCache = function (key) {
-                            if (this._lookupCacheValues != null) {
-                                for (var i = 0; i < this._lookupNextCacheElem; i++) {
-                                    if (this._lookupCacheValues[i] != null && key == this._lookupCacheValues[i].key) {
-                                        return this._lookupCacheValues[i];
-                                    }
+                            };
+                            LongTreeNode.unserialize = function (ctx) {
+                                return org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode.internal_unserialize(true, ctx);
+                            };
+                            LongTreeNode.internal_unserialize = function (rightBranch, ctx) {
+                                if (ctx.index >= ctx.payload.length) {
+                                    return null;
                                 }
-                            }
-                            return null;
-                        };
-                        LongRBTree.prototype.resetCache = function () {
-                            this._previousOrEqualsNextCacheElem = 0;
-                            this._lookupNextCacheElem = 0;
-                        };
-                        LongRBTree.prototype.putInPreviousOrEqualsCache = function (resolved) {
-                            if (this._previousOrEqualsNextCacheElem == org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE) {
+                                var ch = ctx.payload.charAt(ctx.index);
+                                if (ch == '%') {
+                                    if (rightBranch) {
+                                        ctx.index = ctx.index + 1;
+                                    }
+                                    return null;
+                                }
+                                if (ch == '#') {
+                                    ctx.index = ctx.index + 1;
+                                    return null;
+                                }
+                                if (ch != '|') {
+                                    throw new java.lang.Exception("Error while loading BTree");
+                                }
+                                ctx.index = ctx.index + 1;
+                                ch = ctx.payload.charAt(ctx.index);
+                                var colorLoaded = true;
+                                if (ch == LongTreeNode.RED) {
+                                    colorLoaded = false;
+                                }
+                                ctx.index = ctx.index + 1;
+                                ch = ctx.payload.charAt(ctx.index);
+                                var i = 0;
+                                while (ctx.index + 1 < ctx.payload.length && ch != '|' && ch != '#' && ch != '%' && ch != '@') {
+                                    ctx.buffer[i] = ch;
+                                    i++;
+                                    ctx.index = ctx.index + 1;
+                                    ch = ctx.payload.charAt(ctx.index);
+                                }
+                                if (ch != '|' && ch != '#' && ch != '%' && ch != '@') {
+                                    ctx.buffer[i] = ch;
+                                    i++;
+                                }
+                                var key = java.lang.Long.parseLong(StringUtils.copyValueOf(ctx.buffer, 0, i));
+                                i = 0;
+                                ctx.index = ctx.index + 1;
+                                ch = ctx.payload.charAt(ctx.index);
+                                while (ctx.index + 1 < ctx.payload.length && ch != '|' && ch != '#' && ch != '%' && ch != '@') {
+                                    ctx.buffer[i] = ch;
+                                    i++;
+                                    ctx.index = ctx.index + 1;
+                                    ch = ctx.payload.charAt(ctx.index);
+                                }
+                                if (ch != '|' && ch != '#' && ch != '%' && ch != '@') {
+                                    ctx.buffer[i] = ch;
+                                    i++;
+                                }
+                                var value = java.lang.Long.parseLong(StringUtils.copyValueOf(ctx.buffer, 0, i));
+                                var p = new org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode(key, value, colorLoaded, null, null);
+                                var left = org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode.internal_unserialize(false, ctx);
+                                if (left != null) {
+                                    left.setParent(p);
+                                }
+                                var right = org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode.internal_unserialize(true, ctx);
+                                if (right != null) {
+                                    right.setParent(p);
+                                }
+                                p.setLeft(left);
+                                p.setRight(right);
+                                return p;
+                            };
+                            LongTreeNode.BLACK = '0';
+                            LongTreeNode.RED = '2';
+                            return LongTreeNode;
+                        })();
+                        ooheap.LongTreeNode = LongTreeNode;
+                        var OOKLongLongTree = (function () {
+                            function OOKLongLongTree() {
+                                this.root = null;
+                                this._size = 0;
+                                this._dirty = false;
+                                this._counter = 0;
+                                this._previousOrEqualsCacheValues = null;
+                                this._lookupCacheValues = null;
+                                this._lookupCacheValues = new Array();
+                                this._previousOrEqualsCacheValues = new Array();
                                 this._previousOrEqualsNextCacheElem = 0;
-                            }
-                            this._previousOrEqualsCacheValues[this._previousOrEqualsNextCacheElem] = resolved;
-                            this._previousOrEqualsNextCacheElem++;
-                        };
-                        LongRBTree.prototype.putInLookupCache = function (resolved) {
-                            if (this._lookupNextCacheElem == org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE) {
                                 this._lookupNextCacheElem = 0;
                             }
-                            this._lookupCacheValues[this._lookupNextCacheElem] = resolved;
-                            this._lookupNextCacheElem++;
-                        };
-                        LongRBTree.prototype.setClean = function () {
-                            this._dirty = false;
-                        };
-                        LongRBTree.prototype.unserialize = function (key, payload, metaModel) {
-                            if (payload == null || payload.length == 0) {
-                                return;
-                            }
-                            var i = 0;
-                            var buffer = new java.lang.StringBuilder();
-                            var ch = payload.charAt(i);
-                            while (i < payload.length && ch != '|') {
-                                buffer.append(ch);
-                                i = i + 1;
-                                ch = payload.charAt(i);
-                            }
-                            this._size = java.lang.Integer.parseInt(buffer.toString());
-                            var ctx = new org.kevoree.modeling.api.rbtree.TreeReaderContext();
-                            ctx.index = i;
-                            ctx.payload = payload;
-                            ctx.buffer = new Array();
-                            this.root = org.kevoree.modeling.api.rbtree.LongTreeNode.unserialize(ctx);
-                            this._dirty = false;
-                            this.resetCache();
-                        };
-                        LongRBTree.prototype.lookup = function (key) {
-                            var n = this.tryLookupCache(key);
-                            if (n != null) {
-                                return n;
-                            }
-                            n = this.root;
-                            if (n == null) {
+                            OOKLongLongTree.prototype.size = function () {
+                                return this._size;
+                            };
+                            OOKLongLongTree.prototype.counter = function () {
+                                return this._counter;
+                            };
+                            OOKLongLongTree.prototype.inc = function () {
+                                this._counter++;
+                            };
+                            OOKLongLongTree.prototype.dec = function () {
+                                this._counter--;
+                            };
+                            OOKLongLongTree.prototype.toString = function () {
+                                return this.serialize();
+                            };
+                            OOKLongLongTree.prototype.isDirty = function () {
+                                return this._dirty;
+                            };
+                            OOKLongLongTree.prototype.serialize = function () {
+                                var builder = new java.lang.StringBuilder();
+                                builder.append(this._size);
+                                if (this.root != null) {
+                                    this.root.serialize(builder);
+                                }
+                                return builder.toString();
+                            };
+                            OOKLongLongTree.prototype.tryPreviousOrEqualsCache = function (key) {
+                                if (this._previousOrEqualsCacheValues != null) {
+                                    for (var i = 0; i < this._previousOrEqualsNextCacheElem; i++) {
+                                        if (this._previousOrEqualsCacheValues[i] != null && key == this._previousOrEqualsCacheValues[i].key) {
+                                            return this._previousOrEqualsCacheValues[i];
+                                        }
+                                    }
+                                }
                                 return null;
-                            }
-                            while (n != null) {
-                                if (key == n.key) {
-                                    this.putInLookupCache(n);
-                                    return n;
+                            };
+                            OOKLongLongTree.prototype.tryLookupCache = function (key) {
+                                if (this._lookupCacheValues != null) {
+                                    for (var i = 0; i < this._lookupNextCacheElem; i++) {
+                                        if (this._lookupCacheValues[i] != null && key == this._lookupCacheValues[i].key) {
+                                            return this._lookupCacheValues[i];
+                                        }
+                                    }
+                                }
+                                return null;
+                            };
+                            OOKLongLongTree.prototype.resetCache = function () {
+                                this._previousOrEqualsNextCacheElem = 0;
+                                this._lookupNextCacheElem = 0;
+                            };
+                            OOKLongLongTree.prototype.putInPreviousOrEqualsCache = function (resolved) {
+                                if (this._previousOrEqualsNextCacheElem == org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE) {
+                                    this._previousOrEqualsNextCacheElem = 0;
+                                }
+                                this._previousOrEqualsCacheValues[this._previousOrEqualsNextCacheElem] = resolved;
+                                this._previousOrEqualsNextCacheElem++;
+                            };
+                            OOKLongLongTree.prototype.putInLookupCache = function (resolved) {
+                                if (this._lookupNextCacheElem == org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE) {
+                                    this._lookupNextCacheElem = 0;
+                                }
+                                this._lookupCacheValues[this._lookupNextCacheElem] = resolved;
+                                this._lookupNextCacheElem++;
+                            };
+                            OOKLongLongTree.prototype.setClean = function () {
+                                this._dirty = false;
+                            };
+                            OOKLongLongTree.prototype.unserialize = function (key, payload, metaModel) {
+                                if (payload == null || payload.length == 0) {
+                                    return;
+                                }
+                                var i = 0;
+                                var buffer = new java.lang.StringBuilder();
+                                var ch = payload.charAt(i);
+                                while (i < payload.length && ch != '|') {
+                                    buffer.append(ch);
+                                    i = i + 1;
+                                    ch = payload.charAt(i);
+                                }
+                                this._size = java.lang.Integer.parseInt(buffer.toString());
+                                var ctx = new org.kevoree.modeling.api.rbtree.ooheap.TreeReaderContext();
+                                ctx.index = i;
+                                ctx.payload = payload;
+                                ctx.buffer = new Array();
+                                this.root = org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode.unserialize(ctx);
+                                this._dirty = false;
+                                this.resetCache();
+                            };
+                            OOKLongLongTree.prototype.lookupValue = function (key) {
+                                var result = this.internal_lookup(key);
+                                if (result != null) {
+                                    return result.value;
                                 }
                                 else {
-                                    if (key < n.key) {
-                                        n = n.getLeft();
+                                    return org.kevoree.modeling.api.KConfig.NULL_LONG;
+                                }
+                            };
+                            OOKLongLongTree.prototype.internal_lookup = function (key) {
+                                var n = this.tryLookupCache(key);
+                                if (n != null) {
+                                    return n;
+                                }
+                                n = this.root;
+                                if (n == null) {
+                                    return null;
+                                }
+                                while (n != null) {
+                                    if (key == n.key) {
+                                        this.putInLookupCache(n);
+                                        return n;
                                     }
                                     else {
-                                        n = n.getRight();
+                                        if (key < n.key) {
+                                            n = n.getLeft();
+                                        }
+                                        else {
+                                            n = n.getRight();
+                                        }
                                     }
                                 }
-                            }
-                            this.putInLookupCache(null);
-                            return n;
-                        };
-                        LongRBTree.prototype.previousOrEqual = function (key) {
-                            var p = this.tryPreviousOrEqualsCache(key);
-                            if (p != null) {
-                                return p;
-                            }
-                            p = this.root;
-                            if (p == null) {
-                                return null;
-                            }
-                            while (p != null) {
-                                if (key == p.key) {
-                                    this.putInPreviousOrEqualsCache(p);
+                                this.putInLookupCache(null);
+                                return n;
+                            };
+                            OOKLongLongTree.prototype.previousOrEqualValue = function (key) {
+                                var result = this.internal_previousOrEqual(key);
+                                if (result != null) {
+                                    return result.value;
+                                }
+                                else {
+                                    return org.kevoree.modeling.api.KConfig.NULL_LONG;
+                                }
+                            };
+                            OOKLongLongTree.prototype.internal_previousOrEqual = function (key) {
+                                var p = this.tryPreviousOrEqualsCache(key);
+                                if (p != null) {
                                     return p;
                                 }
-                                if (key > p.key) {
-                                    if (p.getRight() != null) {
-                                        p = p.getRight();
-                                    }
-                                    else {
+                                p = this.root;
+                                if (p == null) {
+                                    return null;
+                                }
+                                while (p != null) {
+                                    if (key == p.key) {
                                         this.putInPreviousOrEqualsCache(p);
                                         return p;
                                     }
-                                }
-                                else {
-                                    if (p.getLeft() != null) {
-                                        p = p.getLeft();
-                                    }
-                                    else {
-                                        var parent = p.getParent();
-                                        var ch = p;
-                                        while (parent != null && ch == parent.getLeft()) {
-                                            ch = parent;
-                                            parent = parent.getParent();
-                                        }
-                                        this.putInPreviousOrEqualsCache(parent);
-                                        return parent;
-                                    }
-                                }
-                            }
-                            return null;
-                        };
-                        LongRBTree.prototype.nextOrEqual = function (key) {
-                            var p = this.root;
-                            if (p == null) {
-                                return null;
-                            }
-                            while (p != null) {
-                                if (key == p.key) {
-                                    return p;
-                                }
-                                if (key < p.key) {
-                                    if (p.getLeft() != null) {
-                                        p = p.getLeft();
-                                    }
-                                    else {
-                                        return p;
-                                    }
-                                }
-                                else {
-                                    if (p.getRight() != null) {
-                                        p = p.getRight();
-                                    }
-                                    else {
-                                        var parent = p.getParent();
-                                        var ch = p;
-                                        while (parent != null && ch == parent.getRight()) {
-                                            ch = parent;
-                                            parent = parent.getParent();
-                                        }
-                                        return parent;
-                                    }
-                                }
-                            }
-                            return null;
-                        };
-                        LongRBTree.prototype.previous = function (key) {
-                            var p = this.root;
-                            if (p == null) {
-                                return null;
-                            }
-                            while (p != null) {
-                                if (key < p.key) {
-                                    if (p.getLeft() != null) {
-                                        p = p.getLeft();
-                                    }
-                                    else {
-                                        return p.previous();
-                                    }
-                                }
-                                else {
                                     if (key > p.key) {
                                         if (p.getRight() != null) {
                                             p = p.getRight();
+                                        }
+                                        else {
+                                            this.putInPreviousOrEqualsCache(p);
+                                            return p;
+                                        }
+                                    }
+                                    else {
+                                        if (p.getLeft() != null) {
+                                            p = p.getLeft();
+                                        }
+                                        else {
+                                            var parent = p.getParent();
+                                            var ch = p;
+                                            while (parent != null && ch == parent.getLeft()) {
+                                                ch = parent;
+                                                parent = parent.getParent();
+                                            }
+                                            this.putInPreviousOrEqualsCache(parent);
+                                            return parent;
+                                        }
+                                    }
+                                }
+                                return null;
+                            };
+                            OOKLongLongTree.prototype.nextOrEqual = function (key) {
+                                var p = this.root;
+                                if (p == null) {
+                                    return null;
+                                }
+                                while (p != null) {
+                                    if (key == p.key) {
+                                        return p;
+                                    }
+                                    if (key < p.key) {
+                                        if (p.getLeft() != null) {
+                                            p = p.getLeft();
                                         }
                                         else {
                                             return p;
                                         }
                                     }
                                     else {
-                                        return p.previous();
+                                        if (p.getRight() != null) {
+                                            p = p.getRight();
+                                        }
+                                        else {
+                                            var parent = p.getParent();
+                                            var ch = p;
+                                            while (parent != null && ch == parent.getRight()) {
+                                                ch = parent;
+                                                parent = parent.getParent();
+                                            }
+                                            return parent;
+                                        }
                                     }
                                 }
-                            }
-                            return null;
-                        };
-                        LongRBTree.prototype.next = function (key) {
-                            var p = this.root;
-                            if (p == null) {
                                 return null;
-                            }
-                            while (p != null) {
-                                if (key < p.key) {
+                            };
+                            OOKLongLongTree.prototype.previous = function (key) {
+                                var p = this.root;
+                                if (p == null) {
+                                    return null;
+                                }
+                                while (p != null) {
+                                    if (key < p.key) {
+                                        if (p.getLeft() != null) {
+                                            p = p.getLeft();
+                                        }
+                                        else {
+                                            return p.previous();
+                                        }
+                                    }
+                                    else {
+                                        if (key > p.key) {
+                                            if (p.getRight() != null) {
+                                                p = p.getRight();
+                                            }
+                                            else {
+                                                return p;
+                                            }
+                                        }
+                                        else {
+                                            return p.previous();
+                                        }
+                                    }
+                                }
+                                return null;
+                            };
+                            OOKLongLongTree.prototype.next = function (key) {
+                                var p = this.root;
+                                if (p == null) {
+                                    return null;
+                                }
+                                while (p != null) {
+                                    if (key < p.key) {
+                                        if (p.getLeft() != null) {
+                                            p = p.getLeft();
+                                        }
+                                        else {
+                                            return p;
+                                        }
+                                    }
+                                    else {
+                                        if (key > p.key) {
+                                            if (p.getRight() != null) {
+                                                p = p.getRight();
+                                            }
+                                            else {
+                                                return p.next();
+                                            }
+                                        }
+                                        else {
+                                            return p.next();
+                                        }
+                                    }
+                                }
+                                return null;
+                            };
+                            OOKLongLongTree.prototype.first = function () {
+                                var p = this.root;
+                                if (p == null) {
+                                    return null;
+                                }
+                                while (p != null) {
                                     if (p.getLeft() != null) {
                                         p = p.getLeft();
                                     }
@@ -7153,714 +6918,1001 @@ var org;
                                         return p;
                                     }
                                 }
+                                return null;
+                            };
+                            OOKLongLongTree.prototype.last = function () {
+                                var p = this.root;
+                                if (p == null) {
+                                    return null;
+                                }
+                                while (p != null) {
+                                    if (p.getRight() != null) {
+                                        p = p.getRight();
+                                    }
+                                    else {
+                                        return p;
+                                    }
+                                }
+                                return null;
+                            };
+                            OOKLongLongTree.prototype.rotateLeft = function (n) {
+                                var r = n.getRight();
+                                this.replaceNode(n, r);
+                                n.setRight(r.getLeft());
+                                if (r.getLeft() != null) {
+                                    r.getLeft().setParent(n);
+                                }
+                                r.setLeft(n);
+                                n.setParent(r);
+                            };
+                            OOKLongLongTree.prototype.rotateRight = function (n) {
+                                var l = n.getLeft();
+                                this.replaceNode(n, l);
+                                n.setLeft(l.getRight());
+                                if (l.getRight() != null) {
+                                    l.getRight().setParent(n);
+                                }
+                                l.setRight(n);
+                                n.setParent(l);
+                            };
+                            OOKLongLongTree.prototype.replaceNode = function (oldn, newn) {
+                                if (oldn.getParent() == null) {
+                                    this.root = newn;
+                                }
                                 else {
+                                    if (oldn == oldn.getParent().getLeft()) {
+                                        oldn.getParent().setLeft(newn);
+                                    }
+                                    else {
+                                        oldn.getParent().setRight(newn);
+                                    }
+                                }
+                                if (newn != null) {
+                                    newn.setParent(oldn.getParent());
+                                }
+                            };
+                            OOKLongLongTree.prototype.insert = function (key, value) {
+                                this.resetCache();
+                                this._dirty = true;
+                                var insertedNode = new org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode(key, value, false, null, null);
+                                if (this.root == null) {
+                                    this._size++;
+                                    this.root = insertedNode;
+                                }
+                                else {
+                                    var n = this.root;
+                                    while (true) {
+                                        if (key == n.key) {
+                                            n.value = value;
+                                            return;
+                                        }
+                                        else {
+                                            if (key < n.key) {
+                                                if (n.getLeft() == null) {
+                                                    n.setLeft(insertedNode);
+                                                    this._size++;
+                                                    break;
+                                                }
+                                                else {
+                                                    n = n.getLeft();
+                                                }
+                                            }
+                                            else {
+                                                if (n.getRight() == null) {
+                                                    n.setRight(insertedNode);
+                                                    this._size++;
+                                                    break;
+                                                }
+                                                else {
+                                                    n = n.getRight();
+                                                }
+                                            }
+                                        }
+                                    }
+                                    insertedNode.setParent(n);
+                                }
+                                this.insertCase1(insertedNode);
+                            };
+                            OOKLongLongTree.prototype.insertCase1 = function (n) {
+                                if (n.getParent() == null) {
+                                    n.color = true;
+                                }
+                                else {
+                                    this.insertCase2(n);
+                                }
+                            };
+                            OOKLongLongTree.prototype.insertCase2 = function (n) {
+                                if (this.nodeColor(n.getParent()) == true) {
+                                    return;
+                                }
+                                else {
+                                    this.insertCase3(n);
+                                }
+                            };
+                            OOKLongLongTree.prototype.insertCase3 = function (n) {
+                                if (this.nodeColor(n.uncle()) == false) {
+                                    n.getParent().color = true;
+                                    n.uncle().color = true;
+                                    n.grandparent().color = false;
+                                    this.insertCase1(n.grandparent());
+                                }
+                                else {
+                                    this.insertCase4(n);
+                                }
+                            };
+                            OOKLongLongTree.prototype.insertCase4 = function (n_n) {
+                                var n = n_n;
+                                if (n == n.getParent().getRight() && n.getParent() == n.grandparent().getLeft()) {
+                                    this.rotateLeft(n.getParent());
+                                    n = n.getLeft();
+                                }
+                                else {
+                                    if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getRight()) {
+                                        this.rotateRight(n.getParent());
+                                        n = n.getRight();
+                                    }
+                                }
+                                this.insertCase5(n);
+                            };
+                            OOKLongLongTree.prototype.insertCase5 = function (n) {
+                                n.getParent().color = true;
+                                n.grandparent().color = false;
+                                if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getLeft()) {
+                                    this.rotateRight(n.grandparent());
+                                }
+                                else {
+                                    this.rotateLeft(n.grandparent());
+                                }
+                            };
+                            OOKLongLongTree.prototype.delete = function (key) {
+                                var n = this.internal_lookup(key);
+                                if (n == null) {
+                                    return;
+                                }
+                                else {
+                                    this._size--;
+                                    if (n.getLeft() != null && n.getRight() != null) {
+                                        var pred = n.getLeft();
+                                        while (pred.getRight() != null) {
+                                            pred = pred.getRight();
+                                        }
+                                        n.key = pred.key;
+                                        n.value = pred.value;
+                                        n = pred;
+                                    }
+                                    var child;
+                                    if (n.getRight() == null) {
+                                        child = n.getLeft();
+                                    }
+                                    else {
+                                        child = n.getRight();
+                                    }
+                                    if (this.nodeColor(n) == true) {
+                                        n.color = this.nodeColor(child);
+                                        this.deleteCase1(n);
+                                    }
+                                    this.replaceNode(n, child);
+                                }
+                            };
+                            OOKLongLongTree.prototype.deleteCase1 = function (n) {
+                                if (n.getParent() == null) {
+                                    return;
+                                }
+                                else {
+                                    this.deleteCase2(n);
+                                }
+                            };
+                            OOKLongLongTree.prototype.deleteCase2 = function (n) {
+                                if (this.nodeColor(n.sibling()) == false) {
+                                    n.getParent().color = false;
+                                    n.sibling().color = true;
+                                    if (n == n.getParent().getLeft()) {
+                                        this.rotateLeft(n.getParent());
+                                    }
+                                    else {
+                                        this.rotateRight(n.getParent());
+                                    }
+                                }
+                                this.deleteCase3(n);
+                            };
+                            OOKLongLongTree.prototype.deleteCase3 = function (n) {
+                                if (this.nodeColor(n.getParent()) == true && this.nodeColor(n.sibling()) == true && this.nodeColor(n.sibling().getLeft()) == true && this.nodeColor(n.sibling().getRight()) == true) {
+                                    n.sibling().color = false;
+                                    this.deleteCase1(n.getParent());
+                                }
+                                else {
+                                    this.deleteCase4(n);
+                                }
+                            };
+                            OOKLongLongTree.prototype.deleteCase4 = function (n) {
+                                if (this.nodeColor(n.getParent()) == false && this.nodeColor(n.sibling()) == true && this.nodeColor(n.sibling().getLeft()) == true && this.nodeColor(n.sibling().getRight()) == true) {
+                                    n.sibling().color = false;
+                                    n.getParent().color = true;
+                                }
+                                else {
+                                    this.deleteCase5(n);
+                                }
+                            };
+                            OOKLongLongTree.prototype.deleteCase5 = function (n) {
+                                if (n == n.getParent().getLeft() && this.nodeColor(n.sibling()) == true && this.nodeColor(n.sibling().getLeft()) == false && this.nodeColor(n.sibling().getRight()) == true) {
+                                    n.sibling().color = false;
+                                    n.sibling().getLeft().color = true;
+                                    this.rotateRight(n.sibling());
+                                }
+                                else {
+                                    if (n == n.getParent().getRight() && this.nodeColor(n.sibling()) == true && this.nodeColor(n.sibling().getRight()) == false && this.nodeColor(n.sibling().getLeft()) == true) {
+                                        n.sibling().color = false;
+                                        n.sibling().getRight().color = true;
+                                        this.rotateLeft(n.sibling());
+                                    }
+                                }
+                                this.deleteCase6(n);
+                            };
+                            OOKLongLongTree.prototype.deleteCase6 = function (n) {
+                                n.sibling().color = this.nodeColor(n.getParent());
+                                n.getParent().color = true;
+                                if (n == n.getParent().getLeft()) {
+                                    n.sibling().getRight().color = true;
+                                    this.rotateLeft(n.getParent());
+                                }
+                                else {
+                                    n.sibling().getLeft().color = true;
+                                    this.rotateRight(n.getParent());
+                                }
+                            };
+                            OOKLongLongTree.prototype.nodeColor = function (n) {
+                                if (n == null) {
+                                    return true;
+                                }
+                                else {
+                                    return n.color;
+                                }
+                            };
+                            return OOKLongLongTree;
+                        })();
+                        ooheap.OOKLongLongTree = OOKLongLongTree;
+                        var OOKLongTree = (function () {
+                            function OOKLongTree() {
+                                this._size = 0;
+                                this.root = null;
+                                this._previousOrEqualsCacheValues = null;
+                                this._counter = 0;
+                                this._dirty = false;
+                                this._previousOrEqualsCacheValues = new Array();
+                                this._nextCacheElem = 0;
+                            }
+                            OOKLongTree.prototype.size = function () {
+                                return this._size;
+                            };
+                            OOKLongTree.prototype.counter = function () {
+                                return this._counter;
+                            };
+                            OOKLongTree.prototype.inc = function () {
+                                this._counter++;
+                            };
+                            OOKLongTree.prototype.dec = function () {
+                                this._counter--;
+                            };
+                            OOKLongTree.prototype.tryPreviousOrEqualsCache = function (key) {
+                                if (this._previousOrEqualsCacheValues != null) {
+                                    for (var i = 0; i < this._nextCacheElem; i++) {
+                                        if (this._previousOrEqualsCacheValues[i] != null && this._previousOrEqualsCacheValues[i].key == key) {
+                                            return this._previousOrEqualsCacheValues[i];
+                                        }
+                                    }
+                                    return null;
+                                }
+                                else {
+                                    return null;
+                                }
+                            };
+                            OOKLongTree.prototype.resetCache = function () {
+                                this._nextCacheElem = 0;
+                            };
+                            OOKLongTree.prototype.putInPreviousOrEqualsCache = function (resolved) {
+                                if (this._nextCacheElem == org.kevoree.modeling.api.KConfig.TREE_CACHE_SIZE) {
+                                    this._nextCacheElem = 0;
+                                }
+                                this._previousOrEqualsCacheValues[this._nextCacheElem] = resolved;
+                                this._nextCacheElem++;
+                            };
+                            OOKLongTree.prototype.isDirty = function () {
+                                return this._dirty;
+                            };
+                            OOKLongTree.prototype.setClean = function () {
+                                this._dirty = false;
+                            };
+                            OOKLongTree.prototype.serialize = function () {
+                                var builder = new java.lang.StringBuilder();
+                                builder.append(this._size);
+                                if (this.root != null) {
+                                    this.root.serialize(builder);
+                                }
+                                return builder.toString();
+                            };
+                            OOKLongTree.prototype.toString = function () {
+                                return this.serialize();
+                            };
+                            OOKLongTree.prototype.unserialize = function (key, payload, metaModel) {
+                                if (payload == null || payload.length == 0) {
+                                    return;
+                                }
+                                var i = 0;
+                                var buffer = new java.lang.StringBuilder();
+                                var ch = payload.charAt(i);
+                                while (i < payload.length && ch != '|') {
+                                    buffer.append(ch);
+                                    i = i + 1;
+                                    ch = payload.charAt(i);
+                                }
+                                this._size = java.lang.Integer.parseInt(buffer.toString());
+                                var ctx = new org.kevoree.modeling.api.rbtree.ooheap.TreeReaderContext();
+                                ctx.index = i;
+                                ctx.payload = payload;
+                                this.root = org.kevoree.modeling.api.rbtree.ooheap.TreeNode.unserialize(ctx);
+                                this.resetCache();
+                            };
+                            OOKLongTree.prototype.previousOrEqual = function (key) {
+                                var resolvedNode = this.internal_previousOrEqual(key);
+                                if (resolvedNode != null) {
+                                    return resolvedNode.key;
+                                }
+                                return org.kevoree.modeling.api.KConfig.NULL_LONG;
+                            };
+                            OOKLongTree.prototype.internal_previousOrEqual = function (key) {
+                                var cachedVal = this.tryPreviousOrEqualsCache(key);
+                                if (cachedVal != null) {
+                                    return cachedVal;
+                                }
+                                var p = this.root;
+                                if (p == null) {
+                                    return null;
+                                }
+                                while (p != null) {
+                                    if (key == p.key) {
+                                        this.putInPreviousOrEqualsCache(p);
+                                        return p;
+                                    }
                                     if (key > p.key) {
                                         if (p.getRight() != null) {
                                             p = p.getRight();
                                         }
                                         else {
-                                            return p.next();
+                                            this.putInPreviousOrEqualsCache(p);
+                                            return p;
                                         }
                                     }
                                     else {
-                                        return p.next();
+                                        if (p.getLeft() != null) {
+                                            p = p.getLeft();
+                                        }
+                                        else {
+                                            var parent = p.getParent();
+                                            var ch = p;
+                                            while (parent != null && ch == parent.getLeft()) {
+                                                ch = parent;
+                                                parent = parent.getParent();
+                                            }
+                                            this.putInPreviousOrEqualsCache(parent);
+                                            return parent;
+                                        }
                                     }
                                 }
-                            }
-                            return null;
-                        };
-                        LongRBTree.prototype.first = function () {
-                            var p = this.root;
-                            if (p == null) {
                                 return null;
-                            }
-                            while (p != null) {
-                                if (p.getLeft() != null) {
-                                    p = p.getLeft();
+                            };
+                            OOKLongTree.prototype.nextOrEqual = function (key) {
+                                var p = this.root;
+                                if (p == null) {
+                                    return null;
                                 }
-                                else {
-                                    return p;
-                                }
-                            }
-                            return null;
-                        };
-                        LongRBTree.prototype.last = function () {
-                            var p = this.root;
-                            if (p == null) {
-                                return null;
-                            }
-                            while (p != null) {
-                                if (p.getRight() != null) {
-                                    p = p.getRight();
-                                }
-                                else {
-                                    return p;
-                                }
-                            }
-                            return null;
-                        };
-                        LongRBTree.prototype.rotateLeft = function (n) {
-                            var r = n.getRight();
-                            this.replaceNode(n, r);
-                            n.setRight(r.getLeft());
-                            if (r.getLeft() != null) {
-                                r.getLeft().setParent(n);
-                            }
-                            r.setLeft(n);
-                            n.setParent(r);
-                        };
-                        LongRBTree.prototype.rotateRight = function (n) {
-                            var l = n.getLeft();
-                            this.replaceNode(n, l);
-                            n.setLeft(l.getRight());
-                            if (l.getRight() != null) {
-                                l.getRight().setParent(n);
-                            }
-                            l.setRight(n);
-                            n.setParent(l);
-                        };
-                        LongRBTree.prototype.replaceNode = function (oldn, newn) {
-                            if (oldn.getParent() == null) {
-                                this.root = newn;
-                            }
-                            else {
-                                if (oldn == oldn.getParent().getLeft()) {
-                                    oldn.getParent().setLeft(newn);
-                                }
-                                else {
-                                    oldn.getParent().setRight(newn);
-                                }
-                            }
-                            if (newn != null) {
-                                newn.setParent(oldn.getParent());
-                            }
-                        };
-                        LongRBTree.prototype.insert = function (key, value) {
-                            this.resetCache();
-                            this._dirty = true;
-                            var insertedNode = new org.kevoree.modeling.api.rbtree.LongTreeNode(key, value, false, null, null);
-                            if (this.root == null) {
-                                this._size++;
-                                this.root = insertedNode;
-                            }
-                            else {
-                                var n = this.root;
-                                while (true) {
-                                    if (key == n.key) {
-                                        n.value = value;
-                                        return;
+                                while (p != null) {
+                                    if (key == p.key) {
+                                        return p;
+                                    }
+                                    if (key < p.key) {
+                                        if (p.getLeft() != null) {
+                                            p = p.getLeft();
+                                        }
+                                        else {
+                                            return p;
+                                        }
                                     }
                                     else {
-                                        if (key < n.key) {
-                                            if (n.getLeft() == null) {
-                                                n.setLeft(insertedNode);
-                                                this._size++;
-                                                break;
+                                        if (p.getRight() != null) {
+                                            p = p.getRight();
+                                        }
+                                        else {
+                                            var parent = p.getParent();
+                                            var ch = p;
+                                            while (parent != null && ch == parent.getRight()) {
+                                                ch = parent;
+                                                parent = parent.getParent();
+                                            }
+                                            return parent;
+                                        }
+                                    }
+                                }
+                                return null;
+                            };
+                            OOKLongTree.prototype.previous = function (key) {
+                                var p = this.root;
+                                if (p == null) {
+                                    return null;
+                                }
+                                while (p != null) {
+                                    if (key < p.key) {
+                                        if (p.getLeft() != null) {
+                                            p = p.getLeft();
+                                        }
+                                        else {
+                                            return p.previous();
+                                        }
+                                    }
+                                    else {
+                                        if (key > p.key) {
+                                            if (p.getRight() != null) {
+                                                p = p.getRight();
                                             }
                                             else {
-                                                n = n.getLeft();
+                                                return p;
                                             }
                                         }
                                         else {
-                                            if (n.getRight() == null) {
-                                                n.setRight(insertedNode);
-                                                this._size++;
-                                                break;
-                                            }
-                                            else {
-                                                n = n.getRight();
-                                            }
+                                            return p.previous();
                                         }
                                     }
                                 }
-                                insertedNode.setParent(n);
-                            }
-                            this.insertCase1(insertedNode);
-                        };
-                        LongRBTree.prototype.insertCase1 = function (n) {
-                            if (n.getParent() == null) {
-                                n.color = true;
-                            }
-                            else {
-                                this.insertCase2(n);
-                            }
-                        };
-                        LongRBTree.prototype.insertCase2 = function (n) {
-                            if (this.nodeColor(n.getParent()) == true) {
-                                return;
-                            }
-                            else {
-                                this.insertCase3(n);
-                            }
-                        };
-                        LongRBTree.prototype.insertCase3 = function (n) {
-                            if (this.nodeColor(n.uncle()) == false) {
-                                n.getParent().color = true;
-                                n.uncle().color = true;
-                                n.grandparent().color = false;
-                                this.insertCase1(n.grandparent());
-                            }
-                            else {
-                                this.insertCase4(n);
-                            }
-                        };
-                        LongRBTree.prototype.insertCase4 = function (n_n) {
-                            var n = n_n;
-                            if (n == n.getParent().getRight() && n.getParent() == n.grandparent().getLeft()) {
-                                this.rotateLeft(n.getParent());
-                                n = n.getLeft();
-                            }
-                            else {
-                                if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getRight()) {
-                                    this.rotateRight(n.getParent());
-                                    n = n.getRight();
+                                return null;
+                            };
+                            OOKLongTree.prototype.next = function (key) {
+                                var p = this.root;
+                                if (p == null) {
+                                    return null;
                                 }
-                            }
-                            this.insertCase5(n);
-                        };
-                        LongRBTree.prototype.insertCase5 = function (n) {
-                            n.getParent().color = true;
-                            n.grandparent().color = false;
-                            if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getLeft()) {
-                                this.rotateRight(n.grandparent());
-                            }
-                            else {
-                                this.rotateLeft(n.grandparent());
-                            }
-                        };
-                        LongRBTree.prototype.delete = function (key) {
-                            var n = this.lookup(key);
-                            if (n == null) {
-                                return;
-                            }
-                            else {
-                                this._size--;
-                                if (n.getLeft() != null && n.getRight() != null) {
-                                    var pred = n.getLeft();
-                                    while (pred.getRight() != null) {
-                                        pred = pred.getRight();
+                                while (p != null) {
+                                    if (key < p.key) {
+                                        if (p.getLeft() != null) {
+                                            p = p.getLeft();
+                                        }
+                                        else {
+                                            return p;
+                                        }
                                     }
-                                    n.key = pred.key;
-                                    n.value = pred.value;
-                                    n = pred;
+                                    else {
+                                        if (key > p.key) {
+                                            if (p.getRight() != null) {
+                                                p = p.getRight();
+                                            }
+                                            else {
+                                                return p.next();
+                                            }
+                                        }
+                                        else {
+                                            return p.next();
+                                        }
+                                    }
                                 }
-                                var child;
-                                if (n.getRight() == null) {
-                                    child = n.getLeft();
+                                return null;
+                            };
+                            OOKLongTree.prototype.first = function () {
+                                var p = this.root;
+                                if (p == null) {
+                                    return null;
+                                }
+                                while (p != null) {
+                                    if (p.getLeft() != null) {
+                                        p = p.getLeft();
+                                    }
+                                    else {
+                                        return p;
+                                    }
+                                }
+                                return null;
+                            };
+                            OOKLongTree.prototype.last = function () {
+                                var p = this.root;
+                                if (p == null) {
+                                    return null;
+                                }
+                                while (p != null) {
+                                    if (p.getRight() != null) {
+                                        p = p.getRight();
+                                    }
+                                    else {
+                                        return p;
+                                    }
+                                }
+                                return null;
+                            };
+                            OOKLongTree.prototype.lookup = function (key) {
+                                var n = this.root;
+                                if (n == null) {
+                                    return org.kevoree.modeling.api.KConfig.NULL_LONG;
+                                }
+                                while (n != null) {
+                                    if (key == n.key) {
+                                        return n.key;
+                                    }
+                                    else {
+                                        if (key < n.key) {
+                                            n = n.getLeft();
+                                        }
+                                        else {
+                                            n = n.getRight();
+                                        }
+                                    }
+                                }
+                                return org.kevoree.modeling.api.KConfig.NULL_LONG;
+                            };
+                            OOKLongTree.prototype.range = function (start, end, walker) {
+                                var it = this.internal_previousOrEqual(end);
+                                while (it != null && it.key >= start) {
+                                    walker(it.key);
+                                    it = it.previous();
+                                }
+                            };
+                            OOKLongTree.prototype.rotateLeft = function (n) {
+                                var r = n.getRight();
+                                this.replaceNode(n, r);
+                                n.setRight(r.getLeft());
+                                if (r.getLeft() != null) {
+                                    r.getLeft().setParent(n);
+                                }
+                                r.setLeft(n);
+                                n.setParent(r);
+                            };
+                            OOKLongTree.prototype.rotateRight = function (n) {
+                                var l = n.getLeft();
+                                this.replaceNode(n, l);
+                                n.setLeft(l.getRight());
+                                if (l.getRight() != null) {
+                                    l.getRight().setParent(n);
+                                }
+                                l.setRight(n);
+                                n.setParent(l);
+                            };
+                            OOKLongTree.prototype.replaceNode = function (oldn, newn) {
+                                if (oldn.getParent() == null) {
+                                    this.root = newn;
                                 }
                                 else {
-                                    child = n.getRight();
+                                    if (oldn == oldn.getParent().getLeft()) {
+                                        oldn.getParent().setLeft(newn);
+                                    }
+                                    else {
+                                        oldn.getParent().setRight(newn);
+                                    }
                                 }
-                                if (this.nodeColor(n) == true) {
-                                    n.color = this.nodeColor(child);
-                                    this.deleteCase1(n);
+                                if (newn != null) {
+                                    newn.setParent(oldn.getParent());
                                 }
-                                this.replaceNode(n, child);
-                            }
-                        };
-                        LongRBTree.prototype.deleteCase1 = function (n) {
-                            if (n.getParent() == null) {
-                                return;
-                            }
-                            else {
-                                this.deleteCase2(n);
-                            }
-                        };
-                        LongRBTree.prototype.deleteCase2 = function (n) {
-                            if (this.nodeColor(n.sibling()) == false) {
-                                n.getParent().color = false;
-                                n.sibling().color = true;
+                            };
+                            OOKLongTree.prototype.insert = function (key) {
+                                this._dirty = true;
+                                var insertedNode;
+                                if (this.root == null) {
+                                    this._size++;
+                                    insertedNode = new org.kevoree.modeling.api.rbtree.ooheap.TreeNode(key, false, null, null);
+                                    this.root = insertedNode;
+                                }
+                                else {
+                                    var n = this.root;
+                                    while (true) {
+                                        if (key == n.key) {
+                                            this.putInPreviousOrEqualsCache(n);
+                                            return;
+                                        }
+                                        else {
+                                            if (key < n.key) {
+                                                if (n.getLeft() == null) {
+                                                    insertedNode = new org.kevoree.modeling.api.rbtree.ooheap.TreeNode(key, false, null, null);
+                                                    n.setLeft(insertedNode);
+                                                    this._size++;
+                                                    break;
+                                                }
+                                                else {
+                                                    n = n.getLeft();
+                                                }
+                                            }
+                                            else {
+                                                if (n.getRight() == null) {
+                                                    insertedNode = new org.kevoree.modeling.api.rbtree.ooheap.TreeNode(key, false, null, null);
+                                                    n.setRight(insertedNode);
+                                                    this._size++;
+                                                    break;
+                                                }
+                                                else {
+                                                    n = n.getRight();
+                                                }
+                                            }
+                                        }
+                                    }
+                                    insertedNode.setParent(n);
+                                }
+                                this.insertCase1(insertedNode);
+                                this.putInPreviousOrEqualsCache(insertedNode);
+                            };
+                            OOKLongTree.prototype.insertCase1 = function (n) {
+                                if (n.getParent() == null) {
+                                    n.color = true;
+                                }
+                                else {
+                                    this.insertCase2(n);
+                                }
+                            };
+                            OOKLongTree.prototype.insertCase2 = function (n) {
+                                if (this.nodeColor(n.getParent()) == true) {
+                                    return;
+                                }
+                                else {
+                                    this.insertCase3(n);
+                                }
+                            };
+                            OOKLongTree.prototype.insertCase3 = function (n) {
+                                if (this.nodeColor(n.uncle()) == false) {
+                                    n.getParent().color = true;
+                                    n.uncle().color = true;
+                                    n.grandparent().color = false;
+                                    this.insertCase1(n.grandparent());
+                                }
+                                else {
+                                    this.insertCase4(n);
+                                }
+                            };
+                            OOKLongTree.prototype.insertCase4 = function (n_n) {
+                                var n = n_n;
+                                if (n == n.getParent().getRight() && n.getParent() == n.grandparent().getLeft()) {
+                                    this.rotateLeft(n.getParent());
+                                    n = n.getLeft();
+                                }
+                                else {
+                                    if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getRight()) {
+                                        this.rotateRight(n.getParent());
+                                        n = n.getRight();
+                                    }
+                                }
+                                this.insertCase5(n);
+                            };
+                            OOKLongTree.prototype.insertCase5 = function (n) {
+                                n.getParent().color = true;
+                                n.grandparent().color = false;
+                                if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getLeft()) {
+                                    this.rotateRight(n.grandparent());
+                                }
+                                else {
+                                    this.rotateLeft(n.grandparent());
+                                }
+                            };
+                            OOKLongTree.prototype.delete = function (key) {
+                                var n = null;
+                                var nn = this.root;
+                                while (nn != null) {
+                                    if (key == nn.key) {
+                                        n = nn;
+                                    }
+                                    else {
+                                        if (key < nn.key) {
+                                            nn = nn.getLeft();
+                                        }
+                                        else {
+                                            nn = nn.getRight();
+                                        }
+                                    }
+                                }
+                                if (n == null) {
+                                    return;
+                                }
+                                else {
+                                    this._size--;
+                                    if (n.getLeft() != null && n.getRight() != null) {
+                                        var pred = n.getLeft();
+                                        while (pred.getRight() != null) {
+                                            pred = pred.getRight();
+                                        }
+                                        n.key = pred.key;
+                                        n = pred;
+                                    }
+                                    var child;
+                                    if (n.getRight() == null) {
+                                        child = n.getLeft();
+                                    }
+                                    else {
+                                        child = n.getRight();
+                                    }
+                                    if (this.nodeColor(n) == true) {
+                                        n.color = this.nodeColor(child);
+                                        this.deleteCase1(n);
+                                    }
+                                    this.replaceNode(n, child);
+                                }
+                            };
+                            OOKLongTree.prototype.deleteCase1 = function (n) {
+                                if (n.getParent() == null) {
+                                    return;
+                                }
+                                else {
+                                    this.deleteCase2(n);
+                                }
+                            };
+                            OOKLongTree.prototype.deleteCase2 = function (n) {
+                                if (this.nodeColor(n.sibling()) == false) {
+                                    n.getParent().color = false;
+                                    n.sibling().color = true;
+                                    if (n == n.getParent().getLeft()) {
+                                        this.rotateLeft(n.getParent());
+                                    }
+                                    else {
+                                        this.rotateRight(n.getParent());
+                                    }
+                                }
+                                this.deleteCase3(n);
+                            };
+                            OOKLongTree.prototype.deleteCase3 = function (n) {
+                                if (this.nodeColor(n.getParent()) == true && this.nodeColor(n.sibling()) == true && this.nodeColor(n.sibling().getLeft()) == true && this.nodeColor(n.sibling().getRight()) == true) {
+                                    n.sibling().color = false;
+                                    this.deleteCase1(n.getParent());
+                                }
+                                else {
+                                    this.deleteCase4(n);
+                                }
+                            };
+                            OOKLongTree.prototype.deleteCase4 = function (n) {
+                                if (this.nodeColor(n.getParent()) == false && this.nodeColor(n.sibling()) == true && this.nodeColor(n.sibling().getLeft()) == true && this.nodeColor(n.sibling().getRight()) == true) {
+                                    n.sibling().color = false;
+                                    n.getParent().color = true;
+                                }
+                                else {
+                                    this.deleteCase5(n);
+                                }
+                            };
+                            OOKLongTree.prototype.deleteCase5 = function (n) {
+                                if (n == n.getParent().getLeft() && this.nodeColor(n.sibling()) == true && this.nodeColor(n.sibling().getLeft()) == false && this.nodeColor(n.sibling().getRight()) == true) {
+                                    n.sibling().color = false;
+                                    n.sibling().getLeft().color = true;
+                                    this.rotateRight(n.sibling());
+                                }
+                                else {
+                                    if (n == n.getParent().getRight() && this.nodeColor(n.sibling()) == true && this.nodeColor(n.sibling().getRight()) == false && this.nodeColor(n.sibling().getLeft()) == true) {
+                                        n.sibling().color = false;
+                                        n.sibling().getRight().color = true;
+                                        this.rotateLeft(n.sibling());
+                                    }
+                                }
+                                this.deleteCase6(n);
+                            };
+                            OOKLongTree.prototype.deleteCase6 = function (n) {
+                                n.sibling().color = this.nodeColor(n.getParent());
+                                n.getParent().color = true;
                                 if (n == n.getParent().getLeft()) {
+                                    n.sibling().getRight().color = true;
                                     this.rotateLeft(n.getParent());
                                 }
                                 else {
+                                    n.sibling().getLeft().color = true;
                                     this.rotateRight(n.getParent());
                                 }
-                            }
-                            this.deleteCase3(n);
-                        };
-                        LongRBTree.prototype.deleteCase3 = function (n) {
-                            if (this.nodeColor(n.getParent()) == true && this.nodeColor(n.sibling()) == true && this.nodeColor(n.sibling().getLeft()) == true && this.nodeColor(n.sibling().getRight()) == true) {
-                                n.sibling().color = false;
-                                this.deleteCase1(n.getParent());
-                            }
-                            else {
-                                this.deleteCase4(n);
-                            }
-                        };
-                        LongRBTree.prototype.deleteCase4 = function (n) {
-                            if (this.nodeColor(n.getParent()) == false && this.nodeColor(n.sibling()) == true && this.nodeColor(n.sibling().getLeft()) == true && this.nodeColor(n.sibling().getRight()) == true) {
-                                n.sibling().color = false;
-                                n.getParent().color = true;
-                            }
-                            else {
-                                this.deleteCase5(n);
-                            }
-                        };
-                        LongRBTree.prototype.deleteCase5 = function (n) {
-                            if (n == n.getParent().getLeft() && this.nodeColor(n.sibling()) == true && this.nodeColor(n.sibling().getLeft()) == false && this.nodeColor(n.sibling().getRight()) == true) {
-                                n.sibling().color = false;
-                                n.sibling().getLeft().color = true;
-                                this.rotateRight(n.sibling());
-                            }
-                            else {
-                                if (n == n.getParent().getRight() && this.nodeColor(n.sibling()) == true && this.nodeColor(n.sibling().getRight()) == false && this.nodeColor(n.sibling().getLeft()) == true) {
-                                    n.sibling().color = false;
-                                    n.sibling().getRight().color = true;
-                                    this.rotateLeft(n.sibling());
-                                }
-                            }
-                            this.deleteCase6(n);
-                        };
-                        LongRBTree.prototype.deleteCase6 = function (n) {
-                            n.sibling().color = this.nodeColor(n.getParent());
-                            n.getParent().color = true;
-                            if (n == n.getParent().getLeft()) {
-                                n.sibling().getRight().color = true;
-                                this.rotateLeft(n.getParent());
-                            }
-                            else {
-                                n.sibling().getLeft().color = true;
-                                this.rotateRight(n.getParent());
-                            }
-                        };
-                        LongRBTree.prototype.nodeColor = function (n) {
-                            if (n == null) {
-                                return true;
-                            }
-                            else {
-                                return n.color;
-                            }
-                        };
-                        return LongRBTree;
-                    })();
-                    rbtree.LongRBTree = LongRBTree;
-                    var LongTreeNode = (function () {
-                        function LongTreeNode(key, value, color, left, right) {
-                            this.parent = null;
-                            this.key = key;
-                            this.value = value;
-                            this.color = color;
-                            this.left = left;
-                            this.right = right;
-                            if (left != null) {
-                                left.parent = this;
-                            }
-                            if (right != null) {
-                                right.parent = this;
-                            }
-                            this.parent = null;
-                        }
-                        LongTreeNode.prototype.grandparent = function () {
-                            if (this.parent != null) {
-                                return this.parent.parent;
-                            }
-                            else {
-                                return null;
-                            }
-                        };
-                        LongTreeNode.prototype.sibling = function () {
-                            if (this.parent == null) {
-                                return null;
-                            }
-                            else {
-                                if (this == this.parent.left) {
-                                    return this.parent.right;
+                            };
+                            OOKLongTree.prototype.nodeColor = function (n) {
+                                if (n == null) {
+                                    return true;
                                 }
                                 else {
-                                    return this.parent.left;
+                                    return n.color;
                                 }
-                            }
-                        };
-                        LongTreeNode.prototype.uncle = function () {
-                            if (this.parent != null) {
-                                return this.parent.sibling();
-                            }
-                            else {
-                                return null;
-                            }
-                        };
-                        LongTreeNode.prototype.getLeft = function () {
-                            return this.left;
-                        };
-                        LongTreeNode.prototype.setLeft = function (left) {
-                            this.left = left;
-                        };
-                        LongTreeNode.prototype.getRight = function () {
-                            return this.right;
-                        };
-                        LongTreeNode.prototype.setRight = function (right) {
-                            this.right = right;
-                        };
-                        LongTreeNode.prototype.getParent = function () {
-                            return this.parent;
-                        };
-                        LongTreeNode.prototype.setParent = function (parent) {
-                            this.parent = parent;
-                        };
-                        LongTreeNode.prototype.serialize = function (builder) {
-                            builder.append("|");
-                            if (this.color == true) {
-                                builder.append(LongTreeNode.BLACK);
-                            }
-                            else {
-                                builder.append(LongTreeNode.RED);
-                            }
-                            builder.append(this.key);
-                            builder.append("@");
-                            builder.append(this.value);
-                            if (this.left == null && this.right == null) {
-                                builder.append("%");
-                            }
-                            else {
-                                if (this.left != null) {
-                                    this.left.serialize(builder);
+                            };
+                            return OOKLongTree;
+                        })();
+                        ooheap.OOKLongTree = OOKLongTree;
+                        var TreeNode = (function () {
+                            function TreeNode(key, color, left, right) {
+                                this.parent = null;
+                                this.key = key;
+                                this.color = color;
+                                this.left = left;
+                                this.right = right;
+                                if (left != null) {
+                                    left.parent = this;
                                 }
-                                else {
-                                    builder.append("#");
+                                if (right != null) {
+                                    right.parent = this;
                                 }
-                                if (this.right != null) {
-                                    this.right.serialize(builder);
-                                }
-                                else {
-                                    builder.append("#");
-                                }
+                                this.parent = null;
                             }
-                        };
-                        LongTreeNode.prototype.next = function () {
-                            var p = this;
-                            if (p.right != null) {
-                                p = p.right;
-                                while (p.left != null) {
-                                    p = p.left;
-                                }
-                                return p;
-                            }
-                            else {
-                                if (p.parent != null) {
-                                    if (p == p.parent.left) {
-                                        return p.parent;
-                                    }
-                                    else {
-                                        while (p.parent != null && p == p.parent.right) {
-                                            p = p.parent;
-                                        }
-                                        return p.parent;
-                                    }
+                            TreeNode.prototype.getKey = function () {
+                                return this.key;
+                            };
+                            TreeNode.prototype.grandparent = function () {
+                                if (this.parent != null) {
+                                    return this.parent.parent;
                                 }
                                 else {
                                     return null;
                                 }
-                            }
-                        };
-                        LongTreeNode.prototype.previous = function () {
-                            var p = this;
-                            if (p.left != null) {
-                                p = p.left;
-                                while (p.right != null) {
+                            };
+                            TreeNode.prototype.sibling = function () {
+                                if (this.parent == null) {
+                                    return null;
+                                }
+                                else {
+                                    if (this == this.parent.left) {
+                                        return this.parent.right;
+                                    }
+                                    else {
+                                        return this.parent.left;
+                                    }
+                                }
+                            };
+                            TreeNode.prototype.uncle = function () {
+                                if (this.parent != null) {
+                                    return this.parent.sibling();
+                                }
+                                else {
+                                    return null;
+                                }
+                            };
+                            TreeNode.prototype.getLeft = function () {
+                                return this.left;
+                            };
+                            TreeNode.prototype.setLeft = function (left) {
+                                this.left = left;
+                            };
+                            TreeNode.prototype.getRight = function () {
+                                return this.right;
+                            };
+                            TreeNode.prototype.setRight = function (right) {
+                                this.right = right;
+                            };
+                            TreeNode.prototype.getParent = function () {
+                                return this.parent;
+                            };
+                            TreeNode.prototype.setParent = function (parent) {
+                                this.parent = parent;
+                            };
+                            TreeNode.prototype.serialize = function (builder) {
+                                builder.append("|");
+                                if (this.color == true) {
+                                    builder.append(TreeNode.BLACK);
+                                }
+                                else {
+                                    builder.append(TreeNode.RED);
+                                }
+                                builder.append(this.key);
+                                if (this.left == null && this.right == null) {
+                                    builder.append("%");
+                                }
+                                else {
+                                    if (this.left != null) {
+                                        this.left.serialize(builder);
+                                    }
+                                    else {
+                                        builder.append("#");
+                                    }
+                                    if (this.right != null) {
+                                        this.right.serialize(builder);
+                                    }
+                                    else {
+                                        builder.append("#");
+                                    }
+                                }
+                            };
+                            TreeNode.prototype.next = function () {
+                                var p = this;
+                                if (p.right != null) {
                                     p = p.right;
+                                    while (p.left != null) {
+                                        p = p.left;
+                                    }
+                                    return p;
                                 }
-                                return p;
-                            }
-                            else {
-                                if (p.parent != null) {
-                                    if (p == p.parent.right) {
-                                        return p.parent;
+                                else {
+                                    if (p.parent != null) {
+                                        if (p == p.parent.left) {
+                                            return p.parent;
+                                        }
+                                        else {
+                                            while (p.parent != null && p == p.parent.right) {
+                                                p = p.parent;
+                                            }
+                                            return p.parent;
+                                        }
                                     }
                                     else {
-                                        while (p.parent != null && p == p.parent.left) {
-                                            p = p.parent;
-                                        }
-                                        return p.parent;
+                                        return null;
                                     }
                                 }
-                                else {
-                                    return null;
-                                }
-                            }
-                        };
-                        LongTreeNode.unserialize = function (ctx) {
-                            return org.kevoree.modeling.api.rbtree.LongTreeNode.internal_unserialize(true, ctx);
-                        };
-                        LongTreeNode.internal_unserialize = function (rightBranch, ctx) {
-                            if (ctx.index >= ctx.payload.length) {
-                                return null;
-                            }
-                            var ch = ctx.payload.charAt(ctx.index);
-                            if (ch == '%') {
-                                if (rightBranch) {
-                                    ctx.index = ctx.index + 1;
-                                }
-                                return null;
-                            }
-                            if (ch == '#') {
-                                ctx.index = ctx.index + 1;
-                                return null;
-                            }
-                            if (ch != '|') {
-                                throw new java.lang.Exception("Error while loading BTree");
-                            }
-                            ctx.index = ctx.index + 1;
-                            ch = ctx.payload.charAt(ctx.index);
-                            var colorLoaded = true;
-                            if (ch == LongTreeNode.RED) {
-                                colorLoaded = false;
-                            }
-                            ctx.index = ctx.index + 1;
-                            ch = ctx.payload.charAt(ctx.index);
-                            var i = 0;
-                            while (ctx.index + 1 < ctx.payload.length && ch != '|' && ch != '#' && ch != '%' && ch != '@') {
-                                ctx.buffer[i] = ch;
-                                i++;
-                                ctx.index = ctx.index + 1;
-                                ch = ctx.payload.charAt(ctx.index);
-                            }
-                            if (ch != '|' && ch != '#' && ch != '%' && ch != '@') {
-                                ctx.buffer[i] = ch;
-                                i++;
-                            }
-                            var key = java.lang.Long.parseLong(StringUtils.copyValueOf(ctx.buffer, 0, i));
-                            i = 0;
-                            ctx.index = ctx.index + 1;
-                            ch = ctx.payload.charAt(ctx.index);
-                            while (ctx.index + 1 < ctx.payload.length && ch != '|' && ch != '#' && ch != '%' && ch != '@') {
-                                ctx.buffer[i] = ch;
-                                i++;
-                                ctx.index = ctx.index + 1;
-                                ch = ctx.payload.charAt(ctx.index);
-                            }
-                            if (ch != '|' && ch != '#' && ch != '%' && ch != '@') {
-                                ctx.buffer[i] = ch;
-                                i++;
-                            }
-                            var value = java.lang.Long.parseLong(StringUtils.copyValueOf(ctx.buffer, 0, i));
-                            var p = new org.kevoree.modeling.api.rbtree.LongTreeNode(key, value, colorLoaded, null, null);
-                            var left = org.kevoree.modeling.api.rbtree.LongTreeNode.internal_unserialize(false, ctx);
-                            if (left != null) {
-                                left.setParent(p);
-                            }
-                            var right = org.kevoree.modeling.api.rbtree.LongTreeNode.internal_unserialize(true, ctx);
-                            if (right != null) {
-                                right.setParent(p);
-                            }
-                            p.setLeft(left);
-                            p.setRight(right);
-                            return p;
-                        };
-                        LongTreeNode.BLACK = '0';
-                        LongTreeNode.RED = '2';
-                        return LongTreeNode;
-                    })();
-                    rbtree.LongTreeNode = LongTreeNode;
-                    var TreeNode = (function () {
-                        function TreeNode(key, color, left, right) {
-                            this.parent = null;
-                            this.key = key;
-                            this.color = color;
-                            this.left = left;
-                            this.right = right;
-                            if (left != null) {
-                                left.parent = this;
-                            }
-                            if (right != null) {
-                                right.parent = this;
-                            }
-                            this.parent = null;
-                        }
-                        TreeNode.prototype.getKey = function () {
-                            return this.key;
-                        };
-                        TreeNode.prototype.grandparent = function () {
-                            if (this.parent != null) {
-                                return this.parent.parent;
-                            }
-                            else {
-                                return null;
-                            }
-                        };
-                        TreeNode.prototype.sibling = function () {
-                            if (this.parent == null) {
-                                return null;
-                            }
-                            else {
-                                if (this == this.parent.left) {
-                                    return this.parent.right;
-                                }
-                                else {
-                                    return this.parent.left;
-                                }
-                            }
-                        };
-                        TreeNode.prototype.uncle = function () {
-                            if (this.parent != null) {
-                                return this.parent.sibling();
-                            }
-                            else {
-                                return null;
-                            }
-                        };
-                        TreeNode.prototype.getLeft = function () {
-                            return this.left;
-                        };
-                        TreeNode.prototype.setLeft = function (left) {
-                            this.left = left;
-                        };
-                        TreeNode.prototype.getRight = function () {
-                            return this.right;
-                        };
-                        TreeNode.prototype.setRight = function (right) {
-                            this.right = right;
-                        };
-                        TreeNode.prototype.getParent = function () {
-                            return this.parent;
-                        };
-                        TreeNode.prototype.setParent = function (parent) {
-                            this.parent = parent;
-                        };
-                        TreeNode.prototype.serialize = function (builder) {
-                            builder.append("|");
-                            if (this.color == true) {
-                                builder.append(TreeNode.BLACK);
-                            }
-                            else {
-                                builder.append(TreeNode.RED);
-                            }
-                            builder.append(this.key);
-                            if (this.left == null && this.right == null) {
-                                builder.append("%");
-                            }
-                            else {
-                                if (this.left != null) {
-                                    this.left.serialize(builder);
-                                }
-                                else {
-                                    builder.append("#");
-                                }
-                                if (this.right != null) {
-                                    this.right.serialize(builder);
-                                }
-                                else {
-                                    builder.append("#");
-                                }
-                            }
-                        };
-                        TreeNode.prototype.next = function () {
-                            var p = this;
-                            if (p.right != null) {
-                                p = p.right;
-                                while (p.left != null) {
+                            };
+                            TreeNode.prototype.previous = function () {
+                                var p = this;
+                                if (p.left != null) {
                                     p = p.left;
-                                }
-                                return p;
-                            }
-                            else {
-                                if (p.parent != null) {
-                                    if (p == p.parent.left) {
-                                        return p.parent;
+                                    while (p.right != null) {
+                                        p = p.right;
                                     }
-                                    else {
-                                        while (p.parent != null && p == p.parent.right) {
-                                            p = p.parent;
-                                        }
-                                        return p.parent;
-                                    }
+                                    return p;
                                 }
                                 else {
-                                    return null;
-                                }
-                            }
-                        };
-                        TreeNode.prototype.previous = function () {
-                            var p = this;
-                            if (p.left != null) {
-                                p = p.left;
-                                while (p.right != null) {
-                                    p = p.right;
-                                }
-                                return p;
-                            }
-                            else {
-                                if (p.parent != null) {
-                                    if (p == p.parent.right) {
-                                        return p.parent;
+                                    if (p.parent != null) {
+                                        if (p == p.parent.right) {
+                                            return p.parent;
+                                        }
+                                        else {
+                                            while (p.parent != null && p == p.parent.left) {
+                                                p = p.parent;
+                                            }
+                                            return p.parent;
+                                        }
                                     }
                                     else {
-                                        while (p.parent != null && p == p.parent.left) {
-                                            p = p.parent;
-                                        }
-                                        return p.parent;
+                                        return null;
                                     }
                                 }
-                                else {
+                            };
+                            TreeNode.unserialize = function (ctx) {
+                                return org.kevoree.modeling.api.rbtree.ooheap.TreeNode.internal_unserialize(true, ctx);
+                            };
+                            TreeNode.internal_unserialize = function (rightBranch, ctx) {
+                                if (ctx.index >= ctx.payload.length) {
                                     return null;
                                 }
-                            }
-                        };
-                        TreeNode.unserialize = function (ctx) {
-                            return org.kevoree.modeling.api.rbtree.TreeNode.internal_unserialize(true, ctx);
-                        };
-                        TreeNode.internal_unserialize = function (rightBranch, ctx) {
-                            if (ctx.index >= ctx.payload.length) {
-                                return null;
-                            }
-                            var tokenBuild = new java.lang.StringBuilder();
-                            var ch = ctx.payload.charAt(ctx.index);
-                            if (ch == '%') {
-                                if (rightBranch) {
+                                var tokenBuild = new java.lang.StringBuilder();
+                                var ch = ctx.payload.charAt(ctx.index);
+                                if (ch == '%') {
+                                    if (rightBranch) {
+                                        ctx.index = ctx.index + 1;
+                                    }
+                                    return null;
+                                }
+                                if (ch == '#') {
                                     ctx.index = ctx.index + 1;
+                                    return null;
                                 }
-                                return null;
-                            }
-                            if (ch == '#') {
-                                ctx.index = ctx.index + 1;
-                                return null;
-                            }
-                            if (ch != '|') {
-                                throw new java.lang.Exception("Error while loading BTree");
-                            }
-                            ctx.index = ctx.index + 1;
-                            ch = ctx.payload.charAt(ctx.index);
-                            var colorLoaded;
-                            if (ch == org.kevoree.modeling.api.rbtree.TreeNode.BLACK) {
-                                colorLoaded = true;
-                            }
-                            else {
-                                colorLoaded = false;
-                            }
-                            ctx.index = ctx.index + 1;
-                            ch = ctx.payload.charAt(ctx.index);
-                            while (ctx.index + 1 < ctx.payload.length && ch != '|' && ch != '#' && ch != '%') {
-                                tokenBuild.append(ch);
+                                if (ch != '|') {
+                                    throw new java.lang.Exception("Error while loading BTree");
+                                }
                                 ctx.index = ctx.index + 1;
                                 ch = ctx.payload.charAt(ctx.index);
+                                var colorLoaded;
+                                if (ch == org.kevoree.modeling.api.rbtree.ooheap.TreeNode.BLACK) {
+                                    colorLoaded = true;
+                                }
+                                else {
+                                    colorLoaded = false;
+                                }
+                                ctx.index = ctx.index + 1;
+                                ch = ctx.payload.charAt(ctx.index);
+                                while (ctx.index + 1 < ctx.payload.length && ch != '|' && ch != '#' && ch != '%') {
+                                    tokenBuild.append(ch);
+                                    ctx.index = ctx.index + 1;
+                                    ch = ctx.payload.charAt(ctx.index);
+                                }
+                                if (ch != '|' && ch != '#' && ch != '%') {
+                                    tokenBuild.append(ch);
+                                }
+                                var p = new org.kevoree.modeling.api.rbtree.ooheap.TreeNode(java.lang.Long.parseLong(tokenBuild.toString()), colorLoaded, null, null);
+                                var left = org.kevoree.modeling.api.rbtree.ooheap.TreeNode.internal_unserialize(false, ctx);
+                                if (left != null) {
+                                    left.setParent(p);
+                                }
+                                var right = org.kevoree.modeling.api.rbtree.ooheap.TreeNode.internal_unserialize(true, ctx);
+                                if (right != null) {
+                                    right.setParent(p);
+                                }
+                                p.setLeft(left);
+                                p.setRight(right);
+                                return p;
+                            };
+                            TreeNode.BLACK = '0';
+                            TreeNode.RED = '1';
+                            return TreeNode;
+                        })();
+                        ooheap.TreeNode = TreeNode;
+                        var TreeReaderContext = (function () {
+                            function TreeReaderContext() {
                             }
-                            if (ch != '|' && ch != '#' && ch != '%') {
-                                tokenBuild.append(ch);
-                            }
-                            var p = new org.kevoree.modeling.api.rbtree.TreeNode(java.lang.Long.parseLong(tokenBuild.toString()), colorLoaded, null, null);
-                            var left = org.kevoree.modeling.api.rbtree.TreeNode.internal_unserialize(false, ctx);
-                            if (left != null) {
-                                left.setParent(p);
-                            }
-                            var right = org.kevoree.modeling.api.rbtree.TreeNode.internal_unserialize(true, ctx);
-                            if (right != null) {
-                                right.setParent(p);
-                            }
-                            p.setLeft(left);
-                            p.setRight(right);
-                            return p;
-                        };
-                        TreeNode.BLACK = '0';
-                        TreeNode.RED = '1';
-                        return TreeNode;
-                    })();
-                    rbtree.TreeNode = TreeNode;
-                    var TreeReaderContext = (function () {
-                        function TreeReaderContext() {
-                        }
-                        return TreeReaderContext;
-                    })();
-                    rbtree.TreeReaderContext = TreeReaderContext;
+                            return TreeReaderContext;
+                        })();
+                        ooheap.TreeReaderContext = TreeReaderContext;
+                    })(ooheap = rbtree.ooheap || (rbtree.ooheap = {}));
                 })(rbtree = api.rbtree || (api.rbtree = {}));
                 var reflexive;
                 (function (reflexive) {

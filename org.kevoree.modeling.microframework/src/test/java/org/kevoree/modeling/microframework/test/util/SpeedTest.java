@@ -9,7 +9,7 @@ import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.meta.PrimitiveTypes;
-import org.kevoree.modeling.api.rbtree.ooheap.IndexRBTree;
+import org.kevoree.modeling.api.rbtree.ooheap.OOKLongTree;
 import org.kevoree.modeling.api.reflexive.DynamicMetaClass;
 import org.kevoree.modeling.api.reflexive.DynamicMetaModel;
 
@@ -32,7 +32,7 @@ public class SpeedTest {
             long before = System.currentTimeMillis();
             Object[] hello = new Object[10];
             //for (int j = 0; j < 5; j++) {
-            IndexRBTree tree = new IndexRBTree();
+            OOKLongTree tree = new OOKLongTree();
             //LongHashMap helloMap = new LongHashMap(16, KConfig.CACHE_LOAD_FACTOR);
 
             HashMap helloMap = new HashMap();

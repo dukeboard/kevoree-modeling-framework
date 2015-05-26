@@ -26,6 +26,8 @@ public interface KTraversal {
 
     KTraversal collect(MetaReference metaReference, KTraversalFilter continueCondition);
 
+    //TODO add time traversal
+
 }
 
 

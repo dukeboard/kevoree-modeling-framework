@@ -6,23 +6,18 @@ import org.junit.Assert;
 import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.rbtree.KLongTree;
 import org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
-import org.kevoree.modeling.api.rbtree.ooheap.IndexRBTree;
+import org.kevoree.modeling.api.rbtree.ooheap.OOKLongTree;
 
 import java.util.LinkedList;
 
-
-/**
- * Created by gregory.nain on 01/08/2014.
- */
-
-public class IndexRBTreeTest {
+public class OOKLongTreeTest {
 
     @Test
     public void printTest() {
         long MIN = 0L;
         long MAX = 99L;
         for (long j = MIN; j <= MAX; j++) {
-            IndexRBTree tree = new IndexRBTree();
+            OOKLongTree tree = new OOKLongTree();
             for (long i = MIN; i <= j; i++) {
                 if ((i % 3) == 0L) {
                     tree.insert(i);
@@ -39,7 +34,7 @@ public class IndexRBTreeTest {
         long MIN = 0L;
         long MAX = 99L;
         for (long j = MIN; j <= MAX; j++) {
-            IndexRBTree tree = new IndexRBTree();
+            OOKLongTree tree = new OOKLongTree();
             for (long i = MIN; i <= j; i++) {
                 if ((i % 3) == 0L) {
                     tree.insert(i);
@@ -82,7 +77,7 @@ public class IndexRBTreeTest {
         long MIN = 0L;
         long MAX = 99L;
         for (long j = MIN + 1; j <= MAX; j++) {
-            IndexRBTree tree = new IndexRBTree();
+            OOKLongTree tree = new OOKLongTree();
             for (long i = MIN; i <= j; i++) {
                 if ((i % 7) == 0L) {
                     tree.insert(i);
@@ -102,7 +97,7 @@ public class IndexRBTreeTest {
         long MIN = 0L;
         long MAX = 99L;
         for (long j = MIN + 1; j <= MAX; j++) {
-            IndexRBTree tree = new IndexRBTree();
+            OOKLongTree tree = new OOKLongTree();
             for (long i = MIN; i <= j; i++) {
                 if ((i % 3) == 0L) {
                     tree.insert(i);
@@ -119,7 +114,7 @@ public class IndexRBTreeTest {
         long MIN = 0L;
         long MAX = 99L;
         for (long j = MIN + 1; j <= MAX; j++) {
-            IndexRBTree tree = new IndexRBTree();
+            OOKLongTree tree = new OOKLongTree();
             for (long i = MIN; i <= j; i++) {
                 if ((i % 3) == 0L) {
                     tree.insert(i);
@@ -133,7 +128,7 @@ public class IndexRBTreeTest {
 
     @Test
     public void previousOrEqualTest() {
-        IndexRBTree tree = new IndexRBTree();
+        OOKLongTree tree = new OOKLongTree();
         for (long i = 0; i <= 6; i++) {
             tree.insert(i);
         }
@@ -155,7 +150,7 @@ public class IndexRBTreeTest {
 
     @Test
     public void nextOrEqualTest() {
-        IndexRBTree tree = new IndexRBTree();
+        OOKLongTree tree = new OOKLongTree();
         for (long i = 0; i <= 6; i++) {
             tree.insert(i);
         }
@@ -177,7 +172,7 @@ public class IndexRBTreeTest {
 
     @Test
     public void cacheEffectTest() {
-        KLongTree tree = new IndexRBTree();
+        KLongTree tree = new OOKLongTree();
         for (long i = 0; i <= 6; i++) {
             tree.insert(i);
         }

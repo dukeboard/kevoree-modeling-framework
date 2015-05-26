@@ -1,10 +1,11 @@
 package org.kevoree.modeling.api.rbtree;
 
-/**
- * Created by duke on 22/05/15.
- */
-public interface KLongLongTree {
+public interface KLongLongTree extends KTree {
 
     void insert(long key, long value);
+
+    long previousOrEqualValue(long key);
+
+    long lookupValue(long key);
 
 }

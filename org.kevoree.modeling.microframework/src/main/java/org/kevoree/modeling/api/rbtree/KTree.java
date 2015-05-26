@@ -1,9 +1,8 @@
 package org.kevoree.modeling.api.rbtree;
 
-/**
- * Created by duke on 22/05/15.
- */
-public interface KTree {
+import org.kevoree.modeling.api.data.cache.KCacheObject;
+
+public interface KTree extends KCacheObject {
 
     int size();
 

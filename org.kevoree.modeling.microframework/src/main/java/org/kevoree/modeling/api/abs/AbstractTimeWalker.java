@@ -10,8 +10,6 @@ import org.kevoree.modeling.api.data.manager.ResolutionHelper;
 import org.kevoree.modeling.api.map.LongLongHashMap;
 import org.kevoree.modeling.api.rbtree.KLongTree;
 import org.kevoree.modeling.api.rbtree.KTreeWalker;
-import org.kevoree.modeling.api.rbtree.ooheap.IndexRBTree;
-import org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
 
 public class AbstractTimeWalker implements KTimeWalker {
 

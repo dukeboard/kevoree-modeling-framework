@@ -116,6 +116,7 @@ declare module org {
                     jump(time: number, callback: (p: org.kevoree.modeling.api.KObject) => void): void;
                     referencesWith(o: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.meta.MetaReference[];
                     call(operation: org.kevoree.modeling.api.meta.MetaOperation, params: any[], cb: (p: any) => void): void;
+                    manager(): org.kevoree.modeling.api.data.manager.KDataManager;
                 }
                 interface KOperation {
                     on(source: org.kevoree.modeling.api.KObject, params: any[], result: (p: any) => void): void;
@@ -268,6 +269,7 @@ declare module org {
                         traversal(): org.kevoree.modeling.api.traversal.KTraversal;
                         referencesWith(o: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.meta.MetaReference[];
                         call(p_operation: org.kevoree.modeling.api.meta.MetaOperation, p_params: any[], cb: (p: any) => void): void;
+                        manager(): org.kevoree.modeling.api.data.manager.KDataManager;
                     }
                     class AbstractKObjectInfer extends org.kevoree.modeling.api.abs.AbstractKObject implements org.kevoree.modeling.api.KInfer {
                         constructor(p_universe: number, p_time: number, p_uuid: number, p_metaClass: org.kevoree.modeling.api.meta.MetaClass, p_manager: org.kevoree.modeling.api.data.manager.KDataManager);
@@ -1398,154 +1400,178 @@ declare module org {
                     }
                 }
                 module rbtree {
-                    class IndexRBTree implements org.kevoree.modeling.api.data.cache.KCacheObject {
-                        private _size;
-                        private root;
-                        private _previousOrEqualsCacheValues;
-                        private _nextCacheElem;
-                        private _counter;
-                        private _dirty;
-                        constructor();
-                        size(): number;
-                        counter(): number;
-                        inc(): void;
-                        dec(): void;
-                        private tryPreviousOrEqualsCache(key);
-                        private resetCache();
-                        private putInPreviousOrEqualsCache(resolved);
-                        isDirty(): boolean;
-                        setClean(): void;
-                        serialize(): string;
-                        toString(): string;
-                        unserialize(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: string, metaModel: org.kevoree.modeling.api.meta.MetaModel): void;
-                        previousOrEqual(key: number): org.kevoree.modeling.api.rbtree.TreeNode;
-                        nextOrEqual(key: number): org.kevoree.modeling.api.rbtree.TreeNode;
-                        previous(key: number): org.kevoree.modeling.api.rbtree.TreeNode;
-                        next(key: number): org.kevoree.modeling.api.rbtree.TreeNode;
-                        first(): org.kevoree.modeling.api.rbtree.TreeNode;
-                        last(): org.kevoree.modeling.api.rbtree.TreeNode;
-                        private lookup(key);
-                        private rotateLeft(n);
-                        private rotateRight(n);
-                        private replaceNode(oldn, newn);
-                        insert(key: number): void;
-                        private insertCase1(n);
-                        private insertCase2(n);
-                        private insertCase3(n);
-                        private insertCase4(n_n);
-                        private insertCase5(n);
-                        delete(key: number): void;
-                        private deleteCase1(n);
-                        private deleteCase2(n);
-                        private deleteCase3(n);
-                        private deleteCase4(n);
-                        private deleteCase5(n);
-                        private deleteCase6(n);
-                        private nodeColor(n);
-                    }
-                    class LongRBTree implements org.kevoree.modeling.api.data.cache.KCacheObject {
-                        private root;
-                        private _size;
-                        _dirty: boolean;
-                        private _counter;
-                        private _previousOrEqualsCacheValues;
-                        private _previousOrEqualsNextCacheElem;
-                        private _lookupCacheValues;
-                        private _lookupNextCacheElem;
-                        size(): number;
-                        counter(): number;
-                        inc(): void;
-                        dec(): void;
-                        toString(): string;
-                        isDirty(): boolean;
-                        serialize(): string;
-                        constructor();
-                        private tryPreviousOrEqualsCache(key);
-                        private tryLookupCache(key);
-                        private resetCache();
-                        private putInPreviousOrEqualsCache(resolved);
-                        private putInLookupCache(resolved);
-                        setClean(): void;
-                        unserialize(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: string, metaModel: org.kevoree.modeling.api.meta.MetaModel): void;
-                        lookup(key: number): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        previousOrEqual(key: number): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        nextOrEqual(key: number): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        previous(key: number): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        next(key: number): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        first(): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        last(): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        private rotateLeft(n);
-                        private rotateRight(n);
-                        private replaceNode(oldn, newn);
+                    interface KLongLongTree extends org.kevoree.modeling.api.rbtree.KTree {
                         insert(key: number, value: number): void;
-                        private insertCase1(n);
-                        private insertCase2(n);
-                        private insertCase3(n);
-                        private insertCase4(n_n);
-                        private insertCase5(n);
+                        previousOrEqualValue(key: number): number;
+                        lookupValue(key: number): number;
+                    }
+                    interface KLongTree extends org.kevoree.modeling.api.rbtree.KTree {
+                        insert(key: number): void;
+                        previousOrEqual(key: number): number;
+                        lookup(key: number): number;
+                        range(startKey: number, endKey: number, walker: (p: number) => void): void;
                         delete(key: number): void;
-                        private deleteCase1(n);
-                        private deleteCase2(n);
-                        private deleteCase3(n);
-                        private deleteCase4(n);
-                        private deleteCase5(n);
-                        private deleteCase6(n);
-                        private nodeColor(n);
                     }
-                    class LongTreeNode {
-                        static BLACK: string;
-                        static RED: string;
-                        key: number;
-                        value: number;
-                        color: boolean;
-                        private left;
-                        private right;
-                        private parent;
-                        constructor(key: number, value: number, color: boolean, left: org.kevoree.modeling.api.rbtree.LongTreeNode, right: org.kevoree.modeling.api.rbtree.LongTreeNode);
-                        grandparent(): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        sibling(): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        uncle(): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        getLeft(): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        setLeft(left: org.kevoree.modeling.api.rbtree.LongTreeNode): void;
-                        getRight(): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        setRight(right: org.kevoree.modeling.api.rbtree.LongTreeNode): void;
-                        getParent(): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        setParent(parent: org.kevoree.modeling.api.rbtree.LongTreeNode): void;
-                        serialize(builder: java.lang.StringBuilder): void;
-                        next(): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        previous(): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        static unserialize(ctx: org.kevoree.modeling.api.rbtree.TreeReaderContext): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        static internal_unserialize(rightBranch: boolean, ctx: org.kevoree.modeling.api.rbtree.TreeReaderContext): org.kevoree.modeling.api.rbtree.LongTreeNode;
+                    interface KTree extends org.kevoree.modeling.api.data.cache.KCacheObject {
+                        size(): number;
                     }
-                    class TreeNode {
-                        static BLACK: string;
-                        static RED: string;
-                        key: number;
-                        color: boolean;
-                        private left;
-                        private right;
-                        private parent;
-                        constructor(key: number, color: boolean, left: org.kevoree.modeling.api.rbtree.TreeNode, right: org.kevoree.modeling.api.rbtree.TreeNode);
-                        getKey(): number;
-                        grandparent(): org.kevoree.modeling.api.rbtree.TreeNode;
-                        sibling(): org.kevoree.modeling.api.rbtree.TreeNode;
-                        uncle(): org.kevoree.modeling.api.rbtree.TreeNode;
-                        getLeft(): org.kevoree.modeling.api.rbtree.TreeNode;
-                        setLeft(left: org.kevoree.modeling.api.rbtree.TreeNode): void;
-                        getRight(): org.kevoree.modeling.api.rbtree.TreeNode;
-                        setRight(right: org.kevoree.modeling.api.rbtree.TreeNode): void;
-                        getParent(): org.kevoree.modeling.api.rbtree.TreeNode;
-                        setParent(parent: org.kevoree.modeling.api.rbtree.TreeNode): void;
-                        serialize(builder: java.lang.StringBuilder): void;
-                        next(): org.kevoree.modeling.api.rbtree.TreeNode;
-                        previous(): org.kevoree.modeling.api.rbtree.TreeNode;
-                        static unserialize(ctx: org.kevoree.modeling.api.rbtree.TreeReaderContext): org.kevoree.modeling.api.rbtree.TreeNode;
-                        static internal_unserialize(rightBranch: boolean, ctx: org.kevoree.modeling.api.rbtree.TreeReaderContext): org.kevoree.modeling.api.rbtree.TreeNode;
+                    interface KTreeWalker {
+                        elem(t: number): void;
                     }
-                    class TreeReaderContext {
-                        payload: string;
-                        index: number;
-                        buffer: string[];
+                    module ooheap {
+                        class LongTreeNode {
+                            static BLACK: string;
+                            static RED: string;
+                            key: number;
+                            value: number;
+                            color: boolean;
+                            private left;
+                            private right;
+                            private parent;
+                            constructor(key: number, value: number, color: boolean, left: org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode, right: org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode);
+                            grandparent(): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            sibling(): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            uncle(): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            getLeft(): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            setLeft(left: org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode): void;
+                            getRight(): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            setRight(right: org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode): void;
+                            getParent(): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            setParent(parent: org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode): void;
+                            serialize(builder: java.lang.StringBuilder): void;
+                            next(): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            previous(): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            static unserialize(ctx: org.kevoree.modeling.api.rbtree.ooheap.TreeReaderContext): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            static internal_unserialize(rightBranch: boolean, ctx: org.kevoree.modeling.api.rbtree.ooheap.TreeReaderContext): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                        }
+                        class OOKLongLongTree implements org.kevoree.modeling.api.data.cache.KCacheObject, org.kevoree.modeling.api.rbtree.KLongLongTree {
+                            private root;
+                            private _size;
+                            _dirty: boolean;
+                            private _counter;
+                            private _previousOrEqualsCacheValues;
+                            private _previousOrEqualsNextCacheElem;
+                            private _lookupCacheValues;
+                            private _lookupNextCacheElem;
+                            size(): number;
+                            counter(): number;
+                            inc(): void;
+                            dec(): void;
+                            toString(): string;
+                            isDirty(): boolean;
+                            serialize(): string;
+                            constructor();
+                            private tryPreviousOrEqualsCache(key);
+                            private tryLookupCache(key);
+                            private resetCache();
+                            private putInPreviousOrEqualsCache(resolved);
+                            private putInLookupCache(resolved);
+                            setClean(): void;
+                            unserialize(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: string, metaModel: org.kevoree.modeling.api.meta.MetaModel): void;
+                            lookupValue(key: number): number;
+                            private internal_lookup(key);
+                            previousOrEqualValue(key: number): number;
+                            private internal_previousOrEqual(key);
+                            nextOrEqual(key: number): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            previous(key: number): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            next(key: number): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            first(): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            last(): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            private rotateLeft(n);
+                            private rotateRight(n);
+                            private replaceNode(oldn, newn);
+                            insert(key: number, value: number): void;
+                            private insertCase1(n);
+                            private insertCase2(n);
+                            private insertCase3(n);
+                            private insertCase4(n_n);
+                            private insertCase5(n);
+                            delete(key: number): void;
+                            private deleteCase1(n);
+                            private deleteCase2(n);
+                            private deleteCase3(n);
+                            private deleteCase4(n);
+                            private deleteCase5(n);
+                            private deleteCase6(n);
+                            private nodeColor(n);
+                        }
+                        class OOKLongTree implements org.kevoree.modeling.api.data.cache.KCacheObject, org.kevoree.modeling.api.rbtree.KLongTree {
+                            private _size;
+                            private root;
+                            private _previousOrEqualsCacheValues;
+                            private _nextCacheElem;
+                            private _counter;
+                            private _dirty;
+                            constructor();
+                            size(): number;
+                            counter(): number;
+                            inc(): void;
+                            dec(): void;
+                            private tryPreviousOrEqualsCache(key);
+                            private resetCache();
+                            private putInPreviousOrEqualsCache(resolved);
+                            isDirty(): boolean;
+                            setClean(): void;
+                            serialize(): string;
+                            toString(): string;
+                            unserialize(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: string, metaModel: org.kevoree.modeling.api.meta.MetaModel): void;
+                            previousOrEqual(key: number): number;
+                            internal_previousOrEqual(key: number): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            nextOrEqual(key: number): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            previous(key: number): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            next(key: number): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            first(): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            last(): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            lookup(key: number): number;
+                            range(start: number, end: number, walker: (p: number) => void): void;
+                            private rotateLeft(n);
+                            private rotateRight(n);
+                            private replaceNode(oldn, newn);
+                            insert(key: number): void;
+                            private insertCase1(n);
+                            private insertCase2(n);
+                            private insertCase3(n);
+                            private insertCase4(n_n);
+                            private insertCase5(n);
+                            delete(key: number): void;
+                            private deleteCase1(n);
+                            private deleteCase2(n);
+                            private deleteCase3(n);
+                            private deleteCase4(n);
+                            private deleteCase5(n);
+                            private deleteCase6(n);
+                            private nodeColor(n);
+                        }
+                        class TreeNode {
+                            static BLACK: string;
+                            static RED: string;
+                            key: number;
+                            color: boolean;
+                            private left;
+                            private right;
+                            private parent;
+                            constructor(key: number, color: boolean, left: org.kevoree.modeling.api.rbtree.ooheap.TreeNode, right: org.kevoree.modeling.api.rbtree.ooheap.TreeNode);
+                            getKey(): number;
+                            grandparent(): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            sibling(): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            uncle(): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            getLeft(): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            setLeft(left: org.kevoree.modeling.api.rbtree.ooheap.TreeNode): void;
+                            getRight(): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            setRight(right: org.kevoree.modeling.api.rbtree.ooheap.TreeNode): void;
+                            getParent(): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            setParent(parent: org.kevoree.modeling.api.rbtree.ooheap.TreeNode): void;
+                            serialize(builder: java.lang.StringBuilder): void;
+                            next(): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            previous(): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            static unserialize(ctx: org.kevoree.modeling.api.rbtree.ooheap.TreeReaderContext): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            static internal_unserialize(rightBranch: boolean, ctx: org.kevoree.modeling.api.rbtree.ooheap.TreeReaderContext): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                        }
+                        class TreeReaderContext {
+                            payload: string;
+                            index: number;
+                            buffer: string[];
+                        }
                     }
                 }
                 module reflexive {

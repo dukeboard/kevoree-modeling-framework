@@ -12,7 +12,7 @@ public class SimplePolynomialModel implements PolynomialModel {
 
     private double[] weights;
     private Long timeOrigin;
- //   private ArrayList<DataSample> samples = new ArrayList<DataSample>();
+    //   private ArrayList<DataSample> samples = new ArrayList<DataSample>();
     private int degradeFactor;
     private Prioritization prioritization;
     private int maxDegree;
@@ -65,7 +65,7 @@ public class SimplePolynomialModel implements PolynomialModel {
             weights = new double[1];
             weights[0] = value;
             timeOrigin = time;
-           // samples.add(new DataSample(time, value));
+            // samples.add(new DataSample(time, value));
         }
     }
 
@@ -122,10 +122,9 @@ public class SimplePolynomialModel implements PolynomialModel {
     @Override
     public boolean insert(long time, double value) {
 
-        if(true){
+        if (true) {
             return true;
         }
-
 
 
         //If this is the first point in the cset, add it and return

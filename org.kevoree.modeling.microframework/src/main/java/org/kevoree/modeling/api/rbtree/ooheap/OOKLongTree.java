@@ -7,7 +7,7 @@ import org.kevoree.modeling.api.meta.MetaModel;
 import org.kevoree.modeling.api.rbtree.KLongTree;
 import org.kevoree.modeling.api.rbtree.KTreeWalker;
 
-public class IndexRBTree implements KCacheObject, KLongTree {
+public class OOKLongTree implements KCacheObject, KLongTree {
 
     private int _size = 0;
     private TreeNode root = null;
@@ -16,7 +16,7 @@ public class IndexRBTree implements KCacheObject, KLongTree {
     private int _counter = 0;
     private boolean _dirty = false;
 
-    public IndexRBTree() {
+    public OOKLongTree() {
         _previousOrEqualsCacheValues = new TreeNode[KConfig.TREE_CACHE_SIZE];
         _nextCacheElem = 0;
     }
@@ -294,7 +294,7 @@ public class IndexRBTree implements KCacheObject, KLongTree {
     @Override
     public void range(long start, long end, KTreeWalker walker) {
         TreeNode it = internal_previousOrEqual(end);
-        while (it != null) {
+        while (it != null && it.key >= start) {
             walker.elem(it.key);
             it = it.previous();
         }

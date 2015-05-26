@@ -12,7 +12,6 @@ import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.rbtree.KLongTree;
-import org.kevoree.modeling.api.rbtree.ooheap.IndexRBTree;
 import org.kevoree.modeling.api.util.ArrayUtils;
 import org.kevoree.modeling.api.traversal.DefaultKTraversal;
 import org.kevoree.modeling.api.traversal.KTraversal;
@@ -579,6 +578,11 @@ public abstract class AbstractKObject implements KObject {
     @Override
     public void call(MetaOperation p_operation, Object[] p_params, Callback<Object> cb) {
         _manager.operationManager().call(this, p_operation, p_params, cb);
+    }
+
+    @Override
+    public KDataManager manager() {
+        return _manager;
     }
 
 }
