@@ -20,58 +20,67 @@ public class GraphTest {
 
     private static int SECONDARY = 100;
 
-    //@Test
+    @Test
     public void test() throws InterruptedException {
         DynamicMetaModel metaModel = new DynamicMetaModel("TestModel");
         DynamicMetaClass nodeClazz = metaModel.createMetaClass("Node");
         nodeClazz.addAttribute("name", PrimitiveTypes.STRING);
-        nodeClazz.addReference("children", nodeClazz, true);
-        nodeClazz.addReference("neighbor", nodeClazz, false);
+        nodeClazz.addReference("children", nodeClazz, true, null);
+        nodeClazz.addReference("neighbor", nodeClazz, false, null);
         KModel model = metaModel.model();
-        model.setScheduler(new ExecutorServiceScheduler());
+        //model.setScheduler(new ExecutorServiceScheduler());
 
-        model.connect();
-        KView view0_0 = model.universe(0).time(0);
-        KObject root = view0_0.create(nodeClazz);
-        Random random = new Random();
-        for (int i = 0; i < random.nextInt(PRIMARY); i++) {
-            KObject sub = view0_0.create(nodeClazz);
-            root.mutate(KActionType.ADD, nodeClazz.reference("children"), sub);
-            for (int j = 0; j < random.nextInt(SECONDARY); j++) {
-                KObject sub2 = view0_0.create(nodeClazz);
-                if(j % 10 == 0){
-                    sub.mutate(KActionType.ADD, nodeClazz.reference("neighbor"), sub2);
-                } else {
-                    sub.mutate(KActionType.ADD, nodeClazz.reference("children"), sub2);
-                }
-            }
-        }
-        GraphBuilder.graphFrom(root).then(new Callback<Graph>() {
+        model.connect(new Callback() {
             @Override
-            public void on(Graph graph) {
-                ViewerPipe pipe = graph.display(true).newViewerPipe();
-                pipe.addViewerListener(new ViewerListener() {
-                    @Override
-                    public void viewClosed(String viewName) {
-
+            public void on(Object o) {
+                KView view0_0 = model.universe(0).time(0);
+                KObject root = view0_0.create(nodeClazz);
+                Random random = new Random();
+                for (int i = 0; i < random.nextInt(PRIMARY); i++) {
+                    KObject sub = view0_0.create(nodeClazz);
+                    root.mutate(KActionType.ADD, nodeClazz.reference("children"), sub);
+                    for (int j = 0; j < random.nextInt(SECONDARY); j++) {
+                        KObject sub2 = view0_0.create(nodeClazz);
+                        if (j % 10 == 0) {
+                            sub.mutate(KActionType.ADD, nodeClazz.reference("neighbor"), sub2);
+                        } else {
+                            sub.mutate(KActionType.ADD, nodeClazz.reference("children"), sub2);
+                        }
                     }
+                }
 
+                System.err.println("Hello");
+
+
+                GraphBuilder.graphFrom(root, new Callback<Graph>() {
                     @Override
-                    public void buttonPushed(String id) {
+                    public void on(Graph graph) {
+                        ViewerPipe pipe = graph.display(true).newViewerPipe();
+                        pipe.addViewerListener(new ViewerListener() {
+                            @Override
+                            public void viewClosed(String viewName) {
 
-                    }
+                            }
 
-                    @Override
-                    public void buttonReleased(String id) {
+                            @Override
+                            public void buttonPushed(String id) {
 
+                            }
+
+                            @Override
+                            public void buttonReleased(String id) {
+
+                            }
+                        });
                     }
                 });
             }
         });
 
+
         Thread.currentThread().join();
 
-      //  Thread.sleep(10000);
+        //  Thread.sleep(10000);
     }
 
 }

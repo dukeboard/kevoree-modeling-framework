@@ -66,40 +66,45 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public void delete(Callback cb) {
-        final KObject toRemove = this;
+        final KObject selfPointer = this;
         KCacheEntry rawPayload = _manager.entry(this, AccessMode.DELETE);
         if (rawPayload == null) {
             cb.on(new Exception(OUT_OF_CACHE_MSG));
         } else {
+            LongLongHashMap collector = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
             for (int i = 0; i < _metaClass.metaReferences().length; i++) {
-
-            }
-
-
-            /*
-            long[] inboundsKeys = rawPayload.getRef(Index.INBOUNDS_INDEX);
-            if (inboundsKeys != null) {
-                try {
-                    _manager.lookupAllobjects(_universe, _time, inboundsKeys, new Callback<KObject[]>() {
-                        @Override
-                        public void on(KObject[] resolved) {
-                            for (int i = 0; i < resolved.length; i++) {
-                                if (resolved[i] != null) {
-                                    MetaReference[] linkedReferences = resolved[i].referencesWith(toRemove);
-                                    for (int j = 0; j < linkedReferences.length; j++) {
-                                        ((AbstractKObject) resolved[i]).internal_mutate(KActionType.REMOVE, linkedReferences[j], toRemove, false);
-                                    }
-                                }
-                            }
-                            task.initCallback().on(null);
-                        }
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
+                long[] inboundsKeys = rawPayload.getRef(_metaClass.metaReferences()[i].index());
+                for (int j = 0; j < inboundsKeys.length; j++) {
+                    collector.put(inboundsKeys[j], inboundsKeys[j]);
                 }
-            } else {
-                task.initCallback().on(new Exception(OUT_OF_CACHE_MSG));
-            }*/
+            }
+            long[] flatCollected = new long[collector.size()];
+            int[] indexI = new int[1];
+            indexI[0] = 0;
+            collector.each(new LongLongHashMapCallBack() {
+                @Override
+                public void on(long key, long value) {
+                    flatCollected[indexI[0]] = key;
+                    indexI[0]++;
+                }
+            });
+            _manager.lookupAllobjects(_universe, _time, flatCollected, new Callback<KObject[]>() {
+                @Override
+                public void on(KObject[] resolved) {
+                    for (int i = 0; i < resolved.length; i++) {
+                        if (resolved[i] != null) {
+                            //TODO optimize
+                            MetaReference[] linkedReferences = resolved[i].referencesWith(selfPointer);
+                            for (int j = 0; j < linkedReferences.length; j++) {
+                                ((AbstractKObject) resolved[i]).internal_mutate(KActionType.REMOVE, linkedReferences[j], selfPointer, false);
+                            }
+                        }
+                    }
+                    if (cb != null) {
+                        cb.on(null);
+                    }
+                }
+            });
         }
     }
 

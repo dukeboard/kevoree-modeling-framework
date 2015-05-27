@@ -657,13 +657,38 @@ module org {
                         }
 
                         public delete(cb: (p : any) => void): void {
-                            var toRemove: org.kevoree.modeling.api.KObject = this;
+                            var selfPointer: org.kevoree.modeling.api.KObject = this;
                             var rawPayload: org.kevoree.modeling.api.data.cache.KCacheEntry = this._manager.entry(this, org.kevoree.modeling.api.data.manager.AccessMode.DELETE);
                             if (rawPayload == null) {
                                 cb(new java.lang.Exception(AbstractKObject.OUT_OF_CACHE_MSG));
                             } else {
+                                var collector: org.kevoree.modeling.api.map.LongLongHashMap = new org.kevoree.modeling.api.map.LongLongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                                 for (var i: number = 0; i < this._metaClass.metaReferences().length; i++) {
+                                    var inboundsKeys: number[] = rawPayload.getRef(this._metaClass.metaReferences()[i].index());
+                                    for (var j: number = 0; j < inboundsKeys.length; j++) {
+                                        collector.put(inboundsKeys[j], inboundsKeys[j]);
+                                    }
                                 }
+                                var flatCollected: number[] = new Array();
+                                var indexI: number[] = new Array();
+                                indexI[0] = 0;
+                                collector.each( (key : number, value : number) => {
+                                    flatCollected[indexI[0]] = key;
+                                    indexI[0]++;
+                                });
+                                this._manager.lookupAllobjects(this._universe, this._time, flatCollected,  (resolved : org.kevoree.modeling.api.KObject[]) => {
+                                    for (var i: number = 0; i < resolved.length; i++) {
+                                        if (resolved[i] != null) {
+                                            var linkedReferences: org.kevoree.modeling.api.meta.MetaReference[] = resolved[i].referencesWith(selfPointer);
+                                            for (var j: number = 0; j < linkedReferences.length; j++) {
+                                                (<org.kevoree.modeling.api.abs.AbstractKObject>resolved[i]).internal_mutate(org.kevoree.modeling.api.KActionType.REMOVE, linkedReferences[j], selfPointer, false);
+                                            }
+                                        }
+                                    }
+                                    if (cb != null) {
+                                        cb(null);
+                                    }
+                                });
                             }
                         }
 
@@ -8852,9 +8877,10 @@ module org {
                     export class DynamicMetaModel implements org.kevoree.modeling.api.meta.MetaModel {
 
                         private _metaName: string = null;
-                        private _classes: org.kevoree.modeling.api.map.StringHashMap<any> = new org.kevoree.modeling.api.map.StringHashMap<any>(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                        private _classes: org.kevoree.modeling.api.map.StringHashMap<any> = null;
                         constructor(p_metaName: string) {
                             this._metaName = p_metaName;
+                            this._classes = new org.kevoree.modeling.api.map.StringHashMap<any>(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                         }
 
                         public metaClasses(): org.kevoree.modeling.api.meta.MetaClass[] {

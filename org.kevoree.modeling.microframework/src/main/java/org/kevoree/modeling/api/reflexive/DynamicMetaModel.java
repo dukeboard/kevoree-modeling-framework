@@ -15,10 +15,11 @@ public class DynamicMetaModel implements MetaModel {
 
     private String _metaName = null;
 
-    private StringHashMap<MetaClass> _classes = new  StringHashMap<MetaClass>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
+    private StringHashMap<MetaClass> _classes = null;
 
     public DynamicMetaModel(String p_metaName) {
         this._metaName = p_metaName;
+        this._classes = new StringHashMap<MetaClass>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
     }
 
     @Override

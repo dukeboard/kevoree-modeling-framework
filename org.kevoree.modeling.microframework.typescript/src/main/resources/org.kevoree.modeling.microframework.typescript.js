@@ -361,14 +361,39 @@ var org;
                             return new org.kevoree.modeling.api.abs.AbstractTimeWalker(this);
                         };
                         AbstractKObject.prototype.delete = function (cb) {
-                            var toRemove = this;
+                            var selfPointer = this;
                             var rawPayload = this._manager.entry(this, org.kevoree.modeling.api.data.manager.AccessMode.DELETE);
                             if (rawPayload == null) {
                                 cb(new java.lang.Exception(AbstractKObject.OUT_OF_CACHE_MSG));
                             }
                             else {
+                                var collector = new org.kevoree.modeling.api.map.LongLongHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                                 for (var i = 0; i < this._metaClass.metaReferences().length; i++) {
+                                    var inboundsKeys = rawPayload.getRef(this._metaClass.metaReferences()[i].index());
+                                    for (var j = 0; j < inboundsKeys.length; j++) {
+                                        collector.put(inboundsKeys[j], inboundsKeys[j]);
+                                    }
                                 }
+                                var flatCollected = new Array();
+                                var indexI = new Array();
+                                indexI[0] = 0;
+                                collector.each(function (key, value) {
+                                    flatCollected[indexI[0]] = key;
+                                    indexI[0]++;
+                                });
+                                this._manager.lookupAllobjects(this._universe, this._time, flatCollected, function (resolved) {
+                                    for (var i = 0; i < resolved.length; i++) {
+                                        if (resolved[i] != null) {
+                                            var linkedReferences = resolved[i].referencesWith(selfPointer);
+                                            for (var j = 0; j < linkedReferences.length; j++) {
+                                                resolved[i].internal_mutate(org.kevoree.modeling.api.KActionType.REMOVE, linkedReferences[j], selfPointer, false);
+                                            }
+                                        }
+                                    }
+                                    if (cb != null) {
+                                        cb(null);
+                                    }
+                                });
                             }
                         };
                         AbstractKObject.prototype.select = function (query, cb) {
@@ -8038,8 +8063,9 @@ var org;
                     var DynamicMetaModel = (function () {
                         function DynamicMetaModel(p_metaName) {
                             this._metaName = null;
-                            this._classes = new org.kevoree.modeling.api.map.StringHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+                            this._classes = null;
                             this._metaName = p_metaName;
+                            this._classes = new org.kevoree.modeling.api.map.StringHashMap(org.kevoree.modeling.api.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
                         }
                         DynamicMetaModel.prototype.metaClasses = function () {
                             var tempResult = new Array();

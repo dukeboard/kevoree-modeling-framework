@@ -16,7 +16,7 @@ public interface KObject {
     long uuid();
 
     void delete(Callback cb);
-
+    
     void select(String query, Callback<KObject[]> cb);
 
     void listen(long groupId, KEventListener listener);

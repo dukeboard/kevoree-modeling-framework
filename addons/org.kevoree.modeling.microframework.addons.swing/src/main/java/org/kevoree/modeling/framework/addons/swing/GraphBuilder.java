@@ -5,7 +5,6 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.kevoree.modeling.api.*;
-import org.kevoree.modeling.api.abs.AbstractKDeferWrapper;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
@@ -16,38 +15,36 @@ import org.kevoree.modeling.api.meta.MetaReference;
  */
 public class GraphBuilder {
 
-    public static KDefer<Graph> graphFrom(KObject modelRoot) {
-        AbstractKDeferWrapper wrapper = new AbstractKDeferWrapper();
+    public static void graphFrom(KObject modelRoot, Callback<Graph> cb) {
         final Graph graph = new SingleGraph("Model_" + modelRoot.metaClass().metaName());
         createNode(graph, modelRoot);
-        modelRoot.visit(VisitRequest.ALL,new KModelVisitor() {
+        modelRoot.visit(new KModelVisitor() {
             @Override
             public KVisitResult visit(KObject elem) {
                 createNode(graph, elem);
                 return KVisitResult.CONTINUE;
             }
-        }).then(new Callback<Throwable>() {
+        }, new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
-                modelRoot.visit(VisitRequest.ALL, new KModelVisitor() {
+                modelRoot.visit(new KModelVisitor() {
                     @Override
                     public KVisitResult visit(KObject elem) {
                         createEdges(graph, elem);
                         return KVisitResult.CONTINUE;
                     }
-                }).then(new Callback<Throwable>() {
+                }, new Callback<Throwable>() {
                     @Override
                     public void on(Throwable throwable) {
                         createEdges(graph, modelRoot);
                         graph.addAttribute("ui.antialias");
                         graph.addAttribute("ui.quality");
                         graph.addAttribute("ui.stylesheet", styleSheet);
-                        wrapper.initCallback().on(graph);
+                        cb.on(graph);
                     }
                 });
             }
         });
-        return wrapper;
     }
 
     private static void createNode(Graph graph, KObject elem) {
@@ -57,7 +54,7 @@ public class GraphBuilder {
 
     private static void createEdges(Graph graph, KObject elem) {
         Node n = graph.getNode(elem.uuid() + "");
-        KCacheEntry rawPayload = ((AbstractKObject)elem)._manager.entry(elem, AccessMode.READ);
+        KCacheEntry rawPayload = ((AbstractKObject) elem)._manager.entry(elem, AccessMode.READ);
         for (MetaReference metaRef : elem.metaClass().metaReferences()) {
             long[] relatedElems = rawPayload.getRef(metaRef.index());
             if (relatedElems != null) {
