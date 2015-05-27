@@ -104,6 +104,7 @@ public class MMPsiVisitor extends MetaModelVisitor {
                             String relationTypeFqn = relationDecl.getTypeDeclaration().getName();
                             MModelClass relationType = getOrAddClass(relationTypeFqn);
                             final MModelReference reference = getOrAddReference(thisClassDeclaration, relationDecl.getRelationName().getText(), relationType);
+                            /*
                             if (relationDecl.getAnnotations() != null) {
                                 relationDecl.getAnnotations().getAnnotationList().forEach(new Consumer<MetaModelAnnotation>() {
                                     @Override
@@ -116,6 +117,7 @@ public class MMPsiVisitor extends MetaModelVisitor {
                                     }
                                 });
                             }
+                            */
                             if (relationDecl.getMultiplicityDeclaration() != null) {
                                 if (relationDecl.getMultiplicityDeclaration().getMultiplicityDeclarationUpper().getText().equals("*")) {
                                     reference.setSingle(false);

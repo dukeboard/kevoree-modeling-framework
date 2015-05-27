@@ -11,7 +11,6 @@ public class MModelAttribute {
     private Double precision = null;
     private boolean single = true;
     private Integer index = -1;
-    private Integer attIndex = -1;
 
     public Integer getIndex() {
         return index;
@@ -20,15 +19,6 @@ public class MModelAttribute {
     public void setIndex(Integer index) {
         this.index = index;
     }
-
-    public Integer getAttIndex() {
-        return attIndex;
-    }
-
-    public void setAttIndex(Integer attIndex) {
-        this.attIndex = attIndex;
-    }
-
 
     public MModelAttribute(String name, String type) {
         this.name = name;

@@ -27,13 +27,13 @@ public class DynamicMetaClass extends AbstractMetaClass {
         return this;
     }
 
-    private AbstractMetaReference getOrCreate(String p_name, String p_oppositeName, MetaClass p_oppositeClass, boolean p_hidden, boolean p_single) {
+    private AbstractMetaReference getOrCreate(String p_name, String p_oppositeName, MetaClass p_oppositeClass, boolean p_visible, boolean p_single) {
         AbstractMetaReference previous = (AbstractMetaReference) reference(p_name);
         if(previous != null){
             return previous;
         }
         final MetaClass tempOrigin = this;
-        AbstractMetaReference tempReference = new AbstractMetaReference(p_name, _globalIndex, p_hidden, p_single, new LazyResolver() {
+        AbstractMetaReference tempReference = new AbstractMetaReference(p_name, _globalIndex, p_visible, p_single, new LazyResolver() {
             @Override
             public Meta meta() {
                 return p_oppositeClass;
@@ -55,9 +55,9 @@ public class DynamicMetaClass extends AbstractMetaClass {
         String opName = oppositeName;
         if (opName == null) {
             opName = "op_" + p_name;
-            ((DynamicMetaClass) p_metaClass).getOrCreate(opName, p_name, this, true, false);
-        } else {
             ((DynamicMetaClass) p_metaClass).getOrCreate(opName, p_name, this, false, false);
+        } else {
+            ((DynamicMetaClass) p_metaClass).getOrCreate(opName, p_name, this, true, false);
         }
         AbstractMetaReference tempReference = new AbstractMetaReference(p_name, _globalIndex, false, false, new LazyResolver() {
             @Override

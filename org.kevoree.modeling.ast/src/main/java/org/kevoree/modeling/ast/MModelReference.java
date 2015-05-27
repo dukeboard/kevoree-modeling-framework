@@ -9,8 +9,6 @@ public class MModelReference {
     private MModelClass type;
     private MModelReference opposite = null;
     private Integer index = -1;
-    protected Integer refIndex = -1;
-    private boolean contained = false;
     private boolean single = false;
     private boolean visible = true;
     
@@ -21,15 +19,6 @@ public class MModelReference {
     public void setIndex(Integer index) {
         this.index = index;
     }
-
-    public Integer getRefIndex() {
-        return refIndex;
-    }
-
-    public void setRefIndex(Integer refIndex) {
-        this.refIndex = refIndex;
-    }
-
 
     public MModelReference(String name, MModelClass type) {
         this.name = name;
@@ -42,14 +31,6 @@ public class MModelReference {
 
     public MModelClass getType() {
         return type;
-    }
-
-    public boolean isContained() {
-        return contained;
-    }
-
-    public void setContained(boolean contained) {
-        this.contained = contained;
     }
 
     public boolean isSingle() {
@@ -71,8 +52,8 @@ public class MModelReference {
     public MModelReference clone() {
         MModelReference cloned = new MModelReference(this.name, this.type);
         cloned.opposite = opposite;
-        cloned.contained = contained;
         cloned.single = single;
+        cloned.visible = visible;
         return cloned;
     }
 

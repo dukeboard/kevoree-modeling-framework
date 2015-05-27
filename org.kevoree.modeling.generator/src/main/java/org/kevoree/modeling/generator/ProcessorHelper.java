@@ -83,26 +83,17 @@ public class ProcessorHelper {
 
     private void internal_consolidate(MModelClass classRelDecls) {
         int globalIndex = 0;
-        int localIndex = 0;
         for (MModelAttribute att : classRelDecls.getAttributes()) {
             att.setIndex(globalIndex);
-            att.setAttIndex(localIndex);
             globalIndex++;
-            localIndex++;
         }
-        localIndex = 0;
         for (MModelReference ref : classRelDecls.getReferences()) {
             ref.setIndex(globalIndex);
-            ref.setRefIndex(localIndex);
             globalIndex++;
-            localIndex++;
         }
-        localIndex = 0;
         for (MModelOperation op : classRelDecls.getOperations()) {
             op.setIndex(globalIndex);
-            op.setOpIndex(localIndex);
             globalIndex++;
-            localIndex++;
         }
     }
 

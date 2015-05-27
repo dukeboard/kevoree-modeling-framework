@@ -2,7 +2,7 @@ package org.kevoree.modeling.api.meta;
 
 public interface MetaReference extends Meta {
 
-    boolean hidden();
+    boolean visible();
 
     boolean single();
 

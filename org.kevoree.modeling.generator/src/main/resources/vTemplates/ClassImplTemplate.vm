@@ -44,19 +44,16 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
 
 #foreach($ref in $classDeclaration.references)
     #if($ref.visible)
-        #set($overrideDirective = "@Override")
-    #else
-        #set($overrideDirective = "")
-    #end
+
     #if($ref.single)
 
-    $overrideDirective
+    @Override
     public ${classDeclaration.pack}.${classDeclaration.name} set${context.generationContext.helper.toCamelCase(${ref.getName()})}(${ref.getType().fqn} p_obj) {
         mutate(org.kevoree.modeling.api.KActionType.SET, ${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, p_obj);
         return this;
     }
 
-    $overrideDirective
+    @Override
     public void get${context.generationContext.helper.toCamelCase(${ref.getName()})}(org.kevoree.modeling.api.Callback<${ref.getType().fqn}> cb) {
         if(cb == null){
             return;
@@ -75,18 +72,19 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
 
     #{else}
 
-    $overrideDirective
+    @Override
     public ${classDeclaration.pack}.${classDeclaration.name} add${context.generationContext.helper.toCamelCase(${ref.getName()})}(${ref.getType().fqn} p_obj) {
         mutate(org.kevoree.modeling.api.KActionType.ADD, ${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, p_obj);
         return this;
     }
-    $overrideDirective
+
+    @Override
     public ${classDeclaration.pack}.${classDeclaration.name} remove${context.generationContext.helper.toCamelCase(${ref.getName()})}(${ref.getType().fqn} p_obj) {
         mutate(org.kevoree.modeling.api.KActionType.REMOVE, ${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, p_obj);
         return this;
     }
 
-    $overrideDirective
+    @Override
     public void get${context.generationContext.helper.toCamelCase(${ref.getName()})}(org.kevoree.modeling.api.Callback<${ref.getType().fqn}[]> cb) {
         if(cb == null){
             return;
@@ -106,6 +104,8 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
     public int sizeOf${context.generationContext.helper.toCamelCase($ref.getName())}() {
         return size(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()});
     }
+    #end
+
     #end
 #end
 
