@@ -19,9 +19,7 @@ import org.kevoree.modeling.api.data.manager.KDataManager;
 import org.kevoree.modeling.api.msg.KEventMessage;
 
 import java.io.Serializable;
-import java.net.InetAddress;
 import java.net.MalformedURLException;
-import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,13 +33,10 @@ public class OpenchordContentDeliveryDriver implements KContentDeliveryDriver {
         PropertiesLoader.loadPropertyFile();
     }
 
-    public void start(boolean root){
+    public void start(boolean root, String address, int port){
         String protocol = URL.KNOWN_PROTOCOLS.get(/*URL.LOCAL_PROTOCOL*/URL.SOCKET_PROTOCOL);
-        String address = "localhost";
-        int port=8080;
         this.chord = new ChordImpl();
         if(root){
-
             root(protocol, address, port);
         } else {
             peer(protocol, address, port);
@@ -59,9 +54,11 @@ public class OpenchordContentDeliveryDriver implements KContentDeliveryDriver {
     }
     public void root(String protocol, String address, int port) {
         URL localURL = null;
+        if( address==null) {
+            address = "localhost";
+            port=8080;
+        }
         try {
-            //address = InetAddress.getLocalHost().toString();
-            //address = address.substring(address.indexOf("/") + 1, address.length());
             localURL = new URL(protocol + "://" +address+":"+port+"/");
             System.out.println("Local address: "+address+" on port "+port);
         } catch (MalformedURLException e) {
@@ -78,7 +75,13 @@ public class OpenchordContentDeliveryDriver implements KContentDeliveryDriver {
     public void peer(String protocol, String address, int port) {
         URL localURL = null;
         try {
-            localURL = new URL(protocol + "://" +address+":"+8181+"/");
+            if( address==null) {
+                address = "localhost";
+                port=8080;
+                localURL = new URL(protocol + "://" +address+":"+(port+101)+"/");
+            } else {
+                localURL = new URL(protocol + "://" +address+":"+port+"/");
+            }
             System.out.println("Local address: "+address+" on port ");
             URL bootstrapURL = new URL(protocol+"://"+address+":"+port+"/");
             chord.join(localURL, bootstrapURL);
@@ -91,8 +94,23 @@ public class OpenchordContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void atomicGetMutate(KContentKey kContentKey, AtomicOperation atomicOperation, ThrowableCallback<String> throwableCallback) {
-
+    public void atomicGetMutate(KContentKey key, AtomicOperation operation, ThrowableCallback<String> callback) {
+        String keyAsString = key.toString();
+        String previousVal = null;
+        try {
+            Set<Serializable> sette = chord.retrieve(new Key(keyAsString));
+            Iterator<Serializable> it = sette.iterator();
+            previousVal = it.next().toString();
+        } catch (ServiceException e) {
+            e.printStackTrace();
+        }
+        String newVal = operation.mutate(previousVal);
+        try {
+            this.chord.insert(new Key(keyAsString), newVal);
+        } catch (ServiceException e) {
+            e.printStackTrace();
+        }
+        callback.on(previousVal, null);
     }
 
     @Override
@@ -131,8 +149,23 @@ public class OpenchordContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void remove(String[] strings, Callback<Throwable> callback) {
-
+    public void remove(String[] keys, Callback<Throwable> callback) {
+        for (int i = 0; i < keys.length; i++) {
+            Serializable val = null;
+            Key theKey = new Key(keys[i].toString());
+            try {
+                Set<Serializable> sette = chord.retrieve( theKey );
+                Iterator<Serializable> it = sette.iterator();
+                val = it.next();
+            } catch (ServiceException e) {
+                e.printStackTrace();
+            }
+            try {
+                this.chord.remove( theKey,val );
+            } catch (ServiceException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -144,7 +177,11 @@ public class OpenchordContentDeliveryDriver implements KContentDeliveryDriver {
 
     @Override
     public void close(Callback<Throwable> callback) {
-
+        try {
+            this.chord.leave();
+        } catch (ServiceException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

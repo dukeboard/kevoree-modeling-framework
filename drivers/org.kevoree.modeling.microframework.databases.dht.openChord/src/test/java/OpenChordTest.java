@@ -15,13 +15,16 @@ public class OpenChordTest {
 
     @Before
     public void init(){
+        String address = null;
+        //address = InetAddress.getLocalHost().toString();
+        //address = address.substring(address.indexOf("/") + 1, address.length());
         this.occdd=new OpenchordContentDeliveryDriver();
-        this.occdd.start(true);
+        this.occdd.start(true, address, 0);
     }
 
     @Test
     public void test(){
-        this.occdd.start(false);
+        this.occdd.start(false, null, 0);
         this.occdd.connect(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
