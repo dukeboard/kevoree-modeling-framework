@@ -86,6 +86,10 @@
                     console.log('Discovered matching announcement from ' + message.id);
                     this.remote = message.id;
                     this.initiateWebRTCState();
+                    this.dataChannel = this.peerConnection.createDataChannel('myDataChannel');
+                    this.dataChannel.onmessage = this.handleDataChannelMessage;
+                    this.dataChannel.onopen = this.handleDataChannelOpen;
+                    this.dataChannel.onclose = this.handleDataChannelClosed();
                     this.connect();
                 }
             },
@@ -111,11 +115,6 @@
                 adaptator.trace('Created remote peer connection object peerConnection');
                 this.peerConnection = new adaptator.RTCPeerConnection(this.servers, pcConstraint);
                 this.peerConnection.ondatachannel = this.handleDataChannel;
-
-                this.dataChannel = this.peerConnection.createDataChannel('myDataChannel');
-                this.dataChannel.onmessage = this.handleDataChannelMessage;
-                this.dataChannel.onopen = this.handleDataChannelOpen;
-                this.dataChannel.onclose = this.handleDataChannelClosed();
             },
             /* == Data Channel Functions ==
              * The WebRTC connection is established by the time these functions run
@@ -129,7 +128,10 @@
             // We will bind to trigger a handler when an incoming message happens
             handleDataChannel: function (event) {
                 adaptator.trace('Receive Channel Callback');
-                event.channel.onmessage = this.handleDataChannelMessage;
+                this.dataChannel = event.channel;
+                this.dataChannel.onmessage = this.handleDataChannelMessage;
+                this.dataChannel.onopen = this.handleDataChannelOpen;
+                this.dataChannel.onclose = this.handleDataChannelClosed();
             },
             // This is called on an incoming message from our peer
             // You probably want to overwrite this to do something more useful!
