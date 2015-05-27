@@ -17,6 +17,7 @@ public class GraphBuilder {
 
     public static void graphFrom(KObject modelRoot, Callback<Graph> cb) {
         final Graph graph = new SingleGraph("Model_" + modelRoot.metaClass().metaName());
+        graph.setStrict(false);
         createNode(graph, modelRoot);
         modelRoot.visit(new KModelVisitor() {
             @Override
@@ -60,9 +61,8 @@ public class GraphBuilder {
             if (relatedElems != null) {
                 for (int i = 0; i < relatedElems.length; i++) {
                     Edge e = graph.addEdge(elem.uuid() + "_" + relatedElems[i] + "_" + metaRef.metaName(), elem.uuid() + "", relatedElems[i] + "");
-                    e.addAttribute("ui.label", metaRef.metaName());
-                    if (metaRef.contained()) {
-                        e.addAttribute("ui.class", "containmentReference");
+                    if(e != null){
+                        e.addAttribute("ui.label", metaRef.metaName());
                     }
                 }
 

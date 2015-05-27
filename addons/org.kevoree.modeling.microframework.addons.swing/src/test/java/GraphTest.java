@@ -16,11 +16,11 @@ import java.util.Random;
  */
 public class GraphTest {
 
-    private static int PRIMARY = 100;
+    private static int PRIMARY = 5;
 
-    private static int SECONDARY = 100;
+    private static int SECONDARY = 5;
 
-    @Test
+    //@Test
     public void test() throws InterruptedException {
         DynamicMetaModel metaModel = new DynamicMetaModel("TestModel");
         DynamicMetaClass nodeClazz = metaModel.createMetaClass("Node");
@@ -28,7 +28,7 @@ public class GraphTest {
         nodeClazz.addReference("children", nodeClazz, true, null);
         nodeClazz.addReference("neighbor", nodeClazz, false, null);
         KModel model = metaModel.model();
-        //model.setScheduler(new ExecutorServiceScheduler());
+        model.setScheduler(new ExecutorServiceScheduler());
 
         model.connect(new Callback() {
             @Override
@@ -48,9 +48,6 @@ public class GraphTest {
                         }
                     }
                 }
-
-                System.err.println("Hello");
-
 
                 GraphBuilder.graphFrom(root, new Callback<Graph>() {
                     @Override
