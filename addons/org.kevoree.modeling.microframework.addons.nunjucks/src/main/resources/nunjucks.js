@@ -879,11 +879,11 @@
                     } else {
                         metaElem = obj.metaClass().reference(val);
                         if (metaElem !== undefined && metaElem !== null) {
-                            var backendRawEntry = obj.view().universe().model().manager().entry(obj, org.kevoree.modeling.api.data.manager.AccessMode.READ);
+                            var backendRawEntry = obj.manager().entry(obj, org.kevoree.modeling.api.data.manager.AccessMode.READ);
                             var backendIds = backendRawEntry.get(metaElem.index());
                             if (backendIds !== undefined && backendIds !== null) {
-                                var deferTask = obj.view().lookupAll(backendIds);
-                                return {arr: backendIds, defer: deferTask};
+                                //var deferTask = obj.manager().lookupAllobjects(obj._universe, obj._time,backendIds);
+                                return {arr: backendIds, caller: obj};
                             }
                         }
                     }
@@ -894,7 +894,7 @@
 
         function callWrap(obj, name, args) {
             if (!obj) {
-                throw new Error('Unable to call `' + name + '`, which is undefined or falsey');
+                throw new Error('Unable to call `' + name + '`, which is undefined or false');
             }
             else if (typeof obj !== 'function') {
                 throw new Error('Unable to call `' + name + '`, which is not a function');
@@ -923,8 +923,8 @@
         }
 
         function asyncEach(arr, dimen, iter, cb) {
-            if (arr !== undefined && arr !== null && arr.defer != undefined && arr.arr !== undefined) {
-                arr.defer.then(function (resolved) {
+            if (arr !== undefined && arr !== null && arr.caller != undefined && arr.arr !== undefined) {
+                arr.caller.manager().lookupAllobjects(arr.caller._universe, arr.caller._time,arr.arr,function (resolved) {
                     if (runtime.ctx.ctx.managedObjects !== undefined && runtime.ctx.ctx.managedObjects !== null) {
                         for (var i = 0; i < resolved.length; i++) {
                             runtime.ctx.ctx.managedObjects[resolved[i].uuid()] = resolved[i];
