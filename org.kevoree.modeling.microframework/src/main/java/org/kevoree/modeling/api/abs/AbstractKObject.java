@@ -335,28 +335,24 @@ public abstract class AbstractKObject implements KObject {
         }
     }
 
-    public void internal_ref(MetaReference p_metaReference, Callback<KObject[]> callback) {
+    @Override
+    public void ref(MetaReference p_metaReference, Callback<KObject[]> cb) {
         MetaReference transposed = internal_transpose_ref(p_metaReference);
         if (transposed == null) {
             throw new RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + metaClass().metaName());
         } else {
             KCacheEntry raw = _manager.entry(this, AccessMode.READ);
             if (raw == null) {
-                callback.on(new KObject[0]);
+                cb.on(new KObject[0]);
             } else {
                 long[] o = raw.getRef(transposed.index());
                 if (o == null) {
-                    callback.on(new KObject[0]);
+                    cb.on(new KObject[0]);
                 } else {
-                    _manager.lookupAllobjects(_universe, _time, o, callback);
+                    _manager.lookupAllobjects(_universe, _time, o, cb);
                 }
             }
         }
-    }
-
-    @Override
-    public void ref(MetaReference p_metaReference, Callback<KObject[]> cb) {
-        internal_ref(p_metaReference, cb);
     }
 
     @Override

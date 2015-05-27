@@ -58,7 +58,7 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
         if(cb == null){
             return;
         }
-        this.internal_ref(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject[]>() {
+        this.ref(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject[]>() {
             @Override
             public void on(org.kevoree.modeling.api.KObject[] kObjects) {
                 if(kObjects.length >0){
@@ -89,7 +89,7 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
         if(cb == null){
             return;
         }
-        this.internal_ref(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject[]>() {
+        this.ref(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject[]>() {
             @Override
             public void on(org.kevoree.modeling.api.KObject[] kObjects) {
                 ${ref.getType().fqn}[] casted = new ${ref.getType().fqn}[kObjects.length];
