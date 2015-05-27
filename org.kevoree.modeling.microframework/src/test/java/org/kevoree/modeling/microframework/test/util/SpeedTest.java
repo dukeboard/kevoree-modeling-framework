@@ -87,11 +87,11 @@ public class SpeedTest {
         sensorMetaClass
                 .addAttribute("name", PrimitiveTypes.STRING)
                 .addAttribute("value", PrimitiveTypes.DOUBLE)
-                .addReference("siblings", sensorMetaClass, false,null);
+                .addReference("siblings", sensorMetaClass,null);
         DynamicMetaClass homeMetaClass = dynamicMetaModel.createMetaClass("Home");
         homeMetaClass
                 .addAttribute("name", PrimitiveTypes.STRING)
-                .addReference("sensors", sensorMetaClass, true,null);
+                .addReference("sensors", sensorMetaClass,null);
         final KModel universe = dynamicMetaModel.model();
 
         universe.connect(new Callback<Throwable>() {

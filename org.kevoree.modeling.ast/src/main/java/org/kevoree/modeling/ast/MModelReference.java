@@ -12,8 +12,7 @@ public class MModelReference {
     protected Integer refIndex = -1;
     private boolean contained = false;
     private boolean single = false;
-
-
+    
     public Integer getIndex() {
         return index;
     }

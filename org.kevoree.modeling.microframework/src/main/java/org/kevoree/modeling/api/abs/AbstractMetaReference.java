@@ -10,7 +10,7 @@ public class AbstractMetaReference implements MetaReference {
 
     private int _index;
 
-    private boolean _contained;
+    private boolean _hidden;
 
     private boolean _single;
 
@@ -60,14 +60,14 @@ public class AbstractMetaReference implements MetaReference {
         return MetaType.REFERENCE;
     }
 
-    public boolean contained() {
-        return _contained;
+    public boolean hidden() {
+        return _hidden;
     }
 
-    public AbstractMetaReference(String p_name, int p_index, boolean p_contained, boolean p_single, LazyResolver p_lazyMetaType, String op_name, LazyResolver p_lazyMetaOrigin) {
+    public AbstractMetaReference(String p_name, int p_index, boolean p_hidden, boolean p_single, LazyResolver p_lazyMetaType, String op_name, LazyResolver p_lazyMetaOrigin) {
         this._name = p_name;
         this._index = p_index;
-        this._contained = p_contained;
+        this._hidden = p_hidden;
         this._single = p_single;
         this._lazyMetaType = p_lazyMetaType;
         this._op_name = op_name;
