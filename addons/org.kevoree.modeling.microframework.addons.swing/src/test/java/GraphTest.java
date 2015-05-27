@@ -25,8 +25,8 @@ public class GraphTest {
         DynamicMetaModel metaModel = new DynamicMetaModel("TestModel");
         DynamicMetaClass nodeClazz = metaModel.createMetaClass("Node");
         nodeClazz.addAttribute("name", PrimitiveTypes.STRING);
-        nodeClazz.addReference("children", nodeClazz, true, null);
-        nodeClazz.addReference("neighbor", nodeClazz, false, null);
+        nodeClazz.addReference("children", nodeClazz, "op_children");
+        nodeClazz.addReference("neighbor", nodeClazz, "op_neighbor");
         KModel model = metaModel.model();
         model.setScheduler(new ExecutorServiceScheduler());
 

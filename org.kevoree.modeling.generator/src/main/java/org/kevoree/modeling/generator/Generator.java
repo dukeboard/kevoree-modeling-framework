@@ -7,9 +7,7 @@ import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.kevoree.modeling.MetaModelLanguageType;
-import org.kevoree.modeling.ast.MModelClass;
-import org.kevoree.modeling.ast.MModelClassifier;
-import org.kevoree.modeling.ast.MModelEnum;
+import org.kevoree.modeling.ast.*;
 import org.kevoree.modeling.generator.misc.VelocityLog;
 import org.kevoree.modeling.util.StandaloneParser;
 
@@ -62,15 +60,17 @@ public class Generator {
         try {
             StandaloneParser parser = new StandaloneParser();
             PsiFile psi = parser.parser(context.getMetaModel());
-            MMPsiVisitor MMPsiVisitor = new MMPsiVisitor(context,true);
+            MMPsiVisitor MMPsiVisitor = new MMPsiVisitor(context, true);
             psi.acceptChildren(MMPsiVisitor);
-            MMPsiVisitor MMPsiVisitorClasses = new MMPsiVisitor(context,false);
+            MMPsiVisitor MMPsiVisitorClasses = new MMPsiVisitor(context, false);
             psi.acceptChildren(MMPsiVisitorClasses);
+
+            completeOppositeReferences();
 
             ProcessorHelper.getInstance().consolidate(context.getModel());
             generateUtilities();
             for (MModelClassifier classDecl : context.getModel().getClassifiers()) {
-                if(classDecl instanceof MModelClass) {
+                if (classDecl instanceof MModelClass) {
                     ClassGenerationContext cgc = new ClassGenerationContext();
                     cgc.generationContext = context;
                     cgc.classDeclaration = classDecl;
@@ -83,8 +83,8 @@ public class Generator {
 
                     Path metaFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + cgc.classDeclaration.getPack().replace(".", File.separator) + File.separator + "meta" + File.separator + "Meta" + cgc.classDeclaration.getName() + ".java");
                     callVelocity(metaFilePath, "vTemplates/MetaClassTemplate2.vm", cgc);
-                } else if(classDecl instanceof MModelEnum) {
-                    MModelEnum enumDecl = (MModelEnum)classDecl;
+                } else if (classDecl instanceof MModelEnum) {
+                    MModelEnum enumDecl = (MModelEnum) classDecl;
                     Path apiFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + enumDecl.getFqn().replace(".", File.separator) + ".java");
                     callVelocity(apiFilePath, "vTemplates/EnumTemplate.vm", enumDecl);
 
@@ -97,6 +97,30 @@ public class Generator {
         }
 
     }
+
+
+    private void completeOppositeReferences() {
+        for (MModelClassifier classDecl : context.getModel().getClassifiers()) {
+            if (classDecl instanceof MModelClass) {
+                for (MModelReference ref : ((MModelClass) classDecl).getReferences()) {
+                    if (ref.getOpposite() == null) {
+
+                        //Create opposite relation
+                        MModelReference op_ref = new MModelReference("op_" + ref.getName(), ((MModelClass) classDecl));
+                        op_ref.setVisible(false);
+                        op_ref.setSingle(false);
+                        op_ref.setOpposite(ref);
+
+                        //add the relation on  the other side
+                        ref.getType().addReference(op_ref);
+                        ref.setOpposite(op_ref);
+
+                    }
+                }
+            }
+        }
+    }
+
 
     private void generateUtilities() {
 

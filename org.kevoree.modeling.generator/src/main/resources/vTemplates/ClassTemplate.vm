@@ -15,6 +15,7 @@ public interface ${classDeclaration.name} extends org.kevoree.modeling.api.KObje
 #end
 
 #foreach($rel in $classDeclaration.references)
+#if($rel.visible)
 #if($rel.single)
     public ${classDeclaration.pack}.${classDeclaration.name} set${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn p_obj);
     public org.kevoree.modeling.api.KDefer<${rel.getType().fqn}> get${context.generationContext.helper.toCamelCase($rel.getName())}();
@@ -23,6 +24,7 @@ public interface ${classDeclaration.name} extends org.kevoree.modeling.api.KObje
     public ${classDeclaration.pack}.${classDeclaration.name} remove${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn p_obj);
     public org.kevoree.modeling.api.KDefer<${rel.getType().fqn}[]> get${context.generationContext.helper.toCamelCase($rel.getName())}();
     public int sizeOf${context.generationContext.helper.toCamelCase($rel.getName())}();
+#end
 #end
 #end
 

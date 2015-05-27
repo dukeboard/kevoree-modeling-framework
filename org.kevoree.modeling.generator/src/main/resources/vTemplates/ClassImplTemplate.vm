@@ -43,15 +43,20 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
 
 
 #foreach($ref in $classDeclaration.references)
+    #if($ref.visible)
+        #set($overrideDirective = "@Override")
+    #else
+        #set($overrideDirective = "")
+    #end
     #if($ref.single)
 
-    @Override
+    $overrideDirective
     public ${classDeclaration.pack}.${classDeclaration.name} set${context.generationContext.helper.toCamelCase(${ref.getName()})}(${ref.getType().fqn} p_obj) {
         mutate(org.kevoree.modeling.api.KActionType.SET, ${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, p_obj);
         return this;
     }
 
-    @Override
+    $overrideDirective
     public org.kevoree.modeling.api.KDefer<${ref.getType().fqn}> get${context.generationContext.helper.toCamelCase(${ref.getName()})}() {
         final org.kevoree.modeling.api.abs.AbstractKDeferWrapper<${ref.getType().fqn}> task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<${ref.getType().fqn}>();
         this.internal_ref(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject[]>() {
@@ -69,19 +74,18 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
 
     #{else}
 
-    @Override
+    $overrideDirective
     public ${classDeclaration.pack}.${classDeclaration.name} add${context.generationContext.helper.toCamelCase(${ref.getName()})}(${ref.getType().fqn} p_obj) {
         mutate(org.kevoree.modeling.api.KActionType.ADD, ${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, p_obj);
         return this;
     }
-
-    @Override
+    $overrideDirective
     public ${classDeclaration.pack}.${classDeclaration.name} remove${context.generationContext.helper.toCamelCase(${ref.getName()})}(${ref.getType().fqn} p_obj) {
         mutate(org.kevoree.modeling.api.KActionType.REMOVE, ${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, p_obj);
         return this;
     }
 
-    @Override
+    $overrideDirective
     public org.kevoree.modeling.api.KDefer<${ref.getType().fqn}[]> get${context.generationContext.helper.toCamelCase(${ref.getName()})}() {
         final org.kevoree.modeling.api.abs.AbstractKDeferWrapper<${ref.getType().fqn}[]> task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<${ref.getType().fqn}[]>();
         this.internal_ref(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject[]>() {

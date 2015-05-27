@@ -12,6 +12,7 @@ public class MModelReference {
     protected Integer refIndex = -1;
     private boolean contained = false;
     private boolean single = false;
+    private boolean visible = true;
     
     public Integer getIndex() {
         return index;
@@ -75,4 +76,11 @@ public class MModelReference {
         return cloned;
     }
 
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
 }
