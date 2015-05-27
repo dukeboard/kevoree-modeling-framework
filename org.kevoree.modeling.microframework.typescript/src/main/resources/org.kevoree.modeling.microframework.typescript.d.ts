@@ -380,7 +380,7 @@ declare module org {
                     class AbstractMetaReference implements org.kevoree.modeling.api.meta.MetaReference {
                         private _name;
                         private _index;
-                        private _contained;
+                        private _hidden;
                         private _single;
                         private _lazyMetaType;
                         private _op_name;
@@ -392,8 +392,8 @@ declare module org {
                         index(): number;
                         metaName(): string;
                         metaType(): org.kevoree.modeling.api.meta.MetaType;
-                        contained(): boolean;
-                        constructor(p_name: string, p_index: number, p_contained: boolean, p_single: boolean, p_lazyMetaType: () => org.kevoree.modeling.api.meta.Meta, op_name: string, p_lazyMetaOrigin: () => org.kevoree.modeling.api.meta.Meta);
+                        hidden(): boolean;
+                        constructor(p_name: string, p_index: number, p_hidden: boolean, p_single: boolean, p_lazyMetaType: () => org.kevoree.modeling.api.meta.Meta, op_name: string, p_lazyMetaOrigin: () => org.kevoree.modeling.api.meta.Meta);
                     }
                     class AbstractTimeWalker implements org.kevoree.modeling.api.KTimeWalker {
                         private _origin;
@@ -1100,7 +1100,7 @@ declare module org {
                         origin(): org.kevoree.modeling.api.meta.Meta;
                     }
                     interface MetaReference extends org.kevoree.modeling.api.meta.Meta {
-                        contained(): boolean;
+                        hidden(): boolean;
                         single(): boolean;
                         type(): org.kevoree.modeling.api.meta.MetaClass;
                         opposite(): org.kevoree.modeling.api.meta.MetaReference;
@@ -1597,8 +1597,8 @@ declare module org {
                         private _globalIndex;
                         constructor(p_name: string, p_index: number);
                         addAttribute(p_name: string, p_type: org.kevoree.modeling.api.KType): org.kevoree.modeling.api.reflexive.DynamicMetaClass;
-                        private getOrCreate(p_name, p_oppositeName, p_oppositeClass, p_contained, p_single);
-                        addReference(p_name: string, p_metaClass: org.kevoree.modeling.api.meta.MetaClass, contained: boolean, oppositeName: string): org.kevoree.modeling.api.reflexive.DynamicMetaClass;
+                        private getOrCreate(p_name, p_oppositeName, p_oppositeClass, p_hidden, p_single);
+                        addReference(p_name: string, p_metaClass: org.kevoree.modeling.api.meta.MetaClass, oppositeName: string): org.kevoree.modeling.api.reflexive.DynamicMetaClass;
                         addOperation(p_name: string): org.kevoree.modeling.api.reflexive.DynamicMetaClass;
                         private internalInit();
                     }

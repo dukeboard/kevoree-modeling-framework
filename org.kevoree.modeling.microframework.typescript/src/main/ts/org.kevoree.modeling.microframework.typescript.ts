@@ -1625,7 +1625,7 @@ module org {
 
                         private _name: string;
                         private _index: number;
-                        private _contained: boolean;
+                        private _hidden: boolean;
                         private _single: boolean;
                         private _lazyMetaType: () => org.kevoree.modeling.api.meta.Meta;
                         private _op_name: string;
@@ -1668,14 +1668,14 @@ module org {
                             return org.kevoree.modeling.api.meta.MetaType.REFERENCE;
                         }
 
-                        public contained(): boolean {
-                            return this._contained;
+                        public hidden(): boolean {
+                            return this._hidden;
                         }
 
-                        constructor(p_name: string, p_index: number, p_contained: boolean, p_single: boolean, p_lazyMetaType: () => org.kevoree.modeling.api.meta.Meta, op_name: string, p_lazyMetaOrigin: () => org.kevoree.modeling.api.meta.Meta) {
+                        constructor(p_name: string, p_index: number, p_hidden: boolean, p_single: boolean, p_lazyMetaType: () => org.kevoree.modeling.api.meta.Meta, op_name: string, p_lazyMetaOrigin: () => org.kevoree.modeling.api.meta.Meta) {
                             this._name = p_name;
                             this._index = p_index;
-                            this._contained = p_contained;
+                            this._hidden = p_hidden;
                             this._single = p_single;
                             this._lazyMetaType = p_lazyMetaType;
                             this._op_name = op_name;
@@ -5563,7 +5563,7 @@ module org {
 
                     export interface MetaReference extends org.kevoree.modeling.api.meta.Meta {
 
-                        contained(): boolean;
+                        hidden(): boolean;
 
                         single(): boolean;
 
@@ -8815,13 +8815,13 @@ module org {
                             return this;
                         }
 
-                        private getOrCreate(p_name: string, p_oppositeName: string, p_oppositeClass: org.kevoree.modeling.api.meta.MetaClass, p_contained: boolean, p_single: boolean): org.kevoree.modeling.api.abs.AbstractMetaReference {
+                        private getOrCreate(p_name: string, p_oppositeName: string, p_oppositeClass: org.kevoree.modeling.api.meta.MetaClass, p_hidden: boolean, p_single: boolean): org.kevoree.modeling.api.abs.AbstractMetaReference {
                             var previous: org.kevoree.modeling.api.abs.AbstractMetaReference = <org.kevoree.modeling.api.abs.AbstractMetaReference>this.reference(p_name);
                             if (previous != null) {
                                 return previous;
                             }
                             var tempOrigin: org.kevoree.modeling.api.meta.MetaClass = this;
-                            var tempReference: org.kevoree.modeling.api.abs.AbstractMetaReference = new org.kevoree.modeling.api.abs.AbstractMetaReference(p_name, this._globalIndex, p_contained, p_single,  () => {
+                            var tempReference: org.kevoree.modeling.api.abs.AbstractMetaReference = new org.kevoree.modeling.api.abs.AbstractMetaReference(p_name, this._globalIndex, p_hidden, p_single,  () => {
                                 return p_oppositeClass;
                             }, p_oppositeName,  () => {
                                 return tempOrigin;
@@ -8832,14 +8832,16 @@ module org {
                             return tempReference;
                         }
 
-                        public addReference(p_name: string, p_metaClass: org.kevoree.modeling.api.meta.MetaClass, contained: boolean, oppositeName: string): org.kevoree.modeling.api.reflexive.DynamicMetaClass {
+                        public addReference(p_name: string, p_metaClass: org.kevoree.modeling.api.meta.MetaClass, oppositeName: string): org.kevoree.modeling.api.reflexive.DynamicMetaClass {
                             var tempOrigin: org.kevoree.modeling.api.meta.MetaClass = this;
                             var opName: string = oppositeName;
                             if (opName == null) {
                                 opName = "op_" + p_name;
+                                (<org.kevoree.modeling.api.reflexive.DynamicMetaClass>p_metaClass).getOrCreate(opName, p_name, this, true, false);
+                            } else {
+                                (<org.kevoree.modeling.api.reflexive.DynamicMetaClass>p_metaClass).getOrCreate(opName, p_name, this, false, false);
                             }
-                            var opRef: org.kevoree.modeling.api.abs.AbstractMetaReference = (<org.kevoree.modeling.api.reflexive.DynamicMetaClass>p_metaClass).getOrCreate(opName, p_name, this, contained, false);
-                            var tempReference: org.kevoree.modeling.api.abs.AbstractMetaReference = new org.kevoree.modeling.api.abs.AbstractMetaReference(p_name, this._globalIndex, contained, false,  () => {
+                            var tempReference: org.kevoree.modeling.api.abs.AbstractMetaReference = new org.kevoree.modeling.api.abs.AbstractMetaReference(p_name, this._globalIndex, false, false,  () => {
                                 return p_metaClass;
                             }, opName,  () => {
                                 return tempOrigin;

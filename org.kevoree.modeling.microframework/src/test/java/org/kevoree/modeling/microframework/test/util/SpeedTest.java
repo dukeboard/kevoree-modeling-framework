@@ -1,6 +1,6 @@
 package org.kevoree.modeling.microframework.test.util;
 
-import net.openhft.chronicle.map.ChronicleMapBuilder;
+//import net.openhft.chronicle.map.ChronicleMapBuilder;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KModel;
@@ -9,14 +9,8 @@ import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.meta.PrimitiveTypes;
-import org.kevoree.modeling.api.rbtree.ooheap.OOKLongTree;
 import org.kevoree.modeling.api.reflexive.DynamicMetaClass;
 import org.kevoree.modeling.api.reflexive.DynamicMetaModel;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by duke on 29/04/15.
@@ -27,6 +21,7 @@ public class SpeedTest {
      * @native ts
      */
    // @Test
+    /*
     public void test2() {
         try {
             long before = System.currentTimeMillis();
@@ -62,10 +57,10 @@ public class SpeedTest {
 
                map.put(i, indexes);
 
-            /*
-            if (i % 10000 == 0) {
-                helloMap.clear();
-            }*/
+
+           // if (i % 10000 == 0) {
+           //     helloMap.clear();
+           // }
 
             }
             // }
@@ -74,7 +69,7 @@ public class SpeedTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
 
     /**

@@ -57,19 +57,20 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
     }
 
     $overrideDirective
-    public org.kevoree.modeling.api.KDefer<${ref.getType().fqn}> get${context.generationContext.helper.toCamelCase(${ref.getName()})}() {
-        final org.kevoree.modeling.api.abs.AbstractKDeferWrapper<${ref.getType().fqn}> task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<${ref.getType().fqn}>();
+    public void get${context.generationContext.helper.toCamelCase(${ref.getName()})}(org.kevoree.modeling.api.Callback<${ref.getType().fqn}> cb) {
+        if(cb == null){
+            return;
+        }
         this.internal_ref(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject[]>() {
             @Override
             public void on(org.kevoree.modeling.api.KObject[] kObjects) {
                 if(kObjects.length >0){
-                    task.initCallback().on((${ref.getType().fqn}) kObjects[0]);
+                    cb.on((${ref.getType().fqn}) kObjects[0]);
                 } else {
-                    task.initCallback().on(null);
+                    cb.on(null);
                 }
             }
         });
-        return task;
     }
 
     #{else}
@@ -86,8 +87,10 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
     }
 
     $overrideDirective
-    public org.kevoree.modeling.api.KDefer<${ref.getType().fqn}[]> get${context.generationContext.helper.toCamelCase(${ref.getName()})}() {
-        final org.kevoree.modeling.api.abs.AbstractKDeferWrapper<${ref.getType().fqn}[]> task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<${ref.getType().fqn}[]>();
+    public void get${context.generationContext.helper.toCamelCase(${ref.getName()})}(org.kevoree.modeling.api.Callback<${ref.getType().fqn}[]> cb) {
+        if(cb == null){
+            return;
+        }
         this.internal_ref(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject[]>() {
             @Override
             public void on(org.kevoree.modeling.api.KObject[] kObjects) {
@@ -95,10 +98,9 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
                 for(int i=0;i<kObjects.length;i++){
                     casted[i] = (${ref.getType().fqn}) kObjects[i];
                 }
-                task.initCallback().on(casted);
+                cb.on(casted);
             }
         });
-        return task;
     }
 
     public int sizeOf${context.generationContext.helper.toCamelCase($ref.getName())}() {

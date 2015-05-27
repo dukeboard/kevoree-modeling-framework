@@ -102,7 +102,8 @@ public class Generator {
     private void completeOppositeReferences() {
         for (MModelClassifier classDecl : context.getModel().getClassifiers()) {
             if (classDecl instanceof MModelClass) {
-                for (MModelReference ref : ((MModelClass) classDecl).getReferences()) {
+                int nbRef = ((MModelClass) classDecl).getReferences().size();
+                for (MModelReference ref : ((MModelClass) classDecl).getReferences().toArray(new MModelReference[nbRef])) {
                     if (ref.getOpposite() == null) {
 
                         //Create opposite relation

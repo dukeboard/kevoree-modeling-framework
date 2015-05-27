@@ -1266,10 +1266,10 @@ var org;
                     })();
                     abs.AbstractMetaOperation = AbstractMetaOperation;
                     var AbstractMetaReference = (function () {
-                        function AbstractMetaReference(p_name, p_index, p_contained, p_single, p_lazyMetaType, op_name, p_lazyMetaOrigin) {
+                        function AbstractMetaReference(p_name, p_index, p_hidden, p_single, p_lazyMetaType, op_name, p_lazyMetaOrigin) {
                             this._name = p_name;
                             this._index = p_index;
-                            this._contained = p_contained;
+                            this._hidden = p_hidden;
                             this._single = p_single;
                             this._lazyMetaType = p_lazyMetaType;
                             this._op_name = op_name;
@@ -1307,8 +1307,8 @@ var org;
                         AbstractMetaReference.prototype.metaType = function () {
                             return org.kevoree.modeling.api.meta.MetaType.REFERENCE;
                         };
-                        AbstractMetaReference.prototype.contained = function () {
-                            return this._contained;
+                        AbstractMetaReference.prototype.hidden = function () {
+                            return this._hidden;
                         };
                         return AbstractMetaReference;
                     })();
@@ -8004,13 +8004,13 @@ var org;
                             this.internalInit();
                             return this;
                         };
-                        DynamicMetaClass.prototype.getOrCreate = function (p_name, p_oppositeName, p_oppositeClass, p_contained, p_single) {
+                        DynamicMetaClass.prototype.getOrCreate = function (p_name, p_oppositeName, p_oppositeClass, p_hidden, p_single) {
                             var previous = this.reference(p_name);
                             if (previous != null) {
                                 return previous;
                             }
                             var tempOrigin = this;
-                            var tempReference = new org.kevoree.modeling.api.abs.AbstractMetaReference(p_name, this._globalIndex, p_contained, p_single, function () {
+                            var tempReference = new org.kevoree.modeling.api.abs.AbstractMetaReference(p_name, this._globalIndex, p_hidden, p_single, function () {
                                 return p_oppositeClass;
                             }, p_oppositeName, function () {
                                 return tempOrigin;
@@ -8020,14 +8020,17 @@ var org;
                             this.internalInit();
                             return tempReference;
                         };
-                        DynamicMetaClass.prototype.addReference = function (p_name, p_metaClass, contained, oppositeName) {
+                        DynamicMetaClass.prototype.addReference = function (p_name, p_metaClass, oppositeName) {
                             var tempOrigin = this;
                             var opName = oppositeName;
                             if (opName == null) {
                                 opName = "op_" + p_name;
+                                p_metaClass.getOrCreate(opName, p_name, this, true, false);
                             }
-                            var opRef = p_metaClass.getOrCreate(opName, p_name, this, contained, false);
-                            var tempReference = new org.kevoree.modeling.api.abs.AbstractMetaReference(p_name, this._globalIndex, contained, false, function () {
+                            else {
+                                p_metaClass.getOrCreate(opName, p_name, this, false, false);
+                            }
+                            var tempReference = new org.kevoree.modeling.api.abs.AbstractMetaReference(p_name, this._globalIndex, false, false, function () {
                                 return p_metaClass;
                             }, opName, function () {
                                 return tempOrigin;
