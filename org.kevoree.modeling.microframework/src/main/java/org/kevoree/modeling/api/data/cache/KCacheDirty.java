@@ -1,5 +1,7 @@
 package org.kevoree.modeling.api.data.cache;
 
+import org.kevoree.modeling.api.data.KCacheObject;
+
 public class KCacheDirty {
 
     public KContentKey key;

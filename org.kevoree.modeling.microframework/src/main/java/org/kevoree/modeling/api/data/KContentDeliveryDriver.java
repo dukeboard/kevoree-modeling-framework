@@ -1,8 +1,10 @@
-package org.kevoree.modeling.api.data.cdn;
+package org.kevoree.modeling.api.data;
 
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.cache.KContentKey;
-import org.kevoree.modeling.api.data.manager.KDataManager;
+import org.kevoree.modeling.api.data.KDataManager;
+import org.kevoree.modeling.api.data.cdn.AtomicOperation;
+import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
 import org.kevoree.modeling.api.msg.KMessage;
 
 public interface KContentDeliveryDriver {

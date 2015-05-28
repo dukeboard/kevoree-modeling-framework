@@ -3,7 +3,7 @@ package org.kevoree.modeling.api.infer;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KInferState;
 import org.kevoree.modeling.api.abs.AbstractKObjectInfer;
-import org.kevoree.modeling.api.data.manager.KDataManager;
+import org.kevoree.modeling.api.data.KDataManager;
 import org.kevoree.modeling.api.infer.states.DoubleArrayKInferState;
 import org.kevoree.modeling.api.meta.MetaClass;
 

@@ -1,14 +1,13 @@
-package org.kevoree.modeling.api.data.manager;
+package org.kevoree.modeling.api.data;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KModel;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KScheduler;
 import org.kevoree.modeling.api.KUniverse;
-import org.kevoree.modeling.api.data.cache.KCache;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.cache.KContentKey;
-import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
+import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.util.KOperationManager;
 
 public interface KDataManager {

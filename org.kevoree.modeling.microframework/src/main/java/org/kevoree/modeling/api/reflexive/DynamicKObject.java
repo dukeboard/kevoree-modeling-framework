@@ -1,7 +1,7 @@
 package org.kevoree.modeling.api.reflexive;
 
 import org.kevoree.modeling.api.abs.AbstractKObject;
-import org.kevoree.modeling.api.data.manager.KDataManager;
+import org.kevoree.modeling.api.data.KDataManager;
 import org.kevoree.modeling.api.meta.MetaClass;
 
 public class DynamicKObject extends AbstractKObject {

@@ -3,7 +3,7 @@ package org.kevoree.modeling.api.xmi;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KModelFormat;
-import org.kevoree.modeling.api.data.manager.KDataManager;
+import org.kevoree.modeling.api.data.KDataManager;
 
 public class XmiFormat implements KModelFormat {
 

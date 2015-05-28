@@ -1,5 +1,6 @@
 package org.kevoree.modeling.microframework.test.gc;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KModel;
@@ -12,6 +13,9 @@ import org.kevoree.modeling.api.reflexive.DynamicMetaModel;
  */
 public class KCacheCleanerTest {
 
+    /**
+     * @ignore ts
+     */
     @Test
     public void test() {
         DynamicMetaModel dynamicMetaModel = new DynamicMetaModel("MyMetaModel");
@@ -26,13 +30,20 @@ public class KCacheCleanerTest {
                 universe.save(null);
                 System.gc();
                 universe.manager().cache().clean();
-
-                System.err.println("Hello");
-
-                universe.universe(0).time(0).lookup(sensorID,new Callback<KObject>() {
+                Assert.assertEquals(1, universe.manager().cache().size());
+                universe.universe(0).time(0).lookup(sensorID, new Callback<KObject>() {
                     @Override
                     public void on(KObject kObject) {
-                       System.err.println(kObject);
+                        Assert.assertNotNull(kObject);
+                        Assert.assertEquals(4, universe.manager().cache().size());
+
+                        kObject.jump(10, new Callback<KObject>() {
+                            @Override
+                            public void on(KObject kObject2) {
+                                Assert.assertNotNull(kObject2);
+                                Assert.assertEquals(4, universe.manager().cache().size());
+                            }
+                        });
                     }
                 });
             }

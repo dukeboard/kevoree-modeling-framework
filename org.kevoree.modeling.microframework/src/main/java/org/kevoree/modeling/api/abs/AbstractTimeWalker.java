@@ -3,7 +3,7 @@ package org.kevoree.modeling.api.abs;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KTimeWalker;
-import org.kevoree.modeling.api.data.cache.KCacheObject;
+import org.kevoree.modeling.api.data.KCacheObject;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.data.manager.DefaultKDataManager;
 import org.kevoree.modeling.api.data.manager.ResolutionHelper;

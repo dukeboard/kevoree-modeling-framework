@@ -5,7 +5,7 @@ import org.kevoree.modeling.api.KInfer;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.KInferState;
-import org.kevoree.modeling.api.data.manager.KDataManager;
+import org.kevoree.modeling.api.data.KDataManager;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaInferClass;
 

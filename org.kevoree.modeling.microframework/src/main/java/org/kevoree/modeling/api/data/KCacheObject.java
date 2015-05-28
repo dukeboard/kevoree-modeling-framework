@@ -1,5 +1,6 @@
-package org.kevoree.modeling.api.data.cache;
+package org.kevoree.modeling.api.data;
 
+import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.meta.MetaModel;
 
 public interface KCacheObject {

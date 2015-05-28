@@ -3,10 +3,10 @@ package org.kevoree.modeling.api.data.cache;
 
 import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.data.KCache;
+import org.kevoree.modeling.api.data.KCacheObject;
 import org.kevoree.modeling.api.data.manager.ResolutionHelper;
 import org.kevoree.modeling.api.data.manager.ResolutionResult;
-
-import java.lang.ref.WeakReference;
 
 public class HashMemoryCache implements KCache {
 
@@ -153,6 +153,11 @@ public class HashMemoryCache implements KCache {
         common_clean_monitor(origin);
     }
 
+    @Override
+    public int size() {
+        return elementCount;
+    }
+
     private void remove(long universe, long time, long obj) {
         int hash = (int) (universe ^ time ^ obj);
         int index = (hash & 0x7FFFFFFF) % elementDataSize;
@@ -192,7 +197,7 @@ public class HashMemoryCache implements KCache {
                 if (current.get() == null) {
                     //check is dirty
                     KCacheEntry currentEntry = (KCacheEntry) this.get(current.universe, current.time, current.uuid);
-                    if (currentEntry == null || currentEntry.isDirty()) {
+                    if (currentEntry == null || !currentEntry.isDirty()) {
                         //call the clean sub process for universe/time/uuid
                         ResolutionResult resolved = ResolutionHelper.resolve_trees(current.universe, current.time, current.uuid, this);
                         resolved.universeTree.dec();

@@ -1,6 +1,7 @@
-package org.kevoree.modeling.api.data.cache;
+package org.kevoree.modeling.api.data;
 
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.data.cache.KCacheDirty;
 
 public interface KCache {
 
@@ -15,5 +16,7 @@ public interface KCache {
     void clean();
 
     void monitor(KObject origin);
+
+    int size();
 
 }

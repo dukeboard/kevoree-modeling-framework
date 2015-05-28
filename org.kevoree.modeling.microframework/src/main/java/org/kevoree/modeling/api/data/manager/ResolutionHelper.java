@@ -1,7 +1,7 @@
 package org.kevoree.modeling.api.data.manager;
 
 import org.kevoree.modeling.api.KConfig;
-import org.kevoree.modeling.api.data.cache.KCache;
+import org.kevoree.modeling.api.data.KCache;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.map.LongLongHashMap;
 import org.kevoree.modeling.api.rbtree.KLongTree;

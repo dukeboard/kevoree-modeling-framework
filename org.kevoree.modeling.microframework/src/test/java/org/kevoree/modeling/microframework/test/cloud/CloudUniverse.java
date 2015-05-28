@@ -1,7 +1,7 @@
 package org.kevoree.modeling.microframework.test.cloud;
 
 import org.kevoree.modeling.api.abs.AbstractKUniverse;
-import org.kevoree.modeling.api.data.manager.KDataManager;
+import org.kevoree.modeling.api.data.KDataManager;
 import org.kevoree.modeling.microframework.test.cloud.impl.CloudViewImpl;
 
 /**

@@ -4,7 +4,7 @@ package org.kevoree.modeling.api.map;
 /* From an original idea https://code.google.com/p/jdbm2/ */
 
 import org.kevoree.modeling.api.KConfig;
-import org.kevoree.modeling.api.data.cache.KCacheObject;
+import org.kevoree.modeling.api.data.KCacheObject;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.meta.MetaModel;
 

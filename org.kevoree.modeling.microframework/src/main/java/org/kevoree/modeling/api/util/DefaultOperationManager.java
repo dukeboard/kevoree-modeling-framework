@@ -6,7 +6,7 @@ import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KOperation;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.data.cache.KContentKey;
-import org.kevoree.modeling.api.data.manager.KDataManager;
+import org.kevoree.modeling.api.data.KDataManager;
 import org.kevoree.modeling.api.map.IntHashMap;
 import org.kevoree.modeling.api.map.LongHashMap;
 import org.kevoree.modeling.api.meta.MetaOperation;

@@ -7,9 +7,12 @@ import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KScheduler;
 import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.ThrowableCallback;
+import org.kevoree.modeling.api.data.KCache;
+import org.kevoree.modeling.api.data.KCacheObject;
+import org.kevoree.modeling.api.data.KDataManager;
 import org.kevoree.modeling.api.data.cache.*;
 import org.kevoree.modeling.api.data.cdn.AtomicOperationFactory;
-import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
+import org.kevoree.modeling.api.data.KContentDeliveryDriver;
 import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
 import org.kevoree.modeling.api.data.cdn.MemoryKContentDeliveryDriver;
 import org.kevoree.modeling.api.map.LongLongHashMap;
@@ -20,7 +23,6 @@ import org.kevoree.modeling.api.rbtree.KLongTree;
 import org.kevoree.modeling.api.scheduler.DirectScheduler;
 import org.kevoree.modeling.api.rbtree.ooheap.OOKLongTree;
 import org.kevoree.modeling.api.rbtree.ooheap.OOKLongLongTree;
-import org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
 import org.kevoree.modeling.api.util.DefaultOperationManager;
 import org.kevoree.modeling.api.util.KOperationManager;
 
@@ -360,12 +362,15 @@ public class DefaultKDataManager implements KDataManager {
                 if (!needUniverseCopy) {
                     timeTree.insert(origin.now());
                 } else {
-                    OOKLongTree newTemporalTree = new OOKLongTree();
+                    KLongTree newTemporalTree = new OOKLongTree();
                     newTemporalTree.insert(origin.now());
+                    newTemporalTree.inc();
+                    timeTree.dec();
                     _cache.put(origin.universe(), KConfig.NULL_LONG, origin.uuid(), newTemporalTree);
                     objectUniverseTree.put(origin.universe(), origin.now());//insert this time as a divergence point for this object
                 }
                 entry.dec();
+                clonedEntry.inc();
                 return clonedEntry;
             }
         } else {

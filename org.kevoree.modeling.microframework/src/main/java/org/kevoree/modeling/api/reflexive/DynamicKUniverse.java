@@ -2,7 +2,7 @@ package org.kevoree.modeling.api.reflexive;
 
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKUniverse;
-import org.kevoree.modeling.api.data.manager.KDataManager;
+import org.kevoree.modeling.api.data.KDataManager;
 
 public class DynamicKUniverse extends AbstractKUniverse {
 

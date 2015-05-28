@@ -1,7 +1,7 @@
 package org.kevoree.modeling.api.rbtree.ooheap;
 
 import org.kevoree.modeling.api.KConfig;
-import org.kevoree.modeling.api.data.cache.KCacheObject;
+import org.kevoree.modeling.api.data.KCacheObject;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.meta.MetaModel;
 import org.kevoree.modeling.api.rbtree.KLongLongTree;

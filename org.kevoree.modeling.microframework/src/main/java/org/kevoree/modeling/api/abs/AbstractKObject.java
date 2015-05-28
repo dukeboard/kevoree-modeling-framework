@@ -12,7 +12,7 @@ import org.kevoree.modeling.api.KVisitResult;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
 import org.kevoree.modeling.api.data.manager.JsonRaw;
-import org.kevoree.modeling.api.data.manager.KDataManager;
+import org.kevoree.modeling.api.data.KDataManager;
 import org.kevoree.modeling.api.map.LongLongHashMap;
 import org.kevoree.modeling.api.map.LongLongHashMapCallBack;
 import org.kevoree.modeling.api.meta.MetaAttribute;
@@ -511,6 +511,11 @@ public abstract class AbstractKObject implements KObject {
     public void jump(long p_time, Callback<KObject> p_callback) {
         KCacheEntry resolve_entry = (KCacheEntry) _manager.cache().get(_universe, p_time, _uuid);
         if (resolve_entry != null) {
+            KLongTree timeTree = (KLongTree) _manager.cache().get(_universe, KConfig.NULL_LONG, _uuid);
+            timeTree.inc();
+            LongLongHashMap universeTree = (LongLongHashMap) _manager.cache().get(KConfig.NULL_LONG, KConfig.NULL_LONG, _uuid);
+            universeTree.inc();
+            resolve_entry.inc();
             p_callback.on(((AbstractKModel) _manager.model()).createProxy(_universe, p_time, _uuid, _metaClass));
         } else {
             KLongTree timeTree = (KLongTree) _manager.cache().get(_universe, KConfig.NULL_LONG, _uuid);
@@ -519,6 +524,10 @@ public abstract class AbstractKObject implements KObject {
                 if (resolvedTime != KConfig.NULL_LONG) {
                     KCacheEntry entry = (KCacheEntry) _manager.cache().get(_universe, resolvedTime, _uuid);
                     if (entry != null) {
+                        LongLongHashMap universeTree = (LongLongHashMap) _manager.cache().get(KConfig.NULL_LONG, KConfig.NULL_LONG, _uuid);
+                        universeTree.inc();
+                        timeTree.inc();
+                        entry.inc();
                         p_callback.on(((AbstractKModel) _manager.model()).createProxy(_universe, p_time, _uuid, _metaClass));
                     } else {
                         //TODO optimize

@@ -5,7 +5,7 @@ import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.abs.AbstractKModel;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
-import org.kevoree.modeling.api.data.cache.KCacheObject;
+import org.kevoree.modeling.api.data.KCacheObject;
 import org.kevoree.modeling.api.data.cache.KContentKey;
 import org.kevoree.modeling.api.map.LongLongHashMap;
 import org.kevoree.modeling.api.rbtree.KLongTree;
@@ -73,8 +73,12 @@ public class LookupAllRunnable implements Runnable {
                                         proxies[i] = ((AbstractKModel) _store.model()).createProxy(_universe, _time, _keys[i], ((KCacheEntry) cachedObjects[i]).metaClass);
                                         if (proxies[i] != null) {
                                             KLongTree cachedIndexTree = (KLongTree) timeIndexes[i];
+                                            cachedIndexTree.inc();
+
+                                            LongLongHashMap universeTree = (LongLongHashMap) universeIndexes[i];
+                                            universeTree.inc();
+
                                             cachedObjects[i].inc();
-                                            ((KCacheObject) cachedIndexTree).inc();
                                         }
                                     }
                                 }

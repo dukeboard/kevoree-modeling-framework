@@ -7,7 +7,7 @@ import org.kevoree.modeling.api.abs.AbstractKModel;
 import org.kevoree.modeling.api.abs.AbstractMetaReference;
 import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.data.manager.AccessMode;
-import org.kevoree.modeling.api.data.manager.KDataManager;
+import org.kevoree.modeling.api.data.KDataManager;
 import org.kevoree.modeling.api.map.LongLongHashMap;
 import org.kevoree.modeling.api.map.StringHashMap;
 import org.kevoree.modeling.api.map.StringHashMapCallBack;

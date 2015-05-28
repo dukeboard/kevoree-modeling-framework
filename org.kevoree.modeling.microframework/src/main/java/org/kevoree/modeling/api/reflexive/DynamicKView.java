@@ -1,7 +1,7 @@
 package org.kevoree.modeling.api.reflexive;
 
 import org.kevoree.modeling.api.abs.AbstractKView;
-import org.kevoree.modeling.api.data.manager.KDataManager;
+import org.kevoree.modeling.api.data.KDataManager;
 
 public class DynamicKView extends AbstractKView {
 
