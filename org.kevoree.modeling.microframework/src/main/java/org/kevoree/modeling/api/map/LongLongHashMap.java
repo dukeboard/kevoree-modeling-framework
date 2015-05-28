@@ -56,10 +56,6 @@ public class LongLongHashMap implements KCacheObject {
 
     protected int threshold;
 
-    transient int modCount = 0;
-
-    transient Entry reuseAfterDelete = null;
-
     private final int initalCapacity;
 
     private final float loadFactor;
@@ -169,7 +165,6 @@ public class LongLongHashMap implements KCacheObject {
             elementCount = 0;
             this.elementData = new Entry[initalCapacity];
             this.elementDataSize = initalCapacity;
-            modCount++;
         }
     }
 
@@ -227,15 +222,14 @@ public class LongLongHashMap implements KCacheObject {
 
     public synchronized void put(long key, long value) {
         _isDirty = true;
-        Entry entry=null;
+        Entry entry = null;
         int index = -1;
         int hash = (int) (key);
-        if(elementDataSize != 0){
+        if (elementDataSize != 0) {
             index = (hash & 0x7FFFFFFF) % elementDataSize;
             entry = findNonNullKeyEntry(key, index);
         }
         if (entry == null) {
-            modCount++;
             if (++elementCount > threshold) {
                 rehash();
                 index = (hash & 0x7FFFFFFF) % elementDataSize;
@@ -246,15 +240,7 @@ public class LongLongHashMap implements KCacheObject {
     }
 
     Entry createHashedEntry(long key, int index) {
-        Entry entry = reuseAfterDelete;
-        if (entry == null) {
-            entry = new Entry(key, KConfig.NULL_LONG);
-        } else {
-            reuseAfterDelete = null;
-            entry.key = key;
-            entry.value = KConfig.NULL_LONG;
-        }
-
+        Entry entry = new Entry(key, KConfig.NULL_LONG);
         entry.next = elementData[index];
         elementData[index] = entry;
         return entry;
@@ -283,18 +269,8 @@ public class LongLongHashMap implements KCacheObject {
     }
 
     public void remove(long key) {
-        Entry entry = removeEntry(key);
-        if (entry == null) {
+        if (elementDataSize == 0) {
             return;
-        }
-        entry.value = KConfig.NULL_LONG;
-        entry.key = KConfig.BEGINNING_OF_TIME;
-        reuseAfterDelete = entry;
-    }
-
-    Entry removeEntry(long key) {
-        if(elementDataSize == 0){
-            return null;
         }
         int index = 0;
         Entry entry;
@@ -307,16 +283,14 @@ public class LongLongHashMap implements KCacheObject {
             entry = entry.next;
         }
         if (entry == null) {
-            return null;
+            return;
         }
         if (last == null) {
             elementData[index] = entry.next;
         } else {
             last.next = entry.next;
         }
-        modCount++;
         elementCount--;
-        return entry;
     }
 
     public int size() {

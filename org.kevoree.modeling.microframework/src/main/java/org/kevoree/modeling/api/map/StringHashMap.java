@@ -24,15 +24,13 @@ public class StringHashMap<V> {
 
     protected int threshold;
 
-    transient int modCount = 0;
-
-    transient Entry<V> reuseAfterDelete = null;
-
     private final int initalCapacity;
 
     private final float loadFactor;
 
-    /** @ignore ts */
+    /**
+     * @ignore ts
+     */
     static final class Entry<V> {
         Entry<V> next;
         String key;
@@ -63,7 +61,6 @@ public class StringHashMap<V> {
             elementCount = 0;
             this.elementData = newElementArray(initalCapacity);
             this.elementDataSize = initalCapacity;
-            modCount++;
         }
     }
 
@@ -123,15 +120,14 @@ public class StringHashMap<V> {
         if (key == null) {
             return null;
         }
-        Entry<V> entry=null;
+        Entry<V> entry = null;
         int index = -1;
         int hash = key.hashCode();
-        if(elementDataSize != 0){
+        if (elementDataSize != 0) {
             index = (hash & 0x7FFFFFFF) % elementDataSize;
             entry = findNonNullKeyEntry(key, index);
         }
         if (entry == null) {
-            modCount++;
             if (++elementCount > threshold) {
                 rehash();
                 index = (hash & 0x7FFFFFFF) % elementDataSize;
@@ -144,15 +140,7 @@ public class StringHashMap<V> {
     }
 
     Entry<V> createHashedEntry(String key, int index) {
-        Entry<V> entry = reuseAfterDelete;
-        if (entry == null) {
-            entry = new Entry<V>(key, null);
-        } else {
-            reuseAfterDelete = null;
-            entry.key = key;
-            entry.value = null;
-        }
-
+        Entry<V> entry = new Entry<V>(key, null);
         entry.next = elementData[index];
         elementData[index] = entry;
         return entry;
@@ -185,16 +173,13 @@ public class StringHashMap<V> {
         Entry<V> entry = removeEntry(key);
         if (entry == null) {
             return null;
+        } else {
+            return entry.value;
         }
-        V ret = entry.value;
-        entry.value = null;
-        entry.key = null;
-        reuseAfterDelete = entry;
-        return ret;
     }
 
     Entry<V> removeEntry(String key) {
-        if(elementDataSize == 0){
+        if (elementDataSize == 0) {
             return null;
         }
         Entry<V> entry;
@@ -214,7 +199,6 @@ public class StringHashMap<V> {
         } else {
             last.next = entry.next;
         }
-        modCount++;
         elementCount--;
         return entry;
     }

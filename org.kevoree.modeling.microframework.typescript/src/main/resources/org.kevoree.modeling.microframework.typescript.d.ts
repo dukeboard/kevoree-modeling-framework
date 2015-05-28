@@ -253,7 +253,6 @@ declare module org {
                         mutate(actionType: org.kevoree.modeling.api.KActionType, metaReference: org.kevoree.modeling.api.meta.MetaReference, param: org.kevoree.modeling.api.KObject): void;
                         internal_mutate(actionType: org.kevoree.modeling.api.KActionType, metaReferenceP: org.kevoree.modeling.api.meta.MetaReference, param: org.kevoree.modeling.api.KObject, setOpposite: boolean): void;
                         size(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): number;
-                        internal_ref(p_metaReference: org.kevoree.modeling.api.meta.MetaReference, callback: (p: org.kevoree.modeling.api.KObject[]) => void): void;
                         ref(p_metaReference: org.kevoree.modeling.api.meta.MetaReference, cb: (p: org.kevoree.modeling.api.KObject[]) => void): void;
                         visitAttributes(visitor: (p: org.kevoree.modeling.api.meta.MetaAttribute, p1: any) => void): void;
                         visit(p_visitor: (p: org.kevoree.modeling.api.KObject) => org.kevoree.modeling.api.KVisitResult, cb: (p: any) => void): void;
@@ -380,7 +379,7 @@ declare module org {
                     class AbstractMetaReference implements org.kevoree.modeling.api.meta.MetaReference {
                         private _name;
                         private _index;
-                        private _hidden;
+                        private _visible;
                         private _single;
                         private _lazyMetaType;
                         private _op_name;
@@ -392,8 +391,8 @@ declare module org {
                         index(): number;
                         metaName(): string;
                         metaType(): org.kevoree.modeling.api.meta.MetaType;
-                        hidden(): boolean;
-                        constructor(p_name: string, p_index: number, p_hidden: boolean, p_single: boolean, p_lazyMetaType: () => org.kevoree.modeling.api.meta.Meta, op_name: string, p_lazyMetaOrigin: () => org.kevoree.modeling.api.meta.Meta);
+                        visible(): boolean;
+                        constructor(p_name: string, p_index: number, p_visible: boolean, p_single: boolean, p_lazyMetaType: () => org.kevoree.modeling.api.meta.Meta, op_name: string, p_lazyMetaOrigin: () => org.kevoree.modeling.api.meta.Meta);
                     }
                     class AbstractTimeWalker implements org.kevoree.modeling.api.KTimeWalker {
                         private _origin;
@@ -419,6 +418,7 @@ declare module org {
                             private threshold;
                             modCount: number;
                             get(universe: number, time: number, obj: number): org.kevoree.modeling.api.data.cache.KCacheObject;
+                            private remove(universe, time, obj);
                             put(universe: number, time: number, obj: number, payload: org.kevoree.modeling.api.data.cache.KCacheObject): void;
                             private complex_insert(previousIndex, hash, universe, time, obj);
                             dirties(): org.kevoree.modeling.api.data.cache.KCacheDirty[];
@@ -658,8 +658,17 @@ declare module org {
                             run(): void;
                         }
                         class ResolutionHelper {
+                            static resolve_trees(universe: number, time: number, uuid: number, cache: org.kevoree.modeling.api.data.cache.KCache): org.kevoree.modeling.api.data.manager.ResolutionResult;
                             static resolve_universe(globalTree: org.kevoree.modeling.api.map.LongLongHashMap, objUniverseTree: org.kevoree.modeling.api.map.LongLongHashMap, timeToResolve: number, originUniverseId: number): number;
                             static universeSelectByRange(globalTree: org.kevoree.modeling.api.map.LongLongHashMap, objUniverseTree: org.kevoree.modeling.api.map.LongLongHashMap, rangeMin: number, rangeMax: number, originUniverseId: number): number[];
+                        }
+                        class ResolutionResult {
+                            universeTree: org.kevoree.modeling.api.map.LongLongHashMap;
+                            timeTree: org.kevoree.modeling.api.rbtree.KLongTree;
+                            entry: org.kevoree.modeling.api.data.cache.KCacheEntry;
+                            universe: number;
+                            time: number;
+                            uuid: number;
                         }
                     }
                 }
@@ -1100,7 +1109,7 @@ declare module org {
                         origin(): org.kevoree.modeling.api.meta.Meta;
                     }
                     interface MetaReference extends org.kevoree.modeling.api.meta.Meta {
-                        hidden(): boolean;
+                        visible(): boolean;
                         single(): boolean;
                         type(): org.kevoree.modeling.api.meta.MetaClass;
                         opposite(): org.kevoree.modeling.api.meta.MetaReference;
@@ -1597,7 +1606,7 @@ declare module org {
                         private _globalIndex;
                         constructor(p_name: string, p_index: number);
                         addAttribute(p_name: string, p_type: org.kevoree.modeling.api.KType): org.kevoree.modeling.api.reflexive.DynamicMetaClass;
-                        private getOrCreate(p_name, p_oppositeName, p_oppositeClass, p_hidden, p_single);
+                        private getOrCreate(p_name, p_oppositeName, p_oppositeClass, p_visible, p_single);
                         addReference(p_name: string, p_metaClass: org.kevoree.modeling.api.meta.MetaClass, oppositeName: string): org.kevoree.modeling.api.reflexive.DynamicMetaClass;
                         addOperation(p_name: string): org.kevoree.modeling.api.reflexive.DynamicMetaClass;
                         private internalInit();

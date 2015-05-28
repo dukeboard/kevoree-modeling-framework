@@ -26,10 +26,13 @@ public class KCacheCleanerTest {
                 universe.save(null);
                 System.gc();
                 universe.manager().cache().clean();
+
+                System.err.println("Hello");
+
                 universe.universe(0).time(0).lookup(sensorID,new Callback<KObject>() {
                     @Override
                     public void on(KObject kObject) {
-                       // System.err.println(kObject);
+                       System.err.println(kObject);
                     }
                 });
             }

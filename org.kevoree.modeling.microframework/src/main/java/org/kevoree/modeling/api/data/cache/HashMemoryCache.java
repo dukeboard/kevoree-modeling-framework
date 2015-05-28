@@ -3,6 +3,10 @@ package org.kevoree.modeling.api.data.cache;
 
 import org.kevoree.modeling.api.KConfig;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.data.manager.ResolutionHelper;
+import org.kevoree.modeling.api.data.manager.ResolutionResult;
+
+import java.lang.ref.WeakReference;
 
 public class HashMemoryCache implements KCache {
 
@@ -18,7 +22,10 @@ public class HashMemoryCache implements KCache {
 
     private int threshold;
 
-    transient int modCount = 0;
+    /**
+     * @ignore ts
+     */
+    private KObjectWeakReference rootReference = null;
 
     @Override
     public KCacheObject get(long universe, long time, long obj) {
@@ -52,13 +59,12 @@ public class HashMemoryCache implements KCache {
             }
         }
         if (entry == null) {
-            entry = complex_insert(index,hash,universe,time,obj);
+            entry = complex_insert(index, hash, universe, time, obj);
         }
         entry.value = payload;
     }
 
-    private synchronized Entry complex_insert(int previousIndex, int hash,long universe, long time, long obj){
-        modCount++;
+    private synchronized Entry complex_insert(int previousIndex, int hash, long universe, long time, long obj) {
         int index = previousIndex;
         if (++elementCount > threshold) {
             int length = (elementDataSize == 0 ? 1 : elementDataSize << 1);
@@ -107,11 +113,11 @@ public class HashMemoryCache implements KCache {
         KCacheDirty[] collectedDirties = new KCacheDirty[nbDirties];
         nbDirties = 0;
         for (int i = 0; i < elementDataSize; i++) {
-            if(nbDirties < collectedDirties.length){ //the rest will saved next round due to concurrent tagged values
+            if (nbDirties < collectedDirties.length) { //the rest will saved next round due to concurrent tagged values
                 if (elementData[i] != null) {
                     Entry current = elementData[i];
                     if (elementData[i].value.isDirty()) {
-                        KCacheDirty dirty = new KCacheDirty(new KContentKey(current.universe,current.time,current.obj), elementData[i].value);
+                        KCacheDirty dirty = new KCacheDirty(new KContentKey(current.universe, current.time, current.obj), elementData[i].value);
                         collectedDirties[nbDirties] = dirty;
                         elementData[i].value.setClean();
                         nbDirties++;
@@ -119,7 +125,7 @@ public class HashMemoryCache implements KCache {
                     while (current.next != null) {
                         current = current.next;
                         if (current.value.isDirty()) {
-                            KCacheDirty dirty = new KCacheDirty(new KContentKey(current.universe,current.time,current.obj), current.value);
+                            KCacheDirty dirty = new KCacheDirty(new KContentKey(current.universe, current.time, current.obj), current.value);
                             collectedDirties[nbDirties] = dirty;
                             current.value.setClean();
                             nbDirties++;
@@ -131,14 +137,88 @@ public class HashMemoryCache implements KCache {
         return collectedDirties;
     }
 
+    /**
+     * @native ts
+     */
     @Override
     public void clean() {
-
+        common_clean_monitor(null);
     }
 
+    /**
+     * @native ts
+     */
     @Override
     public void monitor(KObject origin) {
+        common_clean_monitor(origin);
+    }
 
+    private void remove(long universe, long time, long obj) {
+        int hash = (int) (universe ^ time ^ obj);
+        int index = (hash & 0x7FFFFFFF) % elementDataSize;
+        if (elementDataSize != 0) {
+            Entry previous = null;
+            Entry m = elementData[index];
+            while (m != null) {
+                if (m.universe == universe && m.time == time && m.obj == obj) {
+                    elementCount--;
+                    if (previous == null) {
+                        elementData[index] = m.next;
+                    } else {
+                        previous.next = m.next;
+                    }
+                }
+                previous = m;
+                m = m.next;
+            }
+        }
+    }
+
+    /**
+     * @ignore ts
+     */
+    private synchronized void common_clean_monitor(KObject origin) {
+        if (origin != null) {
+            if (rootReference != null) {
+                rootReference.next = new KObjectWeakReference(origin);
+            } else {
+                rootReference = new KObjectWeakReference(origin);
+            }
+        } else {
+            KObjectWeakReference current = rootReference;
+            KObjectWeakReference previous = null;
+            while (current != null) {
+                //process current
+                if (current.get() == null) {
+                    //check is dirty
+                    KCacheEntry currentEntry = (KCacheEntry) this.get(current.universe, current.time, current.uuid);
+                    if (currentEntry == null || currentEntry.isDirty()) {
+                        //call the clean sub process for universe/time/uuid
+                        ResolutionResult resolved = ResolutionHelper.resolve_trees(current.universe, current.time, current.uuid, this);
+                        resolved.universeTree.dec();
+                        if (resolved.universeTree.counter() <= 0) {
+                            remove(KConfig.NULL_LONG, KConfig.NULL_LONG, resolved.uuid);
+                        }
+                        resolved.timeTree.dec();
+                        if (resolved.timeTree.counter() <= 0) {
+                            remove(resolved.universe, KConfig.NULL_LONG, resolved.uuid);
+                        }
+                        resolved.entry.dec();
+                        if (resolved.entry.counter() <= 0) {
+                            remove(resolved.universe, resolved.time, resolved.uuid);
+                        }
+                        //change chaining
+                        if (previous == null) { //first case
+                            rootReference = current.next;
+                        } else { //in the middle case
+                            previous.next = current.next;
+                        }
+                    }
+                }
+                previous = current;
+                current = current.next;
+            }
+        }
     }
 
     static final class Entry {
@@ -163,7 +243,6 @@ public class HashMemoryCache implements KCache {
             elementCount = 0;
             this.elementData = new Entry[initalCapacity];
             this.elementDataSize = initalCapacity;
-            modCount++;
         }
     }
 

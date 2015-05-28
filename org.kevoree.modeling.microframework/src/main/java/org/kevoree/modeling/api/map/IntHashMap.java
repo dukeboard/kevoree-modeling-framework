@@ -24,10 +24,6 @@ public class IntHashMap<V> {
 
     protected int threshold;
 
-    transient int modCount = 0;
-
-    transient Entry<V> reuseAfterDelete = null;
-
     private final int initalCapacity;
 
     private final float loadFactor;
@@ -65,7 +61,6 @@ public class IntHashMap<V> {
             elementCount = 0;
             this.elementData = newElementArray(initalCapacity);
             this.elementDataSize = initalCapacity;
-            modCount++;
         }
     }
 
@@ -123,7 +118,6 @@ public class IntHashMap<V> {
             entry = findNonNullKeyEntry(key, index);
         }
         if (entry == null) {
-            modCount++;
             if (++elementCount > threshold) {
                 rehash();
                 index = (key & 0x7FFFFFFF) % elementDataSize;
@@ -136,15 +130,7 @@ public class IntHashMap<V> {
     }
 
     Entry<V> createHashedEntry(int key, int index) {
-        Entry<V> entry = reuseAfterDelete;
-        if (entry == null) {
-            entry = new Entry<V>(key, null);
-        } else {
-            reuseAfterDelete = null;
-            entry.key = key;
-            entry.value = null;
-        }
-
+        Entry<V> entry = new Entry<V>(key, null);
         entry.next = elementData[index];
         elementData[index] = entry;
         return entry;
@@ -176,13 +162,9 @@ public class IntHashMap<V> {
         Entry<V> entry = removeEntry(key);
         if (entry == null) {
             return null;
+        } else {
+            return entry.value;
         }
-        V ret = entry.value;
-        entry.value = null;
-        entry.key = -1;
-        reuseAfterDelete = entry;
-
-        return ret;
     }
 
     Entry<V> removeEntry(long key) {
@@ -203,7 +185,6 @@ public class IntHashMap<V> {
         } else {
             last.next = entry.next;
         }
-        modCount++;
         elementCount--;
         return entry;
     }

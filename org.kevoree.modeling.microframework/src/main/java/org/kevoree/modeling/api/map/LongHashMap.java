@@ -26,10 +26,6 @@ public class LongHashMap<V> {
 
     protected int threshold;
 
-    transient int modCount = 0;
-
-    transient Entry<V> reuseAfterDelete = null;
-
     private final int initalCapacity;
 
     private final float loadFactor;
@@ -67,7 +63,6 @@ public class LongHashMap<V> {
             elementCount = 0;
             this.elementData = newElementArray(initalCapacity);
             this.elementDataSize = initalCapacity;
-            modCount++;
         }
     }
 
@@ -86,7 +81,7 @@ public class LongHashMap<V> {
     }
 
     public V get(long key) {
-        if(elementDataSize == 0){
+        if (elementDataSize == 0) {
             return null;
         }
         Entry<V> m;
@@ -124,15 +119,14 @@ public class LongHashMap<V> {
     }
 
     public V put(long key, V value) {
-        Entry<V> entry=null;
+        Entry<V> entry = null;
         int hash = (int) (key);
         int index = -1;
-        if(elementDataSize != 0){
+        if (elementDataSize != 0) {
             index = (hash & 0x7FFFFFFF) % elementDataSize;
             entry = findNonNullKeyEntry(key, index);
         }
         if (entry == null) {
-            modCount++;
             if (++elementCount > threshold) {
                 rehash();
                 index = (hash & 0x7FFFFFFF) % elementDataSize;
@@ -145,15 +139,7 @@ public class LongHashMap<V> {
     }
 
     Entry<V> createHashedEntry(long key, int index) {
-        Entry<V> entry = reuseAfterDelete;
-        if (entry == null) {
-            entry = new Entry<V>(key, null);
-        } else {
-            reuseAfterDelete = null;
-            entry.key = key;
-            entry.value = null;
-        }
-
+        Entry<V> entry = new Entry<V>(key, null);
         entry.next = elementData[index];
         elementData[index] = entry;
         return entry;
@@ -185,16 +171,13 @@ public class LongHashMap<V> {
         Entry<V> entry = removeEntry(key);
         if (entry == null) {
             return null;
+        } else {
+            return entry.value;
         }
-        V ret = entry.value;
-        entry.value = null;
-        entry.key = KConfig.BEGINNING_OF_TIME;
-        reuseAfterDelete = entry;
-        return ret;
     }
 
     Entry<V> removeEntry(long key) {
-        if(elementDataSize == 0){
+        if (elementDataSize == 0) {
             return null;
         }
         Entry<V> entry;
@@ -214,7 +197,6 @@ public class LongHashMap<V> {
         } else {
             last.next = entry.next;
         }
-        modCount++;
         elementCount--;
         return entry;
     }

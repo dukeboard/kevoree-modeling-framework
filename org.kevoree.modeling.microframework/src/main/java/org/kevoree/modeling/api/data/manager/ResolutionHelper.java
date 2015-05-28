@@ -1,9 +1,30 @@
 package org.kevoree.modeling.api.data.manager;
 
 import org.kevoree.modeling.api.KConfig;
+import org.kevoree.modeling.api.data.cache.KCache;
+import org.kevoree.modeling.api.data.cache.KCacheEntry;
 import org.kevoree.modeling.api.map.LongLongHashMap;
+import org.kevoree.modeling.api.rbtree.KLongTree;
 
 public class ResolutionHelper {
+
+    public static ResolutionResult resolve_trees(long universe, long time, long uuid, KCache cache) {
+        ResolutionResult result = new ResolutionResult();
+        LongLongHashMap objectUniverseTree = (LongLongHashMap) cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, uuid);
+        LongLongHashMap globalUniverseOrder = (LongLongHashMap) cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, KConfig.NULL_LONG);
+        result.universeTree = objectUniverseTree;
+        long resolvedUniverse = resolve_universe(globalUniverseOrder, objectUniverseTree, time, universe);
+        result.universe = resolvedUniverse;
+        KLongTree timeTree = (KLongTree) cache.get(resolvedUniverse, KConfig.NULL_LONG, uuid);
+        if (timeTree != null) {
+            result.timeTree = timeTree;
+            long resolvedTime = timeTree.previousOrEqual(time);
+            result.time = resolvedTime;
+            result.entry = (KCacheEntry) cache.get(resolvedUniverse, resolvedTime, uuid);
+        }
+        result.uuid = uuid;
+        return result;
+    }
 
     public static long resolve_universe(LongLongHashMap globalTree, LongLongHashMap objUniverseTree, long timeToResolve, long originUniverseId) {
         if (globalTree == null || objUniverseTree == null) {

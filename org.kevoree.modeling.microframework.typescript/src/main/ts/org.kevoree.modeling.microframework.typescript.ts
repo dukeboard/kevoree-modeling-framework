@@ -907,27 +907,23 @@ module org {
                             }
                         }
 
-                        public internal_ref(p_metaReference: org.kevoree.modeling.api.meta.MetaReference, callback: (p : org.kevoree.modeling.api.KObject[]) => void): void {
+                        public ref(p_metaReference: org.kevoree.modeling.api.meta.MetaReference, cb: (p : org.kevoree.modeling.api.KObject[]) => void): void {
                             var transposed: org.kevoree.modeling.api.meta.MetaReference = this.internal_transpose_ref(p_metaReference);
                             if (transposed == null) {
                                 throw new java.lang.RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + this.metaClass().metaName());
                             } else {
                                 var raw: org.kevoree.modeling.api.data.cache.KCacheEntry = this._manager.entry(this, org.kevoree.modeling.api.data.manager.AccessMode.READ);
                                 if (raw == null) {
-                                    callback(new Array());
+                                    cb(new Array());
                                 } else {
                                     var o: number[] = raw.getRef(transposed.index());
                                     if (o == null) {
-                                        callback(new Array());
+                                        cb(new Array());
                                     } else {
-                                        this._manager.lookupAllobjects(this._universe, this._time, o, callback);
+                                        this._manager.lookupAllobjects(this._universe, this._time, o, cb);
                                     }
                                 }
                             }
-                        }
-
-                        public ref(p_metaReference: org.kevoree.modeling.api.meta.MetaReference, cb: (p : org.kevoree.modeling.api.KObject[]) => void): void {
-                            this.internal_ref(p_metaReference, cb);
                         }
 
                         public visitAttributes(visitor: (p : org.kevoree.modeling.api.meta.MetaAttribute, p1 : any) => void): void {
@@ -1625,7 +1621,7 @@ module org {
 
                         private _name: string;
                         private _index: number;
-                        private _hidden: boolean;
+                        private _visible: boolean;
                         private _single: boolean;
                         private _lazyMetaType: () => org.kevoree.modeling.api.meta.Meta;
                         private _op_name: string;
@@ -1668,14 +1664,14 @@ module org {
                             return org.kevoree.modeling.api.meta.MetaType.REFERENCE;
                         }
 
-                        public hidden(): boolean {
-                            return this._hidden;
+                        public visible(): boolean {
+                            return this._visible;
                         }
 
-                        constructor(p_name: string, p_index: number, p_hidden: boolean, p_single: boolean, p_lazyMetaType: () => org.kevoree.modeling.api.meta.Meta, op_name: string, p_lazyMetaOrigin: () => org.kevoree.modeling.api.meta.Meta) {
+                        constructor(p_name: string, p_index: number, p_visible: boolean, p_single: boolean, p_lazyMetaType: () => org.kevoree.modeling.api.meta.Meta, op_name: string, p_lazyMetaOrigin: () => org.kevoree.modeling.api.meta.Meta) {
                             this._name = p_name;
                             this._index = p_index;
-                            this._hidden = p_hidden;
+                            this._visible = p_visible;
                             this._single = p_single;
                             this._lazyMetaType = p_lazyMetaType;
                             this._op_name = op_name;
@@ -1786,6 +1782,26 @@ module org {
                                     m = m.next;
                                 }
                                 return null;
+                            }
+
+                            private remove(universe: number, time: number, obj: number): void {
+                                var hash: number = <number>(universe ^ time ^ obj);
+                                var index: number = (hash & 0x7FFFFFFF) % this.elementDataSize;
+                                if (this.elementDataSize != 0) {
+                                    var previous: org.kevoree.modeling.api.data.cache.HashMemoryCache.Entry = null;
+                                    var m: org.kevoree.modeling.api.data.cache.HashMemoryCache.Entry = this.elementData[index];
+                                    while (m != null){
+                                        if (m.universe == universe && m.time == time && m.obj == obj) {
+                                            if (previous == null) {
+                                                this.elementData[index] = m.next;
+                                            } else {
+                                                previous.next = m.next;
+                                            }
+                                        }
+                                        previous = m;
+                                        m = m.next;
+                                    }
+                                }
                             }
 
                             public put(universe: number, time: number, obj: number, payload: org.kevoree.modeling.api.data.cache.KCacheObject): void {
@@ -3235,6 +3251,24 @@ module org {
 
                         export class ResolutionHelper {
 
+                            public static resolve_trees(universe: number, time: number, uuid: number, cache: org.kevoree.modeling.api.data.cache.KCache): org.kevoree.modeling.api.data.manager.ResolutionResult {
+                                var result: org.kevoree.modeling.api.data.manager.ResolutionResult = new org.kevoree.modeling.api.data.manager.ResolutionResult();
+                                var objectUniverseTree: org.kevoree.modeling.api.map.LongLongHashMap = <org.kevoree.modeling.api.map.LongLongHashMap>cache.get(org.kevoree.modeling.api.KConfig.NULL_LONG, org.kevoree.modeling.api.KConfig.NULL_LONG, uuid);
+                                var globalUniverseOrder: org.kevoree.modeling.api.map.LongLongHashMap = <org.kevoree.modeling.api.map.LongLongHashMap>cache.get(org.kevoree.modeling.api.KConfig.NULL_LONG, org.kevoree.modeling.api.KConfig.NULL_LONG, org.kevoree.modeling.api.KConfig.NULL_LONG);
+                                result.universeTree = objectUniverseTree;
+                                var resolvedUniverse: number = org.kevoree.modeling.api.data.manager.ResolutionHelper.resolve_universe(globalUniverseOrder, objectUniverseTree, time, universe);
+                                result.universe = resolvedUniverse;
+                                var timeTree: org.kevoree.modeling.api.rbtree.KLongTree = <org.kevoree.modeling.api.rbtree.KLongTree>cache.get(resolvedUniverse, org.kevoree.modeling.api.KConfig.NULL_LONG, uuid);
+                                if (timeTree != null) {
+                                    result.timeTree = timeTree;
+                                    var resolvedTime: number = timeTree.previousOrEqual(time);
+                                    result.time = resolvedTime;
+                                    result.entry = <org.kevoree.modeling.api.data.cache.KCacheEntry>cache.get(resolvedUniverse, resolvedTime, uuid);
+                                }
+                                result.uuid = uuid;
+                                return result;
+                            }
+
                             public static resolve_universe(globalTree: org.kevoree.modeling.api.map.LongLongHashMap, objUniverseTree: org.kevoree.modeling.api.map.LongLongHashMap, timeToResolve: number, originUniverseId: number): number {
                                 if (globalTree == null || objUniverseTree == null) {
                                     return originUniverseId;
@@ -3280,6 +3314,16 @@ module org {
                                 return trimmed;
                             }
 
+                        }
+
+                        export class ResolutionResult {
+
+                            public universeTree: org.kevoree.modeling.api.map.LongLongHashMap;
+                            public timeTree: org.kevoree.modeling.api.rbtree.KLongTree;
+                            public entry: org.kevoree.modeling.api.data.cache.KCacheEntry;
+                            public universe: number;
+                            public time: number;
+                            public uuid: number;
                         }
 
                     }
@@ -5563,7 +5607,7 @@ module org {
 
                     export interface MetaReference extends org.kevoree.modeling.api.meta.Meta {
 
-                        hidden(): boolean;
+                        visible(): boolean;
 
                         single(): boolean;
 
@@ -8815,13 +8859,13 @@ module org {
                             return this;
                         }
 
-                        private getOrCreate(p_name: string, p_oppositeName: string, p_oppositeClass: org.kevoree.modeling.api.meta.MetaClass, p_hidden: boolean, p_single: boolean): org.kevoree.modeling.api.abs.AbstractMetaReference {
+                        private getOrCreate(p_name: string, p_oppositeName: string, p_oppositeClass: org.kevoree.modeling.api.meta.MetaClass, p_visible: boolean, p_single: boolean): org.kevoree.modeling.api.abs.AbstractMetaReference {
                             var previous: org.kevoree.modeling.api.abs.AbstractMetaReference = <org.kevoree.modeling.api.abs.AbstractMetaReference>this.reference(p_name);
                             if (previous != null) {
                                 return previous;
                             }
                             var tempOrigin: org.kevoree.modeling.api.meta.MetaClass = this;
-                            var tempReference: org.kevoree.modeling.api.abs.AbstractMetaReference = new org.kevoree.modeling.api.abs.AbstractMetaReference(p_name, this._globalIndex, p_hidden, p_single,  () => {
+                            var tempReference: org.kevoree.modeling.api.abs.AbstractMetaReference = new org.kevoree.modeling.api.abs.AbstractMetaReference(p_name, this._globalIndex, p_visible, p_single,  () => {
                                 return p_oppositeClass;
                             }, p_oppositeName,  () => {
                                 return tempOrigin;
@@ -8837,9 +8881,9 @@ module org {
                             var opName: string = oppositeName;
                             if (opName == null) {
                                 opName = "op_" + p_name;
-                                (<org.kevoree.modeling.api.reflexive.DynamicMetaClass>p_metaClass).getOrCreate(opName, p_name, this, true, false);
-                            } else {
                                 (<org.kevoree.modeling.api.reflexive.DynamicMetaClass>p_metaClass).getOrCreate(opName, p_name, this, false, false);
+                            } else {
+                                (<org.kevoree.modeling.api.reflexive.DynamicMetaClass>p_metaClass).getOrCreate(opName, p_name, this, true, false);
                             }
                             var tempReference: org.kevoree.modeling.api.abs.AbstractMetaReference = new org.kevoree.modeling.api.abs.AbstractMetaReference(p_name, this._globalIndex, false, false,  () => {
                                 return p_metaClass;

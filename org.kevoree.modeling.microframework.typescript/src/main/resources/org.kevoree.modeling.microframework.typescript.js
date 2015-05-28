@@ -622,7 +622,7 @@ var org;
                                 }
                             }
                         };
-                        AbstractKObject.prototype.internal_ref = function (p_metaReference, callback) {
+                        AbstractKObject.prototype.ref = function (p_metaReference, cb) {
                             var transposed = this.internal_transpose_ref(p_metaReference);
                             if (transposed == null) {
                                 throw new java.lang.RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + this.metaClass().metaName());
@@ -630,21 +630,18 @@ var org;
                             else {
                                 var raw = this._manager.entry(this, org.kevoree.modeling.api.data.manager.AccessMode.READ);
                                 if (raw == null) {
-                                    callback(new Array());
+                                    cb(new Array());
                                 }
                                 else {
                                     var o = raw.getRef(transposed.index());
                                     if (o == null) {
-                                        callback(new Array());
+                                        cb(new Array());
                                     }
                                     else {
-                                        this._manager.lookupAllobjects(this._universe, this._time, o, callback);
+                                        this._manager.lookupAllobjects(this._universe, this._time, o, cb);
                                     }
                                 }
                             }
-                        };
-                        AbstractKObject.prototype.ref = function (p_metaReference, cb) {
-                            this.internal_ref(p_metaReference, cb);
                         };
                         AbstractKObject.prototype.visitAttributes = function (visitor) {
                             if (!org.kevoree.modeling.api.util.Checker.isDefined(visitor)) {
@@ -1266,10 +1263,10 @@ var org;
                     })();
                     abs.AbstractMetaOperation = AbstractMetaOperation;
                     var AbstractMetaReference = (function () {
-                        function AbstractMetaReference(p_name, p_index, p_hidden, p_single, p_lazyMetaType, op_name, p_lazyMetaOrigin) {
+                        function AbstractMetaReference(p_name, p_index, p_visible, p_single, p_lazyMetaType, op_name, p_lazyMetaOrigin) {
                             this._name = p_name;
                             this._index = p_index;
-                            this._hidden = p_hidden;
+                            this._visible = p_visible;
                             this._single = p_single;
                             this._lazyMetaType = p_lazyMetaType;
                             this._op_name = op_name;
@@ -1307,8 +1304,8 @@ var org;
                         AbstractMetaReference.prototype.metaType = function () {
                             return org.kevoree.modeling.api.meta.MetaType.REFERENCE;
                         };
-                        AbstractMetaReference.prototype.hidden = function () {
-                            return this._hidden;
+                        AbstractMetaReference.prototype.visible = function () {
+                            return this._visible;
                         };
                         return AbstractMetaReference;
                     })();
@@ -1409,6 +1406,26 @@ var org;
                                     m = m.next;
                                 }
                                 return null;
+                            };
+                            HashMemoryCache.prototype.remove = function (universe, time, obj) {
+                                var hash = (universe ^ time ^ obj);
+                                var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
+                                if (this.elementDataSize != 0) {
+                                    var previous = null;
+                                    var m = this.elementData[index];
+                                    while (m != null) {
+                                        if (m.universe == universe && m.time == time && m.obj == obj) {
+                                            if (previous == null) {
+                                                this.elementData[index] = m.next;
+                                            }
+                                            else {
+                                                previous.next = m.next;
+                                            }
+                                        }
+                                        previous = m;
+                                        m = m.next;
+                                    }
+                                }
                             };
                             HashMemoryCache.prototype.put = function (universe, time, obj, payload) {
                                 var entry = null;
@@ -2688,6 +2705,23 @@ var org;
                         var ResolutionHelper = (function () {
                             function ResolutionHelper() {
                             }
+                            ResolutionHelper.resolve_trees = function (universe, time, uuid, cache) {
+                                var result = new org.kevoree.modeling.api.data.manager.ResolutionResult();
+                                var objectUniverseTree = cache.get(org.kevoree.modeling.api.KConfig.NULL_LONG, org.kevoree.modeling.api.KConfig.NULL_LONG, uuid);
+                                var globalUniverseOrder = cache.get(org.kevoree.modeling.api.KConfig.NULL_LONG, org.kevoree.modeling.api.KConfig.NULL_LONG, org.kevoree.modeling.api.KConfig.NULL_LONG);
+                                result.universeTree = objectUniverseTree;
+                                var resolvedUniverse = org.kevoree.modeling.api.data.manager.ResolutionHelper.resolve_universe(globalUniverseOrder, objectUniverseTree, time, universe);
+                                result.universe = resolvedUniverse;
+                                var timeTree = cache.get(resolvedUniverse, org.kevoree.modeling.api.KConfig.NULL_LONG, uuid);
+                                if (timeTree != null) {
+                                    result.timeTree = timeTree;
+                                    var resolvedTime = timeTree.previousOrEqual(time);
+                                    result.time = resolvedTime;
+                                    result.entry = cache.get(resolvedUniverse, resolvedTime, uuid);
+                                }
+                                result.uuid = uuid;
+                                return result;
+                            };
                             ResolutionHelper.resolve_universe = function (globalTree, objUniverseTree, timeToResolve, originUniverseId) {
                                 if (globalTree == null || objUniverseTree == null) {
                                     return originUniverseId;
@@ -2735,6 +2769,12 @@ var org;
                             return ResolutionHelper;
                         })();
                         manager.ResolutionHelper = ResolutionHelper;
+                        var ResolutionResult = (function () {
+                            function ResolutionResult() {
+                            }
+                            return ResolutionResult;
+                        })();
+                        manager.ResolutionResult = ResolutionResult;
                     })(manager = data.manager || (data.manager = {}));
                 })(data = api.data || (api.data = {}));
                 var event;
@@ -8004,13 +8044,13 @@ var org;
                             this.internalInit();
                             return this;
                         };
-                        DynamicMetaClass.prototype.getOrCreate = function (p_name, p_oppositeName, p_oppositeClass, p_hidden, p_single) {
+                        DynamicMetaClass.prototype.getOrCreate = function (p_name, p_oppositeName, p_oppositeClass, p_visible, p_single) {
                             var previous = this.reference(p_name);
                             if (previous != null) {
                                 return previous;
                             }
                             var tempOrigin = this;
-                            var tempReference = new org.kevoree.modeling.api.abs.AbstractMetaReference(p_name, this._globalIndex, p_hidden, p_single, function () {
+                            var tempReference = new org.kevoree.modeling.api.abs.AbstractMetaReference(p_name, this._globalIndex, p_visible, p_single, function () {
                                 return p_oppositeClass;
                             }, p_oppositeName, function () {
                                 return tempOrigin;
@@ -8025,10 +8065,10 @@ var org;
                             var opName = oppositeName;
                             if (opName == null) {
                                 opName = "op_" + p_name;
-                                p_metaClass.getOrCreate(opName, p_name, this, true, false);
+                                p_metaClass.getOrCreate(opName, p_name, this, false, false);
                             }
                             else {
-                                p_metaClass.getOrCreate(opName, p_name, this, false, false);
+                                p_metaClass.getOrCreate(opName, p_name, this, true, false);
                             }
                             var tempReference = new org.kevoree.modeling.api.abs.AbstractMetaReference(p_name, this._globalIndex, false, false, function () {
                                 return p_metaClass;
