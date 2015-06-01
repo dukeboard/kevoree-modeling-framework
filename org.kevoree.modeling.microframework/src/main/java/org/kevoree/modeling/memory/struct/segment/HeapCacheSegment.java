@@ -7,7 +7,6 @@ import org.kevoree.modeling.memory.KContentKey;
 import org.kevoree.modeling.memory.manager.JsonRaw;
 import org.kevoree.modeling.meta.MetaClass;
 import org.kevoree.modeling.meta.MetaModel;
-import org.kevoree.modeling.util.ArrayUtils;
 
 public class HeapCacheSegment implements KCacheElementSegment {
 
@@ -126,7 +125,7 @@ public class HeapCacheSegment implements KCacheElementSegment {
     }
 
     @Override
-    public void addRef(int index, long newRef, MetaClass metaClass) {
+    public boolean addRef(int index, long newRef, MetaClass metaClass) {
         if (raw != null) {
             long[] previous = (long[]) raw[index];
             if (previous == null) {
@@ -135,7 +134,7 @@ public class HeapCacheSegment implements KCacheElementSegment {
             } else {
                 for (int i = 0; i < previous.length; i++) {
                     if (previous[i] == newRef) {
-                        return;
+                        return false;
                     }
                 }
                 long[] incArray = new long[previous.length + 1];
@@ -149,7 +148,37 @@ public class HeapCacheSegment implements KCacheElementSegment {
             }
             _modifiedIndexes[index] = true;
             _dirty = true;
+            return true;
         }
+        return false;
+    }
+
+    @Override
+    public boolean removeRef(int index, long newRef, MetaClass metaClass) {
+        if (raw != null) {
+            long[] previous = (long[]) raw[index];
+            if (previous != null) {
+                int indexToRemove = -1;
+                for (int i = 0; i < previous.length; i++) {
+                    if (previous[i] == newRef) {
+                        indexToRemove = i;
+                        break;
+                    }
+                }
+                if (indexToRemove != -1) {
+                    long[] newArray = new long[previous.length - 1];
+                    System.arraycopy(previous, 0, newArray, 0, indexToRemove);
+                    System.arraycopy(previous, indexToRemove + 1, newArray, indexToRemove, previous.length - indexToRemove - 1);
+                    raw[index] = newArray;
+                    if (_modifiedIndexes == null) {
+                        _modifiedIndexes = new boolean[raw.length];
+                    }
+                    _modifiedIndexes[index] = true;
+                    _dirty = true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override

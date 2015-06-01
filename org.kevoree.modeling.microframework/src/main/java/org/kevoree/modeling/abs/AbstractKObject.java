@@ -20,7 +20,6 @@ import org.kevoree.modeling.meta.MetaClass;
 import org.kevoree.modeling.meta.MetaOperation;
 import org.kevoree.modeling.meta.MetaReference;
 import org.kevoree.modeling.memory.struct.tree.KLongTree;
-import org.kevoree.modeling.util.ArrayUtils;
 import org.kevoree.modeling.traversal.DefaultKTraversal;
 import org.kevoree.modeling.traversal.KTraversal;
 import org.kevoree.modeling.traversal.selector.KSelector;
@@ -232,12 +231,12 @@ public abstract class AbstractKObject implements KObject {
                 internal_mutate(KActionType.SET, metaReference, param, setOpposite);
             } else {
                 HeapCacheSegment raw = _manager.segment(this, AccessMode.WRITE);
-                if(raw != null){
-                    raw.addRef(metaReference.index(), param.uuid(),_metaClass);
-                }
-                //Opposite
-                if (setOpposite) {
-                    ((AbstractKObject) param).internal_mutate(KActionType.ADD, metaReference.opposite(), this, false);
+                if (raw != null) {
+                    if (raw.addRef(metaReference.index(), param.uuid(), _metaClass)) {
+                        if (setOpposite) {
+                            ((AbstractKObject) param).internal_mutate(KActionType.ADD, metaReference.opposite(), this, false);
+                        }
+                    }
                 }
             }
         } else if (actionType.equals(KActionType.SET)) {
@@ -295,16 +294,11 @@ public abstract class AbstractKObject implements KObject {
                 }
             } else {
                 HeapCacheSegment payload = _manager.segment(this, AccessMode.WRITE);
-                long[] previous = payload.getRef(metaReference.index(), _metaClass);
-                if (previous != null) {
-                    try {
-                        previous = ArrayUtils.remove(previous, param.uuid());
-                        payload.set(metaReference.index(), previous, _metaClass);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    if (setOpposite) {
-                        ((AbstractKObject) param).internal_mutate(KActionType.REMOVE, metaReference.opposite(), this, false);
+                if (payload != null) {
+                    if (payload.removeRef(metaReference.index(), param.uuid(), _metaClass)) {
+                        if (setOpposite) {
+                            ((AbstractKObject) param).internal_mutate(KActionType.REMOVE, metaReference.opposite(), this, false);
+                        }
                     }
                 }
             }
@@ -572,8 +566,12 @@ public abstract class AbstractKObject implements KObject {
                 for (int i = 0; i < allReferences.length; i++) {
                     long[] rawI = raw.getRef(allReferences[i].index(), _metaClass);
                     if (rawI != null) {
-                        if (ArrayUtils.contains(rawI, o.uuid()) != -1) {
-                            selected.add(allReferences[i]);
+                        long oUUID = o.uuid();
+                        for (int h = 0; h < rawI.length; h++) {
+                            if (rawI[h] == oUUID) {
+                                selected.add(allReferences[i]);
+                                break;
+                            }
                         }
                     }
                 }

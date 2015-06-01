@@ -10,7 +10,9 @@ public interface KCacheElementSegment extends KCacheElement {
 
     long[] getRef(int index, MetaClass metaClass);
 
-    void addRef(int index,long newRef,  MetaClass metaClass);
+    boolean addRef(int index, long newRef, MetaClass metaClass);
+
+    boolean removeRef(int index, long newRef, MetaClass metaClass);
 
     Object get(int index, MetaClass metaClass);
 
