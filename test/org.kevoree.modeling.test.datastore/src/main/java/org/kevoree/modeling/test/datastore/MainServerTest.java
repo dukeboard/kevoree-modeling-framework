@@ -38,13 +38,13 @@ public class MainServerTest {
             public void on(KObject source, Object[] params, Callback<Object> result) {
                 GeometryUniverse dimension = geoModel.universe(0);
                 GeometryView geoFactory = dimension.time(originOfTime);
-                geoFactory.getRoot().then(new Callback<KObject>() {
+                geoFactory.getRoot(new Callback<KObject>() {
                     @Override
                     public void on(KObject kObject) {
                         if (kObject != null) {
                             Library lib = (Library) kObject;
                             lib.addShapes(geoFactory.createShape().setName("Shape" + params[0]).setColor("grey"));
-                            geoModel.save().then(Utils.DefaultPrintStackTraceCallback);
+                            geoModel.save(Utils.DefaultPrintStackTraceCallback);
 
                             System.out.println("Shape added by operation");
                             result.on("true");
@@ -59,7 +59,7 @@ public class MainServerTest {
 
 
 
-        geoModel.connect().then(new Callback<Throwable>() {
+        geoModel.connect(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
@@ -67,14 +67,14 @@ public class MainServerTest {
                 } else {
                     GeometryUniverse dimension = geoModel.universe(0);
                     GeometryView geoFactory = dimension.time(originOfTime);
-                    geoFactory.getRoot().then(new Callback<KObject>() {
+                    geoFactory.getRoot(new Callback<KObject>() {
                         @Override
                         public void on(KObject kObject) {
                             if (kObject == null) {
                                 Library lib = geoFactory.createLibrary();
                                 KCacheEntry libEntry = ((AbstractKObject)lib)._manager.entry(lib, AccessMode.READ);
                                 long[] uuids = (long[]) libEntry.get(MetaLibrary.REF_SHAPES.index());
-                                geoFactory.setRoot(lib).then(new Callback<Throwable>() {
+                                geoFactory.setRoot(lib,new Callback<Throwable>() {
                                     @Override
                                     public void on(Throwable throwable) {
                                         if(throwable != null) {
@@ -85,7 +85,7 @@ public class MainServerTest {
                                 for (int i = 0; i < 200; i++) {
                                     lib.addShapes(geoFactory.createShape().setName("ShapeO" + i).setColor(colors[i % 3]));
                                 }
-                                geoModel.save().then(Utils.DefaultPrintStackTraceCallback);
+                                geoModel.save(Utils.DefaultPrintStackTraceCallback);
 
                                 System.out.println("Base model committed");
                             }
@@ -114,7 +114,7 @@ public class MainServerTest {
                 try {
                     GeometryUniverse dimension = geoModel.universe(0);
                     GeometryView geoFactory = dimension.time(originOfTime);
-                    geoFactory.getRoot().then(new Callback<KObject>() {
+                    geoFactory.getRoot(new Callback<KObject>() {
                         @Override
                         public void on(KObject kObject) {
                             if (kObject == null) {
@@ -122,7 +122,7 @@ public class MainServerTest {
                             } else {
                                 Library root = (Library) kObject;
                                 KCacheEntry entry = ((AbstractKObject)root)._manager.entry(root, AccessMode.READ);
-                                root.getShapes().then((shapes) -> {
+                                root.getShapes((shapes) -> {
                                     System.out.println("Shapes:" + shapes.length);
                                     if (shapes != null) {
                                         for (Shape shape : shapes) {
@@ -132,7 +132,7 @@ public class MainServerTest {
                                     }
                                 });
                                 i = 0;
-                                geoModel.save().then(Utils.DefaultPrintStackTraceCallback);
+                                geoModel.save(Utils.DefaultPrintStackTraceCallback);
                             }
                         }
                     });

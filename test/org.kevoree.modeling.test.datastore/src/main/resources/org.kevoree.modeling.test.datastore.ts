@@ -69,7 +69,7 @@ module geometry {
 
         removeShapes(p_obj: geometry.Shape): geometry.Library;
 
-        getShapes(): org.kevoree.modeling.api.KDefer<any>;
+        getShapes(cb: (p : geometry.Shape[]) => void): void;
 
         sizeOfShapes(): number;
 
@@ -122,16 +122,17 @@ module geometry {
                 return this;
             }
 
-            public getShapes(): org.kevoree.modeling.api.KDefer<any> {
-                var task: org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any> = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper<any>();
+            public getShapes(cb: (p : geometry.Shape[]) => void): void {
+                if (cb == null) {
+                    return;
+                }
                 this.internal_ref(geometry.meta.MetaLibrary.REF_SHAPES,  (kObjects : org.kevoree.modeling.api.KObject[]) => {
                     var casted: geometry.Shape[] = new Array();
                     for (var i: number = 0; i < kObjects.length; i++) {
                         casted[i] = <geometry.Shape>kObjects[i];
                     }
-                    task.initCallback()(casted);
+                    cb(casted);
                 });
-                return task;
             }
 
             public sizeOfShapes(): number {
@@ -172,6 +173,33 @@ module geometry {
                 return this;
             }
 
+            public addOp_shapes(p_obj: geometry.Library): geometry.Shape {
+                this.mutate(org.kevoree.modeling.api.KActionType.ADD, geometry.meta.MetaShape.REF_OP_SHAPES, p_obj);
+                return this;
+            }
+
+            public removeOp_shapes(p_obj: geometry.Library): geometry.Shape {
+                this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, geometry.meta.MetaShape.REF_OP_SHAPES, p_obj);
+                return this;
+            }
+
+            public getOp_shapes(cb: (p : geometry.Library[]) => void): void {
+                if (cb == null) {
+                    return;
+                }
+                this.internal_ref(geometry.meta.MetaShape.REF_OP_SHAPES,  (kObjects : org.kevoree.modeling.api.KObject[]) => {
+                    var casted: geometry.Library[] = new Array();
+                    for (var i: number = 0; i < kObjects.length; i++) {
+                        casted[i] = <geometry.Library>kObjects[i];
+                    }
+                    cb(casted);
+                });
+            }
+
+            public sizeOfOp_shapes(): number {
+                return this.size(geometry.meta.MetaShape.REF_OP_SHAPES);
+            }
+
         }
 
     }
@@ -179,12 +207,12 @@ module geometry {
         export class MetaLibrary extends org.kevoree.modeling.api.abs.AbstractMetaClass {
 
             private static INSTANCE: geometry.meta.MetaLibrary = null;
-            public static REF_SHAPES: org.kevoree.modeling.api.meta.MetaReference = new org.kevoree.modeling.api.abs.AbstractMetaReference("shapes", 4, true, false,  () => {
+            public static REF_SHAPES: org.kevoree.modeling.api.meta.MetaReference = new org.kevoree.modeling.api.abs.AbstractMetaReference("shapes", 0, true, false,  () => {
                 return geometry.meta.MetaShape.getInstance();
-            }, null,  () => {
+            }, "op_shapes",  () => {
                 return geometry.meta.MetaLibrary.getInstance();
             });
-            public static OP_ADDSHAPE: org.kevoree.modeling.api.meta.MetaOperation = new org.kevoree.modeling.api.abs.AbstractMetaOperation("addShape", 5,  () => {
+            public static OP_ADDSHAPE: org.kevoree.modeling.api.meta.MetaOperation = new org.kevoree.modeling.api.abs.AbstractMetaOperation("addShape", 1,  () => {
                 return geometry.meta.MetaLibrary.getInstance();
             });
             public static getInstance(): geometry.meta.MetaLibrary {
@@ -209,8 +237,13 @@ module geometry {
         export class MetaShape extends org.kevoree.modeling.api.abs.AbstractMetaClass {
 
             private static INSTANCE: geometry.meta.MetaShape = null;
-            public static ATT_COLOR: org.kevoree.modeling.api.meta.MetaAttribute = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("color", 4, 0, false, org.kevoree.modeling.api.meta.PrimitiveTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
-            public static ATT_NAME: org.kevoree.modeling.api.meta.MetaAttribute = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+            public static ATT_COLOR: org.kevoree.modeling.api.meta.MetaAttribute = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("color", 0, 0, false, org.kevoree.modeling.api.meta.PrimitiveTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+            public static ATT_NAME: org.kevoree.modeling.api.meta.MetaAttribute = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 1, 0, true, org.kevoree.modeling.api.meta.PrimitiveTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+            public static REF_OP_SHAPES: org.kevoree.modeling.api.meta.MetaReference = new org.kevoree.modeling.api.abs.AbstractMetaReference("op_shapes", 2, false, false,  () => {
+                return geometry.meta.MetaLibrary.getInstance();
+            }, "shapes",  () => {
+                return geometry.meta.MetaShape.getInstance();
+            });
             public static getInstance(): geometry.meta.MetaShape {
                 if (MetaShape.INSTANCE == null) {
                     MetaShape.INSTANCE = new geometry.meta.MetaShape();
@@ -224,6 +257,7 @@ module geometry {
                 temp_all[0] = MetaShape.ATT_COLOR;
                 temp_all[1] = MetaShape.ATT_NAME;
                 var temp_references: org.kevoree.modeling.api.meta.MetaReference[] = new Array();
+                temp_all[2] = MetaShape.REF_OP_SHAPES;
                 var temp_operations: org.kevoree.modeling.api.meta.MetaOperation[] = new Array();
                 this.init(temp_all);
             }

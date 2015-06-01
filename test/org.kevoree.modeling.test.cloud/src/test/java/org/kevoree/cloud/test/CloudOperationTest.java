@@ -22,7 +22,7 @@ public class CloudOperationTest {
     @Test
     public void operationTest() {
         CloudModel model = new CloudModel();
-        model.connect();
+        model.connect(null);
         CloudUniverse universe = model.newUniverse();
         CloudView view = universe.time(0L);
         model.setOperation(MetaElement.OP_TRIGGER, new KOperation() {

@@ -84,16 +84,17 @@ var geometry;
                 this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, geometry.meta.MetaLibrary.REF_SHAPES, p_obj);
                 return this;
             };
-            LibraryImpl.prototype.getShapes = function () {
-                var task = new org.kevoree.modeling.api.abs.AbstractKDeferWrapper();
+            LibraryImpl.prototype.getShapes = function (cb) {
+                if (cb == null) {
+                    return;
+                }
                 this.internal_ref(geometry.meta.MetaLibrary.REF_SHAPES, function (kObjects) {
                     var casted = new Array();
                     for (var i = 0; i < kObjects.length; i++) {
                         casted[i] = kObjects[i];
                     }
-                    task.initCallback()(casted);
+                    cb(casted);
                 });
-                return task;
             };
             LibraryImpl.prototype.sizeOfShapes = function () {
                 return this.size(geometry.meta.MetaLibrary.REF_SHAPES);
@@ -127,6 +128,29 @@ var geometry;
                 this.set(geometry.meta.MetaShape.ATT_NAME, p_obj);
                 return this;
             };
+            ShapeImpl.prototype.addOp_shapes = function (p_obj) {
+                this.mutate(org.kevoree.modeling.api.KActionType.ADD, geometry.meta.MetaShape.REF_OP_SHAPES, p_obj);
+                return this;
+            };
+            ShapeImpl.prototype.removeOp_shapes = function (p_obj) {
+                this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, geometry.meta.MetaShape.REF_OP_SHAPES, p_obj);
+                return this;
+            };
+            ShapeImpl.prototype.getOp_shapes = function (cb) {
+                if (cb == null) {
+                    return;
+                }
+                this.internal_ref(geometry.meta.MetaShape.REF_OP_SHAPES, function (kObjects) {
+                    var casted = new Array();
+                    for (var i = 0; i < kObjects.length; i++) {
+                        casted[i] = kObjects[i];
+                    }
+                    cb(casted);
+                });
+            };
+            ShapeImpl.prototype.sizeOfOp_shapes = function () {
+                return this.size(geometry.meta.MetaShape.REF_OP_SHAPES);
+            };
             return ShapeImpl;
         })(org.kevoree.modeling.api.abs.AbstractKObject);
         impl.ShapeImpl = ShapeImpl;
@@ -151,12 +175,12 @@ var geometry;
                 return MetaLibrary.INSTANCE;
             };
             MetaLibrary.INSTANCE = null;
-            MetaLibrary.REF_SHAPES = new org.kevoree.modeling.api.abs.AbstractMetaReference("shapes", 4, true, false, function () {
+            MetaLibrary.REF_SHAPES = new org.kevoree.modeling.api.abs.AbstractMetaReference("shapes", 0, true, false, function () {
                 return geometry.meta.MetaShape.getInstance();
-            }, null, function () {
+            }, "op_shapes", function () {
                 return geometry.meta.MetaLibrary.getInstance();
             });
-            MetaLibrary.OP_ADDSHAPE = new org.kevoree.modeling.api.abs.AbstractMetaOperation("addShape", 5, function () {
+            MetaLibrary.OP_ADDSHAPE = new org.kevoree.modeling.api.abs.AbstractMetaOperation("addShape", 1, function () {
                 return geometry.meta.MetaLibrary.getInstance();
             });
             return MetaLibrary;
@@ -170,6 +194,7 @@ var geometry;
                 temp_all[0] = MetaShape.ATT_COLOR;
                 temp_all[1] = MetaShape.ATT_NAME;
                 var temp_references = new Array();
+                temp_all[2] = MetaShape.REF_OP_SHAPES;
                 var temp_operations = new Array();
                 this.init(temp_all);
             }
@@ -180,8 +205,13 @@ var geometry;
                 return MetaShape.INSTANCE;
             };
             MetaShape.INSTANCE = null;
-            MetaShape.ATT_COLOR = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("color", 4, 0, false, org.kevoree.modeling.api.meta.PrimitiveTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
-            MetaShape.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.PrimitiveTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+            MetaShape.ATT_COLOR = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("color", 0, 0, false, org.kevoree.modeling.api.meta.PrimitiveTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+            MetaShape.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 1, 0, true, org.kevoree.modeling.api.meta.PrimitiveTypes.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+            MetaShape.REF_OP_SHAPES = new org.kevoree.modeling.api.abs.AbstractMetaReference("op_shapes", 2, false, false, function () {
+                return geometry.meta.MetaLibrary.getInstance();
+            }, "shapes", function () {
+                return geometry.meta.MetaShape.getInstance();
+            });
             return MetaShape;
         })(org.kevoree.modeling.api.abs.AbstractMetaClass);
         meta.MetaShape = MetaShape;

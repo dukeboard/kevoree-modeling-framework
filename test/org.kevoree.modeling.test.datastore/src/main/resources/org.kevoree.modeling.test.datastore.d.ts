@@ -19,7 +19,7 @@ declare module geometry {
     interface Library extends org.kevoree.modeling.api.KObject {
         addShapes(p_obj: geometry.Shape): geometry.Library;
         removeShapes(p_obj: geometry.Shape): geometry.Library;
-        getShapes(): org.kevoree.modeling.api.KDefer<any>;
+        getShapes(cb: (p: geometry.Shape[]) => void): void;
         sizeOfShapes(): number;
         addShape(shapeName: string, result: (p: boolean) => void): void;
     }
@@ -39,7 +39,7 @@ declare module geometry {
             constructor(p_universe: number, p_time: number, p_uuid: number, p_metaClass: org.kevoree.modeling.api.meta.MetaClass, p_manager: org.kevoree.modeling.api.data.manager.KDataManager);
             addShapes(p_obj: geometry.Shape): geometry.Library;
             removeShapes(p_obj: geometry.Shape): geometry.Library;
-            getShapes(): org.kevoree.modeling.api.KDefer<any>;
+            getShapes(cb: (p: geometry.Shape[]) => void): void;
             sizeOfShapes(): number;
             addShape(p_shapeName: string, p_result: (p: boolean) => void): void;
         }
@@ -49,6 +49,10 @@ declare module geometry {
             setColor(p_obj: string): geometry.Shape;
             getName(): string;
             setName(p_obj: string): geometry.Shape;
+            addOp_shapes(p_obj: geometry.Library): geometry.Shape;
+            removeOp_shapes(p_obj: geometry.Library): geometry.Shape;
+            getOp_shapes(cb: (p: geometry.Library[]) => void): void;
+            sizeOfOp_shapes(): number;
         }
     }
     module meta {
@@ -63,6 +67,7 @@ declare module geometry {
             private static INSTANCE;
             static ATT_COLOR: org.kevoree.modeling.api.meta.MetaAttribute;
             static ATT_NAME: org.kevoree.modeling.api.meta.MetaAttribute;
+            static REF_OP_SHAPES: org.kevoree.modeling.api.meta.MetaReference;
             static getInstance(): geometry.meta.MetaShape;
             constructor();
         }

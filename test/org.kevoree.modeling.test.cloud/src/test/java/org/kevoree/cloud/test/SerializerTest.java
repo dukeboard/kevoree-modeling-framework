@@ -16,12 +16,12 @@ public class SerializerTest {
             Semaphore s = new Semaphore(0);
 
             CloudModel universe = new CloudModel();
-            universe.connect();
+            universe.connect(null);
             CloudUniverse dimension0 = universe.newUniverse();
             CloudView t0 = dimension0.time(0l);
             Node nodeT0 = t0.createNode();
             nodeT0.setName("node0");
-            t0.setRoot(nodeT0);
+            t0.setRoot(nodeT0,null);
 
             Element child0 = t0.createElement();
             nodeT0.setElement(child0);
@@ -31,8 +31,8 @@ public class SerializerTest {
             nodeT0.addChildren(nodeT1);
 
 
-            t0.lookup(nodeT0.uuid()).then((root) -> {
-                t0.xmi().save(root).then((result) -> {
+            t0.lookup(nodeT0.uuid(),(root) -> {
+                t0.xmi().save(root,(result) -> {
                     s.release();
                 });
             });

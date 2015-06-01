@@ -35,22 +35,13 @@ declare module org {
                     static CACHE_INIT_SIZE: number;
                     static CACHE_LOAD_FACTOR: number;
                 }
-                interface KCurrentDefer<A> extends org.kevoree.modeling.api.KDefer<any> {
-                    resultByDefer(defer: org.kevoree.modeling.api.KDefer<any>): any;
-                    setResult(result: A): void;
-                }
-                interface KDefer<A> {
-                    wait(previous: org.kevoree.modeling.api.KDefer<any>): org.kevoree.modeling.api.KDefer<any>;
-                    getResult(): A;
+                interface KDefer {
+                    wait(resultName: string): (p: any) => void;
+                    waitDefer(previous: org.kevoree.modeling.api.KDefer): org.kevoree.modeling.api.KDefer;
                     isDone(): boolean;
-                    setJob(kjob: (p: org.kevoree.modeling.api.KCurrentDefer<any>) => void): org.kevoree.modeling.api.KDefer<any>;
-                    ready(): org.kevoree.modeling.api.KDefer<any>;
-                    next(): org.kevoree.modeling.api.KDefer<any>;
-                    then(callback: (p: A) => void): void;
-                    chain(block: (p: org.kevoree.modeling.api.KDefer<any>) => org.kevoree.modeling.api.KDefer<any>): org.kevoree.modeling.api.KDefer<any>;
-                }
-                interface KDeferBlock {
-                    exec(previous: org.kevoree.modeling.api.KDefer<any>): org.kevoree.modeling.api.KDefer<any>;
+                    getResult(resultName: string): any;
+                    then(cb: (p: any) => void): void;
+                    next(): org.kevoree.modeling.api.KDefer;
                 }
                 interface KEventListener {
                     on(src: org.kevoree.modeling.api.KObject, modifications: org.kevoree.modeling.api.meta.Meta[]): void;
@@ -70,9 +61,6 @@ declare module org {
                     isDirty(): boolean;
                     cloneState(): org.kevoree.modeling.api.KInferState;
                 }
-                interface KJob {
-                    run(currentTask: org.kevoree.modeling.api.KCurrentDefer<any>): void;
-                }
                 interface KModel<A extends org.kevoree.modeling.api.KUniverse<any, any, any>> {
                     key(): number;
                     newUniverse(): A;
@@ -83,47 +71,52 @@ declare module org {
                     setOperation(metaOperation: org.kevoree.modeling.api.meta.MetaOperation, operation: (p: org.kevoree.modeling.api.KObject, p1: any[], p2: (p: any) => void) => void): void;
                     setInstanceOperation(metaOperation: org.kevoree.modeling.api.meta.MetaOperation, target: org.kevoree.modeling.api.KObject, operation: (p: org.kevoree.modeling.api.KObject, p1: any[], p2: (p: any) => void) => void): void;
                     metaModel(): org.kevoree.modeling.api.meta.MetaModel;
-                    defer(): org.kevoree.modeling.api.KDefer<any>;
-                    save(): org.kevoree.modeling.api.KDefer<any>;
-                    discard(): org.kevoree.modeling.api.KDefer<any>;
-                    connect(): org.kevoree.modeling.api.KDefer<any>;
-                    close(): org.kevoree.modeling.api.KDefer<any>;
+                    defer(): org.kevoree.modeling.api.KDefer;
+                    save(cb: (p: any) => void): void;
+                    discard(cb: (p: any) => void): void;
+                    connect(cb: (p: any) => void): void;
+                    close(cb: (p: any) => void): void;
                     clearListenerGroup(groupID: number): void;
                     nextGroup(): number;
                     createByName(metaClassName: string, universe: number, time: number): org.kevoree.modeling.api.KObject;
                     create(clazz: org.kevoree.modeling.api.meta.MetaClass, universe: number, time: number): org.kevoree.modeling.api.KObject;
                 }
+                interface KModelAttributeVisitor {
+                    visit(metaAttribute: org.kevoree.modeling.api.meta.MetaAttribute, value: any): void;
+                }
+                interface KModelFormat {
+                    save(model: org.kevoree.modeling.api.KObject, cb: (p: string) => void): void;
+                    saveRoot(cb: (p: string) => void): void;
+                    load(payload: string, cb: (p: any) => void): void;
+                }
+                interface KModelVisitor {
+                    visit(elem: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KVisitResult;
+                }
                 interface KObject {
                     universe(): number;
                     now(): number;
                     uuid(): number;
-                    delete(): org.kevoree.modeling.api.KDefer<any>;
-                    parent(): org.kevoree.modeling.api.KDefer<any>;
-                    parentUuid(): number;
-                    select(query: string): org.kevoree.modeling.api.KDefer<any>;
+                    delete(cb: (p: any) => void): void;
+                    select(query: string, cb: (p: org.kevoree.modeling.api.KObject[]) => void): void;
                     listen(groupId: number, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
                     visitAttributes(visitor: (p: org.kevoree.modeling.api.meta.MetaAttribute, p1: any) => void): void;
-                    visit(request: org.kevoree.modeling.api.VisitRequest, visitor: (p: org.kevoree.modeling.api.KObject) => org.kevoree.modeling.api.VisitResult): org.kevoree.modeling.api.KDefer<any>;
+                    visit(visitor: (p: org.kevoree.modeling.api.KObject) => org.kevoree.modeling.api.KVisitResult, cb: (p: any) => void): void;
                     timeWalker(): org.kevoree.modeling.api.KTimeWalker;
-                    referenceInParent(): org.kevoree.modeling.api.meta.MetaReference;
                     domainKey(): string;
                     metaClass(): org.kevoree.modeling.api.meta.MetaClass;
                     mutate(actionType: org.kevoree.modeling.api.KActionType, metaReference: org.kevoree.modeling.api.meta.MetaReference, param: org.kevoree.modeling.api.KObject): void;
-                    ref(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KDefer<any>;
-                    inferRef(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KDefer<any>;
+                    ref(metaReference: org.kevoree.modeling.api.meta.MetaReference, cb: (p: org.kevoree.modeling.api.KObject[]) => void): void;
                     traversal(): org.kevoree.modeling.api.traversal.KTraversal;
-                    inbounds(): org.kevoree.modeling.api.KDefer<any>;
                     get(attribute: org.kevoree.modeling.api.meta.MetaAttribute): any;
+                    getByName(atributeName: string): any;
                     set(attribute: org.kevoree.modeling.api.meta.MetaAttribute, payload: any): void;
+                    setByName(atributeName: string, payload: any): void;
                     toJSON(): string;
                     equals(other: any): boolean;
-                    jump<U extends org.kevoree.modeling.api.KObject>(time: number): org.kevoree.modeling.api.KDefer<any>;
-                    jump2(time: number, callback: (p: org.kevoree.modeling.api.KObject) => void): void;
+                    jump(time: number, callback: (p: org.kevoree.modeling.api.KObject) => void): void;
                     referencesWith(o: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.meta.MetaReference[];
-                    inferObjects(): org.kevoree.modeling.api.KDefer<any>;
-                    inferAttribute(attribute: org.kevoree.modeling.api.meta.MetaAttribute): any;
-                    call(operation: org.kevoree.modeling.api.meta.MetaOperation, params: any[]): org.kevoree.modeling.api.KDefer<any>;
-                    inferCall(operation: org.kevoree.modeling.api.meta.MetaOperation, params: any[]): org.kevoree.modeling.api.KDefer<any>;
+                    call(operation: org.kevoree.modeling.api.meta.MetaOperation, params: any[], cb: (p: any) => void): void;
+                    manager(): org.kevoree.modeling.api.data.manager.KDataManager;
                 }
                 interface KOperation {
                     on(source: org.kevoree.modeling.api.KObject, params: any[], result: (p: any) => void): void;
@@ -133,10 +126,10 @@ declare module org {
                     stop(): void;
                 }
                 interface KTimeWalker {
-                    allTimes(): org.kevoree.modeling.api.KDefer<any>;
-                    timesBefore(endOfSearch: number): org.kevoree.modeling.api.KDefer<any>;
-                    timesAfter(beginningOfSearch: number): org.kevoree.modeling.api.KDefer<any>;
-                    timesBetween(beginningOfSearch: number, endOfSearch: number): org.kevoree.modeling.api.KDefer<any>;
+                    allTimes(cb: (p: number[]) => void): void;
+                    timesBefore(endOfSearch: number, cb: (p: number[]) => void): void;
+                    timesAfter(beginningOfSearch: number, cb: (p: number[]) => void): void;
+                    timesBetween(beginningOfSearch: number, endOfSearch: number, cb: (p: number[]) => void): void;
                 }
                 interface KType {
                     name(): string;
@@ -152,61 +145,34 @@ declare module org {
                     diverge(): B;
                     origin(): B;
                     descendants(): java.util.List<B>;
-                    delete(): org.kevoree.modeling.api.KDefer<any>;
-                    lookupAllTimes(uuid: number, times: number[]): org.kevoree.modeling.api.KDefer<any>;
+                    delete(cb: (p: any) => void): void;
+                    lookupAllTimes(uuid: number, times: number[], cb: (p: org.kevoree.modeling.api.KObject[]) => void): void;
                     listenAll(groupId: number, objects: number[], multiListener: (p: org.kevoree.modeling.api.KObject[]) => void): void;
                 }
                 interface KView {
                     createByName(metaClassName: string): org.kevoree.modeling.api.KObject;
                     create(clazz: org.kevoree.modeling.api.meta.MetaClass): org.kevoree.modeling.api.KObject;
-                    select(query: string): org.kevoree.modeling.api.KDefer<any>;
-                    lookup(key: number): org.kevoree.modeling.api.KDefer<any>;
-                    lookupAll(keys: number[]): org.kevoree.modeling.api.KDefer<any>;
+                    select(query: string, cb: (p: org.kevoree.modeling.api.KObject[]) => void): void;
+                    lookup(key: number, cb: (p: org.kevoree.modeling.api.KObject) => void): void;
+                    lookupAll(keys: number[], cb: (p: org.kevoree.modeling.api.KObject[]) => void): void;
                     universe(): number;
                     now(): number;
-                    json(): org.kevoree.modeling.api.ModelFormat;
-                    xmi(): org.kevoree.modeling.api.ModelFormat;
+                    json(): org.kevoree.modeling.api.KModelFormat;
+                    xmi(): org.kevoree.modeling.api.KModelFormat;
                     equals(other: any): boolean;
-                    setRoot(elem: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any>;
-                    getRoot(): org.kevoree.modeling.api.KDefer<any>;
+                    setRoot(elem: org.kevoree.modeling.api.KObject, cb: (p: any) => void): void;
+                    getRoot(cb: (p: org.kevoree.modeling.api.KObject) => void): void;
                 }
-                interface ModelAttributeVisitor {
-                    visit(metaAttribute: org.kevoree.modeling.api.meta.MetaAttribute, value: any): void;
-                }
-                interface ModelFormat {
-                    save(model: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any>;
-                    saveRoot(): org.kevoree.modeling.api.KDefer<any>;
-                    load(payload: string): org.kevoree.modeling.api.KDefer<any>;
-                }
-                interface ModelVisitor {
-                    visit(elem: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.VisitResult;
+                class KVisitResult {
+                    static CONTINUE: KVisitResult;
+                    static SKIP: KVisitResult;
+                    static STOP: KVisitResult;
+                    equals(other: any): boolean;
+                    static _KVisitResultVALUES: KVisitResult[];
+                    static values(): KVisitResult[];
                 }
                 interface ThrowableCallback<A> {
                     on(a: A, error: java.lang.Throwable): void;
-                }
-                class TraceRequest {
-                    static ATTRIBUTES_ONLY: TraceRequest;
-                    static REFERENCES_ONLY: TraceRequest;
-                    static ATTRIBUTES_REFERENCES: TraceRequest;
-                    equals(other: any): boolean;
-                    static _TraceRequestVALUES: TraceRequest[];
-                    static values(): TraceRequest[];
-                }
-                class VisitRequest {
-                    static CHILDREN: VisitRequest;
-                    static CONTAINED: VisitRequest;
-                    static ALL: VisitRequest;
-                    equals(other: any): boolean;
-                    static _VisitRequestVALUES: VisitRequest[];
-                    static values(): VisitRequest[];
-                }
-                class VisitResult {
-                    static CONTINUE: VisitResult;
-                    static SKIP: VisitResult;
-                    static STOP: VisitResult;
-                    equals(other: any): boolean;
-                    static _VisitResultVALUES: VisitResult[];
-                    static values(): VisitResult[];
                 }
                 module abs {
                     class AbstractKDataType implements org.kevoree.modeling.api.KType {
@@ -218,58 +184,45 @@ declare module org {
                         save(src: any): string;
                         load(payload: string): any;
                     }
-                    class AbstractKDefer<A> implements org.kevoree.modeling.api.KCurrentDefer<any> {
+                    class AbstractKDefer implements org.kevoree.modeling.api.KDefer {
                         private _isDone;
                         _isReady: boolean;
                         private _nbRecResult;
                         private _nbExpectedResult;
                         private _nextTasks;
-                        private _job;
-                        private _result;
-                        private _parentResults;
-                        setDoneOrRegister(next: org.kevoree.modeling.api.KDefer<any>): boolean;
+                        private _results;
+                        private _thenCB;
+                        constructor();
+                        setDoneOrRegister(next: org.kevoree.modeling.api.KDefer): boolean;
                         equals(obj: any): boolean;
                         private informParentEnd(end);
-                        wait(p_previous: org.kevoree.modeling.api.KDefer<any>): org.kevoree.modeling.api.KDefer<any>;
-                        ready(): org.kevoree.modeling.api.KDefer<any>;
-                        next(): org.kevoree.modeling.api.KDefer<any>;
-                        then(p_callback: (p: A) => void): void;
-                        chain(p_block: (p: org.kevoree.modeling.api.KDefer<any>) => org.kevoree.modeling.api.KDefer<any>): org.kevoree.modeling.api.KDefer<any>;
-                        resultByDefer(defer: org.kevoree.modeling.api.KDefer<any>): any;
-                        setResult(p_result: A): void;
-                        getResult(): A;
+                        waitDefer(p_previous: org.kevoree.modeling.api.KDefer): org.kevoree.modeling.api.KDefer;
+                        next(): org.kevoree.modeling.api.KDefer;
+                        wait(resultName: string): (p: any) => void;
                         isDone(): boolean;
-                        setJob(p_kjob: (p: org.kevoree.modeling.api.KCurrentDefer<any>) => void): org.kevoree.modeling.api.KDefer<any>;
-                    }
-                    class AbstractKDeferWrapper<A> extends org.kevoree.modeling.api.abs.AbstractKDefer<any> {
-                        private _callback;
-                        private static FORBIDDEN_TASK;
-                        constructor();
-                        initCallback(): (p: A) => void;
-                        wait(previous: org.kevoree.modeling.api.KDefer<any>): org.kevoree.modeling.api.KDefer<any>;
-                        setJob(p_kjob: (p: org.kevoree.modeling.api.KCurrentDefer<any>) => void): org.kevoree.modeling.api.KDefer<any>;
-                        ready(): org.kevoree.modeling.api.KDefer<any>;
+                        getResult(resultName: string): any;
+                        then(cb: (p: any) => void): void;
                     }
                     class AbstractKModel<A extends org.kevoree.modeling.api.KUniverse<any, any, any>> implements org.kevoree.modeling.api.KModel<any> {
                         _manager: org.kevoree.modeling.api.data.manager.KDataManager;
                         private _key;
                         constructor();
                         metaModel(): org.kevoree.modeling.api.meta.MetaModel;
-                        connect(): org.kevoree.modeling.api.KDefer<any>;
-                        close(): org.kevoree.modeling.api.KDefer<any>;
+                        connect(cb: (p: any) => void): void;
+                        close(cb: (p: any) => void): void;
                         manager(): org.kevoree.modeling.api.data.manager.KDataManager;
                         newUniverse(): A;
                         internalCreateUniverse(universe: number): A;
                         internalCreateObject(universe: number, time: number, uuid: number, clazz: org.kevoree.modeling.api.meta.MetaClass): org.kevoree.modeling.api.KObject;
                         createProxy(universe: number, time: number, uuid: number, clazz: org.kevoree.modeling.api.meta.MetaClass): org.kevoree.modeling.api.KObject;
                         universe(key: number): A;
-                        save(): org.kevoree.modeling.api.KDefer<any>;
-                        discard(): org.kevoree.modeling.api.KDefer<any>;
+                        save(cb: (p: any) => void): void;
+                        discard(cb: (p: any) => void): void;
                         setContentDeliveryDriver(p_driver: org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver): org.kevoree.modeling.api.KModel<any>;
                         setScheduler(p_scheduler: org.kevoree.modeling.api.KScheduler): org.kevoree.modeling.api.KModel<any>;
                         setOperation(metaOperation: org.kevoree.modeling.api.meta.MetaOperation, operation: (p: org.kevoree.modeling.api.KObject, p1: any[], p2: (p: any) => void) => void): void;
                         setInstanceOperation(metaOperation: org.kevoree.modeling.api.meta.MetaOperation, target: org.kevoree.modeling.api.KObject, operation: (p: org.kevoree.modeling.api.KObject, p1: any[], p2: (p: any) => void) => void): void;
-                        defer(): org.kevoree.modeling.api.KDefer<any>;
+                        defer(): org.kevoree.modeling.api.KDefer;
                         key(): number;
                         clearListenerGroup(groupID: number): void;
                         nextGroup(): number;
@@ -288,43 +241,35 @@ declare module org {
                         metaClass(): org.kevoree.modeling.api.meta.MetaClass;
                         now(): number;
                         universe(): number;
-                        parentUuid(): number;
                         timeWalker(): org.kevoree.modeling.api.KTimeWalker;
-                        parent(): org.kevoree.modeling.api.KDefer<any>;
-                        referenceInParent(): org.kevoree.modeling.api.meta.MetaReference;
-                        delete(): org.kevoree.modeling.api.KDefer<any>;
-                        select(query: string): org.kevoree.modeling.api.KDefer<any>;
+                        delete(cb: (p: any) => void): void;
+                        select(query: string, cb: (p: org.kevoree.modeling.api.KObject[]) => void): void;
                         listen(groupId: number, listener: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.meta.Meta[]) => void): void;
                         domainKey(): string;
                         get(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute): any;
+                        getByName(atributeName: string): any;
                         set(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, payload: any): void;
-                        private removeFromContainer(param);
+                        setByName(atributeName: string, payload: any): void;
                         mutate(actionType: org.kevoree.modeling.api.KActionType, metaReference: org.kevoree.modeling.api.meta.MetaReference, param: org.kevoree.modeling.api.KObject): void;
-                        internal_mutate(actionType: org.kevoree.modeling.api.KActionType, metaReferenceP: org.kevoree.modeling.api.meta.MetaReference, param: org.kevoree.modeling.api.KObject, setOpposite: boolean, inDelete: boolean): void;
+                        internal_mutate(actionType: org.kevoree.modeling.api.KActionType, metaReferenceP: org.kevoree.modeling.api.meta.MetaReference, param: org.kevoree.modeling.api.KObject, setOpposite: boolean): void;
                         size(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): number;
                         internal_ref(p_metaReference: org.kevoree.modeling.api.meta.MetaReference, callback: (p: org.kevoree.modeling.api.KObject[]) => void): void;
-                        ref(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KDefer<any>;
-                        inferRef(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.KDefer<any>;
+                        ref(p_metaReference: org.kevoree.modeling.api.meta.MetaReference, cb: (p: org.kevoree.modeling.api.KObject[]) => void): void;
                         visitAttributes(visitor: (p: org.kevoree.modeling.api.meta.MetaAttribute, p1: any) => void): void;
-                        visit(p_request: org.kevoree.modeling.api.VisitRequest, p_visitor: (p: org.kevoree.modeling.api.KObject) => org.kevoree.modeling.api.VisitResult): org.kevoree.modeling.api.KDefer<any>;
-                        private internal_visit(visitor, end, deep, containedOnly, visited, traversed);
+                        visit(p_visitor: (p: org.kevoree.modeling.api.KObject) => org.kevoree.modeling.api.KVisitResult, cb: (p: any) => void): void;
+                        private internal_visit(visitor, end, visited, traversed);
                         toJSON(): string;
                         toString(): string;
-                        inbounds(): org.kevoree.modeling.api.KDefer<any>;
-                        set_parent(p_parentKID: number, p_metaReference: org.kevoree.modeling.api.meta.MetaReference): void;
                         equals(obj: any): boolean;
                         hashCode(): number;
-                        jump<U extends org.kevoree.modeling.api.KObject>(p_time: number): org.kevoree.modeling.api.KDefer<any>;
-                        jump2(p_time: number, p_callback: (p: org.kevoree.modeling.api.KObject) => void): void;
+                        jump(p_time: number, p_callback: (p: org.kevoree.modeling.api.KObject) => void): void;
                         internal_transpose_ref(p: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.meta.MetaReference;
                         internal_transpose_att(p: org.kevoree.modeling.api.meta.MetaAttribute): org.kevoree.modeling.api.meta.MetaAttribute;
                         internal_transpose_op(p: org.kevoree.modeling.api.meta.MetaOperation): org.kevoree.modeling.api.meta.MetaOperation;
                         traversal(): org.kevoree.modeling.api.traversal.KTraversal;
                         referencesWith(o: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.meta.MetaReference[];
-                        call(p_operation: org.kevoree.modeling.api.meta.MetaOperation, p_params: any[]): org.kevoree.modeling.api.KDefer<any>;
-                        inferObjects(): org.kevoree.modeling.api.KDefer<any>;
-                        inferAttribute(attribute: org.kevoree.modeling.api.meta.MetaAttribute): any;
-                        inferCall(operation: org.kevoree.modeling.api.meta.MetaOperation, params: any[]): org.kevoree.modeling.api.KDefer<any>;
+                        call(p_operation: org.kevoree.modeling.api.meta.MetaOperation, p_params: any[], cb: (p: any) => void): void;
+                        manager(): org.kevoree.modeling.api.data.manager.KDataManager;
                     }
                     class AbstractKObjectInfer extends org.kevoree.modeling.api.abs.AbstractKObject implements org.kevoree.modeling.api.KInfer {
                         constructor(p_universe: number, p_time: number, p_uuid: number, p_metaClass: org.kevoree.modeling.api.meta.MetaClass, p_manager: org.kevoree.modeling.api.data.manager.KDataManager);
@@ -343,14 +288,14 @@ declare module org {
                         constructor(p_key: number, p_manager: org.kevoree.modeling.api.data.manager.KDataManager);
                         key(): number;
                         model(): C;
-                        delete(): org.kevoree.modeling.api.KDefer<any>;
+                        delete(cb: (p: any) => void): void;
                         time(timePoint: number): A;
                         internal_create(timePoint: number): A;
                         equals(obj: any): boolean;
                         origin(): B;
                         diverge(): B;
                         descendants(): java.util.List<B>;
-                        lookupAllTimes(uuid: number, times: number[]): org.kevoree.modeling.api.KDefer<any>;
+                        lookupAllTimes(uuid: number, times: number[], cb: (p: org.kevoree.modeling.api.KObject[]) => void): void;
                         listenAll(groupId: number, objects: number[], multiListener: (p: org.kevoree.modeling.api.KObject[]) => void): void;
                     }
                     class AbstractKView implements org.kevoree.modeling.api.KView {
@@ -360,15 +305,15 @@ declare module org {
                         constructor(p_universe: number, _time: number, p_manager: org.kevoree.modeling.api.data.manager.KDataManager);
                         now(): number;
                         universe(): number;
-                        setRoot(elem: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any>;
-                        getRoot(): org.kevoree.modeling.api.KDefer<any>;
-                        select(query: string): org.kevoree.modeling.api.KDefer<any>;
-                        lookup(kid: number): org.kevoree.modeling.api.KDefer<any>;
-                        lookupAll(keys: number[]): org.kevoree.modeling.api.KDefer<any>;
+                        setRoot(elem: org.kevoree.modeling.api.KObject, cb: (p: any) => void): void;
+                        getRoot(cb: (p: any) => void): void;
+                        select(query: string, cb: (p: org.kevoree.modeling.api.KObject[]) => void): void;
+                        lookup(kid: number, cb: (p: org.kevoree.modeling.api.KObject) => void): void;
+                        lookupAll(keys: number[], cb: (p: org.kevoree.modeling.api.KObject[]) => void): void;
                         create(clazz: org.kevoree.modeling.api.meta.MetaClass): org.kevoree.modeling.api.KObject;
                         createByName(metaClassName: string): org.kevoree.modeling.api.KObject;
-                        json(): org.kevoree.modeling.api.ModelFormat;
-                        xmi(): org.kevoree.modeling.api.ModelFormat;
+                        json(): org.kevoree.modeling.api.KModelFormat;
+                        xmi(): org.kevoree.modeling.api.KModelFormat;
                         equals(obj: any): boolean;
                     }
                     class AbstractMetaAttribute implements org.kevoree.modeling.api.meta.MetaAttribute {
@@ -435,29 +380,29 @@ declare module org {
                     class AbstractMetaReference implements org.kevoree.modeling.api.meta.MetaReference {
                         private _name;
                         private _index;
-                        private _contained;
+                        private _hidden;
                         private _single;
                         private _lazyMetaType;
-                        private _lazyMetaOpposite;
+                        private _op_name;
                         private _lazyMetaOrigin;
                         single(): boolean;
-                        attributeType(): org.kevoree.modeling.api.meta.MetaClass;
+                        type(): org.kevoree.modeling.api.meta.MetaClass;
                         opposite(): org.kevoree.modeling.api.meta.MetaReference;
                         origin(): org.kevoree.modeling.api.meta.MetaClass;
                         index(): number;
                         metaName(): string;
                         metaType(): org.kevoree.modeling.api.meta.MetaType;
-                        contained(): boolean;
-                        constructor(p_name: string, p_index: number, p_contained: boolean, p_single: boolean, p_lazyMetaType: () => org.kevoree.modeling.api.meta.Meta, p_lazyMetaOpposite: () => org.kevoree.modeling.api.meta.Meta, p_lazyMetaOrigin: () => org.kevoree.modeling.api.meta.Meta);
+                        hidden(): boolean;
+                        constructor(p_name: string, p_index: number, p_hidden: boolean, p_single: boolean, p_lazyMetaType: () => org.kevoree.modeling.api.meta.Meta, op_name: string, p_lazyMetaOrigin: () => org.kevoree.modeling.api.meta.Meta);
                     }
                     class AbstractTimeWalker implements org.kevoree.modeling.api.KTimeWalker {
                         private _origin;
                         constructor(p_origin: org.kevoree.modeling.api.abs.AbstractKObject);
-                        private internal_times(start, end);
-                        allTimes(): org.kevoree.modeling.api.KDefer<any>;
-                        timesBefore(endOfSearch: number): org.kevoree.modeling.api.KDefer<any>;
-                        timesAfter(beginningOfSearch: number): org.kevoree.modeling.api.KDefer<any>;
-                        timesBetween(beginningOfSearch: number, endOfSearch: number): org.kevoree.modeling.api.KDefer<any>;
+                        private internal_times(start, end, cb);
+                        allTimes(cb: (p: number[]) => void): void;
+                        timesBefore(endOfSearch: number, cb: (p: number[]) => void): void;
+                        timesAfter(beginningOfSearch: number, cb: (p: number[]) => void): void;
+                        timesBetween(beginningOfSearch: number, endOfSearch: number, cb: (p: number[]) => void): void;
                     }
                     interface LazyResolver {
                         meta(): org.kevoree.modeling.api.meta.Meta;
@@ -663,15 +608,7 @@ declare module org {
                             bumpKeysToCache(contentKeys: org.kevoree.modeling.api.data.cache.KContentKey[], callback: (p: org.kevoree.modeling.api.data.cache.KCacheObject[]) => void): void;
                             private internal_unserialize(key, payload);
                         }
-                        class Index {
-                            static PARENT_INDEX: number;
-                            static INBOUNDS_INDEX: number;
-                            static REF_IN_PARENT_INDEX: number;
-                            static INFER_CHILDREN: number;
-                            static RESERVED_INDEXES: number;
-                        }
                         class JsonRaw {
-                            static SEP: string;
                             static decode(payload: string, now: number, metaModel: org.kevoree.modeling.api.meta.MetaModel, entry: org.kevoree.modeling.api.data.cache.KCacheEntry): boolean;
                             static encode(raw: org.kevoree.modeling.api.data.cache.KCacheEntry, uuid: number, p_metaClass: org.kevoree.modeling.api.meta.MetaClass, isRoot: boolean): string;
                         }
@@ -1011,21 +948,18 @@ declare module org {
                     }
                 }
                 module json {
-                    class JsonFormat implements org.kevoree.modeling.api.ModelFormat {
+                    class JsonFormat implements org.kevoree.modeling.api.KModelFormat {
                         static KEY_META: string;
                         static KEY_UUID: string;
                         static KEY_ROOT: string;
-                        static PARENT_META: string;
-                        static PARENT_REF_META: string;
-                        static INBOUNDS_META: string;
                         private _manager;
                         private _universe;
                         private _time;
                         private static NULL_PARAM_MSG;
                         constructor(p_universe: number, p_time: number, p_manager: org.kevoree.modeling.api.data.manager.KDataManager);
-                        save(model: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any>;
-                        saveRoot(): org.kevoree.modeling.api.KDefer<any>;
-                        load(payload: string): org.kevoree.modeling.api.KDefer<any>;
+                        save(model: org.kevoree.modeling.api.KObject, cb: (p: string) => void): void;
+                        saveRoot(cb: (p: string) => void): void;
+                        load(payload: string, cb: (p: any) => void): void;
                     }
                     class JsonModelLoader {
                         static load(manager: org.kevoree.modeling.api.data.manager.KDataManager, universe: number, time: number, payload: string, callback: (p: java.lang.Throwable) => void): void;
@@ -1166,9 +1100,9 @@ declare module org {
                         origin(): org.kevoree.modeling.api.meta.Meta;
                     }
                     interface MetaReference extends org.kevoree.modeling.api.meta.Meta {
-                        contained(): boolean;
+                        hidden(): boolean;
                         single(): boolean;
-                        attributeType(): org.kevoree.modeling.api.meta.MetaClass;
+                        type(): org.kevoree.modeling.api.meta.MetaClass;
                         opposite(): org.kevoree.modeling.api.meta.MetaReference;
                         origin(): org.kevoree.modeling.api.meta.MetaClass;
                     }
@@ -1466,161 +1400,178 @@ declare module org {
                     }
                 }
                 module rbtree {
-                    class Color {
-                        static RED: Color;
-                        static BLACK: Color;
-                        equals(other: any): boolean;
-                        static _ColorVALUES: Color[];
-                        static values(): Color[];
-                    }
-                    class IndexRBTree implements org.kevoree.modeling.api.data.cache.KCacheObject {
-                        private root;
-                        private _size;
-                        private _previousOrEqualsCacheValues;
-                        private _nextCacheElem;
-                        private _counter;
-                        private _dirty;
-                        size(): number;
-                        counter(): number;
-                        inc(): void;
-                        dec(): void;
-                        constructor();
-                        private tryPreviousOrEqualsCache(key);
-                        private resetCache();
-                        private putInPreviousOrEqualsCache(resolved);
-                        isDirty(): boolean;
-                        setClean(): void;
-                        serialize(): string;
-                        toString(): string;
-                        unserialize(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: string, metaModel: org.kevoree.modeling.api.meta.MetaModel): void;
-                        previousOrEqual(key: number): org.kevoree.modeling.api.rbtree.TreeNode;
-                        nextOrEqual(key: number): org.kevoree.modeling.api.rbtree.TreeNode;
-                        previous(key: number): org.kevoree.modeling.api.rbtree.TreeNode;
-                        next(key: number): org.kevoree.modeling.api.rbtree.TreeNode;
-                        first(): org.kevoree.modeling.api.rbtree.TreeNode;
-                        last(): org.kevoree.modeling.api.rbtree.TreeNode;
-                        private lookup(key);
-                        private rotateLeft(n);
-                        private rotateRight(n);
-                        private replaceNode(oldn, newn);
-                        insert(key: number): void;
-                        private insertCase1(n);
-                        private insertCase2(n);
-                        private insertCase3(n);
-                        private insertCase4(n_n);
-                        private insertCase5(n);
-                        delete(key: number): void;
-                        private deleteCase1(n);
-                        private deleteCase2(n);
-                        private deleteCase3(n);
-                        private deleteCase4(n);
-                        private deleteCase5(n);
-                        private deleteCase6(n);
-                        private nodeColor(n);
-                    }
-                    class LongRBTree implements org.kevoree.modeling.api.data.cache.KCacheObject {
-                        private root;
-                        private _size;
-                        _dirty: boolean;
-                        private _counter;
-                        private _previousOrEqualsCacheValues;
-                        private _previousOrEqualsNextCacheElem;
-                        private _lookupCacheValues;
-                        private _lookupNextCacheElem;
-                        size(): number;
-                        counter(): number;
-                        inc(): void;
-                        dec(): void;
-                        toString(): string;
-                        isDirty(): boolean;
-                        serialize(): string;
-                        constructor();
-                        private tryPreviousOrEqualsCache(key);
-                        private tryLookupCache(key);
-                        private resetCache();
-                        private putInPreviousOrEqualsCache(resolved);
-                        private putInLookupCache(resolved);
-                        setClean(): void;
-                        unserialize(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: string, metaModel: org.kevoree.modeling.api.meta.MetaModel): void;
-                        lookup(key: number): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        previousOrEqual(key: number): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        nextOrEqual(key: number): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        previous(key: number): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        next(key: number): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        first(): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        last(): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        private rotateLeft(n);
-                        private rotateRight(n);
-                        private replaceNode(oldn, newn);
+                    interface KLongLongTree extends org.kevoree.modeling.api.rbtree.KTree {
                         insert(key: number, value: number): void;
-                        private insertCase1(n);
-                        private insertCase2(n);
-                        private insertCase3(n);
-                        private insertCase4(n_n);
-                        private insertCase5(n);
+                        previousOrEqualValue(key: number): number;
+                        lookupValue(key: number): number;
+                    }
+                    interface KLongTree extends org.kevoree.modeling.api.rbtree.KTree {
+                        insert(key: number): void;
+                        previousOrEqual(key: number): number;
+                        lookup(key: number): number;
+                        range(startKey: number, endKey: number, walker: (p: number) => void): void;
                         delete(key: number): void;
-                        private deleteCase1(n);
-                        private deleteCase2(n);
-                        private deleteCase3(n);
-                        private deleteCase4(n);
-                        private deleteCase5(n);
-                        private deleteCase6(n);
-                        private nodeColor(n);
                     }
-                    class LongTreeNode {
-                        static BLACK: string;
-                        static RED: string;
-                        key: number;
-                        value: number;
-                        color: org.kevoree.modeling.api.rbtree.Color;
-                        private left;
-                        private right;
-                        private parent;
-                        constructor(key: number, value: number, color: org.kevoree.modeling.api.rbtree.Color, left: org.kevoree.modeling.api.rbtree.LongTreeNode, right: org.kevoree.modeling.api.rbtree.LongTreeNode);
-                        grandparent(): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        sibling(): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        uncle(): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        getLeft(): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        setLeft(left: org.kevoree.modeling.api.rbtree.LongTreeNode): void;
-                        getRight(): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        setRight(right: org.kevoree.modeling.api.rbtree.LongTreeNode): void;
-                        getParent(): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        setParent(parent: org.kevoree.modeling.api.rbtree.LongTreeNode): void;
-                        serialize(builder: java.lang.StringBuilder): void;
-                        next(): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        previous(): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        static unserialize(ctx: org.kevoree.modeling.api.rbtree.TreeReaderContext): org.kevoree.modeling.api.rbtree.LongTreeNode;
-                        static internal_unserialize(rightBranch: boolean, ctx: org.kevoree.modeling.api.rbtree.TreeReaderContext): org.kevoree.modeling.api.rbtree.LongTreeNode;
+                    interface KTree extends org.kevoree.modeling.api.data.cache.KCacheObject {
+                        size(): number;
                     }
-                    class TreeNode {
-                        static BLACK: string;
-                        static RED: string;
-                        key: number;
-                        color: org.kevoree.modeling.api.rbtree.Color;
-                        private left;
-                        private right;
-                        private parent;
-                        getKey(): number;
-                        constructor(key: number, color: org.kevoree.modeling.api.rbtree.Color, left: org.kevoree.modeling.api.rbtree.TreeNode, right: org.kevoree.modeling.api.rbtree.TreeNode);
-                        grandparent(): org.kevoree.modeling.api.rbtree.TreeNode;
-                        sibling(): org.kevoree.modeling.api.rbtree.TreeNode;
-                        uncle(): org.kevoree.modeling.api.rbtree.TreeNode;
-                        getLeft(): org.kevoree.modeling.api.rbtree.TreeNode;
-                        setLeft(left: org.kevoree.modeling.api.rbtree.TreeNode): void;
-                        getRight(): org.kevoree.modeling.api.rbtree.TreeNode;
-                        setRight(right: org.kevoree.modeling.api.rbtree.TreeNode): void;
-                        getParent(): org.kevoree.modeling.api.rbtree.TreeNode;
-                        setParent(parent: org.kevoree.modeling.api.rbtree.TreeNode): void;
-                        serialize(builder: java.lang.StringBuilder): void;
-                        next(): org.kevoree.modeling.api.rbtree.TreeNode;
-                        previous(): org.kevoree.modeling.api.rbtree.TreeNode;
-                        static unserialize(ctx: org.kevoree.modeling.api.rbtree.TreeReaderContext): org.kevoree.modeling.api.rbtree.TreeNode;
-                        static internal_unserialize(rightBranch: boolean, ctx: org.kevoree.modeling.api.rbtree.TreeReaderContext): org.kevoree.modeling.api.rbtree.TreeNode;
+                    interface KTreeWalker {
+                        elem(t: number): void;
                     }
-                    class TreeReaderContext {
-                        payload: string;
-                        index: number;
-                        buffer: string[];
+                    module ooheap {
+                        class LongTreeNode {
+                            static BLACK: string;
+                            static RED: string;
+                            key: number;
+                            value: number;
+                            color: boolean;
+                            private left;
+                            private right;
+                            private parent;
+                            constructor(key: number, value: number, color: boolean, left: org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode, right: org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode);
+                            grandparent(): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            sibling(): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            uncle(): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            getLeft(): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            setLeft(left: org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode): void;
+                            getRight(): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            setRight(right: org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode): void;
+                            getParent(): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            setParent(parent: org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode): void;
+                            serialize(builder: java.lang.StringBuilder): void;
+                            next(): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            previous(): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            static unserialize(ctx: org.kevoree.modeling.api.rbtree.ooheap.TreeReaderContext): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            static internal_unserialize(rightBranch: boolean, ctx: org.kevoree.modeling.api.rbtree.ooheap.TreeReaderContext): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                        }
+                        class OOKLongLongTree implements org.kevoree.modeling.api.data.cache.KCacheObject, org.kevoree.modeling.api.rbtree.KLongLongTree {
+                            private root;
+                            private _size;
+                            _dirty: boolean;
+                            private _counter;
+                            private _previousOrEqualsCacheValues;
+                            private _previousOrEqualsNextCacheElem;
+                            private _lookupCacheValues;
+                            private _lookupNextCacheElem;
+                            size(): number;
+                            counter(): number;
+                            inc(): void;
+                            dec(): void;
+                            toString(): string;
+                            isDirty(): boolean;
+                            serialize(): string;
+                            constructor();
+                            private tryPreviousOrEqualsCache(key);
+                            private tryLookupCache(key);
+                            private resetCache();
+                            private putInPreviousOrEqualsCache(resolved);
+                            private putInLookupCache(resolved);
+                            setClean(): void;
+                            unserialize(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: string, metaModel: org.kevoree.modeling.api.meta.MetaModel): void;
+                            lookupValue(key: number): number;
+                            private internal_lookup(key);
+                            previousOrEqualValue(key: number): number;
+                            private internal_previousOrEqual(key);
+                            nextOrEqual(key: number): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            previous(key: number): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            next(key: number): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            first(): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            last(): org.kevoree.modeling.api.rbtree.ooheap.LongTreeNode;
+                            private rotateLeft(n);
+                            private rotateRight(n);
+                            private replaceNode(oldn, newn);
+                            insert(key: number, value: number): void;
+                            private insertCase1(n);
+                            private insertCase2(n);
+                            private insertCase3(n);
+                            private insertCase4(n_n);
+                            private insertCase5(n);
+                            delete(key: number): void;
+                            private deleteCase1(n);
+                            private deleteCase2(n);
+                            private deleteCase3(n);
+                            private deleteCase4(n);
+                            private deleteCase5(n);
+                            private deleteCase6(n);
+                            private nodeColor(n);
+                        }
+                        class OOKLongTree implements org.kevoree.modeling.api.data.cache.KCacheObject, org.kevoree.modeling.api.rbtree.KLongTree {
+                            private _size;
+                            private root;
+                            private _previousOrEqualsCacheValues;
+                            private _nextCacheElem;
+                            private _counter;
+                            private _dirty;
+                            constructor();
+                            size(): number;
+                            counter(): number;
+                            inc(): void;
+                            dec(): void;
+                            private tryPreviousOrEqualsCache(key);
+                            private resetCache();
+                            private putInPreviousOrEqualsCache(resolved);
+                            isDirty(): boolean;
+                            setClean(): void;
+                            serialize(): string;
+                            toString(): string;
+                            unserialize(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: string, metaModel: org.kevoree.modeling.api.meta.MetaModel): void;
+                            previousOrEqual(key: number): number;
+                            internal_previousOrEqual(key: number): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            nextOrEqual(key: number): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            previous(key: number): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            next(key: number): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            first(): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            last(): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            lookup(key: number): number;
+                            range(start: number, end: number, walker: (p: number) => void): void;
+                            private rotateLeft(n);
+                            private rotateRight(n);
+                            private replaceNode(oldn, newn);
+                            insert(key: number): void;
+                            private insertCase1(n);
+                            private insertCase2(n);
+                            private insertCase3(n);
+                            private insertCase4(n_n);
+                            private insertCase5(n);
+                            delete(key: number): void;
+                            private deleteCase1(n);
+                            private deleteCase2(n);
+                            private deleteCase3(n);
+                            private deleteCase4(n);
+                            private deleteCase5(n);
+                            private deleteCase6(n);
+                            private nodeColor(n);
+                        }
+                        class TreeNode {
+                            static BLACK: string;
+                            static RED: string;
+                            key: number;
+                            color: boolean;
+                            private left;
+                            private right;
+                            private parent;
+                            constructor(key: number, color: boolean, left: org.kevoree.modeling.api.rbtree.ooheap.TreeNode, right: org.kevoree.modeling.api.rbtree.ooheap.TreeNode);
+                            getKey(): number;
+                            grandparent(): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            sibling(): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            uncle(): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            getLeft(): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            setLeft(left: org.kevoree.modeling.api.rbtree.ooheap.TreeNode): void;
+                            getRight(): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            setRight(right: org.kevoree.modeling.api.rbtree.ooheap.TreeNode): void;
+                            getParent(): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            setParent(parent: org.kevoree.modeling.api.rbtree.ooheap.TreeNode): void;
+                            serialize(builder: java.lang.StringBuilder): void;
+                            next(): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            previous(): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            static unserialize(ctx: org.kevoree.modeling.api.rbtree.ooheap.TreeReaderContext): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                            static internal_unserialize(rightBranch: boolean, ctx: org.kevoree.modeling.api.rbtree.ooheap.TreeReaderContext): org.kevoree.modeling.api.rbtree.ooheap.TreeNode;
+                        }
+                        class TreeReaderContext {
+                            payload: string;
+                            index: number;
+                            buffer: string[];
+                        }
                     }
                 }
                 module reflexive {
@@ -1646,7 +1597,8 @@ declare module org {
                         private _globalIndex;
                         constructor(p_name: string, p_index: number);
                         addAttribute(p_name: string, p_type: org.kevoree.modeling.api.KType): org.kevoree.modeling.api.reflexive.DynamicMetaClass;
-                        addReference(p_name: string, p_metaClass: org.kevoree.modeling.api.meta.MetaClass, contained: boolean): org.kevoree.modeling.api.reflexive.DynamicMetaClass;
+                        private getOrCreate(p_name, p_oppositeName, p_oppositeClass, p_hidden, p_single);
+                        addReference(p_name: string, p_metaClass: org.kevoree.modeling.api.meta.MetaClass, oppositeName: string): org.kevoree.modeling.api.reflexive.DynamicMetaClass;
                         addOperation(p_name: string): org.kevoree.modeling.api.reflexive.DynamicMetaClass;
                         private internalInit();
                     }
@@ -1687,17 +1639,10 @@ declare module org {
                         withAttribute(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_expectedValue: any): org.kevoree.modeling.api.traversal.KTraversal;
                         withoutAttribute(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_expectedValue: any): org.kevoree.modeling.api.traversal.KTraversal;
                         attributeQuery(p_attributeQuery: string): org.kevoree.modeling.api.traversal.KTraversal;
-                        filter(p_filter: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.traversal.KTraversalHistory) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
-                        inbounds(p_metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.traversal.KTraversal;
-                        inboundsQuery(p_metaReferenceQuery: string): org.kevoree.modeling.api.traversal.KTraversal;
-                        parents(): org.kevoree.modeling.api.traversal.KTraversal;
-                        removeDuplicate(): org.kevoree.modeling.api.traversal.KTraversal;
-                        deepTraverse(metaReference: org.kevoree.modeling.api.meta.MetaReference, continueCondition: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.traversal.KTraversalHistory) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
-                        deepCollect(metaReference: org.kevoree.modeling.api.meta.MetaReference, continueCondition: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.traversal.KTraversalHistory) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
-                        activateHistory(): org.kevoree.modeling.api.traversal.KTraversal;
-                        reverse(): org.kevoree.modeling.api.traversal.KTraversal;
-                        done(): org.kevoree.modeling.api.KDefer<any>;
-                        map(attribute: org.kevoree.modeling.api.meta.MetaAttribute): org.kevoree.modeling.api.KDefer<any>;
+                        filter(p_filter: (p: org.kevoree.modeling.api.KObject) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
+                        collect(metaReference: org.kevoree.modeling.api.meta.MetaReference, continueCondition: (p: org.kevoree.modeling.api.KObject) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
+                        then(cb: (p: org.kevoree.modeling.api.KObject[]) => void): void;
+                        map(attribute: org.kevoree.modeling.api.meta.MetaAttribute, cb: (p: any[]) => void): void;
                     }
                     interface KTraversal {
                         traverse(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.traversal.KTraversal;
@@ -1705,67 +1650,36 @@ declare module org {
                         attributeQuery(attributeQuery: string): org.kevoree.modeling.api.traversal.KTraversal;
                         withAttribute(attribute: org.kevoree.modeling.api.meta.MetaAttribute, expectedValue: any): org.kevoree.modeling.api.traversal.KTraversal;
                         withoutAttribute(attribute: org.kevoree.modeling.api.meta.MetaAttribute, expectedValue: any): org.kevoree.modeling.api.traversal.KTraversal;
-                        filter(filter: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.traversal.KTraversalHistory) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
-                        inbounds(metaReference: org.kevoree.modeling.api.meta.MetaReference): org.kevoree.modeling.api.traversal.KTraversal;
-                        inboundsQuery(metaReferenceQuery: string): org.kevoree.modeling.api.traversal.KTraversal;
-                        parents(): org.kevoree.modeling.api.traversal.KTraversal;
-                        removeDuplicate(): org.kevoree.modeling.api.traversal.KTraversal;
-                        done(): org.kevoree.modeling.api.KDefer<any>;
-                        map(attribute: org.kevoree.modeling.api.meta.MetaAttribute): org.kevoree.modeling.api.KDefer<any>;
-                        deepTraverse(metaReference: org.kevoree.modeling.api.meta.MetaReference, continueCondition: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.traversal.KTraversalHistory) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
-                        deepCollect(metaReference: org.kevoree.modeling.api.meta.MetaReference, continueCondition: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.traversal.KTraversalHistory) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
-                        activateHistory(): org.kevoree.modeling.api.traversal.KTraversal;
-                        reverse(): org.kevoree.modeling.api.traversal.KTraversal;
+                        filter(filter: (p: org.kevoree.modeling.api.KObject) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
+                        then(cb: (p: org.kevoree.modeling.api.KObject[]) => void): void;
+                        map(attribute: org.kevoree.modeling.api.meta.MetaAttribute, cb: (p: any[]) => void): void;
+                        collect(metaReference: org.kevoree.modeling.api.meta.MetaReference, continueCondition: (p: org.kevoree.modeling.api.KObject) => boolean): org.kevoree.modeling.api.traversal.KTraversal;
                     }
                     interface KTraversalAction {
                         chain(next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                        execute(inputs: org.kevoree.modeling.api.KObject[], history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
+                        execute(inputs: org.kevoree.modeling.api.KObject[]): void;
                     }
                     interface KTraversalFilter {
-                        filter(obj: org.kevoree.modeling.api.KObject, history: org.kevoree.modeling.api.traversal.KTraversalHistory): boolean;
-                    }
-                    class KTraversalHistory {
-                        private _valuesHistory;
-                        constructor();
-                        addResult(resolved: org.kevoree.modeling.api.KObject[]): void;
-                        remove(toDrop: number): void;
-                        get(uuid: number): org.kevoree.modeling.api.KObject;
-                        historySize(): number;
+                        filter(obj: org.kevoree.modeling.api.KObject): boolean;
                     }
                     module actions {
-                        class KActivateHistoryAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
-                            private _next;
-                            chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
-                        }
                         class KDeepCollectAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
                             private _next;
                             private _reference;
                             private _continueCondition;
                             private _alreadyPassed;
                             private _finalElements;
-                            constructor(p_reference: org.kevoree.modeling.api.meta.MetaReference, p_continueCondition: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.traversal.KTraversalHistory) => boolean);
+                            constructor(p_reference: org.kevoree.modeling.api.meta.MetaReference, p_continueCondition: (p: org.kevoree.modeling.api.KObject) => boolean);
                             chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
+                            execute(p_inputs: org.kevoree.modeling.api.KObject[]): void;
                             private executeStep(p_inputStep, private_callback);
-                        }
-                        class KDeepTraverseAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
-                            private _next;
-                            private _reference;
-                            private _continueCondition;
-                            private _alreadyPassed;
-                            private _finalElements;
-                            constructor(p_reference: org.kevoree.modeling.api.meta.MetaReference, p_continueCondition: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.traversal.KTraversalHistory) => boolean);
-                            chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
-                            private executeStep(p_inputStep, private_callback, p_history);
                         }
                         class KFilterAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
                             private _next;
                             private _filter;
-                            constructor(p_filter: (p: org.kevoree.modeling.api.KObject, p1: org.kevoree.modeling.api.traversal.KTraversalHistory) => boolean);
+                            constructor(p_filter: (p: org.kevoree.modeling.api.KObject) => boolean);
                             chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
+                            execute(p_inputs: org.kevoree.modeling.api.KObject[]): void;
                         }
                         class KFilterAttributeAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
                             private _next;
@@ -1773,14 +1687,14 @@ declare module org {
                             private _expectedValue;
                             constructor(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_expectedValue: any);
                             chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
+                            execute(p_inputs: org.kevoree.modeling.api.KObject[]): void;
                         }
                         class KFilterAttributeQueryAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
                             private _next;
                             private _attributeQuery;
                             constructor(p_attributeQuery: string);
                             chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
+                            execute(p_inputs: org.kevoree.modeling.api.KObject[]): void;
                             private buildParams(p_paramString);
                         }
                         class KFilterNotAttributeAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
@@ -1789,56 +1703,32 @@ declare module org {
                             private _expectedValue;
                             constructor(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_expectedValue: any);
                             chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
+                            execute(p_inputs: org.kevoree.modeling.api.KObject[]): void;
                         }
                         class KFinalAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
                             private _finalCallback;
                             constructor(p_callback: (p: org.kevoree.modeling.api.KObject[]) => void);
                             chain(next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
-                        }
-                        class KInboundsAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
-                            private _next;
-                            private _reference;
-                            constructor(p_reference: org.kevoree.modeling.api.meta.MetaReference);
-                            chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
-                        }
-                        class KInboundsQueryAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
-                            private _next;
-                            private _referenceQuery;
-                            constructor(p_referenceQuery: string);
-                            chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
+                            execute(inputs: org.kevoree.modeling.api.KObject[]): void;
                         }
                         class KMapAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
                             private _finalCallback;
                             private _attribute;
                             constructor(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_callback: (p: any[]) => void);
                             chain(next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
-                        }
-                        class KParentsAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
-                            private _next;
-                            chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
+                            execute(inputs: org.kevoree.modeling.api.KObject[]): void;
                         }
                         class KRemoveDuplicateAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
                             private _next;
                             chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
-                        }
-                        class KReverseAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
-                            private _next;
-                            chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
+                            execute(p_inputs: org.kevoree.modeling.api.KObject[]): void;
                         }
                         class KTraverseAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
                             private _next;
                             private _reference;
                             constructor(p_reference: org.kevoree.modeling.api.meta.MetaReference);
                             chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
+                            execute(p_inputs: org.kevoree.modeling.api.KObject[]): void;
                         }
                         class KTraverseQueryAction implements org.kevoree.modeling.api.traversal.KTraversalAction {
                             private SEP;
@@ -1846,7 +1736,7 @@ declare module org {
                             private _referenceQuery;
                             constructor(p_referenceQuery: string);
                             chain(p_next: org.kevoree.modeling.api.traversal.KTraversalAction): void;
-                            execute(p_inputs: org.kevoree.modeling.api.KObject[], p_history: org.kevoree.modeling.api.traversal.KTraversalHistory): void;
+                            execute(p_inputs: org.kevoree.modeling.api.KObject[]): void;
                         }
                     }
                     module selector {
@@ -1935,10 +1825,6 @@ declare module org {
                     }
                     class XMIModelSerializer {
                         static save(model: org.kevoree.modeling.api.KObject, callback: (p: string) => void): void;
-                        static escapeXml(ostream: java.lang.StringBuilder, chain: string): void;
-                        static formatMetaClassName(metaClassName: string): string;
-                        private static nonContainedReferenceTaskMaker(ref, p_context, p_currentElement);
-                        private static containedReferenceTaskMaker(ref, context, currentElement);
                     }
                     class XMIResolveCommand {
                         private context;
@@ -1949,14 +1835,14 @@ declare module org {
                         constructor(context: org.kevoree.modeling.api.xmi.XMILoadingContext, target: org.kevoree.modeling.api.KObject, mutatorType: org.kevoree.modeling.api.KActionType, refName: string, ref: string);
                         run(): void;
                     }
-                    class XmiFormat implements org.kevoree.modeling.api.ModelFormat {
+                    class XmiFormat implements org.kevoree.modeling.api.KModelFormat {
                         private _manager;
                         private _universe;
                         private _time;
                         constructor(p_universe: number, p_time: number, p_manager: org.kevoree.modeling.api.data.manager.KDataManager);
-                        save(model: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KDefer<any>;
-                        saveRoot(): org.kevoree.modeling.api.KDefer<any>;
-                        load(payload: string): org.kevoree.modeling.api.KDefer<any>;
+                        save(model: org.kevoree.modeling.api.KObject, cb: (p: string) => void): void;
+                        saveRoot(cb: (p: string) => void): void;
+                        load(payload: string, cb: (p: any) => void): void;
                     }
                     class XmlParser {
                         private payload;
