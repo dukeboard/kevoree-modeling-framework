@@ -5,7 +5,7 @@ import org.kevoree.modeling.KUniverse;
 import org.kevoree.modeling.Callback;
 import org.kevoree.modeling.KModel;
 import org.kevoree.modeling.KScheduler;
-import org.kevoree.modeling.memory.struct.segment.KCacheSegment;
+import org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
 import org.kevoree.modeling.util.KOperationManager;
 
 public interface KDataManager {
@@ -22,7 +22,7 @@ public interface KDataManager {
 
     void lookupAlltimes(long universe, long[] time, long uuid, Callback<KObject[]> callback);
 
-    KCacheSegment segment(KObject origin, AccessMode accessMode);
+    HeapCacheSegment segment(KObject origin, AccessMode accessMode);
 
     void save(Callback<Throwable> callback);
 

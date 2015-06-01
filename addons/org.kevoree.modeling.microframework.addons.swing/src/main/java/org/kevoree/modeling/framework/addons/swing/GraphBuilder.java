@@ -10,7 +10,7 @@ import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.KVisitResult;
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.abs.AbstractKObject;
-import org.kevoree.modeling.memory.struct.segment.KCacheSegment;
+import org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
 import org.kevoree.modeling.memory.AccessMode;
 import org.kevoree.modeling.meta.MetaReference;
 
@@ -59,7 +59,7 @@ public class GraphBuilder {
 
     private static void createEdges(Graph graph, KObject elem) {
         Node n = graph.getNode(elem.uuid() + "");
-        KCacheSegment rawPayload = ((AbstractKObject) elem)._manager.segment(elem, AccessMode.READ);
+        HeapCacheSegment rawPayload = ((AbstractKObject) elem)._manager.segment(elem, AccessMode.READ);
         for (MetaReference metaRef : elem.metaClass().metaReferences()) {
             long[] relatedElems = rawPayload.getRef(metaRef.index());
             if (relatedElems != null) {

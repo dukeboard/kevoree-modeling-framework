@@ -10,34 +10,6 @@ import org.kevoree.modeling.util.ArrayUtils;
 public class ArrayUtilsTest {
 
     @Test
-    public void addTest() {
-        long[] empty = new long[0];
-        long[] result = ArrayUtils.add(empty, 1);
-        Assert.assertEquals(result.length, 1);
-        Assert.assertEquals(result[0], 1);
-
-        long[] result2 = ArrayUtils.add(empty, 1);
-        Assert.assertEquals(result2.length, 1);
-        Assert.assertEquals(result2[0], 1);
-
-        long[] result3 = ArrayUtils.add(result2, 2);
-        Assert.assertEquals(result3.length, 2);
-        Assert.assertEquals(result3[0], 1);
-        Assert.assertEquals(result3[1], 2);
-
-        long[] result4 = ArrayUtils.add(result3, 2);
-        Assert.assertEquals(result4.length, 2);
-        Assert.assertEquals(result4[0], 1);
-        Assert.assertEquals(result4[1], 2);
-
-        long[] result5 = ArrayUtils.add(result4, 3);
-        Assert.assertEquals(result5.length, 3);
-        Assert.assertEquals(result5[0], 1);
-        Assert.assertEquals(result5[1], 2);
-        Assert.assertEquals(result5[2], 3);
-    }
-
-    @Test
     public void containsTest() {
         long[] base = new long[3];
         base[0] = 0;
@@ -76,6 +48,7 @@ public class ArrayUtilsTest {
 
     }
 
+    /*
     @Test
     public void cloneTest() {
         long[] base = new long[3];
@@ -89,6 +62,6 @@ public class ArrayUtilsTest {
         Assert.assertEquals(result0[1], 10);
         Assert.assertEquals(result0[2], 50);
 
-    }
+    }*/
 
 }

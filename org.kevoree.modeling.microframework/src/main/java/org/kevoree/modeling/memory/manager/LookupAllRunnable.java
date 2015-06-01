@@ -4,7 +4,7 @@ import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.Callback;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.abs.AbstractKModel;
-import org.kevoree.modeling.memory.struct.segment.KCacheSegment;
+import org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
 import org.kevoree.modeling.memory.KCacheElement;
 import org.kevoree.modeling.memory.KContentKey;
 import org.kevoree.modeling.memory.struct.map.LongLongHashMap;
@@ -69,8 +69,8 @@ public class LookupAllRunnable implements Runnable {
                             public void on(KCacheElement[] cachedObjects) {
                                 KObject[] proxies = new KObject[_keys.length];
                                 for (int i = 0; i < _keys.length; i++) {
-                                    if (cachedObjects[i] != null && cachedObjects[i] instanceof KCacheSegment) {
-                                        proxies[i] = ((AbstractKModel) _store.model()).createProxy(_universe, _time, _keys[i], _store.model().metaModel().metaClasses()[((KCacheSegment) cachedObjects[i]).metaClassIndex()]);
+                                    if (cachedObjects[i] != null && cachedObjects[i] instanceof HeapCacheSegment) {
+                                        proxies[i] = ((AbstractKModel) _store.model()).createProxy(_universe, _time, _keys[i], _store.model().metaModel().metaClasses()[((HeapCacheSegment) cachedObjects[i]).metaClassIndex()]);
                                         if (proxies[i] != null) {
                                             KLongTree cachedIndexTree = (KLongTree) timeIndexes[i];
                                             cachedIndexTree.inc();

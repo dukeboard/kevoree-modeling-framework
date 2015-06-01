@@ -7,7 +7,7 @@ import org.kevoree.modeling.KUniverse;
 import org.kevoree.modeling.abs.AbstractKModel;
 import org.kevoree.modeling.Callback;
 import org.kevoree.modeling.KEventMultiListener;
-import org.kevoree.modeling.memory.struct.segment.KCacheSegment;
+import org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
 import org.kevoree.modeling.memory.KCacheElement;
 import org.kevoree.modeling.memory.KContentKey;
 import org.kevoree.modeling.memory.manager.DefaultKDataManager;
@@ -190,7 +190,7 @@ public class LocalEventListeners {
                         //first we try to select unary listener
                         LongLongHashMap listeners;
                         for (int i = 0; i < messages.size(); i++) {
-                            if (kCacheElements[i] != null && kCacheElements[i] instanceof KCacheSegment) {
+                            if (kCacheElements[i] != null && kCacheElements[i] instanceof HeapCacheSegment) {
                                 KContentKey correspondingKey = toLoad[i];
                                 listeners = _obj2Listener.get(correspondingKey.obj);
                                 if (listeners != null) {
@@ -199,7 +199,7 @@ public class LocalEventListeners {
                                         cachedUniverse = _manager.model().universe(correspondingKey.universe);
                                         _cacheUniverse.put(correspondingKey.universe, cachedUniverse);
                                     }
-                                    KCacheSegment segment = (KCacheSegment) kCacheElements[i];
+                                    HeapCacheSegment segment = (HeapCacheSegment) kCacheElements[i];
                                     KObject toDispatch = ((AbstractKModel) _manager.model()).createProxy(correspondingKey.universe, correspondingKey.time, correspondingKey.obj, _manager.model().metaModel().metaClasses()[segment.metaClassIndex()]);
                                     if (toDispatch != null) {
                                         kCacheElements[i].inc();

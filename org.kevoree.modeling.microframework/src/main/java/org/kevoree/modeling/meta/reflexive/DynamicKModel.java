@@ -1,4 +1,4 @@
-package org.kevoree.modeling.reflexive;
+package org.kevoree.modeling.meta.reflexive;
 
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.KUniverse;

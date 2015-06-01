@@ -2,7 +2,7 @@ package org.kevoree.modeling.extrapolation;
 
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.abs.AbstractKObject;
-import org.kevoree.modeling.memory.struct.segment.KCacheSegment;
+import org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
 import org.kevoree.modeling.memory.AccessMode;
 import org.kevoree.modeling.meta.MetaAttribute;
 import org.kevoree.modeling.meta.PrimitiveTypes;
@@ -37,7 +37,7 @@ public class PolynomialExtrapolation implements Extrapolation {
 
     @Override
     public void mutate(KObject current, MetaAttribute attribute, Object payload) {
-        KCacheSegment raw = ((AbstractKObject) current)._manager.segment(current, AccessMode.READ);
+        HeapCacheSegment raw = ((AbstractKObject) current)._manager.segment(current, AccessMode.READ);
         Object previous = raw.get(attribute.index(), current.metaClass());
         if (previous == null) {
             PolynomialModel pol = createPolynomialModel(current.now(), attribute.precision());

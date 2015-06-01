@@ -9,8 +9,8 @@ import org.kevoree.modeling.abs.AbstractMetaAttribute;
 import org.kevoree.modeling.meta.MetaAttribute;
 import org.kevoree.modeling.meta.MetaReference;
 import org.kevoree.modeling.meta.PrimitiveTypes;
-import org.kevoree.modeling.reflexive.DynamicMetaClass;
-import org.kevoree.modeling.reflexive.DynamicMetaModel;
+import org.kevoree.modeling.meta.reflexive.DynamicMetaClass;
+import org.kevoree.modeling.meta.reflexive.DynamicMetaModel;
 
 /**
  * Created by duke on 29/04/15.

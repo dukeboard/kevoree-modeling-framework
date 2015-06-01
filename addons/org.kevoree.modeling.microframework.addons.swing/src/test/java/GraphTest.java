@@ -4,8 +4,8 @@ import org.graphstream.ui.swingViewer.ViewerPipe;
 import org.kevoree.modeling.*;
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.meta.PrimitiveTypes;
-import org.kevoree.modeling.reflexive.DynamicMetaClass;
-import org.kevoree.modeling.reflexive.DynamicMetaModel;
+import org.kevoree.modeling.meta.reflexive.DynamicMetaClass;
+import org.kevoree.modeling.meta.reflexive.DynamicMetaModel;
 import org.kevoree.modeling.scheduler.ExecutorServiceScheduler;
 import org.kevoree.modeling.framework.addons.swing.GraphBuilder;
 

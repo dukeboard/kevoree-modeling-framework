@@ -1,4 +1,4 @@
-package org.kevoree.modeling.reflexive;
+package org.kevoree.modeling.meta.reflexive;
 
 import org.kevoree.modeling.KType;
 import org.kevoree.modeling.abs.*;

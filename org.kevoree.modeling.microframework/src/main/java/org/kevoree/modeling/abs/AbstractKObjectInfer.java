@@ -2,7 +2,7 @@ package org.kevoree.modeling.abs;
 
 import org.kevoree.modeling.KInfer;
 import org.kevoree.modeling.Callback;
-import org.kevoree.modeling.memory.struct.segment.KCacheSegment;
+import org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
 import org.kevoree.modeling.memory.AccessMode;
 import org.kevoree.modeling.KInferState;
 import org.kevoree.modeling.memory.KDataManager;
@@ -16,7 +16,7 @@ public abstract class AbstractKObjectInfer extends AbstractKObject implements KI
     }
 
     public KInferState readOnlyState() {
-        KCacheSegment raw = _manager.segment(this, AccessMode.READ);
+        HeapCacheSegment raw = _manager.segment(this, AccessMode.READ);
         if (raw != null) {
             if (raw.get(MetaInferClass.getInstance().getCache().index(), metaClass()) == null) {
                 internal_load(raw);
@@ -28,7 +28,7 @@ public abstract class AbstractKObjectInfer extends AbstractKObject implements KI
     }
 
     public KInferState modifyState() {
-        KCacheSegment raw = _manager.segment(this, AccessMode.WRITE);
+        HeapCacheSegment raw = _manager.segment(this, AccessMode.WRITE);
         if (raw != null) {
             if (raw.get(MetaInferClass.getInstance().getCache().index(), metaClass()) == null) {
                 internal_load(raw);
@@ -39,7 +39,7 @@ public abstract class AbstractKObjectInfer extends AbstractKObject implements KI
         }
     }
 
-    private synchronized void internal_load(KCacheSegment raw) {
+    private synchronized void internal_load(HeapCacheSegment raw) {
         if (raw.get(MetaInferClass.getInstance().getCache().index(), metaClass()) == null) {
             KInferState currentState = createEmptyState();
             currentState.load(raw.get(MetaInferClass.getInstance().getRaw().index(), metaClass()).toString());

@@ -6,8 +6,8 @@ import org.kevoree.modeling.KModel;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.KUniverse;
 import org.kevoree.modeling.meta.PrimitiveTypes;
-import org.kevoree.modeling.reflexive.DynamicMetaClass;
-import org.kevoree.modeling.reflexive.DynamicMetaModel;
+import org.kevoree.modeling.meta.reflexive.DynamicMetaClass;
+import org.kevoree.modeling.meta.reflexive.DynamicMetaModel;
 
 /**
  * Created by assaad on 03/03/15.

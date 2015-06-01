@@ -8,7 +8,7 @@ import org.kevoree.modeling.memory.KCacheElement;
 import org.kevoree.modeling.memory.KContentKey;
 import org.kevoree.modeling.memory.manager.ResolutionHelper;
 import org.kevoree.modeling.memory.manager.ResolutionResult;
-import org.kevoree.modeling.memory.struct.segment.KCacheSegment;
+import org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
 
 public class HashMemoryCache implements KCache {
 
@@ -198,7 +198,7 @@ public class HashMemoryCache implements KCache {
                 //process current
                 if (current.get() == null) {
                     //check is dirty
-                    KCacheSegment currentEntry = (KCacheSegment) this.get(current.universe, current.time, current.uuid);
+                    HeapCacheSegment currentEntry = (HeapCacheSegment) this.get(current.universe, current.time, current.uuid);
                     if (currentEntry == null || !currentEntry.isDirty()) {
                         //call the clean sub process for universe/time/uuid
                         ResolutionResult resolved = ResolutionHelper.resolve_trees(current.universe, current.time, current.uuid, this);

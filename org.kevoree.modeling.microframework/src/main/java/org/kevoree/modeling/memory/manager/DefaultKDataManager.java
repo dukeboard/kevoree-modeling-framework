@@ -14,7 +14,7 @@ import org.kevoree.modeling.memory.cdn.KContentPutRequest;
 import org.kevoree.modeling.memory.cdn.MemoryKContentDeliveryDriver;
 import org.kevoree.modeling.memory.struct.map.LongLongHashMap;
 import org.kevoree.modeling.memory.struct.map.LongLongHashMapCallBack;
-import org.kevoree.modeling.memory.struct.segment.KCacheSegment;
+import org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
 import org.kevoree.modeling.msg.KEvents;
 import org.kevoree.modeling.memory.struct.tree.KLongLongTree;
 import org.kevoree.modeling.memory.struct.tree.KLongTree;
@@ -177,8 +177,8 @@ public class DefaultKDataManager implements KDataManager {
         for (int i = 0; i < dirtiesEntries.length; i++) {
             KCacheElement cachedObject = dirtiesEntries[i].object;
             int[] meta;
-            if (dirtiesEntries[i].object instanceof KCacheSegment) {
-                KCacheSegment segment = (KCacheSegment) dirtiesEntries[i].object;
+            if (dirtiesEntries[i].object instanceof HeapCacheSegment) {
+                HeapCacheSegment segment = (HeapCacheSegment) dirtiesEntries[i].object;
                 meta = segment.modifiedIndexes(_model.metaModel().metaClasses()[segment.metaClassIndex()]);
             } else {
                 meta = null;
@@ -204,7 +204,7 @@ public class DefaultKDataManager implements KDataManager {
 
     @Override
     public void initKObject(KObject obj) {
-        KCacheElementSegment cacheEntry = new KCacheSegment();
+        KCacheElementSegment cacheEntry = new HeapCacheSegment();
         cacheEntry.init(obj.metaClass());
         cacheEntry.setDirty();
         cacheEntry.inc();
@@ -327,8 +327,8 @@ public class DefaultKDataManager implements KDataManager {
     }
 
     @Override
-    public KCacheSegment segment(KObject origin, AccessMode accessMode) {
-        KCacheSegment currentEntry = (KCacheSegment) _cache.get(origin.universe(), origin.now(), origin.uuid());
+    public HeapCacheSegment segment(KObject origin, AccessMode accessMode) {
+        HeapCacheSegment currentEntry = (HeapCacheSegment) _cache.get(origin.universe(), origin.now(), origin.uuid());
         if (currentEntry != null) {
             return currentEntry;
         }
@@ -342,7 +342,7 @@ public class DefaultKDataManager implements KDataManager {
         if (resolvedTime != KConfig.NULL_LONG) {
             boolean needTimeCopy = accessMode.equals(AccessMode.WRITE) && (resolvedTime != origin.now());
             boolean needUniverseCopy = accessMode.equals(AccessMode.WRITE) && (resolvedUniverse != origin.universe());
-            KCacheSegment entry = (KCacheSegment) _cache.get(resolvedUniverse, resolvedTime, origin.uuid());
+            HeapCacheSegment entry = (HeapCacheSegment) _cache.get(resolvedUniverse, resolvedTime, origin.uuid());
             if (entry == null) {
                 return null;
             }
@@ -356,7 +356,7 @@ public class DefaultKDataManager implements KDataManager {
                 }
                 return entry;
             } else {
-                KCacheSegment clonedEntry = entry.clone(origin.metaClass());
+                HeapCacheSegment clonedEntry = entry.clone(origin.metaClass());
                 _cache.put(origin.universe(), origin.now(), origin.uuid(), clonedEntry);
                 if (!needUniverseCopy) {
                     timeTree.insert(origin.now());
@@ -649,7 +649,7 @@ public class DefaultKDataManager implements KDataManager {
             boolean isTimeNotNull = key.time != KConfig.NULL_LONG;
             boolean isObjNotNull = key.obj != KConfig.NULL_LONG;
             if (isUniverseNotNull && isTimeNotNull && isObjNotNull) {
-                result = new KCacheSegment();
+                result = new HeapCacheSegment();
             } else if (isUniverseNotNull && !isTimeNotNull && isObjNotNull) {
                 result = new OOKLongTree();
             } else {

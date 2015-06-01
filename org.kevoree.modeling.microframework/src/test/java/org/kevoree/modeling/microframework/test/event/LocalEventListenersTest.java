@@ -8,8 +8,8 @@ import org.kevoree.modeling.util.LocalEventListeners;
 import org.kevoree.modeling.meta.Meta;
 import org.kevoree.modeling.meta.PrimitiveTypes;
 import org.kevoree.modeling.msg.KEvents;
-import org.kevoree.modeling.reflexive.DynamicMetaClass;
-import org.kevoree.modeling.reflexive.DynamicMetaModel;
+import org.kevoree.modeling.meta.reflexive.DynamicMetaClass;
+import org.kevoree.modeling.meta.reflexive.DynamicMetaModel;
 
 /**
  * Created by duke on 22/03/15.

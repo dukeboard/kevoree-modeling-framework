@@ -5,7 +5,7 @@ import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.Callback;
 import org.kevoree.modeling.KVisitResult;
 import org.kevoree.modeling.abs.AbstractKObject;
-import org.kevoree.modeling.memory.struct.segment.KCacheSegment;
+import org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
 import org.kevoree.modeling.memory.AccessMode;
 import org.kevoree.modeling.memory.manager.JsonRaw;
 
@@ -51,7 +51,7 @@ public class JsonModelSerializer {
 
     public static void printJSON(KObject elem, StringBuilder builder, boolean isRoot) {
         if (elem != null) {
-            KCacheSegment raw = ((AbstractKObject) elem)._manager.segment(elem, AccessMode.READ);
+            HeapCacheSegment raw = ((AbstractKObject) elem)._manager.segment(elem, AccessMode.READ);
             if (raw != null) {
                 builder.append(JsonRaw.encode(raw, elem.uuid(), elem.metaClass(), isRoot));
             }

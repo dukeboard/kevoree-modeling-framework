@@ -5,7 +5,7 @@ import org.kevoree.modeling.abs.AbstractKModel;
 import org.kevoree.modeling.abs.AbstractMetaModel;
 import org.kevoree.modeling.meta.MetaClass;
 import org.kevoree.modeling.meta.MetaModel;
-import org.kevoree.modeling.reflexive.DynamicKObject;
+import org.kevoree.modeling.meta.reflexive.DynamicKObject;
 import org.kevoree.modeling.microframework.test.cloud.impl.ElementImpl;
 import org.kevoree.modeling.microframework.test.cloud.impl.NodeImpl;
 import org.kevoree.modeling.microframework.test.cloud.meta.MetaElement;

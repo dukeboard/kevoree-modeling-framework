@@ -2,6 +2,7 @@ package org.kevoree.modeling.util;
 
 public class ArrayUtils {
 
+    /*
     public static long[] add(long[] previous, long toAdd) {
         if (contains(previous, toAdd) != -1) {
             return previous;
@@ -10,7 +11,7 @@ public class ArrayUtils {
         System.arraycopy(previous, 0, newArray, 0, previous.length);
         newArray[previous.length] = toAdd;
         return newArray;
-    }
+    }*/
 
     public static long[] remove(long[] previous, long toAdd) {
         int indexToRemove = contains(previous, toAdd);
@@ -24,11 +25,12 @@ public class ArrayUtils {
         }
     }
 
+    /*
     public static long[] clone(long[] previous) {
         long[] newArray = new long[previous.length];
         System.arraycopy(previous, 0, newArray, 0, previous.length);
         return newArray;
-    }
+    }*/
 
     public static int contains(long[] previous, long value) {
         for (int i = 0; i < previous.length; i++) {

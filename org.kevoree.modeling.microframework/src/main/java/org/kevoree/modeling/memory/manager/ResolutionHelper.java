@@ -2,7 +2,7 @@ package org.kevoree.modeling.memory.manager;
 
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.memory.KCache;
-import org.kevoree.modeling.memory.struct.segment.KCacheSegment;
+import org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
 import org.kevoree.modeling.memory.struct.map.LongLongHashMap;
 import org.kevoree.modeling.memory.struct.tree.KLongTree;
 
@@ -20,7 +20,7 @@ public class ResolutionHelper {
             result.timeTree = timeTree;
             long resolvedTime = timeTree.previousOrEqual(time);
             result.time = resolvedTime;
-            result.segment = (KCacheSegment) cache.get(resolvedUniverse, resolvedTime, uuid);
+            result.segment = (HeapCacheSegment) cache.get(resolvedUniverse, resolvedTime, uuid);
         }
         result.uuid = uuid;
         return result;

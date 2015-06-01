@@ -9,7 +9,7 @@ import org.kevoree.modeling.KModelVisitor;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.KTimeWalker;
 import org.kevoree.modeling.KVisitResult;
-import org.kevoree.modeling.memory.struct.segment.KCacheSegment;
+import org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
 import org.kevoree.modeling.memory.AccessMode;
 import org.kevoree.modeling.memory.manager.JsonRaw;
 import org.kevoree.modeling.memory.KDataManager;
@@ -75,7 +75,7 @@ public abstract class AbstractKObject implements KObject {
     @Override
     public void delete(Callback cb) {
         final KObject selfPointer = this;
-        KCacheSegment rawPayload = _manager.segment(this, AccessMode.DELETE);
+        HeapCacheSegment rawPayload = _manager.segment(this, AccessMode.DELETE);
         if (rawPayload == null) {
             cb.on(new Exception(OUT_OF_CACHE_MSG));
         } else {
@@ -231,17 +231,10 @@ public abstract class AbstractKObject implements KObject {
             if (metaReference.single()) {
                 internal_mutate(KActionType.SET, metaReference, param, setOpposite);
             } else {
-                KCacheSegment raw = _manager.segment(this, AccessMode.WRITE);
-                long[] previousList = raw.getRef(metaReference.index(), _metaClass);
-                if (previousList == null) {
-                    previousList = new long[1];
-                    previousList[0] = param.uuid();
-                } else {
-                    //TODO move to KCacheEntry API to hide it
-                    previousList = ArrayUtils.add(previousList, param.uuid());
+                HeapCacheSegment raw = _manager.segment(this, AccessMode.WRITE);
+                if(raw != null){
+                    raw.addRef(metaReference.index(), param.uuid(),_metaClass);
                 }
-                //In all the case we reset the value (set dirty is true now)
-                raw.set(metaReference.index(), previousList, _metaClass);
                 //Opposite
                 if (setOpposite) {
                     ((AbstractKObject) param).internal_mutate(KActionType.ADD, metaReference.opposite(), this, false);
@@ -254,7 +247,7 @@ public abstract class AbstractKObject implements KObject {
                 if (param == null) {
                     internal_mutate(KActionType.REMOVE, metaReference, null, setOpposite);
                 } else {
-                    KCacheSegment payload = _manager.segment(this, AccessMode.WRITE);
+                    HeapCacheSegment payload = _manager.segment(this, AccessMode.WRITE);
                     long[] previous = payload.getRef(metaReference.index(), _metaClass);
                     //override
                     long[] singleValue = new long[1];
@@ -280,7 +273,7 @@ public abstract class AbstractKObject implements KObject {
             }
         } else if (actionType.equals(KActionType.REMOVE)) {
             if (metaReference.single()) {
-                KCacheSegment raw = _manager.segment(this, AccessMode.WRITE);
+                HeapCacheSegment raw = _manager.segment(this, AccessMode.WRITE);
                 long[] previousKid = raw.getRef(metaReference.index(), _metaClass);
                 raw.set(metaReference.index(), null, _metaClass);
                 if (setOpposite) {
@@ -301,7 +294,7 @@ public abstract class AbstractKObject implements KObject {
                     }
                 }
             } else {
-                KCacheSegment payload = _manager.segment(this, AccessMode.WRITE);
+                HeapCacheSegment payload = _manager.segment(this, AccessMode.WRITE);
                 long[] previous = payload.getRef(metaReference.index(), _metaClass);
                 if (previous != null) {
                     try {
@@ -323,7 +316,7 @@ public abstract class AbstractKObject implements KObject {
         if (transposed == null) {
             throw new RuntimeException("Bad KMF usage, the attribute named " + p_metaReference.metaName() + " is not part of " + metaClass().metaName());
         } else {
-            KCacheSegment raw = _manager.segment(this, AccessMode.READ);
+            HeapCacheSegment raw = _manager.segment(this, AccessMode.READ);
             if (raw != null) {
                 Object ref = raw.get(transposed.index(), _metaClass);
                 if (ref == null) {
@@ -349,7 +342,7 @@ public abstract class AbstractKObject implements KObject {
         if (transposed == null) {
             throw new RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + metaClass().metaName());
         } else {
-            KCacheSegment raw = _manager.segment(this, AccessMode.READ);
+            HeapCacheSegment raw = _manager.segment(this, AccessMode.READ);
             if (raw == null) {
                 cb.on(new KObject[0]);
             } else {
@@ -389,7 +382,7 @@ public abstract class AbstractKObject implements KObject {
         final LongLongHashMap toResolveIds = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         for (int i = 0; i < metaClass().metaReferences().length; i++) {
             final MetaReference reference = metaClass().metaReferences()[i];
-            KCacheSegment raw = _manager.segment(this, AccessMode.READ);
+            HeapCacheSegment raw = _manager.segment(this, AccessMode.READ);
             if (raw != null) {
                 Object obj = raw.get(reference.index(), _metaClass);
                 if (obj != null) {
@@ -479,7 +472,7 @@ public abstract class AbstractKObject implements KObject {
     }
 
     public String toJSON() {
-        KCacheSegment raw = _manager.segment(this, AccessMode.READ);
+        HeapCacheSegment raw = _manager.segment(this, AccessMode.READ);
         if (raw != null) {
             return JsonRaw.encode(raw, _uuid, _metaClass, false);
         } else {
@@ -509,7 +502,7 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public void jump(long p_time, Callback<KObject> p_callback) {
-        KCacheSegment resolve_entry = (KCacheSegment) _manager.cache().get(_universe, p_time, _uuid);
+        HeapCacheSegment resolve_entry = (HeapCacheSegment) _manager.cache().get(_universe, p_time, _uuid);
         if (resolve_entry != null) {
             KLongTree timeTree = (KLongTree) _manager.cache().get(_universe, KConfig.NULL_LONG, _uuid);
             timeTree.inc();
@@ -522,7 +515,7 @@ public abstract class AbstractKObject implements KObject {
             if (timeTree != null) {
                 final long resolvedTime = timeTree.previousOrEqual(p_time);
                 if (resolvedTime != KConfig.NULL_LONG) {
-                    KCacheSegment entry = (KCacheSegment) _manager.cache().get(_universe, resolvedTime, _uuid);
+                    HeapCacheSegment entry = (HeapCacheSegment) _manager.cache().get(_universe, resolvedTime, _uuid);
                     if (entry != null) {
                         LongLongHashMap universeTree = (LongLongHashMap) _manager.cache().get(KConfig.NULL_LONG, KConfig.NULL_LONG, _uuid);
                         universeTree.inc();
@@ -572,7 +565,7 @@ public abstract class AbstractKObject implements KObject {
     @Override
     public MetaReference[] referencesWith(KObject o) {
         if (Checker.isDefined(o)) {
-            KCacheSegment raw = _manager.segment(this, AccessMode.READ);
+            HeapCacheSegment raw = _manager.segment(this, AccessMode.READ);
             if (raw != null) {
                 MetaReference[] allReferences = metaClass().metaReferences();
                 List<MetaReference> selected = new ArrayList<MetaReference>();

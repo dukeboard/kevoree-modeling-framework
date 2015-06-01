@@ -7,8 +7,9 @@ import org.kevoree.modeling.memory.KContentKey;
 import org.kevoree.modeling.memory.manager.JsonRaw;
 import org.kevoree.modeling.meta.MetaClass;
 import org.kevoree.modeling.meta.MetaModel;
+import org.kevoree.modeling.util.ArrayUtils;
 
-public class KCacheSegment implements KCacheElementSegment {
+public class HeapCacheSegment implements KCacheElementSegment {
 
     private Object[] raw;
 
@@ -125,6 +126,33 @@ public class KCacheSegment implements KCacheElementSegment {
     }
 
     @Override
+    public void addRef(int index, long newRef, MetaClass metaClass) {
+        if (raw != null) {
+            long[] previous = (long[]) raw[index];
+            if (previous == null) {
+                previous = new long[1];
+                previous[0] = newRef;
+            } else {
+                for (int i = 0; i < previous.length; i++) {
+                    if (previous[i] == newRef) {
+                        return;
+                    }
+                }
+                long[] incArray = new long[previous.length + 1];
+                System.arraycopy(previous, 0, incArray, 0, previous.length);
+                incArray[previous.length] = newRef;
+                previous = incArray;
+            }
+            raw[index] = previous;
+            if (_modifiedIndexes == null) {
+                _modifiedIndexes = new boolean[raw.length];
+            }
+            _modifiedIndexes[index] = true;
+            _dirty = true;
+        }
+    }
+
+    @Override
     public synchronized void set(int index, Object content, MetaClass p_metaClass) {
         raw[index] = content;
         _dirty = true;
@@ -135,9 +163,9 @@ public class KCacheSegment implements KCacheElementSegment {
     }
 
     @Override
-    public KCacheSegment clone(MetaClass p_metaClass) {
+    public HeapCacheSegment clone(MetaClass p_metaClass) {
         if (raw == null) {
-            return new KCacheSegment();
+            return new HeapCacheSegment();
         } else {
             Object[] cloned = new Object[raw.length];
             //TODO
@@ -152,7 +180,7 @@ public class KCacheSegment implements KCacheElementSegment {
                     }
                 }
             }
-            KCacheSegment clonedEntry = new KCacheSegment();
+            HeapCacheSegment clonedEntry = new HeapCacheSegment();
             clonedEntry._dirty = true;
             clonedEntry.raw = cloned;
             clonedEntry._metaClassIndex = _metaClassIndex;
