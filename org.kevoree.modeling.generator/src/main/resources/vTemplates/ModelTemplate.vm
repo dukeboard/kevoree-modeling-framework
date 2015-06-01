@@ -1,19 +1,19 @@
 package $context.metaModelPackage;
 
-public class ${context.metaModelName}Model extends org.kevoree.modeling.api.abs.AbstractKModel<${context.metaModelName}Universe>
+public class ${context.metaModelName}Model extends org.kevoree.modeling.abs.AbstractKModel<${context.metaModelName}Universe>
     {
 
     private org.kevoree.modeling.meta.MetaModel _metaModel;
 
     public ${context.metaModelName}Model() {
     super();
-    _metaModel = new org.kevoree.modeling.api.abs.AbstractMetaModel("${context.metaModelName}", -1);
-    org.kevoree.modeling.api.meta.MetaClass[] tempMetaClasses = new
-        org.kevoree.modeling.api.meta.MetaClass[${context.model.getClasses().size()}];
+    _metaModel = new org.kevoree.modeling.abs.AbstractMetaModel("${context.metaModelName}", -1);
+    org.kevoree.modeling.meta.MetaClass[] tempMetaClasses = new
+        org.kevoree.modeling.meta.MetaClass[${context.model.getClasses().size()}];
     #foreach($class in $context.model.getClasses())
             tempMetaClasses[${class.index}] = ${class.pack}.meta.Meta${class.name}.getInstance();
         #end
-    ((org.kevoree.modeling.api.abs.AbstractMetaModel) _metaModel).init(tempMetaClasses);
+    ((org.kevoree.modeling.abs.AbstractMetaModel) _metaModel).init(tempMetaClasses);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class ${context.metaModelName}Model extends org.kevoree.modeling.api.abs.
         case${class.index} : return new ${class.fqn.substring(0,$class.fqn.lastIndexOf("."))}
         .impl.${class.fqn.substring($lastIdx)}Impl(universe, time, uuid, p_clazz, _manager);
         #end
-    default : return new org.kevoree.modeling.api.reflexive.DynamicKObject(universe, time, uuid, p_clazz, _manager);
+    default : return new org.kevoree.modeling.reflexive.DynamicKObject(universe, time, uuid, p_clazz, _manager);
     }
     }
 

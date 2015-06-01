@@ -1,8 +1,8 @@
 package ${context.metaModelPackage}.impl;
 
-public class ${context.metaModelName}ViewImpl extends org.kevoree.modeling.api.abs.AbstractKView implements ${context.metaModelPackage}.${context.metaModelName}View {
+public class ${context.metaModelName}ViewImpl extends org.kevoree.modeling.abs.AbstractKView implements ${context.metaModelPackage}.${context.metaModelName}View {
 
-    public ${context.metaModelName}ViewImpl(long p_universe, long _time, org.kevoree.modeling.api.data.manager.KDataManager p_manager) {
+    public ${context.metaModelName}ViewImpl(long p_universe, long _time, org.kevoree.modeling.data.manager.KDataManager p_manager) {
         super(p_universe, _time, p_manager);
     }
 
