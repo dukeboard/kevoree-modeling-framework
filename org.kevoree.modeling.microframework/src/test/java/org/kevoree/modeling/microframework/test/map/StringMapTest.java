@@ -2,9 +2,9 @@ package org.kevoree.modeling.microframework.test.map;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.api.KConfig;
-import org.kevoree.modeling.api.map.StringHashMap;
-import org.kevoree.modeling.api.map.StringHashMapCallBack;
+import org.kevoree.modeling.KConfig;
+import org.kevoree.modeling.memory.struct.map.StringHashMap;
+import org.kevoree.modeling.memory.struct.map.StringHashMapCallBack;
 
 import java.util.HashMap;
 

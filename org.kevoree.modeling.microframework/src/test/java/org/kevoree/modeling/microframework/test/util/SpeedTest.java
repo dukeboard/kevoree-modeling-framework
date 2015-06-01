@@ -1,16 +1,16 @@
 package org.kevoree.modeling.microframework.test.util;
 
 //import net.openhft.chronicle.map.ChronicleMapBuilder;
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KActionType;
-import org.kevoree.modeling.api.KModel;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
-import org.kevoree.modeling.api.meta.MetaAttribute;
-import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.meta.PrimitiveTypes;
-import org.kevoree.modeling.api.reflexive.DynamicMetaClass;
-import org.kevoree.modeling.api.reflexive.DynamicMetaModel;
+import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KActionType;
+import org.kevoree.modeling.KModel;
+import org.kevoree.modeling.KObject;
+import org.kevoree.modeling.abs.AbstractMetaAttribute;
+import org.kevoree.modeling.meta.MetaAttribute;
+import org.kevoree.modeling.meta.MetaReference;
+import org.kevoree.modeling.meta.PrimitiveTypes;
+import org.kevoree.modeling.reflexive.DynamicMetaClass;
+import org.kevoree.modeling.reflexive.DynamicMetaModel;
 
 /**
  * Created by duke on 29/04/15.

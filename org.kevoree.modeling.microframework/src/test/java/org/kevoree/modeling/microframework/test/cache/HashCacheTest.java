@@ -2,11 +2,11 @@ package org.kevoree.modeling.microframework.test.cache;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.api.KConfig;
-import org.kevoree.modeling.api.data.cache.HashMemoryCache;
-import org.kevoree.modeling.api.data.KCacheObject;
-import org.kevoree.modeling.api.data.cache.KContentKey;
-import org.kevoree.modeling.api.meta.MetaModel;
+import org.kevoree.modeling.KConfig;
+import org.kevoree.modeling.memory.cache.HashMemoryCache;
+import org.kevoree.modeling.memory.KCacheElement;
+import org.kevoree.modeling.memory.KContentKey;
+import org.kevoree.modeling.meta.MetaModel;
 
 /**
  * Created by duke on 20/02/15.
@@ -16,19 +16,24 @@ public class HashCacheTest {
     @Test
     public void test() {
         HashMemoryCache cache = new HashMemoryCache();
-        KCacheObject temp = new KCacheObject() {
+        KCacheElement temp = new KCacheElement() {
             @Override
             public boolean isDirty() {
                 return false;
             }
 
             @Override
-            public String serialize() {
+            public String serialize(MetaModel metaModel) {
                 return null;
             }
 
             @Override
             public void setClean() {
+            }
+
+            @Override
+            public void setDirty() {
+
             }
 
             @Override

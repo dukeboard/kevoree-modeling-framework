@@ -2,8 +2,8 @@ package org.kevoree.modeling.microframework.test.time;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
@@ -184,49 +184,54 @@ public class TimeTest {
     @Test
     public void objectModificationTest() {
         CloudModel universe = new CloudModel();
-        universe.connect(null);
-        CloudUniverse dimension0 = universe.newUniverse();
-
-        Assert.assertNotNull(dimension0);
-
-        // create time0
-        final CloudView t0 = dimension0.time(0l);
-        // create node0 and elem0 and link them
-        final Node node0 = t0.createNode();
-        node0.setName("node at 0");
-        node0.setValue("0");
-
-        final Element elem0 = t0.createElement();
-        node0.setElement(elem0);
-
-        // create time1
-        final CloudView t1 = dimension0.time(1l);
-        t1.lookup(node0.uuid(), new Callback<KObject>() {
+        universe.connect(new Callback() {
             @Override
-            public void on(KObject kObject) {
-                ((Node) kObject).setName("node at 1");
-                ((Node) kObject).setValue("1");
+            public void on(Object o) {
+                CloudUniverse dimension0 = universe.newUniverse();
+
+                Assert.assertNotNull(dimension0);
+
+                // create time0
+                final CloudView t0 = dimension0.time(0l);
+                // create node0 and elem0 and link them
+                final Node node0 = t0.createNode();
+                node0.setName("node at 0");
+                node0.setValue("0");
+
+                final Element elem0 = t0.createElement();
+                node0.setElement(elem0);
+
+                // create time1
+                final CloudView t1 = dimension0.time(1l);
+                t1.lookup(node0.uuid(), new Callback<KObject>() {
+                    @Override
+                    public void on(KObject kObject) {
+                        ((Node) kObject).setName("node at 1");
+                        ((Node) kObject).setValue("1");
+                    }
+                });
+
+                // check name and value of node0 at t0
+                t0.lookup(node0.uuid(), new Callback<KObject>() {
+                    @Override
+                    public void on(KObject kObject) {
+                        Assert.assertEquals(((Node) kObject).getName(), "node at 0");
+                        Assert.assertEquals(((Node) kObject).getValue(), "0");
+                    }
+                });
+
+
+                // check name and value of node0 at t1
+                t1.lookup(node0.uuid(), new Callback<KObject>() {
+                    @Override
+                    public void on(KObject kObject) {
+                        Assert.assertEquals(((Node) kObject).getName(), "node at 1");
+                        Assert.assertEquals(((Node) kObject).getValue(), "1");
+                    }
+                });
             }
         });
 
-        // check name and value of node0 at t0
-        t0.lookup(node0.uuid(), new Callback<KObject>() {
-            @Override
-            public void on(KObject kObject) {
-                Assert.assertEquals(((Node) kObject).getName(), "node at 0");
-                Assert.assertEquals(((Node) kObject).getValue(), "0");
-            }
-        });
-
-
-        // check name and value of node0 at t1
-        t1.lookup(node0.uuid(), new Callback<KObject>() {
-            @Override
-            public void on(KObject kObject) {
-                Assert.assertEquals(((Node) kObject).getName(), "node at 1");
-                Assert.assertEquals(((Node) kObject).getValue(), "1");
-            }
-        });
     }
 
     @Test

@@ -2,9 +2,9 @@ package org.kevoree.modeling.microframework.test.universe;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.api.KConfig;
-import org.kevoree.modeling.api.data.manager.ResolutionHelper;
-import org.kevoree.modeling.api.map.LongLongHashMap;
+import org.kevoree.modeling.KConfig;
+import org.kevoree.modeling.memory.manager.ResolutionHelper;
+import org.kevoree.modeling.memory.struct.map.LongLongHashMap;
 
 /**
  * Created by duke on 03/03/15.

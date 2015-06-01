@@ -2,9 +2,9 @@ package org.kevoree.modeling.microframework.test.msg;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.api.data.cache.KContentKey;
-import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
-import org.kevoree.modeling.api.msg.*;
+import org.kevoree.modeling.memory.KContentKey;
+import org.kevoree.modeling.memory.cdn.KContentPutRequest;
+import org.kevoree.modeling.msg.*;
 
 /**
  * Created by duke on 24/02/15.

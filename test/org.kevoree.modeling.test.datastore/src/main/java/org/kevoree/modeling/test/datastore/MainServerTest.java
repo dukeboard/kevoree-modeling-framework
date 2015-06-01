@@ -7,12 +7,11 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KOperation;
 import org.kevoree.modeling.api.abs.AbstractKObject;
-import org.kevoree.modeling.api.data.cache.KCacheEntry;
-import org.kevoree.modeling.api.data.cdn.MemoryKContentDeliveryDriver;
-import org.kevoree.modeling.api.data.manager.AccessMode;
+import org.kevoree.modeling.api.memory.cache.KCacheEntry;
+import org.kevoree.modeling.api.memory.cdn.MemoryKContentDeliveryDriver;
+import org.kevoree.modeling.api.memory.manager.AccessMode;
 import org.kevoree.modeling.databases.websocket.WebSocketWrapper;
 
-import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;

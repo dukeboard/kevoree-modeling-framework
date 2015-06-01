@@ -1,6 +1,6 @@
 package org.kevoree.modeling.microframework.test.cloud;
 
-import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.KView;
 
 /**
  * Created by duke on 10/9/14.

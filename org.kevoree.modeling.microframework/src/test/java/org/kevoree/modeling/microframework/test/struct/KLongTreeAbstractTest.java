@@ -2,9 +2,9 @@ package org.kevoree.modeling.microframework.test.struct;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.api.rbtree.KLongTree;
-import org.kevoree.modeling.api.rbtree.KTreeWalker;
-import org.kevoree.modeling.api.rbtree.ooheap.OOKLongTree;
+import org.kevoree.modeling.memory.struct.tree.KLongTree;
+import org.kevoree.modeling.memory.struct.tree.KTreeWalker;
+import org.kevoree.modeling.memory.struct.tree.ooheap.OOKLongTree;
 
 public class KLongTreeAbstractTest {
 

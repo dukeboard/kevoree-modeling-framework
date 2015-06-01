@@ -2,9 +2,8 @@ package org.kevoree.modeling.microframework.test.polynomial;
 
 
 import org.junit.Assert;
-import org.junit.Test;
-import org.kevoree.modeling.api.polynomial.simplepolynomial.SimplePolynomialModel;
-import org.kevoree.modeling.api.polynomial.util.Prioritization;
+import org.kevoree.modeling.extrapolation.polynomial.simplepolynomial.SimplePolynomialModel;
+import org.kevoree.modeling.extrapolation.polynomial.util.Prioritization;
 
 /**
  * Created by assaa_000 on 07/11/2014.

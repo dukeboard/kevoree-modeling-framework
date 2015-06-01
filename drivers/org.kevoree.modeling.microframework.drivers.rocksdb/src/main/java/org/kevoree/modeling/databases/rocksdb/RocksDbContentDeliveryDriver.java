@@ -1,13 +1,14 @@
 package org.kevoree.modeling.databases.rocksdb;
 
+import org.kevoree.modeling.*;
 import org.kevoree.modeling.api.*;
-import org.kevoree.modeling.api.data.cache.KContentKey;
-import org.kevoree.modeling.api.data.cdn.AtomicOperation;
-import org.kevoree.modeling.api.data.KContentDeliveryDriver;
-import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
-import org.kevoree.modeling.api.data.KDataManager;
-import org.kevoree.modeling.api.event.LocalEventListeners;
-import org.kevoree.modeling.api.msg.KMessage;
+import org.kevoree.modeling.memory.KContentKey;
+import org.kevoree.modeling.memory.cdn.AtomicOperation;
+import org.kevoree.modeling.memory.KContentDeliveryDriver;
+import org.kevoree.modeling.memory.cdn.KContentPutRequest;
+import org.kevoree.modeling.memory.KDataManager;
+import org.kevoree.modeling.util.LocalEventListeners;
+import org.kevoree.modeling.msg.KMessage;
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;

@@ -3,12 +3,12 @@ package org.kevoree.modeling.databases.websocket.test;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.data.cache.KContentKey;
-import org.kevoree.modeling.api.data.cdn.AtomicOperationFactory;
-import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
-import org.kevoree.modeling.api.msg.KEvents;
+import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.ThrowableCallback;
+import org.kevoree.modeling.memory.KContentKey;
+import org.kevoree.modeling.memory.cdn.AtomicOperationFactory;
+import org.kevoree.modeling.memory.cdn.KContentPutRequest;
+import org.kevoree.modeling.msg.KEvents;
 import org.kevoree.modeling.databases.websocket.WebSocketClient;
 import org.kevoree.modeling.databases.websocket.WebSocketWrapper;
 

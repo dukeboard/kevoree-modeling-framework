@@ -11,11 +11,11 @@ import de.uniba.wiai.lspi.chord.service.impl.ChordImpl;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KEventListener;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.data.cache.KContentKey;
-import org.kevoree.modeling.api.data.cdn.AtomicOperation;
-import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
-import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
-import org.kevoree.modeling.api.data.manager.KDataManager;
+import org.kevoree.modeling.api.memory.cache.KContentKey;
+import org.kevoree.modeling.api.memory.cdn.AtomicOperation;
+import org.kevoree.modeling.api.memory.cdn.KContentDeliveryDriver;
+import org.kevoree.modeling.api.memory.cdn.KContentPutRequest;
+import org.kevoree.modeling.api.memory.manager.KDataManager;
 import org.kevoree.modeling.api.msg.KEventMessage;
 
 import java.io.Serializable;

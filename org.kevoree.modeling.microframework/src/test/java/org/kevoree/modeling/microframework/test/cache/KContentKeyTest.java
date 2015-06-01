@@ -2,7 +2,7 @@ package org.kevoree.modeling.microframework.test.cache;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.api.data.cache.KContentKey;
+import org.kevoree.modeling.memory.KContentKey;
 
 /**
  * Created by duke on 20/02/15.

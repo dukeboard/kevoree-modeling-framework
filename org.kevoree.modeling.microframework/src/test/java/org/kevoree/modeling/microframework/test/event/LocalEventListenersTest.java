@@ -2,14 +2,14 @@ package org.kevoree.modeling.microframework.test.event;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.api.*;
-import org.kevoree.modeling.api.data.cache.KContentKey;
-import org.kevoree.modeling.api.event.LocalEventListeners;
-import org.kevoree.modeling.api.meta.Meta;
-import org.kevoree.modeling.api.meta.PrimitiveTypes;
-import org.kevoree.modeling.api.msg.KEvents;
-import org.kevoree.modeling.api.reflexive.DynamicMetaClass;
-import org.kevoree.modeling.api.reflexive.DynamicMetaModel;
+import org.kevoree.modeling.*;
+import org.kevoree.modeling.memory.KContentKey;
+import org.kevoree.modeling.util.LocalEventListeners;
+import org.kevoree.modeling.meta.Meta;
+import org.kevoree.modeling.meta.PrimitiveTypes;
+import org.kevoree.modeling.msg.KEvents;
+import org.kevoree.modeling.reflexive.DynamicMetaClass;
+import org.kevoree.modeling.reflexive.DynamicMetaModel;
 
 /**
  * Created by duke on 22/03/15.

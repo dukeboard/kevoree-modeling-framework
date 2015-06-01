@@ -1,14 +1,13 @@
 package org.kevoree.modeling.microframework.test.universe;
 
 import org.junit.Test;
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KModel;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KUniverse;
-import org.kevoree.modeling.api.meta.MetaAttribute;
-import org.kevoree.modeling.api.meta.PrimitiveTypes;
-import org.kevoree.modeling.api.reflexive.DynamicMetaClass;
-import org.kevoree.modeling.api.reflexive.DynamicMetaModel;
+import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KModel;
+import org.kevoree.modeling.KObject;
+import org.kevoree.modeling.KUniverse;
+import org.kevoree.modeling.meta.PrimitiveTypes;
+import org.kevoree.modeling.reflexive.DynamicMetaClass;
+import org.kevoree.modeling.reflexive.DynamicMetaModel;
 
 /**
  * Created by assaad on 03/03/15.

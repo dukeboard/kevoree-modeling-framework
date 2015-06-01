@@ -1,12 +1,15 @@
 package org.kevoree.modeling.microframework.test.cloud.meta;
 
-import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
-import org.kevoree.modeling.api.abs.AbstractMetaClass;
-import org.kevoree.modeling.api.abs.AbstractMetaReference;
-import org.kevoree.modeling.api.abs.LazyResolver;
-import org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation;
-import org.kevoree.modeling.api.extrapolation.PolynomialExtrapolation;
-import org.kevoree.modeling.api.meta.*;
+import org.kevoree.modeling.abs.AbstractMetaAttribute;
+import org.kevoree.modeling.abs.AbstractMetaClass;
+import org.kevoree.modeling.abs.AbstractMetaReference;
+import org.kevoree.modeling.abs.LazyResolver;
+import org.kevoree.modeling.extrapolation.DiscreteExtrapolation;
+import org.kevoree.modeling.extrapolation.PolynomialExtrapolation;
+import org.kevoree.modeling.meta.Meta;
+import org.kevoree.modeling.meta.MetaAttribute;
+import org.kevoree.modeling.meta.MetaReference;
+import org.kevoree.modeling.meta.PrimitiveTypes;
 
 /**
  * Created by duke on 07/12/14.

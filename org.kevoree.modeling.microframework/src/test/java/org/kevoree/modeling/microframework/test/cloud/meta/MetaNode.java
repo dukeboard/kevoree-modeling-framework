@@ -1,8 +1,8 @@
 package org.kevoree.modeling.microframework.test.cloud.meta;
 
-import org.kevoree.modeling.api.abs.*;
-import org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation;
-import org.kevoree.modeling.api.meta.*;
+import org.kevoree.modeling.abs.*;
+import org.kevoree.modeling.extrapolation.DiscreteExtrapolation;
+import org.kevoree.modeling.meta.*;
 
 /**
  * Created by duke on 07/12/14.

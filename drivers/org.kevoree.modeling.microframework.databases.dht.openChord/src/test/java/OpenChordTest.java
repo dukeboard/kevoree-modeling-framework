@@ -3,8 +3,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.data.cache.KContentKey;
-import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
+import org.kevoree.modeling.api.memory.cache.KContentKey;
+import org.kevoree.modeling.api.memory.cdn.KContentPutRequest;
 
 /**
  * Created by cyril on 27/05/15.

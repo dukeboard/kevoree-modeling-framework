@@ -1,12 +1,12 @@
 import org.graphstream.graph.Graph;
 import org.graphstream.ui.swingViewer.ViewerListener;
 import org.graphstream.ui.swingViewer.ViewerPipe;
-import org.junit.Test;
+import org.kevoree.modeling.*;
 import org.kevoree.modeling.api.*;
-import org.kevoree.modeling.api.meta.PrimitiveTypes;
-import org.kevoree.modeling.api.reflexive.DynamicMetaClass;
-import org.kevoree.modeling.api.reflexive.DynamicMetaModel;
-import org.kevoree.modeling.api.scheduler.ExecutorServiceScheduler;
+import org.kevoree.modeling.meta.PrimitiveTypes;
+import org.kevoree.modeling.reflexive.DynamicMetaClass;
+import org.kevoree.modeling.reflexive.DynamicMetaModel;
+import org.kevoree.modeling.scheduler.ExecutorServiceScheduler;
 import org.kevoree.modeling.framework.addons.swing.GraphBuilder;
 
 import java.util.Random;

@@ -2,11 +2,11 @@ package org.kevoree.modeling.microframework.test.map;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.api.KConfig;
-import org.kevoree.modeling.api.map.LongHashMap;
-import org.kevoree.modeling.api.map.LongHashMapCallBack;
-import org.kevoree.modeling.api.map.LongLongHashMap;
-import org.kevoree.modeling.api.map.LongLongHashMapCallBack;
+import org.kevoree.modeling.KConfig;
+import org.kevoree.modeling.memory.struct.map.LongHashMap;
+import org.kevoree.modeling.memory.struct.map.LongHashMapCallBack;
+import org.kevoree.modeling.memory.struct.map.LongLongHashMap;
+import org.kevoree.modeling.memory.struct.map.LongLongHashMapCallBack;
 
 /**
  * Created by duke on 03/03/15.

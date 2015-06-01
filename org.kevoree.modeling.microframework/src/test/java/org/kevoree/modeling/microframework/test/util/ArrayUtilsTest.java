@@ -2,7 +2,7 @@ package org.kevoree.modeling.microframework.test.util;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.api.util.ArrayUtils;
+import org.kevoree.modeling.util.ArrayUtils;
 
 /**
  * Created by duke on 02/03/15.

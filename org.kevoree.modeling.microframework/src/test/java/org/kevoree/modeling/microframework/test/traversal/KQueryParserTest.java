@@ -2,7 +2,7 @@ package org.kevoree.modeling.microframework.test.traversal;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.api.traversal.selector.KQuery;
+import org.kevoree.modeling.traversal.selector.KQuery;
 
 import java.util.List;
 

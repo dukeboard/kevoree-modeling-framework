@@ -4,11 +4,15 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
+import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KModelVisitor;
+import org.kevoree.modeling.KObject;
+import org.kevoree.modeling.KVisitResult;
 import org.kevoree.modeling.api.*;
-import org.kevoree.modeling.api.abs.AbstractKObject;
-import org.kevoree.modeling.api.data.cache.KCacheEntry;
-import org.kevoree.modeling.api.data.manager.AccessMode;
-import org.kevoree.modeling.api.meta.MetaReference;
+import org.kevoree.modeling.abs.AbstractKObject;
+import org.kevoree.modeling.memory.struct.segment.KCacheSegment;
+import org.kevoree.modeling.memory.AccessMode;
+import org.kevoree.modeling.meta.MetaReference;
 
 /**
  * Created by duke on 7/1/14.
@@ -55,7 +59,7 @@ public class GraphBuilder {
 
     private static void createEdges(Graph graph, KObject elem) {
         Node n = graph.getNode(elem.uuid() + "");
-        KCacheEntry rawPayload = ((AbstractKObject) elem)._manager.entry(elem, AccessMode.READ);
+        KCacheSegment rawPayload = ((AbstractKObject) elem)._manager.segment(elem, AccessMode.READ);
         for (MetaReference metaRef : elem.metaClass().metaReferences()) {
             long[] relatedElems = rawPayload.getRef(metaRef.index());
             if (relatedElems != null) {

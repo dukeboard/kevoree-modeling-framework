@@ -7,11 +7,11 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import org.kevoree.modeling.api.*;
-import org.kevoree.modeling.api.data.cache.KContentKey;
-import org.kevoree.modeling.api.data.cdn.AtomicOperation;
-import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
-import org.kevoree.modeling.api.data.cdn.KContentPutRequest;
-import org.kevoree.modeling.api.data.manager.KDataManager;
+import org.kevoree.modeling.api.memory.cache.KContentKey;
+import org.kevoree.modeling.api.memory.cdn.AtomicOperation;
+import org.kevoree.modeling.api.memory.cdn.KContentDeliveryDriver;
+import org.kevoree.modeling.api.memory.cdn.KContentPutRequest;
+import org.kevoree.modeling.api.memory.manager.KDataManager;
 import org.kevoree.modeling.api.event.LocalEventListeners;
 import org.kevoree.modeling.api.msg.KMessage;
 

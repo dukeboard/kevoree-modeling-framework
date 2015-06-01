@@ -1,11 +1,11 @@
 package org.kevoree.modeling.microframework.test.cloud.impl;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KActionType;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.abs.AbstractKObject;
-import org.kevoree.modeling.api.data.KDataManager;
-import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KActionType;
+import org.kevoree.modeling.KObject;
+import org.kevoree.modeling.abs.AbstractKObject;
+import org.kevoree.modeling.memory.KDataManager;
+import org.kevoree.modeling.meta.MetaClass;
 import org.kevoree.modeling.microframework.test.cloud.Element;
 import org.kevoree.modeling.microframework.test.cloud.Node;
 import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;

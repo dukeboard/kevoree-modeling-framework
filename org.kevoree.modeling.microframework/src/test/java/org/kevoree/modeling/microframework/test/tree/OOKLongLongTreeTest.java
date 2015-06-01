@@ -2,9 +2,9 @@ package org.kevoree.modeling.microframework.test.tree;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.api.KConfig;
-import org.kevoree.modeling.api.rbtree.ooheap.OOKLongLongTree;
-import org.kevoree.modeling.api.rbtree.ooheap.OOKLongTree;
+import org.kevoree.modeling.KConfig;
+import org.kevoree.modeling.memory.struct.tree.ooheap.OOKLongLongTree;
+import org.kevoree.modeling.memory.struct.tree.ooheap.OOKLongTree;
 
 /**
  * Created by duke on 01/12/14.
@@ -18,7 +18,7 @@ public class OOKLongLongTreeTest {
             tree.insert(i);
         }
         OOKLongTree treeBis = new OOKLongTree();
-        treeBis.unserialize(null, tree.serialize(), null);
+        treeBis.unserialize(null, tree.serialize(null), null);
         Assert.assertEquals(tree.size(), treeBis.size());
     }
 
@@ -29,7 +29,7 @@ public class OOKLongLongTreeTest {
             tree.insert(i, i);
         }
         OOKLongLongTree treeBis = new OOKLongLongTree();
-        treeBis.unserialize(null, tree.serialize(), null);
+        treeBis.unserialize(null, tree.serialize(null), null);
         Assert.assertEquals(tree.size(), treeBis.size());
         for (int i = 0; i < tree.size(); i++) {
             Long resolved = tree.lookupValue(i);

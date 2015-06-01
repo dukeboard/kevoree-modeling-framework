@@ -2,13 +2,12 @@ package org.kevoree.modeling.microframework.test.storage;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
-import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
 
 /**
  * Created by duke on 28/11/14.

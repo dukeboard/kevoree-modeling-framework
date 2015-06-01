@@ -4,7 +4,7 @@ import net.openhft.chronicle.map.ChronicleMap;
 import net.openhft.chronicle.map.ChronicleMapBuilder;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver;
+import org.kevoree.modeling.api.memory.cdn.KContentDeliveryDriver;
 
 import java.io.File;
 import java.io.IOException;

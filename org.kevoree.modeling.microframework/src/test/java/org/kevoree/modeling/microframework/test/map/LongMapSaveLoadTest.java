@@ -2,8 +2,8 @@ package org.kevoree.modeling.microframework.test.map;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.api.KConfig;
-import org.kevoree.modeling.api.map.LongLongHashMap;
+import org.kevoree.modeling.KConfig;
+import org.kevoree.modeling.memory.struct.map.LongLongHashMap;
 
 /**
  * Created by duke on 04/03/15.
@@ -17,7 +17,7 @@ public class LongMapSaveLoadTest {
             map.put(i, i);
         }
         Assert.assertEquals(map.size(), 10);
-        String saved = map.serialize();
+        String saved = map.serialize(null);
         LongLongHashMap map2 = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         map2.unserialize(null, saved, null);
         Assert.assertEquals(map2.size(), 10);
