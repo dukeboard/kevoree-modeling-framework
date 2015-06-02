@@ -93,12 +93,10 @@ public class DynamicMetaClass extends AbstractMetaClass {
     private void internalInit() {
         Meta[] tempMeta = new Meta[cached_meta.size()];
         int[] loopKey = new int[1];
-        loopKey[0] = 0;
         cached_meta.each(new StringHashMapCallBack<Meta>() {
             @Override
             public void on(String key, Meta value) {
-                tempMeta[loopKey[0]] = value;
-                loopKey[0]++;
+                tempMeta[value.index()] = value;
             }
         });
         init(tempMeta);
