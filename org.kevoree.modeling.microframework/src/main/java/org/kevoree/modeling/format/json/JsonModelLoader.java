@@ -126,7 +126,7 @@ public class JsonModelLoader {
     private static void loadObj(StringHashMap<Object> p_param, KDataManager manager, long universe, long time, LongLongHashMap p_mappedKeys, KObject[] p_rootElem) {
         long kid = Long.parseLong(p_param.get(JsonFormat.KEY_UUID).toString());
         String meta = p_param.get(JsonFormat.KEY_META).toString();
-        MetaClass metaClass = manager.model().metaModel().metaClass(meta);
+        MetaClass metaClass = manager.model().metaModel().metaClassByName(meta);
         KObject current = ((AbstractKModel)manager.model()).createProxy(universe,time,p_mappedKeys.get(kid),metaClass);
         manager.initKObject(current);
         KCacheElementSegment raw = manager.segment(current, AccessMode.WRITE);

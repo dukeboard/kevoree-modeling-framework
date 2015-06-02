@@ -37,8 +37,13 @@ public class DynamicMetaModel implements MetaModel {
     }
 
     @Override
-    public MetaClass metaClass(String name) {
+    public MetaClass metaClassByName(String name) {
         return _classes.get(name);
+    }
+
+    @Override
+    public MetaClass metaClass(int index) {
+        return metaClasses()[index];
     }
 
     @Override

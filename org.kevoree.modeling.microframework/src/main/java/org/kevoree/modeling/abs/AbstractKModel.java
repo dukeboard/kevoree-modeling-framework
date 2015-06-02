@@ -132,7 +132,7 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
 
     @Override
     public KObject createByName(String metaClassName, long universe, long time) {
-        return create(_manager.model().metaModel().metaClass(metaClassName), universe, time);
+        return create(_manager.model().metaModel().metaClassByName(metaClassName), universe, time);
     }
 
 }

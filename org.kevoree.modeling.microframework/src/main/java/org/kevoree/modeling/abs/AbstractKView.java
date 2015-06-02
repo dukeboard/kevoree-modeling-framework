@@ -92,7 +92,7 @@ public abstract class AbstractKView implements KView {
 
     @Override
     public KObject createByName(String metaClassName) {
-        return create(_manager.model().metaModel().metaClass(metaClassName));
+        return create(_manager.model().metaModel().metaClassByName(metaClassName));
     }
 
     @Override

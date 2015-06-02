@@ -27,7 +27,7 @@ public class JsonRaw {
             return false;
         } else {
             //Init metaClass before everything
-            MetaClass metaClass = metaModel.metaClass(objectReader.get(JsonFormat.KEY_META).toString());
+            MetaClass metaClass = metaModel.metaClassByName(objectReader.get(JsonFormat.KEY_META).toString());
             //Init the Raw manager
             entry.init(metaClass);
             //Now Fill the Raw Storage
