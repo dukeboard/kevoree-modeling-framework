@@ -4730,7 +4730,6 @@ var org;
                                         if (this.elementData[i].value.isDirty()) {
                                             var dirty = new org.kevoree.modeling.memory.cache.KCacheDirty(new org.kevoree.modeling.memory.KContentKey(current.universe, current.time, current.obj), this.elementData[i].value);
                                             collectedDirties[nbDirties] = dirty;
-                                            this.elementData[i].value.setClean();
                                             nbDirties++;
                                         }
                                         while (current.next != null) {
@@ -4738,7 +4737,6 @@ var org;
                                             if (current.value.isDirty()) {
                                                 var dirty = new org.kevoree.modeling.memory.cache.KCacheDirty(new org.kevoree.modeling.memory.KContentKey(current.universe, current.time, current.obj), current.value);
                                                 collectedDirties[nbDirties] = dirty;
-                                                current.value.setClean();
                                                 nbDirties++;
                                             }
                                         }
@@ -5083,7 +5081,7 @@ var org;
                                 }
                                 notificationMessages.setEvent(i, dirtiesEntries[i].key, meta);
                                 request.put(dirtiesEntries[i].key, cachedObject.serialize(this._model.metaModel()));
-                                cachedObject.setClean();
+                                cachedObject.setClean(this._model.metaModel());
                             }
                             request.put(org.kevoree.modeling.memory.KContentKey.createLastObjectIndexFromPrefix(this._objectKeyCalculator.prefix()), "" + this._objectKeyCalculator.lastComputedIndex());
                             request.put(org.kevoree.modeling.memory.KContentKey.createLastUniverseIndexFromPrefix(this._universeKeyCalculator.prefix()), "" + this._universeKeyCalculator.lastComputedIndex());
@@ -5585,7 +5583,7 @@ var org;
                                         }
                                     }
                                 }
-                                entry.setClean();
+                                entry.setClean(metaModel);
                                 return true;
                             }
                         };
@@ -5911,7 +5909,7 @@ var org;
                             LongLongHashMap.prototype.isDirty = function () {
                                 return this._isDirty;
                             };
-                            LongLongHashMap.prototype.setClean = function () {
+                            LongLongHashMap.prototype.setClean = function (mm) {
                                 this._isDirty = false;
                             };
                             LongLongHashMap.prototype.setDirty = function () {
@@ -6038,7 +6036,7 @@ var org;
                                     return result;
                                 }
                             };
-                            HeapCacheSegment.prototype.setClean = function () {
+                            HeapCacheSegment.prototype.setClean = function (metaModel) {
                                 this._dirty = false;
                                 this._modifiedIndexes = null;
                             };
@@ -6480,7 +6478,7 @@ var org;
                                     this._lookupCacheValues[this._lookupNextCacheElem] = resolved;
                                     this._lookupNextCacheElem++;
                                 };
-                                OOKLongLongTree.prototype.setClean = function () {
+                                OOKLongLongTree.prototype.setClean = function (metaModel) {
                                     this._dirty = false;
                                 };
                                 OOKLongLongTree.prototype.unserialize = function (key, payload, metaModel) {
@@ -6997,7 +6995,7 @@ var org;
                                 OOKLongTree.prototype.isDirty = function () {
                                     return this._dirty;
                                 };
-                                OOKLongTree.prototype.setClean = function () {
+                                OOKLongTree.prototype.setClean = function (metaModel) {
                                     this._dirty = false;
                                 };
                                 OOKLongTree.prototype.setDirty = function () {

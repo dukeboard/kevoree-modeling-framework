@@ -8,7 +8,7 @@ public interface KCacheElement {
 
     String serialize(MetaModel metaModel);
 
-    void setClean();
+    void setClean(MetaModel metaModel);
 
     void setDirty();
 

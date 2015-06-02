@@ -26,7 +26,7 @@ import org.kevoree.modeling.meta.MetaModel;
  * public inc():void { this._counter++; }
  * public dec():void { this._counter--; }
  * public isDirty():boolean { return this._isDirty; }
- * public setClean():void { this._isDirty = false; }
+ * public setClean(mm):void { this._isDirty = false; }
  * public setDirty():void { this._isDirty = true; }
  * public serialize(m): string { var buffer = ""+this.size(); this.each( (key : number, value : number) => { buffer = buffer + LongLongHashMap.CHUNK_SEP + key + LongLongHashMap.ELEMENT_SEP + value; }); return buffer; }
  * public unserialize(key: org.kevoree.modeling.memory.KContentKey, payload: string, metaModel: org.kevoree.modeling.meta.MetaModel): void {
@@ -90,7 +90,7 @@ public class LongLongHashMap implements KCacheElement {
     }
 
     @Override
-    public void setClean() {
+    public void setClean(MetaModel metaModel) {
         _isDirty = false;
     }
 

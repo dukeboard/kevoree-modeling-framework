@@ -28,7 +28,7 @@ public class HashCacheTest {
             }
 
             @Override
-            public void setClean() {
+            public void setClean(MetaModel mm) {
             }
 
             @Override

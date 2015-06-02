@@ -65,7 +65,7 @@ public class HeapCacheSegment implements KCacheElementSegment {
     }
 
     @Override
-    public void setClean() {
+    public void setClean(MetaModel metaModel) {
         _dirty = false;
         _modifiedIndexes = null;
     }

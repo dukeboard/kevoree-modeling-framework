@@ -72,7 +72,7 @@ public class OOKLongTree implements KCacheElement, KLongTree {
     }
 
     @Override
-    public void setClean() {
+    public void setClean(MetaModel metaModel) {
         this._dirty = false;
     }
 

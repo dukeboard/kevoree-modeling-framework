@@ -57,7 +57,7 @@ public class JsonRaw {
                 }
 
             }
-            entry.setClean();
+            entry.setClean(metaModel);
             return true;
         }
     }

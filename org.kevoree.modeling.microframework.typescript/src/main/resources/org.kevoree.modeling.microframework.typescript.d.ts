@@ -998,7 +998,7 @@ declare module org {
                 interface KCacheElement {
                     isDirty(): boolean;
                     serialize(metaModel: org.kevoree.modeling.meta.MetaModel): string;
-                    setClean(): void;
+                    setClean(metaModel: org.kevoree.modeling.meta.MetaModel): void;
                     setDirty(): void;
                     unserialize(key: org.kevoree.modeling.memory.KContentKey, payload: string, metaModel: org.kevoree.modeling.meta.MetaModel): void;
                     counter(): number;
@@ -1278,7 +1278,7 @@ declare module org {
                             inc(): void;
                             dec(): void;
                             isDirty(): boolean;
-                            setClean(): void;
+                            setClean(mm: any): void;
                             setDirty(): void;
                             serialize(m: any): string;
                             unserialize(key: org.kevoree.modeling.memory.KContentKey, payload: string, metaModel: org.kevoree.modeling.meta.MetaModel): void;
@@ -1312,7 +1312,7 @@ declare module org {
                             isDirty(): boolean;
                             serialize(metaModel: org.kevoree.modeling.meta.MetaModel): string;
                             modifiedIndexes(p_metaClass: org.kevoree.modeling.meta.MetaClass): number[];
-                            setClean(): void;
+                            setClean(metaModel: org.kevoree.modeling.meta.MetaModel): void;
                             setDirty(): void;
                             unserialize(key: org.kevoree.modeling.memory.KContentKey, payload: string, metaModel: org.kevoree.modeling.meta.MetaModel): void;
                             counter(): number;
@@ -1394,7 +1394,7 @@ declare module org {
                                 private resetCache();
                                 private putInPreviousOrEqualsCache(resolved);
                                 private putInLookupCache(resolved);
-                                setClean(): void;
+                                setClean(metaModel: org.kevoree.modeling.meta.MetaModel): void;
                                 unserialize(key: org.kevoree.modeling.memory.KContentKey, payload: string, metaModel: org.kevoree.modeling.meta.MetaModel): void;
                                 lookupValue(key: number): number;
                                 private internal_lookup(key);
@@ -1439,7 +1439,7 @@ declare module org {
                                 private resetCache();
                                 private putInPreviousOrEqualsCache(resolved);
                                 isDirty(): boolean;
-                                setClean(): void;
+                                setClean(metaModel: org.kevoree.modeling.meta.MetaModel): void;
                                 setDirty(): void;
                                 serialize(metaModel: org.kevoree.modeling.meta.MetaModel): string;
                                 toString(): string;

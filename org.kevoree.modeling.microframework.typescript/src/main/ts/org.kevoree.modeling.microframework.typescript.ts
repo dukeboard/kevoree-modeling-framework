@@ -5154,7 +5154,7 @@ module org {
 
                     serialize(metaModel: org.kevoree.modeling.meta.MetaModel): string;
 
-                    setClean(): void;
+                    setClean(metaModel: org.kevoree.modeling.meta.MetaModel): void;
 
                     setDirty(): void;
 
@@ -5489,7 +5489,6 @@ module org {
                                         if (this.elementData[i].value.isDirty()) {
                                             var dirty: org.kevoree.modeling.memory.cache.KCacheDirty = new org.kevoree.modeling.memory.cache.KCacheDirty(new org.kevoree.modeling.memory.KContentKey(current.universe, current.time, current.obj), this.elementData[i].value);
                                             collectedDirties[nbDirties] = dirty;
-                                            this.elementData[i].value.setClean();
                                             nbDirties++;
                                         }
                                         while (current.next != null){
@@ -5497,7 +5496,6 @@ module org {
                                             if (current.value.isDirty()) {
                                                 var dirty: org.kevoree.modeling.memory.cache.KCacheDirty = new org.kevoree.modeling.memory.cache.KCacheDirty(new org.kevoree.modeling.memory.KContentKey(current.universe, current.time, current.obj), current.value);
                                                 collectedDirties[nbDirties] = dirty;
-                                                current.value.setClean();
                                                 nbDirties++;
                                             }
                                         }
@@ -5894,7 +5892,7 @@ module org {
                                 }
                                 notificationMessages.setEvent(i, dirtiesEntries[i].key, meta);
                                 request.put(dirtiesEntries[i].key, cachedObject.serialize(this._model.metaModel()));
-                                cachedObject.setClean();
+                                cachedObject.setClean(this._model.metaModel());
                             }
                             request.put(org.kevoree.modeling.memory.KContentKey.createLastObjectIndexFromPrefix(this._objectKeyCalculator.prefix()), "" + this._objectKeyCalculator.lastComputedIndex());
                             request.put(org.kevoree.modeling.memory.KContentKey.createLastUniverseIndexFromPrefix(this._universeKeyCalculator.prefix()), "" + this._universeKeyCalculator.lastComputedIndex());
@@ -6374,7 +6372,7 @@ module org {
                                         }
                                     }
                                 }
-                                entry.setClean();
+                                entry.setClean(metaModel);
                                 return true;
                             }
                         }
@@ -6635,7 +6633,7 @@ module org {
                              public inc():void { this._counter++; }
                              public dec():void { this._counter--; }
                              public isDirty():boolean { return this._isDirty; }
-                             public setClean():void { this._isDirty = false; }
+                             public setClean(mm):void { this._isDirty = false; }
                              public setDirty():void { this._isDirty = true; }
                              public serialize(m): string { var buffer = ""+this.size(); this.each( (key : number, value : number) => { buffer = buffer + LongLongHashMap.CHUNK_SEP + key + LongLongHashMap.ELEMENT_SEP + value; }); return buffer; }
                              public unserialize(key: org.kevoree.modeling.memory.KContentKey, payload: string, metaModel: org.kevoree.modeling.meta.MetaModel): void {
@@ -6729,7 +6727,7 @@ module org {
                                 }
                             }
 
-                            public setClean(): void {
+                            public setClean(metaModel: org.kevoree.modeling.meta.MetaModel): void {
                                 this._dirty = false;
                                 this._modifiedIndexes = null;
                             }
@@ -7232,7 +7230,7 @@ module org {
                                     this._lookupNextCacheElem++;
                                 }
 
-                                public setClean(): void {
+                                public setClean(metaModel: org.kevoree.modeling.meta.MetaModel): void {
                                     this._dirty = false;
                                 }
 
@@ -7745,7 +7743,7 @@ module org {
                                     return this._dirty;
                                 }
 
-                                public setClean(): void {
+                                public setClean(metaModel: org.kevoree.modeling.meta.MetaModel): void {
                                     this._dirty = false;
                                 }
 

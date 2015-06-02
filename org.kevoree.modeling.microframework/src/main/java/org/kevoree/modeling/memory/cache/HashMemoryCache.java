@@ -121,7 +121,6 @@ public class HashMemoryCache implements KCache {
                     if (elementData[i].value.isDirty()) {
                         KCacheDirty dirty = new KCacheDirty(new KContentKey(current.universe, current.time, current.obj), elementData[i].value);
                         collectedDirties[nbDirties] = dirty;
-                        elementData[i].value.setClean();
                         nbDirties++;
                     }
                     while (current.next != null) {
@@ -129,7 +128,6 @@ public class HashMemoryCache implements KCache {
                         if (current.value.isDirty()) {
                             KCacheDirty dirty = new KCacheDirty(new KContentKey(current.universe, current.time, current.obj), current.value);
                             collectedDirties[nbDirties] = dirty;
-                            current.value.setClean();
                             nbDirties++;
                         }
                     }

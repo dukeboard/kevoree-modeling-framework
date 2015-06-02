@@ -185,7 +185,7 @@ public class DefaultKDataManager implements KDataManager {
             }
             notificationMessages.setEvent(i, dirtiesEntries[i].key, meta);
             request.put(dirtiesEntries[i].key, cachedObject.serialize(_model.metaModel()));
-            cachedObject.setClean();
+            cachedObject.setClean(_model.metaModel());
         }
         request.put(KContentKey.createLastObjectIndexFromPrefix(_objectKeyCalculator.prefix()), "" + _objectKeyCalculator.lastComputedIndex());
         request.put(KContentKey.createLastUniverseIndexFromPrefix(_universeKeyCalculator.prefix()), "" + _universeKeyCalculator.lastComputedIndex());
