@@ -14,7 +14,7 @@ import org.kevoree.modeling.meta.reflexive.DynamicMetaModel;
 public class KCacheCleanerTest {
 
     /**
-     * @ignore ts
+     * @native ts
      */
     @Test
     public void test() {

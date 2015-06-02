@@ -28,18 +28,18 @@ public class JsonModelLoader {
      * } else {
      * var toLoadObj = JSON.parse(payload);
      * var rootElem = [];
-     * var mappedKeys: org.kevoree.modeling.api.map.LongLongHashMap = new org.kevoree.modeling.api.map.LongLongHashMap(toLoadObj.length, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+     * var mappedKeys: org.kevoree.modeling.memory.struct.map.LongLongHashMap = new org.kevoree.modeling.memory.struct.map.LongLongHashMap(toLoadObj.length, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
      * for(var i = 0; i < toLoadObj.length; i++) {
      * var elem = toLoadObj[i];
-     * var kid = elem[org.kevoree.modeling.api.json.JsonFormat.KEY_UUID];
+     * var kid = elem[org.kevoree.modeling.format.json.JsonFormat.KEY_UUID];
      * mappedKeys.put(<number>kid, manager.nextObjectKey());
      * }
      * for(var i = 0; i < toLoadObj.length; i++) {
      * var elemRaw = toLoadObj[i];
-     * var elem2 = new org.kevoree.modeling.api.map.StringHashMap<any>(Object.keys(elemRaw).length, org.kevoree.modeling.api.KConfig.CACHE_LOAD_FACTOR);
+     * var elem2 = new org.kevoree.modeling.memory.struct.map.StringHashMap<any>(Object.keys(elemRaw).length, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
      * for(var ik in elemRaw){ elem2[ik] = elemRaw[ik]; }
      * try {
-     * org.kevoree.modeling.api.json.JsonModelLoader.loadObj(elem2, manager, universe, time, mappedKeys, rootElem);
+     * org.kevoree.modeling.format.json.JsonModelLoader.loadObj(elem2, manager, universe, time, mappedKeys, rootElem);
      * } catch(e){ console.error(e); }
      * }
      * if (rootElem[0] != null) { manager.setRoot(rootElem[0], (throwable : java.lang.Throwable) => { if (callback != null) { callback(throwable); }}); } else { if (callback != null) { callback(null); } }

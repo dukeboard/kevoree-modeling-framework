@@ -27,8 +27,9 @@ import org.kevoree.modeling.meta.MetaModel;
  * public dec():void { this._counter--; }
  * public isDirty():boolean { return this._isDirty; }
  * public setClean():void { this._isDirty = false; }
+ * public setDirty():void { this._isDirty = true; }
  * public serialize(m): string { var buffer = ""+this.size(); this.each( (key : number, value : number) => { buffer = buffer + LongLongHashMap.CHUNK_SEP + key + LongLongHashMap.ELEMENT_SEP + value; }); return buffer; }
- * public unserialize(key: org.kevoree.modeling.api.data.cache.KContentKey, payload: string, metaModel: org.kevoree.modeling.api.meta.MetaModel): void {
+ * public unserialize(key: org.kevoree.modeling.memory.KContentKey, payload: string, metaModel: org.kevoree.modeling.meta.MetaModel): void {
  * if (payload == null || payload.length == 0) { return; }
  * var cursor: number = 0;
  * while (cursor < payload.length && payload.charAt(cursor) != LongLongHashMap.CHUNK_SEP){ cursor++; }

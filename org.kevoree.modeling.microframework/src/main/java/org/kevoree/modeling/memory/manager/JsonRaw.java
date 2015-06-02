@@ -65,16 +65,16 @@ public class JsonRaw {
     /**
      * @native ts
      * var builder = {};
-     * builder[org.kevoree.modeling.api.json.JsonFormat.KEY_META] = p_metaClass.metaName();
-     * if(uuid != null){ builder[org.kevoree.modeling.api.json.JsonFormat.KEY_UUID] = uuid; }
-     * if(isRoot){ builder[org.kevoree.modeling.api.json.JsonFormat.KEY_ROOT] = true; }
+     * builder[org.kevoree.modeling.format.json.JsonFormat.KEY_META] = p_metaClass.metaName();
+     * if(uuid != null){ builder[org.kevoree.modeling.format.json.JsonFormat.KEY_UUID] = uuid; }
+     * if(isRoot){ builder[org.kevoree.modeling.format.json.JsonFormat.KEY_ROOT] = true; }
      * var metaElements = p_metaClass.metaElements();
      * var payload_res;
      * for (var i = 0; i < metaElements.length; i++) {
      * payload_res = raw.get(metaElements[i].index(),p_metaClass);
      * if(payload_res != null && payload_res !== undefined){
-     * if (metaElements[i] != null && metaElements[i].metaType() === org.kevoree.modeling.api.meta.MetaType.ATTRIBUTE) {
-     * if(metaElements[i]['attributeType']() != org.kevoree.modeling.api.meta.PrimitiveTypes.TRANSIENT){
+     * if (metaElements[i] != null && metaElements[i].metaType() === org.kevoree.modeling.meta.MetaType.ATTRIBUTE) {
+     * if(metaElements[i]['attributeType']() != org.kevoree.modeling.meta.PrimitiveTypes.TRANSIENT){
      * var attrsPayload = metaElements[i]['strategy']().save(payload_res, metaElements[i]);
      * builder[metaElements[i].metaName()] = attrsPayload;
      * }
