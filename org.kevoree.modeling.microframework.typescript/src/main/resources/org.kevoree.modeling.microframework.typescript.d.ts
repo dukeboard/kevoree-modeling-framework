@@ -1054,7 +1054,7 @@ declare module org {
                     lookup(universe: number, time: number, uuid: number, callback: (p: org.kevoree.modeling.KObject) => void): void;
                     lookupAllobjects(universe: number, time: number, uuid: number[], callback: (p: org.kevoree.modeling.KObject[]) => void): void;
                     lookupAlltimes(universe: number, time: number[], uuid: number, callback: (p: org.kevoree.modeling.KObject[]) => void): void;
-                    segment(origin: org.kevoree.modeling.KObject, accessMode: org.kevoree.modeling.memory.AccessMode): org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
+                    segment(origin: org.kevoree.modeling.KObject, accessMode: org.kevoree.modeling.memory.AccessMode): org.kevoree.modeling.memory.KCacheElementSegment;
                     save(callback: (p: java.lang.Throwable) => void): void;
                     discard(universe: org.kevoree.modeling.KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
                     delete(universe: org.kevoree.modeling.KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
@@ -1200,7 +1200,7 @@ declare module org {
                     }
                     class JsonRaw {
                         static decode(payload: string, now: number, metaModel: org.kevoree.modeling.meta.MetaModel, entry: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment): boolean;
-                        static encode(raw: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment, uuid: number, p_metaClass: org.kevoree.modeling.meta.MetaClass, isRoot: boolean): string;
+                        static encode(raw: org.kevoree.modeling.memory.KCacheElementSegment, uuid: number, p_metaClass: org.kevoree.modeling.meta.MetaClass, isRoot: boolean): string;
                     }
                     class KeyCalculator {
                         private _prefix;

@@ -5,7 +5,6 @@ import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
 import org.iq80.leveldb.WriteBatch;
 import org.kevoree.modeling.*;
-import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.memory.KContentKey;
 import org.kevoree.modeling.memory.cdn.AtomicOperation;
 import org.kevoree.modeling.memory.KContentDeliveryDriver;

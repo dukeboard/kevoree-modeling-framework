@@ -657,7 +657,7 @@ module org {
 
                     public delete(cb: (p : any) => void): void {
                         var selfPointer: org.kevoree.modeling.KObject = this;
-                        var rawPayload: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = this._manager.segment(this, org.kevoree.modeling.memory.AccessMode.DELETE);
+                        var rawPayload: org.kevoree.modeling.memory.KCacheElementSegment = this._manager.segment(this, org.kevoree.modeling.memory.AccessMode.DELETE);
                         if (rawPayload == null) {
                             cb(new java.lang.Exception(AbstractKObject.OUT_OF_CACHE_MSG));
                         } else {
@@ -794,7 +794,7 @@ module org {
                             if (metaReference.single()) {
                                 this.internal_mutate(org.kevoree.modeling.KActionType.SET, metaReference, param, setOpposite);
                             } else {
-                                var raw: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = this._manager.segment(this, org.kevoree.modeling.memory.AccessMode.WRITE);
+                                var raw: org.kevoree.modeling.memory.KCacheElementSegment = this._manager.segment(this, org.kevoree.modeling.memory.AccessMode.WRITE);
                                 if (raw != null) {
                                     if (raw.addRef(metaReference.index(), param.uuid(), this._metaClass)) {
                                         if (setOpposite) {
@@ -811,7 +811,7 @@ module org {
                                     if (param == null) {
                                         this.internal_mutate(org.kevoree.modeling.KActionType.REMOVE, metaReference, null, setOpposite);
                                     } else {
-                                        var payload: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = this._manager.segment(this, org.kevoree.modeling.memory.AccessMode.WRITE);
+                                        var payload: org.kevoree.modeling.memory.KCacheElementSegment = this._manager.segment(this, org.kevoree.modeling.memory.AccessMode.WRITE);
                                         var previous: number[] = payload.getRef(metaReference.index(), this._metaClass);
                                         var singleValue: number[] = new Array();
                                         singleValue[0] = param.uuid();
@@ -834,7 +834,7 @@ module org {
                             } else {
                                 if (actionType.equals(org.kevoree.modeling.KActionType.REMOVE)) {
                                     if (metaReference.single()) {
-                                        var raw: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = this._manager.segment(this, org.kevoree.modeling.memory.AccessMode.WRITE);
+                                        var raw: org.kevoree.modeling.memory.KCacheElementSegment = this._manager.segment(this, org.kevoree.modeling.memory.AccessMode.WRITE);
                                         var previousKid: number[] = raw.getRef(metaReference.index(), this._metaClass);
                                         raw.set(metaReference.index(), null, this._metaClass);
                                         if (setOpposite) {
@@ -852,7 +852,7 @@ module org {
                                             }
                                         }
                                     } else {
-                                        var payload: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = this._manager.segment(this, org.kevoree.modeling.memory.AccessMode.WRITE);
+                                        var payload: org.kevoree.modeling.memory.KCacheElementSegment = this._manager.segment(this, org.kevoree.modeling.memory.AccessMode.WRITE);
                                         if (payload != null) {
                                             if (payload.removeRef(metaReference.index(), param.uuid(), this._metaClass)) {
                                                 if (setOpposite) {
@@ -871,7 +871,7 @@ module org {
                         if (transposed == null) {
                             throw new java.lang.RuntimeException("Bad KMF usage, the attribute named " + p_metaReference.metaName() + " is not part of " + this.metaClass().metaName());
                         } else {
-                            var raw: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = this._manager.segment(this, org.kevoree.modeling.memory.AccessMode.READ);
+                            var raw: org.kevoree.modeling.memory.KCacheElementSegment = this._manager.segment(this, org.kevoree.modeling.memory.AccessMode.READ);
                             if (raw != null) {
                                 var ref: any = raw.get(transposed.index(), this._metaClass);
                                 if (ref == null) {
@@ -899,7 +899,7 @@ module org {
                         if (transposed == null) {
                             throw new java.lang.RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + this.metaClass().metaName());
                         } else {
-                            var raw: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = this._manager.segment(this, org.kevoree.modeling.memory.AccessMode.READ);
+                            var raw: org.kevoree.modeling.memory.KCacheElementSegment = this._manager.segment(this, org.kevoree.modeling.memory.AccessMode.READ);
                             if (raw == null) {
                                 cb(new Array());
                             } else {
@@ -937,7 +937,7 @@ module org {
                         var toResolveIds: org.kevoree.modeling.memory.struct.map.LongLongHashMap = new org.kevoree.modeling.memory.struct.map.LongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                         for (var i: number = 0; i < this.metaClass().metaReferences().length; i++) {
                             var reference: org.kevoree.modeling.meta.MetaReference = this.metaClass().metaReferences()[i];
-                            var raw: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = this._manager.segment(this, org.kevoree.modeling.memory.AccessMode.READ);
+                            var raw: org.kevoree.modeling.memory.KCacheElementSegment = this._manager.segment(this, org.kevoree.modeling.memory.AccessMode.READ);
                             if (raw != null) {
                                 var obj: any = raw.get(reference.index(), this._metaClass);
                                 if (obj != null) {
@@ -1020,7 +1020,7 @@ module org {
                     }
 
                     public toJSON(): string {
-                        var raw: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = this._manager.segment(this, org.kevoree.modeling.memory.AccessMode.READ);
+                        var raw: org.kevoree.modeling.memory.KCacheElementSegment = this._manager.segment(this, org.kevoree.modeling.memory.AccessMode.READ);
                         if (raw != null) {
                             return org.kevoree.modeling.memory.manager.JsonRaw.encode(raw, this._uuid, this._metaClass, false);
                         } else {
@@ -1106,7 +1106,7 @@ module org {
 
                     public referencesWith(o: org.kevoree.modeling.KObject): org.kevoree.modeling.meta.MetaReference[] {
                         if (org.kevoree.modeling.util.Checker.isDefined(o)) {
-                            var raw: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = this._manager.segment(this, org.kevoree.modeling.memory.AccessMode.READ);
+                            var raw: org.kevoree.modeling.memory.KCacheElementSegment = this._manager.segment(this, org.kevoree.modeling.memory.AccessMode.READ);
                             if (raw != null) {
                                 var allReferences: org.kevoree.modeling.meta.MetaReference[] = this.metaClass().metaReferences();
                                 var selected: java.util.List<org.kevoree.modeling.meta.MetaReference> = new java.util.ArrayList<org.kevoree.modeling.meta.MetaReference>();
@@ -1148,7 +1148,7 @@ module org {
                     }
 
                     public readOnlyState(): org.kevoree.modeling.KInferState {
-                        var raw: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = this._manager.segment(this, org.kevoree.modeling.memory.AccessMode.READ);
+                        var raw: org.kevoree.modeling.memory.KCacheElementSegment = this._manager.segment(this, org.kevoree.modeling.memory.AccessMode.READ);
                         if (raw != null) {
                             if (raw.get(org.kevoree.modeling.meta.MetaInferClass.getInstance().getCache().index(), this.metaClass()) == null) {
                                 this.internal_load(raw);
@@ -1160,7 +1160,7 @@ module org {
                     }
 
                     public modifyState(): org.kevoree.modeling.KInferState {
-                        var raw: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = this._manager.segment(this, org.kevoree.modeling.memory.AccessMode.WRITE);
+                        var raw: org.kevoree.modeling.memory.KCacheElementSegment = this._manager.segment(this, org.kevoree.modeling.memory.AccessMode.WRITE);
                         if (raw != null) {
                             if (raw.get(org.kevoree.modeling.meta.MetaInferClass.getInstance().getCache().index(), this.metaClass()) == null) {
                                 this.internal_load(raw);
@@ -1171,7 +1171,7 @@ module org {
                         }
                     }
 
-                    private internal_load(raw: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment): void {
+                    private internal_load(raw: org.kevoree.modeling.memory.KCacheElementSegment): void {
                         if (raw.get(org.kevoree.modeling.meta.MetaInferClass.getInstance().getCache().index(), this.metaClass()) == null) {
                             var currentState: org.kevoree.modeling.KInferState = this.createEmptyState();
                             currentState.load(raw.get(org.kevoree.modeling.meta.MetaInferClass.getInstance().getRaw().index(), this.metaClass()).toString());
@@ -1770,7 +1770,7 @@ module org {
                     }
 
                     public extrapolate(current: org.kevoree.modeling.KObject, attribute: org.kevoree.modeling.meta.MetaAttribute): any {
-                        var payload: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = (<org.kevoree.modeling.abs.AbstractKObject>current)._manager.segment(current, org.kevoree.modeling.memory.AccessMode.READ);
+                        var payload: org.kevoree.modeling.memory.KCacheElementSegment = (<org.kevoree.modeling.abs.AbstractKObject>current)._manager.segment(current, org.kevoree.modeling.memory.AccessMode.READ);
                         if (payload != null) {
                             return payload.get(attribute.index(), current.metaClass());
                         } else {
@@ -1779,7 +1779,7 @@ module org {
                     }
 
                     public mutate(current: org.kevoree.modeling.KObject, attribute: org.kevoree.modeling.meta.MetaAttribute, payload: any): void {
-                        var internalPayload: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = (<org.kevoree.modeling.abs.AbstractKObject>current)._manager.segment(current, org.kevoree.modeling.memory.AccessMode.WRITE);
+                        var internalPayload: org.kevoree.modeling.memory.KCacheElementSegment = (<org.kevoree.modeling.abs.AbstractKObject>current)._manager.segment(current, org.kevoree.modeling.memory.AccessMode.WRITE);
                         if (internalPayload != null) {
                             internalPayload.set(attribute.index(), payload, current.metaClass());
                         }
@@ -1848,7 +1848,7 @@ module org {
                     }
 
                     public mutate(current: org.kevoree.modeling.KObject, attribute: org.kevoree.modeling.meta.MetaAttribute, payload: any): void {
-                        var raw: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = (<org.kevoree.modeling.abs.AbstractKObject>current)._manager.segment(current, org.kevoree.modeling.memory.AccessMode.READ);
+                        var raw: org.kevoree.modeling.memory.KCacheElementSegment = (<org.kevoree.modeling.abs.AbstractKObject>current)._manager.segment(current, org.kevoree.modeling.memory.AccessMode.READ);
                         var previous: any = raw.get(attribute.index(), current.metaClass());
                         if (previous == null) {
                             var pol: org.kevoree.modeling.extrapolation.polynomial.PolynomialModel = this.createPolynomialModel(current.now(), attribute.precision());
@@ -3002,7 +3002,7 @@ module org {
                             var metaClass: org.kevoree.modeling.meta.MetaClass = manager.model().metaModel().metaClass(meta);
                             var current: org.kevoree.modeling.KObject = (<org.kevoree.modeling.abs.AbstractKModel<any>>manager.model()).createProxy(universe, time, p_mappedKeys.get(kid), metaClass);
                             manager.initKObject(current);
-                            var raw: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = manager.segment(current, org.kevoree.modeling.memory.AccessMode.WRITE);
+                            var raw: org.kevoree.modeling.memory.KCacheElementSegment = manager.segment(current, org.kevoree.modeling.memory.AccessMode.WRITE);
                             p_param.each( (metaKey : string, payload_content : any) => {
                                 if (metaKey.equals(org.kevoree.modeling.format.json.JsonFormat.KEY_ROOT)) {
                                     p_rootElem[0] = current;
@@ -3084,7 +3084,7 @@ module org {
 
                         public static printJSON(elem: org.kevoree.modeling.KObject, builder: java.lang.StringBuilder, isRoot: boolean): void {
                             if (elem != null) {
-                                var raw: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = (<org.kevoree.modeling.abs.AbstractKObject>elem)._manager.segment(elem, org.kevoree.modeling.memory.AccessMode.READ);
+                                var raw: org.kevoree.modeling.memory.KCacheElementSegment = (<org.kevoree.modeling.abs.AbstractKObject>elem)._manager.segment(elem, org.kevoree.modeling.memory.AccessMode.READ);
                                 if (raw != null) {
                                     builder.append(org.kevoree.modeling.memory.manager.JsonRaw.encode(raw, elem.uuid(), elem.metaClass(), isRoot));
                                 }
@@ -5349,7 +5349,7 @@ module org {
 
                     lookupAlltimes(universe: number, time: number[], uuid: number, callback: (p : org.kevoree.modeling.KObject[]) => void): void;
 
-                    segment(origin: org.kevoree.modeling.KObject, accessMode: org.kevoree.modeling.memory.AccessMode): org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
+                    segment(origin: org.kevoree.modeling.KObject, accessMode: org.kevoree.modeling.memory.AccessMode): org.kevoree.modeling.memory.KCacheElementSegment;
 
                     save(callback: (p : java.lang.Throwable) => void): void;
 
@@ -6377,7 +6377,7 @@ module org {
                             }
                         }
 
-                        public static encode(raw: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment, uuid: number, p_metaClass: org.kevoree.modeling.meta.MetaClass, isRoot: boolean): string {
+                        public static encode(raw: org.kevoree.modeling.memory.KCacheElementSegment, uuid: number, p_metaClass: org.kevoree.modeling.meta.MetaClass, isRoot: boolean): string {
                              var builder = {};
                              builder[org.kevoree.modeling.format.json.JsonFormat.KEY_META] = p_metaClass.metaName();
                              if(uuid != null){ builder[org.kevoree.modeling.format.json.JsonFormat.KEY_UUID] = uuid; }
@@ -9576,7 +9576,7 @@ module org {
                                     try {
                                         var loopObj: org.kevoree.modeling.abs.AbstractKObject = <org.kevoree.modeling.abs.AbstractKObject>p_inputStep[i];
                                         currentObject = loopObj;
-                                        var raw: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = loopObj._manager.segment(loopObj, org.kevoree.modeling.memory.AccessMode.READ);
+                                        var raw: org.kevoree.modeling.memory.KCacheElementSegment = loopObj._manager.segment(loopObj, org.kevoree.modeling.memory.AccessMode.READ);
                                         if (raw != null) {
                                             if (this._reference == null) {
                                                 for (var j: number = 0; j < loopObj.metaClass().metaReferences().length; j++) {
@@ -9686,7 +9686,7 @@ module org {
                                 for (var i: number = 0; i < p_inputs.length; i++) {
                                     try {
                                         var loopObj: org.kevoree.modeling.abs.AbstractKObject = <org.kevoree.modeling.abs.AbstractKObject>p_inputs[i];
-                                        var raw: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = (loopObj)._manager.segment(loopObj, org.kevoree.modeling.memory.AccessMode.READ);
+                                        var raw: org.kevoree.modeling.memory.KCacheElementSegment = (loopObj)._manager.segment(loopObj, org.kevoree.modeling.memory.AccessMode.READ);
                                         if (raw != null) {
                                             if (this._attribute == null) {
                                                 if (this._expectedValue == null) {
@@ -9918,7 +9918,7 @@ module org {
                                 for (var i: number = 0; i < p_inputs.length; i++) {
                                     try {
                                         var loopObj: org.kevoree.modeling.abs.AbstractKObject = <org.kevoree.modeling.abs.AbstractKObject>p_inputs[i];
-                                        var raw: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = loopObj._manager.segment(loopObj, org.kevoree.modeling.memory.AccessMode.READ);
+                                        var raw: org.kevoree.modeling.memory.KCacheElementSegment = loopObj._manager.segment(loopObj, org.kevoree.modeling.memory.AccessMode.READ);
                                         if (raw != null) {
                                             if (this._attribute == null) {
                                                 if (this._expectedValue == null) {
@@ -10098,7 +10098,7 @@ module org {
                                 for (var i: number = 0; i < p_inputs.length; i++) {
                                     try {
                                         var loopObj: org.kevoree.modeling.abs.AbstractKObject = <org.kevoree.modeling.abs.AbstractKObject>p_inputs[i];
-                                        var raw: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = currentObject._manager.segment(loopObj, org.kevoree.modeling.memory.AccessMode.READ);
+                                        var raw: org.kevoree.modeling.memory.KCacheElementSegment = currentObject._manager.segment(loopObj, org.kevoree.modeling.memory.AccessMode.READ);
                                         if (raw != null) {
                                             if (this._reference == null) {
                                                 for (var j: number = 0; j < loopObj.metaClass().metaReferences().length; j++) {
@@ -10166,7 +10166,7 @@ module org {
                                 for (var i: number = 0; i < p_inputs.length; i++) {
                                     try {
                                         var loopObj: org.kevoree.modeling.abs.AbstractKObject = <org.kevoree.modeling.abs.AbstractKObject>p_inputs[i];
-                                        var raw: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = loopObj._manager.segment(loopObj, org.kevoree.modeling.memory.AccessMode.READ);
+                                        var raw: org.kevoree.modeling.memory.KCacheElementSegment = loopObj._manager.segment(loopObj, org.kevoree.modeling.memory.AccessMode.READ);
                                         if (raw != null) {
                                             if (this._referenceQuery == null) {
                                                 for (var j: number = 0; j < loopObj.metaClass().metaReferences().length; j++) {
