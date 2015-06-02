@@ -41,7 +41,7 @@ var org;
                                             _this._putCallbacks.remove(putResult.id)(null);
                                         }
                                         break;
-                                    case org.kevoree.modeling.msg.KMessageLoader.ATOMIC_OPERATION_RESULT_TYPE:
+                                    case org.kevoree.modeling.msg.KMessageLoader.ATOMIC_GET_INC_RESULT_TYPE:
                                         {
                                             var atomicGetResult = msg;
                                             _this._atomicGetCallbacks.remove(atomicGetResult.id)(atomicGetResult.value, null);

@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.kevoree.modeling.Callback;
 import org.kevoree.modeling.ThrowableCallback;
 import org.kevoree.modeling.memory.KContentKey;
-import org.kevoree.modeling.memory.cdn.AtomicOperationFactory;
 import org.kevoree.modeling.memory.cdn.KContentPutRequest;
 import org.kevoree.modeling.msg.KEvents;
 import org.kevoree.modeling.databases.websocket.WebSocketClient;
@@ -70,11 +69,11 @@ public class WebSocketTest {
                                 }
                             }
                         });
-                        client.atomicGetMutate(KContentKey.createGlobalUniverseTree(), AtomicOperationFactory.getMutatePrefixOperation(), new ThrowableCallback<String>() {
+                        client.atomicGetIncrement(KContentKey.createGlobalUniverseTree(), new ThrowableCallback<Short>() {
                             @Override
-                            public void on(String s, Throwable error) {
+                            public void on(Short s, Throwable error) {
                                 latch.countDown();
-                                Assert.assertEquals("0", s);
+                                Assert.assertTrue(s == 0);
                             }
                         });
                         client.send(eventsMessage);

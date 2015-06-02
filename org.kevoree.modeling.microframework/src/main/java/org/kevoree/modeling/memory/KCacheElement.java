@@ -20,4 +20,6 @@ public interface KCacheElement {
 
     void dec();
 
+    void free(MetaModel metaModel);
+
 }

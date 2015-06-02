@@ -6,7 +6,6 @@ import io.undertow.websockets.core.WebSocketChannel;
 import io.undertow.websockets.core.WebSockets;
 import org.kevoree.modeling.*;
 import org.kevoree.modeling.memory.KContentKey;
-import org.kevoree.modeling.memory.cdn.AtomicOperation;
 import org.kevoree.modeling.memory.KContentDeliveryDriver;
 import org.kevoree.modeling.memory.cdn.KContentPutRequest;
 import org.kevoree.modeling.memory.KDataManager;
@@ -89,8 +88,8 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
                 }
             }
             break;
-            case KMessageLoader.ATOMIC_OPERATION_RESULT_TYPE: {
-                KAtomicGetResult atomicGetResult = (KAtomicGetResult) msg;
+            case KMessageLoader.ATOMIC_GET_INC_RESULT_TYPE: {
+                KAtomicGetIncrementResult atomicGetResult = (KAtomicGetIncrementResult) msg;
                 Object callbackRegistered = _callbacks.get(atomicGetResult.id);
                 if (callbackRegistered != null && callbackRegistered instanceof ThrowableCallback) {
                     ((ThrowableCallback) callbackRegistered).on(atomicGetResult.value, null);
@@ -116,11 +115,10 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
     }
 
     @Override
-    public void atomicGetMutate(KContentKey key, AtomicOperation operation, ThrowableCallback<String> callback) {
-        KAtomicGetRequest atomicGetRequest = new KAtomicGetRequest();
+    public void atomicGetIncrement(KContentKey key, ThrowableCallback<Short> callback) {
+        KAtomicGetIncrementRequest atomicGetRequest = new KAtomicGetIncrementRequest();
         atomicGetRequest.id = nextKey();
         atomicGetRequest.key = key;
-        atomicGetRequest.operation = operation;
         _callbacks.put(atomicGetRequest.id, callback);
         WebSockets.sendText(atomicGetRequest.json(), _client.getChannel(), null);
     }
@@ -149,13 +147,13 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
     }
 
     @Override
-    public void registerListener(long p_groupId,KObject p_origin, KEventListener p_listener) {
-        _localEventListeners.registerListener(p_groupId,p_origin, p_listener);
+    public void registerListener(long p_groupId, KObject p_origin, KEventListener p_listener) {
+        _localEventListeners.registerListener(p_groupId, p_origin, p_listener);
     }
 
     @Override
     public void registerMultiListener(long p_groupId, KUniverse p_origin, long[] p_objects, KEventMultiListener p_listener) {
-        _localEventListeners.registerListenerAll(p_groupId,p_origin.key(),p_objects,p_listener);
+        _localEventListeners.registerListenerAll(p_groupId, p_origin.key(), p_objects, p_listener);
     }
 
     @Override

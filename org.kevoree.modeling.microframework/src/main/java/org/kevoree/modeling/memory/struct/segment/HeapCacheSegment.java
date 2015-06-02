@@ -107,6 +107,11 @@ public class HeapCacheSegment implements KCacheElementSegment {
     }
 
     @Override
+    public void free(MetaModel metaModel) {
+        //NOOP
+    }
+
+    @Override
     public Object get(int index, MetaClass p_metaClass) {
         if (raw != null) {
             return raw[index];

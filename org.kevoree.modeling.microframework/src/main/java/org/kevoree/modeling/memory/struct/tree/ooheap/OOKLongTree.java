@@ -40,6 +40,11 @@ public class OOKLongTree implements KCacheElement, KLongTree {
         _counter--;
     }
 
+    @Override
+    public void free(MetaModel metaModel) {
+        //NOOP
+    }
+
     /* Cache management */
     private TreeNode tryPreviousOrEqualsCache(long key) {
         if (_previousOrEqualsCacheValues != null) {

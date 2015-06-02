@@ -2,6 +2,7 @@ package org.kevoree.modeling.memory;
 
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.memory.cache.KCacheDirty;
+import org.kevoree.modeling.meta.MetaModel;
 
 public interface KCache {
 
@@ -13,7 +14,7 @@ public interface KCache {
 
     void clear();
 
-    void clean();
+    void clean(MetaModel metaModel);
 
     void monitor(KObject origin);
 

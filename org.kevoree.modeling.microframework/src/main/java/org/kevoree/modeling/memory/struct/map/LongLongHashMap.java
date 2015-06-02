@@ -25,6 +25,7 @@ import org.kevoree.modeling.meta.MetaModel;
  * public counter():number { return this._counter; }
  * public inc():void { this._counter++; }
  * public dec():void { this._counter--; }
+ * public free():void { }
  * public isDirty():boolean { return this._isDirty; }
  * public setClean(mm):void { this._isDirty = false; }
  * public setDirty():void { this._isDirty = true; }
@@ -82,6 +83,11 @@ public class LongLongHashMap implements KCacheElement {
     @Override
     public void dec() {
         _counter--;
+    }
+
+    @Override
+    public void free(MetaModel metaModel) {
+        //NOOP
     }
 
     @Override

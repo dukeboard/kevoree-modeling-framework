@@ -52,6 +52,11 @@ public class HashCacheTest {
             @Override
             public void dec() {
             }
+
+            @Override
+            public void free(MetaModel metaModel) {
+
+            }
         };
         cache.put(KConfig.NULL_LONG,KConfig.NULL_LONG,KConfig.NULL_LONG, temp);
         Assert.assertEquals(temp, cache.get(KConfig.NULL_LONG,KConfig.NULL_LONG,KConfig.NULL_LONG));

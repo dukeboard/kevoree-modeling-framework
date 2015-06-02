@@ -1,10 +1,10 @@
 package org.kevoree.modeling.msg;
 
-public class KAtomicGetResult implements KMessage {
+public class KAtomicGetIncrementResult implements KMessage {
 
     public long id;
 
-    public String value;
+    public Short value;
 
     @Override
     public String json() {
@@ -19,6 +19,6 @@ public class KAtomicGetResult implements KMessage {
 
     @Override
     public int type() {
-        return KMessageLoader.ATOMIC_OPERATION_RESULT_TYPE;
+        return KMessageLoader.ATOMIC_GET_INC_RESULT_TYPE;
     }
 }

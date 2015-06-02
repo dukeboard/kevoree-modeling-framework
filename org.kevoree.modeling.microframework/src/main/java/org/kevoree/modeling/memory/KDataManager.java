@@ -62,4 +62,6 @@ public interface KDataManager {
 
     void reload(KContentKey[] keys, Callback<Throwable> callback);
 
+    void cleanCache();
+
 }

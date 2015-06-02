@@ -2,7 +2,6 @@ package org.kevoree.modeling.databases.websocket.test;
 
 import org.kevoree.modeling.*;
 import org.kevoree.modeling.memory.KContentKey;
-import org.kevoree.modeling.memory.cdn.AtomicOperation;
 import org.kevoree.modeling.memory.KContentDeliveryDriver;
 import org.kevoree.modeling.memory.cdn.KContentPutRequest;
 import org.kevoree.modeling.memory.KDataManager;
@@ -20,8 +19,8 @@ public class KContentDeliveryDriverMock implements KContentDeliveryDriver {
     public HashMap<String, String> alreadyPut = new HashMap<String, String>();
 
     @Override
-    public void atomicGetMutate(KContentKey key, AtomicOperation operation, ThrowableCallback<String> callback) {
-        callback.on("0", null);
+    public void atomicGetIncrement(KContentKey key, ThrowableCallback<Short> callback) {
+        callback.on(Short.parseShort("0"), null);
     }
 
     @Override

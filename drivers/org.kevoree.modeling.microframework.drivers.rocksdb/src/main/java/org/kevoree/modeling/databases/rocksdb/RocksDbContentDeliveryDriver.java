@@ -2,7 +2,6 @@ package org.kevoree.modeling.databases.rocksdb;
 
 import org.kevoree.modeling.*;
 import org.kevoree.modeling.memory.KContentKey;
-import org.kevoree.modeling.memory.cdn.AtomicOperation;
 import org.kevoree.modeling.memory.KContentDeliveryDriver;
 import org.kevoree.modeling.memory.cdn.KContentPutRequest;
 import org.kevoree.modeling.memory.KDataManager;
@@ -56,17 +55,36 @@ public class RocksDbContentDeliveryDriver implements KContentDeliveryDriver {
         }
     }
 
+
     @Override
-    public void atomicGetMutate(KContentKey key, AtomicOperation operation, ThrowableCallback<String> callback) {
+    public void atomicGetIncrement(KContentKey key, ThrowableCallback<Short> cb) {
         try {
             String result = new String(db.get(key.toString().getBytes()));
-            String mutated = operation.mutate(result);
+            short nextV;
+            short previousV;
+            if (result != null) {
+                try {
+                    previousV = Short.parseShort(result);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    previousV = Short.MIN_VALUE;
+                }
+            } else {
+                previousV = 0;
+            }
+            if (previousV == Short.MAX_VALUE) {
+                nextV = Short.MIN_VALUE;
+            } else {
+                nextV = (short) (previousV + 1);
+            }
             WriteBatch batch = new WriteBatch();
-            batch.put(key.toString().getBytes(), mutated.getBytes());
+            batch.put(key.toString().getBytes(), (nextV + "").getBytes());
+
             db.write(new WriteOptions().setSync(true), batch);
-            callback.on(result, null);
+            cb.on(previousV, null);
         } catch (RocksDBException e) {
             e.printStackTrace();
+            cb.on(null,e);
         }
     }
 

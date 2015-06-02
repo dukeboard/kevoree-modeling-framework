@@ -9,6 +9,7 @@ import org.kevoree.modeling.memory.KContentKey;
 import org.kevoree.modeling.memory.manager.ResolutionHelper;
 import org.kevoree.modeling.memory.manager.ResolutionResult;
 import org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
+import org.kevoree.modeling.meta.MetaModel;
 
 public class HashMemoryCache implements KCache {
 
@@ -141,8 +142,8 @@ public class HashMemoryCache implements KCache {
      * @native ts
      */
     @Override
-    public void clean() {
-        common_clean_monitor(null);
+    public void clean(MetaModel metaModel) {
+        common_clean_monitor(null,metaModel);
     }
 
     /**
@@ -150,7 +151,7 @@ public class HashMemoryCache implements KCache {
      */
     @Override
     public void monitor(KObject origin) {
-        common_clean_monitor(origin);
+        common_clean_monitor(origin,null);
     }
 
     @Override
@@ -158,7 +159,7 @@ public class HashMemoryCache implements KCache {
         return elementCount;
     }
 
-    private void remove(long universe, long time, long obj) {
+    private void remove(long universe, long time, long obj, MetaModel p_metaModel) {
         int hash = (int) (universe ^ time ^ obj);
         int index = (hash & 0x7FFFFFFF) % elementDataSize;
         if (elementDataSize != 0) {
@@ -167,6 +168,11 @@ public class HashMemoryCache implements KCache {
             while (m != null) {
                 if (m.universe == universe && m.time == time && m.obj == obj) {
                     elementCount--;
+                    try {
+                        m.value.free(p_metaModel);
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
                     if (previous == null) {
                         elementData[index] = m.next;
                     } else {
@@ -182,7 +188,7 @@ public class HashMemoryCache implements KCache {
     /**
      * @ignore ts
      */
-    private synchronized void common_clean_monitor(KObject origin) {
+    private synchronized void common_clean_monitor(KObject origin, MetaModel p_metaModel) {
         if (origin != null) {
             if (rootReference != null) {
                 rootReference.next = new KObjectWeakReference(origin);
@@ -202,15 +208,15 @@ public class HashMemoryCache implements KCache {
                         ResolutionResult resolved = ResolutionHelper.resolve_trees(current.universe, current.time, current.uuid, this);
                         resolved.universeTree.dec();
                         if (resolved.universeTree.counter() <= 0) {
-                            remove(KConfig.NULL_LONG, KConfig.NULL_LONG, resolved.uuid);
+                            remove(KConfig.NULL_LONG, KConfig.NULL_LONG, resolved.uuid,p_metaModel);
                         }
                         resolved.timeTree.dec();
                         if (resolved.timeTree.counter() <= 0) {
-                            remove(resolved.universe, KConfig.NULL_LONG, resolved.uuid);
+                            remove(resolved.universe, KConfig.NULL_LONG, resolved.uuid,p_metaModel);
                         }
                         resolved.segment.dec();
                         if (resolved.segment.counter() <= 0) {
-                            remove(resolved.universe, resolved.time, resolved.uuid);
+                            remove(resolved.universe, resolved.time, resolved.uuid,p_metaModel);
                         }
                         //change chaining
                         if (previous == null) { //first case

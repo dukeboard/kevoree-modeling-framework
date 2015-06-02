@@ -4803,48 +4803,6 @@ var org;
                 })(cache = memory.cache || (memory.cache = {}));
                 var cdn;
                 (function (cdn) {
-                    var AtomicOperationFactory = (function () {
-                        function AtomicOperationFactory() {
-                        }
-                        AtomicOperationFactory.getMutatePrefixOperation = function () {
-                            return { operationKey: function () {
-                                return AtomicOperationFactory.PREFIX_MUTATE_OPERATION;
-                            }, mutate: function (previous) {
-                                try {
-                                    var previousPrefix;
-                                    if (previous != null) {
-                                        previousPrefix = java.lang.Short.parseShort(previous);
-                                    }
-                                    else {
-                                        previousPrefix = java.lang.Short.parseShort("0");
-                                    }
-                                    if (previousPrefix == java.lang.Short.MAX_VALUE) {
-                                        return "" + java.lang.Short.MIN_VALUE;
-                                    }
-                                    else {
-                                        return "" + (previousPrefix + 1);
-                                    }
-                                }
-                                catch ($ex$) {
-                                    if ($ex$ instanceof java.lang.Exception) {
-                                        var e = $ex$;
-                                        e.printStackTrace();
-                                        return "" + java.lang.Short.MIN_VALUE;
-                                    }
-                                }
-                            } };
-                        };
-                        AtomicOperationFactory.getOperationWithKey = function (key) {
-                            switch (key) {
-                                case AtomicOperationFactory.PREFIX_MUTATE_OPERATION:
-                                    return org.kevoree.modeling.memory.cdn.AtomicOperationFactory.getMutatePrefixOperation();
-                            }
-                            return null;
-                        };
-                        AtomicOperationFactory.PREFIX_MUTATE_OPERATION = 0;
-                        return AtomicOperationFactory;
-                    })();
-                    cdn.AtomicOperationFactory = AtomicOperationFactory;
                     var KContentPutRequest = (function () {
                         function KContentPutRequest(requestSize) {
                             this._size = 0;
@@ -4887,15 +4845,33 @@ var org;
                             this.backend = new org.kevoree.modeling.memory.struct.map.StringHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                             this._localEventListeners = new org.kevoree.modeling.util.LocalEventListeners();
                         }
-                        MemoryKContentDeliveryDriver.prototype.atomicGetMutate = function (key, operation, callback) {
+                        MemoryKContentDeliveryDriver.prototype.atomicGetIncrement = function (key, cb) {
                             var result = this.backend.get(key.toString());
-                            var mutated = operation.mutate(result);
-                            if (MemoryKContentDeliveryDriver.DEBUG) {
-                                System.out.println("ATOMIC GET " + key + "->" + result);
-                                System.out.println("ATOMIC PUT " + key + "->" + mutated);
+                            var nextV;
+                            var previousV;
+                            if (result != null) {
+                                try {
+                                    previousV = java.lang.Short.parseShort(result);
+                                }
+                                catch ($ex$) {
+                                    if ($ex$ instanceof java.lang.Exception) {
+                                        var e = $ex$;
+                                        e.printStackTrace();
+                                        previousV = java.lang.Short.MIN_VALUE;
+                                    }
+                                }
                             }
-                            this.backend.put(key.toString(), mutated);
-                            callback(result, null);
+                            else {
+                                previousV = 0;
+                            }
+                            if (previousV == java.lang.Short.MAX_VALUE) {
+                                nextV = java.lang.Short.MIN_VALUE;
+                            }
+                            else {
+                                nextV = (previousV + 1);
+                            }
+                            this.backend.put(key.toString(), "" + nextV);
+                            cb(previousV, null);
                         };
                         MemoryKContentDeliveryDriver.prototype.get = function (keys, callback) {
                             var values = new Array();
@@ -5095,7 +5071,7 @@ var org;
                             });
                         };
                         DefaultKDataManager.prototype.initKObject = function (obj) {
-                            var cacheEntry = new org.kevoree.modeling.memory.struct.segment.HeapCacheSegment();
+                            var cacheEntry = new org.kevoree.modeling.memory.struct.segment.HeapCacheSegment(obj.now());
                             cacheEntry.init(obj.metaClass());
                             cacheEntry.setDirty();
                             cacheEntry.inc();
@@ -5124,27 +5100,13 @@ var org;
                             else {
                                 this._db.connect(function (throwable) {
                                     if (throwable == null) {
-                                        _this._db.atomicGetMutate(org.kevoree.modeling.memory.KContentKey.createLastPrefix(), org.kevoree.modeling.memory.cdn.AtomicOperationFactory.getMutatePrefixOperation(), function (payloadPrefix, error) {
+                                        _this._db.atomicGetIncrement(org.kevoree.modeling.memory.KContentKey.createLastPrefix(), function (newPrefix, error) {
                                             if (error != null) {
                                                 if (connectCallback != null) {
                                                     connectCallback(error);
                                                 }
                                             }
                                             else {
-                                                var cleanedPrefixPayload = payloadPrefix;
-                                                if (cleanedPrefixPayload == null || cleanedPrefixPayload.equals("")) {
-                                                    cleanedPrefixPayload = "0";
-                                                }
-                                                var newPrefix;
-                                                try {
-                                                    newPrefix = java.lang.Short.parseShort(cleanedPrefixPayload);
-                                                }
-                                                catch ($ex$) {
-                                                    if ($ex$ instanceof java.lang.Exception) {
-                                                        var e = $ex$;
-                                                        newPrefix = java.lang.Short.parseShort("0");
-                                                    }
-                                                }
                                                 var connectionElemKeys = new Array();
                                                 connectionElemKeys[_this.UNIVERSE_INDEX] = org.kevoree.modeling.memory.KContentKey.createLastUniverseIndexFromPrefix(newPrefix);
                                                 connectionElemKeys[_this.OBJ_INDEX] = org.kevoree.modeling.memory.KContentKey.createLastObjectIndexFromPrefix(newPrefix);
@@ -5250,7 +5212,7 @@ var org;
                                     return entry;
                                 }
                                 else {
-                                    var clonedEntry = entry.clone(origin.metaClass());
+                                    var clonedEntry = entry.clone(origin.now(), origin.metaClass());
                                     this._cache.put(origin.universe(), origin.now(), origin.uuid(), clonedEntry);
                                     if (!needUniverseCopy) {
                                         timeTree.insert(origin.now());
@@ -5503,7 +5465,7 @@ var org;
                                 var isTimeNotNull = key.time != org.kevoree.modeling.KConfig.NULL_LONG;
                                 var isObjNotNull = key.obj != org.kevoree.modeling.KConfig.NULL_LONG;
                                 if (isUniverseNotNull && isTimeNotNull && isObjNotNull) {
-                                    result = new org.kevoree.modeling.memory.struct.segment.HeapCacheSegment();
+                                    result = new org.kevoree.modeling.memory.struct.segment.HeapCacheSegment(key.time);
                                 }
                                 else {
                                     if (isUniverseNotNull && !isTimeNotNull && isObjNotNull) {
@@ -5906,6 +5868,8 @@ var org;
                             LongLongHashMap.prototype.dec = function () {
                                 this._counter--;
                             };
+                            LongLongHashMap.prototype.free = function () {
+                            };
                             LongLongHashMap.prototype.isDirty = function () {
                                 return this._isDirty;
                             };
@@ -5995,11 +5959,12 @@ var org;
                     var segment;
                     (function (segment) {
                         var HeapCacheSegment = (function () {
-                            function HeapCacheSegment() {
+                            function HeapCacheSegment(p_timeOrigin) {
                                 this._counter = 0;
                                 this._metaClassIndex = -1;
                                 this._modifiedIndexes = null;
                                 this._dirty = false;
+                                this._timeOrigin = p_timeOrigin;
                             }
                             HeapCacheSegment.prototype.init = function (p_metaClass) {
                                 this.raw = new Array();
@@ -6007,6 +5972,9 @@ var org;
                             };
                             HeapCacheSegment.prototype.metaClassIndex = function () {
                                 return this._metaClassIndex;
+                            };
+                            HeapCacheSegment.prototype.originTime = function () {
+                                return this._timeOrigin;
                             };
                             HeapCacheSegment.prototype.isDirty = function () {
                                 return this._dirty;
@@ -6054,6 +6022,8 @@ var org;
                             };
                             HeapCacheSegment.prototype.dec = function () {
                                 this._counter--;
+                            };
+                            HeapCacheSegment.prototype.free = function (metaModel) {
                             };
                             HeapCacheSegment.prototype.get = function (index, p_metaClass) {
                                 if (this.raw != null) {
@@ -6141,6 +6111,62 @@ var org;
                                 }
                                 return false;
                             };
+                            HeapCacheSegment.prototype.getInfer = function (index, metaClass) {
+                                if (this.raw != null) {
+                                    var previousObj = this.raw[index];
+                                    if (previousObj != null) {
+                                        try {
+                                            return previousObj;
+                                        }
+                                        catch ($ex$) {
+                                            if ($ex$ instanceof java.lang.Exception) {
+                                                var e = $ex$;
+                                                e.printStackTrace();
+                                                this.raw[index] = null;
+                                                return null;
+                                            }
+                                        }
+                                    }
+                                    else {
+                                        return null;
+                                    }
+                                }
+                                else {
+                                    return null;
+                                }
+                            };
+                            HeapCacheSegment.prototype.getInferElem = function (index, arrayIndex, metaClass) {
+                                var res = this.getInfer(index, metaClass);
+                                if (res != null && arrayIndex > 0 && arrayIndex < res.length) {
+                                    return res[arrayIndex];
+                                }
+                                return 0;
+                            };
+                            HeapCacheSegment.prototype.setInferElem = function (index, arrayIndex, valueToInsert, metaClass) {
+                                var res = this.getInfer(index, metaClass);
+                                if (res != null && arrayIndex > 0 && arrayIndex < res.length) {
+                                    res[arrayIndex] = valueToInsert;
+                                }
+                            };
+                            HeapCacheSegment.prototype.extendInfer = function (index, newSize, metaClass) {
+                                if (this.raw != null) {
+                                    var previous = this.raw[index];
+                                    if (previous == null) {
+                                        previous = new Array();
+                                    }
+                                    else {
+                                        var incArray = new Array();
+                                        System.arraycopy(previous, 0, incArray, 0, previous.length);
+                                        previous = incArray;
+                                    }
+                                    this.raw[index] = previous;
+                                    if (this._modifiedIndexes == null) {
+                                        this._modifiedIndexes = new Array();
+                                    }
+                                    this._modifiedIndexes[index] = true;
+                                    this._dirty = true;
+                                }
+                            };
                             HeapCacheSegment.prototype.set = function (index, content, p_metaClass) {
                                 this.raw[index] = content;
                                 this._dirty = true;
@@ -6149,9 +6175,9 @@ var org;
                                 }
                                 this._modifiedIndexes[index] = true;
                             };
-                            HeapCacheSegment.prototype.clone = function (p_metaClass) {
+                            HeapCacheSegment.prototype.clone = function (newTimeOrigin, p_metaClass) {
                                 if (this.raw == null) {
-                                    return new org.kevoree.modeling.memory.struct.segment.HeapCacheSegment();
+                                    return new org.kevoree.modeling.memory.struct.segment.HeapCacheSegment(newTimeOrigin);
                                 }
                                 else {
                                     var cloned = new Array();
@@ -6166,7 +6192,7 @@ var org;
                                             }
                                         }
                                     }
-                                    var clonedEntry = new org.kevoree.modeling.memory.struct.segment.HeapCacheSegment();
+                                    var clonedEntry = new org.kevoree.modeling.memory.struct.segment.HeapCacheSegment(newTimeOrigin);
                                     clonedEntry._dirty = true;
                                     clonedEntry.raw = cloned;
                                     clonedEntry._metaClassIndex = this._metaClassIndex;
@@ -6422,6 +6448,8 @@ var org;
                                 };
                                 OOKLongLongTree.prototype.dec = function () {
                                     this._counter--;
+                                };
+                                OOKLongLongTree.prototype.free = function (metaModel) {
                                 };
                                 OOKLongLongTree.prototype.toString = function () {
                                     return this.serialize(null);
@@ -6968,6 +6996,8 @@ var org;
                                 };
                                 OOKLongTree.prototype.dec = function () {
                                     this._counter--;
+                                };
+                                OOKLongTree.prototype.free = function (metaModel) {
                                 };
                                 OOKLongTree.prototype.tryPreviousOrEqualsCache = function (key) {
                                     if (this._previousOrEqualsCacheValues != null) {
@@ -7926,10 +7956,8 @@ var org;
                         DynamicMetaClass.prototype.internalInit = function () {
                             var tempMeta = new Array();
                             var loopKey = new Array();
-                            loopKey[0] = 0;
                             this.cached_meta.each(function (key, value) {
-                                tempMeta[loopKey[0]] = value;
-                                loopKey[0]++;
+                                tempMeta[value.index()] = value;
                             });
                             this.init(tempMeta);
                         };
@@ -7986,31 +8014,28 @@ var org;
             })(meta = modeling.meta || (modeling.meta = {}));
             var msg;
             (function (msg) {
-                var KAtomicGetRequest = (function () {
-                    function KAtomicGetRequest() {
+                var KAtomicGetIncrementRequest = (function () {
+                    function KAtomicGetIncrementRequest() {
                     }
-                    KAtomicGetRequest.prototype.json = function () {
+                    KAtomicGetIncrementRequest.prototype.json = function () {
                         var buffer = new java.lang.StringBuilder();
                         org.kevoree.modeling.msg.KMessageHelper.printJsonStart(buffer);
                         org.kevoree.modeling.msg.KMessageHelper.printType(buffer, this.type());
                         org.kevoree.modeling.msg.KMessageHelper.printElem(this.id, org.kevoree.modeling.msg.KMessageLoader.ID_NAME, buffer);
                         org.kevoree.modeling.msg.KMessageHelper.printElem(this.key, org.kevoree.modeling.msg.KMessageLoader.KEY_NAME, buffer);
-                        if (this.operation != null) {
-                            org.kevoree.modeling.msg.KMessageHelper.printElem(this.operation.operationKey(), org.kevoree.modeling.msg.KMessageLoader.OPERATION_NAME, buffer);
-                        }
                         org.kevoree.modeling.msg.KMessageHelper.printJsonEnd(buffer);
                         return buffer.toString();
                     };
-                    KAtomicGetRequest.prototype.type = function () {
-                        return org.kevoree.modeling.msg.KMessageLoader.ATOMIC_OPERATION_REQUEST_TYPE;
+                    KAtomicGetIncrementRequest.prototype.type = function () {
+                        return org.kevoree.modeling.msg.KMessageLoader.ATOMIC_GET_INC_REQUEST_TYPE;
                     };
-                    return KAtomicGetRequest;
+                    return KAtomicGetIncrementRequest;
                 })();
-                msg.KAtomicGetRequest = KAtomicGetRequest;
-                var KAtomicGetResult = (function () {
-                    function KAtomicGetResult() {
+                msg.KAtomicGetIncrementRequest = KAtomicGetIncrementRequest;
+                var KAtomicGetIncrementResult = (function () {
+                    function KAtomicGetIncrementResult() {
                     }
-                    KAtomicGetResult.prototype.json = function () {
+                    KAtomicGetIncrementResult.prototype.json = function () {
                         var buffer = new java.lang.StringBuilder();
                         org.kevoree.modeling.msg.KMessageHelper.printJsonStart(buffer);
                         org.kevoree.modeling.msg.KMessageHelper.printType(buffer, this.type());
@@ -8019,12 +8044,12 @@ var org;
                         org.kevoree.modeling.msg.KMessageHelper.printJsonEnd(buffer);
                         return buffer.toString();
                     };
-                    KAtomicGetResult.prototype.type = function () {
-                        return org.kevoree.modeling.msg.KMessageLoader.ATOMIC_OPERATION_RESULT_TYPE;
+                    KAtomicGetIncrementResult.prototype.type = function () {
+                        return org.kevoree.modeling.msg.KMessageLoader.ATOMIC_GET_INC_RESULT_TYPE;
                     };
-                    return KAtomicGetResult;
+                    return KAtomicGetIncrementResult;
                 })();
-                msg.KAtomicGetResult = KAtomicGetResult;
+                msg.KAtomicGetIncrementResult = KAtomicGetIncrementResult;
                 var KEvents = (function () {
                     function KEvents(nbObject) {
                         this._objIds = new Array();
@@ -8346,27 +8371,32 @@ var org;
                                                         return resultMessage;
                                                     }
                                                     else {
-                                                        if (parsedType == KMessageLoader.ATOMIC_OPERATION_REQUEST_TYPE) {
-                                                            var atomicGetMessage = new org.kevoree.modeling.msg.KAtomicGetRequest();
+                                                        if (parsedType == KMessageLoader.ATOMIC_GET_INC_REQUEST_TYPE) {
+                                                            var atomicGetMessage = new org.kevoree.modeling.msg.KAtomicGetIncrementRequest();
                                                             if (objectReader.get(KMessageLoader.ID_NAME) != null) {
                                                                 atomicGetMessage.id = java.lang.Long.parseLong(objectReader.get(KMessageLoader.ID_NAME).toString());
                                                             }
                                                             if (objectReader.get(KMessageLoader.KEY_NAME) != null) {
                                                                 atomicGetMessage.key = org.kevoree.modeling.memory.KContentKey.create(objectReader.get(KMessageLoader.KEY_NAME).toString());
                                                             }
-                                                            if (objectReader.get(KMessageLoader.OPERATION_NAME) != null) {
-                                                                atomicGetMessage.operation = org.kevoree.modeling.memory.cdn.AtomicOperationFactory.getOperationWithKey(java.lang.Integer.parseInt(objectReader.get(KMessageLoader.OPERATION_NAME)));
-                                                            }
                                                             return atomicGetMessage;
                                                         }
                                                         else {
-                                                            if (parsedType == KMessageLoader.ATOMIC_OPERATION_RESULT_TYPE) {
-                                                                var atomicGetResultMessage = new org.kevoree.modeling.msg.KAtomicGetResult();
+                                                            if (parsedType == KMessageLoader.ATOMIC_GET_INC_RESULT_TYPE) {
+                                                                var atomicGetResultMessage = new org.kevoree.modeling.msg.KAtomicGetIncrementResult();
                                                                 if (objectReader.get(KMessageLoader.ID_NAME) != null) {
                                                                     atomicGetResultMessage.id = java.lang.Long.parseLong(objectReader.get(KMessageLoader.ID_NAME).toString());
                                                                 }
                                                                 if (objectReader.get(KMessageLoader.VALUE_NAME) != null) {
-                                                                    atomicGetResultMessage.value = objectReader.get(KMessageLoader.VALUE_NAME).toString();
+                                                                    try {
+                                                                        atomicGetResultMessage.value = java.lang.Short.parseShort(objectReader.get(KMessageLoader.VALUE_NAME).toString());
+                                                                    }
+                                                                    catch ($ex$) {
+                                                                        if ($ex$ instanceof java.lang.Exception) {
+                                                                            var e = $ex$;
+                                                                            e.printStackTrace();
+                                                                        }
+                                                                    }
                                                                 }
                                                                 return atomicGetResultMessage;
                                                             }
@@ -8404,8 +8434,8 @@ var org;
                     KMessageLoader.PUT_RES_TYPE = 4;
                     KMessageLoader.OPERATION_CALL_TYPE = 5;
                     KMessageLoader.OPERATION_RESULT_TYPE = 6;
-                    KMessageLoader.ATOMIC_OPERATION_REQUEST_TYPE = 7;
-                    KMessageLoader.ATOMIC_OPERATION_RESULT_TYPE = 8;
+                    KMessageLoader.ATOMIC_GET_INC_REQUEST_TYPE = 7;
+                    KMessageLoader.ATOMIC_GET_INC_RESULT_TYPE = 8;
                     return KMessageLoader;
                 })();
                 msg.KMessageLoader = KMessageLoader;

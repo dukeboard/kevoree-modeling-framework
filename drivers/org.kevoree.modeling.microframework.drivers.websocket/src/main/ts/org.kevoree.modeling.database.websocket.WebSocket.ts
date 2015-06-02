@@ -18,7 +18,7 @@ module org {
 
                         private _getCallbacks:java.util.HashMap<number, (p1:string[], p2:java.lang.Throwable) => void> = new java.util.HashMap<number, (p1:string[], p2:java.lang.Throwable) => void>();
                         private _putCallbacks:java.util.HashMap<number, (p:java.lang.Throwable) => void> = new java.util.HashMap<number, (p1:java.lang.Throwable) => void>();
-                        private _atomicGetCallbacks:java.util.HashMap<number, (p:string, p1:java.lang.Throwable) => void> = new java.util.HashMap<number, (p:string, p1:java.lang.Throwable) => void>();
+                        private _atomicGetCallbacks:java.util.HashMap<number, (p:any, p1:java.lang.Throwable) => void> = new java.util.HashMap<number, (p:any, p1:java.lang.Throwable) => void>();
 
                         constructor(connectionUri) {
                             this._connectionUri = connectionUri;
@@ -42,9 +42,9 @@ module org {
                                         this._putCallbacks.remove(putResult.id)(null);
                                     }
                                         break;
-                                    case org.kevoree.modeling.msg.KMessageLoader.ATOMIC_OPERATION_RESULT_TYPE:
+                                    case org.kevoree.modeling.msg.KMessageLoader.ATOMIC_GET_INC_RESULT_TYPE:
                                     {
-                                        var atomicGetResult = <org.kevoree.modeling.msg.KAtomicGetResult>msg;
+                                        var atomicGetResult = <org.kevoree.modeling.msg.KAtomicGetIncrementResult>msg;
                                         this._atomicGetCallbacks.remove(atomicGetResult.id)(atomicGetResult.value, null);
                                     }
                                         break;
@@ -122,11 +122,10 @@ module org {
                             this._clientConnection.send(getRequest.json());
                         }
 
-                        public atomicGetMutate(key:org.kevoree.modeling.memory.KContentKey, operation:org.kevoree.modeling.memory.cdn.AtomicOperation, callback:(p:string, p1:java.lang.Throwable) => void):void {
-                            var atomicGetRequest = new org.kevoree.modeling.msg.KAtomicGetRequest();
+                        public atomicGetIncrement(key:org.kevoree.modeling.memory.KContentKey, callback:(p:number, p1:java.lang.Throwable) => void):void {
+                            var atomicGetRequest = new org.kevoree.modeling.msg.KAtomicGetIncrementRequest();
                             atomicGetRequest.id = this.nextKey();
                             atomicGetRequest.key = key;
-                            atomicGetRequest.operation = operation;
                             this._atomicGetCallbacks.put(atomicGetRequest.id, callback);
                             this._clientConnection.send(atomicGetRequest.json());
                         }

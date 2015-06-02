@@ -61,7 +61,6 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
         }
     }
 
-
     @Override
     public synchronized void put(KContentPutRequest p_request, Callback<Throwable> p_callback) {
         for (int i = 0; i < p_request.size(); i++) {

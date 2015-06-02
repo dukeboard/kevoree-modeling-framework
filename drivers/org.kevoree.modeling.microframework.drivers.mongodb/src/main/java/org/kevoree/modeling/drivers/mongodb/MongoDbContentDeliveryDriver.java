@@ -10,7 +10,6 @@ import org.kevoree.modeling.*;
 import org.kevoree.modeling.memory.KContentDeliveryDriver;
 import org.kevoree.modeling.memory.KContentKey;
 import org.kevoree.modeling.memory.KDataManager;
-import org.kevoree.modeling.memory.cdn.AtomicOperation;
 import org.kevoree.modeling.memory.cdn.KContentPutRequest;
 import org.kevoree.modeling.msg.KMessage;
 import org.kevoree.modeling.util.LocalEventListeners;
@@ -40,22 +39,43 @@ public class MongoDbContentDeliveryDriver implements KContentDeliveryDriver {
     private static final String KMF_VAL = "@val";
 
     @Override
-    public void atomicGetMutate(KContentKey key, AtomicOperation operation, ThrowableCallback<String> callback) {
+    public void atomicGetIncrement(KContentKey key, ThrowableCallback<Short> cb) {
+
         BasicDBObject searchQuery = new BasicDBObject();
         searchQuery.put(KMF_KEY, key.toString());
         DBCursor cursor = table.find(searchQuery);
-        String previous = "0";
+        String result = "0";
         if (cursor.count() > 1) {
             DBObject objectResult = cursor.next();
-            previous = objectResult.get(KMF_VAL).toString();
+            result = objectResult.get(KMF_VAL).toString();
         }
-        String mutated = operation.mutate(previous);
+        short nextV;
+        short previousV;
+        if (result != null) {
+            try {
+                previousV = Short.parseShort(result);
+            } catch (Exception e) {
+                e.printStackTrace();
+                previousV = Short.MIN_VALUE;
+            }
+        } else {
+            previousV = 0;
+        }
+        if (previousV == Short.MAX_VALUE) {
+            nextV = Short.MIN_VALUE;
+        } else {
+            nextV = (short) (previousV + 1);
+        }
+
         BasicDBObject newValue = new BasicDBObject();
         newValue.append(KMF_KEY, key.toString());
-        newValue.append(KMF_VAL, mutated);
+        newValue.append(KMF_VAL, nextV);
         table.update(searchQuery, newValue, true, false);
-        callback.on(previous, null);
+
+        cb.on(previousV, null);
     }
+
+
 
     @Override
     public void get(KContentKey[] keys, ThrowableCallback<String[]> callback) {

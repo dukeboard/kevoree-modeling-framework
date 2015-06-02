@@ -9,7 +9,6 @@ import org.kevoree.modeling.KUniverse;
 import org.kevoree.modeling.ThrowableCallback;
 import org.kevoree.modeling.memory.*;
 import org.kevoree.modeling.memory.cache.HashMemoryCache;
-import org.kevoree.modeling.memory.cdn.AtomicOperationFactory;
 import org.kevoree.modeling.memory.cdn.KContentPutRequest;
 import org.kevoree.modeling.memory.cdn.MemoryKContentDeliveryDriver;
 import org.kevoree.modeling.memory.struct.map.LongLongHashMap;
@@ -552,6 +551,13 @@ public class DefaultKDataManager implements KDataManager {
                 }
             }
         });
+    }
+
+    @Override
+    public void cleanCache() {
+        if (_cache != null) {
+            _cache.clean(_model.metaModel());
+        }
     }
 
     public void bumpKeyToCache(final KContentKey contentKey, final Callback<KCacheElement> callback) {

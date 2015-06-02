@@ -5166,21 +5166,31 @@ module org {
 
                     dec(): void;
 
+                    free(metaModel: org.kevoree.modeling.meta.MetaModel): void;
+
                 }
 
                 export interface KCacheElementSegment extends org.kevoree.modeling.memory.KCacheElement {
 
-                    clone(metaClass: org.kevoree.modeling.meta.MetaClass): org.kevoree.modeling.memory.KCacheElementSegment;
+                    clone(newtimeOrigin: number, metaClass: org.kevoree.modeling.meta.MetaClass): org.kevoree.modeling.memory.KCacheElementSegment;
 
                     set(index: number, content: any, metaClass: org.kevoree.modeling.meta.MetaClass): void;
+
+                    get(index: number, metaClass: org.kevoree.modeling.meta.MetaClass): any;
 
                     getRef(index: number, metaClass: org.kevoree.modeling.meta.MetaClass): number[];
 
                     addRef(index: number, newRef: number, metaClass: org.kevoree.modeling.meta.MetaClass): boolean;
 
-                    removeRef(index: number, newRef: number, metaClass: org.kevoree.modeling.meta.MetaClass): boolean;
+                    removeRef(index: number, previousRef: number, metaClass: org.kevoree.modeling.meta.MetaClass): boolean;
 
-                    get(index: number, metaClass: org.kevoree.modeling.meta.MetaClass): any;
+                    getInfer(index: number, metaClass: org.kevoree.modeling.meta.MetaClass): number[];
+
+                    getInferElem(index: number, arrayIndex: number, metaClass: org.kevoree.modeling.meta.MetaClass): number;
+
+                    setInferElem(index: number, arrayIndex: number, valueToInsert: number, metaClass: org.kevoree.modeling.meta.MetaClass): void;
+
+                    extendInfer(index: number, newSize: number, metaClass: org.kevoree.modeling.meta.MetaClass): void;
 
                     modifiedIndexes(metaClass: org.kevoree.modeling.meta.MetaClass): number[];
 
@@ -5188,13 +5198,15 @@ module org {
 
                     metaClassIndex(): number;
 
+                    originTime(): number;
+
                 }
 
                 export interface KContentDeliveryDriver {
 
-                    atomicGetMutate(key: org.kevoree.modeling.memory.KContentKey, operation: org.kevoree.modeling.memory.cdn.AtomicOperation, callback: (p : string, p1 : java.lang.Throwable) => void): void;
-
                     get(keys: org.kevoree.modeling.memory.KContentKey[], callback: (p : string[], p1 : java.lang.Throwable) => void): void;
+
+                    atomicGetIncrement(key: org.kevoree.modeling.memory.KContentKey, cb: (p : number, p1 : java.lang.Throwable) => void): void;
 
                     put(request: org.kevoree.modeling.memory.cdn.KContentPutRequest, error: (p : java.lang.Throwable) => void): void;
 
@@ -5580,53 +5592,6 @@ module org {
 
                 }
                 export module cdn {
-                    export interface AtomicOperation {
-
-                        operationKey(): number;
-
-                        mutate(previous: string): string;
-
-                    }
-
-                    export class AtomicOperationFactory {
-
-                        public static PREFIX_MUTATE_OPERATION: number = 0;
-                        public static getMutatePrefixOperation(): org.kevoree.modeling.memory.cdn.AtomicOperation {
-                            return {operationKey:function(){
-                                return AtomicOperationFactory.PREFIX_MUTATE_OPERATION;
-}, mutate:function(previous: string){
-                                try {
-                                    var previousPrefix: number;
-                                    if (previous != null) {
-                                        previousPrefix = java.lang.Short.parseShort(previous);
-                                    } else {
-                                        previousPrefix = java.lang.Short.parseShort("0");
-                                    }
-                                    if (previousPrefix == java.lang.Short.MAX_VALUE) {
-                                        return "" + java.lang.Short.MIN_VALUE;
-                                    } else {
-                                        return "" + (previousPrefix + 1);
-                                    }
-                                } catch ($ex$) {
-                                    if ($ex$ instanceof java.lang.Exception) {
-                                        var e: java.lang.Exception = <java.lang.Exception>$ex$;
-                                        e.printStackTrace();
-                                        return "" + java.lang.Short.MIN_VALUE;
-                                    }
-                                 }
-}                            };
-                        }
-
-                        public static getOperationWithKey(key: number): org.kevoree.modeling.memory.cdn.AtomicOperation {
-                            switch (key) {
-                                case AtomicOperationFactory.PREFIX_MUTATE_OPERATION: 
-                                return org.kevoree.modeling.memory.cdn.AtomicOperationFactory.getMutatePrefixOperation();
-                            }
-                            return null;
-                        }
-
-                    }
-
                     export class KContentPutRequest {
 
                         private _content: any[][];
@@ -5673,15 +5638,30 @@ module org {
                         private backend: org.kevoree.modeling.memory.struct.map.StringHashMap<any> = new org.kevoree.modeling.memory.struct.map.StringHashMap<any>(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                         private _localEventListeners: org.kevoree.modeling.util.LocalEventListeners = new org.kevoree.modeling.util.LocalEventListeners();
                         public static DEBUG: boolean = false;
-                        public atomicGetMutate(key: org.kevoree.modeling.memory.KContentKey, operation: org.kevoree.modeling.memory.cdn.AtomicOperation, callback: (p : string, p1 : java.lang.Throwable) => void): void {
+                        public atomicGetIncrement(key: org.kevoree.modeling.memory.KContentKey, cb: (p : number, p1 : java.lang.Throwable) => void): void {
                             var result: string = this.backend.get(key.toString());
-                            var mutated: string = operation.mutate(result);
-                            if (MemoryKContentDeliveryDriver.DEBUG) {
-                                System.out.println("ATOMIC GET " + key + "->" + result);
-                                System.out.println("ATOMIC PUT " + key + "->" + mutated);
+                            var nextV: number;
+                            var previousV: number;
+                            if (result != null) {
+                                try {
+                                    previousV = java.lang.Short.parseShort(result);
+                                } catch ($ex$) {
+                                    if ($ex$ instanceof java.lang.Exception) {
+                                        var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                        e.printStackTrace();
+                                        previousV = java.lang.Short.MIN_VALUE;
+                                    }
+                                 }
+                            } else {
+                                previousV = 0;
                             }
-                            this.backend.put(key.toString(), mutated);
-                            callback(result, null);
+                            if (previousV == java.lang.Short.MAX_VALUE) {
+                                nextV = java.lang.Short.MIN_VALUE;
+                            } else {
+                                nextV = <number>(previousV + 1);
+                            }
+                            this.backend.put(key.toString(), "" + nextV);
+                            cb(previousV, null);
                         }
 
                         public get(keys: org.kevoree.modeling.memory.KContentKey[], callback: (p : string[], p1 : java.lang.Throwable) => void): void {
@@ -5907,7 +5887,7 @@ module org {
                         }
 
                         public initKObject(obj: org.kevoree.modeling.KObject): void {
-                            var cacheEntry: org.kevoree.modeling.memory.KCacheElementSegment = new org.kevoree.modeling.memory.struct.segment.HeapCacheSegment();
+                            var cacheEntry: org.kevoree.modeling.memory.KCacheElementSegment = new org.kevoree.modeling.memory.struct.segment.HeapCacheSegment(obj.now());
                             cacheEntry.init(obj.metaClass());
                             cacheEntry.setDirty();
                             cacheEntry.inc();
@@ -5935,25 +5915,12 @@ module org {
                             } else {
                                 this._db.connect( (throwable : java.lang.Throwable) => {
                                     if (throwable == null) {
-                                        this._db.atomicGetMutate(org.kevoree.modeling.memory.KContentKey.createLastPrefix(), org.kevoree.modeling.memory.cdn.AtomicOperationFactory.getMutatePrefixOperation(),  (payloadPrefix : string, error : java.lang.Throwable) => {
+                                        this._db.atomicGetIncrement(org.kevoree.modeling.memory.KContentKey.createLastPrefix(),  (newPrefix : number, error : java.lang.Throwable) => {
                                             if (error != null) {
                                                 if (connectCallback != null) {
                                                     connectCallback(error);
                                                 }
                                             } else {
-                                                var cleanedPrefixPayload: string = payloadPrefix;
-                                                if (cleanedPrefixPayload == null || cleanedPrefixPayload.equals("")) {
-                                                    cleanedPrefixPayload = "0";
-                                                }
-                                                var newPrefix: number;
-                                                try {
-                                                    newPrefix = java.lang.Short.parseShort(cleanedPrefixPayload);
-                                                } catch ($ex$) {
-                                                    if ($ex$ instanceof java.lang.Exception) {
-                                                        var e: java.lang.Exception = <java.lang.Exception>$ex$;
-                                                        newPrefix = java.lang.Short.parseShort("0");
-                                                    }
-                                                 }
                                                 var connectionElemKeys: org.kevoree.modeling.memory.KContentKey[] = new Array();
                                                 connectionElemKeys[this.UNIVERSE_INDEX] = org.kevoree.modeling.memory.KContentKey.createLastUniverseIndexFromPrefix(newPrefix);
                                                 connectionElemKeys[this.OBJ_INDEX] = org.kevoree.modeling.memory.KContentKey.createLastObjectIndexFromPrefix(newPrefix);
@@ -6024,7 +5991,7 @@ module org {
                             }
                         }
 
-                        public segment(origin: org.kevoree.modeling.KObject, accessMode: org.kevoree.modeling.memory.AccessMode): org.kevoree.modeling.memory.struct.segment.HeapCacheSegment {
+                        public segment(origin: org.kevoree.modeling.KObject, accessMode: org.kevoree.modeling.memory.AccessMode): org.kevoree.modeling.memory.KCacheElementSegment {
                             var currentEntry: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = <org.kevoree.modeling.memory.struct.segment.HeapCacheSegment>this._cache.get(origin.universe(), origin.now(), origin.uuid());
                             if (currentEntry != null) {
                                 return currentEntry;
@@ -6053,7 +6020,7 @@ module org {
                                     }
                                     return entry;
                                 } else {
-                                    var clonedEntry: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = entry.clone(origin.metaClass());
+                                    var clonedEntry: org.kevoree.modeling.memory.KCacheElementSegment = entry.clone(origin.now(), origin.metaClass());
                                     this._cache.put(origin.universe(), origin.now(), origin.uuid(), clonedEntry);
                                     if (!needUniverseCopy) {
                                         timeTree.insert(origin.now());
@@ -6303,7 +6270,7 @@ module org {
                                 var isTimeNotNull: boolean = key.time != org.kevoree.modeling.KConfig.NULL_LONG;
                                 var isObjNotNull: boolean = key.obj != org.kevoree.modeling.KConfig.NULL_LONG;
                                 if (isUniverseNotNull && isTimeNotNull && isObjNotNull) {
-                                    result = new org.kevoree.modeling.memory.struct.segment.HeapCacheSegment();
+                                    result = new org.kevoree.modeling.memory.struct.segment.HeapCacheSegment(key.time);
                                 } else {
                                     if (isUniverseNotNull && !isTimeNotNull && isObjNotNull) {
                                         result = new org.kevoree.modeling.memory.struct.tree.ooheap.OOKLongTree();
@@ -6632,6 +6599,7 @@ module org {
                              public counter():number { return this._counter; }
                              public inc():void { this._counter++; }
                              public dec():void { this._counter--; }
+                             public free():void { }
                              public isDirty():boolean { return this._isDirty; }
                              public setClean(mm):void { this._isDirty = false; }
                              public setDirty():void { this._isDirty = true; }
@@ -6688,6 +6656,11 @@ module org {
                             private _metaClassIndex: number = -1;
                             private _modifiedIndexes: boolean[] = null;
                             private _dirty: boolean = false;
+                            private _timeOrigin: number;
+                            constructor(p_timeOrigin: number) {
+                                this._timeOrigin = p_timeOrigin;
+                            }
+
                             public init(p_metaClass: org.kevoree.modeling.meta.MetaClass): void {
                                 this.raw = new Array();
                                 this._metaClassIndex = p_metaClass.index();
@@ -6695,6 +6668,10 @@ module org {
 
                             public metaClassIndex(): number {
                                 return this._metaClassIndex;
+                            }
+
+                            public originTime(): number {
+                                return this._timeOrigin;
                             }
 
                             public isDirty(): boolean {
@@ -6750,6 +6727,9 @@ module org {
 
                             public dec(): void {
                                 this._counter--;
+                            }
+
+                            public free(metaModel: org.kevoree.modeling.meta.MetaModel): void {
                             }
 
                             public get(index: number, p_metaClass: org.kevoree.modeling.meta.MetaClass): any {
@@ -6837,6 +6817,62 @@ module org {
                                 return false;
                             }
 
+                            public getInfer(index: number, metaClass: org.kevoree.modeling.meta.MetaClass): number[] {
+                                if (this.raw != null) {
+                                    var previousObj: any = this.raw[index];
+                                    if (previousObj != null) {
+                                        try {
+                                            return <number[]>previousObj;
+                                        } catch ($ex$) {
+                                            if ($ex$ instanceof java.lang.Exception) {
+                                                var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                                e.printStackTrace();
+                                                this.raw[index] = null;
+                                                return null;
+                                            }
+                                         }
+                                    } else {
+                                        return null;
+                                    }
+                                } else {
+                                    return null;
+                                }
+                            }
+
+                            public getInferElem(index: number, arrayIndex: number, metaClass: org.kevoree.modeling.meta.MetaClass): number {
+                                var res: number[] = this.getInfer(index, metaClass);
+                                if (res != null && arrayIndex > 0 && arrayIndex < res.length) {
+                                    return res[arrayIndex];
+                                }
+                                return 0;
+                            }
+
+                            public setInferElem(index: number, arrayIndex: number, valueToInsert: number, metaClass: org.kevoree.modeling.meta.MetaClass): void {
+                                var res: number[] = this.getInfer(index, metaClass);
+                                if (res != null && arrayIndex > 0 && arrayIndex < res.length) {
+                                    res[arrayIndex] = valueToInsert;
+                                }
+                            }
+
+                            public extendInfer(index: number, newSize: number, metaClass: org.kevoree.modeling.meta.MetaClass): void {
+                                if (this.raw != null) {
+                                    var previous: number[] = <number[]>this.raw[index];
+                                    if (previous == null) {
+                                        previous = new Array();
+                                    } else {
+                                        var incArray: number[] = new Array();
+                                        System.arraycopy(previous, 0, incArray, 0, previous.length);
+                                        previous = incArray;
+                                    }
+                                    this.raw[index] = previous;
+                                    if (this._modifiedIndexes == null) {
+                                        this._modifiedIndexes = new Array();
+                                    }
+                                    this._modifiedIndexes[index] = true;
+                                    this._dirty = true;
+                                }
+                            }
+
                             public set(index: number, content: any, p_metaClass: org.kevoree.modeling.meta.MetaClass): void {
                                 this.raw[index] = content;
                                 this._dirty = true;
@@ -6846,9 +6882,9 @@ module org {
                                 this._modifiedIndexes[index] = true;
                             }
 
-                            public clone(p_metaClass: org.kevoree.modeling.meta.MetaClass): org.kevoree.modeling.memory.struct.segment.HeapCacheSegment {
+                            public clone(newTimeOrigin: number, p_metaClass: org.kevoree.modeling.meta.MetaClass): org.kevoree.modeling.memory.KCacheElementSegment {
                                 if (this.raw == null) {
-                                    return new org.kevoree.modeling.memory.struct.segment.HeapCacheSegment();
+                                    return new org.kevoree.modeling.memory.struct.segment.HeapCacheSegment(newTimeOrigin);
                                 } else {
                                     var cloned: any[] = new Array();
                                     for (var i: number = 0; i < this.raw.length; i++) {
@@ -6861,7 +6897,7 @@ module org {
                                             }
                                         }
                                     }
-                                    var clonedEntry: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = new org.kevoree.modeling.memory.struct.segment.HeapCacheSegment();
+                                    var clonedEntry: org.kevoree.modeling.memory.struct.segment.HeapCacheSegment = new org.kevoree.modeling.memory.struct.segment.HeapCacheSegment(newTimeOrigin);
                                     clonedEntry._dirty = true;
                                     clonedEntry.raw = cloned;
                                     clonedEntry._metaClassIndex = this._metaClassIndex;
@@ -7157,6 +7193,9 @@ module org {
 
                                 public dec(): void {
                                     this._counter--;
+                                }
+
+                                public free(metaModel: org.kevoree.modeling.meta.MetaModel): void {
                                 }
 
                                 public toString(): string {
@@ -7712,6 +7751,9 @@ module org {
 
                                 public dec(): void {
                                     this._counter--;
+                                }
+
+                                public free(metaModel: org.kevoree.modeling.meta.MetaModel): void {
                                 }
 
                                 private tryPreviousOrEqualsCache(key: number): org.kevoree.modeling.memory.struct.tree.ooheap.TreeNode {
@@ -8751,10 +8793,8 @@ module org {
                         private internalInit(): void {
                             var tempMeta: org.kevoree.modeling.meta.Meta[] = new Array();
                             var loopKey: number[] = new Array();
-                            loopKey[0] = 0;
                             this.cached_meta.each( (key : string, value : org.kevoree.modeling.meta.Meta) => {
-                                tempMeta[loopKey[0]] = value;
-                                loopKey[0]++;
+                                tempMeta[value.index()] = value;
                             });
                             this.init(tempMeta);
                         }
@@ -8817,34 +8857,30 @@ module org {
                 }
             }
             export module msg {
-                export class KAtomicGetRequest implements org.kevoree.modeling.msg.KMessage {
+                export class KAtomicGetIncrementRequest implements org.kevoree.modeling.msg.KMessage {
 
                     public id: number;
                     public key: org.kevoree.modeling.memory.KContentKey;
-                    public operation: org.kevoree.modeling.memory.cdn.AtomicOperation;
                     public json(): string {
                         var buffer: java.lang.StringBuilder = new java.lang.StringBuilder();
                         org.kevoree.modeling.msg.KMessageHelper.printJsonStart(buffer);
                         org.kevoree.modeling.msg.KMessageHelper.printType(buffer, this.type());
                         org.kevoree.modeling.msg.KMessageHelper.printElem(this.id, org.kevoree.modeling.msg.KMessageLoader.ID_NAME, buffer);
                         org.kevoree.modeling.msg.KMessageHelper.printElem(this.key, org.kevoree.modeling.msg.KMessageLoader.KEY_NAME, buffer);
-                        if (this.operation != null) {
-                            org.kevoree.modeling.msg.KMessageHelper.printElem(this.operation.operationKey(), org.kevoree.modeling.msg.KMessageLoader.OPERATION_NAME, buffer);
-                        }
                         org.kevoree.modeling.msg.KMessageHelper.printJsonEnd(buffer);
                         return buffer.toString();
                     }
 
                     public type(): number {
-                        return org.kevoree.modeling.msg.KMessageLoader.ATOMIC_OPERATION_REQUEST_TYPE;
+                        return org.kevoree.modeling.msg.KMessageLoader.ATOMIC_GET_INC_REQUEST_TYPE;
                     }
 
                 }
 
-                export class KAtomicGetResult implements org.kevoree.modeling.msg.KMessage {
+                export class KAtomicGetIncrementResult implements org.kevoree.modeling.msg.KMessage {
 
                     public id: number;
-                    public value: string;
+                    public value: number;
                     public json(): string {
                         var buffer: java.lang.StringBuilder = new java.lang.StringBuilder();
                         org.kevoree.modeling.msg.KMessageHelper.printJsonStart(buffer);
@@ -8856,7 +8892,7 @@ module org {
                     }
 
                     public type(): number {
-                        return org.kevoree.modeling.msg.KMessageLoader.ATOMIC_OPERATION_RESULT_TYPE;
+                        return org.kevoree.modeling.msg.KMessageLoader.ATOMIC_GET_INC_RESULT_TYPE;
                     }
 
                 }
@@ -9064,8 +9100,8 @@ module org {
                     public static PUT_RES_TYPE: number = 4;
                     public static OPERATION_CALL_TYPE: number = 5;
                     public static OPERATION_RESULT_TYPE: number = 6;
-                    public static ATOMIC_OPERATION_REQUEST_TYPE: number = 7;
-                    public static ATOMIC_OPERATION_RESULT_TYPE: number = 8;
+                    public static ATOMIC_GET_INC_REQUEST_TYPE: number = 7;
+                    public static ATOMIC_GET_INC_RESULT_TYPE: number = 8;
                     public static load(payload: string): org.kevoree.modeling.msg.KMessage {
                         if (payload == null) {
                             return null;
@@ -9215,26 +9251,30 @@ module org {
                                                         }
                                                         return resultMessage;
                                                     } else {
-                                                        if (parsedType == KMessageLoader.ATOMIC_OPERATION_REQUEST_TYPE) {
-                                                            var atomicGetMessage: org.kevoree.modeling.msg.KAtomicGetRequest = new org.kevoree.modeling.msg.KAtomicGetRequest();
+                                                        if (parsedType == KMessageLoader.ATOMIC_GET_INC_REQUEST_TYPE) {
+                                                            var atomicGetMessage: org.kevoree.modeling.msg.KAtomicGetIncrementRequest = new org.kevoree.modeling.msg.KAtomicGetIncrementRequest();
                                                             if (objectReader.get(KMessageLoader.ID_NAME) != null) {
                                                                 atomicGetMessage.id = java.lang.Long.parseLong(objectReader.get(KMessageLoader.ID_NAME).toString());
                                                             }
                                                             if (objectReader.get(KMessageLoader.KEY_NAME) != null) {
                                                                 atomicGetMessage.key = org.kevoree.modeling.memory.KContentKey.create(objectReader.get(KMessageLoader.KEY_NAME).toString());
                                                             }
-                                                            if (objectReader.get(KMessageLoader.OPERATION_NAME) != null) {
-                                                                atomicGetMessage.operation = org.kevoree.modeling.memory.cdn.AtomicOperationFactory.getOperationWithKey(java.lang.Integer.parseInt(<string>objectReader.get(KMessageLoader.OPERATION_NAME)));
-                                                            }
                                                             return atomicGetMessage;
                                                         } else {
-                                                            if (parsedType == KMessageLoader.ATOMIC_OPERATION_RESULT_TYPE) {
-                                                                var atomicGetResultMessage: org.kevoree.modeling.msg.KAtomicGetResult = new org.kevoree.modeling.msg.KAtomicGetResult();
+                                                            if (parsedType == KMessageLoader.ATOMIC_GET_INC_RESULT_TYPE) {
+                                                                var atomicGetResultMessage: org.kevoree.modeling.msg.KAtomicGetIncrementResult = new org.kevoree.modeling.msg.KAtomicGetIncrementResult();
                                                                 if (objectReader.get(KMessageLoader.ID_NAME) != null) {
                                                                     atomicGetResultMessage.id = java.lang.Long.parseLong(objectReader.get(KMessageLoader.ID_NAME).toString());
                                                                 }
                                                                 if (objectReader.get(KMessageLoader.VALUE_NAME) != null) {
-                                                                    atomicGetResultMessage.value = objectReader.get(KMessageLoader.VALUE_NAME).toString();
+                                                                    try {
+                                                                        atomicGetResultMessage.value = java.lang.Short.parseShort(objectReader.get(KMessageLoader.VALUE_NAME).toString());
+                                                                    } catch ($ex$) {
+                                                                        if ($ex$ instanceof java.lang.Exception) {
+                                                                            var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                                                            e.printStackTrace();
+                                                                        }
+                                                                     }
                                                                 }
                                                                 return atomicGetResultMessage;
                                                             }

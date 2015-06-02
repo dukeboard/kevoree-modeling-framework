@@ -1004,21 +1004,27 @@ declare module org {
                     counter(): number;
                     inc(): void;
                     dec(): void;
+                    free(metaModel: org.kevoree.modeling.meta.MetaModel): void;
                 }
                 interface KCacheElementSegment extends org.kevoree.modeling.memory.KCacheElement {
-                    clone(metaClass: org.kevoree.modeling.meta.MetaClass): org.kevoree.modeling.memory.KCacheElementSegment;
+                    clone(newtimeOrigin: number, metaClass: org.kevoree.modeling.meta.MetaClass): org.kevoree.modeling.memory.KCacheElementSegment;
                     set(index: number, content: any, metaClass: org.kevoree.modeling.meta.MetaClass): void;
+                    get(index: number, metaClass: org.kevoree.modeling.meta.MetaClass): any;
                     getRef(index: number, metaClass: org.kevoree.modeling.meta.MetaClass): number[];
                     addRef(index: number, newRef: number, metaClass: org.kevoree.modeling.meta.MetaClass): boolean;
-                    removeRef(index: number, newRef: number, metaClass: org.kevoree.modeling.meta.MetaClass): boolean;
-                    get(index: number, metaClass: org.kevoree.modeling.meta.MetaClass): any;
+                    removeRef(index: number, previousRef: number, metaClass: org.kevoree.modeling.meta.MetaClass): boolean;
+                    getInfer(index: number, metaClass: org.kevoree.modeling.meta.MetaClass): number[];
+                    getInferElem(index: number, arrayIndex: number, metaClass: org.kevoree.modeling.meta.MetaClass): number;
+                    setInferElem(index: number, arrayIndex: number, valueToInsert: number, metaClass: org.kevoree.modeling.meta.MetaClass): void;
+                    extendInfer(index: number, newSize: number, metaClass: org.kevoree.modeling.meta.MetaClass): void;
                     modifiedIndexes(metaClass: org.kevoree.modeling.meta.MetaClass): number[];
                     init(metaClass: org.kevoree.modeling.meta.MetaClass): void;
                     metaClassIndex(): number;
+                    originTime(): number;
                 }
                 interface KContentDeliveryDriver {
-                    atomicGetMutate(key: org.kevoree.modeling.memory.KContentKey, operation: org.kevoree.modeling.memory.cdn.AtomicOperation, callback: (p: string, p1: java.lang.Throwable) => void): void;
                     get(keys: org.kevoree.modeling.memory.KContentKey[], callback: (p: string[], p1: java.lang.Throwable) => void): void;
+                    atomicGetIncrement(key: org.kevoree.modeling.memory.KContentKey, cb: (p: number, p1: java.lang.Throwable) => void): void;
                     put(request: org.kevoree.modeling.memory.cdn.KContentPutRequest, error: (p: java.lang.Throwable) => void): void;
                     remove(keys: string[], error: (p: java.lang.Throwable) => void): void;
                     connect(callback: (p: java.lang.Throwable) => void): void;
@@ -1110,15 +1116,6 @@ declare module org {
                     }
                 }
                 module cdn {
-                    interface AtomicOperation {
-                        operationKey(): number;
-                        mutate(previous: string): string;
-                    }
-                    class AtomicOperationFactory {
-                        static PREFIX_MUTATE_OPERATION: number;
-                        static getMutatePrefixOperation(): org.kevoree.modeling.memory.cdn.AtomicOperation;
-                        static getOperationWithKey(key: number): org.kevoree.modeling.memory.cdn.AtomicOperation;
-                    }
                     class KContentPutRequest {
                         private _content;
                         private static KEY_INDEX;
@@ -1135,7 +1132,7 @@ declare module org {
                         private backend;
                         private _localEventListeners;
                         static DEBUG: boolean;
-                        atomicGetMutate(key: org.kevoree.modeling.memory.KContentKey, operation: org.kevoree.modeling.memory.cdn.AtomicOperation, callback: (p: string, p1: java.lang.Throwable) => void): void;
+                        atomicGetIncrement(key: org.kevoree.modeling.memory.KContentKey, cb: (p: number, p1: java.lang.Throwable) => void): void;
                         get(keys: org.kevoree.modeling.memory.KContentKey[], callback: (p: string[], p1: java.lang.Throwable) => void): void;
                         put(p_request: org.kevoree.modeling.memory.cdn.KContentPutRequest, p_callback: (p: java.lang.Throwable) => void): void;
                         remove(keys: string[], callback: (p: java.lang.Throwable) => void): void;
@@ -1181,7 +1178,7 @@ declare module org {
                         save(callback: (p: java.lang.Throwable) => void): void;
                         initKObject(obj: org.kevoree.modeling.KObject): void;
                         connect(connectCallback: (p: java.lang.Throwable) => void): void;
-                        segment(origin: org.kevoree.modeling.KObject, accessMode: org.kevoree.modeling.memory.AccessMode): org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
+                        segment(origin: org.kevoree.modeling.KObject, accessMode: org.kevoree.modeling.memory.AccessMode): org.kevoree.modeling.memory.KCacheElementSegment;
                         discard(p_universe: org.kevoree.modeling.KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
                         delete(p_universe: org.kevoree.modeling.KUniverse<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
                         lookup(universe: number, time: number, uuid: number, callback: (p: org.kevoree.modeling.KObject) => void): void;
@@ -1277,6 +1274,7 @@ declare module org {
                             counter(): number;
                             inc(): void;
                             dec(): void;
+                            free(): void;
                             isDirty(): boolean;
                             setClean(mm: any): void;
                             setDirty(): void;
@@ -1307,8 +1305,11 @@ declare module org {
                             private _metaClassIndex;
                             private _modifiedIndexes;
                             private _dirty;
+                            private _timeOrigin;
+                            constructor(p_timeOrigin: number);
                             init(p_metaClass: org.kevoree.modeling.meta.MetaClass): void;
                             metaClassIndex(): number;
+                            originTime(): number;
                             isDirty(): boolean;
                             serialize(metaModel: org.kevoree.modeling.meta.MetaModel): string;
                             modifiedIndexes(p_metaClass: org.kevoree.modeling.meta.MetaClass): number[];
@@ -1318,12 +1319,17 @@ declare module org {
                             counter(): number;
                             inc(): void;
                             dec(): void;
+                            free(metaModel: org.kevoree.modeling.meta.MetaModel): void;
                             get(index: number, p_metaClass: org.kevoree.modeling.meta.MetaClass): any;
                             getRef(index: number, p_metaClass: org.kevoree.modeling.meta.MetaClass): number[];
                             addRef(index: number, newRef: number, metaClass: org.kevoree.modeling.meta.MetaClass): boolean;
                             removeRef(index: number, newRef: number, metaClass: org.kevoree.modeling.meta.MetaClass): boolean;
+                            getInfer(index: number, metaClass: org.kevoree.modeling.meta.MetaClass): number[];
+                            getInferElem(index: number, arrayIndex: number, metaClass: org.kevoree.modeling.meta.MetaClass): number;
+                            setInferElem(index: number, arrayIndex: number, valueToInsert: number, metaClass: org.kevoree.modeling.meta.MetaClass): void;
+                            extendInfer(index: number, newSize: number, metaClass: org.kevoree.modeling.meta.MetaClass): void;
                             set(index: number, content: any, p_metaClass: org.kevoree.modeling.meta.MetaClass): void;
-                            clone(p_metaClass: org.kevoree.modeling.meta.MetaClass): org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
+                            clone(newTimeOrigin: number, p_metaClass: org.kevoree.modeling.meta.MetaClass): org.kevoree.modeling.memory.KCacheElementSegment;
                         }
                     }
                     module tree {
@@ -1384,6 +1390,7 @@ declare module org {
                                 counter(): number;
                                 inc(): void;
                                 dec(): void;
+                                free(metaModel: org.kevoree.modeling.meta.MetaModel): void;
                                 toString(): string;
                                 isDirty(): boolean;
                                 setDirty(): void;
@@ -1435,6 +1442,7 @@ declare module org {
                                 counter(): number;
                                 inc(): void;
                                 dec(): void;
+                                free(metaModel: org.kevoree.modeling.meta.MetaModel): void;
                                 private tryPreviousOrEqualsCache(key);
                                 private resetCache();
                                 private putInPreviousOrEqualsCache(resolved);
@@ -1625,16 +1633,15 @@ declare module org {
                 }
             }
             module msg {
-                class KAtomicGetRequest implements org.kevoree.modeling.msg.KMessage {
+                class KAtomicGetIncrementRequest implements org.kevoree.modeling.msg.KMessage {
                     id: number;
                     key: org.kevoree.modeling.memory.KContentKey;
-                    operation: org.kevoree.modeling.memory.cdn.AtomicOperation;
                     json(): string;
                     type(): number;
                 }
-                class KAtomicGetResult implements org.kevoree.modeling.msg.KMessage {
+                class KAtomicGetIncrementResult implements org.kevoree.modeling.msg.KMessage {
                     id: number;
-                    value: string;
+                    value: number;
                     json(): string;
                     type(): number;
                 }
@@ -1690,8 +1697,8 @@ declare module org {
                     static PUT_RES_TYPE: number;
                     static OPERATION_CALL_TYPE: number;
                     static OPERATION_RESULT_TYPE: number;
-                    static ATOMIC_OPERATION_REQUEST_TYPE: number;
-                    static ATOMIC_OPERATION_RESULT_TYPE: number;
+                    static ATOMIC_GET_INC_REQUEST_TYPE: number;
+                    static ATOMIC_GET_INC_RESULT_TYPE: number;
                     static load(payload: string): org.kevoree.modeling.msg.KMessage;
                 }
                 class KOperationCallMessage implements org.kevoree.modeling.msg.KMessage {

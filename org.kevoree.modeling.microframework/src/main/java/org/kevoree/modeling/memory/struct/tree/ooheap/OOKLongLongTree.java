@@ -36,6 +36,11 @@ public class OOKLongLongTree implements KCacheElement, KLongLongTree {
     }
 
     @Override
+    public void free(MetaModel metaModel) {
+        //NOOP
+    }
+
+    @Override
     public String toString() {
         return serialize(null);
     }

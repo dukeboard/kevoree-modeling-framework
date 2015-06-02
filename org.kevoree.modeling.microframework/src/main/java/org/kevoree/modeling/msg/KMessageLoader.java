@@ -2,7 +2,6 @@ package org.kevoree.modeling.msg;
 
 import org.kevoree.modeling.format.json.JsonObjectReader;
 import org.kevoree.modeling.memory.KContentKey;
-import org.kevoree.modeling.memory.cdn.AtomicOperationFactory;
 import org.kevoree.modeling.memory.cdn.KContentPutRequest;
 import org.kevoree.modeling.format.json.JsonString;
 
@@ -32,12 +31,12 @@ public class KMessageLoader {
 
     public static final int OPERATION_RESULT_TYPE = 6;
 
-    public static final int ATOMIC_OPERATION_REQUEST_TYPE = 7;
+    public static final int ATOMIC_GET_INC_REQUEST_TYPE = 7;
 
-    public static final int ATOMIC_OPERATION_RESULT_TYPE = 8;
+    public static final int ATOMIC_GET_INC_RESULT_TYPE = 8;
 
     public static KMessage load(String payload) {
-        if(payload == null){
+        if (payload == null) {
             return null;
         }
         JsonObjectReader objectReader = new JsonObjectReader();
@@ -67,7 +66,7 @@ public class KMessageLoader {
                                     String[] splitted = metaInt[i].split("%");
                                     int[] newMeta = new int[splitted.length];
                                     for (int h = 0; h < splitted.length; h++) {
-                                        if(splitted[h]!=null && !splitted[h].isEmpty()){
+                                        if (splitted[h] != null && !splitted[h].isEmpty()) {
                                             newMeta[h] = Integer.parseInt(splitted[h]);
                                         }
                                     }
@@ -172,25 +171,26 @@ public class KMessageLoader {
                     resultMessage.value = objectReader.get(VALUE_NAME).toString();
                 }
                 return resultMessage;
-            } else if (parsedType == ATOMIC_OPERATION_REQUEST_TYPE) {
-                KAtomicGetRequest atomicGetMessage = new KAtomicGetRequest();
+            } else if (parsedType == ATOMIC_GET_INC_REQUEST_TYPE) {
+                KAtomicGetIncrementRequest atomicGetMessage = new KAtomicGetIncrementRequest();
                 if (objectReader.get(ID_NAME) != null) {
                     atomicGetMessage.id = Long.parseLong(objectReader.get(ID_NAME).toString());
                 }
                 if (objectReader.get(KEY_NAME) != null) {
                     atomicGetMessage.key = KContentKey.create(objectReader.get(KEY_NAME).toString());
                 }
-                if (objectReader.get(OPERATION_NAME) != null) {
-                    atomicGetMessage.operation = AtomicOperationFactory.getOperationWithKey(Integer.parseInt((String) objectReader.get(OPERATION_NAME)));
-                }
                 return atomicGetMessage;
-            } else if (parsedType == ATOMIC_OPERATION_RESULT_TYPE) {
-                KAtomicGetResult atomicGetResultMessage = new KAtomicGetResult();
+            } else if (parsedType == ATOMIC_GET_INC_RESULT_TYPE) {
+                KAtomicGetIncrementResult atomicGetResultMessage = new KAtomicGetIncrementResult();
                 if (objectReader.get(ID_NAME) != null) {
                     atomicGetResultMessage.id = Long.parseLong(objectReader.get(ID_NAME).toString());
                 }
                 if (objectReader.get(VALUE_NAME) != null) {
-                    atomicGetResultMessage.value = objectReader.get(VALUE_NAME).toString();
+                    try {
+                        atomicGetResultMessage.value = Short.parseShort(objectReader.get(VALUE_NAME).toString());
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
                 }
                 return atomicGetResultMessage;
             }

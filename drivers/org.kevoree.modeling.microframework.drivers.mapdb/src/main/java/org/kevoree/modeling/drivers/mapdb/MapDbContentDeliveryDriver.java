@@ -2,7 +2,6 @@ package org.kevoree.modeling.drivers.mapdb;
 
 import org.kevoree.modeling.*;
 import org.kevoree.modeling.memory.KContentKey;
-import org.kevoree.modeling.memory.cdn.AtomicOperation;
 import org.kevoree.modeling.memory.KContentDeliveryDriver;
 import org.kevoree.modeling.memory.cdn.KContentPutRequest;
 import org.kevoree.modeling.memory.KDataManager;
@@ -28,14 +27,27 @@ public class MapDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void atomicGetMutate(KContentKey key, AtomicOperation operation, ThrowableCallback<String> callback) {
-        String previous = (String) m.get(key.toString());
-        if (previous == null) {
-            previous = "0";
+    public void atomicGetIncrement(KContentKey key, ThrowableCallback<Short> cb) {
+        String result = (String) m.get(key.toString());
+        short nextV;
+        short previousV;
+        if (result != null) {
+            try {
+                previousV = Short.parseShort(result);
+            } catch (Exception e) {
+                e.printStackTrace();
+                previousV = Short.MIN_VALUE;
+            }
+        } else {
+            previousV = 0;
         }
-        String next = operation.mutate(previous);
-        m.put(key.toString(), next);
-        callback.on(previous, null);
+        if (previousV == Short.MAX_VALUE) {
+            nextV = Short.MIN_VALUE;
+        } else {
+            nextV = (short) (previousV + 1);
+        }
+        m.put(key.toString(), nextV + "");
+        cb.on(previousV, null);
     }
 
     @Override

@@ -6,7 +6,6 @@ import org.iq80.leveldb.Options;
 import org.iq80.leveldb.WriteBatch;
 import org.kevoree.modeling.*;
 import org.kevoree.modeling.memory.KContentKey;
-import org.kevoree.modeling.memory.cdn.AtomicOperation;
 import org.kevoree.modeling.memory.KContentDeliveryDriver;
 import org.kevoree.modeling.memory.cdn.KContentPutRequest;
 import org.kevoree.modeling.memory.KDataManager;
@@ -60,16 +59,29 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
     private String _connectedError = "PLEASE CONNECT YOUR DATABASE FIRST";
 
     @Override
-    public void atomicGetMutate(KContentKey key, AtomicOperation operation, ThrowableCallback<String> callback) {
-        if (!_isConnected) {
-            throw new RuntimeException(_connectedError);
-        }
+    public void atomicGetIncrement(KContentKey key, ThrowableCallback<Short> cb) {
         String result = JniDBFactory.asString(db.get(JniDBFactory.bytes(key.toString())));
-        String mutated = operation.mutate(result);
+        short nextV;
+        short previousV;
+        if (result != null) {
+            try {
+                previousV = Short.parseShort(result);
+            } catch (Exception e) {
+                e.printStackTrace();
+                previousV = Short.MIN_VALUE;
+            }
+        } else {
+            previousV = 0;
+        }
+        if (previousV == Short.MAX_VALUE) {
+            nextV = Short.MIN_VALUE;
+        } else {
+            nextV = (short) (previousV + 1);
+        }
         WriteBatch batch = db.createWriteBatch();
-        batch.put(JniDBFactory.bytes(key.toString()), JniDBFactory.bytes(mutated));
+        batch.put(JniDBFactory.bytes(key.toString()), JniDBFactory.bytes(nextV+""));
         db.write(batch);
-        callback.on(result, null);
+        cb.on(previousV, null);
     }
 
     @Override

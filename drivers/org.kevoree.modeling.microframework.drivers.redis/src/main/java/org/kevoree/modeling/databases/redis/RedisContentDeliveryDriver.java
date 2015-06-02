@@ -4,7 +4,6 @@ import org.kevoree.modeling.*;
 import org.kevoree.modeling.memory.KContentDeliveryDriver;
 import org.kevoree.modeling.memory.KContentKey;
 import org.kevoree.modeling.memory.KDataManager;
-import org.kevoree.modeling.memory.cdn.AtomicOperation;
 import org.kevoree.modeling.memory.cdn.KContentPutRequest;
 import org.kevoree.modeling.msg.KEvents;
 import org.kevoree.modeling.msg.KMessage;
@@ -49,13 +48,30 @@ public class RedisContentDeliveryDriver implements KContentDeliveryDriver {
     private LocalEventListeners _localEventListeners = new LocalEventListeners();
 
     @Override
-    public void atomicGetMutate(KContentKey key, AtomicOperation operation, ThrowableCallback<String> callback) {
-        String keyAsString = key.toString();
-        String previousVal = jedis.get(keyAsString);
-        String newVal = operation.mutate(previousVal);
-        jedis.set(keyAsString, newVal);
-        callback.on(previousVal, null);
+    public void atomicGetIncrement(KContentKey key, ThrowableCallback<Short> cb) {
+        String result = jedis.get(key.toString());
+        short nextV;
+        short previousV;
+        if (result != null) {
+            try {
+                previousV = Short.parseShort(result);
+            } catch (Exception e) {
+                e.printStackTrace();
+                previousV = Short.MIN_VALUE;
+            }
+        } else {
+            previousV = 0;
+        }
+        if (previousV == Short.MAX_VALUE) {
+            nextV = Short.MIN_VALUE;
+        } else {
+            nextV = (short) (previousV + 1);
+        }
+        //TODO use the nativeInc method
+        jedis.set(key.toString(), "" + nextV);
+        cb.on(previousV, null);
     }
+
 
     @Override
     public void get(KContentKey[] keys, ThrowableCallback<String[]> callback) {

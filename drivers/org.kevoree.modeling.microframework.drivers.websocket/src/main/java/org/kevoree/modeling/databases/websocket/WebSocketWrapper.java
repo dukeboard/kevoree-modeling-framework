@@ -12,7 +12,6 @@ import io.undertow.websockets.core.WebSockets;
 import io.undertow.websockets.spi.WebSocketHttpExchange;
 import org.kevoree.modeling.*;
 import org.kevoree.modeling.memory.KContentKey;
-import org.kevoree.modeling.memory.cdn.AtomicOperation;
 import org.kevoree.modeling.memory.KContentDeliveryDriver;
 import org.kevoree.modeling.memory.cdn.KContentPutRequest;
 import org.kevoree.modeling.memory.KDataManager;
@@ -72,7 +71,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
             wrapped.close(new Callback<Throwable>() {
                 @Override
                 public void on(Throwable throwable) {
-                    if(_server!= null){
+                    if (_server != null) {
                         _server.stop();
                     }
                     callback.on(throwable);
@@ -129,13 +128,13 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
                 });
             }
             break;
-            case KMessageLoader.ATOMIC_OPERATION_REQUEST_TYPE: {
-                final KAtomicGetRequest atomicGetRequest = (KAtomicGetRequest) msg;
-                wrapped.atomicGetMutate(atomicGetRequest.key, atomicGetRequest.operation, new ThrowableCallback<String>() {
+            case KMessageLoader.ATOMIC_GET_INC_REQUEST_TYPE: {
+                final KAtomicGetIncrementRequest atomicGetRequest = (KAtomicGetIncrementRequest) msg;
+                wrapped.atomicGetIncrement(atomicGetRequest.key, new ThrowableCallback<Short>() {
                     @Override
-                    public void on(String s, Throwable error) {
+                    public void on(Short s, Throwable error) {
                         if (error == null) {
-                            KAtomicGetResult atomicGetResultMessage = new KAtomicGetResult();
+                            KAtomicGetIncrementResult atomicGetResultMessage = new KAtomicGetIncrementResult();
                             atomicGetResultMessage.id = atomicGetRequest.id;
                             atomicGetResultMessage.value = s;
                             WebSockets.sendText(atomicGetResultMessage.json(), channel, null);
@@ -173,8 +172,8 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
     }
 
     @Override
-    public void atomicGetMutate(KContentKey key, AtomicOperation operation, ThrowableCallback<String> callback) {
-        wrapped.atomicGetMutate(key, operation, callback);
+    public void atomicGetIncrement(KContentKey key, ThrowableCallback<Short> callback) {
+        wrapped.atomicGetIncrement(key, callback);
     }
 
     @Override

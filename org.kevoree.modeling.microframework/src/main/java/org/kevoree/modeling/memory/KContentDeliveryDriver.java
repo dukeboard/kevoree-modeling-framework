@@ -6,7 +6,6 @@ import org.kevoree.modeling.KEventMultiListener;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.KUniverse;
 import org.kevoree.modeling.ThrowableCallback;
-import org.kevoree.modeling.memory.cdn.AtomicOperation;
 import org.kevoree.modeling.memory.cdn.KContentPutRequest;
 import org.kevoree.modeling.msg.KMessage;
 

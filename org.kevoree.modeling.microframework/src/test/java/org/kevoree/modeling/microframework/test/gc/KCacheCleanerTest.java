@@ -29,7 +29,7 @@ public class KCacheCleanerTest {
                 sensor = null;
                 universe.save(null);
                 System.gc();
-                universe.manager().cache().clean();
+                universe.manager().cleanCache();
                 Assert.assertEquals(1, universe.manager().cache().size());
                 universe.universe(0).time(0).lookup(sensorID, new Callback<KObject>() {
                     @Override
