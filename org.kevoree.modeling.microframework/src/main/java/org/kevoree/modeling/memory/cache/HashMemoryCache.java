@@ -143,7 +143,7 @@ public class HashMemoryCache implements KCache {
      */
     @Override
     public void clean(MetaModel metaModel) {
-        common_clean_monitor(null,metaModel);
+        common_clean_monitor(null, metaModel);
     }
 
     /**
@@ -151,7 +151,7 @@ public class HashMemoryCache implements KCache {
      */
     @Override
     public void monitor(KObject origin) {
-        common_clean_monitor(origin,null);
+        common_clean_monitor(origin, null);
     }
 
     @Override
@@ -170,7 +170,7 @@ public class HashMemoryCache implements KCache {
                     elementCount--;
                     try {
                         m.value.free(p_metaModel);
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                     if (previous == null) {
@@ -208,15 +208,15 @@ public class HashMemoryCache implements KCache {
                         ResolutionResult resolved = ResolutionHelper.resolve_trees(current.universe, current.time, current.uuid, this);
                         resolved.universeTree.dec();
                         if (resolved.universeTree.counter() <= 0) {
-                            remove(KConfig.NULL_LONG, KConfig.NULL_LONG, resolved.uuid,p_metaModel);
+                            remove(KConfig.NULL_LONG, KConfig.NULL_LONG, resolved.uuid, p_metaModel);
                         }
                         resolved.timeTree.dec();
                         if (resolved.timeTree.counter() <= 0) {
-                            remove(resolved.universe, KConfig.NULL_LONG, resolved.uuid,p_metaModel);
+                            remove(resolved.universe, KConfig.NULL_LONG, resolved.uuid, p_metaModel);
                         }
                         resolved.segment.dec();
                         if (resolved.segment.counter() <= 0) {
-                            remove(resolved.universe, resolved.time, resolved.uuid,p_metaModel);
+                            remove(resolved.universe, resolved.time, resolved.uuid, p_metaModel);
                         }
                         //change chaining
                         if (previous == null) { //first case
@@ -249,7 +249,14 @@ public class HashMemoryCache implements KCache {
         threshold = (int) (elementDataSize * loadFactor);
     }
 
-    public void clear() {
+    public void clear(MetaModel metaModel) {
+        for (int i = 0; i < elementData.length; i++) {
+            Entry e = elementData[i];
+            while(e != null){
+                e.value.free(metaModel);
+                e = e.next;
+            }
+        }
         if (elementCount > 0) {
             elementCount = 0;
             this.elementData = new Entry[initalCapacity];

@@ -372,7 +372,7 @@ public class DefaultKDataManager implements KDataManager {
     @Override
     public void discard(KUniverse p_universe, final Callback<Throwable> callback) {
         //save prefix to not negociate again prefix
-        _cache.clear();
+        _cache.clear(_model.metaModel());
         KContentKey[] globalUniverseTree = new KContentKey[1];
         globalUniverseTree[0] = KContentKey.createGlobalUniverseTree();
         reload(globalUniverseTree, new Callback<Throwable>() {

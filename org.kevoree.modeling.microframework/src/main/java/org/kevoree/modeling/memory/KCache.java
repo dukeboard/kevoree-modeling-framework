@@ -12,7 +12,7 @@ public interface KCache {
 
     KCacheDirty[] dirties();
 
-    void clear();
+    void clear(MetaModel metaModel);
 
     void clean(MetaModel metaModel);
 
