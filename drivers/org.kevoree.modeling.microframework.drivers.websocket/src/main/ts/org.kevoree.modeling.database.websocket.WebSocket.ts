@@ -6,14 +6,14 @@ module org {
         export module modeling {
             export module database {
                 export module websocket {
-                    export class WebSocketClient implements org.kevoree.modeling.api.data.cdn.KContentDeliveryDriver {
+                    export class WebSocketClient implements org.kevoree.modeling.memory.KContentDeliveryDriver {
 
                         private _callbackId = 0;
                         private _reconnectionDelay = 3000;
                         private _clientConnection:WebSocket;
                         private _connectionUri:string;
-                        private _manager:org.kevoree.modeling.api.data.manager.KDataManager;
-                        private _localEventListeners = new org.kevoree.modeling.api.event.LocalEventListeners();
+                        private _manager:org.kevoree.modeling.memory.KDataManager;
+                        private _localEventListeners = new org.kevoree.modeling.util.LocalEventListeners();
 
                         private _getCallbacks:java.util.HashMap<number, (p1:string[], p2:java.lang.Throwable) => void> = new java.util.HashMap<number, (p1:string[], p2:java.lang.Throwable) => void>();
                         private _putCallbacks:java.util.HashMap<number, (p:java.lang.Throwable) => void> = new java.util.HashMap<number, (p1:java.lang.Throwable) => void>();
@@ -27,35 +27,35 @@ module org {
                             var self = this;
                             this._clientConnection = new WebSocket(this._connectionUri);
                             this._clientConnection.onmessage = (message) => {
-                                var msg = org.kevoree.modeling.api.msg.KMessageLoader.load(message.data);
+                                var msg = org.kevoree.modeling.msg.KMessageLoader.load(message.data);
                                 switch (msg.type()) {
-                                    case org.kevoree.modeling.api.msg.KMessageLoader.GET_RES_TYPE:
+                                    case org.kevoree.modeling.msg.KMessageLoader.GET_RES_TYPE:
                                     {
-                                        var getResult = <org.kevoree.modeling.api.msg.KGetResult>msg;
+                                        var getResult = <org.kevoree.modeling.msg.KGetResult>msg;
                                         this._getCallbacks.remove(getResult.id)(getResult.values, null);
                                     }
                                         break;
-                                    case org.kevoree.modeling.api.msg.KMessageLoader.PUT_RES_TYPE:
+                                    case org.kevoree.modeling.msg.KMessageLoader.PUT_RES_TYPE:
                                     {
-                                        var putResult = <org.kevoree.modeling.api.msg.KPutResult>msg;
+                                        var putResult = <org.kevoree.modeling.msg.KPutResult>msg;
                                         this._putCallbacks.remove(putResult.id)(null);
                                     }
                                         break;
-                                    case org.kevoree.modeling.api.msg.KMessageLoader.ATOMIC_OPERATION_RESULT_TYPE:
+                                    case org.kevoree.modeling.msg.KMessageLoader.ATOMIC_OPERATION_RESULT_TYPE:
                                     {
-                                        var atomicGetResult = <org.kevoree.modeling.api.msg.KAtomicGetResult>msg;
+                                        var atomicGetResult = <org.kevoree.modeling.msg.KAtomicGetResult>msg;
                                         this._atomicGetCallbacks.remove(atomicGetResult.id)(atomicGetResult.value, null);
                                     }
                                         break;
-                                    case org.kevoree.modeling.api.msg.KMessageLoader.OPERATION_CALL_TYPE:
-                                    case org.kevoree.modeling.api.msg.KMessageLoader.OPERATION_RESULT_TYPE:
+                                    case org.kevoree.modeling.msg.KMessageLoader.OPERATION_CALL_TYPE:
+                                    case org.kevoree.modeling.msg.KMessageLoader.OPERATION_RESULT_TYPE:
                                     {
-                                        this._manager.operationManager().operationEventReceived(<org.kevoree.modeling.api.msg.KMessage>msg);
+                                        this._manager.operationManager().operationEventReceived(<org.kevoree.modeling.msg.KMessage>msg);
                                     }
                                         break;
-                                    case org.kevoree.modeling.api.msg.KMessageLoader.EVENTS_TYPE:
+                                    case org.kevoree.modeling.msg.KMessageLoader.EVENTS_TYPE:
                                     {
-                                        var eventsMsg = <org.kevoree.modeling.api.msg.KEvents>msg;
+                                        var eventsMsg = <org.kevoree.modeling.msg.KEvents>msg;
                                         this._manager.reload(eventsMsg.allKeys(), (function (error) {
                                             if (error != null) {
                                                 error.printStackTrace();
@@ -105,24 +105,24 @@ module org {
                             return this._callbackId;
                         }
 
-                        public put(request:org.kevoree.modeling.api.data.cdn.KContentPutRequest, error:(p:java.lang.Throwable) => void):void {
-                            var putRequest = new org.kevoree.modeling.api.msg.KPutRequest();
+                        public put(request:org.kevoree.modeling.memory.cdn.KContentPutRequest, error:(p:java.lang.Throwable) => void):void {
+                            var putRequest = new org.kevoree.modeling.msg.KPutRequest();
                             putRequest.id = this.nextKey();
                             putRequest.request = request;
                             this._putCallbacks.put(putRequest.id, error);
                             this._clientConnection.send(putRequest.json());
                         }
 
-                        public get(keys:org.kevoree.modeling.api.data.cache.KContentKey[], callback:(p:string[], p1:java.lang.Throwable) => void):void {
-                            var getRequest = new org.kevoree.modeling.api.msg.KGetRequest();
+                        public get(keys:org.kevoree.modeling.memory.KContentKey[], callback:(p:string[], p1:java.lang.Throwable) => void):void {
+                            var getRequest = new org.kevoree.modeling.msg.KGetRequest();
                             getRequest.id = this.nextKey();
                             getRequest.keys = keys;
                             this._getCallbacks.put(getRequest.id, callback);
                             this._clientConnection.send(getRequest.json());
                         }
 
-                        public atomicGetMutate(key:org.kevoree.modeling.api.data.cache.KContentKey, operation:org.kevoree.modeling.api.data.cdn.AtomicOperation, callback:(p:string, p1:java.lang.Throwable) => void):void {
-                            var atomicGetRequest = new org.kevoree.modeling.api.msg.KAtomicGetRequest();
+                        public atomicGetMutate(key:org.kevoree.modeling.memory.KContentKey, operation:org.kevoree.modeling.memory.cdn.AtomicOperation, callback:(p:string, p1:java.lang.Throwable) => void):void {
+                            var atomicGetRequest = new org.kevoree.modeling.msg.KAtomicGetRequest();
                             atomicGetRequest.id = this.nextKey();
                             atomicGetRequest.key = key;
                             atomicGetRequest.operation = operation;
@@ -134,11 +134,11 @@ module org {
                             console.error("Not implemented yet");
                         }
 
-                        public registerListener(groupId:number,origin:org.kevoree.modeling.api.KObject, listener:(p:org.kevoree.modeling.api.KObject, p1:org.kevoree.modeling.api.meta.Meta[]) => void):void {
-                            this._localEventListeners.registerListener(groupId,origin, listener);
+                        public registerListener(groupId:number, origin:org.kevoree.modeling.KObject, listener:(p:org.kevoree.modeling.KObject, p1:org.kevoree.modeling.meta.Meta[]) => void):void {
+                            this._localEventListeners.registerListener(groupId, origin, listener);
                         }
 
-                        public registerMultiListener(groupId:number, origin:org.kevoree.modeling.api.KUniverse<any,any,any>, objects:number[], listener:(objs:org.kevoree.modeling.api.KObject[])=>void) {
+                        public registerMultiListener(groupId:number, origin:org.kevoree.modeling.KUniverse<any,any,any>, objects:number[], listener:(objs:org.kevoree.modeling.KObject[])=>void) {
                             this._localEventListeners.registerListenerAll(groupId, origin.key(), objects, listener);
                         }
 
@@ -146,12 +146,12 @@ module org {
                             this._localEventListeners.unregister(groupId);
                         }
 
-                        public setManager(manager:org.kevoree.modeling.api.data.manager.KDataManager):void {
+                        public setManager(manager:org.kevoree.modeling.memory.KDataManager):void {
                             this._manager = manager;
                             this._localEventListeners.setManager(manager);
                         }
 
-                        public send(msg:org.kevoree.modeling.api.msg.KMessage):void {
+                        public send(msg:org.kevoree.modeling.msg.KMessage):void {
                             //Send to remote
                             this._localEventListeners.dispatch(msg);
                             this._clientConnection.send(msg.json());

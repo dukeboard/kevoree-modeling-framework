@@ -1,7 +1,6 @@
 package org.kevoree.modeling.drivers.mapdb;
 
 import org.kevoree.modeling.*;
-import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.memory.KContentKey;
 import org.kevoree.modeling.memory.cdn.AtomicOperation;
 import org.kevoree.modeling.memory.KContentDeliveryDriver;

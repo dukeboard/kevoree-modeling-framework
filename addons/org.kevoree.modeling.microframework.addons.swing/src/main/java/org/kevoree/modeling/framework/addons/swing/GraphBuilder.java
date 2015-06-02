@@ -8,8 +8,8 @@ import org.kevoree.modeling.Callback;
 import org.kevoree.modeling.KModelVisitor;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.KVisitResult;
-import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.abs.AbstractKObject;
+import org.kevoree.modeling.memory.KCacheElementSegment;
 import org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
 import org.kevoree.modeling.memory.AccessMode;
 import org.kevoree.modeling.meta.MetaReference;
@@ -59,13 +59,13 @@ public class GraphBuilder {
 
     private static void createEdges(Graph graph, KObject elem) {
         Node n = graph.getNode(elem.uuid() + "");
-        HeapCacheSegment rawPayload = ((AbstractKObject) elem)._manager.segment(elem, AccessMode.READ);
+        KCacheElementSegment rawPayload = elem.manager().segment(elem, AccessMode.READ);
         for (MetaReference metaRef : elem.metaClass().metaReferences()) {
-            long[] relatedElems = rawPayload.getRef(metaRef.index());
+            long[] relatedElems = rawPayload.getRef(metaRef.index(), elem.metaClass());
             if (relatedElems != null) {
                 for (int i = 0; i < relatedElems.length; i++) {
                     Edge e = graph.addEdge(elem.uuid() + "_" + relatedElems[i] + "_" + metaRef.metaName(), elem.uuid() + "", relatedElems[i] + "");
-                    if(e != null){
+                    if (e != null) {
                         e.addAttribute("ui.label", metaRef.metaName());
                     }
                 }

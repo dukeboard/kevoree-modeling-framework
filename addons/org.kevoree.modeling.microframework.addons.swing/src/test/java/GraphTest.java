@@ -2,7 +2,6 @@ import org.graphstream.graph.Graph;
 import org.graphstream.ui.swingViewer.ViewerListener;
 import org.graphstream.ui.swingViewer.ViewerPipe;
 import org.kevoree.modeling.*;
-import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.meta.PrimitiveTypes;
 import org.kevoree.modeling.meta.reflexive.DynamicMetaClass;
 import org.kevoree.modeling.meta.reflexive.DynamicMetaModel;
