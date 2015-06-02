@@ -239,7 +239,7 @@ public class HeapCacheSegment implements KCacheElementSegment {
         if (raw != null) {
             double[] previous = (double[]) raw[index];
             if (previous == null) {
-                previous = new double[1];
+                previous = new double[newSize];
             } else {
                 double[] incArray = new double[newSize];
                 System.arraycopy(previous, 0, incArray, 0, previous.length);
