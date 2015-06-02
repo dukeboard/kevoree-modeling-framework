@@ -40,8 +40,9 @@ public class AbstractMetaModel implements MetaModel {
         return _metaClasses;
     }
 
-    public MetaClass metaClass(String name) {
-        if(_metaClasses_indexes == null){
+    @Override
+    public MetaClass metaClassByName(String name) {
+        if (_metaClasses_indexes == null) {
             return null;
         }
         Integer resolved = _metaClasses_indexes.get(name);
@@ -50,6 +51,14 @@ public class AbstractMetaModel implements MetaModel {
         } else {
             return _metaClasses[resolved];
         }
+    }
+
+    @Override
+    public MetaClass metaClass(int index) {
+        if (index >= 0 && index < _metaClasses.length) {
+            return _metaClasses[index];
+        }
+        return null;
     }
 
     public void init(MetaClass[] p_metaClasses) {

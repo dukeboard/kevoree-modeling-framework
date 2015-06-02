@@ -4,6 +4,8 @@ public interface MetaModel extends Meta {
 
     MetaClass[] metaClasses();
 
-    MetaClass metaClass(String name);
+    MetaClass metaClassByName(String name);
+
+    MetaClass metaClass(int index);
 
 }
