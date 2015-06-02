@@ -15,7 +15,7 @@ import java.io.IOException;
  */
 public class RedisTest {
 
-    @Test
+    //@Test
     public void test() throws IOException, InterruptedException {
 
         RedisServer redisServer = new RedisServer(6379);
