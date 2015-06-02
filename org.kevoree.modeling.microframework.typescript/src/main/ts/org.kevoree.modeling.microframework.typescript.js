@@ -329,7 +329,7 @@ var org;
                         return newObj;
                     };
                     AbstractKModel.prototype.createByName = function (metaClassName, universe, time) {
-                        return this.create(this._manager.model().metaModel().metaClass(metaClassName), universe, time);
+                        return this.create(this._manager.model().metaModel().metaClassByName(metaClassName), universe, time);
                     };
                     return AbstractKModel;
                 })();
@@ -1028,7 +1028,7 @@ var org;
                         return this._manager.model().create(clazz, this._universe, this._time);
                     };
                     AbstractKView.prototype.createByName = function (metaClassName) {
-                        return this.create(this._manager.model().metaModel().metaClass(metaClassName));
+                        return this.create(this._manager.model().metaModel().metaClassByName(metaClassName));
                     };
                     AbstractKView.prototype.json = function () {
                         return new org.kevoree.modeling.format.json.JsonFormat(this._universe, this._time, this._manager);
@@ -1213,7 +1213,7 @@ var org;
                     AbstractMetaModel.prototype.metaClasses = function () {
                         return this._metaClasses;
                     };
-                    AbstractMetaModel.prototype.metaClass = function (name) {
+                    AbstractMetaModel.prototype.metaClassByName = function (name) {
                         if (this._metaClasses_indexes == null) {
                             return null;
                         }
@@ -1224,6 +1224,12 @@ var org;
                         else {
                             return this._metaClasses[resolved];
                         }
+                    };
+                    AbstractMetaModel.prototype.metaClass = function (index) {
+                        if (index >= 0 && index < this._metaClasses.length) {
+                            return this._metaClasses[index];
+                        }
+                        return null;
                     };
                     AbstractMetaModel.prototype.init = function (p_metaClasses) {
                         this._metaClasses_indexes = new org.kevoree.modeling.memory.struct.map.StringHashMap(p_metaClasses.length, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
@@ -2509,7 +2515,7 @@ var org;
                         JsonModelLoader.loadObj = function (p_param, manager, universe, time, p_mappedKeys, p_rootElem) {
                             var kid = java.lang.Long.parseLong(p_param.get(org.kevoree.modeling.format.json.JsonFormat.KEY_UUID).toString());
                             var meta = p_param.get(org.kevoree.modeling.format.json.JsonFormat.KEY_META).toString();
-                            var metaClass = manager.model().metaModel().metaClass(meta);
+                            var metaClass = manager.model().metaModel().metaClassByName(meta);
                             var current = manager.model().createProxy(universe, time, p_mappedKeys.get(kid), metaClass);
                             manager.initKObject(current);
                             var raw = manager.segment(current, org.kevoree.modeling.memory.AccessMode.WRITE);
@@ -4745,14 +4751,14 @@ var org;
                             }
                             return collectedDirties;
                         };
-                        HashMemoryCache.prototype.clean = function () {
+                        HashMemoryCache.prototype.clean = function (metaModel) {
                         };
                         HashMemoryCache.prototype.monitor = function (origin) {
                         };
                         HashMemoryCache.prototype.size = function () {
                             return this.elementCount;
                         };
-                        HashMemoryCache.prototype.remove = function (universe, time, obj) {
+                        HashMemoryCache.prototype.remove = function (universe, time, obj, p_metaModel) {
                             var hash = (universe ^ time ^ obj);
                             var index = (hash & 0x7FFFFFFF) % this.elementDataSize;
                             if (this.elementDataSize != 0) {
@@ -4761,6 +4767,15 @@ var org;
                                 while (m != null) {
                                     if (m.universe == universe && m.time == time && m.obj == obj) {
                                         this.elementCount--;
+                                        try {
+                                            m.value.free(p_metaModel);
+                                        }
+                                        catch ($ex$) {
+                                            if ($ex$ instanceof java.lang.Exception) {
+                                                var e = $ex$;
+                                                e.printStackTrace();
+                                            }
+                                        }
                                         if (previous == null) {
                                             this.elementData[index] = m.next;
                                         }
@@ -4773,7 +4788,14 @@ var org;
                                 }
                             }
                         };
-                        HashMemoryCache.prototype.clear = function () {
+                        HashMemoryCache.prototype.clear = function (metaModel) {
+                            for (var i = 0; i < this.elementData.length; i++) {
+                                var e = this.elementData[i];
+                                while (e != null) {
+                                    e.value.free(metaModel);
+                                    e = e.next;
+                                }
+                            }
                             if (this.elementCount > 0) {
                                 this.elementCount = 0;
                                 this.elementData = new Array();
@@ -5236,7 +5258,7 @@ var org;
                             }
                         };
                         DefaultKDataManager.prototype.discard = function (p_universe, callback) {
-                            this._cache.clear();
+                            this._cache.clear(this._model.metaModel());
                             var globalUniverseTree = new Array();
                             globalUniverseTree[0] = org.kevoree.modeling.memory.KContentKey.createGlobalUniverseTree();
                             this.reload(globalUniverseTree, function (throwable) {
@@ -5380,6 +5402,11 @@ var org;
                                 }
                             });
                         };
+                        DefaultKDataManager.prototype.cleanCache = function () {
+                            if (this._cache != null) {
+                                this._cache.clean(this._model.metaModel());
+                            }
+                        };
                         DefaultKDataManager.prototype.bumpKeyToCache = function (contentKey, callback) {
                             var _this = this;
                             var cached = this._cache.get(contentKey.universe, contentKey.time, contentKey.obj);
@@ -5507,7 +5534,7 @@ var org;
                                 return false;
                             }
                             else {
-                                var metaClass = metaModel.metaClass(objectReader.get(org.kevoree.modeling.format.json.JsonFormat.KEY_META).toString());
+                                var metaClass = metaModel.metaClassByName(objectReader.get(org.kevoree.modeling.format.json.JsonFormat.KEY_META).toString());
                                 entry.init(metaClass);
                                 var metaKeys = objectReader.keys();
                                 for (var i = 0; i < metaKeys.length; i++) {
@@ -7980,8 +8007,11 @@ var org;
                             });
                             return tempResult;
                         };
-                        DynamicMetaModel.prototype.metaClass = function (name) {
+                        DynamicMetaModel.prototype.metaClassByName = function (name) {
                             return this._classes.get(name);
+                        };
+                        DynamicMetaModel.prototype.metaClass = function (index) {
+                            return this.metaClasses()[index];
                         };
                         DynamicMetaModel.prototype.metaName = function () {
                             return this._metaName;

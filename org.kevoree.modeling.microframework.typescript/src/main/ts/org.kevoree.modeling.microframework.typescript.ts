@@ -613,7 +613,7 @@ module org {
                     }
 
                     public createByName(metaClassName: string, universe: number, time: number): org.kevoree.modeling.KObject {
-                        return this.create(this._manager.model().metaModel().metaClass(metaClassName), universe, time);
+                        return this.create(this._manager.model().metaModel().metaClassByName(metaClassName), universe, time);
                     }
 
                 }
@@ -1340,7 +1340,7 @@ module org {
                     }
 
                     public createByName(metaClassName: string): org.kevoree.modeling.KObject {
-                        return this.create(this._manager.model().metaModel().metaClass(metaClassName));
+                        return this.create(this._manager.model().metaModel().metaClassByName(metaClassName));
                     }
 
                     public json(): org.kevoree.modeling.KModelFormat {
@@ -1563,7 +1563,7 @@ module org {
                         return this._metaClasses;
                     }
 
-                    public metaClass(name: string): org.kevoree.modeling.meta.MetaClass {
+                    public metaClassByName(name: string): org.kevoree.modeling.meta.MetaClass {
                         if (this._metaClasses_indexes == null) {
                             return null;
                         }
@@ -1573,6 +1573,13 @@ module org {
                         } else {
                             return this._metaClasses[resolved];
                         }
+                    }
+
+                    public metaClass(index: number): org.kevoree.modeling.meta.MetaClass {
+                        if (index >= 0 && index < this._metaClasses.length) {
+                            return this._metaClasses[index];
+                        }
+                        return null;
                     }
 
                     public init(p_metaClasses: org.kevoree.modeling.meta.MetaClass[]): void {
@@ -2999,7 +3006,7 @@ module org {
                         private static loadObj(p_param: org.kevoree.modeling.memory.struct.map.StringHashMap<any>, manager: org.kevoree.modeling.memory.KDataManager, universe: number, time: number, p_mappedKeys: org.kevoree.modeling.memory.struct.map.LongLongHashMap, p_rootElem: org.kevoree.modeling.KObject[]): void {
                             var kid: number = java.lang.Long.parseLong(p_param.get(org.kevoree.modeling.format.json.JsonFormat.KEY_UUID).toString());
                             var meta: string = p_param.get(org.kevoree.modeling.format.json.JsonFormat.KEY_META).toString();
-                            var metaClass: org.kevoree.modeling.meta.MetaClass = manager.model().metaModel().metaClass(meta);
+                            var metaClass: org.kevoree.modeling.meta.MetaClass = manager.model().metaModel().metaClassByName(meta);
                             var current: org.kevoree.modeling.KObject = (<org.kevoree.modeling.abs.AbstractKModel<any>>manager.model()).createProxy(universe, time, p_mappedKeys.get(kid), metaClass);
                             manager.initKObject(current);
                             var raw: org.kevoree.modeling.memory.KCacheElementSegment = manager.segment(current, org.kevoree.modeling.memory.AccessMode.WRITE);
@@ -5138,9 +5145,9 @@ module org {
 
                     dirties(): org.kevoree.modeling.memory.cache.KCacheDirty[];
 
-                    clear(): void;
+                    clear(metaModel: org.kevoree.modeling.meta.MetaModel): void;
 
-                    clean(): void;
+                    clean(metaModel: org.kevoree.modeling.meta.MetaModel): void;
 
                     monitor(origin: org.kevoree.modeling.KObject): void;
 
@@ -5401,6 +5408,8 @@ module org {
 
                     reload(keys: org.kevoree.modeling.memory.KContentKey[], callback: (p : java.lang.Throwable) => void): void;
 
+                    cleanCache(): void;
+
                 }
 
                 export module cache {
@@ -5517,7 +5526,7 @@ module org {
                             return collectedDirties;
                         }
 
-                        public clean(): void {
+                        public clean(metaModel: org.kevoree.modeling.meta.MetaModel): void {
                         }
 
                         public monitor(origin: org.kevoree.modeling.KObject): void {
@@ -5527,7 +5536,7 @@ module org {
                             return this.elementCount;
                         }
 
-                        private remove(universe: number, time: number, obj: number): void {
+                        private remove(universe: number, time: number, obj: number, p_metaModel: org.kevoree.modeling.meta.MetaModel): void {
                             var hash: number = <number>(universe ^ time ^ obj);
                             var index: number = (hash & 0x7FFFFFFF) % this.elementDataSize;
                             if (this.elementDataSize != 0) {
@@ -5536,6 +5545,14 @@ module org {
                                 while (m != null){
                                     if (m.universe == universe && m.time == time && m.obj == obj) {
                                         this.elementCount--;
+                                        try {
+                                            m.value.free(p_metaModel);
+                                        } catch ($ex$) {
+                                            if ($ex$ instanceof java.lang.Exception) {
+                                                var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                                e.printStackTrace();
+                                            }
+                                         }
                                         if (previous == null) {
                                             this.elementData[index] = m.next;
                                         } else {
@@ -5557,7 +5574,14 @@ module org {
                             this.threshold = <number>(this.elementDataSize * this.loadFactor);
                         }
 
-                        public clear(): void {
+                        public clear(metaModel: org.kevoree.modeling.meta.MetaModel): void {
+                            for (var i: number = 0; i < this.elementData.length; i++) {
+                                var e: org.kevoree.modeling.memory.cache.HashMemoryCache.Entry = this.elementData[i];
+                                while (e != null){
+                                    e.value.free(metaModel);
+                                    e = e.next;
+                                }
+                            }
                             if (this.elementCount > 0) {
                                 this.elementCount = 0;
                                 this.elementData = new Array();
@@ -6043,7 +6067,7 @@ module org {
                         }
 
                         public discard(p_universe: org.kevoree.modeling.KUniverse<any, any, any>, callback: (p : java.lang.Throwable) => void): void {
-                            this._cache.clear();
+                            this._cache.clear(this._model.metaModel());
                             var globalUniverseTree: org.kevoree.modeling.memory.KContentKey[] = new Array();
                             globalUniverseTree[0] = org.kevoree.modeling.memory.KContentKey.createGlobalUniverseTree();
                             this.reload(globalUniverseTree,  (throwable : java.lang.Throwable) => {
@@ -6190,6 +6214,12 @@ module org {
                             });
                         }
 
+                        public cleanCache(): void {
+                            if (this._cache != null) {
+                                this._cache.clean(this._model.metaModel());
+                            }
+                        }
+
                         public bumpKeyToCache(contentKey: org.kevoree.modeling.memory.KContentKey, callback: (p : org.kevoree.modeling.memory.KCacheElement) => void): void {
                             var cached: org.kevoree.modeling.memory.KCacheElement = this._cache.get(contentKey.universe, contentKey.time, contentKey.obj);
                             if (cached != null) {
@@ -6304,7 +6334,7 @@ module org {
                             if (objectReader.get(org.kevoree.modeling.format.json.JsonFormat.KEY_META) == null) {
                                 return false;
                             } else {
-                                var metaClass: org.kevoree.modeling.meta.MetaClass = metaModel.metaClass(objectReader.get(org.kevoree.modeling.format.json.JsonFormat.KEY_META).toString());
+                                var metaClass: org.kevoree.modeling.meta.MetaClass = metaModel.metaClassByName(objectReader.get(org.kevoree.modeling.format.json.JsonFormat.KEY_META).toString());
                                 entry.init(metaClass);
                                 var metaKeys: string[] = objectReader.keys();
                                 for (var i: number = 0; i < metaKeys.length; i++) {
@@ -8617,7 +8647,9 @@ module org {
 
                     metaClasses(): org.kevoree.modeling.meta.MetaClass[];
 
-                    metaClass(name: string): org.kevoree.modeling.meta.MetaClass;
+                    metaClassByName(name: string): org.kevoree.modeling.meta.MetaClass;
+
+                    metaClass(index: number): org.kevoree.modeling.meta.MetaClass;
 
                 }
 
@@ -8820,8 +8852,12 @@ module org {
                             return tempResult;
                         }
 
-                        public metaClass(name: string): org.kevoree.modeling.meta.MetaClass {
+                        public metaClassByName(name: string): org.kevoree.modeling.meta.MetaClass {
                             return this._classes.get(name);
+                        }
+
+                        public metaClass(index: number): org.kevoree.modeling.meta.MetaClass {
+                            return this.metaClasses()[index];
                         }
 
                         public metaName(): string {

@@ -362,7 +362,8 @@ declare module org {
                     metaType(): org.kevoree.modeling.meta.MetaType;
                     constructor(p_name: string, p_index: number);
                     metaClasses(): org.kevoree.modeling.meta.MetaClass[];
-                    metaClass(name: string): org.kevoree.modeling.meta.MetaClass;
+                    metaClassByName(name: string): org.kevoree.modeling.meta.MetaClass;
+                    metaClass(index: number): org.kevoree.modeling.meta.MetaClass;
                     init(p_metaClasses: org.kevoree.modeling.meta.MetaClass[]): void;
                 }
                 class AbstractMetaOperation implements org.kevoree.modeling.meta.MetaOperation {
@@ -990,8 +991,8 @@ declare module org {
                     get(universe: number, time: number, obj: number): org.kevoree.modeling.memory.KCacheElement;
                     put(universe: number, time: number, obj: number, payload: org.kevoree.modeling.memory.KCacheElement): void;
                     dirties(): org.kevoree.modeling.memory.cache.KCacheDirty[];
-                    clear(): void;
-                    clean(): void;
+                    clear(metaModel: org.kevoree.modeling.meta.MetaModel): void;
+                    clean(metaModel: org.kevoree.modeling.meta.MetaModel): void;
                     monitor(origin: org.kevoree.modeling.KObject): void;
                     size(): number;
                 }
@@ -1080,6 +1081,7 @@ declare module org {
                     parentUniverseKey(currentUniverseKey: number): number;
                     descendantsUniverseKeys(currentUniverseKey: number): number[];
                     reload(keys: org.kevoree.modeling.memory.KContentKey[], callback: (p: java.lang.Throwable) => void): void;
+                    cleanCache(): void;
                 }
                 module cache {
                     class HashMemoryCache implements org.kevoree.modeling.memory.KCache {
@@ -1093,12 +1095,12 @@ declare module org {
                         put(universe: number, time: number, obj: number, payload: org.kevoree.modeling.memory.KCacheElement): void;
                         private complex_insert(previousIndex, hash, universe, time, obj);
                         dirties(): org.kevoree.modeling.memory.cache.KCacheDirty[];
-                        clean(): void;
+                        clean(metaModel: org.kevoree.modeling.meta.MetaModel): void;
                         monitor(origin: org.kevoree.modeling.KObject): void;
                         size(): number;
-                        private remove(universe, time, obj);
+                        private remove(universe, time, obj, p_metaModel);
                         constructor();
-                        clear(): void;
+                        clear(metaModel: org.kevoree.modeling.meta.MetaModel): void;
                     }
                     module HashMemoryCache {
                         class Entry {
@@ -1191,6 +1193,7 @@ declare module org {
                         getRoot(universe: number, time: number, callback: (p: org.kevoree.modeling.KObject) => void): void;
                         setRoot(newRoot: org.kevoree.modeling.KObject, callback: (p: java.lang.Throwable) => void): void;
                         reload(keys: org.kevoree.modeling.memory.KContentKey[], callback: (p: java.lang.Throwable) => void): void;
+                        cleanCache(): void;
                         bumpKeyToCache(contentKey: org.kevoree.modeling.memory.KContentKey, callback: (p: org.kevoree.modeling.memory.KCacheElement) => void): void;
                         bumpKeysToCache(contentKeys: org.kevoree.modeling.memory.KContentKey[], callback: (p: org.kevoree.modeling.memory.KCacheElement[]) => void): void;
                         private internal_unserialize(key, payload);
@@ -1558,7 +1561,8 @@ declare module org {
                 }
                 interface MetaModel extends org.kevoree.modeling.meta.Meta {
                     metaClasses(): org.kevoree.modeling.meta.MetaClass[];
-                    metaClass(name: string): org.kevoree.modeling.meta.MetaClass;
+                    metaClassByName(name: string): org.kevoree.modeling.meta.MetaClass;
+                    metaClass(index: number): org.kevoree.modeling.meta.MetaClass;
                 }
                 interface MetaOperation extends org.kevoree.modeling.meta.Meta {
                     origin(): org.kevoree.modeling.meta.Meta;
@@ -1623,7 +1627,8 @@ declare module org {
                         private _classes;
                         constructor(p_metaName: string);
                         metaClasses(): org.kevoree.modeling.meta.MetaClass[];
-                        metaClass(name: string): org.kevoree.modeling.meta.MetaClass;
+                        metaClassByName(name: string): org.kevoree.modeling.meta.MetaClass;
+                        metaClass(index: number): org.kevoree.modeling.meta.MetaClass;
                         metaName(): string;
                         metaType(): org.kevoree.modeling.meta.MetaType;
                         index(): number;
