@@ -36,7 +36,7 @@ public class ReflexiveTest {
         universe.connect(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
-                KObject home = universe.universe(0).time(0).create(universe.metaModel().metaClass("Home"));
+                KObject home = universe.universe(0).time(0).create(universe.metaModel().metaClassByName("Home"));
                 home.set(home.metaClass().attribute("name"), "MainHome");
 
                 KObject sensor = universe.universe(0).time(0).create(sensorMetaClass);

@@ -35,7 +35,7 @@ public class LocalEventListenersTest {
 
     @Test
     public void test() {
-        KObject obj = t0.create(_model.metaModel().metaClass("TestMC"));
+        KObject obj = t0.create(_model.metaModel().metaClassByName("TestMC"));
         int[] counter = new int[]{0};
         KEventListener listener = new KEventListener() {
             @Override
@@ -62,8 +62,8 @@ public class LocalEventListenersTest {
 
     @Test
     public void testMulti() {
-        KObject obj = t0.create(_model.metaModel().metaClass("TestMC"));
-        KObject obj2 = t0.create(_model.metaModel().metaClass("TestMC"));
+        KObject obj = t0.create(_model.metaModel().metaClassByName("TestMC"));
+        KObject obj2 = t0.create(_model.metaModel().metaClassByName("TestMC"));
         int[] counter = new int[]{0};
         KEventMultiListener multiListener = new KEventMultiListener() {
             @Override
