@@ -4,6 +4,7 @@ import org.kevoree.modeling.Callback;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.abs.AbstractKObject;
+import org.kevoree.modeling.memory.KCacheElementSegment;
 import org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
 import org.kevoree.modeling.memory.AccessMode;
 import org.kevoree.modeling.memory.struct.map.LongHashMap;
@@ -93,7 +94,7 @@ public class KDeepCollectAction implements KTraversalAction {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputStep[i];
                     currentObject = loopObj;
-                    HeapCacheSegment raw = loopObj._manager.segment(loopObj, AccessMode.READ);
+                    KCacheElementSegment raw = loopObj._manager.segment(loopObj, AccessMode.READ);
                     if (raw != null) {
                         if (_reference == null) {
                             for (int j = 0; j < loopObj.metaClass().metaReferences().length; j++) {

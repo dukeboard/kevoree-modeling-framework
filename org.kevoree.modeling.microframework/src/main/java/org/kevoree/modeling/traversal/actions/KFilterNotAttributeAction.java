@@ -2,6 +2,7 @@ package org.kevoree.modeling.traversal.actions;
 
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.abs.AbstractKObject;
+import org.kevoree.modeling.memory.KCacheElementSegment;
 import org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
 import org.kevoree.modeling.memory.AccessMode;
 import org.kevoree.modeling.meta.MetaAttribute;
@@ -35,7 +36,7 @@ public class KFilterNotAttributeAction implements KTraversalAction {
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
-                    HeapCacheSegment raw = loopObj._manager.segment(loopObj, AccessMode.READ);
+                    KCacheElementSegment raw = loopObj._manager.segment(loopObj, AccessMode.READ);
                     if (raw != null) {
                         if (_attribute == null) {
                             if (_expectedValue == null) {

@@ -3,6 +3,7 @@ package org.kevoree.modeling.memory.manager;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.abs.AbstractMetaAttribute;
 import org.kevoree.modeling.abs.AbstractMetaReference;
+import org.kevoree.modeling.memory.KCacheElementSegment;
 import org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
 import org.kevoree.modeling.format.json.JsonFormat;
 import org.kevoree.modeling.format.json.JsonObjectReader;
@@ -85,7 +86,7 @@ public class JsonRaw {
      * }
      * return JSON.stringify(builder);
      */
-    public static String encode(HeapCacheSegment raw, long uuid, MetaClass p_metaClass, boolean isRoot) {
+    public static String encode(KCacheElementSegment raw, long uuid, MetaClass p_metaClass, boolean isRoot) {
         StringBuilder builder = new StringBuilder();
         builder.append("{");
         builder.append("\"" + JsonFormat.KEY_META + "\":\"");

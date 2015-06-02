@@ -5,6 +5,7 @@ import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.abs.AbstractKModel;
 import org.kevoree.modeling.abs.AbstractMetaReference;
+import org.kevoree.modeling.memory.KCacheElementSegment;
 import org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
 import org.kevoree.modeling.memory.AccessMode;
 import org.kevoree.modeling.memory.KDataManager;
@@ -128,7 +129,7 @@ public class JsonModelLoader {
         MetaClass metaClass = manager.model().metaModel().metaClass(meta);
         KObject current = ((AbstractKModel)manager.model()).createProxy(universe,time,p_mappedKeys.get(kid),metaClass);
         manager.initKObject(current);
-        HeapCacheSegment raw = manager.segment(current, AccessMode.WRITE);
+        KCacheElementSegment raw = manager.segment(current, AccessMode.WRITE);
         p_param.each(new StringHashMapCallBack<Object>() {
             @Override
             public void on(String metaKey, Object payload_content) {

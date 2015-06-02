@@ -22,7 +22,7 @@ public interface KDataManager {
 
     void lookupAlltimes(long universe, long[] time, long uuid, Callback<KObject[]> callback);
 
-    HeapCacheSegment segment(KObject origin, AccessMode accessMode);
+    KCacheElementSegment segment(KObject origin, AccessMode accessMode);
 
     void save(Callback<Throwable> callback);
 

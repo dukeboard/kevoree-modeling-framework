@@ -2,6 +2,7 @@ package org.kevoree.modeling.extrapolation;
 
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.abs.AbstractKObject;
+import org.kevoree.modeling.memory.KCacheElementSegment;
 import org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
 import org.kevoree.modeling.memory.AccessMode;
 import org.kevoree.modeling.meta.MetaAttribute;
@@ -19,7 +20,7 @@ public class DiscreteExtrapolation implements Extrapolation {
 
     @Override
     public Object extrapolate(KObject current, MetaAttribute attribute) {
-        HeapCacheSegment payload = ((AbstractKObject) current)._manager.segment(current, AccessMode.READ);
+        KCacheElementSegment payload = ((AbstractKObject) current)._manager.segment(current, AccessMode.READ);
         if (payload != null) {
             return payload.get(attribute.index(), current.metaClass());
         } else {
@@ -30,7 +31,7 @@ public class DiscreteExtrapolation implements Extrapolation {
     @Override
     public void mutate(KObject current, MetaAttribute attribute, Object payload) {
         //By requiring a raw on the current object, we automatically create and copy the previous object
-        HeapCacheSegment internalPayload = ((AbstractKObject) current)._manager.segment(current, AccessMode.WRITE);
+        KCacheElementSegment internalPayload = ((AbstractKObject) current)._manager.segment(current, AccessMode.WRITE);
         //The object is also automatically cset to Dirty
         if (internalPayload != null) {
             internalPayload.set(attribute.index(), payload, current.metaClass());
