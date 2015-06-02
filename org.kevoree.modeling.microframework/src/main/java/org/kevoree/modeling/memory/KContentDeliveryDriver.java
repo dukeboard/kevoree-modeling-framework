@@ -12,9 +12,9 @@ import org.kevoree.modeling.msg.KMessage;
 
 public interface KContentDeliveryDriver {
 
-    void atomicGetMutate(KContentKey key, AtomicOperation operation, ThrowableCallback<String> callback);
-
     void get(KContentKey[] keys, ThrowableCallback<String[]> callback);
+
+    void atomicGetIncrement(KContentKey key, ThrowableCallback<Short> cb);
 
     void put(KContentPutRequest request, Callback<Throwable> error);
 

@@ -22,15 +22,27 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
     public static boolean DEBUG = false;
 
     @Override
-    public void atomicGetMutate(KContentKey key, AtomicOperation operation, ThrowableCallback<String> callback) {
+    public void atomicGetIncrement(KContentKey key, ThrowableCallback<Short> cb) {
         String result = backend.get(key.toString());
-        String mutated = operation.mutate(result);
-        if (DEBUG) {
-            System.out.println("ATOMIC GET " + key + "->" + result);
-            System.out.println("ATOMIC PUT " + key + "->" + mutated);
+        short nextV;
+        short previousV;
+        if (result != null) {
+            try {
+                previousV = Short.parseShort(result);
+            } catch (Exception e) {
+                e.printStackTrace();
+                previousV = Short.MIN_VALUE;
+            }
+        } else {
+            previousV = 0;
         }
-        backend.put(key.toString(), mutated);
-        callback.on(result, null);
+        if (previousV == Short.MAX_VALUE) {
+            nextV = Short.MIN_VALUE;
+        } else {
+            nextV = (short) (previousV + 1);
+        }
+        backend.put(key.toString(), "" + nextV);
+        cb.on(previousV, null);
     }
 
     @Override
@@ -48,6 +60,7 @@ public class MemoryKContentDeliveryDriver implements KContentDeliveryDriver {
             callback.on(values, null);
         }
     }
+
 
     @Override
     public synchronized void put(KContentPutRequest p_request, Callback<Throwable> p_callback) {

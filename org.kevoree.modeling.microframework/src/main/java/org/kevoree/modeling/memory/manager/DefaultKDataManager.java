@@ -238,25 +238,17 @@ public class DefaultKDataManager implements KDataManager {
                 @Override
                 public void on(Throwable throwable) {
                     if (throwable == null) {
-                        _db.atomicGetMutate(KContentKey.createLastPrefix(), AtomicOperationFactory.getMutatePrefixOperation(),
-                                new ThrowableCallback<String>() {
+                        _db.atomicGetIncrement(KContentKey.createLastPrefix(),
+                                new ThrowableCallback<Short>() {
                                     @Override
-                                    public void on(String payloadPrefix, Throwable error) {
+                                    public void on(Short newPrefix, Throwable error) {
                                         if (error != null) {
                                             if (connectCallback != null) {
                                                 connectCallback.on(error);
                                             }
                                         } else {
-                                            String cleanedPrefixPayload = payloadPrefix;
-                                            if (cleanedPrefixPayload == null || cleanedPrefixPayload.equals("")) {
-                                                cleanedPrefixPayload = "0";
-                                            }
-                                            Short newPrefix;
-                                            try {
-                                                newPrefix = Short.parseShort(cleanedPrefixPayload);
-                                            } catch (Exception e) {
-                                                newPrefix = Short.parseShort("0");
-                                            }
+
+
                                             KContentKey[] connectionElemKeys = new KContentKey[3];
                                             connectionElemKeys[UNIVERSE_INDEX] = KContentKey.createLastUniverseIndexFromPrefix(newPrefix);
                                             connectionElemKeys[OBJ_INDEX] = KContentKey.createLastObjectIndexFromPrefix(newPrefix);
@@ -356,7 +348,7 @@ public class DefaultKDataManager implements KDataManager {
                 }
                 return entry;
             } else {
-                KCacheElementSegment clonedEntry = entry.clone(origin.now(),origin.metaClass());
+                KCacheElementSegment clonedEntry = entry.clone(origin.now(), origin.metaClass());
                 _cache.put(origin.universe(), origin.now(), origin.uuid(), clonedEntry);
                 if (!needUniverseCopy) {
                     timeTree.insert(origin.now());
