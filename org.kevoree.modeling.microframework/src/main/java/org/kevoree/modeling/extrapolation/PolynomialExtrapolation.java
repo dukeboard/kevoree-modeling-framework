@@ -40,7 +40,8 @@ public class PolynomialExtrapolation implements Extrapolation {
     public void mutate(KObject current, MetaAttribute attribute, Object payload) {
         KCacheElementSegment raw = ((AbstractKObject) current)._manager.segment(current, AccessMode.READ);
 
-
+        // double[] raw.getInfer(attribute.index(),current.metaClass());
+        // long originTime = raw.originTime();
 
         Object previous = raw.get(attribute.index(), current.metaClass());
         if (previous == null) {

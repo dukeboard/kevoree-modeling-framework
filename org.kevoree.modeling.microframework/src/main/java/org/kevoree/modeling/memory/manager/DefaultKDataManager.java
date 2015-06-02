@@ -204,7 +204,7 @@ public class DefaultKDataManager implements KDataManager {
 
     @Override
     public void initKObject(KObject obj) {
-        KCacheElementSegment cacheEntry = new HeapCacheSegment();
+        KCacheElementSegment cacheEntry = new HeapCacheSegment(obj.now());
         cacheEntry.init(obj.metaClass());
         cacheEntry.setDirty();
         cacheEntry.inc();
@@ -327,7 +327,7 @@ public class DefaultKDataManager implements KDataManager {
     }
 
     @Override
-    public HeapCacheSegment segment(KObject origin, AccessMode accessMode) {
+    public KCacheElementSegment segment(KObject origin, AccessMode accessMode) {
         HeapCacheSegment currentEntry = (HeapCacheSegment) _cache.get(origin.universe(), origin.now(), origin.uuid());
         if (currentEntry != null) {
             return currentEntry;
@@ -356,7 +356,7 @@ public class DefaultKDataManager implements KDataManager {
                 }
                 return entry;
             } else {
-                HeapCacheSegment clonedEntry = entry.clone(origin.metaClass());
+                KCacheElementSegment clonedEntry = entry.clone(origin.now(),origin.metaClass());
                 _cache.put(origin.universe(), origin.now(), origin.uuid(), clonedEntry);
                 if (!needUniverseCopy) {
                     timeTree.insert(origin.now());
@@ -649,7 +649,7 @@ public class DefaultKDataManager implements KDataManager {
             boolean isTimeNotNull = key.time != KConfig.NULL_LONG;
             boolean isObjNotNull = key.obj != KConfig.NULL_LONG;
             if (isUniverseNotNull && isTimeNotNull && isObjNotNull) {
-                result = new HeapCacheSegment();
+                result = new HeapCacheSegment(key.time);
             } else if (isUniverseNotNull && !isTimeNotNull && isObjNotNull) {
                 result = new OOKLongTree();
             } else {

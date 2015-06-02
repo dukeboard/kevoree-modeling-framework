@@ -20,6 +20,12 @@ public class HeapCacheSegment implements KCacheElementSegment {
 
     private boolean _dirty = false;
 
+    private long _timeOrigin;
+
+    public HeapCacheSegment(long p_timeOrigin) {
+        this._timeOrigin = p_timeOrigin;
+    }
+
     @Override
     public void init(MetaClass p_metaClass) {
         this.raw = new Object[p_metaClass.metaElements().length];
@@ -29,6 +35,11 @@ public class HeapCacheSegment implements KCacheElementSegment {
     @Override
     public int metaClassIndex() {
         return _metaClassIndex;
+    }
+
+    @Override
+    public long originTime() {
+        return _timeOrigin;
     }
 
     @Override
@@ -249,9 +260,9 @@ public class HeapCacheSegment implements KCacheElementSegment {
     }
 
     @Override
-    public HeapCacheSegment clone(MetaClass p_metaClass) {
+    public KCacheElementSegment clone(long newTimeOrigin, MetaClass p_metaClass) {
         if (raw == null) {
-            return new HeapCacheSegment();
+            return new HeapCacheSegment(newTimeOrigin);
         } else {
             Object[] cloned = new Object[raw.length];
             //TODO
@@ -266,7 +277,7 @@ public class HeapCacheSegment implements KCacheElementSegment {
                     }
                 }
             }
-            HeapCacheSegment clonedEntry = new HeapCacheSegment();
+            HeapCacheSegment clonedEntry = new HeapCacheSegment(newTimeOrigin);
             clonedEntry._dirty = true;
             clonedEntry.raw = cloned;
             clonedEntry._metaClassIndex = _metaClassIndex;

@@ -4,7 +4,7 @@ import org.kevoree.modeling.meta.MetaClass;
 
 public interface KCacheElementSegment extends KCacheElement {
 
-    KCacheElementSegment clone(MetaClass metaClass);
+    KCacheElementSegment clone(long newtimeOrigin, MetaClass metaClass);
 
     void set(int index, Object content, MetaClass metaClass);
 
@@ -34,5 +34,7 @@ public interface KCacheElementSegment extends KCacheElement {
     void init(MetaClass metaClass);
 
     int metaClassIndex();
+
+    long originTime();
 
 }
