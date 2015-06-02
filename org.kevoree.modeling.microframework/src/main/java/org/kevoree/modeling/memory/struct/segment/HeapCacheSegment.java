@@ -182,6 +182,83 @@ public class HeapCacheSegment implements KCacheElementSegment {
     }
 
     @Override
+    public double[] getInfer(int index, MetaClass metaClass) {
+        if (raw != null) {
+            Object previousObj = raw[index];
+            if (previousObj != null) {
+                try {
+                    return (double[]) previousObj;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    raw[index] = null;
+                    return null;
+                }
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public boolean addInfer(int index, double newElem, MetaClass metaClass) {
+        if (raw != null) {
+            double[] previous = (double[]) raw[index];
+            if (previous == null) {
+                previous = new double[1];
+                previous[0] = newElem;
+            } else {
+                for (int i = 0; i < previous.length; i++) {
+                    if (previous[i] == newElem) {
+                        return false;
+                    }
+                }
+                double[] incArray = new double[previous.length + 1];
+                System.arraycopy(previous, 0, incArray, 0, previous.length);
+                incArray[previous.length] = newElem;
+                previous = incArray;
+            }
+            raw[index] = previous;
+            if (_modifiedIndexes == null) {
+                _modifiedIndexes = new boolean[raw.length];
+            }
+            _modifiedIndexes[index] = true;
+            _dirty = true;
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean removeInfer(int index, double previousElem, MetaClass metaClass) {
+        if (raw != null) {
+            double[] previous = (double[]) raw[index];
+            if (previous != null) {
+                int indexToRemove = -1;
+                for (int i = 0; i < previous.length; i++) {
+                    if (previous[i] == previousElem) {
+                        indexToRemove = i;
+                        break;
+                    }
+                }
+                if (indexToRemove != -1) {
+                    double[] newArray = new double[previous.length - 1];
+                    System.arraycopy(previous, 0, newArray, 0, indexToRemove);
+                    System.arraycopy(previous, indexToRemove + 1, newArray, indexToRemove, previous.length - indexToRemove - 1);
+                    raw[index] = newArray;
+                    if (_modifiedIndexes == null) {
+                        _modifiedIndexes = new boolean[raw.length];
+                    }
+                    _modifiedIndexes[index] = true;
+                    _dirty = true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
     public synchronized void set(int index, Object content, MetaClass p_metaClass) {
         raw[index] = content;
         _dirty = true;
