@@ -1,3 +1,4 @@
+
 ///<reference path='java.d.ts'/>
 ///<reference path='org.kevoree.modeling.microframework.typescript.d.ts'/>
 

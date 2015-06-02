@@ -2,11 +2,10 @@ package org.kevoree.modeling.databases.redis;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.memory.cache.KContentKey;
-import org.kevoree.modeling.api.memory.cdn.KContentPutRequest;
-import org.kevoree.modeling.api.msg.KEvents;
+import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.ThrowableCallback;
+import org.kevoree.modeling.memory.KContentKey;
+import org.kevoree.modeling.memory.cdn.KContentPutRequest;
 import redis.embedded.RedisServer;
 
 import java.io.IOException;
