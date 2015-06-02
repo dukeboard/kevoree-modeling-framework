@@ -202,21 +202,31 @@ public class HeapCacheSegment implements KCacheElementSegment {
     }
 
     @Override
-    public boolean addInfer(int index, double newElem, MetaClass metaClass) {
+    public double getInferElem(int index, int arrayIndex, MetaClass metaClass) {
+        double[] res = getInfer(index, metaClass);
+        if (res != null && arrayIndex > 0 && arrayIndex < res.length) {
+            return res[arrayIndex];
+        }
+        return 0;
+    }
+
+    @Override
+    public void setInferElem(int index, int arrayIndex, double valueToInsert, MetaClass metaClass) {
+        double[] res = getInfer(index, metaClass);
+        if (res != null && arrayIndex > 0 && arrayIndex < res.length) {
+            res[arrayIndex] = valueToInsert;
+        }
+    }
+
+    @Override
+    public void extendInfer(int index, int newSize, MetaClass metaClass) {
         if (raw != null) {
             double[] previous = (double[]) raw[index];
             if (previous == null) {
                 previous = new double[1];
-                previous[0] = newElem;
             } else {
-                for (int i = 0; i < previous.length; i++) {
-                    if (previous[i] == newElem) {
-                        return false;
-                    }
-                }
-                double[] incArray = new double[previous.length + 1];
+                double[] incArray = new double[newSize];
                 System.arraycopy(previous, 0, incArray, 0, previous.length);
-                incArray[previous.length] = newElem;
                 previous = incArray;
             }
             raw[index] = previous;
@@ -225,37 +235,7 @@ public class HeapCacheSegment implements KCacheElementSegment {
             }
             _modifiedIndexes[index] = true;
             _dirty = true;
-            return true;
         }
-        return false;
-    }
-
-    @Override
-    public boolean removeInfer(int index, double previousElem, MetaClass metaClass) {
-        if (raw != null) {
-            double[] previous = (double[]) raw[index];
-            if (previous != null) {
-                int indexToRemove = -1;
-                for (int i = 0; i < previous.length; i++) {
-                    if (previous[i] == previousElem) {
-                        indexToRemove = i;
-                        break;
-                    }
-                }
-                if (indexToRemove != -1) {
-                    double[] newArray = new double[previous.length - 1];
-                    System.arraycopy(previous, 0, newArray, 0, indexToRemove);
-                    System.arraycopy(previous, indexToRemove + 1, newArray, indexToRemove, previous.length - indexToRemove - 1);
-                    raw[index] = newArray;
-                    if (_modifiedIndexes == null) {
-                        _modifiedIndexes = new boolean[raw.length];
-                    }
-                    _modifiedIndexes[index] = true;
-                    _dirty = true;
-                }
-            }
-        }
-        return false;
     }
 
     @Override

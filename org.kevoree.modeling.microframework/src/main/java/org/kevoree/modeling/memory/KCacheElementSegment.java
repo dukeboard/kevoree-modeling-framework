@@ -22,9 +22,12 @@ public interface KCacheElementSegment extends KCacheElement {
     /* Extrapolated attributes management */
     double[] getInfer(int index, MetaClass metaClass);
 
-    boolean addInfer(int index, double newElem, MetaClass metaClass);
+    double getInferElem(int index, int arrayIndex, MetaClass metaClass);
 
-    boolean removeInfer(int index, double previousElem, MetaClass metaClass);
+    void setInferElem(int index, int arrayIndex, double valueToInsert, MetaClass metaClass);
+
+    void extendInfer(int index, int newSize, MetaClass metaClass);
+    /*  */
 
     int[] modifiedIndexes(MetaClass metaClass);
 

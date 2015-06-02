@@ -39,6 +39,9 @@ public class PolynomialExtrapolation implements Extrapolation {
     @Override
     public void mutate(KObject current, MetaAttribute attribute, Object payload) {
         KCacheElementSegment raw = ((AbstractKObject) current)._manager.segment(current, AccessMode.READ);
+
+
+
         Object previous = raw.get(attribute.index(), current.metaClass());
         if (previous == null) {
             PolynomialModel pol = createPolynomialModel(current.now(), attribute.precision());
