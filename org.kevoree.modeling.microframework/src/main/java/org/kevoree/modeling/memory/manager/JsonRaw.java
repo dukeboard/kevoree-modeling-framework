@@ -37,7 +37,7 @@ public class JsonRaw {
                 Object insideContent = objectReader.get(metaKeys[i]);
                 if (insideContent != null) {
                     if (metaElement != null && metaElement.metaType().equals(MetaType.ATTRIBUTE)) {
-                        entry.set(metaElement.index(), ((AbstractMetaAttribute) metaElement).strategy().load(insideContent.toString(), (AbstractMetaAttribute) metaElement, now),metaClass);
+                        entry.set(metaElement.index(), ((AbstractMetaAttribute) metaElement).strategy().load(insideContent.toString(), (AbstractMetaAttribute) metaElement, now), metaClass);
                     } else if (metaElement != null && metaElement instanceof AbstractMetaReference) {
 
                         try {
@@ -50,7 +50,7 @@ public class JsonRaw {
                                     e.printStackTrace();
                                 }
                             }
-                            entry.set(metaElement.index(), convertedRaw,metaClass);
+                            entry.set(metaElement.index(), convertedRaw, metaClass);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -101,25 +101,27 @@ public class JsonRaw {
         }
         Meta[] metaElements = p_metaClass.metaElements();
         for (int i = 0; i < metaElements.length; i++) {
-            if (metaElements[i] != null && metaElements[i].metaType().equals(MetaType.ATTRIBUTE)) {
-                Object payload_res = raw.get(metaElements[i].index(),p_metaClass);
+            Meta loopMeta = metaElements[i];
+            if (loopMeta != null && loopMeta.metaType().equals(MetaType.ATTRIBUTE)) {
+                //check infer or not
+                Object payload_res = raw.get(loopMeta.index(), p_metaClass);
                 if (payload_res != null) {
-                    if (((MetaAttribute) metaElements[i]).attributeType() != PrimitiveTypes.TRANSIENT) {
-                        String attrsPayload = ((MetaAttribute) metaElements[i]).strategy().save(payload_res, (MetaAttribute) metaElements[i]);
+                    if (((MetaAttribute) loopMeta).attributeType() != PrimitiveTypes.TRANSIENT) {
+                        String attrsPayload = ((MetaAttribute) loopMeta).strategy().save(payload_res, (MetaAttribute) loopMeta);
                         if (attrsPayload != null) {
                             builder.append(",\"");
-                            builder.append(metaElements[i].metaName());
+                            builder.append(loopMeta.metaName());
                             builder.append("\":\"");
                             builder.append(attrsPayload);
                             builder.append("\"");
                         }
                     }
                 }
-            } else if (metaElements[i] != null && metaElements[i].metaType().equals(MetaType.REFERENCE)) {
-                long[] refPayload = raw.getRef(metaElements[i].index(),p_metaClass);
+            } else if (loopMeta != null && loopMeta.metaType().equals(MetaType.REFERENCE)) {
+                long[] refPayload = raw.getRef(loopMeta.index(), p_metaClass);
                 if (refPayload != null) {
                     builder.append(",\"");
-                    builder.append(metaElements[i].metaName());
+                    builder.append(loopMeta.metaName());
                     builder.append("\":");
                     builder.append("[");
                     for (int j = 0; j < refPayload.length; j++) {

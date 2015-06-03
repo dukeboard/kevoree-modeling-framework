@@ -49,7 +49,7 @@ public class HeapCacheSegment implements KCacheElementSegment {
 
     @Override
     public String serialize(MetaModel metaModel) {
-        return JsonRaw.encode(this, KConfig.NULL_LONG, metaModel.metaClasses()[_metaClassIndex], false);
+        return JsonRaw.encode(this, KConfig.NULL_LONG, metaModel.metaClass(_metaClassIndex), false);
     }
 
     @Override
