@@ -2,7 +2,7 @@ package org.kevoree.modeling.microframework.test.time;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudModel;
@@ -38,7 +38,7 @@ public class TimeTest {
 
 
     final int[] jumpCounter = {4};
-    private Callback<KObject> jumpCallback = new Callback<KObject>() {
+    private KCallback<KObject> jumpCallback = new KCallback<KObject>() {
         @Override
         public void on(KObject kObject) {
             if (jumpCounter[0] > 0) {
@@ -65,7 +65,7 @@ public class TimeTest {
 
         //resolves the object from time 5
         CloudView view5 = universe.time(5);
-        view5.select("/", new Callback<KObject[]>() {
+        view5.select("/", new KCallback<KObject[]>() {
             public void on(KObject[] kObjects) {
                 Node n = (Node) kObjects[0];
                 n.jump(jumpCounter[0], jumpCallback);
@@ -98,10 +98,10 @@ public class TimeTest {
                     }
                 });*/
 
-        t0.lookup(node0.uuid(), new Callback<KObject>() {
+        t0.lookup(node0.uuid(), new KCallback<KObject>() {
             @Override
             public void on(KObject kObject) {
-                ((Node) kObject).getElement(new Callback<Element>() {
+                ((Node) kObject).getElement(new KCallback<Element>() {
                     @Override
                     public void on(Element element) {
                         org.junit.Assert.assertEquals(element0, element);
@@ -126,17 +126,17 @@ public class TimeTest {
         // create node0
         final Node node0 = t0.createNode();
 
-        node0.getElement(new Callback<Element>() {
+        node0.getElement(new KCallback<Element>() {
             @Override
             public void on(Element element) {
                 Assert.assertNull(element);
             }
         });
 
-        t0.lookup(node0.uuid(), new Callback<KObject>() {
+        t0.lookup(node0.uuid(), new KCallback<KObject>() {
             @Override
             public void on(KObject kObject) {
-                ((Node) kObject).getElement(new Callback<Element>() {
+                ((Node) kObject).getElement(new KCallback<Element>() {
                     @Override
                     public void on(Element element) {
                         Assert.assertNull(element);
@@ -153,10 +153,10 @@ public class TimeTest {
         node0.setElement(elem1);
 
         // at t0 node0.getElement should be null
-        t0.lookup(node0.uuid(), new Callback<KObject>() {
+        t0.lookup(node0.uuid(), new KCallback<KObject>() {
             @Override
             public void on(KObject kObject) {
-                ((Node) kObject).getElement(new Callback<Element>() {
+                ((Node) kObject).getElement(new KCallback<Element>() {
                     @Override
                     public void on(Element element) {
                         Assert.assertNull(element);
@@ -166,10 +166,10 @@ public class TimeTest {
         });
 
         // at t1 node0.getElement should return elem1
-        t1.lookup(node0.uuid(), new Callback<KObject>() {
+        t1.lookup(node0.uuid(), new KCallback<KObject>() {
             @Override
             public void on(KObject kObject) {
-                ((Node) kObject).getElement(new Callback<Element>() {
+                ((Node) kObject).getElement(new KCallback<Element>() {
                     @Override
                     public void on(Element element) {
                         org.junit.Assert.assertNotNull(element);
@@ -184,7 +184,7 @@ public class TimeTest {
     @Test
     public void objectModificationTest() {
         CloudModel universe = new CloudModel();
-        universe.connect(new Callback() {
+        universe.connect(new KCallback() {
             @Override
             public void on(Object o) {
                 CloudUniverse dimension0 = universe.newUniverse();
@@ -203,7 +203,7 @@ public class TimeTest {
 
                 // create time1
                 final CloudView t1 = dimension0.time(1l);
-                t1.lookup(node0.uuid(), new Callback<KObject>() {
+                t1.lookup(node0.uuid(), new KCallback<KObject>() {
                     @Override
                     public void on(KObject kObject) {
                         ((Node) kObject).setName("node at 1");
@@ -212,7 +212,7 @@ public class TimeTest {
                 });
 
                 // check name and value of node0 at t0
-                t0.lookup(node0.uuid(), new Callback<KObject>() {
+                t0.lookup(node0.uuid(), new KCallback<KObject>() {
                     @Override
                     public void on(KObject kObject) {
                         Assert.assertEquals(((Node) kObject).getName(), "node at 0");
@@ -222,7 +222,7 @@ public class TimeTest {
 
 
                 // check name and value of node0 at t1
-                t1.lookup(node0.uuid(), new Callback<KObject>() {
+                t1.lookup(node0.uuid(), new KCallback<KObject>() {
                     @Override
                     public void on(KObject kObject) {
                         Assert.assertEquals(((Node) kObject).getName(), "node at 1");
@@ -245,7 +245,7 @@ public class TimeTest {
         node0.setName("Node0");
         t0.setRoot(node0, null);
 
-        model.save(new Callback<Throwable>() {
+        model.save(new KCallback<Throwable>() {
             @Override
             public void on(Throwable aBoolean) {
 
@@ -256,13 +256,13 @@ public class TimeTest {
         CloudView t1 = universe.time(1L);
         final Element element = t1.createElement();
         element.setName("Element1");
-        t1.lookup(node0.uuid(), new Callback<KObject>() {
+        t1.lookup(node0.uuid(), new KCallback<KObject>() {
             @Override
             public void on(KObject node0Back) {
                 ((Node) node0Back).setElement(element);
             }
         });
-        model.save(new Callback<Throwable>() {
+        model.save(new KCallback<Throwable>() {
             @Override
             public void on(Throwable aBoolean) {
 
@@ -270,7 +270,7 @@ public class TimeTest {
         });
 
         CloudView t0_2 = universe.time(0L);
-        t0_2.select("/", new Callback<KObject[]>() {
+        t0_2.select("/", new KCallback<KObject[]>() {
             @Override
             public void on(KObject[] kObjects) {
                 if (kObjects != null && kObjects.length > 0) {
@@ -295,10 +295,10 @@ public class TimeTest {
         node0.setName("Node0");
         t0.setRoot(node0, null);
 
-        model.save(new Callback<Throwable>() {
+        model.save(new KCallback<Throwable>() {
             @Override
             public void on(Throwable aBoolean) {
-                model.discard(new Callback<Throwable>() {
+                model.discard(new KCallback<Throwable>() {
                     @Override
                     public void on(Throwable aBoolean) {
 
@@ -311,7 +311,7 @@ public class TimeTest {
         CloudView t1 = universe.time(1L);
         final Element element = t1.createElement();
         element.setName("Element1");
-        t1.select("/", new Callback<KObject[]>() {
+        t1.select("/", new KCallback<KObject[]>() {
             @Override
             public void on(KObject[] kObjects) {
                 if (kObjects != null && kObjects.length > 0) {
@@ -322,10 +322,10 @@ public class TimeTest {
             }
         });
 
-        model.save(new Callback<Throwable>() {
+        model.save(new KCallback<Throwable>() {
             @Override
             public void on(Throwable aBoolean) {
-                model.discard(new Callback<Throwable>() {
+                model.discard(new KCallback<Throwable>() {
                     @Override
                     public void on(Throwable aBoolean) {
 
@@ -335,7 +335,7 @@ public class TimeTest {
         });
 
         CloudView t0_2 = universe.time(0L);
-        t0_2.select("/", new Callback<KObject[]>() {
+        t0_2.select("/", new KCallback<KObject[]>() {
             @Override
             public void on(KObject[] kObjects) {
                 if (kObjects != null && kObjects.length > 0) {

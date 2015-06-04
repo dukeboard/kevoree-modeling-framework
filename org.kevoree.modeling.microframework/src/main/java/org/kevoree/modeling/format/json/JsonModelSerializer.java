@@ -1,19 +1,18 @@
 package org.kevoree.modeling.format.json;
 
-import org.kevoree.modeling.KModelVisitor;
+import org.kevoree.modeling.traversal.visitor.KModelVisitor;
 import org.kevoree.modeling.KObject;
-import org.kevoree.modeling.Callback;
-import org.kevoree.modeling.KVisitResult;
+import org.kevoree.modeling.KCallback;
+import org.kevoree.modeling.traversal.visitor.KVisitResult;
 import org.kevoree.modeling.abs.AbstractKObject;
-import org.kevoree.modeling.memory.KCacheElementSegment;
-import org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
+import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 import org.kevoree.modeling.memory.AccessMode;
-import org.kevoree.modeling.memory.manager.JsonRaw;
+import org.kevoree.modeling.memory.manager.impl.JsonRaw;
 
 public class JsonModelSerializer {
 
-    public static void serialize(final KObject model, final Callback<String> callback) {
-        ((AbstractKObject) model)._manager.getRoot(model.universe(), model.now(), new Callback<KObject>() {
+    public static void serialize(final KObject model, final KCallback<String> callback) {
+        ((AbstractKObject) model)._manager.getRoot(model.universe(), model.now(), new KCallback<KObject>() {
             @Override
             public void on(final KObject rootObj) {
                 boolean isRoot = false;
@@ -39,7 +38,7 @@ public class JsonModelSerializer {
                         }
                         return KVisitResult.CONTINUE;
                     }
-                },new Callback<Throwable>() {
+                },new KCallback<Throwable>() {
                     @Override
                     public void on(Throwable throwable) {
                         builder.append("\n]\n");
@@ -52,7 +51,7 @@ public class JsonModelSerializer {
 
     public static void printJSON(KObject elem, StringBuilder builder, boolean isRoot) {
         if (elem != null) {
-            KCacheElementSegment raw = ((AbstractKObject) elem)._manager.segment(elem, AccessMode.READ);
+            KMemorySegment raw = ((AbstractKObject) elem)._manager.segment(elem, AccessMode.READ);
             if (raw != null) {
                 builder.append(JsonRaw.encode(raw, elem.uuid(), elem.metaClass(), isRoot));
             }

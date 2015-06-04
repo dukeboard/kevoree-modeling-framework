@@ -2,7 +2,7 @@ package org.kevoree.modeling.microframework.test;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudModel;
@@ -28,7 +28,7 @@ public class LookupTest {
         node.setName("n0");
         t0.setRoot(node,null);
         //Assert.assertTrue(node.isRoot());
-        cloudModel.manager().getRoot(t0.universe(),t0.now(), new Callback<KObject>() {
+        cloudModel.manager().getRoot(t0.universe(),t0.now(), new KCallback<KObject>() {
             @Override
             public void on(KObject resolvedRoot) {
                 Assert.assertEquals(node, resolvedRoot);
@@ -36,10 +36,10 @@ public class LookupTest {
         });
         //Assert.assertTrue(node.isRoot());
 
-        cloudModel.save(new Callback<Throwable>() {
+        cloudModel.save(new KCallback<Throwable>() {
             @Override
             public void on(Throwable error) {
-                cloudModel.discard(new Callback<Throwable>() {
+                cloudModel.discard(new KCallback<Throwable>() {
                     @Override
                     public void on(Throwable throwable) {
 
@@ -48,17 +48,17 @@ public class LookupTest {
                         CloudUniverse dimension0_2 = universe2.universe(dimension0.key());
                         final CloudView t0_2 = dimension0_2.time(0l);
 
-                        universe2.manager().getRoot(t0_2.universe(),t0_2.now(), new Callback<KObject>() {
+                        universe2.manager().getRoot(t0_2.universe(),t0_2.now(), new KCallback<KObject>() {
                             @Override
                             public void on(KObject resolvedRoot) {
                                 Assert.assertEquals(node.uuid(), resolvedRoot.uuid());
                             }
                         });
-                        t0_2.lookup(node.uuid(),new Callback<KObject>() {
+                        t0_2.lookup(node.uuid(),new KCallback<KObject>() {
                             @Override
                             public void on(final KObject resolved) {
                                 Assert.assertNotNull(resolved);
-                                t0_2.lookup(node.uuid(),new Callback<KObject>() {
+                                t0_2.lookup(node.uuid(),new KCallback<KObject>() {
                                     @Override
                                     public void on(KObject resolved2) {
                                         Assert.assertEquals(resolved, resolved2);

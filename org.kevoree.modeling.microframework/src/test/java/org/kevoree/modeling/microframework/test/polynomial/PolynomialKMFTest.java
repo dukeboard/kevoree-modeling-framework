@@ -1,7 +1,7 @@
 package org.kevoree.modeling.microframework.test.polynomial;
 
 import org.junit.Assert;
-import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudModel;
@@ -41,7 +41,7 @@ public class PolynomialKMFTest {
             }
             final double vv = val[i];
             final long finalI = i;
-            dimension0.time(finalI).lookup(element.uuid(),new Callback<KObject>() {
+            dimension0.time(finalI).lookup(element.uuid(),new KCallback<KObject>() {
                 @Override
                 public void on(KObject kObject) {
                     Element casted = (Element) kObject;
@@ -49,7 +49,7 @@ public class PolynomialKMFTest {
                 }
             });
         }
-        element.timeWalker().allTimes(new Callback<long[]>() {
+        element.timeWalker().allTimes(new KCallback<long[]>() {
             @Override
             public void on(long[] collected) {
                 Assert.assertEquals(2, collected.length);//
@@ -59,7 +59,7 @@ public class PolynomialKMFTest {
         nbAssert[0]++;
         for (int i = 200; i < 1000; i++) {
             final int finalI = i;
-            element.jump((long) finalI,new Callback<KObject>() {
+            element.jump((long) finalI,new KCallback<KObject>() {
                 @Override
                 public void on(KObject element) {
                     nbAssert[0]++;
@@ -92,7 +92,7 @@ public class PolynomialKMFTest {
         for (int i = 0; i < max; i++) {
             final double vv = val[i];
             final long finalI = i;
-            dimension0.time(finalI).lookup(element.uuid(),new Callback<KObject>() {
+            dimension0.time(finalI).lookup(element.uuid(),new KCallback<KObject>() {
                 @Override
                 public void on(KObject kObject) {
                     Element casted = (Element) kObject;
@@ -102,7 +102,7 @@ public class PolynomialKMFTest {
             });
         }
 
-        element.timeWalker().allTimes(new Callback<long[]>() {
+        element.timeWalker().allTimes(new KCallback<long[]>() {
             @Override
             public void on(long[] collected2) {
                 Assert.assertEquals(92,collected2.length);
@@ -114,7 +114,7 @@ public class PolynomialKMFTest {
         //System.out.println(element.getValue());
         for (int i = 0; i < max; i++) {
             final int finalI = i;
-            element.jump((long) finalI,new Callback<KObject>() {
+            element.jump((long) finalI,new KCallback<KObject>() {
                 @Override
                 public void on(KObject element) {
                     nbAssert[0]++;

@@ -2,7 +2,7 @@ package org.kevoree.modeling.microframework.test.json;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
@@ -23,7 +23,7 @@ public class JSONSaveTest {
         time0.setRoot(root,null);
         root.setName("root\nhello");
         final String[] result = new String[1];
-        time0.json().save(root,new Callback<String>() {
+        time0.json().save(root,new KCallback<String>() {
             @Override
             public void on(String model) {
                 result[0] = model;
@@ -42,7 +42,7 @@ public class JSONSaveTest {
                 "\t\t\"@root\": \"true\",\n" +
                 "\t\t\"name\": \"root\\nhello\"\n" +
                 "\t}\n" +
-                "]\n",new Callback<Throwable>() {
+                "]\n",new KCallback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
@@ -50,7 +50,7 @@ public class JSONSaveTest {
                 }
             }
         });
-        time10.json().save(root,new Callback<String>() {
+        time10.json().save(root,new KCallback<String>() {
             @Override
             public void on(String model) {
                 result[0] = model;
@@ -81,7 +81,7 @@ public class JSONSaveTest {
 
 
         final String[] result = new String[1];
-        time0.json().save(root,new Callback<String>() {
+        time0.json().save(root,new KCallback<String>() {
             @Override
             public void on(String model) {
                 result[0] = model;

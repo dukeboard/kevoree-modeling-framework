@@ -1,8 +1,8 @@
 package org.kevoree.modeling.microframework.test.cloud.impl;
 
 import org.kevoree.modeling.abs.AbstractKObject;
-import org.kevoree.modeling.memory.KDataManager;
-import org.kevoree.modeling.meta.MetaClass;
+import org.kevoree.modeling.memory.manager.KMemoryManager;
+import org.kevoree.modeling.meta.KMetaClass;
 import org.kevoree.modeling.microframework.test.cloud.Element;
 import org.kevoree.modeling.microframework.test.cloud.meta.MetaElement;
 
@@ -11,7 +11,7 @@ import org.kevoree.modeling.microframework.test.cloud.meta.MetaElement;
  */
 public class ElementImpl extends AbstractKObject implements Element {
 
-    public ElementImpl(long p_universe, long p_time, long p_uuid, MetaClass p_metaClass, KDataManager p_manager) {
+    public ElementImpl(long p_universe, long p_time, long p_uuid, KMetaClass p_metaClass, KMemoryManager p_manager) {
         super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
     }
 

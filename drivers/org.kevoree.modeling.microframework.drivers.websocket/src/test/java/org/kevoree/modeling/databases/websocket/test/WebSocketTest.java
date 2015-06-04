@@ -3,11 +3,11 @@ package org.kevoree.modeling.databases.websocket.test;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.Callback;
-import org.kevoree.modeling.ThrowableCallback;
-import org.kevoree.modeling.memory.KContentKey;
-import org.kevoree.modeling.memory.cdn.KContentPutRequest;
-import org.kevoree.modeling.msg.KEvents;
+import org.kevoree.modeling.KCallback;
+import org.kevoree.modeling.KThrowableCallback;
+import org.kevoree.modeling.KContentKey;
+import org.kevoree.modeling.cdn.impl.ContentPutRequest;
+import org.kevoree.modeling.message.impl.Events;
 import org.kevoree.modeling.databases.websocket.WebSocketClient;
 import org.kevoree.modeling.databases.websocket.WebSocketWrapper;
 
@@ -29,10 +29,10 @@ public class WebSocketTest {
         getRequest[1] = KContentKey.createLastPrefix();
         getRequest[2] = KContentKey.createRootUniverseTree();
 
-        KContentPutRequest putRequest = new KContentPutRequest(2);
+        ContentPutRequest putRequest = new ContentPutRequest(2);
         putRequest.put(KContentKey.createGlobalUniverseTree(), "GlobalUniverseTree");
 
-        KEvents eventsMessage = new KEvents(1);
+        Events eventsMessage = new Events(1);
         int[] meta = new int[1];
         meta[0] = 42;
         eventsMessage.setEvent(0, KContentKey.createGlobalUniverseTree(), meta);
@@ -42,14 +42,14 @@ public class WebSocketTest {
 
         CountDownLatch latch = new CountDownLatch(3);
 
-        wrapper.connect(new Callback<Throwable>() {
+        wrapper.connect(new KCallback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 WebSocketClient client = new WebSocketClient("ws://localhost:" + PORT);
-                client.connect(new Callback<Throwable>() {
+                client.connect(new KCallback<Throwable>() {
                     @Override
                     public void on(Throwable throwable) {
-                        client.get(getRequest, new ThrowableCallback<String[]>() {
+                        client.get(getRequest, new KThrowableCallback<String[]>() {
                             @Override
                             public void on(String[] resultPayloads, Throwable error) {
                                 latch.countDown();
@@ -59,7 +59,7 @@ public class WebSocketTest {
                                 }
                             }
                         });
-                        client.put(putRequest, new Callback<Throwable>() {
+                        client.put(putRequest, new KCallback<Throwable>() {
                             @Override
                             public void on(Throwable throwable) {
                                 latch.countDown();
@@ -69,7 +69,7 @@ public class WebSocketTest {
                                 }
                             }
                         });
-                        client.atomicGetIncrement(KContentKey.createGlobalUniverseTree(), new ThrowableCallback<Short>() {
+                        client.atomicGetIncrement(KContentKey.createGlobalUniverseTree(), new KThrowableCallback<Short>() {
                             @Override
                             public void on(Short s, Throwable error) {
                                 latch.countDown();

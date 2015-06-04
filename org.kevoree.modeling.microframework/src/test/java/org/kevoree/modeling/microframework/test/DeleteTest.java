@@ -2,7 +2,7 @@ package org.kevoree.modeling.microframework.test;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudModel;
@@ -18,7 +18,7 @@ public class DeleteTest {
     @Test
     public void basicDeleteTest() {
         final CloudModel model = new CloudModel();
-        model.connect(new Callback<Throwable>() {
+        model.connect(new KCallback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
@@ -27,38 +27,38 @@ public class DeleteTest {
                     final CloudUniverse universe = model.newUniverse();
                     CloudView factory = universe.time(0l);
                     Node n = factory.createNode();
-                    factory.setRoot(n,new Callback<Throwable>() {
+                    factory.setRoot(n,new KCallback<Throwable>() {
                         @Override
                         public void on(Throwable throwable) {
-                            model.save(new Callback<Throwable>() {
+                            model.save(new KCallback<Throwable>() {
                                 @Override
                                 public void on(Throwable aBoolean) {
-                                    model.discard(new Callback<Throwable>() {
+                                    model.discard(new KCallback<Throwable>() {
                                         @Override
                                         public void on(Throwable aBoolean) {
                                             CloudView factory1 = universe.time(1l);
                                             final Element e = factory1.createElement();
-                                            factory1.select("/",new Callback<KObject[]>() {
+                                            factory1.select("/",new KCallback<KObject[]>() {
                                                 @Override
                                                 public void on(KObject[] results) {
                                                     Node n2 = (Node) results[0];
                                                     n2.setElement(e);
 
-                                                    n2.jump(2,new Callback<KObject>() {
+                                                    n2.jump(2,new KCallback<KObject>() {
                                                         @Override
                                                         public void on(KObject kObject) {
                                                             Node n2_2 = (Node)kObject;
-                                                            n2_2.getElement(new Callback<Element>() {
+                                                            n2_2.getElement(new KCallback<Element>() {
                                                                 @Override
                                                                 public void on(Element element) {
-                                                                    element.delete(new Callback<Throwable>() {
+                                                                    element.delete(new KCallback<Throwable>() {
                                                                         @Override
                                                                         public void on(Throwable throwable) {
-                                                                            n2_2.jump(3,new Callback<KObject>() {
+                                                                            n2_2.jump(3,new KCallback<KObject>() {
                                                                                 @Override
                                                                                 public void on(KObject kObject) {
                                                                                     Node n2_3 = (Node) kObject;
-                                                                                    n2_3.getElement(new Callback<Element>() {
+                                                                                    n2_3.getElement(new KCallback<Element>() {
                                                                                         @Override
                                                                                         public void on(Element element) {
                                                                                             Assert.assertNull(element);
@@ -70,12 +70,12 @@ public class DeleteTest {
                                                                                             n42.delete(null);
 
                                                                                             CloudView factory2_2 = universe.time(1l);
-                                                                                            factory2_2.select("/",new Callback<KObject[]>() {
+                                                                                            factory2_2.select("/",new KCallback<KObject[]>() {
                                                                                                 @Override
                                                                                                 public void on(KObject[] results) {
                                                                                                     if (results != null && results.length > 0) {
                                                                                                         Node n2 = (Node) results[0];
-                                                                                                        n2.getElement(new Callback<Element>() {
+                                                                                                        n2.getElement(new KCallback<Element>() {
                                                                                                             @Override
                                                                                                             public void on(Element element) {
                                                                                                                 Assert.assertNotNull(element);
@@ -112,7 +112,7 @@ public class DeleteTest {
     public void simpleDeleteTest() {
 
         final CloudModel model = new CloudModel();
-        model.connect(new Callback<Throwable>() {
+        model.connect(new KCallback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 CloudUniverse universe = model.newUniverse();
@@ -124,7 +124,7 @@ public class DeleteTest {
                 n2.setName("n2");
                 n.addChildren(n2);
                 //  n2.delete(null);
-                factory.json().save(n,new Callback<String>() {
+                factory.json().save(n,new KCallback<String>() {
                     @Override
                     public void on(String s) {
                         // System.err.println(s);

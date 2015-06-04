@@ -2,9 +2,10 @@ package org.kevoree.modeling.microframework.test.msg;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.memory.KContentKey;
-import org.kevoree.modeling.memory.cdn.KContentPutRequest;
-import org.kevoree.modeling.msg.*;
+import org.kevoree.modeling.KContentKey;
+import org.kevoree.modeling.cdn.impl.ContentPutRequest;
+import org.kevoree.modeling.message.*;
+import org.kevoree.modeling.message.impl.*;
 
 /**
  * Created by duke on 24/02/15.
@@ -14,7 +15,7 @@ public class KMessageTest {
     @Test
     public void test() {
 
-        KEvents event = new KEvents(1);
+        Events event = new Events(1);
         int[] meta = new int[2];
         meta[0] = 0;
         meta[1] = 1;
@@ -29,7 +30,7 @@ public class KMessageTest {
         KMessage parsed = KMessageLoader.load(event.json());
         Assert.assertEquals(parsed.json(), event.json());
 
-        KGetRequest msgGet = new KGetRequest();
+        GetRequest msgGet = new GetRequest();
         msgGet.id = 0l;
         msgGet.keys = new KContentKey[3];
         msgGet.keys[0] = KContentKey.createObject(0l, 1l, 2l);
@@ -43,9 +44,9 @@ public class KMessageTest {
         KMessage parsedGet = KMessageLoader.load(msgGet.json());
         Assert.assertEquals(parsedGet.json(), msgGet.json());
 
-        KPutRequest msgPut = new KPutRequest();
+        PutRequest msgPut = new PutRequest();
         msgPut.id = 0l;
-        msgPut.request = new KContentPutRequest(2);
+        msgPut.request = new ContentPutRequest(2);
         msgPut.request.put(KContentKey.createObject(0l, 1l, 2l),"hello0");
         msgPut.request.put(KContentKey.createObject(3l, 4l, 5l),"hello1");
         Assert.assertEquals("{\n" +
@@ -57,7 +58,7 @@ public class KMessageTest {
         KMessage parsedPut = KMessageLoader.load(msgPut.json());
         Assert.assertEquals(parsedPut.json(), msgPut.json());
 
-        KOperationCallMessage msgCall = new KOperationCallMessage();
+        OperationCallMessage msgCall = new OperationCallMessage();
         msgCall.id = 1l;
         msgCall.key = KContentKey.createObject(0l, 1l, 2l);
         msgCall.params = new String[3];
@@ -74,7 +75,7 @@ public class KMessageTest {
         KMessage parsedCall = KMessageLoader.load(msgCall.json());
         Assert.assertEquals(parsedCall.json(), msgCall.json());
 
-        KOperationResultMessage msgResult = new KOperationResultMessage();
+        OperationResultMessage msgResult = new OperationResultMessage();
         msgResult.id = 1l;
         msgResult.key = KContentKey.createObject(0l, 1l, 2l);
         msgResult.value = "hello";

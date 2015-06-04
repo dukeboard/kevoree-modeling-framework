@@ -1,20 +1,19 @@
 package org.kevoree.modeling.format.json;
 
-import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.abs.AbstractKModel;
-import org.kevoree.modeling.abs.AbstractMetaReference;
-import org.kevoree.modeling.memory.KCacheElementSegment;
-import org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
+import org.kevoree.modeling.meta.impl.MetaReference;
+import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 import org.kevoree.modeling.memory.AccessMode;
-import org.kevoree.modeling.memory.KDataManager;
-import org.kevoree.modeling.memory.struct.map.LongLongHashMap;
-import org.kevoree.modeling.memory.struct.map.StringHashMap;
-import org.kevoree.modeling.memory.struct.map.StringHashMapCallBack;
-import org.kevoree.modeling.meta.Meta;
-import org.kevoree.modeling.meta.MetaAttribute;
-import org.kevoree.modeling.meta.MetaClass;
+import org.kevoree.modeling.memory.manager.KMemoryManager;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap;
+import org.kevoree.modeling.memory.struct.map.KStringHashMapCallBack;
+import org.kevoree.modeling.meta.KMeta;
+import org.kevoree.modeling.meta.KMetaAttribute;
+import org.kevoree.modeling.meta.KMetaClass;
 import org.kevoree.modeling.meta.MetaType;
 
 import java.util.ArrayList;
@@ -46,7 +45,7 @@ public class JsonModelLoader {
      * if (rootElem[0] != null) { manager.setRoot(rootElem[0], (throwable : java.lang.Throwable) => { if (callback != null) { callback(throwable); }}); } else { if (callback != null) { callback(null); } }
      * }
      */
-    public static void load(KDataManager manager, long universe, long time, String payload, final Callback<Throwable> callback) {
+    public static void load(KMemoryManager manager, long universe, long time, String payload, final KCallback<Throwable> callback) {
         if (payload == null) {
             callback.on(null);
         } else {
@@ -55,8 +54,8 @@ public class JsonModelLoader {
             if (currentToken != JsonType.LEFT_BRACKET) {
                 callback.on(null);
             } else {
-                final List<StringHashMap<Object>> alls = new ArrayList<StringHashMap<Object>>();
-                StringHashMap<Object> content = new StringHashMap<Object>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+                final List<ArrayStringHashMap<Object>> alls = new ArrayList<ArrayStringHashMap<Object>>();
+                ArrayStringHashMap<Object> content = new ArrayStringHashMap<Object>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
                 String currentAttributeName = null;
                 ArrayList<String> arrayPayload = null;
                 currentToken = lexer.nextToken();
@@ -68,10 +67,10 @@ public class JsonModelLoader {
                         arrayPayload = null;
                         currentAttributeName = null;
                     } else if (currentToken.equals(JsonType.LEFT_BRACE)) {
-                        content = new StringHashMap<Object>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+                        content = new ArrayStringHashMap<Object>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
                     } else if (currentToken.equals(JsonType.RIGHT_BRACE)) {
                         alls.add(content);
-                        content = new StringHashMap<Object>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+                        content = new ArrayStringHashMap<Object>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
                     } else if (currentToken.equals(JsonType.VALUE)) {
                         if (currentAttributeName == null) {
                             currentAttributeName = lexer.lastValue();
@@ -87,10 +86,10 @@ public class JsonModelLoader {
                     currentToken = lexer.nextToken();
                 }
                 final KObject[] rootElem = {null};
-                LongLongHashMap mappedKeys = new LongLongHashMap(alls.size(), KConfig.CACHE_LOAD_FACTOR);
+                ArrayLongLongHashMap mappedKeys = new ArrayLongLongHashMap(alls.size(), KConfig.CACHE_LOAD_FACTOR);
                 for (int i = 0; i < alls.size(); i++) {
                     try {
-                        StringHashMap<Object> elem = alls.get(i);
+                        ArrayStringHashMap<Object> elem = alls.get(i);
                         long kid = Long.parseLong(elem.get(JsonFormat.KEY_UUID).toString());
                         mappedKeys.put(kid, manager.nextObjectKey());
                     } catch (Exception e) {
@@ -99,14 +98,14 @@ public class JsonModelLoader {
                 }
                 for (int i = 0; i < alls.size(); i++) {
                     try {
-                        StringHashMap<Object> elem = alls.get(i);
+                        ArrayStringHashMap<Object> elem = alls.get(i);
                         loadObj(elem, manager, universe, time, mappedKeys, rootElem);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
                 if (rootElem[0] != null) {
-                    manager.setRoot(rootElem[0],new Callback<Throwable>() {
+                    manager.setRoot(rootElem[0],new KCallback<Throwable>() {
                         @Override
                         public void on(Throwable throwable) {
                             if (callback != null) {
@@ -123,14 +122,14 @@ public class JsonModelLoader {
         }
     }
 
-    private static void loadObj(StringHashMap<Object> p_param, KDataManager manager, long universe, long time, LongLongHashMap p_mappedKeys, KObject[] p_rootElem) {
+    private static void loadObj(ArrayStringHashMap<Object> p_param, KMemoryManager manager, long universe, long time, ArrayLongLongHashMap p_mappedKeys, KObject[] p_rootElem) {
         long kid = Long.parseLong(p_param.get(JsonFormat.KEY_UUID).toString());
         String meta = p_param.get(JsonFormat.KEY_META).toString();
-        MetaClass metaClass = manager.model().metaModel().metaClassByName(meta);
+        KMetaClass metaClass = manager.model().metaModel().metaClassByName(meta);
         KObject current = ((AbstractKModel)manager.model()).createProxy(universe,time,p_mappedKeys.get(kid),metaClass);
         manager.initKObject(current);
-        KCacheElementSegment raw = manager.segment(current, AccessMode.WRITE);
-        p_param.each(new StringHashMapCallBack<Object>() {
+        KMemorySegment raw = manager.segment(current, AccessMode.WRITE);
+        p_param.each(new KStringHashMapCallBack<Object>() {
             @Override
             public void on(String metaKey, Object payload_content) {
                 if (metaKey.equals(JsonFormat.KEY_ROOT)) {
@@ -138,11 +137,11 @@ public class JsonModelLoader {
                         p_rootElem[0] = current;
                     //}
                 } else {
-                    Meta metaElement = metaClass.metaByName(metaKey);
+                    KMeta metaElement = metaClass.metaByName(metaKey);
                     if (payload_content != null) {
                         if (metaElement != null && metaElement.metaType().equals(MetaType.ATTRIBUTE)) {
-                            raw.set(metaElement.index(), ((MetaAttribute) metaElement).strategy().load(payload_content.toString(), (MetaAttribute) metaElement, time),current.metaClass());
-                        } else if (metaElement != null && metaElement instanceof AbstractMetaReference) {
+                            raw.set(metaElement.index(), ((KMetaAttribute) metaElement).strategy().load(payload_content.toString(), (KMetaAttribute) metaElement, time),current.metaClass());
+                        } else if (metaElement != null && metaElement instanceof MetaReference) {
                             try {
                                 raw.set(metaElement.index(), transposeArr((ArrayList<String>) payload_content, p_mappedKeys),current.metaClass());
                             } catch (Exception e) {
@@ -173,7 +172,7 @@ public class JsonModelLoader {
      * }
      * return convertedRaw;
      */
-    private static long[] transposeArr(ArrayList<String> plainRawSet, LongLongHashMap p_mappedKeys) {
+    private static long[] transposeArr(ArrayList<String> plainRawSet, ArrayLongLongHashMap p_mappedKeys) {
         if (plainRawSet == null) {
             return null;
         }

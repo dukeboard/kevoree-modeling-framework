@@ -1,6 +1,6 @@
 package org.kevoree.modeling.infer.states;
 
-import org.kevoree.modeling.KInferState;
+import org.kevoree.modeling.infer.KInferState;
 import org.kevoree.modeling.infer.states.Bayesian.BayesianSubstate;
 import org.kevoree.modeling.infer.states.Bayesian.EnumSubstate;
 import org.kevoree.modeling.infer.states.Bayesian.GaussianSubState;

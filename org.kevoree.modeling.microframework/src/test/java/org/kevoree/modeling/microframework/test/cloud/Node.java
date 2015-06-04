@@ -1,6 +1,6 @@
 package org.kevoree.modeling.microframework.test.cloud;
 
-import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KObject;
 
 /**
@@ -20,12 +20,12 @@ public interface Node extends KObject {
 
     Node removeChildren(Node obj);
 
-    void getChildren(Callback<Node[]> callback);
+    void getChildren(KCallback<Node[]> callback);
 
     Node setElement(Element obj);
 
-    void getElement(Callback<Element> obj);
+    void getElement(KCallback<Element> obj);
 
-    void trigger(String param, Callback<String> callback);
+    void trigger(String param, KCallback<String> callback);
 
 }

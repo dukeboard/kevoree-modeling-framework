@@ -3,13 +3,16 @@ package org.kevoree.modeling.microframework.test.event;
 import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.*;
-import org.kevoree.modeling.memory.KContentKey;
-import org.kevoree.modeling.util.LocalEventListeners;
-import org.kevoree.modeling.meta.Meta;
-import org.kevoree.modeling.meta.PrimitiveTypes;
-import org.kevoree.modeling.msg.KEvents;
-import org.kevoree.modeling.meta.reflexive.DynamicMetaClass;
-import org.kevoree.modeling.meta.reflexive.DynamicMetaModel;
+import org.kevoree.modeling.KContentKey;
+import org.kevoree.modeling.event.KEventListener;
+import org.kevoree.modeling.event.KEventMultiListener;
+import org.kevoree.modeling.event.impl.LocalEventListeners;
+import org.kevoree.modeling.extrapolation.DiscreteExtrapolation;
+import org.kevoree.modeling.meta.KMeta;
+import org.kevoree.modeling.meta.KMetaClass;
+import org.kevoree.modeling.meta.KPrimitiveTypes;
+import org.kevoree.modeling.message.impl.Events;
+import org.kevoree.modeling.meta.impl.MetaModel;
 
 /**
  * Created by duke on 22/03/15.
@@ -23,9 +26,9 @@ public class LocalEventListenersTest {
     private KView t0;
 
     public LocalEventListenersTest() {
-        DynamicMetaModel metaModel = new DynamicMetaModel("TestMM");
-        DynamicMetaClass metaClass = metaModel.createMetaClass("TestMC");
-        metaClass.addAttribute("name", PrimitiveTypes.STRING);
+        MetaModel metaModel = new MetaModel("TestMM");
+        KMetaClass metaClass = metaModel.addMetaClass("TestMC");
+        metaClass.addAttribute("name", KPrimitiveTypes.STRING, null, DiscreteExtrapolation.instance());
         _model = metaModel.model();
         localEventListeners = new LocalEventListeners();
         localEventListeners.setManager(_model.manager());
@@ -39,12 +42,12 @@ public class LocalEventListenersTest {
         int[] counter = new int[]{0};
         KEventListener listener = new KEventListener() {
             @Override
-            public void on(KObject src, Meta[] modifications) {
+            public void on(KObject src, KMeta[] modifications) {
                 counter[0]++;
             }
         };
         localEventListeners.registerListener(0, obj, listener);
-        KEvents events = new KEvents(1);
+        Events events = new Events(1);
         int metaNameIndex = obj.metaClass().attribute("name").index();
         int[] metas = new int[]{metaNameIndex};
         events.setEvent(0, KContentKey.createObject(obj.universe(), obj.now(), obj.uuid()), metas);
@@ -74,7 +77,7 @@ public class LocalEventListenersTest {
         long[] toListen = new long[1];
         toListen[0] = obj.uuid();
         localEventListeners.registerListenerAll(0, t0.universe(), toListen, multiListener);
-        KEvents events = new KEvents(1);
+        Events events = new Events(1);
         int metaNameIndex = obj.metaClass().attribute("name").index();
         int[] metas = new int[]{metaNameIndex};
         events.setEvent(0, KContentKey.createObject(obj.universe(), obj.now(), obj.uuid()), metas);
@@ -84,7 +87,7 @@ public class LocalEventListenersTest {
         localEventListeners.unregister(0);
         localEventListeners.dispatch(events);
         Assert.assertEquals(counter[0], 0);
-        KEvents events2 = new KEvents(2);
+        Events events2 = new Events(2);
         events2.setEvent(0, KContentKey.createObject(obj.universe(), obj.now(), obj.uuid()), metas);
         events2.setEvent(1, KContentKey.createObject(obj2.universe(), obj.now(), obj.uuid()), metas);
         long[] toListen2 = new long[2];

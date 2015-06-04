@@ -1,9 +1,9 @@
 package org.kevoree.modeling.format.xmi;
 
-import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.KObject;
-import org.kevoree.modeling.memory.struct.map.StringHashMap;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap;
 
 import java.util.ArrayList;
 
@@ -18,10 +18,10 @@ public class XMILoadingContext {
 
     public ArrayList<XMIResolveCommand> resolvers = new ArrayList<XMIResolveCommand>();
 
-    public StringHashMap<KObject> map = new StringHashMap<KObject>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
+    public ArrayStringHashMap<KObject> map = new ArrayStringHashMap<KObject>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
 
-    public StringHashMap<Integer> elementsCount = new StringHashMap<Integer>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
+    public ArrayStringHashMap<Integer> elementsCount = new ArrayStringHashMap<Integer>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
 
-    public Callback<Throwable> successCallback;
+    public KCallback<Throwable> successCallback;
 
 }

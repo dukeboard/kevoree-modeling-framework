@@ -2,9 +2,9 @@ package org.kevoree.modeling.microframework.test;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KObject;
-import org.kevoree.modeling.memory.cdn.MemoryKContentDeliveryDriver;
+import org.kevoree.modeling.cdn.impl.MemoryContentDeliveryDriver;
 import org.kevoree.modeling.microframework.test.cloud.*;
 
 public class LookupRootTest {
@@ -14,7 +14,7 @@ public class LookupRootTest {
 //        MemoryKDataBase.DEBUG = true;
 
         final CloudModel cloudModel = new CloudModel();
-        cloudModel.setContentDeliveryDriver(new MemoryKContentDeliveryDriver());
+        cloudModel.setContentDeliveryDriver(new MemoryContentDeliveryDriver());
         cloudModel.connect(null);
 
         final CloudUniverse dimension0 = cloudModel.newUniverse();
@@ -25,15 +25,15 @@ public class LookupRootTest {
         final Element element0 = t0.createElement();
         node0.setElement(element0);
 
-        t0.setRoot(node0,new Callback<Throwable>() {
+        t0.setRoot(node0,new KCallback<Throwable>() {
             @Override
 
             public void on(Throwable throwable) {
 
-                cloudModel.save(new Callback<Throwable>() {
+                cloudModel.save(new KCallback<Throwable>() {
                     @Override
                     public void on(Throwable aBoolean) {
-                        cloudModel.discard(new Callback<Throwable>() {
+                        cloudModel.discard(new KCallback<Throwable>() {
                             @Override
                             public void on(Throwable aBoolean) {
 
@@ -43,14 +43,14 @@ public class LookupRootTest {
                 });
 
                 final CloudView lookupView = dimension0.time(0l);
-                cloudModel.manager().getRoot(lookupView.universe(),lookupView.now(), new Callback<KObject>() {
+                cloudModel.manager().getRoot(lookupView.universe(),lookupView.now(), new KCallback<KObject>() {
                     @Override
                     public void on(KObject kObject) {
                         Assert.assertNotNull(kObject);
                     }
                 });
 
-                lookupView.select("/",new Callback<KObject[]>() {
+                lookupView.select("/",new KCallback<KObject[]>() {
                     @Override
                     public void on(KObject[] kObjects) {
                         Assert.assertNotNull(kObjects[0]);
@@ -63,7 +63,7 @@ public class LookupRootTest {
 
     @Test
     public void reloadRootFromDbTest() {
-        final MemoryKContentDeliveryDriver db = new MemoryKContentDeliveryDriver();
+        final MemoryContentDeliveryDriver db = new MemoryContentDeliveryDriver();
 
         final CloudModel cloudModel = new CloudModel();
         cloudModel.setContentDeliveryDriver(db);
@@ -79,13 +79,13 @@ public class LookupRootTest {
 
 
 
-        t0.setRoot(node0,new Callback<Throwable>() {
+        t0.setRoot(node0,new KCallback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
-                cloudModel.save(new Callback<Throwable>() {
+                cloudModel.save(new KCallback<Throwable>() {
                     @Override
                     public void on(Throwable aBoolean) {
-                        cloudModel.discard(new Callback<Throwable>() {
+                        cloudModel.discard(new KCallback<Throwable>() {
                             @Override
                             public void on(Throwable aBoolean) {
 
@@ -102,7 +102,7 @@ public class LookupRootTest {
         final CloudUniverse cloudDimension1 = universe1.universe(dimension0.key());
         final CloudView cloudView1 = cloudDimension1.time(1l);
 
-        cloudView1.select("/",new Callback<KObject[]>() {
+        cloudView1.select("/",new KCallback<KObject[]>() {
             @Override
             public void on(KObject[] kObjects) {
                 Assert.assertNotNull(kObjects[0]);

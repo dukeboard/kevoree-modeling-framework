@@ -21,13 +21,13 @@ public class PolynomialExtrapolation implements Extrapolation {
             Double extrapolatedValue = extrapolateValue(raw.getInfer(attribute.index(),current.metaClass()), current.now(),raw.originTime());
             if (attribute.attributeType() == PrimitiveTypes.DOUBLE) {
                 return extrapolatedValue;
-            } else if (attribute.attributeType() == PrimitiveTypes.LONG) {
+            } else if (attribute.attributeType() == KPrimitiveTypes.LONG) {
                 return extrapolatedValue.longValue();
-            } else if (attribute.attributeType() == PrimitiveTypes.FLOAT) {
+            } else if (attribute.attributeType() == KPrimitiveTypes.FLOAT) {
                 return extrapolatedValue.floatValue();
-            } else if (attribute.attributeType() == PrimitiveTypes.INT) {
+            } else if (attribute.attributeType() == KPrimitiveTypes.INT) {
                 return extrapolatedValue.intValue();
-            } else if (attribute.attributeType() == PrimitiveTypes.SHORT) {
+            } else if (attribute.attributeType() == KPrimitiveTypes.SHORT) {
                 return extrapolatedValue.shortValue();
             } else {
                 return null;
@@ -177,8 +177,8 @@ public class PolynomialExtrapolation implements Extrapolation {
 
 
     @Override
-    public void mutate(KObject current, MetaAttribute attribute, Object payload) {
-        KCacheElementSegment raw = ((AbstractKObject) current)._manager.segment(current, AccessMode.READ);
+    public void mutate(KObject current, KMetaAttribute attribute, Object payload) {
+        KMemorySegment raw = ((AbstractKObject) current)._manager.segment(current, AccessMode.READ);
 
             if (!insert(current.now(), castNumber(payload), raw.originTime(),raw, attribute.index(), attribute.precision(), current.metaClass())) {
                 //PolynomialModel pol = createPolynomialModel(previousPol.lastIndex(), attribute.precision());

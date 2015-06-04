@@ -2,10 +2,10 @@ package org.kevoree.modeling.microframework.test.cloud;
 
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.abs.AbstractKModel;
-import org.kevoree.modeling.abs.AbstractMetaModel;
-import org.kevoree.modeling.meta.MetaClass;
-import org.kevoree.modeling.meta.MetaModel;
-import org.kevoree.modeling.meta.reflexive.DynamicKObject;
+import org.kevoree.modeling.abs.AbstractKObject;
+import org.kevoree.modeling.meta.impl.MetaModel;
+import org.kevoree.modeling.meta.KMetaClass;
+import org.kevoree.modeling.meta.KMetaModel;
 import org.kevoree.modeling.microframework.test.cloud.impl.ElementImpl;
 import org.kevoree.modeling.microframework.test.cloud.impl.NodeImpl;
 import org.kevoree.modeling.microframework.test.cloud.meta.MetaElement;
@@ -20,11 +20,11 @@ public class CloudModel extends AbstractKModel<CloudUniverse> {
 
     public CloudModel() {
         super();
-        _metaModel = new AbstractMetaModel("Cloud", -1);
-        MetaClass[] tempMetaClasses = new MetaClass[2];
+        _metaModel = new MetaModel("Cloud");
+        KMetaClass[] tempMetaClasses = new KMetaClass[2];
         tempMetaClasses[0] = MetaNode.getInstance();
         tempMetaClasses[1] = MetaElement.getInstance();
-        ((AbstractMetaModel) _metaModel).init(tempMetaClasses);
+        _metaModel.init(tempMetaClasses);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class CloudModel extends AbstractKModel<CloudUniverse> {
     }
 
     @Override
-    protected KObject internalCreateObject(long universe, long time, long uuid, MetaClass clazz) {
+    protected KObject internalCreateObject(long universe, long time, long uuid, KMetaClass clazz) {
         if (clazz == null) {
             return null;
         }
@@ -43,12 +43,13 @@ public class CloudModel extends AbstractKModel<CloudUniverse> {
             case 1:
                 return new ElementImpl(universe, time, uuid, clazz, _manager);
             default:
-                return new DynamicKObject(universe, time, uuid, clazz, _manager);
+                return new AbstractKObject(universe, time, uuid, clazz, _manager) {
+                };
         }
     }
 
     @Override
-    public MetaModel metaModel() {
+    public KMetaModel metaModel() {
         return _metaModel;
     }
 

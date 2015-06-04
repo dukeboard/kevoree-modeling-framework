@@ -4,22 +4,20 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
-import org.kevoree.modeling.Callback;
-import org.kevoree.modeling.KModelVisitor;
+import org.kevoree.modeling.KCallback;
+import org.kevoree.modeling.traversal.visitor.KModelVisitor;
 import org.kevoree.modeling.KObject;
-import org.kevoree.modeling.KVisitResult;
-import org.kevoree.modeling.abs.AbstractKObject;
-import org.kevoree.modeling.memory.KCacheElementSegment;
-import org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
+import org.kevoree.modeling.traversal.visitor.KVisitResult;
+import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 import org.kevoree.modeling.memory.AccessMode;
-import org.kevoree.modeling.meta.MetaReference;
+import org.kevoree.modeling.meta.KMetaReference;
 
 /**
  * Created by duke on 7/1/14.
  */
 public class GraphBuilder {
 
-    public static void graphFrom(KObject modelRoot, Callback<Graph> cb) {
+    public static void graphFrom(KObject modelRoot, KCallback<Graph> cb) {
         final Graph graph = new SingleGraph("Model_" + modelRoot.metaClass().metaName());
         graph.setStrict(false);
         createNode(graph, modelRoot);
@@ -29,7 +27,7 @@ public class GraphBuilder {
                 createNode(graph, elem);
                 return KVisitResult.CONTINUE;
             }
-        }, new Callback<Throwable>() {
+        }, new KCallback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 modelRoot.visit(new KModelVisitor() {
@@ -38,7 +36,7 @@ public class GraphBuilder {
                         createEdges(graph, elem);
                         return KVisitResult.CONTINUE;
                     }
-                }, new Callback<Throwable>() {
+                }, new KCallback<Throwable>() {
                     @Override
                     public void on(Throwable throwable) {
                         createEdges(graph, modelRoot);
@@ -59,8 +57,8 @@ public class GraphBuilder {
 
     private static void createEdges(Graph graph, KObject elem) {
         Node n = graph.getNode(elem.uuid() + "");
-        KCacheElementSegment rawPayload = elem.manager().segment(elem, AccessMode.READ);
-        for (MetaReference metaRef : elem.metaClass().metaReferences()) {
+        KMemorySegment rawPayload = elem.manager().segment(elem, AccessMode.READ);
+        for (KMetaReference metaRef : elem.metaClass().metaReferences()) {
             long[] relatedElems = rawPayload.getRef(metaRef.index(), elem.metaClass());
             if (relatedElems != null) {
                 for (int i = 0; i < relatedElems.length; i++) {

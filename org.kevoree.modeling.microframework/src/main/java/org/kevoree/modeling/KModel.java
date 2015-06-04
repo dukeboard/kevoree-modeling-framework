@@ -1,10 +1,13 @@
 package org.kevoree.modeling;
 
-import org.kevoree.modeling.memory.KContentDeliveryDriver;
-import org.kevoree.modeling.memory.KDataManager;
-import org.kevoree.modeling.meta.MetaClass;
-import org.kevoree.modeling.meta.MetaModel;
-import org.kevoree.modeling.meta.MetaOperation;
+import org.kevoree.modeling.cdn.KContentDeliveryDriver;
+import org.kevoree.modeling.defer.KDefer;
+import org.kevoree.modeling.memory.manager.KMemoryManager;
+import org.kevoree.modeling.meta.KMetaClass;
+import org.kevoree.modeling.meta.KMetaModel;
+import org.kevoree.modeling.meta.KMetaOperation;
+import org.kevoree.modeling.operation.KOperation;
+import org.kevoree.modeling.scheduler.KScheduler;
 
 public interface KModel<A extends KUniverse> {
 
@@ -14,27 +17,27 @@ public interface KModel<A extends KUniverse> {
 
     A universe(long key);
 
-    KDataManager manager();
+    KMemoryManager manager();
 
     KModel<A> setContentDeliveryDriver(KContentDeliveryDriver dataBase);
 
     KModel<A> setScheduler(KScheduler scheduler);
 
-    void setOperation(MetaOperation metaOperation, KOperation operation);
+    void setOperation(KMetaOperation metaOperation, KOperation operation);
 
-    void setInstanceOperation(MetaOperation metaOperation, KObject target, KOperation operation);
+    void setInstanceOperation(KMetaOperation metaOperation, KObject target, KOperation operation);
 
-    MetaModel metaModel();
+    KMetaModel metaModel();
 
     KDefer defer();
 
-    void save(Callback cb);
+    void save(KCallback cb);
 
-    void discard(Callback cb);
+    void discard(KCallback cb);
 
-    void connect(Callback cb);
+    void connect(KCallback cb);
 
-    void close(Callback cb);
+    void close(KCallback cb);
 
     void clearListenerGroup(long groupID);
 
@@ -42,6 +45,6 @@ public interface KModel<A extends KUniverse> {
 
     KObject createByName(String metaClassName, long universe, long time);
 
-    KObject create(MetaClass clazz, long universe, long time);
+    KObject create(KMetaClass clazz, long universe, long time);
 
 }

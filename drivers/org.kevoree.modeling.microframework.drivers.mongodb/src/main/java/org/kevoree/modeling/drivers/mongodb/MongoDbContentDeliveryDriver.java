@@ -7,12 +7,14 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import org.kevoree.modeling.*;
-import org.kevoree.modeling.memory.KContentDeliveryDriver;
-import org.kevoree.modeling.memory.KContentKey;
-import org.kevoree.modeling.memory.KDataManager;
-import org.kevoree.modeling.memory.cdn.KContentPutRequest;
-import org.kevoree.modeling.msg.KMessage;
-import org.kevoree.modeling.util.LocalEventListeners;
+import org.kevoree.modeling.cdn.KContentDeliveryDriver;
+import org.kevoree.modeling.KContentKey;
+import org.kevoree.modeling.event.KEventListener;
+import org.kevoree.modeling.event.KEventMultiListener;
+import org.kevoree.modeling.memory.manager.KMemoryManager;
+import org.kevoree.modeling.cdn.impl.ContentPutRequest;
+import org.kevoree.modeling.message.KMessage;
+import org.kevoree.modeling.event.impl.LocalEventListeners;
 
 import java.net.UnknownHostException;
 
@@ -39,7 +41,7 @@ public class MongoDbContentDeliveryDriver implements KContentDeliveryDriver {
     private static final String KMF_VAL = "@val";
 
     @Override
-    public void atomicGetIncrement(KContentKey key, ThrowableCallback<Short> cb) {
+    public void atomicGetIncrement(KContentKey key, KThrowableCallback<Short> cb) {
 
         BasicDBObject searchQuery = new BasicDBObject();
         searchQuery.put(KMF_KEY, key.toString());
@@ -78,7 +80,7 @@ public class MongoDbContentDeliveryDriver implements KContentDeliveryDriver {
 
 
     @Override
-    public void get(KContentKey[] keys, ThrowableCallback<String[]> callback) {
+    public void get(KContentKey[] keys, KThrowableCallback<String[]> callback) {
         String[] result = new String[keys.length];
         for (int i = 0; i < result.length; i++) {
             BasicDBObject searchQuery = new BasicDBObject();
@@ -95,7 +97,7 @@ public class MongoDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void put(KContentPutRequest request, Callback<Throwable> error) {
+    public void put(ContentPutRequest request, KCallback<Throwable> error) {
         for (int i = 0; i < request.size(); i++) {
             BasicDBObject originalObjectQuery = new BasicDBObject();
             originalObjectQuery.put(KMF_KEY, request.getKey(i).toString());
@@ -110,14 +112,14 @@ public class MongoDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void remove(String[] keys, Callback<Throwable> error) {
+    public void remove(String[] keys, KCallback<Throwable> error) {
         if (error != null) {
             error.on(null);
         }
     }
 
     @Override
-    public void close(Callback<Throwable> error) {
+    public void close(KCallback<Throwable> error) {
         if (mongoClient != null) {
             mongoClient.close();
         }
@@ -153,12 +155,12 @@ public class MongoDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void setManager(KDataManager manager) {
+    public void setManager(KMemoryManager manager) {
         localEventListeners.setManager(manager);
     }
 
     @Override
-    public void connect(Callback<Throwable> callback) {
+    public void connect(KCallback<Throwable> callback) {
         mongoClient = new MongoClient(host, port);
         db = mongoClient.getDB(dbName);
         table = db.getCollection(KMF_COL);

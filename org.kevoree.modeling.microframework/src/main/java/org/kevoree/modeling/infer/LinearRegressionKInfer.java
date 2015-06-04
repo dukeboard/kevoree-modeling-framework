@@ -1,11 +1,10 @@
 package org.kevoree.modeling.infer;
 
-import org.kevoree.modeling.Callback;
-import org.kevoree.modeling.KInferState;
+import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.abs.AbstractKObjectInfer;
-import org.kevoree.modeling.memory.KDataManager;
+import org.kevoree.modeling.memory.manager.KMemoryManager;
 import org.kevoree.modeling.infer.states.DoubleArrayKInferState;
-import org.kevoree.modeling.meta.MetaClass;
+import org.kevoree.modeling.meta.KMetaClass;
 
 /**
  * This class create a live learner of a linear regression.
@@ -17,7 +16,7 @@ import org.kevoree.modeling.meta.MetaClass;
  */
 public class LinearRegressionKInfer extends AbstractKObjectInfer {
 
-    public LinearRegressionKInfer(long p_universe, long p_time, long p_uuid, MetaClass p_metaClass, KDataManager p_manager) {
+    public LinearRegressionKInfer(long p_universe, long p_time, long p_uuid, KMetaClass p_metaClass, KMemoryManager p_manager) {
         super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
     }
 
@@ -57,7 +56,7 @@ public class LinearRegressionKInfer extends AbstractKObjectInfer {
     }
 
     @Override
-    public void train(Object[][] trainingSet, Object[] expectedResultSet, Callback<Throwable> callback) {
+    public void train(Object[][] trainingSet, Object[] expectedResultSet, KCallback<Throwable> callback) {
         DoubleArrayKInferState currentState = (DoubleArrayKInferState) modifyState();
         double[] weights = currentState.getWeights();
         int featuresize = trainingSet[0].length;

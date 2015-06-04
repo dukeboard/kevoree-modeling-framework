@@ -2,7 +2,7 @@ package org.kevoree.modeling.microframework.test;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
@@ -17,7 +17,7 @@ public class UtilityTest {
     public void utilityTest() {
 
         final CloudModel model = new CloudModel();
-        model.connect(new Callback<Throwable>() {
+        model.connect(new KCallback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 CloudUniverse universe = model.newUniverse();

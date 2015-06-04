@@ -1,13 +1,13 @@
 package org.kevoree.modeling.abs;
 
-import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.KTimeWalker;
-import org.kevoree.modeling.memory.KCacheElement;
-import org.kevoree.modeling.memory.KContentKey;
-import org.kevoree.modeling.memory.manager.DefaultKDataManager;
-import org.kevoree.modeling.memory.manager.ResolutionHelper;
-import org.kevoree.modeling.memory.struct.map.LongLongHashMap;
+import org.kevoree.modeling.memory.KMemoryElement;
+import org.kevoree.modeling.KContentKey;
+import org.kevoree.modeling.memory.manager.impl.HeapMemoryManager;
+import org.kevoree.modeling.memory.manager.impl.ResolutionHelper;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap;
 import org.kevoree.modeling.memory.struct.tree.KLongTree;
 import org.kevoree.modeling.memory.struct.tree.KTreeWalker;
 
@@ -20,27 +20,27 @@ public class AbstractTimeWalker implements KTimeWalker {
     private AbstractKObject _origin = null;
 
     //TODO check the correct usage of start and end regarding multi universe
-    private void internal_times(final long start, final long end, Callback<long[]> cb) {
+    private void internal_times(final long start, final long end, KCallback<long[]> cb) {
         KContentKey[] keys = new KContentKey[2];
         keys[0] = KContentKey.createGlobalUniverseTree();
         keys[1] = KContentKey.createUniverseTree(_origin.uuid());
-        final DefaultKDataManager manager = (DefaultKDataManager) _origin._manager;
-        manager.bumpKeysToCache(keys, new Callback<KCacheElement[]>() {
+        final HeapMemoryManager manager = (HeapMemoryManager) _origin._manager;
+        manager.bumpKeysToCache(keys, new KCallback<KMemoryElement[]>() {
             @Override
-            public void on(KCacheElement[] kCacheElements) {
-                final LongLongHashMap objUniverse = (LongLongHashMap) kCacheElements[1];
-                if (kCacheElements[0] == null || kCacheElements[1] == null) {
+            public void on(KMemoryElement[] kMemoryElements) {
+                final ArrayLongLongHashMap objUniverse = (ArrayLongLongHashMap) kMemoryElements[1];
+                if (kMemoryElements[0] == null || kMemoryElements[1] == null) {
                     cb.on(null);
                 } else {
-                    final long[] collectedUniverse = ResolutionHelper.universeSelectByRange((LongLongHashMap) kCacheElements[0], (LongLongHashMap) kCacheElements[1], start, end, _origin.universe());
+                    final long[] collectedUniverse = ResolutionHelper.universeSelectByRange((ArrayLongLongHashMap) kMemoryElements[0], (ArrayLongLongHashMap) kMemoryElements[1], start, end, _origin.universe());
                     KContentKey[] timeTreeToLoad = new KContentKey[collectedUniverse.length];
                     for (int i = 0; i < collectedUniverse.length; i++) {
                         timeTreeToLoad[i] = KContentKey.createTimeTree(collectedUniverse[i], _origin.uuid());
                     }
-                    manager.bumpKeysToCache(timeTreeToLoad, new Callback<KCacheElement[]>() {
+                    manager.bumpKeysToCache(timeTreeToLoad, new KCallback<KMemoryElement[]>() {
                         @Override
-                        public void on(KCacheElement[] timeTrees) {
-                            LongLongHashMap collector = new LongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+                        public void on(KMemoryElement[] timeTrees) {
+                            ArrayLongLongHashMap collector = new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
                             long previousDivergenceTime = end;
                             for (int i = 0; i < collectedUniverse.length; i++) {
                                 KLongTree timeTree = (KLongTree) timeTrees[i];
@@ -76,22 +76,22 @@ public class AbstractTimeWalker implements KTimeWalker {
     }
 
     @Override
-    public void allTimes(Callback<long[]> cb) {
+    public void allTimes(KCallback<long[]> cb) {
         internal_times(KConfig.BEGINNING_OF_TIME, KConfig.END_OF_TIME, cb);
     }
 
     @Override
-    public void timesBefore(long endOfSearch, Callback<long[]> cb) {
+    public void timesBefore(long endOfSearch, KCallback<long[]> cb) {
         internal_times(KConfig.BEGINNING_OF_TIME, endOfSearch, cb);
     }
 
     @Override
-    public void timesAfter(long beginningOfSearch, Callback<long[]> cb) {
+    public void timesAfter(long beginningOfSearch, KCallback<long[]> cb) {
         internal_times(beginningOfSearch, KConfig.END_OF_TIME, cb);
     }
 
     @Override
-    public void timesBetween(long beginningOfSearch, long endOfSearch, Callback<long[]> cb) {
+    public void timesBetween(long beginningOfSearch, long endOfSearch, KCallback<long[]> cb) {
         internal_times(beginningOfSearch, endOfSearch, cb);
     }
 

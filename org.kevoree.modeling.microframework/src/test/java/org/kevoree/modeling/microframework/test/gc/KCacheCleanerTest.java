@@ -2,11 +2,11 @@ package org.kevoree.modeling.microframework.test.gc;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KModel;
 import org.kevoree.modeling.KObject;
-import org.kevoree.modeling.meta.reflexive.DynamicMetaClass;
-import org.kevoree.modeling.meta.reflexive.DynamicMetaModel;
+import org.kevoree.modeling.meta.KMetaClass;
+import org.kevoree.modeling.meta.impl.MetaModel;
 
 /**
  * Created by duke on 27/03/15.
@@ -18,10 +18,10 @@ public class KCacheCleanerTest {
      */
     @Test
     public void test() {
-        DynamicMetaModel dynamicMetaModel = new DynamicMetaModel("MyMetaModel");
-        final DynamicMetaClass sensorMetaClass = dynamicMetaModel.createMetaClass("Sensor");
+        MetaModel dynamicMetaModel = new MetaModel("MyMetaModel");
+        final KMetaClass sensorMetaClass = dynamicMetaModel.addMetaClass("Sensor");
         final KModel universe = dynamicMetaModel.model();
-        universe.connect(new Callback<Throwable>() {
+        universe.connect(new KCallback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 KObject sensor = universe.universe(0).time(0).create(sensorMetaClass);
@@ -31,13 +31,13 @@ public class KCacheCleanerTest {
                 System.gc();
                 universe.manager().cleanCache();
                 Assert.assertEquals(1, universe.manager().cache().size());
-                universe.universe(0).time(0).lookup(sensorID, new Callback<KObject>() {
+                universe.universe(0).time(0).lookup(sensorID, new KCallback<KObject>() {
                     @Override
                     public void on(KObject kObject) {
                         Assert.assertNotNull(kObject);
                         Assert.assertEquals(4, universe.manager().cache().size());
 
-                        kObject.jump(10, new Callback<KObject>() {
+                        kObject.jump(10, new KCallback<KObject>() {
                             @Override
                             public void on(KObject kObject2) {
                                 Assert.assertNotNull(kObject2);

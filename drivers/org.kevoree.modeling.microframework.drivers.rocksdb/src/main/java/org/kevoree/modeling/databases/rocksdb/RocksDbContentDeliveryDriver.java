@@ -1,12 +1,14 @@
 package org.kevoree.modeling.databases.rocksdb;
 
 import org.kevoree.modeling.*;
-import org.kevoree.modeling.memory.KContentKey;
-import org.kevoree.modeling.memory.KContentDeliveryDriver;
-import org.kevoree.modeling.memory.cdn.KContentPutRequest;
-import org.kevoree.modeling.memory.KDataManager;
-import org.kevoree.modeling.util.LocalEventListeners;
-import org.kevoree.modeling.msg.KMessage;
+import org.kevoree.modeling.KContentKey;
+import org.kevoree.modeling.cdn.KContentDeliveryDriver;
+import org.kevoree.modeling.cdn.impl.ContentPutRequest;
+import org.kevoree.modeling.event.KEventListener;
+import org.kevoree.modeling.event.KEventMultiListener;
+import org.kevoree.modeling.memory.manager.KMemoryManager;
+import org.kevoree.modeling.event.impl.LocalEventListeners;
+import org.kevoree.modeling.message.KMessage;
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
@@ -38,7 +40,7 @@ public class RocksDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void put(KContentPutRequest request, Callback<Throwable> error) {
+    public void put(ContentPutRequest request, KCallback<Throwable> error) {
         WriteBatch batch = new WriteBatch();
         for (int i = 0; i < request.size(); i++) {
             batch.put(request.getKey(i).toString().getBytes(), request.getContent(i).getBytes());
@@ -57,7 +59,7 @@ public class RocksDbContentDeliveryDriver implements KContentDeliveryDriver {
 
 
     @Override
-    public void atomicGetIncrement(KContentKey key, ThrowableCallback<Short> cb) {
+    public void atomicGetIncrement(KContentKey key, KThrowableCallback<Short> cb) {
         try {
             String result = new String(db.get(key.toString().getBytes()));
             short nextV;
@@ -89,7 +91,7 @@ public class RocksDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void get(KContentKey[] keys, ThrowableCallback<String[]> callback) {
+    public void get(KContentKey[] keys, KThrowableCallback<String[]> callback) {
         String[] result = new String[keys.length];
         for (int i = 0; i < keys.length; i++) {
             try {
@@ -105,7 +107,7 @@ public class RocksDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void remove(String[] keys, Callback<Throwable> error) {
+    public void remove(String[] keys, KCallback<Throwable> error) {
         try {
             for (int i = 0; i < keys.length; i++) {
                 db.remove(keys[i].getBytes());
@@ -121,7 +123,7 @@ public class RocksDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void close(Callback<Throwable> error) {
+    public void close(KCallback<Throwable> error) {
         try {
             WriteOptions options = new WriteOptions();
             options.sync();
@@ -161,12 +163,12 @@ public class RocksDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void setManager(KDataManager manager) {
+    public void setManager(KMemoryManager manager) {
         _localEventListeners.setManager(manager);
     }
 
     @Override
-    public void connect(Callback<Throwable> callback) {
+    public void connect(KCallback<Throwable> callback) {
         //noop
         if (callback != null) {
             callback.on(null);

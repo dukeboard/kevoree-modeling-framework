@@ -3,8 +3,8 @@ package org.kevoree.modeling.microframework.test.map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.KConfig;
-import org.kevoree.modeling.memory.struct.map.StringHashMap;
-import org.kevoree.modeling.memory.struct.map.StringHashMapCallBack;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap;
+import org.kevoree.modeling.memory.struct.map.KStringHashMapCallBack;
 
 import java.util.HashMap;
 
@@ -17,7 +17,7 @@ public class StringMapTest {
     public void test() {
         RandomString randomString = new RandomString(10);
         HashMap<String, String> origin = new HashMap<String, String>();
-        StringHashMap<String> optimized = new StringHashMap<String>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+        ArrayStringHashMap<String> optimized = new ArrayStringHashMap<String>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         int nbLoop = 100;
         for (int i = 0; i < nbLoop; i++) {
             String newVal = randomString.nextString();
@@ -27,7 +27,7 @@ public class StringMapTest {
         Assert.assertEquals(nbLoop, origin.keySet().size());
         Assert.assertEquals(nbLoop, optimized.size());
         final int[] loopElem = {0};
-        optimized.each(new StringHashMapCallBack<String>() {
+        optimized.each(new KStringHashMapCallBack<String>() {
             @Override
             public void on(String key, String value) {
                 Assert.assertEquals(key, value);
@@ -41,11 +41,11 @@ public class StringMapTest {
 
     @Test
     public void emptyTest() {
-        StringHashMap<String> optimized = new StringHashMap<String>(0, KConfig.CACHE_LOAD_FACTOR);
+        ArrayStringHashMap<String> optimized = new ArrayStringHashMap<String>(0, KConfig.CACHE_LOAD_FACTOR);
         Assert.assertEquals(optimized.size(),0);
         Assert.assertTrue(!optimized.containsKey("randomKey"));
         Assert.assertNull(optimized.get("randomKey"));
-        Assert.assertNull(optimized.put("randomKey", "randomVal"));
+        optimized.put("randomKey", "randomVal");
         Assert.assertTrue(optimized.containsKey("randomKey"));
         Assert.assertNotNull(optimized.get("randomKey"));
     }

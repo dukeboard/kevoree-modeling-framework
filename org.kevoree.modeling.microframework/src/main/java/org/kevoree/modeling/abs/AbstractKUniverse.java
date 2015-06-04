@@ -1,13 +1,13 @@
 package org.kevoree.modeling.abs;
 
-import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KConfig;
-import org.kevoree.modeling.KEventMultiListener;
+import org.kevoree.modeling.event.KEventMultiListener;
 import org.kevoree.modeling.KModel;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.KUniverse;
 import org.kevoree.modeling.KView;
-import org.kevoree.modeling.memory.KDataManager;
+import org.kevoree.modeling.memory.manager.KMemoryManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,9 +16,9 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
 
     final protected long _universe;
 
-    final protected KDataManager _manager;
+    final protected KMemoryManager _manager;
 
-    protected AbstractKUniverse(long p_key, KDataManager p_manager) {
+    protected AbstractKUniverse(long p_key, KMemoryManager p_manager) {
         this._universe = p_key;
         this._manager = p_manager;
     }
@@ -34,7 +34,7 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
     }
 
     @Override
-    public void delete(Callback cb) {
+    public void delete(KCallback cb) {
         model().manager().delete(this, cb);
     }
 
@@ -84,7 +84,7 @@ public abstract class AbstractKUniverse<A extends KView, B extends KUniverse, C 
     }
 
     @Override
-    public void lookupAllTimes(long uuid, long[] times, Callback<KObject[]> cb) {
+    public void lookupAllTimes(long uuid, long[] times, KCallback<KObject[]> cb) {
         //TODO
         throw new RuntimeException("Not implemented Yet !");
     }

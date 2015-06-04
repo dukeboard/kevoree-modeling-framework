@@ -1,11 +1,11 @@
 package org.kevoree.modeling.microframework.test.cloud.impl;
 
-import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KActionType;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.abs.AbstractKObject;
-import org.kevoree.modeling.memory.KDataManager;
-import org.kevoree.modeling.meta.MetaClass;
+import org.kevoree.modeling.memory.manager.KMemoryManager;
+import org.kevoree.modeling.meta.KMetaClass;
 import org.kevoree.modeling.microframework.test.cloud.Element;
 import org.kevoree.modeling.microframework.test.cloud.Node;
 import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
@@ -15,7 +15,7 @@ import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
  */
 public class NodeImpl extends AbstractKObject implements Node {
 
-    public NodeImpl(long p_universe, long p_time, long p_uuid, MetaClass p_metaClass, KDataManager p_manager) {
+    public NodeImpl(long p_universe, long p_time, long p_uuid, KMetaClass p_metaClass, KMemoryManager p_manager) {
         super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
     }
 
@@ -54,8 +54,8 @@ public class NodeImpl extends AbstractKObject implements Node {
     }
 
     @Override
-    public void getChildren(final Callback<Node[]> p_callback) {
-        this.ref(MetaNode.REF_CHILDREN,new Callback<KObject[]>() {
+    public void getChildren(final KCallback<Node[]> p_callback) {
+        this.ref(MetaNode.REF_CHILDREN,new KCallback<KObject[]>() {
             @Override
             public void on(KObject[] kObjects) {
                 if (p_callback != null) {
@@ -76,8 +76,8 @@ public class NodeImpl extends AbstractKObject implements Node {
     }
 
     @Override
-    public void getElement(final Callback<Element> p_callback) {
-        this.ref(MetaNode.REF_ELEMENT,new Callback<KObject[]>() {
+    public void getElement(final KCallback<Element> p_callback) {
+        this.ref(MetaNode.REF_ELEMENT,new KCallback<KObject[]>() {
             @Override
             public void on(KObject[] kObject) {
                 if (p_callback != null && kObject.length > 0) {
@@ -88,10 +88,10 @@ public class NodeImpl extends AbstractKObject implements Node {
     }
 
     @Override
-    public void trigger(String param, final Callback<String> callback) {
+    public void trigger(String param, final KCallback<String> callback) {
         Object[] internal_params = new Object[1];
         internal_params[0] = param;
-        _manager.operationManager().call(this, MetaNode.OP_TRIGGER, internal_params, new Callback<Object>() {
+        _manager.operationManager().call(this, MetaNode.OP_TRIGGER, internal_params, new KCallback<Object>() {
             @Override
             public void on(Object o) {
                 if (callback != null) {

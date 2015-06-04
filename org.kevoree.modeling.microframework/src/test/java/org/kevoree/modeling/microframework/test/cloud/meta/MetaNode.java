@@ -3,11 +3,15 @@ package org.kevoree.modeling.microframework.test.cloud.meta;
 import org.kevoree.modeling.abs.*;
 import org.kevoree.modeling.extrapolation.DiscreteExtrapolation;
 import org.kevoree.modeling.meta.*;
+import org.kevoree.modeling.meta.impl.MetaAttribute;
+import org.kevoree.modeling.meta.impl.MetaClass;
+import org.kevoree.modeling.meta.impl.MetaOperation;
+import org.kevoree.modeling.meta.impl.MetaReference;
 
 /**
  * Created by duke on 07/12/14.
  */
-public class MetaNode extends AbstractMetaClass {
+public class MetaNode extends MetaClass {
 
     private static MetaNode INSTANCE = null;
 
@@ -18,56 +22,56 @@ public class MetaNode extends AbstractMetaClass {
         return INSTANCE;
     }
 
-    public static final MetaAttribute ATT_NAME = new AbstractMetaAttribute("name", 0, 5, true, PrimitiveTypes.STRING, DiscreteExtrapolation.instance());
+    public static final KMetaAttribute ATT_NAME = new MetaAttribute("name", 0, 5, true, KPrimitiveTypes.STRING, DiscreteExtrapolation.instance());
 
-    public static final MetaAttribute ATT_VALUE = new AbstractMetaAttribute("value", 1, 5, false, PrimitiveTypes.STRING, DiscreteExtrapolation.instance());
+    public static final KMetaAttribute ATT_VALUE = new MetaAttribute("value", 1, 5, false, KPrimitiveTypes.STRING, DiscreteExtrapolation.instance());
 
-    public static final MetaReference REF_CHILDREN = new AbstractMetaReference("children", 2, true, false, new LazyResolver() {
+    public static final KMetaReference REF_CHILDREN = new MetaReference("children", 2, true, false, new KLazyResolver() {
         @Override
-        public Meta meta() {
+        public KMeta meta() {
             return MetaNode.getInstance();
         }
-    }, "op_children", new LazyResolver() {
+    }, "op_children", new KLazyResolver() {
         @Override
-        public Meta meta() {
-            return MetaNode.getInstance();
-        }
-    });
-
-    public static final MetaReference REF_OP_CHILDREN = new AbstractMetaReference("op_children", 3, true, false, new LazyResolver() {
-        @Override
-        public Meta meta() {
-            return MetaNode.getInstance();
-        }
-    }, "children", new LazyResolver() {
-        @Override
-        public Meta meta() {
+        public KMeta meta() {
             return MetaNode.getInstance();
         }
     });
 
-    public static final MetaReference REF_ELEMENT = new AbstractMetaReference("element", 4, true, true, new LazyResolver() {
+    public static final KMetaReference REF_OP_CHILDREN = new MetaReference("op_children", 3, true, false, new KLazyResolver() {
         @Override
-        public Meta meta() {
+        public KMeta meta() {
+            return MetaNode.getInstance();
+        }
+    }, "children", new KLazyResolver() {
+        @Override
+        public KMeta meta() {
+            return MetaNode.getInstance();
+        }
+    });
+
+    public static final KMetaReference REF_ELEMENT = new MetaReference("element", 4, true, true, new KLazyResolver() {
+        @Override
+        public KMeta meta() {
             return MetaElement.getInstance();
         }
-    }, "op_element", new LazyResolver() {
+    }, "op_element", new KLazyResolver() {
         @Override
-        public Meta meta() {
+        public KMeta meta() {
             return MetaNode.getInstance();
         }
     });
 
-    public static final MetaOperation OP_TRIGGER = new AbstractMetaOperation("trigger", 5, new LazyResolver() {
+    public static final KMetaOperation OP_TRIGGER = new MetaOperation("trigger", 5, new KLazyResolver() {
         @Override
-        public Meta meta() {
+        public KMeta meta() {
             return MetaNode.getInstance();
         }
     });
 
     public MetaNode() {
         super("org.kevoree.modeling.microframework.test.cloud.Node", 0);
-        Meta[] temp = new Meta[6];
+        KMeta[] temp = new KMeta[6];
         temp[0] = ATT_NAME;
         temp[1] = ATT_VALUE;
         temp[2] = REF_CHILDREN;

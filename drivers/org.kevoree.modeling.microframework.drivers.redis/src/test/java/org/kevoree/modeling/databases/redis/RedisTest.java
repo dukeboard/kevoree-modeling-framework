@@ -1,11 +1,10 @@
 package org.kevoree.modeling.databases.redis;
 
 import org.junit.Assert;
-import org.junit.Test;
-import org.kevoree.modeling.Callback;
-import org.kevoree.modeling.ThrowableCallback;
-import org.kevoree.modeling.memory.KContentKey;
-import org.kevoree.modeling.memory.cdn.KContentPutRequest;
+import org.kevoree.modeling.KCallback;
+import org.kevoree.modeling.KThrowableCallback;
+import org.kevoree.modeling.KContentKey;
+import org.kevoree.modeling.cdn.impl.ContentPutRequest;
 import redis.embedded.RedisServer;
 
 import java.io.IOException;
@@ -22,17 +21,17 @@ public class RedisTest {
         redisServer.start();
 
         RedisContentDeliveryDriver driver = new RedisContentDeliveryDriver("0.0.0.0", 6379);
-        driver.connect(new Callback<Throwable>() {
+        driver.connect(new KCallback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
-                KContentPutRequest request = new KContentPutRequest(3);
+                ContentPutRequest request = new ContentPutRequest(3);
 
                 KContentKey k0 = KContentKey.createObject(0l, 1l, 2l);
                 KContentKey k1 = KContentKey.createObject(3l, 4l, 5l);
 
                 request.put(k0, "K0");
                 request.put(k1, "K1");
-                driver.put(request, new Callback<Throwable>() {
+                driver.put(request, new KCallback<Throwable>() {
                     @Override
                     public void on(Throwable throwable) {
                         if (throwable != null) {
@@ -45,7 +44,7 @@ public class RedisTest {
                 keys[0] = k0;
                 keys[1] = k1;
 
-                driver.get(keys, new ThrowableCallback<String[]>() {
+                driver.get(keys, new KThrowableCallback<String[]>() {
                     @Override
                     public void on(String[] strings, Throwable error) {
                         Assert.assertEquals(strings.length, 2);

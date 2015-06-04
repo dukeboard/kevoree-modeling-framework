@@ -1,8 +1,8 @@
 package org.kevoree.modeling.format.json;
 
 import org.kevoree.modeling.KConfig;
-import org.kevoree.modeling.memory.struct.map.StringHashMap;
-import org.kevoree.modeling.memory.struct.map.StringHashMapCallBack;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap;
+import org.kevoree.modeling.memory.struct.map.KStringHashMapCallBack;
 
 import java.util.ArrayList;
 
@@ -28,7 +28,7 @@ import java.util.ArrayList;
  */
 public class JsonObjectReader {
 
-    private StringHashMap<Object> content = new StringHashMap<Object>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
+    private ArrayStringHashMap<Object> content = new ArrayStringHashMap<Object>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
 
     private String[] keys = null;
 
@@ -78,7 +78,7 @@ public class JsonObjectReader {
             keys = new String[content.size()];
             int[] nbLoop = new int[1];
             nbLoop[0] = 0;
-            content.each(new StringHashMapCallBack<Object>() {
+            content.each(new KStringHashMapCallBack<Object>() {
                 @Override
                 public void on(String key, Object value) {
                     keys[nbLoop[0]] = key;

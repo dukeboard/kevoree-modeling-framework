@@ -1,18 +1,19 @@
 package org.kevoree.modeling;
 
-import org.kevoree.modeling.meta.MetaClass;
+import org.kevoree.modeling.format.KModelFormat;
+import org.kevoree.modeling.meta.KMetaClass;
 
 public interface KView {
 
     KObject createByName(String metaClassName);
 
-    KObject create(MetaClass clazz);
+    KObject create(KMetaClass clazz);
 
-    void select(String query, Callback<KObject[]> cb);
+    void select(String query, KCallback<KObject[]> cb);
 
-    void lookup(long key, Callback<KObject> cb);
+    void lookup(long key, KCallback<KObject> cb);
 
-    void lookupAll(long[] keys, Callback<KObject[]> cb);
+    void lookupAll(long[] keys, KCallback<KObject[]> cb);
 
     long universe();
 
@@ -24,8 +25,8 @@ public interface KView {
 
     boolean equals(Object other);
 
-    void setRoot(KObject elem, Callback cb);
+    void setRoot(KObject elem, KCallback cb);
 
-    void getRoot(Callback<KObject> cb);
+    void getRoot(KCallback<KObject> cb);
 
 }

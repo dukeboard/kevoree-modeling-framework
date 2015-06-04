@@ -1,8 +1,8 @@
 package org.kevoree.modeling.microframework.test.scheduler;
 
 import org.junit.Test;
-import org.kevoree.modeling.Callback;
-import org.kevoree.modeling.scheduler.ExecutorServiceScheduler;
+import org.kevoree.modeling.KCallback;
+import org.kevoree.modeling.scheduler.impl.ExecutorServiceScheduler;
 import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
@@ -17,7 +17,7 @@ public class SchedulerTest {
     public void test() {
         final CloudModel model = new CloudModel();
         model.setScheduler(new ExecutorServiceScheduler());
-        model.connect(new Callback<Throwable>() {
+        model.connect(new KCallback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 CloudUniverse dimension0 = model.newUniverse();

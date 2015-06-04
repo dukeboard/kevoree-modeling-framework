@@ -1,20 +1,20 @@
 package org.kevoree.modeling.microframework.test.cloud.meta;
 
-import org.kevoree.modeling.abs.AbstractMetaAttribute;
-import org.kevoree.modeling.abs.AbstractMetaClass;
-import org.kevoree.modeling.abs.AbstractMetaReference;
-import org.kevoree.modeling.abs.LazyResolver;
+import org.kevoree.modeling.meta.impl.MetaAttribute;
+import org.kevoree.modeling.meta.impl.MetaClass;
+import org.kevoree.modeling.meta.impl.MetaReference;
+import org.kevoree.modeling.abs.KLazyResolver;
 import org.kevoree.modeling.extrapolation.DiscreteExtrapolation;
 import org.kevoree.modeling.extrapolation.PolynomialExtrapolation;
-import org.kevoree.modeling.meta.Meta;
-import org.kevoree.modeling.meta.MetaAttribute;
-import org.kevoree.modeling.meta.MetaReference;
-import org.kevoree.modeling.meta.PrimitiveTypes;
+import org.kevoree.modeling.meta.KMeta;
+import org.kevoree.modeling.meta.KMetaAttribute;
+import org.kevoree.modeling.meta.KMetaReference;
+import org.kevoree.modeling.meta.KPrimitiveTypes;
 
 /**
  * Created by duke on 07/12/14.
  */
-public class MetaElement extends AbstractMetaClass {
+public class MetaElement extends MetaClass {
 
     private static MetaElement INSTANCE = null;
 
@@ -25,25 +25,25 @@ public class MetaElement extends AbstractMetaClass {
         return INSTANCE;
     }
 
-    public static final MetaAttribute ATT_NAME = new AbstractMetaAttribute("name", 0, 5, true, PrimitiveTypes.STRING, DiscreteExtrapolation.instance());
+    public static final KMetaAttribute ATT_NAME = new MetaAttribute("name", 0, 5, true, KPrimitiveTypes.STRING, DiscreteExtrapolation.instance());
 
-    public static final MetaAttribute ATT_VALUE = new AbstractMetaAttribute("value", 1, 5, false, PrimitiveTypes.DOUBLE, PolynomialExtrapolation.instance());
+    public static final KMetaAttribute ATT_VALUE = new MetaAttribute("value", 1, 5, false, KPrimitiveTypes.DOUBLE, PolynomialExtrapolation.instance());
 
-    public static final MetaReference REF_OP_ELEMENT = new AbstractMetaReference("op_element", 2, false, false, new LazyResolver() {
+    public static final KMetaReference REF_OP_ELEMENT = new MetaReference("op_element", 2, false, false, new KLazyResolver() {
         @Override
-        public Meta meta() {
+        public KMeta meta() {
             return MetaNode.getInstance();
         }
-    }, "element", new LazyResolver() {
+    }, "element", new KLazyResolver() {
         @Override
-        public Meta meta() {
+        public KMeta meta() {
             return MetaElement.getInstance();
         }
     });
 
     public MetaElement() {
         super("org.kevoree.modeling.microframework.test.cloud.Element", 1);
-        Meta[] temp = new Meta[3];
+        KMeta[] temp = new KMeta[3];
         temp[0] = ATT_NAME;
         temp[1] = ATT_VALUE;
         temp[2] = REF_OP_ELEMENT;

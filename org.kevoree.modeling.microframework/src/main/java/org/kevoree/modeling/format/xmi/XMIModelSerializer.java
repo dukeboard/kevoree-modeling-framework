@@ -1,11 +1,11 @@
 package org.kevoree.modeling.format.xmi;
 
-import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KObject;
 
 public class XMIModelSerializer {
 
-    public static void save(KObject model, final Callback<String> callback) {
+    public static void save(KObject model, final KCallback<String> callback) {
         callback.on(null);
 /*
         if (model == null) {

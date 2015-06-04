@@ -1,6 +1,6 @@
 package org.kevoree.modeling.infer.states;
 
-import org.kevoree.modeling.KInferState;
+import org.kevoree.modeling.infer.KInferState;
 
 /**
  * Created by assaad on 10/02/15.

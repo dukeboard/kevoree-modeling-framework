@@ -1,7 +1,7 @@
 package org.kevoree.modeling.microframework.test.traversal;
 
 import org.junit.Test;
-import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
@@ -15,7 +15,7 @@ public class ParentAndReverseTest {
     @Test
     public void reverseQueryTest() {
         final CloudModel universe = new CloudModel();
-        universe.connect(new Callback<Throwable>() {
+        universe.connect(new KCallback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 CloudUniverse dimension0 = universe.newUniverse();

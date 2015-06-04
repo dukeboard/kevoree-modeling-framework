@@ -1,8 +1,8 @@
 package org.kevoree.modeling.microframework.test;
 
-import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KObject;
-import org.kevoree.modeling.KOperation;
+import org.kevoree.modeling.operation.KOperation;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudModel;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
@@ -16,7 +16,7 @@ public class CloudOperationTest {
 
     public static void main(String[] args) {
         final CloudModel model = new CloudModel();
-        model.connect(new Callback<Throwable>() {
+        model.connect(new KCallback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 CloudUniverse dimension = model.newUniverse();
@@ -25,7 +25,7 @@ public class CloudOperationTest {
 
                 model.setOperation(MetaNode.OP_TRIGGER, new KOperation() {
                     @Override
-                    public void on(KObject source, Object[] params, Callback<Object> result) {
+                    public void on(KObject source, Object[] params, KCallback<Object> result) {
                         String parameters = "[";
                         for (int i = 0; i < params.length; i++) {
                             if (i != 0) {
@@ -38,7 +38,7 @@ public class CloudOperationTest {
                     }
                 });
 
-                n.trigger("MyParam", new Callback<String>() {
+                n.trigger("MyParam", new KCallback<String>() {
                     @Override
                     public void on(String s) {
                         System.out.println("Operation execution result :  " + s);

@@ -1,7 +1,7 @@
 package org.kevoree.modeling.microframework.test.xmi;
 
 import org.junit.Test;
-import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudModel;
@@ -28,10 +28,10 @@ public class SerializerTest {
         Node nodeT1 = t0.createNode();
         nodeT1.setName("n1");
         nodeT0.addChildren(nodeT1);
-        t0.lookup(nodeT0.uuid(),new Callback<KObject>() {
+        t0.lookup(nodeT0.uuid(),new KCallback<KObject>() {
             @Override
             public void on(KObject root) {
-                t0.xmi().save(root,new Callback<String>() {
+                t0.xmi().save(root,new KCallback<String>() {
                     @Override
                     public void on(String result) {
 

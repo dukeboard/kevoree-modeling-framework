@@ -3,10 +3,10 @@ package org.kevoree.modeling.microframework.test.cache;
 import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.KConfig;
-import org.kevoree.modeling.memory.cache.HashMemoryCache;
-import org.kevoree.modeling.memory.KCacheElement;
-import org.kevoree.modeling.memory.KContentKey;
-import org.kevoree.modeling.meta.MetaModel;
+import org.kevoree.modeling.memory.cache.impl.HashMemoryCache;
+import org.kevoree.modeling.memory.KMemoryElement;
+import org.kevoree.modeling.KContentKey;
+import org.kevoree.modeling.meta.KMetaModel;
 
 /**
  * Created by duke on 20/02/15.
@@ -16,19 +16,19 @@ public class HashCacheTest {
     @Test
     public void test() {
         HashMemoryCache cache = new HashMemoryCache();
-        KCacheElement temp = new KCacheElement() {
+        KMemoryElement temp = new KMemoryElement() {
             @Override
             public boolean isDirty() {
                 return false;
             }
 
             @Override
-            public String serialize(MetaModel metaModel) {
+            public String serialize(KMetaModel metaModel) {
                 return null;
             }
 
             @Override
-            public void setClean(MetaModel mm) {
+            public void setClean(KMetaModel mm) {
             }
 
             @Override
@@ -37,7 +37,7 @@ public class HashCacheTest {
             }
 
             @Override
-            public void unserialize(KContentKey key, String payload, MetaModel metaModel) throws Exception {
+            public void unserialize(KContentKey key, String payload, KMetaModel metaModel) throws Exception {
             }
 
             @Override
@@ -54,7 +54,7 @@ public class HashCacheTest {
             }
 
             @Override
-            public void free(MetaModel metaModel) {
+            public void free(KMetaModel metaModel) {
 
             }
         };

@@ -5,12 +5,14 @@ import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
 import org.iq80.leveldb.WriteBatch;
 import org.kevoree.modeling.*;
-import org.kevoree.modeling.memory.KContentKey;
-import org.kevoree.modeling.memory.KContentDeliveryDriver;
-import org.kevoree.modeling.memory.cdn.KContentPutRequest;
-import org.kevoree.modeling.memory.KDataManager;
-import org.kevoree.modeling.util.LocalEventListeners;
-import org.kevoree.modeling.msg.KMessage;
+import org.kevoree.modeling.KContentKey;
+import org.kevoree.modeling.cdn.KContentDeliveryDriver;
+import org.kevoree.modeling.cdn.impl.ContentPutRequest;
+import org.kevoree.modeling.event.KEventListener;
+import org.kevoree.modeling.event.KEventMultiListener;
+import org.kevoree.modeling.memory.manager.KMemoryManager;
+import org.kevoree.modeling.event.impl.LocalEventListeners;
+import org.kevoree.modeling.message.KMessage;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +35,7 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
     private boolean _isConnected = false;
 
     @Override
-    public void connect(Callback<Throwable> callback) {
+    public void connect(KCallback<Throwable> callback) {
         File location = new File(_storagePath);
         if (!location.exists()) {
             location.mkdirs();
@@ -59,7 +61,7 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
     private String _connectedError = "PLEASE CONNECT YOUR DATABASE FIRST";
 
     @Override
-    public void atomicGetIncrement(KContentKey key, ThrowableCallback<Short> cb) {
+    public void atomicGetIncrement(KContentKey key, KThrowableCallback<Short> cb) {
         String result = JniDBFactory.asString(db.get(JniDBFactory.bytes(key.toString())));
         short nextV;
         short previousV;
@@ -85,7 +87,7 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void get(KContentKey[] keys, ThrowableCallback<String[]> callback) {
+    public void get(KContentKey[] keys, KThrowableCallback<String[]> callback) {
         if (!_isConnected) {
             throw new RuntimeException(_connectedError);
         }
@@ -99,7 +101,7 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void put(KContentPutRequest request, Callback<Throwable> error) {
+    public void put(ContentPutRequest request, KCallback<Throwable> error) {
         if (!_isConnected) {
             throw new RuntimeException(_connectedError);
         }
@@ -114,7 +116,7 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void remove(String[] keys, Callback<Throwable> error) {
+    public void remove(String[] keys, KCallback<Throwable> error) {
         if (!_isConnected) {
             throw new RuntimeException(_connectedError);
         }
@@ -133,7 +135,7 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void close(Callback<Throwable> error) {
+    public void close(KCallback<Throwable> error) {
         db.write(db.createWriteBatch());
         try {
             db.close();
@@ -172,7 +174,7 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void setManager(KDataManager manager) {
+    public void setManager(KMemoryManager manager) {
         localEventListeners.setManager(manager);
     }
 

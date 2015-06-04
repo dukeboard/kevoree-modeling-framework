@@ -1,13 +1,13 @@
 package org.kevoree.modeling.abs;
 
-import org.kevoree.modeling.Callback;
-import org.kevoree.modeling.KModelFormat;
+import org.kevoree.modeling.KCallback;
+import org.kevoree.modeling.format.KModelFormat;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.KView;
-import org.kevoree.modeling.memory.KDataManager;
+import org.kevoree.modeling.memory.manager.KMemoryManager;
 import org.kevoree.modeling.format.json.JsonFormat;
-import org.kevoree.modeling.meta.MetaClass;
-import org.kevoree.modeling.traversal.selector.KSelector;
+import org.kevoree.modeling.meta.KMetaClass;
+import org.kevoree.modeling.traversal.impl.selector.Selector;
 import org.kevoree.modeling.util.Checker;
 import org.kevoree.modeling.format.xmi.XmiFormat;
 
@@ -17,9 +17,9 @@ public abstract class AbstractKView implements KView {
 
     final protected long _universe;
 
-    final protected KDataManager _manager;
+    final protected KMemoryManager _manager;
 
-    protected AbstractKView(long p_universe, long _time, KDataManager p_manager) {
+    protected AbstractKView(long p_universe, long _time, KMemoryManager p_manager) {
         this._universe = p_universe;
         this._time = _time;
         this._manager = p_manager;
@@ -36,22 +36,22 @@ public abstract class AbstractKView implements KView {
     }
 
     @Override
-    public void setRoot(KObject elem, Callback cb) {
+    public void setRoot(KObject elem, KCallback cb) {
         _manager.setRoot(elem, cb);
     }
 
     @Override
-    public void getRoot(Callback cb) {
+    public void getRoot(KCallback cb) {
         _manager.getRoot(_universe, _time, cb);
     }
 
     @Override
-    public void select(final String query, Callback<KObject[]> cb) {
+    public void select(final String query, KCallback<KObject[]> cb) {
         if (Checker.isDefined(cb)) {
             if (query == null || query.length() == 0) {
                 cb.on(new KObject[0]);
             } else {
-                _manager.getRoot(_universe, _time, new Callback<KObject>() {
+                _manager.getRoot(_universe, _time, new KCallback<KObject>() {
                     @Override
                     public void on(KObject rootObj) {
                         if (rootObj == null) {
@@ -66,7 +66,7 @@ public abstract class AbstractKView implements KView {
                                 if (cleanedQuery.charAt(0) == '/') {
                                     cleanedQuery = cleanedQuery.substring(1);
                                 }
-                                KSelector.select(rootObj, cleanedQuery, cb);
+                                Selector.select(rootObj, cleanedQuery, cb);
                             }
                         }
                     }
@@ -76,17 +76,17 @@ public abstract class AbstractKView implements KView {
     }
 
     @Override
-    public void lookup(long kid, Callback<KObject> cb) {
+    public void lookup(long kid, KCallback<KObject> cb) {
         _manager.lookup(_universe, _time, kid, cb);
     }
 
     @Override
-    public void lookupAll(long[] keys, Callback<KObject[]> cb) {
+    public void lookupAll(long[] keys, KCallback<KObject[]> cb) {
         _manager.lookupAllobjects(_universe, _time, keys, cb);
     }
 
     @Override
-    public KObject create(MetaClass clazz) {
+    public KObject create(KMetaClass clazz) {
         return _manager.model().create(clazz, _universe, _time);
     }
 

@@ -1,37 +1,35 @@
 package org.kevoree.modeling.microframework.test.universe;
 
 import org.junit.Test;
-import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KModel;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.KUniverse;
-import org.kevoree.modeling.meta.PrimitiveTypes;
-import org.kevoree.modeling.meta.reflexive.DynamicMetaClass;
-import org.kevoree.modeling.meta.reflexive.DynamicMetaModel;
+import org.kevoree.modeling.extrapolation.DiscreteExtrapolation;
+import org.kevoree.modeling.meta.KMetaClass;
+import org.kevoree.modeling.meta.KPrimitiveTypes;
+import org.kevoree.modeling.meta.impl.MetaModel;
 
 /**
  * Created by assaad on 03/03/15.
  */
 public class MultiUniverseTest {
 
-    private DynamicMetaModel dynamicMetaModel;
-    private DynamicMetaClass sensorMetaClass;
+    private MetaModel dynamicMetaModel;
+    private KMetaClass sensorMetaClass;
     private KModel model;
     private KObject object;
-
 
     @Test
     public void testMultiVerse() {
         long timeOrigine = 1000l;
 
+        dynamicMetaModel = new MetaModel("MyMetaModel");
 
-        dynamicMetaModel = new DynamicMetaModel("MyMetaModel");
+        sensorMetaClass = dynamicMetaModel.addMetaClass("Sensor");
 
-        sensorMetaClass = dynamicMetaModel.createMetaClass("Sensor");
-
-        sensorMetaClass
-                .addAttribute("value", PrimitiveTypes.DOUBLE)
-                .addReference("siblings", sensorMetaClass,null);
+        sensorMetaClass.addAttribute("value", KPrimitiveTypes.DOUBLE, null, DiscreteExtrapolation.instance());
+        sensorMetaClass.addReference("siblings", sensorMetaClass, null, true);
 
         model = dynamicMetaModel.model();
         model.connect(null);
@@ -125,7 +123,7 @@ public class MultiUniverseTest {
 
     private void insert(long uId, long time, final double value) {
 
-        model.universe(uId).time(time).lookup(object.uuid(),new Callback<KObject>() {
+        model.universe(uId).time(time).lookup(object.uuid(), new KCallback<KObject>() {
             @Override
             public void on(KObject kObject) {
                 kObject.set(kObject.metaClass().attribute("value"), value);
@@ -135,7 +133,7 @@ public class MultiUniverseTest {
 
     public double get(long uId, long time) {
         final Object[] myvalue = {null};
-        model.universe(uId).time(time).lookup(object.uuid(),new Callback<KObject>() {
+        model.universe(uId).time(time).lookup(object.uuid(), new KCallback<KObject>() {
 
             @Override
             public void on(KObject kObject) {

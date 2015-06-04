@@ -2,7 +2,7 @@ package org.kevoree.modeling.microframework.test.storage;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudModel;
@@ -46,10 +46,10 @@ public class ParentStorageTest {
         }
         //We clear the cache
 
-        cloudModel.discard(new Callback<Throwable>() {
+        cloudModel.discard(new KCallback<Throwable>() {
             @Override
             public void on(Throwable aBoolean) {
-                time0.lookup(n1.uuid(),new Callback<KObject>() {
+                time0.lookup(n1.uuid(),new KCallback<KObject>() {
                     @Override
                     public void on(KObject r_n1) {
                         Assert.assertNull(r_n1);
@@ -101,10 +101,10 @@ public class ParentStorageTest {
         }
         //We clear the cache
 
-        cloudModel.save(new Callback<Throwable>() {
+        cloudModel.save(new KCallback<Throwable>() {
             @Override
             public void on(Throwable aBoolean) {
-                cloudModel.discard(new Callback<Throwable>() {
+                cloudModel.discard(new KCallback<Throwable>() {
                     @Override
                     public void on(Throwable aBoolean) {
 

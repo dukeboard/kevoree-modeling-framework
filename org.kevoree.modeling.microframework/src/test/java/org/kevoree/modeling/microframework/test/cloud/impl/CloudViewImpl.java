@@ -1,7 +1,7 @@
 package org.kevoree.modeling.microframework.test.cloud.impl;
 
 import org.kevoree.modeling.abs.AbstractKView;
-import org.kevoree.modeling.memory.KDataManager;
+import org.kevoree.modeling.memory.manager.KMemoryManager;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Element;
 import org.kevoree.modeling.microframework.test.cloud.Node;
@@ -13,7 +13,7 @@ import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
  */
 public class CloudViewImpl extends AbstractKView implements CloudView {
 
-    public CloudViewImpl(long p_universe, long _time, KDataManager p_manager) {
+    public CloudViewImpl(long p_universe, long _time, KMemoryManager p_manager) {
         super(p_universe, _time, p_manager);
     }
 

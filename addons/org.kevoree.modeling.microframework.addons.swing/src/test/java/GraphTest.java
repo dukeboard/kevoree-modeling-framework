@@ -2,10 +2,10 @@ import org.graphstream.graph.Graph;
 import org.graphstream.ui.swingViewer.ViewerListener;
 import org.graphstream.ui.swingViewer.ViewerPipe;
 import org.kevoree.modeling.*;
-import org.kevoree.modeling.meta.PrimitiveTypes;
-import org.kevoree.modeling.meta.reflexive.DynamicMetaClass;
-import org.kevoree.modeling.meta.reflexive.DynamicMetaModel;
-import org.kevoree.modeling.scheduler.ExecutorServiceScheduler;
+import org.kevoree.modeling.meta.KPrimitiveTypes;
+import org.kevoree.modeling.meta.dynamic.DynamicMetaClass;
+import org.kevoree.modeling.meta.dynamic.DynamicMetaModel;
+import org.kevoree.modeling.scheduler.impl.ExecutorServiceScheduler;
 import org.kevoree.modeling.framework.addons.swing.GraphBuilder;
 
 import java.util.Random;
@@ -23,13 +23,13 @@ public class GraphTest {
     public void test() throws InterruptedException {
         DynamicMetaModel metaModel = new DynamicMetaModel("TestModel");
         DynamicMetaClass nodeClazz = metaModel.createMetaClass("Node");
-        nodeClazz.addAttribute("name", PrimitiveTypes.STRING);
+        nodeClazz.addAttribute("name", KPrimitiveTypes.STRING);
         nodeClazz.addReference("children", nodeClazz, "op_children");
         nodeClazz.addReference("neighbor", nodeClazz, "op_neighbor");
         KModel model = metaModel.model();
         model.setScheduler(new ExecutorServiceScheduler());
 
-        model.connect(new Callback() {
+        model.connect(new KCallback() {
             @Override
             public void on(Object o) {
                 KView view0_0 = model.universe(0).time(0);
@@ -48,7 +48,7 @@ public class GraphTest {
                     }
                 }
 
-                GraphBuilder.graphFrom(root, new Callback<Graph>() {
+                GraphBuilder.graphFrom(root, new KCallback<Graph>() {
                     @Override
                     public void on(Graph graph) {
                         ViewerPipe pipe = graph.display(true).newViewerPipe();

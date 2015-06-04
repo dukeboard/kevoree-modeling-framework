@@ -1,14 +1,16 @@
 package org.kevoree.modeling.databases.redis;
 
 import org.kevoree.modeling.*;
-import org.kevoree.modeling.memory.KContentDeliveryDriver;
-import org.kevoree.modeling.memory.KContentKey;
-import org.kevoree.modeling.memory.KDataManager;
-import org.kevoree.modeling.memory.cdn.KContentPutRequest;
-import org.kevoree.modeling.msg.KEvents;
-import org.kevoree.modeling.msg.KMessage;
-import org.kevoree.modeling.msg.KMessageLoader;
-import org.kevoree.modeling.util.LocalEventListeners;
+import org.kevoree.modeling.cdn.KContentDeliveryDriver;
+import org.kevoree.modeling.KContentKey;
+import org.kevoree.modeling.event.KEventListener;
+import org.kevoree.modeling.event.KEventMultiListener;
+import org.kevoree.modeling.memory.manager.KMemoryManager;
+import org.kevoree.modeling.cdn.impl.ContentPutRequest;
+import org.kevoree.modeling.message.impl.Events;
+import org.kevoree.modeling.message.KMessage;
+import org.kevoree.modeling.message.KMessageLoader;
+import org.kevoree.modeling.event.impl.LocalEventListeners;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 
@@ -48,7 +50,7 @@ public class RedisContentDeliveryDriver implements KContentDeliveryDriver {
     private LocalEventListeners _localEventListeners = new LocalEventListeners();
 
     @Override
-    public void atomicGetIncrement(KContentKey key, ThrowableCallback<Short> cb) {
+    public void atomicGetIncrement(KContentKey key, KThrowableCallback<Short> cb) {
         String result = jedis.get(key.toString());
         short nextV;
         short previousV;
@@ -74,7 +76,7 @@ public class RedisContentDeliveryDriver implements KContentDeliveryDriver {
 
 
     @Override
-    public void get(KContentKey[] keys, ThrowableCallback<String[]> callback) {
+    public void get(KContentKey[] keys, KThrowableCallback<String[]> callback) {
         String[] flatKeys = new String[keys.length];
         for (int i = 0; i < keys.length; i++) {
             flatKeys[i] = keys[i].toString();
@@ -86,7 +88,7 @@ public class RedisContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void put(KContentPutRequest request, Callback<Throwable> error) {
+    public void put(ContentPutRequest request, KCallback<Throwable> error) {
         String[] elems = new String[request.size() * 2];
         for (int i = 0; i < request.size(); i++) {
             elems[(i * 2)] = request.getKey(i).toString();
@@ -101,12 +103,12 @@ public class RedisContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void remove(String[] keys, Callback<Throwable> error) {
+    public void remove(String[] keys, KCallback<Throwable> error) {
         jedis.del(keys);
     }
 
     @Override
-    public void close(Callback<Throwable> error) {
+    public void close(KCallback<Throwable> error) {
         if (jedis != null) {
             jedis.close();
         }
@@ -134,21 +136,21 @@ public class RedisContentDeliveryDriver implements KContentDeliveryDriver {
     @Override
     public void send(KMessage msg) {
         _localEventListeners.dispatch(msg);
-        if (msg instanceof KEvents) {
+        if (msg instanceof Events) {
             jedis.publish("kmf", msg.json());
         }
     }
 
-    private KDataManager _manager;
+    private KMemoryManager _manager;
 
     @Override
-    public void setManager(KDataManager p_manager) {
+    public void setManager(KMemoryManager p_manager) {
         _manager = p_manager;
         _localEventListeners.setManager(p_manager);
     }
 
     @Override
-    public void connect(Callback<Throwable> callback) {
+    public void connect(KCallback<Throwable> callback) {
         //noop
         if (callback != null) {
             callback.on(null);

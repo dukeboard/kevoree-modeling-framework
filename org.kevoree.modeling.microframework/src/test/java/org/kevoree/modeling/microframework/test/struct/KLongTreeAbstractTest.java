@@ -4,7 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.memory.struct.tree.KLongTree;
 import org.kevoree.modeling.memory.struct.tree.KTreeWalker;
-import org.kevoree.modeling.memory.struct.tree.ooheap.OOKLongTree;
+import org.kevoree.modeling.memory.struct.tree.impl.LongTree;
 
 public class KLongTreeAbstractTest {
 
@@ -13,7 +13,7 @@ public class KLongTreeAbstractTest {
     protected int TEST_SIZE = 100;
 
     protected void initTree() {
-        tree = new OOKLongTree();
+        tree = new LongTree();
     }
 
     @Test

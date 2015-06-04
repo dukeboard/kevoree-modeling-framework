@@ -1,12 +1,14 @@
 package org.kevoree.modeling.drivers.mapdb;
 
 import org.kevoree.modeling.*;
-import org.kevoree.modeling.memory.KContentKey;
-import org.kevoree.modeling.memory.KContentDeliveryDriver;
-import org.kevoree.modeling.memory.cdn.KContentPutRequest;
-import org.kevoree.modeling.memory.KDataManager;
-import org.kevoree.modeling.util.LocalEventListeners;
-import org.kevoree.modeling.msg.KMessage;
+import org.kevoree.modeling.KContentKey;
+import org.kevoree.modeling.cdn.KContentDeliveryDriver;
+import org.kevoree.modeling.cdn.impl.ContentPutRequest;
+import org.kevoree.modeling.event.KEventListener;
+import org.kevoree.modeling.event.KEventMultiListener;
+import org.kevoree.modeling.memory.manager.KMemoryManager;
+import org.kevoree.modeling.event.impl.LocalEventListeners;
+import org.kevoree.modeling.message.KMessage;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 
@@ -27,7 +29,7 @@ public class MapDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void atomicGetIncrement(KContentKey key, ThrowableCallback<Short> cb) {
+    public void atomicGetIncrement(KContentKey key, KThrowableCallback<Short> cb) {
         String result = (String) m.get(key.toString());
         short nextV;
         short previousV;
@@ -51,7 +53,7 @@ public class MapDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void get(KContentKey[] keys, ThrowableCallback<String[]> callback) {
+    public void get(KContentKey[] keys, KThrowableCallback<String[]> callback) {
         String[] results = new String[keys.length];
         for (int i = 0; i < keys.length; i++) {
             results[i] = (String) m.get(keys[i].toString());
@@ -60,7 +62,7 @@ public class MapDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void put(KContentPutRequest request, Callback<Throwable> error) {
+    public void put(ContentPutRequest request, KCallback<Throwable> error) {
         for (int i = 0; i < request.size(); i++) {
             m.put(request.getKey(i).toString(), request.getContent(i).toString());
         }
@@ -68,18 +70,18 @@ public class MapDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void remove(String[] keys, Callback<Throwable> error) {
+    public void remove(String[] keys, KCallback<Throwable> error) {
 
     }
 
     @Override
-    public void connect(Callback<Throwable> callback) {
+    public void connect(KCallback<Throwable> callback) {
         db = DBMaker.newMemoryDirectDB().transactionDisable().asyncWriteFlushDelay(100).newFileDB(directory).closeOnJvmShutdown().make();
         m = db.getTreeMap("test");
     }
 
     @Override
-    public void close(Callback<Throwable> callback) {
+    public void close(KCallback<Throwable> callback) {
         db.close();
         db = null;
         m = null;
@@ -109,7 +111,7 @@ public class MapDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void setManager(KDataManager manager) {
+    public void setManager(KMemoryManager manager) {
         localEventListeners.setManager(manager);
     }
 

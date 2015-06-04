@@ -11,11 +11,14 @@ import io.undertow.websockets.core.WebSocketChannel;
 import io.undertow.websockets.core.WebSockets;
 import io.undertow.websockets.spi.WebSocketHttpExchange;
 import org.kevoree.modeling.*;
-import org.kevoree.modeling.memory.KContentKey;
-import org.kevoree.modeling.memory.KContentDeliveryDriver;
-import org.kevoree.modeling.memory.cdn.KContentPutRequest;
-import org.kevoree.modeling.memory.KDataManager;
-import org.kevoree.modeling.msg.*;
+import org.kevoree.modeling.KContentKey;
+import org.kevoree.modeling.cdn.KContentDeliveryDriver;
+import org.kevoree.modeling.cdn.impl.ContentPutRequest;
+import org.kevoree.modeling.event.KEventListener;
+import org.kevoree.modeling.event.KEventMultiListener;
+import org.kevoree.modeling.memory.manager.KMemoryManager;
+import org.kevoree.modeling.message.*;
+import org.kevoree.modeling.message.impl.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,7 +32,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
 
     private KContentDeliveryDriver wrapped = null;
     private ArrayList<WebSocketChannel> _connectedChannels = new ArrayList<WebSocketChannel>();
-    private KDataManager _manager;
+    private KMemoryManager _manager;
 
     private Undertow _server = null;
     private String _address = "0.0.0.0";
@@ -47,7 +50,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
     }
 
     @Override
-    public void connect(Callback<Throwable> callback) {
+    public void connect(KCallback<Throwable> callback) {
         if (wrapped != null) {
             if (_exposedClassLoader != null) {
                 _server = Undertow.builder().addHttpListener(_port, _address)
@@ -66,9 +69,9 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
     }
 
     @Override
-    public void close(final Callback<Throwable> callback) {
+    public void close(final KCallback<Throwable> callback) {
         if (wrapped != null) {
-            wrapped.close(new Callback<Throwable>() {
+            wrapped.close(new KCallback<Throwable>() {
                 @Override
                 public void on(Throwable throwable) {
                     if (_server != null) {
@@ -101,11 +104,11 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
         KMessage msg = KMessageLoader.load(payload);
         switch (msg.type()) {
             case KMessageLoader.GET_REQ_TYPE: {
-                final KGetRequest getRequest = (KGetRequest) msg;
-                wrapped.get(getRequest.keys, new ThrowableCallback<String[]>() {
+                final GetRequest getRequest = (GetRequest) msg;
+                wrapped.get(getRequest.keys, new KThrowableCallback<String[]>() {
                     public void on(String[] strings, Throwable error) {
                         if (error == null) {
-                            KGetResult getResultMessage = new KGetResult();
+                            GetResult getResultMessage = new GetResult();
                             getResultMessage.id = getRequest.id;
                             getResultMessage.values = strings;
                             WebSockets.sendText(getResultMessage.json(), channel, null);
@@ -115,12 +118,12 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
             }
             break;
             case KMessageLoader.PUT_REQ_TYPE: {
-                final KPutRequest putRequest = (KPutRequest) msg;
-                wrapped.put(putRequest.request, new Callback<Throwable>() {
+                final PutRequest putRequest = (PutRequest) msg;
+                wrapped.put(putRequest.request, new KCallback<Throwable>() {
                     @Override
                     public void on(Throwable throwable) {
                         if (throwable == null) {
-                            KPutResult putResultMessage = new KPutResult();
+                            PutResult putResultMessage = new PutResult();
                             putResultMessage.id = putRequest.id;
                             WebSockets.sendText(putResultMessage.json(), channel, null);
                         }
@@ -129,12 +132,12 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
             }
             break;
             case KMessageLoader.ATOMIC_GET_INC_REQUEST_TYPE: {
-                final KAtomicGetIncrementRequest atomicGetRequest = (KAtomicGetIncrementRequest) msg;
-                wrapped.atomicGetIncrement(atomicGetRequest.key, new ThrowableCallback<Short>() {
+                final AtomicGetIncrementRequest atomicGetRequest = (AtomicGetIncrementRequest) msg;
+                wrapped.atomicGetIncrement(atomicGetRequest.key, new KThrowableCallback<Short>() {
                     @Override
                     public void on(Short s, Throwable error) {
                         if (error == null) {
-                            KAtomicGetIncrementResult atomicGetResultMessage = new KAtomicGetIncrementResult();
+                            AtomicGetIncrementResult atomicGetResultMessage = new AtomicGetIncrementResult();
                             atomicGetResultMessage.id = atomicGetRequest.id;
                             atomicGetResultMessage.value = s;
                             WebSockets.sendText(atomicGetResultMessage.json(), channel, null);
@@ -149,7 +152,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
             }
             break;
             case KMessageLoader.EVENTS_TYPE: {
-                KEvents events = (KEvents) msg;
+                Events events = (Events) msg;
                 if (_manager != null) {
                     _manager.reload(events.allKeys(), null);
                 }
@@ -172,22 +175,22 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
     }
 
     @Override
-    public void atomicGetIncrement(KContentKey key, ThrowableCallback<Short> callback) {
+    public void atomicGetIncrement(KContentKey key, KThrowableCallback<Short> callback) {
         wrapped.atomicGetIncrement(key, callback);
     }
 
     @Override
-    public void get(KContentKey[] keys, ThrowableCallback<String[]> callback) {
+    public void get(KContentKey[] keys, KThrowableCallback<String[]> callback) {
         wrapped.get(keys, callback);
     }
 
     @Override
-    public void put(KContentPutRequest request, Callback<Throwable> error) {
+    public void put(ContentPutRequest request, KCallback<Throwable> error) {
         wrapped.put(request, error);
     }
 
     @Override
-    public void remove(String[] keys, Callback<Throwable> error) {
+    public void remove(String[] keys, KCallback<Throwable> error) {
         wrapped.remove(keys, error);
     }
 
@@ -219,7 +222,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
     }
 
     @Override
-    public void setManager(KDataManager manager) {
+    public void setManager(KMemoryManager manager) {
         this._manager = manager;
         wrapped.setManager(manager);
     }

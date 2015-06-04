@@ -1,45 +1,46 @@
 package org.kevoree.modeling.abs;
 
-import org.kevoree.modeling.Callback;
-import org.kevoree.modeling.KDefer;
+import org.kevoree.modeling.KCallback;
+import org.kevoree.modeling.defer.KDefer;
 import org.kevoree.modeling.KModel;
 import org.kevoree.modeling.KObject;
-import org.kevoree.modeling.KOperation;
-import org.kevoree.modeling.KScheduler;
+import org.kevoree.modeling.operation.KOperation;
+import org.kevoree.modeling.scheduler.KScheduler;
 import org.kevoree.modeling.KUniverse;
-import org.kevoree.modeling.memory.manager.DefaultKDataManager;
-import org.kevoree.modeling.memory.KContentDeliveryDriver;
-import org.kevoree.modeling.memory.KDataManager;
-import org.kevoree.modeling.meta.MetaClass;
-import org.kevoree.modeling.meta.MetaModel;
-import org.kevoree.modeling.meta.MetaOperation;
+import org.kevoree.modeling.memory.manager.impl.HeapMemoryManager;
+import org.kevoree.modeling.cdn.KContentDeliveryDriver;
+import org.kevoree.modeling.memory.manager.KMemoryManager;
+import org.kevoree.modeling.meta.KMetaClass;
+import org.kevoree.modeling.meta.KMetaModel;
+import org.kevoree.modeling.meta.KMetaOperation;
+import org.kevoree.modeling.defer.impl.Defer;
 import org.kevoree.modeling.util.Checker;
 
 public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
 
-    final protected KDataManager _manager;
+    final protected KMemoryManager _manager;
 
     final private long _key;
 
     protected AbstractKModel() {
-        _manager = new DefaultKDataManager(this);
+        _manager = new HeapMemoryManager(this);
         _key = _manager.nextModelKey();
     }
 
-    public abstract MetaModel metaModel();
+    public abstract KMetaModel metaModel();
 
     @Override
-    public void connect(Callback cb) {
+    public void connect(KCallback cb) {
         _manager.connect(cb);
     }
 
     @Override
-    public void close(Callback cb) {
+    public void close(KCallback cb) {
         _manager.close(cb);
     }
 
     @Override
-    public KDataManager manager() {
+    public KMemoryManager manager() {
         return _manager;
     }
 
@@ -53,9 +54,9 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
 
     protected abstract A internalCreateUniverse(long universe);
 
-    protected abstract KObject internalCreateObject(long universe, long time, long uuid, MetaClass clazz);
+    protected abstract KObject internalCreateObject(long universe, long time, long uuid, KMetaClass clazz);
 
-    public KObject createProxy(long universe, long time, long uuid, MetaClass clazz) {
+    public KObject createProxy(long universe, long time, long uuid, KMetaClass clazz) {
         return internalCreateObject(universe, time, uuid, clazz);
     }
 
@@ -67,12 +68,12 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
     }
 
     @Override
-    public void save(Callback cb) {
+    public void save(KCallback cb) {
         _manager.save(cb);
     }
 
     @Override
-    public void discard(Callback cb) {
+    public void discard(KCallback cb) {
         _manager.discard(null, cb);
     }
 
@@ -89,18 +90,18 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
     }
 
     @Override
-    public void setOperation(MetaOperation metaOperation, KOperation operation) {
+    public void setOperation(KMetaOperation metaOperation, KOperation operation) {
         manager().operationManager().registerOperation(metaOperation, operation, null);
     }
 
     @Override
-    public void setInstanceOperation(MetaOperation metaOperation, KObject target, KOperation operation) {
+    public void setInstanceOperation(KMetaOperation metaOperation, KObject target, KOperation operation) {
         manager().operationManager().registerOperation(metaOperation, operation, target);
     }
 
     @Override
     public KDefer defer() {
-        return new AbstractKDefer();
+        return new Defer();
     }
 
     @Override
@@ -119,7 +120,7 @@ public abstract class AbstractKModel<A extends KUniverse> implements KModel<A> {
     }
 
     @Override
-    public KObject create(MetaClass clazz, long universe, long time) {
+    public KObject create(KMetaClass clazz, long universe, long time) {
         if (!Checker.isDefined(clazz)) {
             return null;
         }

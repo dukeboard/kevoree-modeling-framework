@@ -2,10 +2,9 @@ package org.kevoree.modeling.extrapolation;
 
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.abs.AbstractKObject;
-import org.kevoree.modeling.memory.KCacheElementSegment;
-import org.kevoree.modeling.memory.struct.segment.HeapCacheSegment;
+import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 import org.kevoree.modeling.memory.AccessMode;
-import org.kevoree.modeling.meta.MetaAttribute;
+import org.kevoree.modeling.meta.KMetaAttribute;
 
 public class DiscreteExtrapolation implements Extrapolation {
 
@@ -19,8 +18,8 @@ public class DiscreteExtrapolation implements Extrapolation {
     }
 
     @Override
-    public Object extrapolate(KObject current, MetaAttribute attribute) {
-        KCacheElementSegment payload = ((AbstractKObject) current)._manager.segment(current, AccessMode.READ);
+    public Object extrapolate(KObject current, KMetaAttribute attribute) {
+        KMemorySegment payload = ((AbstractKObject) current)._manager.segment(current, AccessMode.READ);
         if (payload != null) {
             return payload.get(attribute.index(), current.metaClass());
         } else {
@@ -29,9 +28,9 @@ public class DiscreteExtrapolation implements Extrapolation {
     }
 
     @Override
-    public void mutate(KObject current, MetaAttribute attribute, Object payload) {
+    public void mutate(KObject current, KMetaAttribute attribute, Object payload) {
         //By requiring a raw on the current object, we automatically create and copy the previous object
-        KCacheElementSegment internalPayload = ((AbstractKObject) current)._manager.segment(current, AccessMode.WRITE);
+        KMemorySegment internalPayload = ((AbstractKObject) current)._manager.segment(current, AccessMode.WRITE);
         //The object is also automatically cset to Dirty
         if (internalPayload != null) {
             internalPayload.set(attribute.index(), payload, current.metaClass());
@@ -39,7 +38,7 @@ public class DiscreteExtrapolation implements Extrapolation {
     }
 
     @Override
-    public String save(Object cache, MetaAttribute attribute) {
+    public String save(Object cache, KMetaAttribute attribute) {
         if (cache != null) {
             return attribute.attributeType().save(cache);
         } else {
@@ -48,7 +47,7 @@ public class DiscreteExtrapolation implements Extrapolation {
     }
 
     @Override
-    public Object load(String payload, MetaAttribute attribute, long now) {
+    public Object load(String payload, KMetaAttribute attribute, long now) {
         if (payload != null) {
             return attribute.attributeType().load(payload);
         }

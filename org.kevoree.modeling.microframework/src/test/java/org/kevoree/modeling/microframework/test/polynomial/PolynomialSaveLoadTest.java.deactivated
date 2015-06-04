@@ -2,7 +2,7 @@ package org.kevoree.modeling.microframework.test.polynomial;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.microframework.test.cloud.*;
 
@@ -53,7 +53,7 @@ public class PolynomialSaveLoadTest {
             }
             final double vv = val[i];
             final long finalI = i;
-            universe.time(finalI).lookup(element.uuid(),new Callback<KObject>() {
+            universe.time(finalI).lookup(element.uuid(),new KCallback<KObject>() {
                 @Override
                 public void on(KObject kObject) {
                     Element casted = (Element) kObject;
@@ -62,10 +62,10 @@ public class PolynomialSaveLoadTest {
             });
         }
 
-        model.save(new Callback<Throwable>() {
+        model.save(new KCallback<Throwable>() {
             @Override
             public void on(Throwable aBoolean) {
-                model.discard(new Callback<Throwable>() {
+                model.discard(new KCallback<Throwable>() {
                     @Override
                     public void on(Throwable aBoolean) {
 
@@ -79,7 +79,7 @@ public class PolynomialSaveLoadTest {
         nbAssert[0]++;
         for (int i = 200; i < 1000; i++) {
             final int finalI = i;
-            element.jump((long) finalI,new Callback<KObject>() {
+            element.jump((long) finalI,new KCallback<KObject>() {
                 @Override
                 public void on(KObject element) {
                     nbAssert[0]++;
@@ -91,10 +91,10 @@ public class PolynomialSaveLoadTest {
         //TODO reinsert following test
         //Assert.assertEquals(element.timeTree().size(), 2);
         
-        model.save(new Callback<Throwable>() {
+        model.save(new KCallback<Throwable>() {
             @Override
             public void on(Throwable aBoolean) {
-                model.discard(new Callback<Throwable>() {
+                model.discard(new KCallback<Throwable>() {
                     @Override
                     public void on(Throwable aBoolean) {
 

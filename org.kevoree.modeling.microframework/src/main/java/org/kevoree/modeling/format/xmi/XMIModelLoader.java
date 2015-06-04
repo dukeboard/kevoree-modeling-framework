@@ -1,15 +1,15 @@
 package org.kevoree.modeling.format.xmi;
 
 import org.kevoree.modeling.KObject;
-import org.kevoree.modeling.Callback;
+import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KActionType;
 import org.kevoree.modeling.KConfig;
-import org.kevoree.modeling.abs.AbstractMetaReference;
-import org.kevoree.modeling.memory.KDataManager;
-import org.kevoree.modeling.memory.struct.map.StringHashMap;
-import org.kevoree.modeling.meta.Meta;
-import org.kevoree.modeling.meta.MetaAttribute;
-import org.kevoree.modeling.meta.MetaReference;
+import org.kevoree.modeling.meta.impl.MetaReference;
+import org.kevoree.modeling.memory.manager.KMemoryManager;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap;
+import org.kevoree.modeling.meta.KMeta;
+import org.kevoree.modeling.meta.KMetaAttribute;
+import org.kevoree.modeling.meta.KMetaReference;
 import org.kevoree.modeling.meta.MetaType;
 
 public class XMIModelLoader {
@@ -60,7 +60,7 @@ public class XMIModelLoader {
         }
     }
 
-    public static void load(KDataManager manager, long universe, long time, String str, Callback<Throwable> callback) {
+    public static void load(KMemoryManager manager, long universe, long time, String str, KCallback<Throwable> callback) {
         XmlParser parser = new XmlParser(str);
         if (!parser.hasNext()) {
             callback.on(null);
@@ -73,7 +73,7 @@ public class XMIModelLoader {
     }
 
 
-    private static void deserialize(KDataManager manager, long universe, long time, XMILoadingContext context) {
+    private static void deserialize(KMemoryManager manager, long universe, long time, XMILoadingContext context) {
         try {
             String nsURI;
             XmlParser reader = context.xmiReader;
@@ -82,7 +82,7 @@ public class XMIModelLoader {
                 if (nextTag.equals(XmlToken.START_TAG)) {
                     String localName = reader.getLocalName();
                     if (localName != null) {
-                        StringHashMap<String> ns = new StringHashMap<String>(reader.getAttributeCount(), KConfig.CACHE_LOAD_FACTOR);
+                        ArrayStringHashMap<String> ns = new ArrayStringHashMap<String>(reader.getAttributeCount(), KConfig.CACHE_LOAD_FACTOR);
                         for (int i = 0; i < reader.getAttributeCount() - 1; i++) {
                             String attrLocalName = reader.getAttributeLocalName(i);
                             String attrLocalValue = reader.getAttributeValue(i);
@@ -110,7 +110,7 @@ public class XMIModelLoader {
         }
     }
 
-    private static KObject callFactory(KDataManager manager, long universe, long time, XMILoadingContext ctx, String objectType) {
+    private static KObject callFactory(KMemoryManager manager, long universe, long time, XMILoadingContext ctx, String objectType) {
         KObject modelElem = null;
         if (objectType != null) {
             modelElem = manager.model().createByName(objectType, universe, time);
@@ -137,7 +137,7 @@ public class XMIModelLoader {
         return modelElem;
     }
 
-    private static KObject loadObject(KDataManager manager, long universe, long time, XMILoadingContext ctx, String xmiAddress, String objectType) throws Exception {
+    private static KObject loadObject(KMemoryManager manager, long universe, long time, XMILoadingContext ctx, String xmiAddress, String objectType) throws Exception {
         String elementTagName = ctx.xmiReader.getLocalName();
         KObject modelElem = callFactory(manager, universe, time, ctx, objectType);
         if (modelElem == null) {
@@ -151,11 +151,11 @@ public class XMIModelLoader {
                 String attrName = ctx.xmiReader.getAttributeLocalName(i).trim();
                 String valueAtt = ctx.xmiReader.getAttributeValue(i).trim();
                 if (valueAtt != null) {
-                    Meta metaElement = modelElem.metaClass().metaByName(attrName);
+                    KMeta metaElement = modelElem.metaClass().metaByName(attrName);
                     if (metaElement != null && metaElement.metaType().equals(MetaType.ATTRIBUTE)) {
-                        modelElem.set((MetaAttribute) metaElement, unescapeXml(valueAtt));
+                        modelElem.set((KMetaAttribute) metaElement, unescapeXml(valueAtt));
                     } else {
-                        if (metaElement != null && metaElement instanceof AbstractMetaReference) {
+                        if (metaElement != null && metaElement instanceof MetaReference) {
                             String[] referenceArray = valueAtt.split(" ");
                             for (int j = 0; j < referenceArray.length; j++) {
                                 String xmiRef = referenceArray[j];
@@ -164,7 +164,7 @@ public class XMIModelLoader {
                                 adjustedRef = adjustedRef.replace(".0", "");
                                 KObject ref = ctx.map.get(adjustedRef);
                                 if (ref != null) {
-                                    modelElem.mutate(KActionType.ADD, (MetaReference) metaElement, ref);
+                                    modelElem.mutate(KActionType.ADD, (KMetaReference) metaElement, ref);
                                 } else {
                                     ctx.resolvers.add(new XMIResolveCommand(ctx, modelElem, KActionType.ADD, attrName, adjustedRef));
                                 }
@@ -190,7 +190,7 @@ public class XMIModelLoader {
                     }
                     String subElementId = xmiAddress + "/@" + subElemName + (i != 0 ? "." + i : "");
                     KObject containedElement = loadObject(manager, universe, time, ctx, subElementId, subElemName);
-                    modelElem.mutate(KActionType.ADD, (MetaReference) modelElem.metaClass().metaByName(subElemName), containedElement);
+                    modelElem.mutate(KActionType.ADD, (KMetaReference) modelElem.metaClass().metaByName(subElemName), containedElement);
                     ctx.elementsCount.put(xmiAddress + "/@" + subElemName, i + 1);
                 } else if (tok.equals(XmlToken.END_TAG)) {
                     if (ctx.xmiReader.getLocalName().equals(elementTagName)) {
