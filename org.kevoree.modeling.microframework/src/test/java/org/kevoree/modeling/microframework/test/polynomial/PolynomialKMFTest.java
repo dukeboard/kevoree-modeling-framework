@@ -64,7 +64,7 @@ public class PolynomialKMFTest {
                 @Override
                 public void on(KObject element) {
                     nbAssert[0]++;
-                    Assert.assertTrue(( ((Element)element).getValue() - val[finalI]) < 5);
+                    Assert.assertTrue(Math.abs((((Element)element).getValue() - val[finalI])) < 5);
                 }
             });
         }
