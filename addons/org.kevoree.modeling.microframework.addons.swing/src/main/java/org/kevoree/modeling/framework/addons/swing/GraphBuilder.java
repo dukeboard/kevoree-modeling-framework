@@ -57,7 +57,7 @@ public class GraphBuilder {
 
     private static void createEdges(Graph graph, KObject elem) {
         Node n = graph.getNode(elem.uuid() + "");
-        KMemorySegment rawPayload = elem.manager().segment(elem, AccessMode.READ);
+        KMemorySegment rawPayload = elem.manager().segment(elem, AccessMode.RESOLVE);
         for (KMetaReference metaRef : elem.metaClass().metaReferences()) {
             long[] relatedElems = rawPayload.getRef(metaRef.index(), elem.metaClass());
             if (relatedElems != null) {

@@ -333,8 +333,8 @@ public class HeapMemoryManager implements KMemoryManager {
         }
         long resolvedTime = timeTree.previousOrEqual(time);
         if (resolvedTime != KConfig.NULL_LONG) {
-            boolean needTimeCopy = accessMode.equals(AccessMode.WRITE) && (resolvedTime != time);
-            boolean needUniverseCopy = accessMode.equals(AccessMode.WRITE) && (resolvedUniverse != universe);
+            boolean needTimeCopy = accessMode.equals(AccessMode.NEW) && (resolvedTime != time);
+            boolean needUniverseCopy = accessMode.equals(AccessMode.NEW) && (resolvedUniverse != universe);
             HeapMemorySegment entry = (HeapMemorySegment) _cache.get(resolvedUniverse, resolvedTime, uuid);
             if (entry == null) {
                 return null;
@@ -344,7 +344,7 @@ public class HeapMemoryManager implements KMemoryManager {
                 return entry;
             }
             if (!needTimeCopy && !needUniverseCopy) {
-                if (accessMode.equals(AccessMode.WRITE)) {
+                if (accessMode.equals(AccessMode.NEW)) {
                     entry.setDirty();
                 }
                 return entry;

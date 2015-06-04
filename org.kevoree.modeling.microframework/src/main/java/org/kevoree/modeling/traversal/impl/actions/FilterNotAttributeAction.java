@@ -7,7 +7,6 @@ import org.kevoree.modeling.memory.AccessMode;
 import org.kevoree.modeling.meta.KMeta;
 import org.kevoree.modeling.meta.KMetaAttribute;
 import org.kevoree.modeling.meta.impl.MetaAttribute;
-import org.kevoree.modeling.meta.impl.MetaReference;
 import org.kevoree.modeling.traversal.KTraversalAction;
 
 public class FilterNotAttributeAction implements KTraversalAction {
@@ -38,7 +37,7 @@ public class FilterNotAttributeAction implements KTraversalAction {
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
-                    KMemorySegment raw = loopObj._manager.segment(loopObj.universe(),loopObj.now(),loopObj.uuid(), AccessMode.READ,loopObj.metaClass());
+                    KMemorySegment raw = loopObj._manager.segment(loopObj.universe(),loopObj.now(),loopObj.uuid(), AccessMode.RESOLVE,loopObj.metaClass());
                     if (raw != null) {
                         if (_attribute == null) {
                             if (_expectedValue == null) {

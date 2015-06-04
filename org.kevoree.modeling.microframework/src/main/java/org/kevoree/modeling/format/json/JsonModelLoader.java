@@ -128,7 +128,7 @@ public class JsonModelLoader {
         KMetaClass metaClass = manager.model().metaModel().metaClassByName(meta);
         KObject current = ((AbstractKModel)manager.model()).createProxy(universe,time,p_mappedKeys.get(kid),metaClass);
         manager.initKObject(current);
-        KMemorySegment raw = manager.segment(current.universe(),current.now(),current.uuid(), AccessMode.WRITE,current.metaClass());
+        KMemorySegment raw = manager.segment(current.universe(),current.now(),current.uuid(), AccessMode.NEW,current.metaClass());
         p_param.each(new KStringHashMapCallBack<Object>() {
             @Override
             public void on(String metaKey, Object payload_content) {
