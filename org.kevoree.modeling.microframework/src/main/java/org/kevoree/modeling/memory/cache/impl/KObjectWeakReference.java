@@ -18,7 +18,7 @@ public class KObjectWeakReference extends WeakReference<KObject> {
     public KObjectWeakReference next;
 
     public KObjectWeakReference(KObject referent) {
-        super(referent);
+        super(referent, null);
         universe = referent.universe();
         time = referent.now();
         uuid = referent.uuid();

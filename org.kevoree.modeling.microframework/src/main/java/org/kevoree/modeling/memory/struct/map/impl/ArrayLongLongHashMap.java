@@ -1,8 +1,6 @@
 
 package org.kevoree.modeling.memory.struct.map.impl;
 
-/* From an original idea https://code.google.com/p/jdbm2/ */
-
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.memory.KMemoryElement;
 import org.kevoree.modeling.KContentKey;
@@ -31,18 +29,18 @@ import org.kevoree.modeling.meta.KMetaModel;
  * public isDirty():boolean { return this._isDirty; }
  * public setClean(mm):void { this._isDirty = false; }
  * public setDirty():void { this._isDirty = true; }
- * public serialize(m): string { var buffer = ""+this.size(); this.each( (key : number, value : number) => { buffer = buffer + LongLongHashMap.CHUNK_SEP + key + LongLongHashMap.ELEMENT_SEP + value; }); return buffer; }
- * public unserialize(key: org.kevoree.modeling.memory.KContentKey, payload: string, metaModel: org.kevoree.modeling.meta.MetaModel): void {
+ * public serialize(m): string { var buffer = ""+this.size(); this.each( (key : number, value : number) => { buffer = buffer + ArrayLongLongHashMap.CHUNK_SEP + key + ArrayLongLongHashMap.ELEMENT_SEP + value; }); return buffer; }
+ * public unserialize(key: org.kevoree.modeling.KContentKey, payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
  * if (payload == null || payload.length == 0) { return; }
  * var cursor: number = 0;
- * while (cursor < payload.length && payload.charAt(cursor) != LongLongHashMap.CHUNK_SEP){ cursor++; }
+ * while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongHashMap.CHUNK_SEP){ cursor++; }
  * var nbElement: number = java.lang.Integer.parseInt(payload.substring(0, cursor));
  * while (cursor < payload.length){
  * cursor++;
  * var beginChunk: number = cursor;
- * while (cursor < payload.length && payload.charAt(cursor) != LongLongHashMap.ELEMENT_SEP){ cursor++; }
+ * while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongHashMap.ELEMENT_SEP){ cursor++; }
  * var middleChunk: number = cursor;
- * while (cursor < payload.length && payload.charAt(cursor) != LongLongHashMap.CHUNK_SEP){ cursor++; }
+ * while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongHashMap.CHUNK_SEP){ cursor++; }
  * var loopKey: number = java.lang.Long.parseLong(payload.substring(beginChunk, middleChunk));
  * var loopVal: number = java.lang.Long.parseLong(payload.substring(middleChunk + 1, cursor));
  * this.put(loopKey, loopVal);

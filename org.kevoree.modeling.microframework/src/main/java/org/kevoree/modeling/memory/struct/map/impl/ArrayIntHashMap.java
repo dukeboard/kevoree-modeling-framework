@@ -1,8 +1,6 @@
 
 package org.kevoree.modeling.memory.struct.map.impl;
 
-/* From an original idea https://code.google.com/p/jdbm2/ */
-
 import org.kevoree.modeling.memory.struct.map.KIntHashMap;
 import org.kevoree.modeling.memory.struct.map.KLongHashMapCallBack;
 

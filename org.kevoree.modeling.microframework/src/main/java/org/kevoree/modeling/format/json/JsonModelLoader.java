@@ -28,7 +28,7 @@ public class JsonModelLoader {
      * } else {
      * var toLoadObj = JSON.parse(payload);
      * var rootElem = [];
-     * var mappedKeys: org.kevoree.modeling.memory.struct.map.LongLongHashMap = new org.kevoree.modeling.memory.struct.map.LongLongHashMap(toLoadObj.length, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+     * var mappedKeys: org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(toLoadObj.length, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
      * for(var i = 0; i < toLoadObj.length; i++) {
      * var elem = toLoadObj[i];
      * var kid = elem[org.kevoree.modeling.format.json.JsonFormat.KEY_UUID];
@@ -36,7 +36,7 @@ public class JsonModelLoader {
      * }
      * for(var i = 0; i < toLoadObj.length; i++) {
      * var elemRaw = toLoadObj[i];
-     * var elem2 = new org.kevoree.modeling.memory.struct.map.StringHashMap<any>(Object.keys(elemRaw).length, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+     * var elem2 = new org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap<any>(Object.keys(elemRaw).length, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
      * for(var ik in elemRaw){ elem2[ik] = elemRaw[ik]; }
      * try {
      * org.kevoree.modeling.format.json.JsonModelLoader.loadObj(elem2, manager, universe, time, mappedKeys, rootElem);

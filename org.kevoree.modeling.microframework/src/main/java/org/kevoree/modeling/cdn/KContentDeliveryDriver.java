@@ -9,9 +9,9 @@ import org.kevoree.modeling.message.KMessage;
 
 public interface KContentDeliveryDriver {
 
-    void get(KContentKey[] keys, KThrowableCallback<String[]> callback);
+    void get(KContentKey[] keys, KCallback<String[]> callback);
 
-    void atomicGetIncrement(KContentKey key, KThrowableCallback<Short> cb);
+    void atomicGetIncrement(KContentKey key, KCallback<Short> cb);
 
     void put(ContentPutRequest request, KCallback<Throwable> error);
 
@@ -21,9 +21,9 @@ public interface KContentDeliveryDriver {
 
     void close(KCallback<Throwable> callback);
 
-    void registerListener(long groupId,KObject origin, KEventListener listener);
+    void registerListener(long groupId, KObject origin, KEventListener listener);
 
-    void registerMultiListener(long groupId,KUniverse origin, long[] objects, KEventMultiListener listener);
+    void registerMultiListener(long groupId, KUniverse origin, long[] objects, KEventMultiListener listener);
 
     void unregisterGroup(long groupId);
 

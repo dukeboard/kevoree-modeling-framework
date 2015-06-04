@@ -22,7 +22,7 @@ public class MemoryContentDeliveryDriver implements KContentDeliveryDriver {
     public static boolean DEBUG = false;
 
     @Override
-    public void atomicGetIncrement(KContentKey key, KThrowableCallback<Short> cb) {
+    public void atomicGetIncrement(KContentKey key, KCallback<Short> cb) {
         String result = backend.get(key.toString());
         short nextV;
         short previousV;
@@ -42,11 +42,11 @@ public class MemoryContentDeliveryDriver implements KContentDeliveryDriver {
             nextV = (short) (previousV + 1);
         }
         backend.put(key.toString(), "" + nextV);
-        cb.on(previousV, null);
+        cb.on(previousV);
     }
 
     @Override
-    public void get(KContentKey[] keys, KThrowableCallback<String[]> callback) {
+    public void get(KContentKey[] keys, KCallback<String[]> callback) {
         String[] values = new String[keys.length];
         for (int i = 0; i < keys.length; i++) {
             if (keys[i] != null) {
@@ -57,7 +57,7 @@ public class MemoryContentDeliveryDriver implements KContentDeliveryDriver {
             }
         }
         if (callback != null) {
-            callback.on(values, null);
+            callback.on(values);
         }
     }
 
