@@ -7,7 +7,7 @@ import org.kevoree.modeling.memory.KDataManager;
 import org.kevoree.modeling.infer.states.DoubleArrayKInferState;
 import org.kevoree.modeling.infer.states.PolynomialKInferState;
 import org.kevoree.modeling.meta.MetaClass;
-import org.kevoree.modeling.extrapolation.polynomial.util.PolynomialFitEjml;
+import org.kevoree.modeling.extrapolation.maths.PolynomialFitEjml;
 
 /**
  * Created by assaad on 11/02/15.

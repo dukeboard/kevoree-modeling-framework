@@ -1,4 +1,4 @@
-package org.kevoree.modeling.extrapolation.polynomial.util;
+package org.kevoree.modeling.extrapolation.maths;
 
 public class DataSample {
     public long time;

@@ -1,4 +1,6 @@
-package org.kevoree.modeling.extrapolation.polynomial.util;
+package org.kevoree.modeling.extrapolation.maths;
+
+import org.kevoree.modeling.extrapolation.maths.DenseMatrix64F;
 
 public class QRDecompositionHouseholderColumn_D64 {
 
