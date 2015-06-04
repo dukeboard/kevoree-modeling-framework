@@ -7,7 +7,7 @@ import org.kevoree.modeling.KContentKey;
 import org.kevoree.modeling.event.KEventListener;
 import org.kevoree.modeling.event.KEventMultiListener;
 import org.kevoree.modeling.event.impl.LocalEventListeners;
-import org.kevoree.modeling.extrapolation.DiscreteExtrapolation;
+import org.kevoree.modeling.extrapolation.impl.DiscreteExtrapolation;
 import org.kevoree.modeling.meta.KMeta;
 import org.kevoree.modeling.meta.KMetaClass;
 import org.kevoree.modeling.meta.KPrimitiveTypes;

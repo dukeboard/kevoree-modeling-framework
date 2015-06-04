@@ -6,7 +6,7 @@ import org.kevoree.modeling.memory.manager.KMemoryManager;
 import org.kevoree.modeling.infer.states.DoubleArrayKInferState;
 import org.kevoree.modeling.infer.states.PolynomialKInferState;
 import org.kevoree.modeling.meta.MetaClass;
-import org.kevoree.modeling.extrapolation.maths.PolynomialFitEjml;
+import org.kevoree.modeling.extrapolation.impl.maths.PolynomialFitEjml;
 
 /**
  * Created by assaad on 11/02/15.

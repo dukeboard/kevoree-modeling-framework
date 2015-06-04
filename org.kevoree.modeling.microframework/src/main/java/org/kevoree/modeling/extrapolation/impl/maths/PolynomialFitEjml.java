@@ -1,7 +1,4 @@
-package org.kevoree.modeling.extrapolation.maths;
-
-import org.kevoree.modeling.extrapolation.maths.AdjLinearSolverQr;
-import org.kevoree.modeling.extrapolation.maths.DenseMatrix64F;
+package org.kevoree.modeling.extrapolation.impl.maths;
 
 public class PolynomialFitEjml {
     // Vandermonde matrix

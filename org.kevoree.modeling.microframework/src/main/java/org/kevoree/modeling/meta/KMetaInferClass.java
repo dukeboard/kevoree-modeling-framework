@@ -3,7 +3,7 @@ package org.kevoree.modeling.meta;
 import org.kevoree.modeling.KType;
 import org.kevoree.modeling.extrapolation.Extrapolation;
 import org.kevoree.modeling.meta.impl.MetaAttribute;
-import org.kevoree.modeling.extrapolation.DiscreteExtrapolation;
+import org.kevoree.modeling.extrapolation.impl.DiscreteExtrapolation;
 
 public class KMetaInferClass implements KMetaClass {
 

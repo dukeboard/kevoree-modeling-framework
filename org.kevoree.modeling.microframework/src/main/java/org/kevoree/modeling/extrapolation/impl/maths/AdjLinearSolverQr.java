@@ -1,4 +1,4 @@
-package org.kevoree.modeling.extrapolation.maths;
+package org.kevoree.modeling.extrapolation.impl.maths;
 
 public class AdjLinearSolverQr {
 

@@ -1,7 +1,7 @@
 package org.kevoree.modeling.microframework.test.cloud.meta;
 
 import org.kevoree.modeling.abs.*;
-import org.kevoree.modeling.extrapolation.DiscreteExtrapolation;
+import org.kevoree.modeling.extrapolation.impl.DiscreteExtrapolation;
 import org.kevoree.modeling.meta.*;
 import org.kevoree.modeling.meta.impl.MetaAttribute;
 import org.kevoree.modeling.meta.impl.MetaClass;
