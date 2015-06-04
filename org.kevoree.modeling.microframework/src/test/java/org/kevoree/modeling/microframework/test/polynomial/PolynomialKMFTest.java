@@ -1,6 +1,7 @@
 package org.kevoree.modeling.microframework.test.polynomial;
 
 import org.junit.Assert;
+import org.junit.Test;
 import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
@@ -14,7 +15,7 @@ import org.kevoree.modeling.microframework.test.cloud.Element;
  */
 public class PolynomialKMFTest {
 
-  //  @Test
+    @Test
     public void test() {
         final int[] nbAssert = new int[1];
         nbAssert[0] = 0;
@@ -63,7 +64,6 @@ public class PolynomialKMFTest {
                 @Override
                 public void on(KObject element) {
                     nbAssert[0]++;
-                    //System.out.println(element.getValue());
                     Assert.assertTrue(( ((Element)element).getValue() - val[finalI]) < 5);
                 }
             });
@@ -72,7 +72,7 @@ public class PolynomialKMFTest {
     }
 
 
-  //  @Test
+    @Test
     public void test2() {
         final int[] nbAssert = new int[1];
         nbAssert[0] = 0;
