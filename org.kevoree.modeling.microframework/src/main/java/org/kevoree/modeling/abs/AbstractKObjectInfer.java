@@ -16,7 +16,7 @@ public abstract class AbstractKObjectInfer extends AbstractKObject implements KI
     }
 
     public KInferState readOnlyState() {
-        KMemorySegment raw = _manager.segment(this, AccessMode.READ);
+        KMemorySegment raw = _manager.segment(_universe,_time,_uuid, AccessMode.READ,metaClass());
         if (raw != null) {
             if (raw.get(KMetaInferClass.getInstance().getCache().index(), metaClass()) == null) {
                 internal_load(raw);
@@ -28,7 +28,7 @@ public abstract class AbstractKObjectInfer extends AbstractKObject implements KI
     }
 
     public KInferState modifyState() {
-        KMemorySegment raw = _manager.segment(this, AccessMode.WRITE);
+        KMemorySegment raw = _manager.segment(_universe,_time,_uuid, AccessMode.WRITE,metaClass());
         if (raw != null) {
             if (raw.get(KMetaInferClass.getInstance().getCache().index(), metaClass()) == null) {
                 internal_load(raw);

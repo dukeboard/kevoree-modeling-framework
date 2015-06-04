@@ -39,14 +39,14 @@ public class TraverseAction implements KTraversalAction {
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
-                    KMemorySegment raw = currentObject._manager.segment(loopObj, AccessMode.READ);
+                    KMemorySegment raw = currentObject._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), AccessMode.READ, loopObj.metaClass());
                     if (raw != null) {
                         if (_reference == null) {
                             KMeta[] metaElements = loopObj.metaClass().metaElements();
                             for (int j = 0; j < metaElements.length; j++) {
-                                if(metaElements[j] instanceof MetaReference){
+                                if (metaElements[j] instanceof MetaReference) {
                                     KMetaReference ref = (KMetaReference) metaElements[j];
-                                    long[] resolved = raw.getRef(ref.index(),currentObject.metaClass());
+                                    long[] resolved = raw.getRef(ref.index(), currentObject.metaClass());
                                     if (resolved != null) {
                                         for (int k = 0; k < resolved.length; k++) {
                                             nextIds.put(resolved[k], resolved[k]);
@@ -57,7 +57,7 @@ public class TraverseAction implements KTraversalAction {
                         } else {
                             KMetaReference translatedRef = loopObj.internal_transpose_ref(_reference);
                             if (translatedRef != null) {
-                                long[] resolved = raw.getRef(translatedRef.index(),currentObject.metaClass());
+                                long[] resolved = raw.getRef(translatedRef.index(), currentObject.metaClass());
                                 if (resolved != null) {
                                     for (int j = 0; j < resolved.length; j++) {
                                         nextIds.put(resolved[j], resolved[j]);

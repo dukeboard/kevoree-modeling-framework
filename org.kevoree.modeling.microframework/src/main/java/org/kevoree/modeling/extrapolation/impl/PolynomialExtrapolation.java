@@ -16,7 +16,7 @@ public class PolynomialExtrapolation implements Extrapolation {
 
     @Override
     public Object extrapolate(KObject current, KMetaAttribute attribute) {
-        KMemorySegment raw = ((AbstractKObject) current)._manager.segment(current, AccessMode.READ);
+        KMemorySegment raw = ((AbstractKObject) current)._manager.segment(current.universe(), current.now(), current.uuid(), AccessMode.READ, current.metaClass());
         if (raw != null) {
             Double extrapolatedValue = extrapolateValue(raw.getInfer(attribute.index(), current.metaClass()), current.now(), raw.originTime());
             if (attribute.attributeType() == KPrimitiveTypes.DOUBLE) {
@@ -177,13 +177,13 @@ public class PolynomialExtrapolation implements Extrapolation {
 
     @Override
     public void mutate(KObject current, KMetaAttribute attribute, Object payload) {
-        KMemorySegment raw = ((AbstractKObject) current)._manager.segment(current, AccessMode.READ);
+        KMemorySegment raw = ((AbstractKObject) current)._manager.segment(current.universe(), current.now(), current.uuid(), AccessMode.READ, current.metaClass());
 
         if (!insert(current.now(), castNumber(payload), raw.originTime(), raw, attribute.index(), attribute.precision(), current.metaClass())) {
             //PolynomialModel pol = createPolynomialModel(previousPol.lastIndex(), attribute.precision());
             // pol.insert(previousPol.lastIndex(), previousPol.extrapolate(previousPol.lastIndex()));
             //pol.insert(current.now(), castNumber(payload));
-            KMemorySegment raw2 = ((AbstractKObject) current)._manager.segment(current, AccessMode.WRITE);
+            KMemorySegment raw2 = ((AbstractKObject) current)._manager.segment(current.universe(), current.now(), current.uuid(), AccessMode.WRITE, current.metaClass());
             long prevTime = (long) raw.getInferElem(attribute.index(), LASTTIME, current.metaClass()) + raw.originTime();
             double val = extrapolateValue(raw.getInfer(attribute.index(), current.metaClass()), prevTime, raw.originTime());
             insert(prevTime, val, prevTime, raw2, attribute.index(), attribute.precision(), current.metaClass());

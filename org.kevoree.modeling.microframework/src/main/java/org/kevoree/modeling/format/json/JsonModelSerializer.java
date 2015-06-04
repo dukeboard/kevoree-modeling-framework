@@ -51,7 +51,7 @@ public class JsonModelSerializer {
 
     public static void printJSON(KObject elem, StringBuilder builder, boolean isRoot) {
         if (elem != null) {
-            KMemorySegment raw = ((AbstractKObject) elem)._manager.segment(elem, AccessMode.READ);
+            KMemorySegment raw = ((AbstractKObject) elem)._manager.segment(elem.universe(),elem.now(),elem.uuid(), AccessMode.READ,elem.metaClass());
             if (raw != null) {
                 builder.append(JsonRaw.encode(raw, elem.uuid(), elem.metaClass(), isRoot));
             }

@@ -74,7 +74,7 @@ public abstract class AbstractKObject implements KObject {
     @Override
     public void delete(KCallback cb) {
         final KObject selfPointer = this;
-        KMemorySegment rawPayload = _manager.segment(this, AccessMode.DELETE);
+        KMemorySegment rawPayload = _manager.segment(_universe, _time, _uuid, AccessMode.DELETE, _metaClass);
         if (rawPayload == null) {
             cb.on(new Exception(OUT_OF_CACHE_MSG));
         } else {
@@ -206,7 +206,7 @@ public abstract class AbstractKObject implements KObject {
             if (metaReference.single()) {
                 internal_mutate(KActionType.SET, metaReference, param, setOpposite);
             } else {
-                KMemorySegment raw = _manager.segment(this, AccessMode.WRITE);
+                KMemorySegment raw = _manager.segment(_universe, _time, _uuid, AccessMode.WRITE, _metaClass);
                 if (raw != null) {
                     if (raw.addRef(metaReference.index(), param.uuid(), _metaClass)) {
                         if (setOpposite) {
@@ -222,7 +222,7 @@ public abstract class AbstractKObject implements KObject {
                 if (param == null) {
                     internal_mutate(KActionType.REMOVE, metaReference, null, setOpposite);
                 } else {
-                    KMemorySegment payload = _manager.segment(this, AccessMode.WRITE);
+                    KMemorySegment payload = _manager.segment(_universe, _time, _uuid, AccessMode.WRITE, _metaClass);
                     long[] previous = payload.getRef(metaReference.index(), _metaClass);
                     //override
                     long[] singleValue = new long[1];
@@ -248,7 +248,7 @@ public abstract class AbstractKObject implements KObject {
             }
         } else if (actionType.equals(KActionType.REMOVE)) {
             if (metaReference.single()) {
-                KMemorySegment raw = _manager.segment(this, AccessMode.WRITE);
+                KMemorySegment raw = _manager.segment(_universe, _time, _uuid, AccessMode.WRITE, _metaClass);
                 long[] previousKid = raw.getRef(metaReference.index(), _metaClass);
                 raw.set(metaReference.index(), null, _metaClass);
                 if (setOpposite) {
@@ -269,7 +269,7 @@ public abstract class AbstractKObject implements KObject {
                     }
                 }
             } else {
-                KMemorySegment payload = _manager.segment(this, AccessMode.WRITE);
+                KMemorySegment payload = _manager.segment(_universe, _time, _uuid, AccessMode.WRITE, _metaClass);
                 if (payload != null) {
                     if (payload.removeRef(metaReference.index(), param.uuid(), _metaClass)) {
                         if (setOpposite) {
@@ -286,7 +286,7 @@ public abstract class AbstractKObject implements KObject {
         if (transposed == null) {
             throw new RuntimeException("Bad KMF usage, the attribute named " + p_metaReference.metaName() + " is not part of " + metaClass().metaName());
         } else {
-            KMemorySegment raw = _manager.segment(this, AccessMode.READ);
+            KMemorySegment raw = _manager.segment(_universe, _time, _uuid, AccessMode.READ, _metaClass);
             if (raw != null) {
                 Object ref = raw.get(transposed.index(), _metaClass);
                 if (ref == null) {
@@ -312,7 +312,7 @@ public abstract class AbstractKObject implements KObject {
         if (transposed == null) {
             throw new RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + metaClass().metaName());
         } else {
-            KMemorySegment raw = _manager.segment(this, AccessMode.READ);
+            KMemorySegment raw = _manager.segment(_universe, _time, _uuid, AccessMode.READ, _metaClass);
             if (raw == null) {
                 cb.on(new KObject[0]);
             } else {
@@ -357,7 +357,7 @@ public abstract class AbstractKObject implements KObject {
         for (int i = 0; i < metaElements.length; i++) {
             if (metaElements[i] instanceof MetaReference) {
                 final KMetaReference reference = (KMetaReference) metaElements[i];
-                KMemorySegment raw = _manager.segment(this, AccessMode.READ);
+                KMemorySegment raw = _manager.segment(_universe, _time, _uuid, AccessMode.READ, _metaClass);
                 if (raw != null) {
                     long[] idArr = raw.getRef(reference.index(), _metaClass);
                     if (idArr != null) {
@@ -447,7 +447,7 @@ public abstract class AbstractKObject implements KObject {
     }
 
     public String toJSON() {
-        KMemorySegment raw = _manager.segment(this, AccessMode.READ);
+        KMemorySegment raw = _manager.segment(_universe, _time, _uuid, AccessMode.READ, _metaClass);
         if (raw != null) {
             return JsonRaw.encode(raw, _uuid, _metaClass, false);
         } else {
@@ -540,12 +540,12 @@ public abstract class AbstractKObject implements KObject {
     @Override
     public KMetaReference[] referencesWith(KObject o) {
         if (Checker.isDefined(o)) {
-            KMemorySegment raw = _manager.segment(this, AccessMode.READ);
+            KMemorySegment raw = _manager.segment(_universe, _time, _uuid, AccessMode.READ, _metaClass);
             if (raw != null) {
                 KMeta[] metaElements = metaClass().metaElements();
                 List<KMetaReference> selected = new ArrayList<KMetaReference>();
                 for (int i = 0; i < metaElements.length; i++) {
-                    if(metaElements[i] instanceof MetaReference){
+                    if (metaElements[i] instanceof MetaReference) {
                         long[] rawI = raw.getRef((metaElements[i].index()), _metaClass);
                         if (rawI != null) {
                             long oUUID = o.uuid();

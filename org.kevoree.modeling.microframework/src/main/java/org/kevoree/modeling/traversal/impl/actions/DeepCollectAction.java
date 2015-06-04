@@ -95,7 +95,7 @@ public class DeepCollectAction implements KTraversalAction {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputStep[i];
                     currentObject = loopObj;
-                    KMemorySegment raw = loopObj._manager.segment(loopObj, AccessMode.READ);
+                    KMemorySegment raw = loopObj._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), AccessMode.READ, loopObj.metaClass());
                     if (raw != null) {
                         if (_reference == null) {
                             KMeta[] metaElements = loopObj.metaClass().metaElements();

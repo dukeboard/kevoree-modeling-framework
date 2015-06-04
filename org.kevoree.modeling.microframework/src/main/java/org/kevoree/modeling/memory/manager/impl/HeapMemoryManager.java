@@ -16,6 +16,7 @@ import org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment;
 import org.kevoree.modeling.message.impl.Events;
 import org.kevoree.modeling.memory.struct.tree.KLongLongTree;
 import org.kevoree.modeling.memory.struct.tree.KLongTree;
+import org.kevoree.modeling.meta.KMetaClass;
 import org.kevoree.modeling.scheduler.impl.DirectScheduler;
 import org.kevoree.modeling.memory.struct.tree.impl.LongLongTree;
 import org.kevoree.modeling.scheduler.KScheduler;
@@ -319,27 +320,27 @@ public class HeapMemoryManager implements KMemoryManager {
     }
 
     @Override
-    public KMemorySegment segment(KObject origin, AccessMode accessMode) {
-        HeapMemorySegment currentEntry = (HeapMemorySegment) _cache.get(origin.universe(), origin.now(), origin.uuid());
+    public KMemorySegment segment(long universe, long time, long uuid, AccessMode accessMode, KMetaClass metaClass) {
+        HeapMemorySegment currentEntry = (HeapMemorySegment) _cache.get(universe, time, uuid);
         if (currentEntry != null) {
             return currentEntry;
         }
-        ArrayLongLongHashMap objectUniverseTree = (ArrayLongLongHashMap) _cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, origin.uuid());
-        long resolvedUniverse = ResolutionHelper.resolve_universe(globalUniverseOrder(), objectUniverseTree, origin.now(), origin.universe());
-        KLongTree timeTree = (KLongTree) _cache.get(resolvedUniverse, KConfig.NULL_LONG, origin.uuid());
+        ArrayLongLongHashMap objectUniverseTree = (ArrayLongLongHashMap) _cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, uuid);
+        long resolvedUniverse = ResolutionHelper.resolve_universe(globalUniverseOrder(), objectUniverseTree, time, universe);
+        KLongTree timeTree = (KLongTree) _cache.get(resolvedUniverse, KConfig.NULL_LONG, uuid);
         if (timeTree == null) {
-            throw new RuntimeException(OUT_OF_CACHE_MESSAGE + " : TimeTree not found for " + KContentKey.createTimeTree(resolvedUniverse, origin.uuid()) + " from " + origin.universe() + "/" + resolvedUniverse);
+            throw new RuntimeException(OUT_OF_CACHE_MESSAGE + " : TimeTree not found for " + KContentKey.createTimeTree(resolvedUniverse, uuid) + " from " + universe + "/" + resolvedUniverse);
         }
-        long resolvedTime = timeTree.previousOrEqual(origin.now());
+        long resolvedTime = timeTree.previousOrEqual(time);
         if (resolvedTime != KConfig.NULL_LONG) {
-            boolean needTimeCopy = accessMode.equals(AccessMode.WRITE) && (resolvedTime != origin.now());
-            boolean needUniverseCopy = accessMode.equals(AccessMode.WRITE) && (resolvedUniverse != origin.universe());
-            HeapMemorySegment entry = (HeapMemorySegment) _cache.get(resolvedUniverse, resolvedTime, origin.uuid());
+            boolean needTimeCopy = accessMode.equals(AccessMode.WRITE) && (resolvedTime != time);
+            boolean needUniverseCopy = accessMode.equals(AccessMode.WRITE) && (resolvedUniverse != universe);
+            HeapMemorySegment entry = (HeapMemorySegment) _cache.get(resolvedUniverse, resolvedTime, uuid);
             if (entry == null) {
                 return null;
             }
             if (accessMode.equals(AccessMode.DELETE)) {
-                timeTree.delete(origin.now());
+                timeTree.delete(time);
                 return entry;
             }
             if (!needTimeCopy && !needUniverseCopy) {
@@ -348,24 +349,24 @@ public class HeapMemoryManager implements KMemoryManager {
                 }
                 return entry;
             } else {
-                KMemorySegment clonedEntry = entry.clone(origin.now(), origin.metaClass());
-                _cache.put(origin.universe(), origin.now(), origin.uuid(), clonedEntry);
+                KMemorySegment clonedEntry = entry.clone(time, metaClass);
+                _cache.put(universe, time, uuid, clonedEntry);
                 if (!needUniverseCopy) {
-                    timeTree.insert(origin.now());
+                    timeTree.insert(time);
                 } else {
                     KLongTree newTemporalTree = _factory.newLongTree();
-                    newTemporalTree.insert(origin.now());
+                    newTemporalTree.insert(time);
                     newTemporalTree.inc();
                     timeTree.dec();
-                    _cache.put(origin.universe(), KConfig.NULL_LONG, origin.uuid(), newTemporalTree);
-                    objectUniverseTree.put(origin.universe(), origin.now());//insert this time as a divergence point for this object
+                    _cache.put(universe, KConfig.NULL_LONG, uuid, newTemporalTree);
+                    objectUniverseTree.put(universe, time);//insert this time as a divergence point for this object
                 }
                 entry.dec();
                 clonedEntry.inc();
                 return clonedEntry;
             }
         } else {
-            System.err.println(OUT_OF_CACHE_MESSAGE + " Time not resolved " + origin.now());
+            System.err.println(OUT_OF_CACHE_MESSAGE + " Time not resolved " + time);
             return null;
         }
     }
