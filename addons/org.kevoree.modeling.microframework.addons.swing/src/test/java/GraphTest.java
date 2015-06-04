@@ -2,9 +2,11 @@ import org.graphstream.graph.Graph;
 import org.graphstream.ui.swingViewer.ViewerListener;
 import org.graphstream.ui.swingViewer.ViewerPipe;
 import org.kevoree.modeling.*;
+import org.kevoree.modeling.extrapolation.impl.DiscreteExtrapolation;
+import org.kevoree.modeling.meta.KMetaClass;
+import org.kevoree.modeling.meta.KMetaModel;
 import org.kevoree.modeling.meta.KPrimitiveTypes;
-import org.kevoree.modeling.meta.dynamic.DynamicMetaClass;
-import org.kevoree.modeling.meta.dynamic.DynamicMetaModel;
+import org.kevoree.modeling.meta.impl.MetaModel;
 import org.kevoree.modeling.scheduler.impl.ExecutorServiceScheduler;
 import org.kevoree.modeling.framework.addons.swing.GraphBuilder;
 
@@ -21,11 +23,11 @@ public class GraphTest {
 
     //@Test
     public void test() throws InterruptedException {
-        DynamicMetaModel metaModel = new DynamicMetaModel("TestModel");
-        DynamicMetaClass nodeClazz = metaModel.createMetaClass("Node");
-        nodeClazz.addAttribute("name", KPrimitiveTypes.STRING);
-        nodeClazz.addReference("children", nodeClazz, "op_children");
-        nodeClazz.addReference("neighbor", nodeClazz, "op_neighbor");
+        KMetaModel metaModel = new MetaModel("TestModel");
+        KMetaClass nodeClazz = metaModel.addMetaClass("Node");
+        nodeClazz.addAttribute("name", KPrimitiveTypes.STRING, 0d, DiscreteExtrapolation.instance());
+        nodeClazz.addReference("children", nodeClazz, "op_children", true);
+        nodeClazz.addReference("neighbor", nodeClazz, "op_neighbor", true);
         KModel model = metaModel.model();
         model.setScheduler(new ExecutorServiceScheduler());
 

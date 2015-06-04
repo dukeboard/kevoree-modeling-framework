@@ -2,7 +2,6 @@ package org.kevoree.modeling.databases.redis;
 
 import org.junit.Assert;
 import org.kevoree.modeling.KCallback;
-import org.kevoree.modeling.KThrowableCallback;
 import org.kevoree.modeling.KContentKey;
 import org.kevoree.modeling.cdn.impl.ContentPutRequest;
 import redis.embedded.RedisServer;
@@ -44,9 +43,9 @@ public class RedisTest {
                 keys[0] = k0;
                 keys[1] = k1;
 
-                driver.get(keys, new KThrowableCallback<String[]>() {
+                driver.get(keys, new KCallback<String[]>() {
                     @Override
-                    public void on(String[] strings, Throwable error) {
+                    public void on(String[] strings) {
                         Assert.assertEquals(strings.length, 2);
                         Assert.assertEquals(strings[0], "K0");
                         Assert.assertEquals(strings[1], "K1");

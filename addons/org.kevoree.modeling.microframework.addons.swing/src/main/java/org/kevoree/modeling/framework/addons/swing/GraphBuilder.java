@@ -5,6 +5,7 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.kevoree.modeling.KCallback;
+import org.kevoree.modeling.meta.KMeta;
 import org.kevoree.modeling.traversal.visitor.KModelVisitor;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.traversal.visitor.KVisitResult;
@@ -56,18 +57,19 @@ public class GraphBuilder {
     }
 
     private static void createEdges(Graph graph, KObject elem) {
-        Node n = graph.getNode(elem.uuid() + "");
-        KMemorySegment rawPayload = elem.manager().segment(elem, AccessMode.RESOLVE);
-        for (KMetaReference metaRef : elem.metaClass().metaReferences()) {
-            long[] relatedElems = rawPayload.getRef(metaRef.index(), elem.metaClass());
-            if (relatedElems != null) {
-                for (int i = 0; i < relatedElems.length; i++) {
-                    Edge e = graph.addEdge(elem.uuid() + "_" + relatedElems[i] + "_" + metaRef.metaName(), elem.uuid() + "", relatedElems[i] + "");
-                    if (e != null) {
-                        e.addAttribute("ui.label", metaRef.metaName());
+        KMemorySegment rawPayload = elem.manager().segment(elem.universe(), elem.now(), elem.uuid(), AccessMode.RESOLVE, elem.metaClass());
+        for (KMeta meta : elem.metaClass().metaElements()) {
+            if (meta instanceof KMetaReference) {
+                KMetaReference metaRef = (KMetaReference) meta;
+                long[] relatedElems = rawPayload.getRef(metaRef.index(), elem.metaClass());
+                if (relatedElems != null) {
+                    for (int i = 0; i < relatedElems.length; i++) {
+                        Edge e = graph.addEdge(elem.uuid() + "_" + relatedElems[i] + "_" + metaRef.metaName(), elem.uuid() + "", relatedElems[i] + "");
+                        if (e != null) {
+                            e.addAttribute("ui.label", metaRef.metaName());
+                        }
                     }
                 }
-
             }
         }
     }

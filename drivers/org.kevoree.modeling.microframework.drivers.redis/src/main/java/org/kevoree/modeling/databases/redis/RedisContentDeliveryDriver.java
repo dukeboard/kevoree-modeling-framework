@@ -50,7 +50,7 @@ public class RedisContentDeliveryDriver implements KContentDeliveryDriver {
     private LocalEventListeners _localEventListeners = new LocalEventListeners();
 
     @Override
-    public void atomicGetIncrement(KContentKey key, KThrowableCallback<Short> cb) {
+    public void atomicGetIncrement(KContentKey key, KCallback<Short> cb) {
         String result = jedis.get(key.toString());
         short nextV;
         short previousV;
@@ -71,19 +71,19 @@ public class RedisContentDeliveryDriver implements KContentDeliveryDriver {
         }
         //TODO use the nativeInc method
         jedis.set(key.toString(), "" + nextV);
-        cb.on(previousV, null);
+        cb.on(previousV);
     }
 
 
     @Override
-    public void get(KContentKey[] keys, KThrowableCallback<String[]> callback) {
+    public void get(KContentKey[] keys, KCallback<String[]> callback) {
         String[] flatKeys = new String[keys.length];
         for (int i = 0; i < keys.length; i++) {
             flatKeys[i] = keys[i].toString();
         }
         List<String> values = jedis.mget(flatKeys);
         if (callback != null) {
-            callback.on(values.toArray(new String[values.size()]), null);
+            callback.on(values.toArray(new String[values.size()]));
         }
     }
 

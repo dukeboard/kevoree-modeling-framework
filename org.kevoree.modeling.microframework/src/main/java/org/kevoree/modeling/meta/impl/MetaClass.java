@@ -4,7 +4,6 @@ import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.KType;
 import org.kevoree.modeling.abs.KLazyResolver;
 import org.kevoree.modeling.extrapolation.Extrapolation;
-import org.kevoree.modeling.memory.cache.KCache;
 import org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap;
 import org.kevoree.modeling.meta.KMeta;
 import org.kevoree.modeling.meta.KMetaAttribute;

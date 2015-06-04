@@ -8,11 +8,14 @@ import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.process.runtime.Network;
 import junit.framework.Assert;
 import org.kevoree.modeling.KCallback;
+import org.kevoree.modeling.KModel;
 import org.kevoree.modeling.KObject;
+import org.kevoree.modeling.extrapolation.impl.DiscreteExtrapolation;
+import org.kevoree.modeling.meta.KMetaClass;
+import org.kevoree.modeling.meta.KMetaModel;
 import org.kevoree.modeling.meta.KPrimitiveTypes;
-import org.kevoree.modeling.meta.dynamic.DynamicKModel;
-import org.kevoree.modeling.meta.dynamic.DynamicMetaClass;
-import org.kevoree.modeling.meta.dynamic.DynamicMetaModel;
+import org.kevoree.modeling.meta.impl.MetaClass;
+import org.kevoree.modeling.meta.impl.MetaModel;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -32,11 +35,10 @@ public class MongoDbTest {
             mongodExecutable = runtime.prepare(mongodConfig);
             MongodProcess mongod = mongodExecutable.start();
             MongoDbContentDeliveryDriver driver = new MongoDbContentDeliveryDriver("localhost", 27017, "kmf");
-            DynamicMetaModel metaModel = new DynamicMetaModel("IoT");
-            DynamicMetaClass metaClass = metaModel.createMetaClass("Sensor");
-            metaClass.addAttribute("name", KPrimitiveTypes.STRING);
-            DynamicKModel model = new DynamicKModel();
-            model.setMetaModel(metaModel);
+            KMetaModel metaModel = new MetaModel("IoT");
+            KMetaClass metaClass = metaModel.addMetaClass("Sensor");
+            metaClass.addAttribute("name", KPrimitiveTypes.STRING, 0d, DiscreteExtrapolation.instance());
+            KModel model = metaModel.model();
             model.setContentDeliveryDriver(driver);
             model.connect(new KCallback() {
                 @Override

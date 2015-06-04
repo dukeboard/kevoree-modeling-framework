@@ -29,7 +29,7 @@ public class MapDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void atomicGetIncrement(KContentKey key, KThrowableCallback<Short> cb) {
+    public void atomicGetIncrement(KContentKey key, KCallback<Short> cb) {
         String result = (String) m.get(key.toString());
         short nextV;
         short previousV;
@@ -49,16 +49,16 @@ public class MapDbContentDeliveryDriver implements KContentDeliveryDriver {
             nextV = (short) (previousV + 1);
         }
         m.put(key.toString(), nextV + "");
-        cb.on(previousV, null);
+        cb.on(previousV);
     }
 
     @Override
-    public void get(KContentKey[] keys, KThrowableCallback<String[]> callback) {
+    public void get(KContentKey[] keys, KCallback<String[]> callback) {
         String[] results = new String[keys.length];
         for (int i = 0; i < keys.length; i++) {
             results[i] = (String) m.get(keys[i].toString());
         }
-        callback.on(results, null);
+        callback.on(results);
     }
 
     @Override

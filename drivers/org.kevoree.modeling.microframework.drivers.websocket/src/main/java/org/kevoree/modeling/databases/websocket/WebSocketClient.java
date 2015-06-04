@@ -73,8 +73,8 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
             case KMessageLoader.GET_RES_TYPE: {
                 GetResult getResult = (GetResult) msg;
                 Object callbackRegistered = _callbacks.get(getResult.id);
-                if (callbackRegistered != null && callbackRegistered instanceof KThrowableCallback) {
-                    ((KThrowableCallback) callbackRegistered).on(getResult.values, null);
+                if (callbackRegistered != null) {
+                    ((KCallback) callbackRegistered).on(getResult.values);
                 } else {
                     System.err.println();
                 }
@@ -84,7 +84,7 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
             case KMessageLoader.PUT_RES_TYPE: {
                 PutResult putResult = (PutResult) msg;
                 Object callbackRegistered = _callbacks.get(putResult.id);
-                if (callbackRegistered != null && callbackRegistered instanceof KCallback) {
+                if (callbackRegistered != null) {
                     ((KCallback) callbackRegistered).on(null);
                 } else {
                     System.err.println();
@@ -94,8 +94,8 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
             case KMessageLoader.ATOMIC_GET_INC_RESULT_TYPE: {
                 AtomicGetIncrementResult atomicGetResult = (AtomicGetIncrementResult) msg;
                 Object callbackRegistered = _callbacks.get(atomicGetResult.id);
-                if (callbackRegistered != null && callbackRegistered instanceof KThrowableCallback) {
-                    ((KThrowableCallback) callbackRegistered).on(atomicGetResult.value, null);
+                if (callbackRegistered != null) {
+                    ((KCallback) callbackRegistered).on(atomicGetResult.value);
                 } else {
                     System.err.println();
                 }
@@ -118,7 +118,7 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
     }
 
     @Override
-    public void atomicGetIncrement(KContentKey key, KThrowableCallback<Short> callback) {
+    public void atomicGetIncrement(KContentKey key, KCallback<Short> callback) {
         AtomicGetIncrementRequest atomicGetRequest = new AtomicGetIncrementRequest();
         atomicGetRequest.id = nextKey();
         atomicGetRequest.key = key;
@@ -127,7 +127,7 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
     }
 
     @Override
-    public void get(KContentKey[] keys, KThrowableCallback<String[]> callback) {
+    public void get(KContentKey[] keys, KCallback<String[]> callback) {
         GetRequest getRequest = new GetRequest();
         getRequest.keys = keys;
         getRequest.id = nextKey();

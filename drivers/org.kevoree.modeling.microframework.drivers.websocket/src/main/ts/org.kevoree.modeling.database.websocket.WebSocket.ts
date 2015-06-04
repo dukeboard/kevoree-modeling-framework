@@ -13,7 +13,7 @@ module org {
                         private _reconnectionDelay = 3000;
                         private _clientConnection:WebSocket;
                         private _connectionUri:string;
-                        private _manager:org.kevoree.modeling.memory.KMemoryManager;
+                        private _manager:org.kevoree.modeling.memory.manager.KMemoryManager;
                         private _localEventListeners = new org.kevoree.modeling.util.LocalEventListeners();
 
                         private _getCallbacks:java.util.HashMap<number, (p1:string[], p2:java.lang.Throwable) => void> = new java.util.HashMap<number, (p1:string[], p2:java.lang.Throwable) => void>();
@@ -146,7 +146,7 @@ module org {
                             this._localEventListeners.unregister(groupId);
                         }
 
-                        public setManager(manager:org.kevoree.modeling.memory.KMemoryManager):void {
+                        public setManager(manager:org.kevoree.modeling.memory.manager.KMemoryManager):void {
                             this._manager = manager;
                             this._localEventListeners.setManager(manager);
                         }

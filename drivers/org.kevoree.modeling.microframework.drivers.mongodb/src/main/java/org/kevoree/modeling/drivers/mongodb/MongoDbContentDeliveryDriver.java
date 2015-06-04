@@ -41,7 +41,7 @@ public class MongoDbContentDeliveryDriver implements KContentDeliveryDriver {
     private static final String KMF_VAL = "@val";
 
     @Override
-    public void atomicGetIncrement(KContentKey key, KThrowableCallback<Short> cb) {
+    public void atomicGetIncrement(KContentKey key, KCallback<Short> cb) {
 
         BasicDBObject searchQuery = new BasicDBObject();
         searchQuery.put(KMF_KEY, key.toString());
@@ -74,13 +74,13 @@ public class MongoDbContentDeliveryDriver implements KContentDeliveryDriver {
         newValue.append(KMF_VAL, nextV);
         table.update(searchQuery, newValue, true, false);
 
-        cb.on(previousV, null);
+        cb.on(previousV);
     }
 
 
 
     @Override
-    public void get(KContentKey[] keys, KThrowableCallback<String[]> callback) {
+    public void get(KContentKey[] keys, KCallback<String[]> callback) {
         String[] result = new String[keys.length];
         for (int i = 0; i < result.length; i++) {
             BasicDBObject searchQuery = new BasicDBObject();
@@ -92,7 +92,7 @@ public class MongoDbContentDeliveryDriver implements KContentDeliveryDriver {
             }
         }
         if (callback != null) {
-            callback.on(result, null);
+            callback.on(result);
         }
     }
 

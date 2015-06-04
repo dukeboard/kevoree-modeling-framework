@@ -105,14 +105,12 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
         switch (msg.type()) {
             case KMessageLoader.GET_REQ_TYPE: {
                 final GetRequest getRequest = (GetRequest) msg;
-                wrapped.get(getRequest.keys, new KThrowableCallback<String[]>() {
-                    public void on(String[] strings, Throwable error) {
-                        if (error == null) {
+                wrapped.get(getRequest.keys, new KCallback<String[]>() {
+                    public void on(String[] strings) {
                             GetResult getResultMessage = new GetResult();
                             getResultMessage.id = getRequest.id;
                             getResultMessage.values = strings;
                             WebSockets.sendText(getResultMessage.json(), channel, null);
-                        }
                     }
                 });
             }
@@ -133,10 +131,10 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
             break;
             case KMessageLoader.ATOMIC_GET_INC_REQUEST_TYPE: {
                 final AtomicGetIncrementRequest atomicGetRequest = (AtomicGetIncrementRequest) msg;
-                wrapped.atomicGetIncrement(atomicGetRequest.key, new KThrowableCallback<Short>() {
+                wrapped.atomicGetIncrement(atomicGetRequest.key, new KCallback<Short>() {
                     @Override
-                    public void on(Short s, Throwable error) {
-                        if (error == null) {
+                    public void on(Short s) {
+                        if (s != null) {
                             AtomicGetIncrementResult atomicGetResultMessage = new AtomicGetIncrementResult();
                             atomicGetResultMessage.id = atomicGetRequest.id;
                             atomicGetResultMessage.value = s;
@@ -175,12 +173,12 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
     }
 
     @Override
-    public void atomicGetIncrement(KContentKey key, KThrowableCallback<Short> callback) {
+    public void atomicGetIncrement(KContentKey key, KCallback<Short> callback) {
         wrapped.atomicGetIncrement(key, callback);
     }
 
     @Override
-    public void get(KContentKey[] keys, KThrowableCallback<String[]> callback) {
+    public void get(KContentKey[] keys, KCallback<String[]> callback) {
         wrapped.get(keys, callback);
     }
 

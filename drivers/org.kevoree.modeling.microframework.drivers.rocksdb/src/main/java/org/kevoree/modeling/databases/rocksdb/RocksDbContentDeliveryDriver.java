@@ -59,7 +59,7 @@ public class RocksDbContentDeliveryDriver implements KContentDeliveryDriver {
 
 
     @Override
-    public void atomicGetIncrement(KContentKey key, KThrowableCallback<Short> cb) {
+    public void atomicGetIncrement(KContentKey key, KCallback<Short> cb) {
         try {
             String result = new String(db.get(key.toString().getBytes()));
             short nextV;
@@ -83,15 +83,15 @@ public class RocksDbContentDeliveryDriver implements KContentDeliveryDriver {
             batch.put(key.toString().getBytes(), (nextV + "").getBytes());
 
             db.write(new WriteOptions().setSync(true), batch);
-            cb.on(previousV, null);
+            cb.on(previousV);
         } catch (RocksDBException e) {
             e.printStackTrace();
-            cb.on(null,e);
+            cb.on(null);
         }
     }
 
     @Override
-    public void get(KContentKey[] keys, KThrowableCallback<String[]> callback) {
+    public void get(KContentKey[] keys, KCallback<String[]> callback) {
         String[] result = new String[keys.length];
         for (int i = 0; i < keys.length; i++) {
             try {
@@ -101,7 +101,7 @@ public class RocksDbContentDeliveryDriver implements KContentDeliveryDriver {
                 e.printStackTrace();
             }
             if (callback != null) {
-                callback.on(result, null);
+                callback.on(result);
             }
         }
     }

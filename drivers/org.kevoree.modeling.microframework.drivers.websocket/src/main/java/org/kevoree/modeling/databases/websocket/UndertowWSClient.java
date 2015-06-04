@@ -24,7 +24,6 @@ class UndertowWSClient {
     private XnioWorker _worker;
     private WebSocketChannel _webSocketChannel = null;
     private String _url;
-    private AbstractReceiveListener _receiveListener;
 
     public UndertowWSClient(String url) {
         this._url = url;

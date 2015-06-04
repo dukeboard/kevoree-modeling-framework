@@ -6,7 +6,6 @@ import org.kevoree.modeling.event.KEventListener;
 import org.kevoree.modeling.event.KEventMultiListener;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.KUniverse;
-import org.kevoree.modeling.KThrowableCallback;
 import org.kevoree.modeling.KContentKey;
 import org.kevoree.modeling.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.memory.manager.KMemoryManager;

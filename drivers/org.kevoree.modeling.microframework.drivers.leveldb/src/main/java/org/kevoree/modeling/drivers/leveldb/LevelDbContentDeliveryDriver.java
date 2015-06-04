@@ -61,7 +61,7 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
     private String _connectedError = "PLEASE CONNECT YOUR DATABASE FIRST";
 
     @Override
-    public void atomicGetIncrement(KContentKey key, KThrowableCallback<Short> cb) {
+    public void atomicGetIncrement(KContentKey key, KCallback<Short> cb) {
         String result = JniDBFactory.asString(db.get(JniDBFactory.bytes(key.toString())));
         short nextV;
         short previousV;
@@ -83,11 +83,11 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
         WriteBatch batch = db.createWriteBatch();
         batch.put(JniDBFactory.bytes(key.toString()), JniDBFactory.bytes(nextV+""));
         db.write(batch);
-        cb.on(previousV, null);
+        cb.on(previousV);
     }
 
     @Override
-    public void get(KContentKey[] keys, KThrowableCallback<String[]> callback) {
+    public void get(KContentKey[] keys, KCallback<String[]> callback) {
         if (!_isConnected) {
             throw new RuntimeException(_connectedError);
         }
@@ -96,7 +96,7 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
             result[i] = JniDBFactory.asString(db.get(JniDBFactory.bytes(keys[i].toString())));
         }
         if (callback != null) {
-            callback.on(result, null);
+            callback.on(result);
         }
     }
 
