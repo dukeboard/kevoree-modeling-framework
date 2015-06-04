@@ -164,6 +164,58 @@ var org;
             modeling.KContentKey = KContentKey;
             var abs;
             (function (abs) {
+                var AbstractDataType = (function () {
+                    function AbstractDataType(p_name, p_isEnum) {
+                        this._name = p_name;
+                        this._isEnum = p_isEnum;
+                    }
+                    AbstractDataType.prototype.name = function () {
+                        return this._name;
+                    };
+                    AbstractDataType.prototype.isEnum = function () {
+                        return this._isEnum;
+                    };
+                    AbstractDataType.prototype.save = function (src) {
+                        if (src != null && this != org.kevoree.modeling.meta.KPrimitiveTypes.TRANSIENT) {
+                            if (this == org.kevoree.modeling.meta.KPrimitiveTypes.STRING) {
+                                return org.kevoree.modeling.format.json.JsonString.encode(src.toString());
+                            }
+                            else {
+                                return src.toString();
+                            }
+                        }
+                        return null;
+                    };
+                    AbstractDataType.prototype.load = function (payload) {
+                        if (this == org.kevoree.modeling.meta.KPrimitiveTypes.TRANSIENT) {
+                            return null;
+                        }
+                        if (this == org.kevoree.modeling.meta.KPrimitiveTypes.STRING) {
+                            return org.kevoree.modeling.format.json.JsonString.unescape(payload);
+                        }
+                        if (this == org.kevoree.modeling.meta.KPrimitiveTypes.LONG) {
+                            return java.lang.Long.parseLong(payload);
+                        }
+                        if (this == org.kevoree.modeling.meta.KPrimitiveTypes.INT) {
+                            return java.lang.Integer.parseInt(payload);
+                        }
+                        if (this == org.kevoree.modeling.meta.KPrimitiveTypes.BOOL) {
+                            return java.lang.Boolean.parseBoolean(payload);
+                        }
+                        if (this == org.kevoree.modeling.meta.KPrimitiveTypes.SHORT) {
+                            return java.lang.Short.parseShort(payload);
+                        }
+                        if (this == org.kevoree.modeling.meta.KPrimitiveTypes.DOUBLE) {
+                            return java.lang.Double.parseDouble(payload);
+                        }
+                        if (this == org.kevoree.modeling.meta.KPrimitiveTypes.FLOAT) {
+                            return java.lang.Float.parseFloat(payload);
+                        }
+                        return null;
+                    };
+                    return AbstractDataType;
+                })();
+                abs.AbstractDataType = AbstractDataType;
                 var AbstractKModel = (function () {
                     function AbstractKModel() {
                         this._manager = new org.kevoree.modeling.memory.manager.impl.HeapMemoryManager(this);
@@ -1555,6 +1607,7 @@ var org;
                             }
                             if (encodedPolynomial[PolynomialExtrapolation.NUMSAMPLES] == 1) {
                                 encodedPolynomial[PolynomialExtrapolation.STEP] = time - raw.originTime();
+                                raw.setInferElem(index, PolynomialExtrapolation.STEP, encodedPolynomial[PolynomialExtrapolation.STEP], metaClass);
                             }
                             var deg = encodedPolynomial.length - PolynomialExtrapolation.WEIGHTS - 1;
                             var num = encodedPolynomial[PolynomialExtrapolation.NUMSAMPLES];
@@ -1634,6 +1687,9 @@ var org;
                         };
                         PolynomialExtrapolation.prototype.mutate = function (current, attribute, payload) {
                             var raw = current.manager().segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.AccessMode.RESOLVE, current.metaClass());
+                            if (raw.getInfer(attribute.index(), current.metaClass()) == null) {
+                                raw = current.manager().segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.AccessMode.NEW, current.metaClass());
+                            }
                             if (!this.insert(current.now(), this.castNumber(payload), raw.originTime(), raw, attribute.index(), attribute.precision(), current.metaClass())) {
                                 var prevTime = raw.getInferElem(attribute.index(), PolynomialExtrapolation.LASTTIME, current.metaClass()) + raw.originTime();
                                 var val = this.extrapolateValue(raw.getInfer(attribute.index(), current.metaClass()), prevTime, raw.originTime());
@@ -7829,14 +7885,14 @@ var org;
                 var KPrimitiveTypes = (function () {
                     function KPrimitiveTypes() {
                     }
-                    KPrimitiveTypes.STRING = new org.kevoree.modeling.meta.impl.DataType("STRING", false);
-                    KPrimitiveTypes.LONG = new org.kevoree.modeling.meta.impl.DataType("LONG", false);
-                    KPrimitiveTypes.INT = new org.kevoree.modeling.meta.impl.DataType("INT", false);
-                    KPrimitiveTypes.BOOL = new org.kevoree.modeling.meta.impl.DataType("BOOL", false);
-                    KPrimitiveTypes.SHORT = new org.kevoree.modeling.meta.impl.DataType("SHORT", false);
-                    KPrimitiveTypes.DOUBLE = new org.kevoree.modeling.meta.impl.DataType("DOUBLE", false);
-                    KPrimitiveTypes.FLOAT = new org.kevoree.modeling.meta.impl.DataType("FLOAT", false);
-                    KPrimitiveTypes.TRANSIENT = new org.kevoree.modeling.meta.impl.DataType("TRANSIENT", false);
+                    KPrimitiveTypes.STRING = new org.kevoree.modeling.abs.AbstractDataType("STRING", false);
+                    KPrimitiveTypes.LONG = new org.kevoree.modeling.abs.AbstractDataType("LONG", false);
+                    KPrimitiveTypes.INT = new org.kevoree.modeling.abs.AbstractDataType("INT", false);
+                    KPrimitiveTypes.BOOL = new org.kevoree.modeling.abs.AbstractDataType("BOOL", false);
+                    KPrimitiveTypes.SHORT = new org.kevoree.modeling.abs.AbstractDataType("SHORT", false);
+                    KPrimitiveTypes.DOUBLE = new org.kevoree.modeling.abs.AbstractDataType("DOUBLE", false);
+                    KPrimitiveTypes.FLOAT = new org.kevoree.modeling.abs.AbstractDataType("FLOAT", false);
+                    KPrimitiveTypes.TRANSIENT = new org.kevoree.modeling.abs.AbstractDataType("TRANSIENT", false);
                     return KPrimitiveTypes;
                 })();
                 meta.KPrimitiveTypes = KPrimitiveTypes;
@@ -7866,58 +7922,51 @@ var org;
                 meta.MetaType = MetaType;
                 var impl;
                 (function (impl) {
-                    var DataType = (function () {
-                        function DataType(p_name, p_isEnum) {
-                            this._name = p_name;
-                            this._isEnum = p_isEnum;
+                    var GenericModel = (function (_super) {
+                        __extends(GenericModel, _super);
+                        function GenericModel(mm) {
+                            _super.call(this);
+                            this._p_metaModel = mm;
                         }
-                        DataType.prototype.name = function () {
-                            return this._name;
+                        GenericModel.prototype.metaModel = function () {
+                            return this._p_metaModel;
                         };
-                        DataType.prototype.isEnum = function () {
-                            return this._isEnum;
+                        GenericModel.prototype.internalCreateUniverse = function (universe) {
+                            return new org.kevoree.modeling.meta.impl.GenericUniverse(universe, this._manager);
                         };
-                        DataType.prototype.save = function (src) {
-                            if (src != null && this != org.kevoree.modeling.meta.KPrimitiveTypes.TRANSIENT) {
-                                if (this == org.kevoree.modeling.meta.KPrimitiveTypes.STRING) {
-                                    return org.kevoree.modeling.format.json.JsonString.encode(src.toString());
-                                }
-                                else {
-                                    return src.toString();
-                                }
-                            }
-                            return null;
+                        GenericModel.prototype.internalCreateObject = function (universe, time, uuid, clazz) {
+                            return new org.kevoree.modeling.meta.impl.GenericObject(universe, time, uuid, clazz, this._manager);
                         };
-                        DataType.prototype.load = function (payload) {
-                            if (this == org.kevoree.modeling.meta.KPrimitiveTypes.TRANSIENT) {
-                                return null;
-                            }
-                            if (this == org.kevoree.modeling.meta.KPrimitiveTypes.STRING) {
-                                return org.kevoree.modeling.format.json.JsonString.unescape(payload);
-                            }
-                            if (this == org.kevoree.modeling.meta.KPrimitiveTypes.LONG) {
-                                return java.lang.Long.parseLong(payload);
-                            }
-                            if (this == org.kevoree.modeling.meta.KPrimitiveTypes.INT) {
-                                return java.lang.Integer.parseInt(payload);
-                            }
-                            if (this == org.kevoree.modeling.meta.KPrimitiveTypes.BOOL) {
-                                return java.lang.Boolean.parseBoolean(payload);
-                            }
-                            if (this == org.kevoree.modeling.meta.KPrimitiveTypes.SHORT) {
-                                return java.lang.Short.parseShort(payload);
-                            }
-                            if (this == org.kevoree.modeling.meta.KPrimitiveTypes.DOUBLE) {
-                                return java.lang.Double.parseDouble(payload);
-                            }
-                            if (this == org.kevoree.modeling.meta.KPrimitiveTypes.FLOAT) {
-                                return java.lang.Float.parseFloat(payload);
-                            }
-                            return null;
+                        return GenericModel;
+                    })(org.kevoree.modeling.abs.AbstractKModel);
+                    impl.GenericModel = GenericModel;
+                    var GenericObject = (function (_super) {
+                        __extends(GenericObject, _super);
+                        function GenericObject(p_universe, p_time, p_uuid, p_metaClass, p_manager) {
+                            _super.call(this, p_universe, p_time, p_uuid, p_metaClass, p_manager);
+                        }
+                        return GenericObject;
+                    })(org.kevoree.modeling.abs.AbstractKObject);
+                    impl.GenericObject = GenericObject;
+                    var GenericUniverse = (function (_super) {
+                        __extends(GenericUniverse, _super);
+                        function GenericUniverse(p_key, p_manager) {
+                            _super.call(this, p_key, p_manager);
+                        }
+                        GenericUniverse.prototype.internal_create = function (timePoint) {
+                            return new org.kevoree.modeling.meta.impl.GenericView(this._universe, timePoint, this._manager);
                         };
-                        return DataType;
-                    })();
-                    impl.DataType = DataType;
+                        return GenericUniverse;
+                    })(org.kevoree.modeling.abs.AbstractKUniverse);
+                    impl.GenericUniverse = GenericUniverse;
+                    var GenericView = (function (_super) {
+                        __extends(GenericView, _super);
+                        function GenericView(p_universe, _time, p_manager) {
+                            _super.call(this, p_universe, _time, p_manager);
+                        }
+                        return GenericView;
+                    })(org.kevoree.modeling.abs.AbstractKView);
+                    impl.GenericView = GenericView;
                     var MetaAttribute = (function () {
                         function MetaAttribute(p_name, p_index, p_precision, p_key, p_metaType, p_extrapolation) {
                             this._name = p_name;
@@ -8025,11 +8074,7 @@ var org;
                                 precisionCleaned = p_precision;
                             }
                             var tempAttribute = new org.kevoree.modeling.meta.impl.MetaAttribute(attributeName, this._meta.length, precisionCleaned, false, p_type, extrapolation);
-                            this._indexes.put(attributeName, tempAttribute.index());
-                            var incArray = new Array();
-                            System.arraycopy(this._meta, 0, incArray, 0, this._meta.length);
-                            incArray[this._meta.length] = tempAttribute;
-                            this._meta = incArray;
+                            this.internal_add_meta(tempAttribute);
                             return tempAttribute;
                         };
                         MetaClass.prototype.addReference = function (referenceName, p_metaClass, oppositeName, toMany) {
@@ -8047,11 +8092,7 @@ var org;
                             }, opName, function () {
                                 return tempOrigin;
                             });
-                            var incArray = new Array();
-                            System.arraycopy(this._meta, 0, incArray, 0, this._meta.length);
-                            incArray[this._meta.length] = tempReference;
-                            this._meta = incArray;
-                            this._indexes.put(referenceName, tempReference.index());
+                            this.internal_add_meta(tempReference);
                             return tempReference;
                         };
                         MetaClass.prototype.getOrCreate = function (p_name, p_oppositeName, p_oppositeClass, p_visible, p_single) {
@@ -8065,11 +8106,7 @@ var org;
                             }, p_oppositeName, function () {
                                 return tempOrigin;
                             });
-                            var incArray = new Array();
-                            System.arraycopy(this._meta, 0, incArray, 0, this._meta.length);
-                            incArray[this._meta.length] = tempReference;
-                            this._meta = incArray;
-                            this._indexes.put(tempReference.metaName(), tempReference.index());
+                            this.internal_add_meta(tempReference);
                             return tempReference;
                         };
                         MetaClass.prototype.addOperation = function (operationName) {
@@ -8077,12 +8114,12 @@ var org;
                             var tempOperation = new org.kevoree.modeling.meta.impl.MetaOperation(operationName, this._meta.length + 1, function () {
                                 return tempOrigin;
                             });
-                            var incArray = new Array();
-                            System.arraycopy(this._meta, 0, incArray, 0, this._meta.length);
-                            incArray[this._meta.length] = tempOperation;
-                            this._meta = incArray;
-                            this._indexes.put(operationName, tempOperation.index());
+                            this.internal_add_meta(tempOperation);
                             return tempOperation;
+                        };
+                        MetaClass.prototype.internal_add_meta = function (p_new_meta) {
+                            this._meta[p_new_meta.index()] = p_new_meta;
+                            this._indexes.put(p_new_meta.metaName(), p_new_meta.index());
                         };
                         return MetaClass;
                     })();
@@ -8144,26 +8181,17 @@ var org;
                                 }
                                 else {
                                     var newMetaClass = new org.kevoree.modeling.meta.impl.MetaClass(metaClassName, this._metaClasses.length);
-                                    this._metaClasses_indexes.put(metaClassName, newMetaClass.index());
-                                    var incArray = new Array();
-                                    System.arraycopy(this._metaClasses, 0, incArray, 0, this._metaClasses.length);
-                                    incArray[this._metaClasses.length] = newMetaClass;
-                                    this._metaClasses = incArray;
+                                    this.interal_add_meta_class(newMetaClass);
                                     return newMetaClass;
                                 }
                             }
                         };
+                        MetaModel.prototype.interal_add_meta_class = function (p_newMetaClass) {
+                            this._metaClasses[p_newMetaClass.index()] = p_newMetaClass;
+                            this._metaClasses_indexes.put(p_newMetaClass.metaName(), p_newMetaClass.index());
+                        };
                         MetaModel.prototype.model = function () {
-                            var selfPointer = this;
-                            return { metaModel: function () {
-                                return selfPointer;
-                            }, internalCreateUniverse: function (universe) {
-                                return { internal_create: function (timePoint) {
-                                    return {};
-                                } };
-                            }, internalCreateObject: function (universe, time, uuid, clazz) {
-                                return {};
-                            } };
+                            return new org.kevoree.modeling.meta.impl.GenericModel(this);
                         };
                         return MetaModel;
                     })();

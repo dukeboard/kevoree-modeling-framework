@@ -2,7 +2,6 @@ package org.kevoree.modeling.microframework.test.cloud;
 
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.abs.AbstractKModel;
-import org.kevoree.modeling.abs.AbstractKObject;
 import org.kevoree.modeling.meta.impl.MetaModel;
 import org.kevoree.modeling.meta.KMetaClass;
 import org.kevoree.modeling.meta.KMetaModel;
@@ -43,8 +42,7 @@ public class CloudModel extends AbstractKModel<CloudUniverse> {
             case 1:
                 return new ElementImpl(universe, time, uuid, clazz, _manager);
             default:
-                return new AbstractKObject(universe, time, uuid, clazz, _manager) {
-                };
+                return new org.kevoree.modeling.meta.impl.GenericObject(universe, time, uuid, clazz, _manager);
         }
     }
 

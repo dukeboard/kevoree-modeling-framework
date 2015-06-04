@@ -109,11 +109,7 @@ public class MetaClass implements KMetaClass {
             precisionCleaned = p_precision;
         }
         KMetaAttribute tempAttribute = new MetaAttribute(attributeName, _meta.length, precisionCleaned, false, p_type, extrapolation);
-        _indexes.put(attributeName, tempAttribute.index());
-        KMeta[] incArray = new KMeta[_meta.length + 1];
-        System.arraycopy(_meta, 0, incArray, 0, _meta.length);
-        incArray[_meta.length] = tempAttribute;
-        _meta = incArray;
+        internal_add_meta(tempAttribute);
         return tempAttribute;
     }
 
@@ -138,16 +134,12 @@ public class MetaClass implements KMetaClass {
                 return tempOrigin;
             }
         });
-        KMeta[] incArray = new KMeta[_meta.length + 1];
-        System.arraycopy(_meta, 0, incArray, 0, _meta.length);
-        incArray[_meta.length] = tempReference;
-        _meta = incArray;
-        _indexes.put(referenceName, tempReference.index());
+        internal_add_meta(tempReference);
         return tempReference;
     }
 
     private KMetaReference getOrCreate(String p_name, String p_oppositeName, KMetaClass p_oppositeClass, boolean p_visible, boolean p_single) {
-        KMetaReference previous = (KMetaReference) reference(p_name);
+        KMetaReference previous = reference(p_name);
         if (previous != null) {
             return previous;
         }
@@ -163,11 +155,7 @@ public class MetaClass implements KMetaClass {
                 return tempOrigin;
             }
         });
-        KMeta[] incArray = new KMeta[_meta.length + 1];
-        System.arraycopy(_meta, 0, incArray, 0, _meta.length);
-        incArray[_meta.length] = tempReference;
-        _meta = incArray;
-        _indexes.put(tempReference.metaName(), tempReference.index());
+        internal_add_meta(tempReference);
         return tempReference;
     }
 
@@ -180,12 +168,21 @@ public class MetaClass implements KMetaClass {
                 return tempOrigin;
             }
         });
+        internal_add_meta(tempOperation);
+        return tempOperation;
+    }
+
+    /**
+     * @native ts
+     * this._meta[p_new_meta.index()] = p_new_meta;
+     * this._indexes.put(p_new_meta.metaName(), p_new_meta.index());
+     */
+    private void internal_add_meta(KMeta p_new_meta) {
         KMeta[] incArray = new KMeta[_meta.length + 1];
         System.arraycopy(_meta, 0, incArray, 0, _meta.length);
-        incArray[_meta.length] = tempOperation;
+        incArray[_meta.length] = p_new_meta;
         _meta = incArray;
-        _indexes.put(operationName, tempOperation.index());
-        return tempOperation;
+        _indexes.put(p_new_meta.metaName(), p_new_meta.index());
     }
 
 }

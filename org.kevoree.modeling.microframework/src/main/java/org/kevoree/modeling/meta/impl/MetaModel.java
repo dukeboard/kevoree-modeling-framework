@@ -87,43 +87,28 @@ public class MetaModel implements KMetaModel {
                 return _metaClasses[0];
             } else {
                 KMetaClass newMetaClass = new MetaClass(metaClassName, _metaClasses.length);
-                _metaClasses_indexes.put(metaClassName, newMetaClass.index());
-                //extends the array and add into
-                KMetaClass[] incArray = new KMetaClass[_metaClasses.length + 1];
-                System.arraycopy(_metaClasses, 0, incArray, 0, _metaClasses.length);
-                incArray[_metaClasses.length] = newMetaClass;
-                _metaClasses = incArray;
+                interal_add_meta_class(newMetaClass);
                 return newMetaClass;
             }
         }
     }
 
+    /**
+     * @native ts
+     * this._metaClasses[p_newMetaClass.index()] = p_newMetaClass;
+     * this._metaClasses_indexes.put(p_newMetaClass.metaName(), p_newMetaClass.index());
+     */
+    private void interal_add_meta_class(KMetaClass p_newMetaClass) {
+        KMetaClass[] incArray = new KMetaClass[_metaClasses.length + 1];
+        System.arraycopy(_metaClasses, 0, incArray, 0, _metaClasses.length);
+        incArray[_metaClasses.length] = p_newMetaClass;
+        _metaClasses = incArray;
+        _metaClasses_indexes.put(p_newMetaClass.metaName(), p_newMetaClass.index());
+    }
+
     @Override
     public KModel model() {
-        final KMetaModel selfPointer = this;
-        return new AbstractKModel() {
-            @Override
-            public KMetaModel metaModel() {
-                return selfPointer;
-            }
-
-            @Override
-            protected KUniverse internalCreateUniverse(long universe) {
-                return new AbstractKUniverse(universe, _manager) {
-                    @Override
-                    protected KView internal_create(long timePoint) {
-                        return new AbstractKView(universe, timePoint, _manager) {
-                        };
-                    }
-                };
-            }
-
-            @Override
-            protected KObject internalCreateObject(long universe, long time, long uuid, KMetaClass clazz) {
-                return new AbstractKObject(universe, time, uuid, clazz, _manager) {
-                };
-            }
-        };
+        return new GenericModel(this);
     }
 
 }
