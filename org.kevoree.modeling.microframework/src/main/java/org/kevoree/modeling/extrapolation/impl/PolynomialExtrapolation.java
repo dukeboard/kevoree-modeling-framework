@@ -9,7 +9,6 @@ import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 import org.kevoree.modeling.meta.KMetaAttribute;
 import org.kevoree.modeling.meta.KMetaClass;
 import org.kevoree.modeling.meta.KPrimitiveTypes;
-import org.kevoree.modeling.meta.impl.MetaClass;
 
 public class PolynomialExtrapolation implements Extrapolation {
 
