@@ -118,7 +118,8 @@ public class PolynomialKMFTest {
                 @Override
                 public void on(KObject element) {
                     nbAssert[0]++;
-                    boolean t = ( ((Element)element).getValue() - val[finalI]) < 5;
+                    double valss=((Element)element).getValue();
+                    boolean t = Math.abs(valss - val[finalI]) < 5;
                            /* if(t==false){
                                 System.out.println(finalI+" , "+element.getValue() +" , "+ val[finalI]);
                             }*/

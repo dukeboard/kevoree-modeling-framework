@@ -85,6 +85,7 @@ public class PolynomialExtrapolation implements Extrapolation {
         //Set the step
         if (encodedPolynomial[NUMSAMPLES] == 1) {
             encodedPolynomial[STEP] = time - raw.originTime();
+            raw.setInferElem(index,STEP,encodedPolynomial[STEP],metaClass);
         }
 
 
@@ -166,6 +167,7 @@ public class PolynomialExtrapolation implements Extrapolation {
 
     private void initial_feed(long time, double value, KMemorySegment raw, int index, KMetaClass metaClass) {
         //Create initial array of the constant elements + 1 for weights.
+
         raw.extendInfer(index, WEIGHTS + 1, metaClass); //Create N constants and 1 for the weights
         raw.setInferElem(index, DEGREE, 0, metaClass); //polynomial degree of 0
         raw.setInferElem(index, NUMSAMPLES, 1, metaClass); //contains 1 sample
@@ -178,6 +180,9 @@ public class PolynomialExtrapolation implements Extrapolation {
     @Override
     public void mutate(KObject current, KMetaAttribute attribute, Object payload) {
         KMemorySegment raw = current.manager().segment(current.universe(), current.now(), current.uuid(), AccessMode.RESOLVE, current.metaClass());
+        if(raw.getInfer(attribute.index(),current.metaClass())==null){
+           raw = current.manager().segment(current.universe(), current.now(), current.uuid(), AccessMode.NEW, current.metaClass());
+        }
         if (!insert(current.now(), castNumber(payload), raw.originTime(), raw, attribute.index(), attribute.precision(), current.metaClass())) {
             long prevTime = (long) raw.getInferElem(attribute.index(), LASTTIME, current.metaClass()) + raw.originTime();
             double val = extrapolateValue(raw.getInfer(attribute.index(), current.metaClass()), prevTime, raw.originTime());
