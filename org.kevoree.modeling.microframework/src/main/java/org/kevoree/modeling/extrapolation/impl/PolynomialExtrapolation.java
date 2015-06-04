@@ -165,7 +165,7 @@ public class PolynomialExtrapolation implements Extrapolation {
         return result;
     }
 
-    private void initial_feed(long time, double value, KMemorySegment raw, int index, MetaClass metaClass) {
+    private void initial_feed(long time, double value, KMemorySegment raw, int index, KMetaClass metaClass) {
         //Create initial array of the constant elements + 1 for weights.
         raw.extendInfer(index, WEIGHTS + 1, metaClass); //Create N constants and 1 for the weights
         raw.setInferElem(index, DEGREE, 0, metaClass); //polynomial degree of 0
