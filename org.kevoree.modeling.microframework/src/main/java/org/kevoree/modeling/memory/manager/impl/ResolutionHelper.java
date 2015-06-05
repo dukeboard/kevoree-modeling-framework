@@ -2,6 +2,7 @@ package org.kevoree.modeling.memory.manager.impl;
 
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.memory.cache.KCache;
+import org.kevoree.modeling.memory.struct.map.KLongLongHashMap;
 import org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment;
 import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap;
 import org.kevoree.modeling.memory.struct.tree.KLongTree;
@@ -25,7 +26,7 @@ public class ResolutionHelper {
         return result;
     }
 
-    public static long resolve_universe(ArrayLongLongHashMap globalTree, ArrayLongLongHashMap objUniverseTree, long timeToResolve, long originUniverseId) {
+    public static long resolve_universe(KLongLongHashMap globalTree, KLongLongHashMap objUniverseTree, long timeToResolve, long originUniverseId) {
         if (globalTree == null || objUniverseTree == null) {
             return originUniverseId;
         }
@@ -45,7 +46,7 @@ public class ResolutionHelper {
         return originUniverseId;
     }
 
-    public static long[] universeSelectByRange(ArrayLongLongHashMap globalTree, ArrayLongLongHashMap objUniverseTree, long rangeMin, long rangeMax, long originUniverseId) {
+    public static long[] universeSelectByRange(KLongLongHashMap globalTree, KLongLongHashMap objUniverseTree, long rangeMin, long rangeMax, long originUniverseId) {
         ArrayLongLongHashMap collected = new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         long currentUniverse = originUniverseId;
         long previousUniverse = KConfig.NULL_LONG;

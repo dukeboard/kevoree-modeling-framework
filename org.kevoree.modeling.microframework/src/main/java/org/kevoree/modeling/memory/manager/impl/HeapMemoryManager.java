@@ -313,10 +313,13 @@ public class HeapMemoryManager implements KMemoryManager {
     public KMemorySegment segment(long universe, long time, long uuid, AccessMode accessMode, KMetaClass metaClass, KMemorySegmentResolutionTrace resolutionTrace) {
         HeapMemorySegment currentEntry = (HeapMemorySegment) _cache.get(universe, time, uuid);
         if (currentEntry != null) {
-
-
-            
-
+            if (resolutionTrace != null) {
+                resolutionTrace.setSegment(currentEntry);
+                resolutionTrace.setUniverse(universe);
+                resolutionTrace.setTime(time);
+                resolutionTrace.setUniverseTree((ArrayLongLongHashMap) _cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, uuid));
+                resolutionTrace.setTimeTree((KLongTree) _cache.get(universe, KConfig.NULL_LONG, uuid));
+            }
             return currentEntry;
         }
         ArrayLongLongHashMap objectUniverseTree = (ArrayLongLongHashMap) _cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, uuid);
@@ -326,6 +329,12 @@ public class HeapMemoryManager implements KMemoryManager {
             throw new RuntimeException(OUT_OF_CACHE_MESSAGE + " : TimeTree not found for " + KContentKey.createTimeTree(resolvedUniverse, uuid) + " from " + universe + "/" + resolvedUniverse);
         }
         long resolvedTime = timeTree.previousOrEqual(time);
+        if (resolutionTrace != null) {
+            resolutionTrace.setUniverse(resolvedUniverse);
+            resolutionTrace.setTime(resolvedTime);
+            resolutionTrace.setUniverseTree(objectUniverseTree);
+            resolutionTrace.setTimeTree(timeTree);
+        }
         if (resolvedTime != KConfig.NULL_LONG) {
             boolean needTimeCopy = accessMode.equals(AccessMode.NEW) && (resolvedTime != time);
             boolean needUniverseCopy = accessMode.equals(AccessMode.NEW) && (resolvedUniverse != universe);
@@ -335,11 +344,17 @@ public class HeapMemoryManager implements KMemoryManager {
             }
             if (accessMode.equals(AccessMode.DELETE)) {
                 timeTree.delete(time);
+                if (resolutionTrace != null) {
+                    resolutionTrace.setSegment(entry);
+                }
                 return entry;
             }
             if (!needTimeCopy && !needUniverseCopy) {
                 if (accessMode.equals(AccessMode.NEW)) {
                     entry.setDirty();
+                }
+                if (resolutionTrace != null) {
+                    resolutionTrace.setSegment(entry);
                 }
                 return entry;
             } else {
@@ -357,6 +372,9 @@ public class HeapMemoryManager implements KMemoryManager {
                 }
                 entry.dec();
                 clonedEntry.inc();
+                if (resolutionTrace != null) {
+                    resolutionTrace.setSegment(clonedEntry);
+                }
                 return clonedEntry;
             }
         } else {
