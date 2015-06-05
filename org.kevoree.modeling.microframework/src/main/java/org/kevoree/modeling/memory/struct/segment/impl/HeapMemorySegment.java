@@ -229,7 +229,7 @@ public class HeapMemorySegment implements KMemorySegment {
     @Override
     public void setInferElem(int index, int arrayIndex, double valueToInsert, KMetaClass metaClass) {
         double[] res = getInfer(index, metaClass);
-        if (res != null && arrayIndex > 0 && arrayIndex < res.length) {
+        if (res != null && arrayIndex >= 0 && arrayIndex < res.length) {
             res[arrayIndex] = valueToInsert;
         }
     }

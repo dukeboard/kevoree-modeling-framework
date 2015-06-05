@@ -55,7 +55,7 @@ public class PolynomialExtrapolation implements Extrapolation {
             return encodedPolynomial[WEIGHTS];
         }
         double t = (time - timeOrigin) / encodedPolynomial[STEP];
-        for (int j = 0; j < encodedPolynomial[DEGREE]; j++) {
+        for (int j = 0; j <= encodedPolynomial[DEGREE]; j++) {
             result += encodedPolynomial[j + WEIGHTS] * power;
             power = power * t;
         }
@@ -100,7 +100,7 @@ public class PolynomialExtrapolation implements Extrapolation {
             return true;
         }
         //If not, first check if we can increase the degree
-        int newMaxDegree = Math.min(num - 1, _maxDegree);
+        int newMaxDegree = Math.min(num, _maxDegree);
         if (deg < newMaxDegree) {
             deg++;
             int ss = Math.min(deg * 2, num);
@@ -158,7 +158,7 @@ public class PolynomialExtrapolation implements Extrapolation {
         if (encodedPolynomial[STEP] == 0) {
             return encodedPolynomial[WEIGHTS];
         }
-        for (int j = 0; j < encodedPolynomial[DEGREE]; j++) {
+        for (int j = 0; j <= encodedPolynomial[DEGREE]; j++) {
             result += encodedPolynomial[j + WEIGHTS] * power;
             power = power * t;
         }
