@@ -1926,7 +1926,7 @@ module org {
                                 return encodedPolynomial[PolynomialExtrapolation.WEIGHTS];
                             }
                             var t: number = (time - timeOrigin) / encodedPolynomial[PolynomialExtrapolation.STEP];
-                            for (var j: number = 0; j < encodedPolynomial[PolynomialExtrapolation.DEGREE]; j++) {
+                            for (var j: number = 0; j <= encodedPolynomial[PolynomialExtrapolation.DEGREE]; j++) {
                                 result += encodedPolynomial[j + PolynomialExtrapolation.WEIGHTS] * power;
                                 power = power * t;
                             }
@@ -1957,14 +1957,14 @@ module org {
                                 raw.setInferElem(index, PolynomialExtrapolation.LASTTIME, time - timeOrigin, metaClass);
                                 return true;
                             }
-                            var newMaxDegree: number = Math.min(num - 1, PolynomialExtrapolation._maxDegree);
+                            var newMaxDegree: number = Math.min(num, PolynomialExtrapolation._maxDegree);
                             if (deg < newMaxDegree) {
                                 deg++;
                                 var ss: number = Math.min(deg * 2, num);
                                 var times: number[] = new Array();
                                 var values: number[] = new Array();
                                 for (var i: number = 0; i < ss; i++) {
-                                    times[i] = (i * num * (encodedPolynomial[PolynomialExtrapolation.LASTTIME] - timeOrigin) / (ss * encodedPolynomial[PolynomialExtrapolation.STEP]));
+                                    times[i] = (<number>i * num * (encodedPolynomial[PolynomialExtrapolation.LASTTIME]) / (ss * encodedPolynomial[PolynomialExtrapolation.STEP]));
                                     values[i] = this.internal_extrapolate(times[i], encodedPolynomial);
                                 }
                                 times[ss] = (time - timeOrigin) / encodedPolynomial[PolynomialExtrapolation.STEP];
@@ -2014,7 +2014,7 @@ module org {
                             if (encodedPolynomial[PolynomialExtrapolation.STEP] == 0) {
                                 return encodedPolynomial[PolynomialExtrapolation.WEIGHTS];
                             }
-                            for (var j: number = 0; j < encodedPolynomial[PolynomialExtrapolation.DEGREE]; j++) {
+                            for (var j: number = 0; j <= encodedPolynomial[PolynomialExtrapolation.DEGREE]; j++) {
                                 result += encodedPolynomial[j + PolynomialExtrapolation.WEIGHTS] * power;
                                 power = power * t;
                             }
@@ -6301,7 +6301,7 @@ module org {
 
                                 public setInferElem(index: number, arrayIndex: number, valueToInsert: number, metaClass: org.kevoree.modeling.meta.KMetaClass): void {
                                     var res: number[] = this.getInfer(index, metaClass);
-                                    if (res != null && arrayIndex > 0 && arrayIndex < res.length) {
+                                    if (res != null && arrayIndex >= 0 && arrayIndex < res.length) {
                                         res[arrayIndex] = valueToInsert;
                                     }
                                 }

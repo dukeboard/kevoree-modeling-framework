@@ -1588,7 +1588,7 @@ var org;
                                 return encodedPolynomial[PolynomialExtrapolation.WEIGHTS];
                             }
                             var t = (time - timeOrigin) / encodedPolynomial[PolynomialExtrapolation.STEP];
-                            for (var j = 0; j < encodedPolynomial[PolynomialExtrapolation.DEGREE]; j++) {
+                            for (var j = 0; j <= encodedPolynomial[PolynomialExtrapolation.DEGREE]; j++) {
                                 result += encodedPolynomial[j + PolynomialExtrapolation.WEIGHTS] * power;
                                 power = power * t;
                             }
@@ -1617,14 +1617,14 @@ var org;
                                 raw.setInferElem(index, PolynomialExtrapolation.LASTTIME, time - timeOrigin, metaClass);
                                 return true;
                             }
-                            var newMaxDegree = Math.min(num - 1, PolynomialExtrapolation._maxDegree);
+                            var newMaxDegree = Math.min(num, PolynomialExtrapolation._maxDegree);
                             if (deg < newMaxDegree) {
                                 deg++;
                                 var ss = Math.min(deg * 2, num);
                                 var times = new Array();
                                 var values = new Array();
                                 for (var i = 0; i < ss; i++) {
-                                    times[i] = (i * num * (encodedPolynomial[PolynomialExtrapolation.LASTTIME] - timeOrigin) / (ss * encodedPolynomial[PolynomialExtrapolation.STEP]));
+                                    times[i] = (i * num * (encodedPolynomial[PolynomialExtrapolation.LASTTIME]) / (ss * encodedPolynomial[PolynomialExtrapolation.STEP]));
                                     values[i] = this.internal_extrapolate(times[i], encodedPolynomial);
                                 }
                                 times[ss] = (time - timeOrigin) / encodedPolynomial[PolynomialExtrapolation.STEP];
@@ -1671,7 +1671,7 @@ var org;
                             if (encodedPolynomial[PolynomialExtrapolation.STEP] == 0) {
                                 return encodedPolynomial[PolynomialExtrapolation.WEIGHTS];
                             }
-                            for (var j = 0; j < encodedPolynomial[PolynomialExtrapolation.DEGREE]; j++) {
+                            for (var j = 0; j <= encodedPolynomial[PolynomialExtrapolation.DEGREE]; j++) {
                                 result += encodedPolynomial[j + PolynomialExtrapolation.WEIGHTS] * power;
                                 power = power * t;
                             }
@@ -5677,7 +5677,7 @@ var org;
                                 };
                                 HeapMemorySegment.prototype.setInferElem = function (index, arrayIndex, valueToInsert, metaClass) {
                                     var res = this.getInfer(index, metaClass);
-                                    if (res != null && arrayIndex > 0 && arrayIndex < res.length) {
+                                    if (res != null && arrayIndex >= 0 && arrayIndex < res.length) {
                                         res[arrayIndex] = valueToInsert;
                                     }
                                 };

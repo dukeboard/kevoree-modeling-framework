@@ -5,6 +5,8 @@ import org.kevoree.modeling.abs.AbstractKObject;
 import org.kevoree.modeling.extrapolation.Extrapolation;
 import org.kevoree.modeling.extrapolation.impl.maths.PolynomialFitEjml;
 import org.kevoree.modeling.memory.manager.AccessMode;
+import org.kevoree.modeling.memory.manager.KMemorySegmentResolutionTrace;
+import org.kevoree.modeling.memory.manager.impl.MemorySegmentResolutionTrace;
 import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 import org.kevoree.modeling.meta.KMetaAttribute;
 import org.kevoree.modeling.meta.KMetaClass;
@@ -16,9 +18,10 @@ public class PolynomialExtrapolation implements Extrapolation {
 
     @Override
     public Object extrapolate(KObject current, KMetaAttribute attribute) {
-        KMemorySegment raw = ((AbstractKObject) current)._manager.segment(current.universe(), current.now(), current.uuid(), AccessMode.RESOLVE, current.metaClass(), null);
+        KMemorySegmentResolutionTrace trace = new MemorySegmentResolutionTrace();
+        KMemorySegment raw = ((AbstractKObject) current)._manager.segment(current.universe(), current.now(), current.uuid(), AccessMode.RESOLVE, current.metaClass(), trace);
         if (raw != null) {
-            Double extrapolatedValue = extrapolateValue(raw.getInfer(attribute.index(), current.metaClass()), current.now(), raw.originTime());
+            Double extrapolatedValue = extrapolateValue(raw.getInfer(attribute.index(), current.metaClass()), current.now(), trace.getTime());
             if (attribute.attributeType() == KPrimitiveTypes.DOUBLE) {
                 return extrapolatedValue;
             } else if (attribute.attributeType() == KPrimitiveTypes.LONG) {
@@ -84,7 +87,7 @@ public class PolynomialExtrapolation implements Extrapolation {
 
         //Set the step
         if (encodedPolynomial[NUMSAMPLES] == 1) {
-            encodedPolynomial[STEP] = time - raw.originTime();
+            encodedPolynomial[STEP] = time - timeOrigin;
             raw.setInferElem(index,STEP,encodedPolynomial[STEP],metaClass);
         }
 
@@ -179,16 +182,17 @@ public class PolynomialExtrapolation implements Extrapolation {
 
     @Override
     public void mutate(KObject current, KMetaAttribute attribute, Object payload) {
-        KMemorySegment raw = current.manager().segment(current.universe(), current.now(), current.uuid(), AccessMode.RESOLVE, current.metaClass(), null);
+        KMemorySegmentResolutionTrace trace = new MemorySegmentResolutionTrace();
+        KMemorySegment raw = current.manager().segment(current.universe(), current.now(), current.uuid(), AccessMode.RESOLVE, current.metaClass(), trace);
         if(raw.getInfer(attribute.index(),current.metaClass())==null){
            raw = current.manager().segment(current.universe(), current.now(), current.uuid(), AccessMode.NEW, current.metaClass(), null);
         }
-        if (!insert(current.now(), castNumber(payload), raw.originTime(), raw, attribute.index(), attribute.precision(), current.metaClass())) {
-            long prevTime = (long) raw.getInferElem(attribute.index(), LASTTIME, current.metaClass()) + raw.originTime();
-            double val = extrapolateValue(raw.getInfer(attribute.index(), current.metaClass()), prevTime, raw.originTime());
+        if (!insert(current.now(), castNumber(payload), trace.getTime(), raw, attribute.index(), attribute.precision(), current.metaClass())) {
+            long prevTime = (long) raw.getInferElem(attribute.index(), LASTTIME, current.metaClass()) + trace.getTime();
+            double val = extrapolateValue(raw.getInfer(attribute.index(), current.metaClass()), prevTime, trace.getTime());
             KMemorySegment newSegment = current.manager().segment(current.universe(), prevTime, current.uuid(), AccessMode.NEW, current.metaClass(), null);
             insert(prevTime, val, prevTime, newSegment, attribute.index(), attribute.precision(), current.metaClass());
-            insert(current.now(), castNumber(payload), newSegment.originTime(), newSegment, attribute.index(), attribute.precision(), current.metaClass());
+            insert(current.now(), castNumber(payload), prevTime, newSegment, attribute.index(), attribute.precision(), current.metaClass());
         }
     }
 
