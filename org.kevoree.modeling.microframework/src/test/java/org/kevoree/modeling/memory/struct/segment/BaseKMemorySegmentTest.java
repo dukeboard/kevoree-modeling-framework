@@ -19,7 +19,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-public abstract class BaseMemorySegmentTest {
+public abstract class BaseKMemorySegmentTest {
 
     public abstract KMemorySegment createMemorySegment();
 
