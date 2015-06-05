@@ -36,6 +36,4 @@ public interface KMemorySegment extends KMemoryElement {
 
     int metaClassIndex();
 
-    long originTime();
-
 }

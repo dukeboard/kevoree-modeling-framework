@@ -7,7 +7,7 @@ import org.kevoree.modeling.memory.KMemoryElement;
 import org.kevoree.modeling.KContentKey;
 import org.kevoree.modeling.memory.cache.KCache;
 import org.kevoree.modeling.memory.manager.impl.ResolutionHelper;
-import org.kevoree.modeling.memory.manager.impl.ResolutionResult;
+import org.kevoree.modeling.memory.manager.impl.MemorySegmentResolutionTrace;
 import org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment;
 import org.kevoree.modeling.meta.KMetaModel;
 
@@ -205,18 +205,18 @@ public class HashMemoryCache implements KCache {
                     HeapMemorySegment currentEntry = (HeapMemorySegment) this.get(current.universe, current.time, current.uuid);
                     if (currentEntry == null || !currentEntry.isDirty()) {
                         //call the clean sub process for universe/time/uuid
-                        ResolutionResult resolved = ResolutionHelper.resolve_trees(current.universe, current.time, current.uuid, this);
-                        resolved.universeTree.dec();
-                        if (resolved.universeTree.counter() <= 0) {
-                            remove(KConfig.NULL_LONG, KConfig.NULL_LONG, resolved.uuid, p_metaModel);
+                        MemorySegmentResolutionTrace resolved = ResolutionHelper.resolve_trees(current.universe, current.time, current.uuid, this);
+                        resolved.getUniverseTree().dec();
+                        if (resolved.getUniverseTree().counter() <= 0) {
+                            remove(KConfig.NULL_LONG, KConfig.NULL_LONG, current.uuid, p_metaModel);
                         }
-                        resolved.timeTree.dec();
-                        if (resolved.timeTree.counter() <= 0) {
-                            remove(resolved.universe, KConfig.NULL_LONG, resolved.uuid, p_metaModel);
+                        resolved.getTimeTree().dec();
+                        if (resolved.getTimeTree().counter() <= 0) {
+                            remove(resolved.getUniverse(), KConfig.NULL_LONG, current.uuid, p_metaModel);
                         }
-                        resolved.segment.dec();
-                        if (resolved.segment.counter() <= 0) {
-                            remove(resolved.universe, resolved.time, resolved.uuid, p_metaModel);
+                        resolved.getSegment().dec();
+                        if (resolved.getSegment().counter() <= 0) {
+                            remove(resolved.getUniverse(), resolved.getTime(), current.uuid, p_metaModel);
                         }
                         //change chaining
                         if (previous == null) { //first case

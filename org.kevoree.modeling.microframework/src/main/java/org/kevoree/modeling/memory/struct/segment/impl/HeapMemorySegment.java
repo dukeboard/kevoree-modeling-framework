@@ -20,12 +20,6 @@ public class HeapMemorySegment implements KMemorySegment {
 
     private boolean _dirty = false;
 
-    private long _timeOrigin;
-
-    public HeapMemorySegment(long p_timeOrigin) {
-        this._timeOrigin = p_timeOrigin;
-    }
-
     @Override
     public void init(KMetaClass p_metaClass) {
         this.raw = new Object[p_metaClass.metaElements().length];
@@ -35,11 +29,6 @@ public class HeapMemorySegment implements KMemorySegment {
     @Override
     public int metaClassIndex() {
         return _metaClassIndex;
-    }
-
-    @Override
-    public long originTime() {
-        return _timeOrigin;
     }
 
     @Override
@@ -267,7 +256,7 @@ public class HeapMemorySegment implements KMemorySegment {
     @Override
     public KMemorySegment clone(long newTimeOrigin, KMetaClass p_metaClass) {
         if (raw == null) {
-            return new HeapMemorySegment(newTimeOrigin);
+            return new HeapMemorySegment();
         } else {
             Object[] cloned = new Object[raw.length];
             //TODO
@@ -282,7 +271,7 @@ public class HeapMemorySegment implements KMemorySegment {
                     }
                 }
             }
-            HeapMemorySegment clonedEntry = new HeapMemorySegment(newTimeOrigin);
+            HeapMemorySegment clonedEntry = new HeapMemorySegment();
             clonedEntry._dirty = true;
             clonedEntry.raw = cloned;
             clonedEntry._metaClassIndex = _metaClassIndex;

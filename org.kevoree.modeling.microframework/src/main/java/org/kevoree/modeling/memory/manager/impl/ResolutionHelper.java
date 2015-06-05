@@ -8,21 +8,20 @@ import org.kevoree.modeling.memory.struct.tree.KLongTree;
 
 public class ResolutionHelper {
 
-    public static ResolutionResult resolve_trees(long universe, long time, long uuid, KCache cache) {
-        ResolutionResult result = new ResolutionResult();
+    public static MemorySegmentResolutionTrace resolve_trees(long universe, long time, long uuid, KCache cache) {
+        MemorySegmentResolutionTrace result = new MemorySegmentResolutionTrace();
         ArrayLongLongHashMap objectUniverseTree = (ArrayLongLongHashMap) cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, uuid);
         ArrayLongLongHashMap globalUniverseOrder = (ArrayLongLongHashMap) cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, KConfig.NULL_LONG);
-        result.universeTree = objectUniverseTree;
+        result.setUniverseTree(objectUniverseTree);
         long resolvedUniverse = resolve_universe(globalUniverseOrder, objectUniverseTree, time, universe);
-        result.universe = resolvedUniverse;
+        result.setUniverse(resolvedUniverse);
         KLongTree timeTree = (KLongTree) cache.get(resolvedUniverse, KConfig.NULL_LONG, uuid);
         if (timeTree != null) {
-            result.timeTree = timeTree;
+            result.setTimeTree(timeTree);
             long resolvedTime = timeTree.previousOrEqual(time);
-            result.time = resolvedTime;
-            result.segment = (HeapMemorySegment) cache.get(resolvedUniverse, resolvedTime, uuid);
+            result.setTime(resolvedTime);
+            result.setSegment((HeapMemorySegment) cache.get(resolvedUniverse, resolvedTime, uuid));
         }
-        result.uuid = uuid;
         return result;
     }
 

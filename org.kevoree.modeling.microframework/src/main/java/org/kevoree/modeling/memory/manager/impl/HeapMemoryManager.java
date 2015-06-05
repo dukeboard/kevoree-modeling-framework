@@ -9,6 +9,7 @@ import org.kevoree.modeling.cdn.impl.MemoryContentDeliveryDriver;
 import org.kevoree.modeling.memory.cache.KCache;
 import org.kevoree.modeling.memory.manager.AccessMode;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
+import org.kevoree.modeling.memory.manager.KMemorySegmentResolutionTrace;
 import org.kevoree.modeling.memory.struct.HeapMemoryFactory;
 import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap;
 import org.kevoree.modeling.memory.struct.map.KLongLongHashMapCallBack;
@@ -309,9 +310,13 @@ public class HeapMemoryManager implements KMemoryManager {
     }
 
     @Override
-    public KMemorySegment segment(long universe, long time, long uuid, AccessMode accessMode, KMetaClass metaClass) {
+    public KMemorySegment segment(long universe, long time, long uuid, AccessMode accessMode, KMetaClass metaClass, KMemorySegmentResolutionTrace resolutionTrace) {
         HeapMemorySegment currentEntry = (HeapMemorySegment) _cache.get(universe, time, uuid);
         if (currentEntry != null) {
+
+
+            
+
             return currentEntry;
         }
         ArrayLongLongHashMap objectUniverseTree = (ArrayLongLongHashMap) _cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, uuid);

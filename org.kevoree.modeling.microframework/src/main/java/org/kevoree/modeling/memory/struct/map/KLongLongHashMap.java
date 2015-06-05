@@ -1,6 +1,8 @@
 package org.kevoree.modeling.memory.struct.map;
 
-public interface KLongLongHashMap {
+import org.kevoree.modeling.memory.KMemoryElement;
+
+public interface KLongLongHashMap extends KMemoryElement {
 
     long get(long key);
 

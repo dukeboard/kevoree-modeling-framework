@@ -20,7 +20,7 @@ public class DiscreteExtrapolation implements Extrapolation {
 
     @Override
     public Object extrapolate(KObject current, KMetaAttribute attribute) {
-        KMemorySegment payload = ((AbstractKObject) current)._manager.segment(current.universe(), current.now(), current.uuid(), AccessMode.RESOLVE, current.metaClass());
+        KMemorySegment payload = ((AbstractKObject) current)._manager.segment(current.universe(), current.now(), current.uuid(), AccessMode.RESOLVE, current.metaClass(), null);
         if (payload != null) {
             return payload.get(attribute.index(), current.metaClass());
         } else {
@@ -31,7 +31,7 @@ public class DiscreteExtrapolation implements Extrapolation {
     @Override
     public void mutate(KObject current, KMetaAttribute attribute, Object payload) {
         //By requiring a raw on the current object, we automatically create and copy the previous object
-        KMemorySegment internalPayload = ((AbstractKObject) current)._manager.segment(current.universe(), current.now(), current.uuid(), AccessMode.NEW, current.metaClass());
+        KMemorySegment internalPayload = ((AbstractKObject) current)._manager.segment(current.universe(), current.now(), current.uuid(), AccessMode.NEW, current.metaClass(), null);
         //The object is also automatically cset to Dirty
         if (internalPayload != null) {
             internalPayload.set(attribute.index(), payload, current.metaClass());

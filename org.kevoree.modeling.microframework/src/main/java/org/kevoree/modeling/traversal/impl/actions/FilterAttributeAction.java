@@ -38,7 +38,7 @@ public class FilterAttributeAction implements KTraversalAction {
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     final AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
-                    KMemorySegment raw = (loopObj)._manager.segment(loopObj.universe(),loopObj.now(),loopObj.uuid(), AccessMode.RESOLVE,loopObj.metaClass());
+                    KMemorySegment raw = (loopObj)._manager.segment(loopObj.universe(),loopObj.now(),loopObj.uuid(), AccessMode.RESOLVE,loopObj.metaClass(), null);
                     if (raw != null) {
                         if (_attribute == null) {
                             if (_expectedValue == null) {

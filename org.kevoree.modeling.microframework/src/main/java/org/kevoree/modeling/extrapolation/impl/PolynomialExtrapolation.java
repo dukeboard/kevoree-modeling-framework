@@ -16,7 +16,7 @@ public class PolynomialExtrapolation implements Extrapolation {
 
     @Override
     public Object extrapolate(KObject current, KMetaAttribute attribute) {
-        KMemorySegment raw = ((AbstractKObject) current)._manager.segment(current.universe(), current.now(), current.uuid(), AccessMode.RESOLVE, current.metaClass());
+        KMemorySegment raw = ((AbstractKObject) current)._manager.segment(current.universe(), current.now(), current.uuid(), AccessMode.RESOLVE, current.metaClass(), null);
         if (raw != null) {
             Double extrapolatedValue = extrapolateValue(raw.getInfer(attribute.index(), current.metaClass()), current.now(), raw.originTime());
             if (attribute.attributeType() == KPrimitiveTypes.DOUBLE) {
@@ -179,14 +179,14 @@ public class PolynomialExtrapolation implements Extrapolation {
 
     @Override
     public void mutate(KObject current, KMetaAttribute attribute, Object payload) {
-        KMemorySegment raw = current.manager().segment(current.universe(), current.now(), current.uuid(), AccessMode.RESOLVE, current.metaClass());
+        KMemorySegment raw = current.manager().segment(current.universe(), current.now(), current.uuid(), AccessMode.RESOLVE, current.metaClass(), null);
         if(raw.getInfer(attribute.index(),current.metaClass())==null){
-           raw = current.manager().segment(current.universe(), current.now(), current.uuid(), AccessMode.NEW, current.metaClass());
+           raw = current.manager().segment(current.universe(), current.now(), current.uuid(), AccessMode.NEW, current.metaClass(), null);
         }
         if (!insert(current.now(), castNumber(payload), raw.originTime(), raw, attribute.index(), attribute.precision(), current.metaClass())) {
             long prevTime = (long) raw.getInferElem(attribute.index(), LASTTIME, current.metaClass()) + raw.originTime();
             double val = extrapolateValue(raw.getInfer(attribute.index(), current.metaClass()), prevTime, raw.originTime());
-            KMemorySegment newSegment = current.manager().segment(current.universe(), prevTime, current.uuid(), AccessMode.NEW, current.metaClass());
+            KMemorySegment newSegment = current.manager().segment(current.universe(), prevTime, current.uuid(), AccessMode.NEW, current.metaClass(), null);
             insert(prevTime, val, prevTime, newSegment, attribute.index(), attribute.precision(), current.metaClass());
             insert(current.now(), castNumber(payload), newSegment.originTime(), newSegment, attribute.index(), attribute.precision(), current.metaClass());
         }

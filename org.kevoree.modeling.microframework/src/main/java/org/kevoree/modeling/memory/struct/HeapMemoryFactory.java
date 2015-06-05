@@ -12,7 +12,7 @@ public class HeapMemoryFactory implements KMemoryFactory {
 
     @Override
     public KMemorySegment newCacheSegment(long originTime) {
-        return new HeapMemorySegment(originTime);
+        return new HeapMemorySegment();
     }
 
     @Override
