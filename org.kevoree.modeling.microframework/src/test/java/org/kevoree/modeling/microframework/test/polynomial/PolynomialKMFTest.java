@@ -23,6 +23,8 @@ public class PolynomialKMFTest {
         universe.connect(null);
         CloudUniverse dimension0 = universe.newUniverse();
         final double[] val = new double[1000];
+
+
         double[] coef = {2, 2, 3};
         CloudView t0 = dimension0.time(0l);
         Node node = t0.createNode();
@@ -31,6 +33,8 @@ public class PolynomialKMFTest {
         final Element element = t0.createElement();
         element.setName("e0");
         node.setElement(element);
+
+
         //element.setValue(0.0);
         //insert 20 variations in time
         for (int i = 200; i < 1000; i++) {
@@ -69,10 +73,17 @@ public class PolynomialKMFTest {
             });
         }
         Assert.assertEquals(nbAssert[0], 801);
+
+        element.timeWalker().allTimes(new KCallback<long[]>() {
+            @Override
+            public void on(long[] collected2) {
+                Assert.assertEquals(2,collected2.length);
+            }
+        });
     }
 
 
-    @Test
+    //@Test
     public void test2() {
         final int[] nbAssert = new int[1];
         nbAssert[0] = 0;

@@ -107,7 +107,7 @@ public class PolynomialExtrapolation implements Extrapolation {
             double[] times = new double[ss + 1];
             double[] values = new double[ss + 1];
             for (int i = 0; i < ss; i++) {
-                times[i] = (i * num * (encodedPolynomial[LASTTIME] - timeOrigin) / (ss * encodedPolynomial[STEP]));
+                times[i] = ((double)i * num * (encodedPolynomial[LASTTIME]) / (ss * encodedPolynomial[STEP]));
                 values[i] = internal_extrapolate(times[i], encodedPolynomial);
             }
             times[ss] = (time - timeOrigin) / encodedPolynomial[STEP];
