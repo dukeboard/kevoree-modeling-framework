@@ -10,7 +10,7 @@ public interface ${classDeclaration.name} extends org.kevoree.modeling.KObject#f
 #{else}
     public ${classDeclaration.pack}.${classDeclaration.name} add${context.generationContext.helper.toCamelCase($attribute.getName())}($context.generationContext.getHelper().convertToJavaType(${attribute.getType()}) p_obj);
     public ${classDeclaration.pack}.${classDeclaration.name} remove${context.generationContext.helper.toCamelCase($attribute.getName())}($context.generationContext.getHelper().convertToJavaType(${attribute.getType()}) p_obj);
-    public void each${context.generationContext.helper.toCamelCase($attribute.getName())}(org.kevoree.modeling.Callback<${context.generationContext.getHelper().convertToJavaType(${attribute.getType()})}[]> p_callback);
+    public void each${context.generationContext.helper.toCamelCase($attribute.getName())}(org.kevoree.modeling.KCallback<${context.generationContext.getHelper().convertToJavaType(${attribute.getType()})}[]> p_callback);
 #end
 #end
 
@@ -18,18 +18,18 @@ public interface ${classDeclaration.name} extends org.kevoree.modeling.KObject#f
 #if($rel.visible)
 #if($rel.single)
     public ${classDeclaration.pack}.${classDeclaration.name} set${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn p_obj);
-    public void get${context.generationContext.helper.toCamelCase($rel.getName())}(org.kevoree.modeling.Callback<${rel.getType().fqn}> cb);
+    public void get${context.generationContext.helper.toCamelCase($rel.getName())}(org.kevoree.modeling.KCallback<${rel.getType().fqn}> cb);
 #{else}
     public ${classDeclaration.pack}.${classDeclaration.name} add${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn p_obj);
     public ${classDeclaration.pack}.${classDeclaration.name} remove${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn p_obj);
-    public void get${context.generationContext.helper.toCamelCase($rel.getName())}(org.kevoree.modeling.Callback<${rel.getType().fqn}[]> cb);
+    public void get${context.generationContext.helper.toCamelCase($rel.getName())}(org.kevoree.modeling.KCallback<${rel.getType().fqn}[]> cb);
     public int sizeOf${context.generationContext.helper.toCamelCase($rel.getName())}();
 #end
 #end
 #end
 
 #foreach($operation in $classDeclaration.operations)
-    public void ${operation.name}(#foreach($p in $operation.inputParams)$p.type $p.name, #{end}org.kevoree.modeling.Callback<#if(${operation.returnParam})$operation.returnParam.type#{else}Boolean#end> result);
+    public void ${operation.name}(#foreach($p in $operation.inputParams)$p.type $p.name, #{end}org.kevoree.modeling.KCallback<#if(${operation.returnParam})$operation.returnParam.type#{else}Boolean#end> result);
 #end
 
 }

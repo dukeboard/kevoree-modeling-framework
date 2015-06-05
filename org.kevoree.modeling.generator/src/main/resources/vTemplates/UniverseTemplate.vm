@@ -2,7 +2,7 @@ package ${context.metaModelPackage};
 
 public class ${context.metaModelName}Universe extends org.kevoree.modeling.abs.AbstractKUniverse<${context.metaModelName}View, ${context.metaModelName}Universe, ${context.metaModelName}Model> {
 
-    protected ${context.metaModelName}Universe(long p_key, org.kevoree.modeling.data.manager.KDataManager p_manager) {
+    protected ${context.metaModelName}Universe(long p_key, org.kevoree.modeling.memory.manager.KMemoryManager p_manager) {
         super(p_key, p_manager);
     }
 
