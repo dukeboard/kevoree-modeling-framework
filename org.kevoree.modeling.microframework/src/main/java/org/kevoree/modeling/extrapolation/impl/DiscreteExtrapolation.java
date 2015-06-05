@@ -4,7 +4,7 @@ import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.abs.AbstractKObject;
 import org.kevoree.modeling.extrapolation.Extrapolation;
 import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
-import org.kevoree.modeling.memory.AccessMode;
+import org.kevoree.modeling.memory.manager.AccessMode;
 import org.kevoree.modeling.meta.KMetaAttribute;
 
 public class DiscreteExtrapolation implements Extrapolation {

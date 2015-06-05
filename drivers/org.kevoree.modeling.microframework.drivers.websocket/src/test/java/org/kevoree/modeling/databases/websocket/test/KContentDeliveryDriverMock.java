@@ -3,7 +3,7 @@ package org.kevoree.modeling.databases.websocket.test;
 import org.kevoree.modeling.*;
 import org.kevoree.modeling.KContentKey;
 import org.kevoree.modeling.cdn.KContentDeliveryDriver;
-import org.kevoree.modeling.cdn.impl.ContentPutRequest;
+import org.kevoree.modeling.cdn.KContentPutRequest;
 import org.kevoree.modeling.event.KEventListener;
 import org.kevoree.modeling.event.KEventMultiListener;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
@@ -21,21 +21,21 @@ public class KContentDeliveryDriverMock implements KContentDeliveryDriver {
     public HashMap<String, String> alreadyPut = new HashMap<String, String>();
 
     @Override
-    public void atomicGetIncrement(KContentKey key, KThrowableCallback<Short> callback) {
-        callback.on(Short.parseShort("0"), null);
+    public void atomicGetIncrement(KContentKey key, KCallback<Short> callback) {
+        callback.on(Short.parseShort("0"));
     }
 
     @Override
-    public void get(KContentKey[] keys, KThrowableCallback<String[]> callback) {
+    public void get(KContentKey[] keys, KCallback<String[]> callback) {
         String[] values = new String[keys.length];
         for (int i = 0; i < keys.length; i++) {
             values[i] = keys[i].toString();
         }
-        callback.on(values, null);
+        callback.on(values);
     }
 
     @Override
-    public void put(ContentPutRequest request, KCallback<Throwable> error) {
+    public void put(KContentPutRequest request, KCallback<Throwable> error) {
         for (int i = 0; i < request.size(); i++) {
             alreadyPut.put(request.getKey(i).toString(), request.getContent(i));
         }

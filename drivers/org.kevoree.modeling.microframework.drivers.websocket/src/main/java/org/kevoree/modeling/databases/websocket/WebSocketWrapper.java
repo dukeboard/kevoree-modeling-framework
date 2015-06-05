@@ -13,7 +13,7 @@ import io.undertow.websockets.spi.WebSocketHttpExchange;
 import org.kevoree.modeling.*;
 import org.kevoree.modeling.KContentKey;
 import org.kevoree.modeling.cdn.KContentDeliveryDriver;
-import org.kevoree.modeling.cdn.impl.ContentPutRequest;
+import org.kevoree.modeling.cdn.KContentPutRequest;
 import org.kevoree.modeling.event.KEventListener;
 import org.kevoree.modeling.event.KEventMultiListener;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
@@ -25,9 +25,6 @@ import java.util.ArrayList;
 
 import static io.undertow.Handlers.websocket;
 
-/**
- * Created by duke on 24/02/15.
- */
 public class WebSocketWrapper extends AbstractReceiveListener implements KContentDeliveryDriver, WebSocketConnectionCallback {
 
     private KContentDeliveryDriver wrapped = null;
@@ -183,7 +180,7 @@ public class WebSocketWrapper extends AbstractReceiveListener implements KConten
     }
 
     @Override
-    public void put(ContentPutRequest request, KCallback<Throwable> error) {
+    public void put(KContentPutRequest request, KCallback<Throwable> error) {
         wrapped.put(request, error);
     }
 

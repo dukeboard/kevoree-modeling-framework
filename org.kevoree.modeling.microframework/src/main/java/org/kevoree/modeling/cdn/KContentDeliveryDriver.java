@@ -1,7 +1,6 @@
 package org.kevoree.modeling.cdn;
 
 import org.kevoree.modeling.*;
-import org.kevoree.modeling.cdn.impl.ContentPutRequest;
 import org.kevoree.modeling.event.KEventListener;
 import org.kevoree.modeling.event.KEventMultiListener;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
@@ -13,7 +12,7 @@ public interface KContentDeliveryDriver {
 
     void atomicGetIncrement(KContentKey key, KCallback<Short> cb);
 
-    void put(ContentPutRequest request, KCallback<Throwable> error);
+    void put(KContentPutRequest request, KCallback<Throwable> error);
 
     void remove(String[] keys, KCallback<Throwable> error);
 

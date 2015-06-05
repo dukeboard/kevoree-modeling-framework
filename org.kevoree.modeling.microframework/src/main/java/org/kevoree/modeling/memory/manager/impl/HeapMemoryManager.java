@@ -7,6 +7,7 @@ import org.kevoree.modeling.memory.cache.impl.HashMemoryCache;
 import org.kevoree.modeling.cdn.impl.ContentPutRequest;
 import org.kevoree.modeling.cdn.impl.MemoryContentDeliveryDriver;
 import org.kevoree.modeling.memory.cache.KCache;
+import org.kevoree.modeling.memory.manager.AccessMode;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
 import org.kevoree.modeling.memory.struct.HeapMemoryFactory;
 import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap;

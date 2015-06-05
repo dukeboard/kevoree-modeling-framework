@@ -24,18 +24,18 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.abs.Abstr
 
     @Override
     public ${classDeclaration.pack}.${classDeclaration.name} add${context.generationContext.helper.toCamelCase(${attribute.getName()})}($context.generationContext.getHelper().convertToJavaType(${attribute.getType()}) p_obj) {
-        mutate(org.kevoree.modelin.KActionType.ADD, ${classDeclaration.pack}.meta.Meta${classDeclaration.name}.ATT_${attribute.getName().toUpperCase()}, p_obj, true);
+        mutate(org.kevoree.modeling.KActionType.ADD, ${classDeclaration.pack}.meta.Meta${classDeclaration.name}.ATT_${attribute.getName().toUpperCase()}, p_obj, true);
         return this;
     }
 
     @Override
     public ${classDeclaration.pack}.${classDeclaration.name} remove${context.generationContext.helper.toCamelCase(${attribute.getName()})}($context.generationContext.getHelper().convertToJavaType(${attribute.getType()}) p_obj) {
-        mutate(org.kevoree.modelin.KActionType.REMOVE, ${classDeclaration.pack}.meta.Meta${classDeclaration.name}.ATT_${attribute.getName().toUpperCase()}, p_obj, true;
+        mutate(org.kevoree.modeling.KActionType.REMOVE, ${classDeclaration.pack}.meta.Meta${classDeclaration.name}.ATT_${attribute.getName().toUpperCase()}, p_obj, true;
         return this;
     }
 
     @Override
-    public void get${context.generationContext.helper.toCamelCase(${attribute.getName()})}(org.kevoree.modelin.KCallback<${context.generationContext.getHelper().convertToJavaType(${attribute.getType()})}[]> p_callback, org.kevoree.modelin.Callback<Throwable> p_end) {
+    public void get${context.generationContext.helper.toCamelCase(${attribute.getName()})}(org.kevoree.modeling.KCallback<${context.generationContext.getHelper().convertToJavaType(${attribute.getType()})}[]> p_callback, org.kevoree.modeling.Callback<Throwable> p_end) {
         each(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.ATT_${attribute.getName().toUpperCase()}, p_callback, p_end);
     }
     #end
@@ -49,18 +49,18 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.abs.Abstr
 
     @Override
     public ${classDeclaration.pack}.${classDeclaration.name} set${context.generationContext.helper.toCamelCase(${ref.getName()})}(${ref.getType().fqn} p_obj) {
-        mutate(org.kevoree.modelin.KActionType.SET, ${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, p_obj);
+        mutate(org.kevoree.modeling.KActionType.SET, ${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, p_obj);
         return this;
     }
 
     @Override
-    public void get${context.generationContext.helper.toCamelCase(${ref.getName()})}(org.kevoree.modelin.KCallback<${ref.getType().fqn}> cb) {
+    public void get${context.generationContext.helper.toCamelCase(${ref.getName()})}(org.kevoree.modeling.KCallback<${ref.getType().fqn}> cb) {
         if(cb == null){
             return;
         }
-        this.ref(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modelin.KCallback<org.kevoree.modelin.KObject[]>() {
+        this.ref(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.KCallback<org.kevoree.modeling.KObject[]>() {
             @Override
-            public void on(org.kevoree.modelin.KObject[] kObjects) {
+            public void on(org.kevoree.modeling.KObject[] kObjects) {
                 if(kObjects.length >0){
                     cb.on((${ref.getType().fqn}) kObjects[0]);
                 } else {
@@ -74,24 +74,24 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.abs.Abstr
 
     @Override
     public ${classDeclaration.pack}.${classDeclaration.name} add${context.generationContext.helper.toCamelCase(${ref.getName()})}(${ref.getType().fqn} p_obj) {
-        mutate(org.kevoree.modelin.KActionType.ADD, ${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, p_obj);
+        mutate(org.kevoree.modeling.KActionType.ADD, ${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, p_obj);
         return this;
     }
 
     @Override
     public ${classDeclaration.pack}.${classDeclaration.name} remove${context.generationContext.helper.toCamelCase(${ref.getName()})}(${ref.getType().fqn} p_obj) {
-        mutate(org.kevoree.modelin.KActionType.REMOVE, ${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, p_obj);
+        mutate(org.kevoree.modeling.KActionType.REMOVE, ${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, p_obj);
         return this;
     }
 
     @Override
-    public void get${context.generationContext.helper.toCamelCase(${ref.getName()})}(org.kevoree.modelin.KCallback<${ref.getType().fqn}[]> cb) {
+    public void get${context.generationContext.helper.toCamelCase(${ref.getName()})}(org.kevoree.modeling.KCallback<${ref.getType().fqn}[]> cb) {
         if(cb == null){
             return;
         }
-        this.ref(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modelin.KCallback<org.kevoree.modelin.KObject[]>() {
+        this.ref(${classDeclaration.pack}.meta.Meta${classDeclaration.name}.REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.KCallback<org.kevoree.modeling.KObject[]>() {
             @Override
-            public void on(org.kevoree.modelin.KObject[] kObjects) {
+            public void on(org.kevoree.modeling.KObject[] kObjects) {
                 ${ref.getType().fqn}[] casted = new ${ref.getType().fqn}[kObjects.length];
                 for(int i=0;i<kObjects.length;i++){
                     casted[i] = (${ref.getType().fqn}) kObjects[i];

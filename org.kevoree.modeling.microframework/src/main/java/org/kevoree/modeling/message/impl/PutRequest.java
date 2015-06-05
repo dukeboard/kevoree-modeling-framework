@@ -1,5 +1,6 @@
 package org.kevoree.modeling.message.impl;
 
+import org.kevoree.modeling.cdn.KContentPutRequest;
 import org.kevoree.modeling.cdn.impl.ContentPutRequest;
 import org.kevoree.modeling.format.json.JsonString;
 import org.kevoree.modeling.message.KMessage;
@@ -7,7 +8,7 @@ import org.kevoree.modeling.message.KMessageLoader;
 
 public class PutRequest implements KMessage {
 
-    public ContentPutRequest request;
+    public KContentPutRequest request;
 
     public long id;
 

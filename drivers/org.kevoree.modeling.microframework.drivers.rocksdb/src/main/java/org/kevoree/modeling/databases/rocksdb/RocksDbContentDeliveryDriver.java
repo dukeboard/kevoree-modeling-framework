@@ -3,7 +3,7 @@ package org.kevoree.modeling.databases.rocksdb;
 import org.kevoree.modeling.*;
 import org.kevoree.modeling.KContentKey;
 import org.kevoree.modeling.cdn.KContentDeliveryDriver;
-import org.kevoree.modeling.cdn.impl.ContentPutRequest;
+import org.kevoree.modeling.cdn.KContentPutRequest;
 import org.kevoree.modeling.event.KEventListener;
 import org.kevoree.modeling.event.KEventMultiListener;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
@@ -40,7 +40,7 @@ public class RocksDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void put(ContentPutRequest request, KCallback<Throwable> error) {
+    public void put(KContentPutRequest request, KCallback<Throwable> error) {
         WriteBatch batch = new WriteBatch();
         for (int i = 0; i < request.size(); i++) {
             batch.put(request.getKey(i).toString().getBytes(), request.getContent(i).getBytes());

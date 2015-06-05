@@ -1,8 +1,10 @@
 package org.kevoree.fsm.test;
 
 import fsmsample.*;
-import org.junit.Test;
-import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.KCallback;
+import org.kevoree.modeling.KObject;
+import org.kevoree.modeling.traversal.visitor.KModelVisitor;
+import org.kevoree.modeling.traversal.visitor.KVisitResult;
 
 import java.util.concurrent.Semaphore;
 
@@ -47,7 +49,7 @@ public class SaveXMITest {
 
         localView.lookup(fsm.uuid(),(root) -> {
             System.out.println("Serialize !");
-            localView.xmi().save(fsm,new Callback<String>() {
+            localView.xmi().save(fsm,new KCallback<String>() {
                 @Override
                 public void on(String s) {
                     model[0] = s;
@@ -68,14 +70,14 @@ public class SaveXMITest {
         System.out.println("Loading !");
         FSMUniverse fsmDim2 = fsmU.newUniverse();
         FSMView loadView = fsmDim2.time(0L);
-        loadView.xmi().load(model[0],new Callback<Throwable>() {
+        loadView.xmi().load(model[0],new KCallback<Throwable>() {
             @Override
             public void on(Throwable error) {
                 System.out.println("Loaded");
                 if (error != null) {
                     error.printStackTrace();
                 } else {
-                    loadView.select("/",new Callback<KObject[]>() {
+                    loadView.select("/",new KCallback<KObject[]>() {
                         @Override
                         public void on(KObject[] kObjects) {
                             System.out.println("Roots:" + kObjects.length);

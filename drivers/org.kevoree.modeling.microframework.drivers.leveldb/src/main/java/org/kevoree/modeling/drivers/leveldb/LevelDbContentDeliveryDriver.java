@@ -7,7 +7,7 @@ import org.iq80.leveldb.WriteBatch;
 import org.kevoree.modeling.*;
 import org.kevoree.modeling.KContentKey;
 import org.kevoree.modeling.cdn.KContentDeliveryDriver;
-import org.kevoree.modeling.cdn.impl.ContentPutRequest;
+import org.kevoree.modeling.cdn.KContentPutRequest;
 import org.kevoree.modeling.event.KEventListener;
 import org.kevoree.modeling.event.KEventMultiListener;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
@@ -101,7 +101,7 @@ public class LevelDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void put(ContentPutRequest request, KCallback<Throwable> error) {
+    public void put(KContentPutRequest request, KCallback<Throwable> error) {
         if (!_isConnected) {
             throw new RuntimeException(_connectedError);
         }

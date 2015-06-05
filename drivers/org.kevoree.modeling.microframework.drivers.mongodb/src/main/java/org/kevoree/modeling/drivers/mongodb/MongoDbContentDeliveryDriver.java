@@ -9,10 +9,10 @@ import com.mongodb.MongoClient;
 import org.kevoree.modeling.*;
 import org.kevoree.modeling.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.KContentKey;
+import org.kevoree.modeling.cdn.KContentPutRequest;
 import org.kevoree.modeling.event.KEventListener;
 import org.kevoree.modeling.event.KEventMultiListener;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
-import org.kevoree.modeling.cdn.impl.ContentPutRequest;
 import org.kevoree.modeling.message.KMessage;
 import org.kevoree.modeling.event.impl.LocalEventListeners;
 
@@ -97,7 +97,7 @@ public class MongoDbContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public void put(ContentPutRequest request, KCallback<Throwable> error) {
+    public void put(KContentPutRequest request, KCallback<Throwable> error) {
         for (int i = 0; i < request.size(); i++) {
             BasicDBObject originalObjectQuery = new BasicDBObject();
             originalObjectQuery.put(KMF_KEY, request.getKey(i).toString());

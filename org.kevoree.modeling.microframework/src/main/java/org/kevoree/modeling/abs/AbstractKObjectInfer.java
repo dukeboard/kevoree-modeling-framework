@@ -3,7 +3,7 @@ package org.kevoree.modeling.abs;
 import org.kevoree.modeling.infer.KInfer;
 import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
-import org.kevoree.modeling.memory.AccessMode;
+import org.kevoree.modeling.memory.manager.AccessMode;
 import org.kevoree.modeling.infer.KInferState;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
 import org.kevoree.modeling.meta.KMetaClass;

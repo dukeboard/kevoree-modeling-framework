@@ -4,7 +4,6 @@ package org.kevoree.modeling.databases.websocket.test;
 import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.KCallback;
-import org.kevoree.modeling.KThrowableCallback;
 import org.kevoree.modeling.KContentKey;
 import org.kevoree.modeling.cdn.impl.ContentPutRequest;
 import org.kevoree.modeling.message.impl.Events;
@@ -49,9 +48,9 @@ public class WebSocketTest {
                 client.connect(new KCallback<Throwable>() {
                     @Override
                     public void on(Throwable throwable) {
-                        client.get(getRequest, new KThrowableCallback<String[]>() {
+                        client.get(getRequest, new KCallback<String[]>() {
                             @Override
-                            public void on(String[] resultPayloads, Throwable error) {
+                            public void on(String[] resultPayloads) {
                                 latch.countDown();
                                 Assert.assertEquals(resultPayloads.length, getRequest.length);
                                 for (int i = 0; i < resultPayloads.length; i++) {
@@ -69,9 +68,9 @@ public class WebSocketTest {
                                 }
                             }
                         });
-                        client.atomicGetIncrement(KContentKey.createGlobalUniverseTree(), new KThrowableCallback<Short>() {
+                        client.atomicGetIncrement(KContentKey.createGlobalUniverseTree(), new KCallback<Short>() {
                             @Override
-                            public void on(Short s, Throwable error) {
+                            public void on(Short s) {
                                 latch.countDown();
                                 Assert.assertTrue(s == 0);
                             }

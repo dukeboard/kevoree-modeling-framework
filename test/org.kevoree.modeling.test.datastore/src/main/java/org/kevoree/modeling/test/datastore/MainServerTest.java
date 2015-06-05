@@ -2,15 +2,13 @@ package org.kevoree.modeling.test.datastore;
 
 import geometry.*;
 import geometry.meta.MetaLibrary;
-import geometry.meta.MetaShape;
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KOperation;
-import org.kevoree.modeling.api.abs.AbstractKObject;
-import org.kevoree.modeling.api.memory.cache.KCacheEntry;
-import org.kevoree.modeling.api.memory.cdn.MemoryKContentDeliveryDriver;
-import org.kevoree.modeling.api.memory.manager.AccessMode;
+import org.kevoree.modeling.KCallback;
+import org.kevoree.modeling.KObject;
+import org.kevoree.modeling.abs.AbstractKObject;
 import org.kevoree.modeling.databases.websocket.WebSocketWrapper;
+import org.kevoree.modeling.memory.manager.AccessMode;
+import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
+import org.kevoree.modeling.operation.KOperation;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -34,10 +32,10 @@ public class MainServerTest {
 
 
         geoModel.setOperation(MetaLibrary.OP_ADDSHAPE, new KOperation() {
-            public void on(KObject source, Object[] params, Callback<Object> result) {
+            public void on(KObject source, Object[] params, KCallback<Object> result) {
                 GeometryUniverse dimension = geoModel.universe(0);
                 GeometryView geoFactory = dimension.time(originOfTime);
-                geoFactory.getRoot(new Callback<KObject>() {
+                geoFactory.getRoot(new KCallback<KObject>() {
                     @Override
                     public void on(KObject kObject) {
                         if (kObject != null) {
@@ -57,8 +55,7 @@ public class MainServerTest {
         });
 
 
-
-        geoModel.connect(new Callback<Throwable>() {
+        geoModel.connect(new KCallback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
@@ -66,17 +63,17 @@ public class MainServerTest {
                 } else {
                     GeometryUniverse dimension = geoModel.universe(0);
                     GeometryView geoFactory = dimension.time(originOfTime);
-                    geoFactory.getRoot(new Callback<KObject>() {
+                    geoFactory.getRoot(new KCallback<KObject>() {
                         @Override
                         public void on(KObject kObject) {
                             if (kObject == null) {
                                 Library lib = geoFactory.createLibrary();
-                                KCacheEntry libEntry = ((AbstractKObject)lib)._manager.entry(lib, AccessMode.READ);
-                                long[] uuids = (long[]) libEntry.get(MetaLibrary.REF_SHAPES.index());
-                                geoFactory.setRoot(lib,new Callback<Throwable>() {
+                                KMemorySegment libEntry = lib.manager().segment(lib.universe(), lib.now(), lib.uuid(), AccessMode.RESOLVE, lib.metaClass());
+                                long[] uuids = (long[]) libEntry.get(MetaLibrary.REF_SHAPES.index(), kObject.metaClass());
+                                geoFactory.setRoot(lib, new KCallback<Throwable>() {
                                     @Override
                                     public void on(Throwable throwable) {
-                                        if(throwable != null) {
+                                        if (throwable != null) {
                                             throwable.printStackTrace();
                                         }
                                     }
@@ -113,14 +110,14 @@ public class MainServerTest {
                 try {
                     GeometryUniverse dimension = geoModel.universe(0);
                     GeometryView geoFactory = dimension.time(originOfTime);
-                    geoFactory.getRoot(new Callback<KObject>() {
+                    geoFactory.getRoot(new KCallback<KObject>() {
                         @Override
                         public void on(KObject kObject) {
                             if (kObject == null) {
                                 System.err.println("Root not found");
                             } else {
                                 Library root = (Library) kObject;
-                                KCacheEntry entry = ((AbstractKObject)root)._manager.entry(root, AccessMode.READ);
+                                KMemorySegment entry = root.manager().segment(root.universe(), root.now(), root.uuid(), AccessMode.RESOLVE, root.metaClass());
                                 root.getShapes((shapes) -> {
                                     System.out.println("Shapes:" + shapes.length);
                                     if (shapes != null) {
@@ -136,7 +133,7 @@ public class MainServerTest {
                         }
                     });
                     turn++;
-                }catch(Throwable e) {
+                } catch (Throwable e) {
                     e.printStackTrace();
                 }
             }

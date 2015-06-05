@@ -6,9 +6,9 @@ import cloud.CloudView;
 import cloud.Element;
 import cloud.meta.MetaElement;
 import org.junit.Test;
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KOperation;
+import org.kevoree.modeling.KCallback;
+import org.kevoree.modeling.KObject;
+import org.kevoree.modeling.operation.KOperation;
 
 import java.util.Arrays;
 
@@ -26,13 +26,13 @@ public class CloudOperationTest {
         CloudUniverse universe = model.newUniverse();
         CloudView view = universe.time(0L);
         model.setOperation(MetaElement.OP_TRIGGER, new KOperation() {
-            public void on(KObject source, Object[] params, Callback<Object> result) {
+            public void on(KObject source, Object[] params, KCallback<Object> result) {
                 result.on("Hey. I received Parameter:" + Arrays.toString(params) + " on element:(" + source.universe() + "," + source.now() + "," + source.uuid() + ")");
             }
         });
 
         Element elem = view.createElement();
-        elem.trigger("StringParam", 100, new Callback<String>() {
+        elem.trigger("StringParam", 100, new KCallback<String>() {
             @Override
             public void on(String s) {
                 System.out.println("Operation execution result :  " + s);

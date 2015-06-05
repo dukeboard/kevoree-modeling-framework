@@ -1,8 +1,9 @@
 package org.kevoree.modeling.cdn.impl;
 
 import org.kevoree.modeling.KContentKey;
+import org.kevoree.modeling.cdn.KContentPutRequest;
 
-public class ContentPutRequest {
+public class ContentPutRequest implements KContentPutRequest {
 
     private Object[][] _content;
 

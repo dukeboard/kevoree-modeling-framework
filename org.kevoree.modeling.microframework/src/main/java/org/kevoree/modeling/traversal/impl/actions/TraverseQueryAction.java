@@ -5,7 +5,7 @@ import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.abs.AbstractKObject;
 import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
-import org.kevoree.modeling.memory.AccessMode;
+import org.kevoree.modeling.memory.manager.AccessMode;
 import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap;
 import org.kevoree.modeling.memory.struct.map.KLongLongHashMapCallBack;
 import org.kevoree.modeling.meta.KMeta;

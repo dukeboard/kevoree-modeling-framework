@@ -2,6 +2,7 @@ package org.kevoree.modeling.cdn.impl;
 
 import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KConfig;
+import org.kevoree.modeling.cdn.KContentPutRequest;
 import org.kevoree.modeling.event.KEventListener;
 import org.kevoree.modeling.event.KEventMultiListener;
 import org.kevoree.modeling.KObject;
@@ -61,7 +62,7 @@ public class MemoryContentDeliveryDriver implements KContentDeliveryDriver {
     }
 
     @Override
-    public synchronized void put(ContentPutRequest p_request, KCallback<Throwable> p_callback) {
+    public synchronized void put(KContentPutRequest p_request, KCallback<Throwable> p_callback) {
         for (int i = 0; i < p_request.size(); i++) {
             backend.put(p_request.getKey(i).toString(), p_request.getContent(i));
             if (DEBUG) {

@@ -7,7 +7,7 @@ import io.undertow.websockets.core.WebSockets;
 import org.kevoree.modeling.*;
 import org.kevoree.modeling.KContentKey;
 import org.kevoree.modeling.cdn.KContentDeliveryDriver;
-import org.kevoree.modeling.cdn.impl.ContentPutRequest;
+import org.kevoree.modeling.cdn.KContentPutRequest;
 import org.kevoree.modeling.event.KEventListener;
 import org.kevoree.modeling.event.KEventMultiListener;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
@@ -136,7 +136,7 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
     }
 
     @Override
-    public void put(ContentPutRequest request, KCallback<Throwable> error) {
+    public void put(KContentPutRequest request, KCallback<Throwable> error) {
         PutRequest putRequest = new PutRequest();
         putRequest.request = request;
         putRequest.id = nextKey();

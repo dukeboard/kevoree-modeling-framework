@@ -14,7 +14,7 @@ import org.kevoree.modeling.KTimeWalker;
 import org.kevoree.modeling.traversal.visitor.KVisitResult;
 import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 import org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment;
-import org.kevoree.modeling.memory.AccessMode;
+import org.kevoree.modeling.memory.manager.AccessMode;
 import org.kevoree.modeling.memory.manager.impl.JsonRaw;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
 import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap;

@@ -327,7 +327,7 @@ var org;
                     };
                     AbstractKObject.prototype.delete = function (cb) {
                         var selfPointer = this;
-                        var rawPayload = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.AccessMode.DELETE, this._metaClass);
+                        var rawPayload = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.DELETE, this._metaClass);
                         if (rawPayload == null) {
                             cb(new java.lang.Exception(AbstractKObject.OUT_OF_CACHE_MSG));
                         }
@@ -443,7 +443,7 @@ var org;
                                 this.internal_mutate(org.kevoree.modeling.KActionType.SET, metaReference, param, setOpposite);
                             }
                             else {
-                                var raw = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.AccessMode.NEW, this._metaClass);
+                                var raw = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.NEW, this._metaClass);
                                 if (raw != null) {
                                     if (raw.addRef(metaReference.index(), param.uuid(), this._metaClass)) {
                                         if (setOpposite) {
@@ -463,7 +463,7 @@ var org;
                                         this.internal_mutate(org.kevoree.modeling.KActionType.REMOVE, metaReference, null, setOpposite);
                                     }
                                     else {
-                                        var payload = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.AccessMode.NEW, this._metaClass);
+                                        var payload = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.NEW, this._metaClass);
                                         var previous = payload.getRef(metaReference.index(), this._metaClass);
                                         var singleValue = new Array();
                                         singleValue[0] = param.uuid();
@@ -488,7 +488,7 @@ var org;
                             else {
                                 if (actionType.equals(org.kevoree.modeling.KActionType.REMOVE)) {
                                     if (metaReference.single()) {
-                                        var raw = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.AccessMode.NEW, this._metaClass);
+                                        var raw = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.NEW, this._metaClass);
                                         var previousKid = raw.getRef(metaReference.index(), this._metaClass);
                                         raw.set(metaReference.index(), null, this._metaClass);
                                         if (setOpposite) {
@@ -507,7 +507,7 @@ var org;
                                         }
                                     }
                                     else {
-                                        var payload = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.AccessMode.NEW, this._metaClass);
+                                        var payload = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.NEW, this._metaClass);
                                         if (payload != null) {
                                             if (payload.removeRef(metaReference.index(), param.uuid(), this._metaClass)) {
                                                 if (setOpposite) {
@@ -526,7 +526,7 @@ var org;
                             throw new java.lang.RuntimeException("Bad KMF usage, the attribute named " + p_metaReference.metaName() + " is not part of " + this.metaClass().metaName());
                         }
                         else {
-                            var raw = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.AccessMode.RESOLVE, this._metaClass);
+                            var raw = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, this._metaClass);
                             if (raw != null) {
                                 var ref = raw.get(transposed.index(), this._metaClass);
                                 if (ref == null) {
@@ -557,7 +557,7 @@ var org;
                             throw new java.lang.RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + this.metaClass().metaName());
                         }
                         else {
-                            var raw = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.AccessMode.RESOLVE, this._metaClass);
+                            var raw = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, this._metaClass);
                             if (raw == null) {
                                 cb(new Array());
                             }
@@ -599,7 +599,7 @@ var org;
                         for (var i = 0; i < metaElements.length; i++) {
                             if (metaElements[i] instanceof org.kevoree.modeling.meta.impl.MetaReference) {
                                 var reference = metaElements[i];
-                                var raw = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.AccessMode.RESOLVE, this._metaClass);
+                                var raw = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, this._metaClass);
                                 if (raw != null) {
                                     var idArr = raw.getRef(reference.index(), this._metaClass);
                                     if (idArr != null) {
@@ -686,7 +686,7 @@ var org;
                         }
                     };
                     AbstractKObject.prototype.toJSON = function () {
-                        var raw = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.AccessMode.RESOLVE, this._metaClass);
+                        var raw = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, this._metaClass);
                         if (raw != null) {
                             return org.kevoree.modeling.memory.manager.impl.JsonRaw.encode(raw, this._uuid, this._metaClass, false);
                         }
@@ -771,7 +771,7 @@ var org;
                     };
                     AbstractKObject.prototype.referencesWith = function (o) {
                         if (org.kevoree.modeling.util.Checker.isDefined(o)) {
-                            var raw = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.AccessMode.RESOLVE, this._metaClass);
+                            var raw = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, this._metaClass);
                             if (raw != null) {
                                 var metaElements = this.metaClass().metaElements();
                                 var selected = new java.util.ArrayList();
@@ -815,7 +815,7 @@ var org;
                         _super.call(this, p_universe, p_time, p_uuid, p_metaClass, p_manager);
                     }
                     AbstractKObjectInfer.prototype.readOnlyState = function () {
-                        var raw = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.AccessMode.RESOLVE, this.metaClass());
+                        var raw = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, this.metaClass());
                         if (raw != null) {
                             if (raw.get(org.kevoree.modeling.meta.KMetaInferClass.getInstance().getCache().index(), this.metaClass()) == null) {
                                 this.internal_load(raw);
@@ -827,7 +827,7 @@ var org;
                         }
                     };
                     AbstractKObjectInfer.prototype.modifyState = function () {
-                        var raw = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.AccessMode.NEW, this.metaClass());
+                        var raw = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.NEW, this.metaClass());
                         if (raw != null) {
                             if (raw.get(org.kevoree.modeling.meta.KMetaInferClass.getInstance().getCache().index(), this.metaClass()) == null) {
                                 this.internal_load(raw);
@@ -1509,7 +1509,7 @@ var org;
                             return DiscreteExtrapolation.INSTANCE;
                         };
                         DiscreteExtrapolation.prototype.extrapolate = function (current, attribute) {
-                            var payload = current._manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.AccessMode.RESOLVE, current.metaClass());
+                            var payload = current._manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, current.metaClass());
                             if (payload != null) {
                                 return payload.get(attribute.index(), current.metaClass());
                             }
@@ -1518,7 +1518,7 @@ var org;
                             }
                         };
                         DiscreteExtrapolation.prototype.mutate = function (current, attribute, payload) {
-                            var internalPayload = current._manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.AccessMode.NEW, current.metaClass());
+                            var internalPayload = current._manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.NEW, current.metaClass());
                             if (internalPayload != null) {
                                 internalPayload.set(attribute.index(), payload, current.metaClass());
                             }
@@ -1544,7 +1544,7 @@ var org;
                         function PolynomialExtrapolation() {
                         }
                         PolynomialExtrapolation.prototype.extrapolate = function (current, attribute) {
-                            var raw = current._manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.AccessMode.RESOLVE, current.metaClass());
+                            var raw = current._manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, current.metaClass());
                             if (raw != null) {
                                 var extrapolatedValue = this.extrapolateValue(raw.getInfer(attribute.index(), current.metaClass()), current.now(), raw.originTime());
                                 if (attribute.attributeType() == org.kevoree.modeling.meta.KPrimitiveTypes.DOUBLE) {
@@ -1686,14 +1686,14 @@ var org;
                             raw.setInferElem(index, PolynomialExtrapolation.WEIGHTS, value, metaClass);
                         };
                         PolynomialExtrapolation.prototype.mutate = function (current, attribute, payload) {
-                            var raw = current.manager().segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.AccessMode.RESOLVE, current.metaClass());
+                            var raw = current.manager().segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, current.metaClass());
                             if (raw.getInfer(attribute.index(), current.metaClass()) == null) {
-                                raw = current.manager().segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.AccessMode.NEW, current.metaClass());
+                                raw = current.manager().segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.NEW, current.metaClass());
                             }
                             if (!this.insert(current.now(), this.castNumber(payload), raw.originTime(), raw, attribute.index(), attribute.precision(), current.metaClass())) {
                                 var prevTime = raw.getInferElem(attribute.index(), PolynomialExtrapolation.LASTTIME, current.metaClass()) + raw.originTime();
                                 var val = this.extrapolateValue(raw.getInfer(attribute.index(), current.metaClass()), prevTime, raw.originTime());
-                                var newSegment = current.manager().segment(current.universe(), prevTime, current.uuid(), org.kevoree.modeling.memory.AccessMode.NEW, current.metaClass());
+                                var newSegment = current.manager().segment(current.universe(), prevTime, current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.NEW, current.metaClass());
                                 this.insert(prevTime, val, prevTime, newSegment, attribute.index(), attribute.precision(), current.metaClass());
                                 this.insert(current.now(), this.castNumber(payload), newSegment.originTime(), newSegment, attribute.index(), attribute.precision(), current.metaClass());
                             }
@@ -2241,7 +2241,7 @@ var org;
                             var metaClass = manager.model().metaModel().metaClassByName(meta);
                             var current = manager.model().createProxy(universe, time, p_mappedKeys.get(kid), metaClass);
                             manager.initKObject(current);
-                            var raw = manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.AccessMode.NEW, current.metaClass());
+                            var raw = manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.NEW, current.metaClass());
                             p_param.each(function (metaKey, payload_content) {
                                 if (metaKey.equals(org.kevoree.modeling.format.json.JsonFormat.KEY_ROOT)) {
                                     p_rootElem[0] = current;
@@ -2331,7 +2331,7 @@ var org;
                         };
                         JsonModelSerializer.printJSON = function (elem, builder, isRoot) {
                             if (elem != null) {
-                                var raw = elem._manager.segment(elem.universe(), elem.now(), elem.uuid(), org.kevoree.modeling.memory.AccessMode.RESOLVE, elem.metaClass());
+                                var raw = elem._manager.segment(elem.universe(), elem.now(), elem.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, elem.metaClass());
                                 if (raw != null) {
                                     builder.append(org.kevoree.modeling.memory.manager.impl.JsonRaw.encode(raw, elem.uuid(), elem.metaClass(), isRoot));
                                 }
@@ -4252,26 +4252,6 @@ var org;
             })(infer = modeling.infer || (modeling.infer = {}));
             var memory;
             (function (memory) {
-                var AccessMode = (function () {
-                    function AccessMode() {
-                    }
-                    AccessMode.prototype.equals = function (other) {
-                        return this == other;
-                    };
-                    AccessMode.values = function () {
-                        return AccessMode._AccessModeVALUES;
-                    };
-                    AccessMode.RESOLVE = new AccessMode();
-                    AccessMode.NEW = new AccessMode();
-                    AccessMode.DELETE = new AccessMode();
-                    AccessMode._AccessModeVALUES = [
-                        AccessMode.RESOLVE,
-                        AccessMode.NEW,
-                        AccessMode.DELETE
-                    ];
-                    return AccessMode;
-                })();
-                memory.AccessMode = AccessMode;
                 var cache;
                 (function (cache) {
                     var impl;
@@ -4461,6 +4441,26 @@ var org;
                 })(cache = memory.cache || (memory.cache = {}));
                 var manager;
                 (function (manager) {
+                    var AccessMode = (function () {
+                        function AccessMode() {
+                        }
+                        AccessMode.prototype.equals = function (other) {
+                            return this == other;
+                        };
+                        AccessMode.values = function () {
+                            return AccessMode._AccessModeVALUES;
+                        };
+                        AccessMode.RESOLVE = new AccessMode();
+                        AccessMode.NEW = new AccessMode();
+                        AccessMode.DELETE = new AccessMode();
+                        AccessMode._AccessModeVALUES = [
+                            AccessMode.RESOLVE,
+                            AccessMode.NEW,
+                            AccessMode.DELETE
+                        ];
+                        return AccessMode;
+                    })();
+                    manager.AccessMode = AccessMode;
                     var impl;
                     (function (impl) {
                         var HeapMemoryManager = (function () {
@@ -4707,18 +4707,18 @@ var org;
                                 }
                                 var resolvedTime = timeTree.previousOrEqual(time);
                                 if (resolvedTime != org.kevoree.modeling.KConfig.NULL_LONG) {
-                                    var needTimeCopy = accessMode.equals(org.kevoree.modeling.memory.AccessMode.NEW) && (resolvedTime != time);
-                                    var needUniverseCopy = accessMode.equals(org.kevoree.modeling.memory.AccessMode.NEW) && (resolvedUniverse != universe);
+                                    var needTimeCopy = accessMode.equals(org.kevoree.modeling.memory.manager.AccessMode.NEW) && (resolvedTime != time);
+                                    var needUniverseCopy = accessMode.equals(org.kevoree.modeling.memory.manager.AccessMode.NEW) && (resolvedUniverse != universe);
                                     var entry = this._cache.get(resolvedUniverse, resolvedTime, uuid);
                                     if (entry == null) {
                                         return null;
                                     }
-                                    if (accessMode.equals(org.kevoree.modeling.memory.AccessMode.DELETE)) {
+                                    if (accessMode.equals(org.kevoree.modeling.memory.manager.AccessMode.DELETE)) {
                                         timeTree.delete(time);
                                         return entry;
                                     }
                                     if (!needTimeCopy && !needUniverseCopy) {
-                                        if (accessMode.equals(org.kevoree.modeling.memory.AccessMode.NEW)) {
+                                        if (accessMode.equals(org.kevoree.modeling.memory.manager.AccessMode.NEW)) {
                                             entry.setDirty();
                                         }
                                         return entry;
@@ -8533,7 +8533,7 @@ var org;
                                         try {
                                             var loopObj = p_inputStep[i];
                                             currentObject = loopObj;
-                                            var raw = loopObj._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.AccessMode.RESOLVE, loopObj.metaClass());
+                                            var raw = loopObj._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, loopObj.metaClass());
                                             if (raw != null) {
                                                 if (this._reference == null) {
                                                     var metaElements = loopObj.metaClass().metaElements();
@@ -8638,7 +8638,7 @@ var org;
                                     for (var i = 0; i < p_inputs.length; i++) {
                                         try {
                                             var loopObj = p_inputs[i];
-                                            var raw = (loopObj)._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.AccessMode.RESOLVE, loopObj.metaClass());
+                                            var raw = (loopObj)._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, loopObj.metaClass());
                                             if (raw != null) {
                                                 if (this._attribute == null) {
                                                     if (this._expectedValue == null) {
@@ -8879,7 +8879,7 @@ var org;
                                     for (var i = 0; i < p_inputs.length; i++) {
                                         try {
                                             var loopObj = p_inputs[i];
-                                            var raw = loopObj._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.AccessMode.RESOLVE, loopObj.metaClass());
+                                            var raw = loopObj._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, loopObj.metaClass());
                                             if (raw != null) {
                                                 if (this._attribute == null) {
                                                     if (this._expectedValue == null) {
@@ -9059,7 +9059,7 @@ var org;
                                     for (var i = 0; i < p_inputs.length; i++) {
                                         try {
                                             var loopObj = p_inputs[i];
-                                            var raw = currentObject._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.AccessMode.RESOLVE, loopObj.metaClass());
+                                            var raw = currentObject._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, loopObj.metaClass());
                                             if (raw != null) {
                                                 if (this._reference == null) {
                                                     var metaElements = loopObj.metaClass().metaElements();
@@ -9129,7 +9129,7 @@ var org;
                                     for (var i = 0; i < p_inputs.length; i++) {
                                         try {
                                             var loopObj = p_inputs[i];
-                                            var raw = loopObj._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.AccessMode.RESOLVE, loopObj.metaClass());
+                                            var raw = loopObj._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, loopObj.metaClass());
                                             var metaElements = loopObj.metaClass().metaElements();
                                             if (raw != null) {
                                                 if (this._referenceQuery == null) {

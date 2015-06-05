@@ -539,7 +539,7 @@ module org {
 
                     public delete(cb: (p : any) => void): void {
                         var selfPointer: org.kevoree.modeling.KObject = this;
-                        var rawPayload: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.AccessMode.DELETE, this._metaClass);
+                        var rawPayload: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.DELETE, this._metaClass);
                         if (rawPayload == null) {
                             cb(new java.lang.Exception(AbstractKObject.OUT_OF_CACHE_MSG));
                         } else {
@@ -654,7 +654,7 @@ module org {
                             if (metaReference.single()) {
                                 this.internal_mutate(org.kevoree.modeling.KActionType.SET, metaReference, param, setOpposite);
                             } else {
-                                var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.AccessMode.NEW, this._metaClass);
+                                var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.NEW, this._metaClass);
                                 if (raw != null) {
                                     if (raw.addRef(metaReference.index(), param.uuid(), this._metaClass)) {
                                         if (setOpposite) {
@@ -671,7 +671,7 @@ module org {
                                     if (param == null) {
                                         this.internal_mutate(org.kevoree.modeling.KActionType.REMOVE, metaReference, null, setOpposite);
                                     } else {
-                                        var payload: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.AccessMode.NEW, this._metaClass);
+                                        var payload: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.NEW, this._metaClass);
                                         var previous: number[] = payload.getRef(metaReference.index(), this._metaClass);
                                         var singleValue: number[] = new Array();
                                         singleValue[0] = param.uuid();
@@ -694,7 +694,7 @@ module org {
                             } else {
                                 if (actionType.equals(org.kevoree.modeling.KActionType.REMOVE)) {
                                     if (metaReference.single()) {
-                                        var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.AccessMode.NEW, this._metaClass);
+                                        var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.NEW, this._metaClass);
                                         var previousKid: number[] = raw.getRef(metaReference.index(), this._metaClass);
                                         raw.set(metaReference.index(), null, this._metaClass);
                                         if (setOpposite) {
@@ -712,7 +712,7 @@ module org {
                                             }
                                         }
                                     } else {
-                                        var payload: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.AccessMode.NEW, this._metaClass);
+                                        var payload: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.NEW, this._metaClass);
                                         if (payload != null) {
                                             if (payload.removeRef(metaReference.index(), param.uuid(), this._metaClass)) {
                                                 if (setOpposite) {
@@ -731,7 +731,7 @@ module org {
                         if (transposed == null) {
                             throw new java.lang.RuntimeException("Bad KMF usage, the attribute named " + p_metaReference.metaName() + " is not part of " + this.metaClass().metaName());
                         } else {
-                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.AccessMode.RESOLVE, this._metaClass);
+                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, this._metaClass);
                             if (raw != null) {
                                 var ref: any = raw.get(transposed.index(), this._metaClass);
                                 if (ref == null) {
@@ -759,7 +759,7 @@ module org {
                         if (transposed == null) {
                             throw new java.lang.RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + this.metaClass().metaName());
                         } else {
-                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.AccessMode.RESOLVE, this._metaClass);
+                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, this._metaClass);
                             if (raw == null) {
                                 cb(new Array());
                             } else {
@@ -802,7 +802,7 @@ module org {
                         for (var i: number = 0; i < metaElements.length; i++) {
                             if (metaElements[i] instanceof org.kevoree.modeling.meta.impl.MetaReference) {
                                 var reference: org.kevoree.modeling.meta.KMetaReference = <org.kevoree.modeling.meta.KMetaReference>metaElements[i];
-                                var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.AccessMode.RESOLVE, this._metaClass);
+                                var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, this._metaClass);
                                 if (raw != null) {
                                     var idArr: number[] = raw.getRef(reference.index(), this._metaClass);
                                     if (idArr != null) {
@@ -885,7 +885,7 @@ module org {
                     }
 
                     public toJSON(): string {
-                        var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.AccessMode.RESOLVE, this._metaClass);
+                        var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, this._metaClass);
                         if (raw != null) {
                             return org.kevoree.modeling.memory.manager.impl.JsonRaw.encode(raw, this._uuid, this._metaClass, false);
                         } else {
@@ -971,7 +971,7 @@ module org {
 
                     public referencesWith(o: org.kevoree.modeling.KObject): org.kevoree.modeling.meta.KMetaReference[] {
                         if (org.kevoree.modeling.util.Checker.isDefined(o)) {
-                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.AccessMode.RESOLVE, this._metaClass);
+                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, this._metaClass);
                             if (raw != null) {
                                 var metaElements: org.kevoree.modeling.meta.KMeta[] = this.metaClass().metaElements();
                                 var selected: java.util.List<org.kevoree.modeling.meta.KMetaReference> = new java.util.ArrayList<org.kevoree.modeling.meta.KMetaReference>();
@@ -1015,7 +1015,7 @@ module org {
                     }
 
                     public readOnlyState(): org.kevoree.modeling.infer.KInferState {
-                        var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.AccessMode.RESOLVE, this.metaClass());
+                        var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, this.metaClass());
                         if (raw != null) {
                             if (raw.get(org.kevoree.modeling.meta.KMetaInferClass.getInstance().getCache().index(), this.metaClass()) == null) {
                                 this.internal_load(raw);
@@ -1027,7 +1027,7 @@ module org {
                     }
 
                     public modifyState(): org.kevoree.modeling.infer.KInferState {
-                        var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.AccessMode.NEW, this.metaClass());
+                        var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.NEW, this.metaClass());
                         if (raw != null) {
                             if (raw.get(org.kevoree.modeling.meta.KMetaInferClass.getInstance().getCache().index(), this.metaClass()) == null) {
                                 this.internal_load(raw);
@@ -1317,7 +1317,7 @@ module org {
 
                     atomicGetIncrement(key: org.kevoree.modeling.KContentKey, cb: (p : number) => void): void;
 
-                    put(request: org.kevoree.modeling.cdn.impl.ContentPutRequest, error: (p : java.lang.Throwable) => void): void;
+                    put(request: org.kevoree.modeling.cdn.KContentPutRequest, error: (p : java.lang.Throwable) => void): void;
 
                     remove(keys: string[], error: (p : java.lang.Throwable) => void): void;
 
@@ -1337,8 +1337,20 @@ module org {
 
                 }
 
+                export interface KContentPutRequest {
+
+                    put(p_key: org.kevoree.modeling.KContentKey, p_payload: string): void;
+
+                    getKey(index: number): org.kevoree.modeling.KContentKey;
+
+                    getContent(index: number): string;
+
+                    size(): number;
+
+                }
+
                 export module impl {
-                    export class ContentPutRequest {
+                    export class ContentPutRequest implements org.kevoree.modeling.cdn.KContentPutRequest {
 
                         private _content: any[][];
                         private static KEY_INDEX: number = 0;
@@ -1425,7 +1437,7 @@ module org {
                             }
                         }
 
-                        public put(p_request: org.kevoree.modeling.cdn.impl.ContentPutRequest, p_callback: (p : java.lang.Throwable) => void): void {
+                        public put(p_request: org.kevoree.modeling.cdn.KContentPutRequest, p_callback: (p : java.lang.Throwable) => void): void {
                             for (var i: number = 0; i < p_request.size(); i++) {
                                 this.backend.put(p_request.getKey(i).toString(), p_request.getContent(i));
                                 if (MemoryContentDeliveryDriver.DEBUG) {
@@ -1833,7 +1845,7 @@ module org {
                         }
 
                         public extrapolate(current: org.kevoree.modeling.KObject, attribute: org.kevoree.modeling.meta.KMetaAttribute): any {
-                            var payload: org.kevoree.modeling.memory.struct.segment.KMemorySegment = (<org.kevoree.modeling.abs.AbstractKObject>current)._manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.AccessMode.RESOLVE, current.metaClass());
+                            var payload: org.kevoree.modeling.memory.struct.segment.KMemorySegment = (<org.kevoree.modeling.abs.AbstractKObject>current)._manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, current.metaClass());
                             if (payload != null) {
                                 return payload.get(attribute.index(), current.metaClass());
                             } else {
@@ -1842,7 +1854,7 @@ module org {
                         }
 
                         public mutate(current: org.kevoree.modeling.KObject, attribute: org.kevoree.modeling.meta.KMetaAttribute, payload: any): void {
-                            var internalPayload: org.kevoree.modeling.memory.struct.segment.KMemorySegment = (<org.kevoree.modeling.abs.AbstractKObject>current)._manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.AccessMode.NEW, current.metaClass());
+                            var internalPayload: org.kevoree.modeling.memory.struct.segment.KMemorySegment = (<org.kevoree.modeling.abs.AbstractKObject>current)._manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.NEW, current.metaClass());
                             if (internalPayload != null) {
                                 internalPayload.set(attribute.index(), payload, current.metaClass());
                             }
@@ -1875,7 +1887,7 @@ module org {
                         private static WEIGHTS: number = 4;
                         private static INSTANCE: org.kevoree.modeling.extrapolation.impl.PolynomialExtrapolation;
                         public extrapolate(current: org.kevoree.modeling.KObject, attribute: org.kevoree.modeling.meta.KMetaAttribute): any {
-                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = (<org.kevoree.modeling.abs.AbstractKObject>current)._manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.AccessMode.RESOLVE, current.metaClass());
+                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = (<org.kevoree.modeling.abs.AbstractKObject>current)._manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, current.metaClass());
                             if (raw != null) {
                                 var extrapolatedValue: number = this.extrapolateValue(raw.getInfer(attribute.index(), current.metaClass()), current.now(), raw.originTime());
                                 if (attribute.attributeType() == org.kevoree.modeling.meta.KPrimitiveTypes.DOUBLE) {
@@ -2019,14 +2031,14 @@ module org {
                         }
 
                         public mutate(current: org.kevoree.modeling.KObject, attribute: org.kevoree.modeling.meta.KMetaAttribute, payload: any): void {
-                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = current.manager().segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.AccessMode.RESOLVE, current.metaClass());
+                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = current.manager().segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, current.metaClass());
                             if (raw.getInfer(attribute.index(), current.metaClass()) == null) {
-                                raw = current.manager().segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.AccessMode.NEW, current.metaClass());
+                                raw = current.manager().segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.NEW, current.metaClass());
                             }
                             if (!this.insert(current.now(), this.castNumber(payload), raw.originTime(), raw, attribute.index(), attribute.precision(), current.metaClass())) {
                                 var prevTime: number = <number>raw.getInferElem(attribute.index(), PolynomialExtrapolation.LASTTIME, current.metaClass()) + raw.originTime();
                                 var val: number = this.extrapolateValue(raw.getInfer(attribute.index(), current.metaClass()), prevTime, raw.originTime());
-                                var newSegment: org.kevoree.modeling.memory.struct.segment.KMemorySegment = current.manager().segment(current.universe(), prevTime, current.uuid(), org.kevoree.modeling.memory.AccessMode.NEW, current.metaClass());
+                                var newSegment: org.kevoree.modeling.memory.struct.segment.KMemorySegment = current.manager().segment(current.universe(), prevTime, current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.NEW, current.metaClass());
                                 this.insert(prevTime, val, prevTime, newSegment, attribute.index(), attribute.precision(), current.metaClass());
                                 this.insert(current.now(), this.castNumber(payload), newSegment.originTime(), newSegment, attribute.index(), attribute.precision(), current.metaClass());
                             }
@@ -2614,7 +2626,7 @@ module org {
                             var metaClass: org.kevoree.modeling.meta.KMetaClass = manager.model().metaModel().metaClassByName(meta);
                             var current: org.kevoree.modeling.KObject = (<org.kevoree.modeling.abs.AbstractKModel<any>>manager.model()).createProxy(universe, time, p_mappedKeys.get(kid), metaClass);
                             manager.initKObject(current);
-                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.AccessMode.NEW, current.metaClass());
+                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.NEW, current.metaClass());
                             p_param.each( (metaKey : string, payload_content : any) => {
                                 if (metaKey.equals(org.kevoree.modeling.format.json.JsonFormat.KEY_ROOT)) {
                                     p_rootElem[0] = current;
@@ -2696,7 +2708,7 @@ module org {
 
                         public static printJSON(elem: org.kevoree.modeling.KObject, builder: java.lang.StringBuilder, isRoot: boolean): void {
                             if (elem != null) {
-                                var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = (<org.kevoree.modeling.abs.AbstractKObject>elem)._manager.segment(elem.universe(), elem.now(), elem.uuid(), org.kevoree.modeling.memory.AccessMode.RESOLVE, elem.metaClass());
+                                var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = (<org.kevoree.modeling.abs.AbstractKObject>elem)._manager.segment(elem.universe(), elem.now(), elem.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, elem.metaClass());
                                 if (raw != null) {
                                     builder.append(org.kevoree.modeling.memory.manager.impl.JsonRaw.encode(raw, elem.uuid(), elem.metaClass(), isRoot));
                                 }
@@ -4756,24 +4768,6 @@ module org {
                 }
             }
             export module memory {
-                export class AccessMode {
-
-                    public static RESOLVE: AccessMode = new AccessMode();
-                    public static NEW: AccessMode = new AccessMode();
-                    public static DELETE: AccessMode = new AccessMode();
-                    public equals(other: any): boolean {
-                        return this == other;
-                    }
-                    public static _AccessModeVALUES : AccessMode[] = [
-                        AccessMode.RESOLVE
-                        ,AccessMode.NEW
-                        ,AccessMode.DELETE
-                    ];
-                    public static values():AccessMode[]{
-                        return AccessMode._AccessModeVALUES;
-                    }
-                }
-
                 export interface KMemoryElement {
 
                     isDirty(): boolean;
@@ -5030,6 +5024,24 @@ module org {
                     }
                 }
                 export module manager {
+                    export class AccessMode {
+
+                        public static RESOLVE: AccessMode = new AccessMode();
+                        public static NEW: AccessMode = new AccessMode();
+                        public static DELETE: AccessMode = new AccessMode();
+                        public equals(other: any): boolean {
+                            return this == other;
+                        }
+                        public static _AccessModeVALUES : AccessMode[] = [
+                            AccessMode.RESOLVE
+                            ,AccessMode.NEW
+                            ,AccessMode.DELETE
+                        ];
+                        public static values():AccessMode[]{
+                            return AccessMode._AccessModeVALUES;
+                        }
+                    }
+
                     export interface KMemoryManager {
 
                         cdn(): org.kevoree.modeling.cdn.KContentDeliveryDriver;
@@ -5044,7 +5056,7 @@ module org {
 
                         lookupAlltimes(universe: number, time: number[], uuid: number, callback: (p : org.kevoree.modeling.KObject[]) => void): void;
 
-                        segment(universe: number, time: number, uuid: number, accessMode: org.kevoree.modeling.memory.AccessMode, metaClass: org.kevoree.modeling.meta.KMetaClass): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
+                        segment(universe: number, time: number, uuid: number, accessMode: org.kevoree.modeling.memory.manager.AccessMode, metaClass: org.kevoree.modeling.meta.KMetaClass): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 
                         save(callback: (p : java.lang.Throwable) => void): void;
 
@@ -5336,7 +5348,7 @@ module org {
                                 }
                             }
 
-                            public segment(universe: number, time: number, uuid: number, accessMode: org.kevoree.modeling.memory.AccessMode, metaClass: org.kevoree.modeling.meta.KMetaClass): org.kevoree.modeling.memory.struct.segment.KMemorySegment {
+                            public segment(universe: number, time: number, uuid: number, accessMode: org.kevoree.modeling.memory.manager.AccessMode, metaClass: org.kevoree.modeling.meta.KMetaClass): org.kevoree.modeling.memory.struct.segment.KMemorySegment {
                                 var currentEntry: org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment = <org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment>this._cache.get(universe, time, uuid);
                                 if (currentEntry != null) {
                                     return currentEntry;
@@ -5349,18 +5361,18 @@ module org {
                                 }
                                 var resolvedTime: number = timeTree.previousOrEqual(time);
                                 if (resolvedTime != org.kevoree.modeling.KConfig.NULL_LONG) {
-                                    var needTimeCopy: boolean = accessMode.equals(org.kevoree.modeling.memory.AccessMode.NEW) && (resolvedTime != time);
-                                    var needUniverseCopy: boolean = accessMode.equals(org.kevoree.modeling.memory.AccessMode.NEW) && (resolvedUniverse != universe);
+                                    var needTimeCopy: boolean = accessMode.equals(org.kevoree.modeling.memory.manager.AccessMode.NEW) && (resolvedTime != time);
+                                    var needUniverseCopy: boolean = accessMode.equals(org.kevoree.modeling.memory.manager.AccessMode.NEW) && (resolvedUniverse != universe);
                                     var entry: org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment = <org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment>this._cache.get(resolvedUniverse, resolvedTime, uuid);
                                     if (entry == null) {
                                         return null;
                                     }
-                                    if (accessMode.equals(org.kevoree.modeling.memory.AccessMode.DELETE)) {
+                                    if (accessMode.equals(org.kevoree.modeling.memory.manager.AccessMode.DELETE)) {
                                         timeTree.delete(time);
                                         return entry;
                                     }
                                     if (!needTimeCopy && !needUniverseCopy) {
-                                        if (accessMode.equals(org.kevoree.modeling.memory.AccessMode.NEW)) {
+                                        if (accessMode.equals(org.kevoree.modeling.memory.manager.AccessMode.NEW)) {
                                             entry.setDirty();
                                         }
                                         return entry;
@@ -8426,7 +8438,7 @@ module org {
 
                     export class PutRequest implements org.kevoree.modeling.message.KMessage {
 
-                        public request: org.kevoree.modeling.cdn.impl.ContentPutRequest;
+                        public request: org.kevoree.modeling.cdn.KContentPutRequest;
                         public id: number;
                         public json(): string {
                             var buffer: java.lang.StringBuilder = new java.lang.StringBuilder();
@@ -9452,7 +9464,7 @@ module org {
                                         try {
                                             var loopObj: org.kevoree.modeling.abs.AbstractKObject = <org.kevoree.modeling.abs.AbstractKObject>p_inputStep[i];
                                             currentObject = loopObj;
-                                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = loopObj._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.AccessMode.RESOLVE, loopObj.metaClass());
+                                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = loopObj._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, loopObj.metaClass());
                                             if (raw != null) {
                                                 if (this._reference == null) {
                                                     var metaElements: org.kevoree.modeling.meta.KMeta[] = loopObj.metaClass().metaElements();
@@ -9564,7 +9576,7 @@ module org {
                                     for (var i: number = 0; i < p_inputs.length; i++) {
                                         try {
                                             var loopObj: org.kevoree.modeling.abs.AbstractKObject = <org.kevoree.modeling.abs.AbstractKObject>p_inputs[i];
-                                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = (loopObj)._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.AccessMode.RESOLVE, loopObj.metaClass());
+                                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = (loopObj)._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, loopObj.metaClass());
                                             if (raw != null) {
                                                 if (this._attribute == null) {
                                                     if (this._expectedValue == null) {
@@ -9801,7 +9813,7 @@ module org {
                                     for (var i: number = 0; i < p_inputs.length; i++) {
                                         try {
                                             var loopObj: org.kevoree.modeling.abs.AbstractKObject = <org.kevoree.modeling.abs.AbstractKObject>p_inputs[i];
-                                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = loopObj._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.AccessMode.RESOLVE, loopObj.metaClass());
+                                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = loopObj._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, loopObj.metaClass());
                                             if (raw != null) {
                                                 if (this._attribute == null) {
                                                     if (this._expectedValue == null) {
@@ -9984,7 +9996,7 @@ module org {
                                     for (var i: number = 0; i < p_inputs.length; i++) {
                                         try {
                                             var loopObj: org.kevoree.modeling.abs.AbstractKObject = <org.kevoree.modeling.abs.AbstractKObject>p_inputs[i];
-                                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = currentObject._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.AccessMode.RESOLVE, loopObj.metaClass());
+                                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = currentObject._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, loopObj.metaClass());
                                             if (raw != null) {
                                                 if (this._reference == null) {
                                                     var metaElements: org.kevoree.modeling.meta.KMeta[] = loopObj.metaClass().metaElements();
@@ -10055,7 +10067,7 @@ module org {
                                     for (var i: number = 0; i < p_inputs.length; i++) {
                                         try {
                                             var loopObj: org.kevoree.modeling.abs.AbstractKObject = <org.kevoree.modeling.abs.AbstractKObject>p_inputs[i];
-                                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = loopObj._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.AccessMode.RESOLVE, loopObj.metaClass());
+                                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = loopObj._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, loopObj.metaClass());
                                             var metaElements: org.kevoree.modeling.meta.KMeta[] = loopObj.metaClass().metaElements();
                                             if (raw != null) {
                                                 if (this._referenceQuery == null) {

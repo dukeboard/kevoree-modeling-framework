@@ -6,7 +6,7 @@ import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.abs.AbstractKModel;
 import org.kevoree.modeling.meta.impl.MetaReference;
 import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
-import org.kevoree.modeling.memory.AccessMode;
+import org.kevoree.modeling.memory.manager.AccessMode;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
 import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap;
 import org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap;

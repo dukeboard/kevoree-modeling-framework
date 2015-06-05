@@ -9883,142 +9883,91 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var cloud;
-(function (cloud) {
-    var CloudModel = (function (_super) {
-        __extends(CloudModel, _super);
-        function CloudModel() {
+var geometry;
+(function (geometry) {
+    var GeometryModel = (function (_super) {
+        __extends(GeometryModel, _super);
+        function GeometryModel() {
             _super.call(this);
-            this._metaModel = new org.kevoree.modeling.meta.impl.MetaModel("Cloud");
+            this._metaModel = new org.kevoree.modeling.meta.impl.MetaModel("Geometry");
             var tempMetaClasses = new Array();
-            tempMetaClasses[1] = cloud.meta.MetaElement.getInstance();
-            tempMetaClasses[0] = cloud.meta.MetaNode.getInstance();
+            tempMetaClasses[1] = geometry.meta.MetaShape.getInstance();
+            tempMetaClasses[0] = geometry.meta.MetaLibrary.getInstance();
             this._metaModel.init(tempMetaClasses);
         }
-        CloudModel.prototype.internalCreateUniverse = function (key) {
-            return new cloud.CloudUniverse(key, this._manager);
+        GeometryModel.prototype.internalCreateUniverse = function (key) {
+            return new geometry.GeometryUniverse(key, this._manager);
         };
-        CloudModel.prototype.metaModel = function () {
+        GeometryModel.prototype.metaModel = function () {
             return this._metaModel;
         };
-        CloudModel.prototype.internalCreateObject = function (universe, time, uuid, p_clazz) {
+        GeometryModel.prototype.internalCreateObject = function (universe, time, uuid, p_clazz) {
             if (p_clazz == null) {
                 return null;
             }
             switch (p_clazz.index()) {
                 case 1:
-                    return new cloud.impl.ElementImpl(universe, time, uuid, p_clazz, this._manager);
+                    return new geometry.impl.ShapeImpl(universe, time, uuid, p_clazz, this._manager);
                 case 0:
-                    return new cloud.impl.NodeImpl(universe, time, uuid, p_clazz, this._manager);
+                    return new geometry.impl.LibraryImpl(universe, time, uuid, p_clazz, this._manager);
                 default:
                     return new org.kevoree.modeling.meta.impl.GenericObject(universe, time, uuid, p_clazz, this._manager);
             }
         };
-        CloudModel.prototype.createElement = function (universe, time) {
-            return this.create(cloud.meta.MetaElement.getInstance(), universe, time);
+        GeometryModel.prototype.createShape = function (universe, time) {
+            return this.create(geometry.meta.MetaShape.getInstance(), universe, time);
         };
-        CloudModel.prototype.createNode = function (universe, time) {
-            return this.create(cloud.meta.MetaNode.getInstance(), universe, time);
+        GeometryModel.prototype.createLibrary = function (universe, time) {
+            return this.create(geometry.meta.MetaLibrary.getInstance(), universe, time);
         };
-        return CloudModel;
+        return GeometryModel;
     })(org.kevoree.modeling.abs.AbstractKModel);
-    cloud.CloudModel = CloudModel;
-    var CloudUniverse = (function (_super) {
-        __extends(CloudUniverse, _super);
-        function CloudUniverse(p_key, p_manager) {
+    geometry.GeometryModel = GeometryModel;
+    var GeometryUniverse = (function (_super) {
+        __extends(GeometryUniverse, _super);
+        function GeometryUniverse(p_key, p_manager) {
             _super.call(this, p_key, p_manager);
         }
-        CloudUniverse.prototype.internal_create = function (timePoint) {
-            return new cloud.impl.CloudViewImpl(this._universe, timePoint, this._manager);
+        GeometryUniverse.prototype.internal_create = function (timePoint) {
+            return new geometry.impl.GeometryViewImpl(this._universe, timePoint, this._manager);
         };
-        return CloudUniverse;
+        return GeometryUniverse;
     })(org.kevoree.modeling.abs.AbstractKUniverse);
-    cloud.CloudUniverse = CloudUniverse;
+    geometry.GeometryUniverse = GeometryUniverse;
     var impl;
     (function (impl) {
-        var CloudViewImpl = (function (_super) {
-            __extends(CloudViewImpl, _super);
-            function CloudViewImpl(p_universe, _time, p_manager) {
+        var GeometryViewImpl = (function (_super) {
+            __extends(GeometryViewImpl, _super);
+            function GeometryViewImpl(p_universe, _time, p_manager) {
                 _super.call(this, p_universe, _time, p_manager);
             }
-            CloudViewImpl.prototype.createElement = function () {
-                return this.create(cloud.meta.MetaElement.getInstance());
+            GeometryViewImpl.prototype.createShape = function () {
+                return this.create(geometry.meta.MetaShape.getInstance());
             };
-            CloudViewImpl.prototype.createNode = function () {
-                return this.create(cloud.meta.MetaNode.getInstance());
+            GeometryViewImpl.prototype.createLibrary = function () {
+                return this.create(geometry.meta.MetaLibrary.getInstance());
             };
-            return CloudViewImpl;
+            return GeometryViewImpl;
         })(org.kevoree.modeling.abs.AbstractKView);
-        impl.CloudViewImpl = CloudViewImpl;
-        var ElementImpl = (function (_super) {
-            __extends(ElementImpl, _super);
-            function ElementImpl(p_universe, p_time, p_uuid, p_metaClass, p_manager) {
+        impl.GeometryViewImpl = GeometryViewImpl;
+        var LibraryImpl = (function (_super) {
+            __extends(LibraryImpl, _super);
+            function LibraryImpl(p_universe, p_time, p_uuid, p_metaClass, p_manager) {
                 _super.call(this, p_universe, p_time, p_uuid, p_metaClass, p_manager);
             }
-            ElementImpl.prototype.getLoad = function () {
-                return this.get(cloud.meta.MetaElement.ATT_LOAD);
-            };
-            ElementImpl.prototype.setLoad = function (p_obj) {
-                this.set(cloud.meta.MetaElement.ATT_LOAD, p_obj);
+            LibraryImpl.prototype.addShapes = function (p_obj) {
+                this.mutate(org.kevoree.modeling.KActionType.ADD, geometry.meta.MetaLibrary.REF_SHAPES, p_obj);
                 return this;
             };
-            ElementImpl.prototype.getName = function () {
-                return this.get(cloud.meta.MetaElement.ATT_NAME);
-            };
-            ElementImpl.prototype.setName = function (p_obj) {
-                this.set(cloud.meta.MetaElement.ATT_NAME, p_obj);
+            LibraryImpl.prototype.removeShapes = function (p_obj) {
+                this.mutate(org.kevoree.modeling.KActionType.REMOVE, geometry.meta.MetaLibrary.REF_SHAPES, p_obj);
                 return this;
             };
-            ElementImpl.prototype.getValue = function () {
-                return this.get(cloud.meta.MetaElement.ATT_VALUE);
-            };
-            ElementImpl.prototype.setValue = function (p_obj) {
-                this.set(cloud.meta.MetaElement.ATT_VALUE, p_obj);
-                return this;
-            };
-            ElementImpl.prototype.trigger = function (p_param, p_loop, p_result) {
-                var trigger_params = new Array();
-                trigger_params[0] = p_param;
-                trigger_params[1] = p_loop;
-                this._manager.operationManager().call(this, cloud.meta.MetaElement.OP_TRIGGER, trigger_params, function (o) {
-                    p_result(o);
-                });
-            };
-            return ElementImpl;
-        })(org.kevoree.modeling.abs.AbstractKObject);
-        impl.ElementImpl = ElementImpl;
-        var NodeImpl = (function (_super) {
-            __extends(NodeImpl, _super);
-            function NodeImpl(p_universe, p_time, p_uuid, p_metaClass, p_manager) {
-                _super.call(this, p_universe, p_time, p_uuid, p_metaClass, p_manager);
-            }
-            NodeImpl.prototype.getName = function () {
-                return this.get(cloud.meta.MetaNode.ATT_NAME);
-            };
-            NodeImpl.prototype.setName = function (p_obj) {
-                this.set(cloud.meta.MetaNode.ATT_NAME, p_obj);
-                return this;
-            };
-            NodeImpl.prototype.getValue = function () {
-                return this.get(cloud.meta.MetaNode.ATT_VALUE);
-            };
-            NodeImpl.prototype.setValue = function (p_obj) {
-                this.set(cloud.meta.MetaNode.ATT_VALUE, p_obj);
-                return this;
-            };
-            NodeImpl.prototype.addChildren = function (p_obj) {
-                this.mutate(org.kevoree.modeling.KActionType.ADD, cloud.meta.MetaNode.REF_CHILDREN, p_obj);
-                return this;
-            };
-            NodeImpl.prototype.removeChildren = function (p_obj) {
-                this.mutate(org.kevoree.modeling.KActionType.REMOVE, cloud.meta.MetaNode.REF_CHILDREN, p_obj);
-                return this;
-            };
-            NodeImpl.prototype.getChildren = function (cb) {
+            LibraryImpl.prototype.getShapes = function (cb) {
                 if (cb == null) {
                     return;
                 }
-                this.ref(cloud.meta.MetaNode.REF_CHILDREN, function (kObjects) {
+                this.ref(geometry.meta.MetaLibrary.REF_SHAPES, function (kObjects) {
                     var casted = new Array();
                     for (var i = 0; i < kObjects.length; i++) {
                         casted[i] = kObjects[i];
@@ -10026,107 +9975,101 @@ var cloud;
                     cb(casted);
                 });
             };
-            NodeImpl.prototype.sizeOfChildren = function () {
-                return this.size(cloud.meta.MetaNode.REF_CHILDREN);
+            LibraryImpl.prototype.sizeOfShapes = function () {
+                return this.size(geometry.meta.MetaLibrary.REF_SHAPES);
             };
-            NodeImpl.prototype.setElement = function (p_obj) {
-                this.mutate(org.kevoree.modeling.KActionType.SET, cloud.meta.MetaNode.REF_ELEMENT, p_obj);
-                return this;
-            };
-            NodeImpl.prototype.getElement = function (cb) {
-                if (cb == null) {
-                    return;
-                }
-                this.ref(cloud.meta.MetaNode.REF_ELEMENT, function (kObjects) {
-                    if (kObjects.length > 0) {
-                        cb(kObjects[0]);
-                    }
-                    else {
-                        cb(null);
-                    }
+            LibraryImpl.prototype.addShape = function (p_shapeName, p_result) {
+                var addShape_params = new Array();
+                addShape_params[0] = p_shapeName;
+                this._manager.operationManager().call(this, geometry.meta.MetaLibrary.OP_ADDSHAPE, addShape_params, function (o) {
+                    p_result(o);
                 });
             };
-            return NodeImpl;
+            return LibraryImpl;
         })(org.kevoree.modeling.abs.AbstractKObject);
-        impl.NodeImpl = NodeImpl;
-    })(impl = cloud.impl || (cloud.impl = {}));
+        impl.LibraryImpl = LibraryImpl;
+        var ShapeImpl = (function (_super) {
+            __extends(ShapeImpl, _super);
+            function ShapeImpl(p_universe, p_time, p_uuid, p_metaClass, p_manager) {
+                _super.call(this, p_universe, p_time, p_uuid, p_metaClass, p_manager);
+            }
+            ShapeImpl.prototype.getColor = function () {
+                return this.get(geometry.meta.MetaShape.ATT_COLOR);
+            };
+            ShapeImpl.prototype.setColor = function (p_obj) {
+                this.set(geometry.meta.MetaShape.ATT_COLOR, p_obj);
+                return this;
+            };
+            ShapeImpl.prototype.getName = function () {
+                return this.get(geometry.meta.MetaShape.ATT_NAME);
+            };
+            ShapeImpl.prototype.setName = function (p_obj) {
+                this.set(geometry.meta.MetaShape.ATT_NAME, p_obj);
+                return this;
+            };
+            return ShapeImpl;
+        })(org.kevoree.modeling.abs.AbstractKObject);
+        impl.ShapeImpl = ShapeImpl;
+    })(impl = geometry.impl || (geometry.impl = {}));
     var meta;
     (function (meta) {
-        var MetaElement = (function (_super) {
-            __extends(MetaElement, _super);
-            function MetaElement() {
-                _super.call(this, "cloud.Element", 1);
+        var MetaLibrary = (function (_super) {
+            __extends(MetaLibrary, _super);
+            function MetaLibrary() {
+                _super.call(this, "geometry.Library", 0);
                 var temp_all = new Array();
-                temp_all[0] = MetaElement.ATT_LOAD;
-                temp_all[1] = MetaElement.ATT_NAME;
-                temp_all[2] = MetaElement.ATT_VALUE;
                 var temp_references = new Array();
-                temp_all[3] = MetaElement.REF_OP_ELEMENT;
+                temp_all[0] = MetaLibrary.REF_SHAPES;
                 var temp_operations = new Array();
-                temp_all[4] = MetaElement.OP_TRIGGER;
+                temp_all[1] = MetaLibrary.OP_ADDSHAPE;
                 this.init(temp_all);
             }
-            MetaElement.getInstance = function () {
-                if (MetaElement.INSTANCE == null) {
-                    MetaElement.INSTANCE = new cloud.meta.MetaElement();
+            MetaLibrary.getInstance = function () {
+                if (MetaLibrary.INSTANCE == null) {
+                    MetaLibrary.INSTANCE = new geometry.meta.MetaLibrary();
                 }
-                return MetaElement.INSTANCE;
+                return MetaLibrary.INSTANCE;
             };
-            MetaElement.INSTANCE = null;
-            MetaElement.ATT_LOAD = new org.kevoree.modeling.meta.impl.MetaAttribute("load", 0, 2.2, false, org.kevoree.modeling.meta.KPrimitiveTypes.DOUBLE, org.kevoree.modeling.extrapolation.impl.PolynomialExtrapolation.instance());
-            MetaElement.ATT_NAME = new org.kevoree.modeling.meta.impl.MetaAttribute("name", 1, 0, true, org.kevoree.modeling.meta.KPrimitiveTypes.STRING, org.kevoree.modeling.extrapolation.impl.DiscreteExtrapolation.instance());
-            MetaElement.ATT_VALUE = new org.kevoree.modeling.meta.impl.MetaAttribute("value", 2, 0, false, org.kevoree.modeling.meta.KPrimitiveTypes.STRING, org.kevoree.modeling.extrapolation.impl.DiscreteExtrapolation.instance());
-            MetaElement.REF_OP_ELEMENT = new org.kevoree.modeling.meta.impl.MetaReference("op_element", 3, false, false, function () {
-                return cloud.meta.MetaNode.getInstance();
-            }, "element", function () {
-                return cloud.meta.MetaElement.getInstance();
+            MetaLibrary.INSTANCE = null;
+            MetaLibrary.REF_SHAPES = new org.kevoree.modeling.meta.impl.MetaReference("shapes", 0, true, false, function () {
+                return geometry.meta.MetaShape.getInstance();
+            }, "op_shapes", function () {
+                return geometry.meta.MetaLibrary.getInstance();
             });
-            MetaElement.OP_TRIGGER = new org.kevoree.modeling.meta.impl.MetaOperation("trigger", 4, function () {
-                return cloud.meta.MetaElement.getInstance();
+            MetaLibrary.OP_ADDSHAPE = new org.kevoree.modeling.meta.impl.MetaOperation("addShape", 1, function () {
+                return geometry.meta.MetaLibrary.getInstance();
             });
-            return MetaElement;
+            return MetaLibrary;
         })(org.kevoree.modeling.meta.impl.MetaClass);
-        meta.MetaElement = MetaElement;
-        var MetaNode = (function (_super) {
-            __extends(MetaNode, _super);
-            function MetaNode() {
-                _super.call(this, "cloud.Node", 0);
+        meta.MetaLibrary = MetaLibrary;
+        var MetaShape = (function (_super) {
+            __extends(MetaShape, _super);
+            function MetaShape() {
+                _super.call(this, "geometry.Shape", 1);
                 var temp_all = new Array();
-                temp_all[0] = MetaNode.ATT_NAME;
-                temp_all[1] = MetaNode.ATT_VALUE;
+                temp_all[0] = MetaShape.ATT_COLOR;
+                temp_all[1] = MetaShape.ATT_NAME;
                 var temp_references = new Array();
-                temp_all[2] = MetaNode.REF_CHILDREN;
-                temp_all[3] = MetaNode.REF_OP_CHILDREN;
-                temp_all[4] = MetaNode.REF_ELEMENT;
+                temp_all[2] = MetaShape.REF_OP_SHAPES;
                 var temp_operations = new Array();
                 this.init(temp_all);
             }
-            MetaNode.getInstance = function () {
-                if (MetaNode.INSTANCE == null) {
-                    MetaNode.INSTANCE = new cloud.meta.MetaNode();
+            MetaShape.getInstance = function () {
+                if (MetaShape.INSTANCE == null) {
+                    MetaShape.INSTANCE = new geometry.meta.MetaShape();
                 }
-                return MetaNode.INSTANCE;
+                return MetaShape.INSTANCE;
             };
-            MetaNode.INSTANCE = null;
-            MetaNode.ATT_NAME = new org.kevoree.modeling.meta.impl.MetaAttribute("name", 0, 0, true, org.kevoree.modeling.meta.KPrimitiveTypes.STRING, org.kevoree.modeling.extrapolation.impl.DiscreteExtrapolation.instance());
-            MetaNode.ATT_VALUE = new org.kevoree.modeling.meta.impl.MetaAttribute("value", 1, 0, false, org.kevoree.modeling.meta.KPrimitiveTypes.STRING, org.kevoree.modeling.extrapolation.impl.DiscreteExtrapolation.instance());
-            MetaNode.REF_CHILDREN = new org.kevoree.modeling.meta.impl.MetaReference("children", 2, true, false, function () {
-                return cloud.meta.MetaNode.getInstance();
-            }, "op_children", function () {
-                return cloud.meta.MetaNode.getInstance();
+            MetaShape.INSTANCE = null;
+            MetaShape.ATT_COLOR = new org.kevoree.modeling.meta.impl.MetaAttribute("color", 0, 0, false, org.kevoree.modeling.meta.KPrimitiveTypes.STRING, org.kevoree.modeling.extrapolation.impl.DiscreteExtrapolation.instance());
+            MetaShape.ATT_NAME = new org.kevoree.modeling.meta.impl.MetaAttribute("name", 1, 0, true, org.kevoree.modeling.meta.KPrimitiveTypes.STRING, org.kevoree.modeling.extrapolation.impl.DiscreteExtrapolation.instance());
+            MetaShape.REF_OP_SHAPES = new org.kevoree.modeling.meta.impl.MetaReference("op_shapes", 2, false, false, function () {
+                return geometry.meta.MetaLibrary.getInstance();
+            }, "shapes", function () {
+                return geometry.meta.MetaShape.getInstance();
             });
-            MetaNode.REF_OP_CHILDREN = new org.kevoree.modeling.meta.impl.MetaReference("op_children", 3, false, false, function () {
-                return cloud.meta.MetaNode.getInstance();
-            }, "children", function () {
-                return cloud.meta.MetaNode.getInstance();
-            });
-            MetaNode.REF_ELEMENT = new org.kevoree.modeling.meta.impl.MetaReference("element", 4, true, true, function () {
-                return cloud.meta.MetaElement.getInstance();
-            }, "op_element", function () {
-                return cloud.meta.MetaNode.getInstance();
-            });
-            return MetaNode;
+            return MetaShape;
         })(org.kevoree.modeling.meta.impl.MetaClass);
-        meta.MetaNode = MetaNode;
-    })(meta = cloud.meta || (cloud.meta = {}));
-})(cloud || (cloud = {}));
+        meta.MetaShape = MetaShape;
+    })(meta = geometry.meta || (geometry.meta = {}));
+})(geometry || (geometry = {}));
