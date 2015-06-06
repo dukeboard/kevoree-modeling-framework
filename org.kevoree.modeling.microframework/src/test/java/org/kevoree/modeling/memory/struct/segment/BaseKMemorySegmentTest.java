@@ -7,6 +7,7 @@ import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KModel;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.extrapolation.impl.DiscreteExtrapolation;
+import org.kevoree.modeling.extrapolation.impl.PolynomialExtrapolation;
 import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 import org.kevoree.modeling.meta.KMetaClass;
 import org.kevoree.modeling.meta.KMetaModel;
@@ -321,4 +322,63 @@ public abstract class BaseKMemorySegmentTest {
             }
         });
     }
+
+    @Test
+    public void inferTest() {
+        final KMetaModel dynamicMetaModel = new MetaModel("MyMetaModel");
+        final KMetaClass sensorMetaClass = dynamicMetaModel.addMetaClass("Sensor");
+
+        sensorMetaClass.addAttribute("name", KPrimitiveTypes.STRING, null, DiscreteExtrapolation.instance());
+        sensorMetaClass.addAttribute("value", KPrimitiveTypes.DOUBLE, null, PolynomialExtrapolation.instance());
+        sensorMetaClass.addReference("siblings", sensorMetaClass, null, true);
+
+        final KModel model = dynamicMetaModel.model();
+
+        model.connect(new KCallback<Throwable>() {
+            @Override
+            public void on(Throwable throwable) {
+
+                KObject sensor = model.universe(0).time(0).create(sensorMetaClass);
+                sensor.set(sensorMetaClass.attribute("name"), "Sensor#1");
+
+                KMemorySegment cacheEntry = createMemorySegment();
+                cacheEntry.init(sensorMetaClass);
+
+                Assert.assertFalse(cacheEntry.isDirty());
+
+                double[] inferPayload0 = cacheEntry.getInfer(sensorMetaClass.attribute("value").index(), sensorMetaClass);
+                Assert.assertNull(inferPayload0);
+
+                cacheEntry.extendInfer(sensorMetaClass.attribute("value").index(),1,sensorMetaClass);
+                Assert.assertTrue(cacheEntry.isDirty());
+
+                double[] inferPayload1 = cacheEntry.getInfer(sensorMetaClass.attribute("value").index(), sensorMetaClass);
+                Assert.assertNotNull(inferPayload1);
+                Assert.assertTrue(inferPayload1.length == 1);
+
+                cacheEntry.setInferElem(sensorMetaClass.attribute("value").index(),0,42,sensorMetaClass);
+                double[] inferPayload2 = cacheEntry.getInfer(sensorMetaClass.attribute("value").index(), sensorMetaClass);
+                Assert.assertNotNull(inferPayload2);
+                Assert.assertTrue(inferPayload2.length == 1);
+                Assert.assertTrue(inferPayload2[0] == 42);
+
+
+                cacheEntry.extendInfer(sensorMetaClass.attribute("value").index(),10,sensorMetaClass);
+                double[] inferPayload3 = cacheEntry.getInfer(sensorMetaClass.attribute("value").index(), sensorMetaClass);
+                Assert.assertNotNull(inferPayload3);
+                Assert.assertTrue(inferPayload3.length == 10);
+                Assert.assertTrue(inferPayload3[0] == 42);
+
+
+                cacheEntry.setInferElem(sensorMetaClass.attribute("value").index(),9,52,sensorMetaClass);
+                double[] inferPayload4 = cacheEntry.getInfer(sensorMetaClass.attribute("value").index(), sensorMetaClass);
+                Assert.assertTrue(inferPayload4[9] == 52);
+                Assert.assertTrue(inferPayload3[0] == 42);
+
+                // free cache entry
+                cacheEntry.free(dynamicMetaModel);
+            }
+        });
+    }
+
 }
