@@ -159,22 +159,26 @@ public class HeapMemorySegment implements KMemorySegment {
     }
 
     @Override
-    public boolean removeRef(int index, long newRef, KMetaClass metaClass) {
+    public boolean removeRef(int index, long refToRemove, KMetaClass metaClass) {
         if (raw != null) {
             long[] previous = (long[]) raw[index];
             if (previous != null) {
                 int indexToRemove = -1;
                 for (int i = 0; i < previous.length; i++) {
-                    if (previous[i] == newRef) {
+                    if (previous[i] == refToRemove) {
                         indexToRemove = i;
                         break;
                     }
                 }
                 if (indexToRemove != -1) {
-                    long[] newArray = new long[previous.length - 1];
-                    System.arraycopy(previous, 0, newArray, 0, indexToRemove);
-                    System.arraycopy(previous, indexToRemove + 1, newArray, indexToRemove, previous.length - indexToRemove - 1);
-                    raw[index] = newArray;
+                    if ((previous.length - 1) == 0) {
+                        raw[index] = null;
+                    } else {
+                        long[] newArray = new long[previous.length - 1];
+                        System.arraycopy(previous, 0, newArray, 0, indexToRemove);
+                        System.arraycopy(previous, indexToRemove + 1, newArray, indexToRemove, previous.length - indexToRemove - 1);
+                        raw[index] = newArray;
+                    }
                     if (_modifiedIndexes == null) {
                         _modifiedIndexes = new boolean[raw.length];
                     }
