@@ -1,4 +1,4 @@
-package org.kevoree.modeling.microframework.test.polynomial;
+package org.kevoree.modeling.extrapolation;
 
 import org.junit.Assert;
 import org.junit.Test;

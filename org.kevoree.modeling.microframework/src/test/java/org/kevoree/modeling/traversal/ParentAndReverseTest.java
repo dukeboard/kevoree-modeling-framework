@@ -1,4 +1,4 @@
-package org.kevoree.modeling.microframework.test.traversal;
+package org.kevoree.modeling.traversal;
 
 import org.junit.Test;
 import org.kevoree.modeling.KCallback;

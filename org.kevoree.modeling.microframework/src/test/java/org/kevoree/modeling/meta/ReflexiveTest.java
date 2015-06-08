@@ -1,4 +1,4 @@
-package org.kevoree.modeling.microframework.test.reflexive;
+package org.kevoree.modeling.meta;
 
 import org.junit.Test;
 import org.kevoree.modeling.KCallback;
