@@ -6,7 +6,7 @@ import org.kevoree.modeling.KContentKey;
 import org.kevoree.modeling.cdn.impl.ContentPutRequest;
 import org.kevoree.modeling.message.impl.*;
 
-public abstract class KMessageTest {
+public class KMessageTest {
 
     @Test
     public void test() {

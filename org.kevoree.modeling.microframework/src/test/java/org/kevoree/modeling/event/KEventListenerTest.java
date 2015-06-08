@@ -1,4 +1,4 @@
-package org.kevoree.modeling.microframework.test.event;
+package org.kevoree.modeling.event;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -17,7 +17,7 @@ import org.kevoree.modeling.meta.impl.MetaModel;
 /**
  * Created by duke on 22/03/15.
  */
-public class LocalEventListenersTest {
+public class KEventListenerTest {
 
     private KModel _model;
 
@@ -25,7 +25,7 @@ public class LocalEventListenersTest {
 
     private KView t0;
 
-    public LocalEventListenersTest() {
+    public KEventListenerTest() {
         MetaModel metaModel = new MetaModel("TestMM");
         KMetaClass metaClass = metaModel.addMetaClass("TestMC");
         metaClass.addAttribute("name", KPrimitiveTypes.STRING, null, DiscreteExtrapolation.instance());
@@ -37,7 +37,7 @@ public class LocalEventListenersTest {
     }
 
     @Test
-    public void test() {
+    public void eventListenerTest() {
         KObject obj = t0.create(_model.metaModel().metaClassByName("TestMC"));
         int[] counter = new int[]{0};
         KEventListener listener = new KEventListener() {
@@ -64,7 +64,7 @@ public class LocalEventListenersTest {
     }
 
     @Test
-    public void testMulti() {
+    public void multiEventListenerTest() {
         KObject obj = t0.create(_model.metaModel().metaClassByName("TestMC"));
         KObject obj2 = t0.create(_model.metaModel().metaClassByName("TestMC"));
         int[] counter = new int[]{0};

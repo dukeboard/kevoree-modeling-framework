@@ -1,4 +1,4 @@
-package org.kevoree.modeling.microframework.test.json;
+package org.kevoree.modeling.format.json;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -14,7 +14,7 @@ import org.kevoree.modeling.microframework.test.cloud.CloudView;
 public class JSONLoadTest {
 
     @Test
-    public void jsonTest() {
+    public void jsonLoadTest() {
 
         CloudModel universe = new CloudModel();
         universe.connect(null);

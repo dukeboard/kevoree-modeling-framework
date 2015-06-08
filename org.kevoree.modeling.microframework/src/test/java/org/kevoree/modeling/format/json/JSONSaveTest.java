@@ -1,4 +1,4 @@
-package org.kevoree.modeling.microframework.test.json;
+package org.kevoree.modeling.format.json;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -63,7 +63,7 @@ public class JSONSaveTest {
     }
 
     @Test
-    public void jsonTest() {
+    public void jsonSaveTest() {
         CloudModel universe = new CloudModel();
         universe.connect(null);
         CloudUniverse dimension0 = universe.newUniverse();

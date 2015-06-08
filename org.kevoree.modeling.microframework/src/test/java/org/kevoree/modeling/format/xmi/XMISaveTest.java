@@ -1,4 +1,4 @@
-package org.kevoree.modeling.microframework.test.xmi;
+package org.kevoree.modeling.format.xmi;
 
 import org.junit.Test;
 import org.kevoree.modeling.KCallback;
@@ -12,10 +12,10 @@ import org.kevoree.modeling.microframework.test.cloud.Element;
 /**
  * Created by gregory.nain on 16/10/2014.
  */
-public class SerializerTest {
+public class XMISaveTest {
 
     @Test
-    public void serializeTest() throws InterruptedException {
+    public void xmiSaveTest() throws InterruptedException {
         CloudModel universe = new CloudModel();
         universe.connect(null);
         CloudUniverse dimension0 = universe.newUniverse();
