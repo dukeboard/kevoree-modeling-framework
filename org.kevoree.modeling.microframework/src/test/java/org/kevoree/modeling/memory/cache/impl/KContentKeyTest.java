@@ -1,4 +1,4 @@
-package org.kevoree.modeling.microframework.test.cache;
+package org.kevoree.modeling.memory.cache.impl;
 
 import org.junit.Assert;
 import org.junit.Test;
