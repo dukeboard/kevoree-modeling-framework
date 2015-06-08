@@ -1,4 +1,4 @@
-package org.kevoree.modeling.microframework.test.map;
+package org.kevoree.modeling.memory.struct.map.impl;
 
 import org.junit.Assert;
 import org.junit.Test;

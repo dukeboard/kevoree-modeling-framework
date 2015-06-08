@@ -10,4 +10,7 @@ public interface KLongLongHashMap extends KMemoryElement {
 
     void each(KLongLongHashMapCallBack callback);
 
+    int size();
+
+    void clear();
 }

@@ -8,4 +8,8 @@ public interface KLongHashMap<V> {
 
     void each(KLongHashMapCallBack<V> callback);
 
+    int size();
+
+    void clear();
+
 }

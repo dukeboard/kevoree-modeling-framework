@@ -1,4 +1,4 @@
-package org.kevoree.modeling.microframework.test.struct;
+package org.kevoree.modeling.memory.struct.tree;
 
 /**
  * Created by duke on 26/05/15.

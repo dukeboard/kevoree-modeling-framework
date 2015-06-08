@@ -8,4 +8,10 @@ public interface KStringHashMap<V> {
 
     void each(KStringHashMapCallBack<V> callback);
 
+    int size();
+
+    void clear();
+
+    boolean containsKey(String key);
+
 }
