@@ -88,7 +88,7 @@ public class PolynomialExtrapolation implements Extrapolation {
         //Set the step
         if (encodedPolynomial[NUMSAMPLES] == 1) {
             encodedPolynomial[STEP] = time - timeOrigin;
-            raw.setInferElem(index,STEP,encodedPolynomial[STEP],metaClass);
+            raw.setInferElem(index, STEP, encodedPolynomial[STEP], metaClass);
         }
 
 
@@ -110,7 +110,7 @@ public class PolynomialExtrapolation implements Extrapolation {
             double[] times = new double[ss + 1];
             double[] values = new double[ss + 1];
             for (int i = 0; i < ss; i++) {
-                times[i] = ((double)i * num * (encodedPolynomial[LASTTIME]) / (ss * encodedPolynomial[STEP]));
+                times[i] = ((double) i * num * (encodedPolynomial[LASTTIME]) / (ss * encodedPolynomial[STEP]));
                 values[i] = internal_extrapolate(times[i], encodedPolynomial);
             }
             times[ss] = (time - timeOrigin) / encodedPolynomial[STEP];
@@ -184,8 +184,8 @@ public class PolynomialExtrapolation implements Extrapolation {
     public void mutate(KObject current, KMetaAttribute attribute, Object payload) {
         KMemorySegmentResolutionTrace trace = new MemorySegmentResolutionTrace();
         KMemorySegment raw = current.manager().segment(current.universe(), current.now(), current.uuid(), AccessMode.RESOLVE, current.metaClass(), trace);
-        if(raw.getInfer(attribute.index(),current.metaClass())==null){
-           raw = current.manager().segment(current.universe(), current.now(), current.uuid(), AccessMode.NEW, current.metaClass(), null);
+        if (raw.getInfer(attribute.index(), current.metaClass()) == null) {
+            raw = current.manager().segment(current.universe(), current.now(), current.uuid(), AccessMode.NEW, current.metaClass(), null);
         }
         if (!insert(current.now(), castNumber(payload), trace.getTime(), raw, attribute.index(), attribute.precision(), current.metaClass())) {
             long prevTime = (long) raw.getInferElem(attribute.index(), LASTTIME, current.metaClass()) + trace.getTime();
@@ -194,16 +194,6 @@ public class PolynomialExtrapolation implements Extrapolation {
             insert(prevTime, val, prevTime, newSegment, attribute.index(), attribute.precision(), current.metaClass());
             insert(current.now(), castNumber(payload), prevTime, newSegment, attribute.index(), attribute.precision(), current.metaClass());
         }
-    }
-
-    @Override
-    public String save(Object cache, KMetaAttribute attribute) {
-        return null;
-    }
-
-    @Override
-    public Object load(String payload, KMetaAttribute attribute, long now) {
-        return null;
     }
 
     /**

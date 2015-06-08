@@ -4,13 +4,10 @@ import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.KType;
 import org.kevoree.modeling.abs.KLazyResolver;
 import org.kevoree.modeling.extrapolation.Extrapolation;
+import org.kevoree.modeling.extrapolation.impl.DiscreteExtrapolation;
+import org.kevoree.modeling.extrapolation.impl.PolynomialExtrapolation;
 import org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap;
-import org.kevoree.modeling.meta.KMeta;
-import org.kevoree.modeling.meta.KMetaAttribute;
-import org.kevoree.modeling.meta.KMetaClass;
-import org.kevoree.modeling.meta.KMetaOperation;
-import org.kevoree.modeling.meta.KMetaReference;
-import org.kevoree.modeling.meta.MetaType;
+import org.kevoree.modeling.meta.*;
 
 public class MetaClass implements KMetaClass {
 
@@ -103,10 +100,14 @@ public class MetaClass implements KMetaClass {
     }
 
     @Override
-    public KMetaAttribute addAttribute(String attributeName, KType p_type, Double p_precision, Extrapolation extrapolation) {
+    public KMetaAttribute addAttribute(String attributeName, KType p_type) {
         double precisionCleaned = -1;
-        if (p_precision != null) {
-            precisionCleaned = p_precision;
+        Extrapolation extrapolation;
+        if (p_type.equals(KPrimitiveTypes.CONTINUOUS)) {
+            extrapolation = PolynomialExtrapolation.instance();
+            precisionCleaned = 0.1;
+        } else {
+            extrapolation = DiscreteExtrapolation.instance();
         }
         KMetaAttribute tempAttribute = new MetaAttribute(attributeName, _meta.length, precisionCleaned, false, p_type, extrapolation);
         internal_add_meta(tempAttribute);

@@ -1,6 +1,6 @@
 package org.kevoree.modeling.memory.manager.impl;
 
-import org.kevoree.modeling.KConfig;
+import org.kevoree.modeling.format.json.JsonString;
 import org.kevoree.modeling.meta.impl.MetaAttribute;
 import org.kevoree.modeling.meta.impl.MetaReference;
 import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
@@ -66,8 +66,8 @@ public class JsonRaw {
     /**
      * @native ts
      * var builder = {};
-     * builder[org.kevoree.modeling.format.json.JsonFormat.KEY_META] = p_metaClass.metaName();
-     * if(uuid != null){ builder[org.kevoree.modeling.format.json.JsonFormat.KEY_UUID] = uuid; }
+     * builder["@class"] = p_metaClass.metaName();
+     * builder["@uuid"] = uuid;
      * if(isRoot){ builder[org.kevoree.modeling.format.json.JsonFormat.KEY_ROOT] = true; }
      * var metaElements = p_metaClass.metaElements();
      * var payload_res;
@@ -88,14 +88,10 @@ public class JsonRaw {
      */
     public static String encode(KMemorySegment raw, long uuid, KMetaClass p_metaClass, boolean isRoot) {
         StringBuilder builder = new StringBuilder();
-        builder.append("{");
-        builder.append("\"" + JsonFormat.KEY_META + "\":\"");
+        builder.append("{\"@class\":\"");
         builder.append(p_metaClass.metaName());
-        builder.append("\"");
-        if (uuid != KConfig.NULL_LONG) {
-            builder.append(",\"" + JsonFormat.KEY_UUID + "\":");
-            builder.append(uuid);
-        }
+        builder.append("\",\"@uuid\":");
+        builder.append(uuid);
         if (isRoot) {
             builder.append(",\"" + JsonFormat.KEY_ROOT + "\":true");
         }
@@ -103,16 +99,33 @@ public class JsonRaw {
         for (int i = 0; i < metaElements.length; i++) {
             KMeta loopMeta = metaElements[i];
             if (loopMeta != null && loopMeta.metaType().equals(MetaType.ATTRIBUTE)) {
-                //check infer or not
-                Object payload_res = raw.get(loopMeta.index(), p_metaClass);
-                if (payload_res != null) {
-                    if (((KMetaAttribute) loopMeta).attributeType() != KPrimitiveTypes.TRANSIENT) {
-                        String attrsPayload = ((KMetaAttribute) loopMeta).strategy().save(payload_res, (KMetaAttribute) loopMeta);
-                        if (attrsPayload != null) {
+                KMetaAttribute metaAttribute = (KMetaAttribute) loopMeta;
+                if (metaAttribute == KPrimitiveTypes.CONTINUOUS) {
+                    double[] inferAtt = raw.getInfer(loopMeta.index(), p_metaClass);
+                    if (inferAtt != null) {
+                        builder.append(",\"");
+                        builder.append(loopMeta.metaName());
+                        builder.append("\":[");
+                        for (int j = 0; j < inferAtt.length; j++) {
+                            if (j != 0) {
+                                builder.append(",");
+                            }
+                            builder.append(inferAtt[j]);
+                        }
+                        builder.append("]");
+                    }
+                } else {
+                    Object payload_res = raw.get(loopMeta.index(), p_metaClass);
+                    if (payload_res != null) {
+                        if (((KMetaAttribute) loopMeta).attributeType() != KPrimitiveTypes.TRANSIENT) {
                             builder.append(",\"");
                             builder.append(loopMeta.metaName());
                             builder.append("\":\"");
-                            builder.append(attrsPayload);
+                            if (metaAttribute == KPrimitiveTypes.STRING) {
+                                builder.append(JsonString.encode(payload_res.toString()));
+                            } else {
+                                builder.append(payload_res.toString());
+                            }
                             builder.append("\"");
                         }
                     }
@@ -122,13 +135,12 @@ public class JsonRaw {
                 if (refPayload != null) {
                     builder.append(",\"");
                     builder.append(loopMeta.metaName());
-                    builder.append("\":");
-                    builder.append("[");
+                    builder.append("\":[");
                     for (int j = 0; j < refPayload.length; j++) {
-                        builder.append(refPayload[j]);
-                        if (j != refPayload.length - 1) {
+                        if (j != 0) {
                             builder.append(",");
                         }
+                        builder.append(refPayload[j]);
                     }
                     builder.append("]");
                 }

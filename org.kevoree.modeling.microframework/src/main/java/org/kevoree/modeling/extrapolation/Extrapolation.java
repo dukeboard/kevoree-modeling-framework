@@ -9,8 +9,4 @@ public interface Extrapolation {
 
     void mutate(KObject current, KMetaAttribute attribute, Object payload);
 
-    String save(Object cache, KMetaAttribute attribute);
-
-    Object load(String payload, KMetaAttribute attribute, long now);
-
 }

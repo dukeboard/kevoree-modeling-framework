@@ -25,6 +25,7 @@ public class AbstractDataType implements KType {
         return _isEnum;
     }
 
+    /*
     @Override
     public String save(Object src) {
         if (src != null && this != KPrimitiveTypes.TRANSIENT) {
@@ -64,5 +65,6 @@ public class AbstractDataType implements KType {
             return Float.parseFloat(payload);
         }
         return null;
-    }
+    }*/
+
 }

@@ -1,12 +1,11 @@
 package org.kevoree.modeling.memory.struct.segment.impl;
 
-import org.kevoree.modeling.KConfig;
+import org.kevoree.modeling.format.json.JsonString;
 import org.kevoree.modeling.infer.KInferState;
 import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 import org.kevoree.modeling.KContentKey;
 import org.kevoree.modeling.memory.manager.impl.JsonRaw;
-import org.kevoree.modeling.meta.KMetaClass;
-import org.kevoree.modeling.meta.KMetaModel;
+import org.kevoree.modeling.meta.*;
 
 public class HeapMemorySegment implements KMemorySegment {
 
@@ -38,7 +37,51 @@ public class HeapMemorySegment implements KMemorySegment {
 
     @Override
     public String serialize(KMetaModel metaModel) {
-        return JsonRaw.encode(this, KConfig.NULL_LONG, metaModel.metaClass(_metaClassIndex), false);
+        KMetaClass metaClass = metaModel.metaClass(_metaClassIndex);
+        StringBuilder builder = new StringBuilder();
+        builder.append("{\"@class\":\"");
+        builder.append(metaClass.metaName());
+        builder.append("\"");
+        KMeta[] metaElements = metaClass.metaElements();
+        if (raw != null && metaElements != null) {
+            for (int i = 0; i < raw.length && i < metaElements.length; i++) {
+                Object o = raw[i];
+                if (o != null) {
+                    builder.append(",\"");
+                    builder.append(metaElements[i].metaName());
+                    builder.append("\":");
+                    if (o instanceof String) {
+                        builder.append("\"");
+                        builder.append(JsonString.encode((String) o));
+                        builder.append("\"");
+                    } else if (o instanceof double[]) {
+                        builder.append(":[");
+                        double[] castedArr = (double[]) o;
+                        for (int j = 0; j < castedArr.length; j++) {
+                            if (j != 0) {
+                                builder.append(",");
+                            }
+                            builder.append(castedArr[j]);
+                        }
+                        builder.append("]");
+                    } else if (o instanceof long[]) {
+                        builder.append(":[");
+                        long[] castedArr = (long[]) o;
+                        for (int j = 0; j < castedArr.length; j++) {
+                            if (j != 0) {
+                                builder.append(",");
+                            }
+                            builder.append(castedArr[j]);
+                        }
+                        builder.append("]");
+                    } else {
+                        builder.append(o.toString());
+                    }
+                }
+            }
+        }
+        builder.append("}");
+        return builder.toString();
     }
 
     @Override

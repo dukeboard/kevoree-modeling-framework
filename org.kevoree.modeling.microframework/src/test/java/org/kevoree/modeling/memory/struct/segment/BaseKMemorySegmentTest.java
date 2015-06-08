@@ -349,28 +349,28 @@ public abstract class BaseKMemorySegmentTest {
                 double[] inferPayload0 = cacheEntry.getInfer(sensorMetaClass.attribute("value").index(), sensorMetaClass);
                 Assert.assertNull(inferPayload0);
 
-                cacheEntry.extendInfer(sensorMetaClass.attribute("value").index(),1,sensorMetaClass);
+                cacheEntry.extendInfer(sensorMetaClass.attribute("value").index(), 1, sensorMetaClass);
                 Assert.assertTrue(cacheEntry.isDirty());
 
                 double[] inferPayload1 = cacheEntry.getInfer(sensorMetaClass.attribute("value").index(), sensorMetaClass);
                 Assert.assertNotNull(inferPayload1);
                 Assert.assertTrue(inferPayload1.length == 1);
 
-                cacheEntry.setInferElem(sensorMetaClass.attribute("value").index(),0,42,sensorMetaClass);
+                cacheEntry.setInferElem(sensorMetaClass.attribute("value").index(), 0, 42, sensorMetaClass);
                 double[] inferPayload2 = cacheEntry.getInfer(sensorMetaClass.attribute("value").index(), sensorMetaClass);
                 Assert.assertNotNull(inferPayload2);
                 Assert.assertTrue(inferPayload2.length == 1);
                 Assert.assertTrue(inferPayload2[0] == 42);
 
 
-                cacheEntry.extendInfer(sensorMetaClass.attribute("value").index(),10,sensorMetaClass);
+                cacheEntry.extendInfer(sensorMetaClass.attribute("value").index(), 10, sensorMetaClass);
                 double[] inferPayload3 = cacheEntry.getInfer(sensorMetaClass.attribute("value").index(), sensorMetaClass);
                 Assert.assertNotNull(inferPayload3);
                 Assert.assertTrue(inferPayload3.length == 10);
                 Assert.assertTrue(inferPayload3[0] == 42);
 
 
-                cacheEntry.setInferElem(sensorMetaClass.attribute("value").index(),9,52,sensorMetaClass);
+                cacheEntry.setInferElem(sensorMetaClass.attribute("value").index(), 9, 52, sensorMetaClass);
                 double[] inferPayload4 = cacheEntry.getInfer(sensorMetaClass.attribute("value").index(), sensorMetaClass);
                 Assert.assertTrue(inferPayload4[9] == 52);
                 Assert.assertTrue(inferPayload3[0] == 42);

@@ -17,7 +17,7 @@ public interface KMetaClass extends KMeta {
 
     KMetaOperation operation(String name);
 
-    KMetaAttribute addAttribute(String attributeName, KType p_type, Double p_precision, Extrapolation extrapolation);
+    KMetaAttribute addAttribute(String attributeName, KType p_type);
 
     KMetaReference addReference(String referenceName, KMetaClass metaClass, String oppositeName, boolean toMany);
 

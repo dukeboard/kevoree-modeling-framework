@@ -38,6 +38,7 @@ public class DiscreteExtrapolation implements Extrapolation {
         }
     }
 
+
     @Override
     public String save(Object cache, KMetaAttribute attribute) {
         if (cache != null) {
@@ -54,5 +55,5 @@ public class DiscreteExtrapolation implements Extrapolation {
         }
         return null;
     }
-
+    
 }

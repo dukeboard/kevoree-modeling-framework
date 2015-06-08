@@ -15,4 +15,6 @@ public interface KMetaAttribute extends KMeta {
 
     void setExtrapolation(Extrapolation extrapolation);
 
+    void setPrecision(double precision);
+
 }
