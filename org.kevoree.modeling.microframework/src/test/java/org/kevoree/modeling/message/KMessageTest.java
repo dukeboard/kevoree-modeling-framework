@@ -1,16 +1,12 @@
-package org.kevoree.modeling.microframework.test.msg;
+package org.kevoree.modeling.message;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.KContentKey;
 import org.kevoree.modeling.cdn.impl.ContentPutRequest;
-import org.kevoree.modeling.message.*;
 import org.kevoree.modeling.message.impl.*;
 
-/**
- * Created by duke on 24/02/15.
- */
-public class KMessageTest {
+public abstract class KMessageTest {
 
     @Test
     public void test() {
@@ -20,7 +16,7 @@ public class KMessageTest {
         meta[0] = 0;
         meta[1] = 1;
 
-        event.setEvent(0,KContentKey.createObject(0l, 1l, 2l),meta);
+        event.setEvent(0, KContentKey.createObject(0l, 1l, 2l), meta);
 
         Assert.assertEquals("{\n" +
                 "\"type\":\"0\"\n" +
@@ -40,15 +36,15 @@ public class KMessageTest {
                 "\"type\":\"1\"\n" +
                 ",\"id\":\"0\"\n" +
                 ",\"keys\":[\"0/1/2\",\"3/4/5\",\"6/7/8\"]\n" +
-                "}\n",msgGet.json());
+                "}\n", msgGet.json());
         KMessage parsedGet = KMessageLoader.load(msgGet.json());
         Assert.assertEquals(parsedGet.json(), msgGet.json());
 
         PutRequest msgPut = new PutRequest();
         msgPut.id = 0l;
         msgPut.request = new ContentPutRequest(2);
-        msgPut.request.put(KContentKey.createObject(0l, 1l, 2l),"hello0");
-        msgPut.request.put(KContentKey.createObject(3l, 4l, 5l),"hello1");
+        msgPut.request.put(KContentKey.createObject(0l, 1l, 2l), "hello0");
+        msgPut.request.put(KContentKey.createObject(3l, 4l, 5l), "hello1");
         Assert.assertEquals("{\n" +
                 "\"type\":\"3\"\n" +
                 ",\"id\":\"0\"\n" +
@@ -66,11 +62,11 @@ public class KMessageTest {
         msgCall.params[1] = "param1";
         msgCall.params[2] = "param2";
         Assert.assertEquals("{\n" +
-            "\"type\":\"5\"\n" +
-            ",\"id\":\"1\"\n" +
-            ",\"key\":\"0/1/2\"\n" +
-            ",\"class\":\"0\",\"op\":\"0\",\"params\":[\"param0\",\"param1\",\"param2\"]\n" +
-            "}\n", msgCall.json());
+                "\"type\":\"5\"\n" +
+                ",\"id\":\"1\"\n" +
+                ",\"key\":\"0/1/2\"\n" +
+                ",\"class\":\"0\",\"op\":\"0\",\"params\":[\"param0\",\"param1\",\"param2\"]\n" +
+                "}\n", msgCall.json());
 
         KMessage parsedCall = KMessageLoader.load(msgCall.json());
         Assert.assertEquals(parsedCall.json(), msgCall.json());
@@ -80,16 +76,14 @@ public class KMessageTest {
         msgResult.key = KContentKey.createObject(0l, 1l, 2l);
         msgResult.value = "hello";
         Assert.assertEquals("{\n" +
-            "\"type\":\"6\"\n" +
-            ",\"id\":\"1\"\n" +
-            ",\"key\":\"0/1/2\"\n" +
-            ",\"value\":\"hello\"\n" +
-            "}\n", msgResult.json());
+                "\"type\":\"6\"\n" +
+                ",\"id\":\"1\"\n" +
+                ",\"key\":\"0/1/2\"\n" +
+                ",\"value\":\"hello\"\n" +
+                "}\n", msgResult.json());
 
         KMessage parsedResult = KMessageLoader.load(msgResult.json());
         Assert.assertEquals(parsedResult.json(), msgResult.json());
 
-
     }
-
 }

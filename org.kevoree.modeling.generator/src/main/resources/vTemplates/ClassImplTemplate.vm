@@ -54,7 +54,7 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.abs.Abstr
     }
 
     @Override
-    public void get${context.generationContext.helper.toCamelCase(${ref.getName()})}(org.kevoree.modeling.KCallback<${ref.getType().fqn}> cb) {
+    public void get${context.generationContext.helper.toCamelCase(${ref.getName()})}(final org.kevoree.modeling.KCallback<${ref.getType().fqn}> cb) {
         if(cb == null){
             return;
         }
@@ -85,7 +85,7 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.abs.Abstr
     }
 
     @Override
-    public void get${context.generationContext.helper.toCamelCase(${ref.getName()})}(org.kevoree.modeling.KCallback<${ref.getType().fqn}[]> cb) {
+    public void get${context.generationContext.helper.toCamelCase(${ref.getName()})}(final org.kevoree.modeling.KCallback<${ref.getType().fqn}[]> cb) {
         if(cb == null){
             return;
         }
