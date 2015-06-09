@@ -99,7 +99,7 @@ public class HashMemoryCache implements KCache {
     @Override
     public KCacheDirty[] dirties() {
         int nbDirties = 0;
-        for (int i = 0; i < elementDataSize; i++) {
+        for (int i = 0; i < elementData.length; i++) {
             if (elementData[i] != null) {
                 Entry current = elementData[i];
                 if (elementData[i].value.isDirty()) {

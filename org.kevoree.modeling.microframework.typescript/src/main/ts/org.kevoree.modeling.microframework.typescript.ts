@@ -4498,7 +4498,7 @@ module org {
 
                             public dirties(): org.kevoree.modeling.memory.cache.impl.KCacheDirty[] {
                                 var nbDirties: number = 0;
-                                for (var i: number = 0; i < this.elementDataSize; i++) {
+                                for (var i: number = 0; i < this.elementData.length; i++) {
                                     if (this.elementData[i] != null) {
                                         var current: org.kevoree.modeling.memory.cache.impl.HashMemoryCache.Entry = this.elementData[i];
                                         if (this.elementData[i].value.isDirty()) {

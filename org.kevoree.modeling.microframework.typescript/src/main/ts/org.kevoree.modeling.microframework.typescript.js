@@ -4025,7 +4025,7 @@ var org;
                             };
                             HashMemoryCache.prototype.dirties = function () {
                                 var nbDirties = 0;
-                                for (var i = 0; i < this.elementDataSize; i++) {
+                                for (var i = 0; i < this.elementData.length; i++) {
                                     if (this.elementData[i] != null) {
                                         var current = this.elementData[i];
                                         if (this.elementData[i].value.isDirty()) {
