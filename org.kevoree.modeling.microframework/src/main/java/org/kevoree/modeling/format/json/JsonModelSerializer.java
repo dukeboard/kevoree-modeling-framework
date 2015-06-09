@@ -7,7 +7,6 @@ import org.kevoree.modeling.traversal.visitor.KVisitResult;
 import org.kevoree.modeling.abs.AbstractKObject;
 import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 import org.kevoree.modeling.memory.manager.AccessMode;
-import org.kevoree.modeling.memory.manager.impl.JsonRaw;
 
 public class JsonModelSerializer {
 

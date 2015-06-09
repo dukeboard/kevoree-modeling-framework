@@ -274,10 +274,6 @@ module org {
 
                 isEnum(): boolean;
 
-                save(src: any): string;
-
-                load(payload: string): any;
-
             }
 
             export interface KUniverse<A extends org.kevoree.modeling.KView, B extends org.kevoree.modeling.KUniverse<any, any, any>, C extends org.kevoree.modeling.KModel<any>> {
@@ -348,45 +344,6 @@ module org {
 
                     public isEnum(): boolean {
                         return this._isEnum;
-                    }
-
-                    public save(src: any): string {
-                        if (src != null && this != org.kevoree.modeling.meta.KPrimitiveTypes.TRANSIENT) {
-                            if (this == org.kevoree.modeling.meta.KPrimitiveTypes.STRING) {
-                                return org.kevoree.modeling.format.json.JsonString.encode(src.toString());
-                            } else {
-                                return src.toString();
-                            }
-                        }
-                        return null;
-                    }
-
-                    public load(payload: string): any {
-                        if (this == org.kevoree.modeling.meta.KPrimitiveTypes.TRANSIENT) {
-                            return null;
-                        }
-                        if (this == org.kevoree.modeling.meta.KPrimitiveTypes.STRING) {
-                            return org.kevoree.modeling.format.json.JsonString.unescape(payload);
-                        }
-                        if (this == org.kevoree.modeling.meta.KPrimitiveTypes.LONG) {
-                            return java.lang.Long.parseLong(payload);
-                        }
-                        if (this == org.kevoree.modeling.meta.KPrimitiveTypes.INT) {
-                            return java.lang.Integer.parseInt(payload);
-                        }
-                        if (this == org.kevoree.modeling.meta.KPrimitiveTypes.BOOL) {
-                            return java.lang.Boolean.parseBoolean(payload);
-                        }
-                        if (this == org.kevoree.modeling.meta.KPrimitiveTypes.SHORT) {
-                            return java.lang.Short.parseShort(payload);
-                        }
-                        if (this == org.kevoree.modeling.meta.KPrimitiveTypes.DOUBLE) {
-                            return java.lang.Double.parseDouble(payload);
-                        }
-                        if (this == org.kevoree.modeling.meta.KPrimitiveTypes.FLOAT) {
-                            return java.lang.Float.parseFloat(payload);
-                        }
-                        return null;
                     }
 
                 }
@@ -539,7 +496,7 @@ module org {
 
                     public delete(cb: (p : any) => void): void {
                         var selfPointer: org.kevoree.modeling.KObject = this;
-                        var rawPayload: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.DELETE, this._metaClass);
+                        var rawPayload: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.DELETE, this._metaClass, null);
                         if (rawPayload == null) {
                             cb(new java.lang.Exception(AbstractKObject.OUT_OF_CACHE_MSG));
                         } else {
@@ -654,7 +611,7 @@ module org {
                             if (metaReference.single()) {
                                 this.internal_mutate(org.kevoree.modeling.KActionType.SET, metaReference, param, setOpposite);
                             } else {
-                                var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.NEW, this._metaClass);
+                                var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.NEW, this._metaClass, null);
                                 if (raw != null) {
                                     if (raw.addRef(metaReference.index(), param.uuid(), this._metaClass)) {
                                         if (setOpposite) {
@@ -671,7 +628,7 @@ module org {
                                     if (param == null) {
                                         this.internal_mutate(org.kevoree.modeling.KActionType.REMOVE, metaReference, null, setOpposite);
                                     } else {
-                                        var payload: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.NEW, this._metaClass);
+                                        var payload: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.NEW, this._metaClass, null);
                                         var previous: number[] = payload.getRef(metaReference.index(), this._metaClass);
                                         var singleValue: number[] = new Array();
                                         singleValue[0] = param.uuid();
@@ -694,7 +651,7 @@ module org {
                             } else {
                                 if (actionType.equals(org.kevoree.modeling.KActionType.REMOVE)) {
                                     if (metaReference.single()) {
-                                        var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.NEW, this._metaClass);
+                                        var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.NEW, this._metaClass, null);
                                         var previousKid: number[] = raw.getRef(metaReference.index(), this._metaClass);
                                         raw.set(metaReference.index(), null, this._metaClass);
                                         if (setOpposite) {
@@ -712,7 +669,7 @@ module org {
                                             }
                                         }
                                     } else {
-                                        var payload: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.NEW, this._metaClass);
+                                        var payload: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.NEW, this._metaClass, null);
                                         if (payload != null) {
                                             if (payload.removeRef(metaReference.index(), param.uuid(), this._metaClass)) {
                                                 if (setOpposite) {
@@ -731,7 +688,7 @@ module org {
                         if (transposed == null) {
                             throw new java.lang.RuntimeException("Bad KMF usage, the attribute named " + p_metaReference.metaName() + " is not part of " + this.metaClass().metaName());
                         } else {
-                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, this._metaClass);
+                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, this._metaClass, null);
                             if (raw != null) {
                                 var ref: any = raw.get(transposed.index(), this._metaClass);
                                 if (ref == null) {
@@ -759,7 +716,7 @@ module org {
                         if (transposed == null) {
                             throw new java.lang.RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + this.metaClass().metaName());
                         } else {
-                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, this._metaClass);
+                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, this._metaClass, null);
                             if (raw == null) {
                                 cb(new Array());
                             } else {
@@ -802,7 +759,7 @@ module org {
                         for (var i: number = 0; i < metaElements.length; i++) {
                             if (metaElements[i] instanceof org.kevoree.modeling.meta.impl.MetaReference) {
                                 var reference: org.kevoree.modeling.meta.KMetaReference = <org.kevoree.modeling.meta.KMetaReference>metaElements[i];
-                                var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, this._metaClass);
+                                var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, this._metaClass, null);
                                 if (raw != null) {
                                     var idArr: number[] = raw.getRef(reference.index(), this._metaClass);
                                     if (idArr != null) {
@@ -885,9 +842,9 @@ module org {
                     }
 
                     public toJSON(): string {
-                        var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, this._metaClass);
+                        var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, this._metaClass, null);
                         if (raw != null) {
-                            return org.kevoree.modeling.memory.manager.impl.JsonRaw.encode(raw, this._uuid, this._metaClass, false);
+                            return org.kevoree.modeling.format.json.JsonRaw.encode(raw, this._uuid, this._metaClass, false);
                         } else {
                             return null;
                         }
@@ -971,7 +928,7 @@ module org {
 
                     public referencesWith(o: org.kevoree.modeling.KObject): org.kevoree.modeling.meta.KMetaReference[] {
                         if (org.kevoree.modeling.util.Checker.isDefined(o)) {
-                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, this._metaClass);
+                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, this._metaClass, null);
                             if (raw != null) {
                                 var metaElements: org.kevoree.modeling.meta.KMeta[] = this.metaClass().metaElements();
                                 var selected: java.util.List<org.kevoree.modeling.meta.KMetaReference> = new java.util.ArrayList<org.kevoree.modeling.meta.KMetaReference>();
@@ -1004,66 +961,6 @@ module org {
 
                     public manager(): org.kevoree.modeling.memory.manager.KMemoryManager {
                         return this._manager;
-                    }
-
-                }
-
-                export class AbstractKObjectInfer extends org.kevoree.modeling.abs.AbstractKObject implements org.kevoree.modeling.infer.KInfer {
-
-                    constructor(p_universe: number, p_time: number, p_uuid: number, p_metaClass: org.kevoree.modeling.meta.KMetaClass, p_manager: org.kevoree.modeling.memory.manager.KMemoryManager) {
-                        super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
-                    }
-
-                    public readOnlyState(): org.kevoree.modeling.infer.KInferState {
-                        var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, this.metaClass());
-                        if (raw != null) {
-                            if (raw.get(org.kevoree.modeling.meta.KMetaInferClass.getInstance().getCache().index(), this.metaClass()) == null) {
-                                this.internal_load(raw);
-                            }
-                            return <org.kevoree.modeling.infer.KInferState>raw.get(org.kevoree.modeling.meta.KMetaInferClass.getInstance().getCache().index(), this.metaClass());
-                        } else {
-                            return null;
-                        }
-                    }
-
-                    public modifyState(): org.kevoree.modeling.infer.KInferState {
-                        var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._manager.segment(this._universe, this._time, this._uuid, org.kevoree.modeling.memory.manager.AccessMode.NEW, this.metaClass());
-                        if (raw != null) {
-                            if (raw.get(org.kevoree.modeling.meta.KMetaInferClass.getInstance().getCache().index(), this.metaClass()) == null) {
-                                this.internal_load(raw);
-                            }
-                            return <org.kevoree.modeling.infer.KInferState>raw.get(org.kevoree.modeling.meta.KMetaInferClass.getInstance().getCache().index(), this.metaClass());
-                        } else {
-                            return null;
-                        }
-                    }
-
-                    private internal_load(raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment): void {
-                        if (raw.get(org.kevoree.modeling.meta.KMetaInferClass.getInstance().getCache().index(), this.metaClass()) == null) {
-                            var currentState: org.kevoree.modeling.infer.KInferState = this.createEmptyState();
-                            currentState.load(raw.get(org.kevoree.modeling.meta.KMetaInferClass.getInstance().getRaw().index(), this.metaClass()).toString());
-                            raw.set(org.kevoree.modeling.meta.KMetaInferClass.getInstance().getCache().index(), currentState, this.metaClass());
-                        }
-                    }
-
-                    public train(trainingSet: any[][], expectedResultSet: any[], callback: (p : java.lang.Throwable) => void): void {
-                        throw "Abstract method";
-                    }
-
-                    public infer(features: any[]): any {
-                        throw "Abstract method";
-                    }
-
-                    public accuracy(testSet: any[][], expectedResultSet: any[]): any {
-                        throw "Abstract method";
-                    }
-
-                    public clear(): void {
-                        throw "Abstract method";
-                    }
-
-                    public createEmptyState(): org.kevoree.modeling.infer.KInferState {
-                        throw "Abstract method";
                     }
 
                 }
@@ -1827,10 +1724,6 @@ module org {
 
                     mutate(current: org.kevoree.modeling.KObject, attribute: org.kevoree.modeling.meta.KMetaAttribute, payload: any): void;
 
-                    save(cache: any, attribute: org.kevoree.modeling.meta.KMetaAttribute): string;
-
-                    load(payload: string, attribute: org.kevoree.modeling.meta.KMetaAttribute, now: number): any;
-
                 }
 
                 export module impl {
@@ -1845,7 +1738,7 @@ module org {
                         }
 
                         public extrapolate(current: org.kevoree.modeling.KObject, attribute: org.kevoree.modeling.meta.KMetaAttribute): any {
-                            var payload: org.kevoree.modeling.memory.struct.segment.KMemorySegment = (<org.kevoree.modeling.abs.AbstractKObject>current)._manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, current.metaClass());
+                            var payload: org.kevoree.modeling.memory.struct.segment.KMemorySegment = (<org.kevoree.modeling.abs.AbstractKObject>current)._manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, current.metaClass(), null);
                             if (payload != null) {
                                 return payload.get(attribute.index(), current.metaClass());
                             } else {
@@ -1854,25 +1747,10 @@ module org {
                         }
 
                         public mutate(current: org.kevoree.modeling.KObject, attribute: org.kevoree.modeling.meta.KMetaAttribute, payload: any): void {
-                            var internalPayload: org.kevoree.modeling.memory.struct.segment.KMemorySegment = (<org.kevoree.modeling.abs.AbstractKObject>current)._manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.NEW, current.metaClass());
+                            var internalPayload: org.kevoree.modeling.memory.struct.segment.KMemorySegment = (<org.kevoree.modeling.abs.AbstractKObject>current)._manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.NEW, current.metaClass(), null);
                             if (internalPayload != null) {
                                 internalPayload.set(attribute.index(), payload, current.metaClass());
                             }
-                        }
-
-                        public save(cache: any, attribute: org.kevoree.modeling.meta.KMetaAttribute): string {
-                            if (cache != null) {
-                                return attribute.attributeType().save(cache);
-                            } else {
-                                return null;
-                            }
-                        }
-
-                        public load(payload: string, attribute: org.kevoree.modeling.meta.KMetaAttribute, now: number): any {
-                            if (payload != null) {
-                                return attribute.attributeType().load(payload);
-                            }
-                            return null;
                         }
 
                     }
@@ -1887,9 +1765,10 @@ module org {
                         private static WEIGHTS: number = 4;
                         private static INSTANCE: org.kevoree.modeling.extrapolation.impl.PolynomialExtrapolation;
                         public extrapolate(current: org.kevoree.modeling.KObject, attribute: org.kevoree.modeling.meta.KMetaAttribute): any {
-                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = (<org.kevoree.modeling.abs.AbstractKObject>current)._manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, current.metaClass());
+                            var trace: org.kevoree.modeling.memory.manager.KMemorySegmentResolutionTrace = new org.kevoree.modeling.memory.manager.impl.MemorySegmentResolutionTrace();
+                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = (<org.kevoree.modeling.abs.AbstractKObject>current)._manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, current.metaClass(), trace);
                             if (raw != null) {
-                                var extrapolatedValue: number = this.extrapolateValue(raw.getInfer(attribute.index(), current.metaClass()), current.now(), raw.originTime());
+                                var extrapolatedValue: number = this.extrapolateValue(raw.getInfer(attribute.index(), current.metaClass()), current.now(), trace.getTime());
                                 if (attribute.attributeType() == org.kevoree.modeling.meta.KPrimitiveTypes.DOUBLE) {
                                     return extrapolatedValue;
                                 } else {
@@ -1946,7 +1825,7 @@ module org {
                                 return true;
                             }
                             if (encodedPolynomial[PolynomialExtrapolation.NUMSAMPLES] == 1) {
-                                encodedPolynomial[PolynomialExtrapolation.STEP] = time - raw.originTime();
+                                encodedPolynomial[PolynomialExtrapolation.STEP] = time - timeOrigin;
                                 raw.setInferElem(index, PolynomialExtrapolation.STEP, encodedPolynomial[PolynomialExtrapolation.STEP], metaClass);
                             }
                             var deg: number = encodedPolynomial.length - PolynomialExtrapolation.WEIGHTS - 1;
@@ -2031,25 +1910,18 @@ module org {
                         }
 
                         public mutate(current: org.kevoree.modeling.KObject, attribute: org.kevoree.modeling.meta.KMetaAttribute, payload: any): void {
-                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = current.manager().segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, current.metaClass());
+                            var trace: org.kevoree.modeling.memory.manager.KMemorySegmentResolutionTrace = new org.kevoree.modeling.memory.manager.impl.MemorySegmentResolutionTrace();
+                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = current.manager().segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, current.metaClass(), trace);
                             if (raw.getInfer(attribute.index(), current.metaClass()) == null) {
-                                raw = current.manager().segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.NEW, current.metaClass());
+                                raw = current.manager().segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.NEW, current.metaClass(), null);
                             }
-                            if (!this.insert(current.now(), this.castNumber(payload), raw.originTime(), raw, attribute.index(), attribute.precision(), current.metaClass())) {
-                                var prevTime: number = <number>raw.getInferElem(attribute.index(), PolynomialExtrapolation.LASTTIME, current.metaClass()) + raw.originTime();
-                                var val: number = this.extrapolateValue(raw.getInfer(attribute.index(), current.metaClass()), prevTime, raw.originTime());
-                                var newSegment: org.kevoree.modeling.memory.struct.segment.KMemorySegment = current.manager().segment(current.universe(), prevTime, current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.NEW, current.metaClass());
+                            if (!this.insert(current.now(), this.castNumber(payload), trace.getTime(), raw, attribute.index(), attribute.precision(), current.metaClass())) {
+                                var prevTime: number = <number>raw.getInferElem(attribute.index(), PolynomialExtrapolation.LASTTIME, current.metaClass()) + trace.getTime();
+                                var val: number = this.extrapolateValue(raw.getInfer(attribute.index(), current.metaClass()), prevTime, trace.getTime());
+                                var newSegment: org.kevoree.modeling.memory.struct.segment.KMemorySegment = current.manager().segment(current.universe(), prevTime, current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.NEW, current.metaClass(), null);
                                 this.insert(prevTime, val, prevTime, newSegment, attribute.index(), attribute.precision(), current.metaClass());
-                                this.insert(current.now(), this.castNumber(payload), newSegment.originTime(), newSegment, attribute.index(), attribute.precision(), current.metaClass());
+                                this.insert(current.now(), this.castNumber(payload), prevTime, newSegment, attribute.index(), attribute.precision(), current.metaClass());
                             }
-                        }
-
-                        public save(cache: any, attribute: org.kevoree.modeling.meta.KMetaAttribute): string {
-                            return null;
-                        }
-
-                        public load(payload: string, attribute: org.kevoree.modeling.meta.KMetaAttribute, now: number): any {
-                            return null;
                         }
 
                         private castNumber(payload: any): number {
@@ -2626,7 +2498,7 @@ module org {
                             var metaClass: org.kevoree.modeling.meta.KMetaClass = manager.model().metaModel().metaClassByName(meta);
                             var current: org.kevoree.modeling.KObject = (<org.kevoree.modeling.abs.AbstractKModel<any>>manager.model()).createProxy(universe, time, p_mappedKeys.get(kid), metaClass);
                             manager.initKObject(current);
-                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.NEW, current.metaClass());
+                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.NEW, current.metaClass(), null);
                             p_param.each( (metaKey : string, payload_content : any) => {
                                 if (metaKey.equals(org.kevoree.modeling.format.json.JsonFormat.KEY_ROOT)) {
                                     p_rootElem[0] = current;
@@ -2634,7 +2506,53 @@ module org {
                                     var metaElement: org.kevoree.modeling.meta.KMeta = metaClass.metaByName(metaKey);
                                     if (payload_content != null) {
                                         if (metaElement != null && metaElement.metaType().equals(org.kevoree.modeling.meta.MetaType.ATTRIBUTE)) {
-                                            raw.set(metaElement.index(), (<org.kevoree.modeling.meta.KMetaAttribute>metaElement).strategy().load(payload_content.toString(), <org.kevoree.modeling.meta.KMetaAttribute>metaElement, time), current.metaClass());
+                                            var metaAttribute: org.kevoree.modeling.meta.KMetaAttribute = <org.kevoree.modeling.meta.KMetaAttribute>metaElement;
+                                            if (metaAttribute.attributeType() == org.kevoree.modeling.meta.KPrimitiveTypes.CONTINUOUS) {
+                                                var plainRawSet: string[] = <string[]>p_param.get(metaAttribute.metaName());
+                                                var convertedRaw: number[] = new Array();
+                                                for (var l: number = 0; l < plainRawSet.length; l++) {
+                                                    try {
+                                                        convertedRaw[l] = java.lang.Double.parseDouble(plainRawSet[l]);
+                                                    } catch ($ex$) {
+                                                        if ($ex$ instanceof java.lang.Exception) {
+                                                            var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                                            e.printStackTrace();
+                                                        }
+                                                     }
+                                                }
+                                                raw.set(metaElement.index(), convertedRaw, current.metaClass());
+                                            } else {
+                                                var converted: any = null;
+                                                var rawPayload: string = p_param.get(metaElement.metaName()).toString();
+                                                if (metaAttribute.attributeType() == org.kevoree.modeling.meta.KPrimitiveTypes.STRING) {
+                                                    converted = org.kevoree.modeling.format.json.JsonString.unescape(rawPayload);
+                                                } else {
+                                                    if (metaAttribute.attributeType() == org.kevoree.modeling.meta.KPrimitiveTypes.LONG) {
+                                                        converted = java.lang.Long.parseLong(rawPayload);
+                                                    } else {
+                                                        if (metaAttribute.attributeType() == org.kevoree.modeling.meta.KPrimitiveTypes.INT) {
+                                                            converted = java.lang.Integer.parseInt(rawPayload);
+                                                        } else {
+                                                            if (metaAttribute.attributeType() == org.kevoree.modeling.meta.KPrimitiveTypes.BOOL) {
+                                                                converted = java.lang.Boolean.parseBoolean(rawPayload);
+                                                            } else {
+                                                                if (metaAttribute.attributeType() == org.kevoree.modeling.meta.KPrimitiveTypes.SHORT) {
+                                                                    converted = java.lang.Short.parseShort(rawPayload);
+                                                                } else {
+                                                                    if (metaAttribute.attributeType() == org.kevoree.modeling.meta.KPrimitiveTypes.DOUBLE) {
+                                                                        converted = java.lang.Double.parseDouble(rawPayload);
+                                                                    } else {
+                                                                        if (metaAttribute.attributeType() == org.kevoree.modeling.meta.KPrimitiveTypes.FLOAT) {
+                                                                            converted = java.lang.Float.parseFloat(rawPayload);
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                raw.set(metaElement.index(), converted, current.metaClass());
+                                            }
                                         } else {
                                             if (metaElement != null && metaElement instanceof org.kevoree.modeling.meta.impl.MetaReference) {
                                                 try {
@@ -2708,9 +2626,9 @@ module org {
 
                         public static printJSON(elem: org.kevoree.modeling.KObject, builder: java.lang.StringBuilder, isRoot: boolean): void {
                             if (elem != null) {
-                                var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = (<org.kevoree.modeling.abs.AbstractKObject>elem)._manager.segment(elem.universe(), elem.now(), elem.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, elem.metaClass());
+                                var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = (<org.kevoree.modeling.abs.AbstractKObject>elem)._manager.segment(elem.universe(), elem.now(), elem.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, elem.metaClass(), null);
                                 if (raw != null) {
-                                    builder.append(org.kevoree.modeling.memory.manager.impl.JsonRaw.encode(raw, elem.uuid(), elem.metaClass(), isRoot));
+                                    builder.append(org.kevoree.modeling.format.json.JsonRaw.encode(raw, elem.uuid(), elem.metaClass(), isRoot));
                                 }
                             }
                         }
@@ -2736,6 +2654,56 @@ module org {
                          }
                          return keysArr;
                          }
+                    }
+
+                    export class JsonRaw {
+
+                        public static convert(payload: string, type: org.kevoree.modeling.KType): any {
+                            if (type == org.kevoree.modeling.meta.KPrimitiveTypes.STRING) {
+                                return org.kevoree.modeling.format.json.JsonString.unescape(payload);
+                            }
+                            if (type == org.kevoree.modeling.meta.KPrimitiveTypes.LONG) {
+                                return java.lang.Long.parseLong(payload);
+                            }
+                            if (type == org.kevoree.modeling.meta.KPrimitiveTypes.INT) {
+                                return java.lang.Integer.parseInt(payload);
+                            }
+                            if (type == org.kevoree.modeling.meta.KPrimitiveTypes.BOOL) {
+                                return java.lang.Boolean.parseBoolean(payload);
+                            }
+                            if (type == org.kevoree.modeling.meta.KPrimitiveTypes.SHORT) {
+                                return java.lang.Short.parseShort(payload);
+                            }
+                            if (type == org.kevoree.modeling.meta.KPrimitiveTypes.DOUBLE) {
+                                return java.lang.Double.parseDouble(payload);
+                            }
+                            if (type == org.kevoree.modeling.meta.KPrimitiveTypes.FLOAT) {
+                                return java.lang.Float.parseFloat(payload);
+                            }
+                            return null;
+                        }
+
+                        public static encode(raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment, uuid: number, p_metaClass: org.kevoree.modeling.meta.KMetaClass, isRoot: boolean): string {
+                             var builder = {};
+                             builder["@class"] = p_metaClass.metaName();
+                             builder["@uuid"] = uuid;
+                             if(isRoot){ builder[org.kevoree.modeling.format.json.JsonFormat.KEY_ROOT] = true; }
+                             var metaElements = p_metaClass.metaElements();
+                             var payload_res;
+                             for (var i = 0; i < metaElements.length; i++) {
+                             payload_res = raw.get(metaElements[i].index(),p_metaClass);
+                             if(payload_res != null && payload_res !== undefined){
+                             if (metaElements[i] != null && metaElements[i].metaType() === org.kevoree.modeling.meta.MetaType.ATTRIBUTE) {
+                             var attrsPayload = metaElements[i]['strategy']().save(payload_res, metaElements[i]);
+                             builder[metaElements[i].metaName()] = attrsPayload;
+                             } else {
+                             builder[metaElements[i].metaName()] = payload_res;
+                             }
+                             }
+                             }
+                             return JSON.stringify(builder);
+                        }
+
                     }
 
                     export class JsonString {
@@ -3383,88 +3351,19 @@ module org {
                 }
             }
             export module infer {
-                export class AnalyticKInfer extends org.kevoree.modeling.abs.AbstractKObjectInfer {
-
-                    constructor(p_universe: number, p_time: number, p_uuid: number, p_metaClass: org.kevoree.modeling.meta.KMetaClass, p_manager: org.kevoree.modeling.memory.manager.KMemoryManager) {
-                        super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
-                    }
-
-                    public train(trainingSet: any[][], expectedResultSet: any[], callback: (p : java.lang.Throwable) => void): void {
-                        var currentState: org.kevoree.modeling.infer.states.AnalyticKInferState = <org.kevoree.modeling.infer.states.AnalyticKInferState>this.modifyState();
-                        for (var i: number = 0; i < expectedResultSet.length; i++) {
-                            var value: number = java.lang.Double.parseDouble(expectedResultSet[i].toString());
-                            currentState.train(value);
-                        }
-                    }
-
-                    public infer(features: any[]): any {
-                        var currentState: org.kevoree.modeling.infer.states.AnalyticKInferState = <org.kevoree.modeling.infer.states.AnalyticKInferState>this.readOnlyState();
-                        return currentState.getAverage();
-                    }
-
-                    public accuracy(testSet: any[][], expectedResultSet: any[]): any {
-                        return null;
-                    }
-
-                    public clear(): void {
-                        var currentState: org.kevoree.modeling.infer.states.AnalyticKInferState = <org.kevoree.modeling.infer.states.AnalyticKInferState>this.modifyState();
-                        currentState.clear();
-                    }
-
-                    public createEmptyState(): org.kevoree.modeling.infer.KInferState {
-                        return new org.kevoree.modeling.infer.states.AnalyticKInferState();
-                    }
+                export class AnalyticKInfer {
 
                 }
 
-                export class GaussianClassificationKInfer extends org.kevoree.modeling.abs.AbstractKObjectInfer {
+                export class GaussianClassificationKInfer {
 
                     private alpha: number = 0.05;
-                    constructor(p_universe: number, p_time: number, p_uuid: number, p_metaClass: org.kevoree.modeling.meta.KMetaClass, p_manager: org.kevoree.modeling.memory.manager.KMemoryManager) {
-                        super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
-                    }
-
                     public getAlpha(): number {
                         return this.alpha;
                     }
 
                     public setAlpha(alpha: number): void {
                         this.alpha = alpha;
-                    }
-
-                    public train(trainingSet: any[][], expectedResultSet: any[], callback: (p : java.lang.Throwable) => void): void {
-                        var currentState: org.kevoree.modeling.infer.states.GaussianArrayKInferState = <org.kevoree.modeling.infer.states.GaussianArrayKInferState>this.modifyState();
-                        var featuresize: number = trainingSet[0].length;
-                        var features: number[][] = new Array();
-                        var results: boolean[] = new Array();
-                        for (var i: number = 0; i < trainingSet.length; i++) {
-                            features[i] = new Array();
-                            for (var j: number = 0; j < featuresize; j++) {
-                                features[i][j] = <number>trainingSet[i][j];
-                            }
-                            results[i] = <boolean>expectedResultSet[i];
-                            currentState.train(features[i], results[i], this.alpha);
-                        }
-                    }
-
-                    public infer(features: any[]): any {
-                        var currentState: org.kevoree.modeling.infer.states.GaussianArrayKInferState = <org.kevoree.modeling.infer.states.GaussianArrayKInferState>this.readOnlyState();
-                        var ft: number[] = new Array();
-                        for (var i: number = 0; i < features.length; i++) {
-                            ft[i] = <number>features[i];
-                        }
-                        return currentState.infer(ft);
-                    }
-
-                    public accuracy(testSet: any[][], expectedResultSet: any[]): any {
-                        return null;
-                    }
-
-                    public clear(): void {
-                    }
-
-                    public createEmptyState(): org.kevoree.modeling.infer.KInferState {
-                        return null;
                     }
 
                 }
@@ -3501,14 +3400,10 @@ module org {
 
                 }
 
-                export class LinearRegressionKInfer extends org.kevoree.modeling.abs.AbstractKObjectInfer {
+                export class LinearRegressionKInfer {
 
                     private alpha: number = 0.0001;
                     private iterations: number = 100;
-                    constructor(p_universe: number, p_time: number, p_uuid: number, p_metaClass: org.kevoree.modeling.meta.KMetaClass, p_manager: org.kevoree.modeling.memory.manager.KMemoryManager) {
-                        super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
-                    }
-
                     public getAlpha(): number {
                         return this.alpha;
                     }
@@ -3534,68 +3429,12 @@ module org {
                         return result;
                     }
 
-                    public train(trainingSet: any[][], expectedResultSet: any[], callback: (p : java.lang.Throwable) => void): void {
-                        var currentState: org.kevoree.modeling.infer.states.DoubleArrayKInferState = <org.kevoree.modeling.infer.states.DoubleArrayKInferState>this.modifyState();
-                        var weights: number[] = currentState.getWeights();
-                        var featuresize: number = trainingSet[0].length;
-                        if (weights == null) {
-                            weights = new Array();
-                        }
-                        var features: number[][] = new Array();
-                        var results: number[] = new Array();
-                        for (var i: number = 0; i < trainingSet.length; i++) {
-                            features[i] = new Array();
-                            for (var j: number = 0; j < featuresize; j++) {
-                                features[i][j] = <number>trainingSet[i][j];
-                            }
-                            results[i] = <number>expectedResultSet[i];
-                        }
-                        for (var j: number = 0; j < this.iterations; j++) {
-                            for (var i: number = 0; i < trainingSet.length; i++) {
-                                var h: number = this.calculate(weights, features[i]);
-                                var err: number = -this.alpha * (h - results[i]);
-                                for (var k: number = 0; k < featuresize; k++) {
-                                    weights[k] = weights[k] + err * features[i][k];
-                                }
-                                weights[featuresize] = weights[featuresize] + err;
-                            }
-                        }
-                        currentState.setWeights(weights);
-                    }
-
-                    public infer(features: any[]): any {
-                        var currentState: org.kevoree.modeling.infer.states.DoubleArrayKInferState = <org.kevoree.modeling.infer.states.DoubleArrayKInferState>this.readOnlyState();
-                        var weights: number[] = currentState.getWeights();
-                        var ft: number[] = new Array();
-                        for (var i: number = 0; i < features.length; i++) {
-                            ft[i] = <number>features[i];
-                        }
-                        return this.calculate(weights, ft);
-                    }
-
-                    public accuracy(testSet: any[][], expectedResultSet: any[]): any {
-                        return null;
-                    }
-
-                    public clear(): void {
-                        var currentState: org.kevoree.modeling.infer.states.DoubleArrayKInferState = <org.kevoree.modeling.infer.states.DoubleArrayKInferState>this.modifyState();
-                        currentState.setWeights(null);
-                    }
-
-                    public createEmptyState(): org.kevoree.modeling.infer.KInferState {
-                        return new org.kevoree.modeling.infer.states.DoubleArrayKInferState();
-                    }
-
                 }
 
-                export class PerceptronClassificationKInfer extends org.kevoree.modeling.abs.AbstractKObjectInfer {
+                export class PerceptronClassificationKInfer {
 
                     private alpha: number = 0.001;
                     private iterations: number = 100;
-                    constructor(p_universe: number, p_time: number, p_uuid: number, p_metaClass: org.kevoree.modeling.meta.KMetaClass, p_manager: org.kevoree.modeling.memory.manager.KMemoryManager) {
-                        super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
-                    }
-
                     public getAlpha(): number {
                         return this.alpha;
                     }
@@ -3625,75 +3464,34 @@ module org {
                         }
                     }
 
-                    public train(trainingSet: any[][], expectedResultSet: any[], callback: (p : java.lang.Throwable) => void): void {
-                        var currentState: org.kevoree.modeling.infer.states.DoubleArrayKInferState = <org.kevoree.modeling.infer.states.DoubleArrayKInferState>this.modifyState();
-                        var weights: number[] = currentState.getWeights();
-                        var featuresize: number = trainingSet[0].length;
-                        if (weights == null) {
-                            weights = new Array();
-                        }
-                        var features: number[][] = new Array();
-                        var results: number[] = new Array();
-                        for (var i: number = 0; i < trainingSet.length; i++) {
-                            features[i] = new Array();
-                            for (var j: number = 0; j < featuresize; j++) {
-                                features[i][j] = <number>trainingSet[i][j];
-                            }
-                            results[i] = <number>expectedResultSet[i];
-                            if (results[i] == 0) {
-                                results[i] = -1;
-                            }
-                        }
-                        for (var j: number = 0; j < this.iterations; j++) {
-                            for (var i: number = 0; i < trainingSet.length; i++) {
-                                var h: number = this.calculate(weights, features[i]);
-                                if (h == 0) {
-                                    h = -1;
-                                }
-                                if (h * results[i] <= 0) {
-                                    for (var k: number = 0; k < featuresize; k++) {
-                                        weights[k] = weights[k] + this.alpha * (results[i] * features[i][k]);
-                                    }
-                                    weights[featuresize] = weights[featuresize] + this.alpha * (results[i]);
-                                }
-                            }
-                        }
-                        currentState.setWeights(weights);
+                }
+
+                export class PolynomialOfflineKInfer {
+
+                    public maxDegree: number = 20;
+                    public toleratedErr: number = 0.01;
+                    public getToleratedErr(): number {
+                        return this.toleratedErr;
                     }
 
-                    public infer(features: any[]): any {
-                        var currentState: org.kevoree.modeling.infer.states.DoubleArrayKInferState = <org.kevoree.modeling.infer.states.DoubleArrayKInferState>this.readOnlyState();
-                        var weights: number[] = currentState.getWeights();
-                        var ft: number[] = new Array();
-                        for (var i: number = 0; i < features.length; i++) {
-                            ft[i] = <number>features[i];
-                        }
-                        return this.calculate(weights, ft);
+                    public setToleratedErr(toleratedErr: number): void {
+                        this.toleratedErr = toleratedErr;
                     }
 
-                    public accuracy(testSet: any[][], expectedResultSet: any[]): any {
-                        return null;
+                    public getMaxDegree(): number {
+                        return this.maxDegree;
                     }
 
-                    public clear(): void {
-                        var currentState: org.kevoree.modeling.infer.states.DoubleArrayKInferState = <org.kevoree.modeling.infer.states.DoubleArrayKInferState>this.modifyState();
-                        currentState.setWeights(null);
-                    }
-
-                    public createEmptyState(): org.kevoree.modeling.infer.KInferState {
-                        return new org.kevoree.modeling.infer.states.DoubleArrayKInferState();
+                    public setMaxDegree(maxDegree: number): void {
+                        this.maxDegree = maxDegree;
                     }
 
                 }
 
-                export class PolynomialOfflineKInfer extends org.kevoree.modeling.abs.AbstractKObjectInfer {
+                export class PolynomialOnlineKInfer {
 
                     public maxDegree: number = 20;
                     public toleratedErr: number = 0.01;
-                    constructor(p_universe: number, p_time: number, p_uuid: number, p_metaClass: org.kevoree.modeling.meta.KMetaClass, p_manager: org.kevoree.modeling.memory.manager.KMemoryManager) {
-                        super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
-                    }
-
                     public getToleratedErr(): number {
                         return this.toleratedErr;
                     }
@@ -3725,171 +3523,12 @@ module org {
                         return result;
                     }
 
-                    public train(trainingSet: any[][], expectedResultSet: any[], callback: (p : java.lang.Throwable) => void): void {
-                        var currentState: org.kevoree.modeling.infer.states.PolynomialKInferState = <org.kevoree.modeling.infer.states.PolynomialKInferState>this.modifyState();
-                        var weights: number[];
-                        var featuresize: number = trainingSet[0].length;
-                        var times: number[] = new Array();
-                        var results: number[] = new Array();
-                        for (var i: number = 0; i < trainingSet.length; i++) {
-                            times[i] = <number>trainingSet[i][0];
-                            results[i] = <number>expectedResultSet[i];
-                        }
-                        if (times.length == 0) {
-                            return;
-                        }
-                        if (times.length == 1) {
-                            weights = new Array();
-                            weights[0] = results[0];
-                            currentState.setWeights(weights);
-                            return;
-                        }
-                        var maxcurdeg: number = Math.min(times.length, this.maxDegree);
-                        var timeOrigin: number = times[0];
-                        var unit: number = times[1] - times[0];
-                        var normalizedTimes: number[] = new Array();
-                        for (var i: number = 0; i < times.length; i++) {
-                            normalizedTimes[i] = (<number>(times[i] - times[0])) / unit;
-                        }
-                        for (var deg: number = 0; deg < maxcurdeg; deg++) {
-                            var pf: org.kevoree.modeling.extrapolation.impl.maths.PolynomialFitEjml = new org.kevoree.modeling.extrapolation.impl.maths.PolynomialFitEjml(deg);
-                            pf.fit(normalizedTimes, results);
-                            if (org.kevoree.modeling.infer.states.PolynomialKInferState.maxError(pf.getCoef(), normalizedTimes, results) <= this.toleratedErr) {
-                                currentState.setUnit(unit);
-                                currentState.setTimeOrigin(timeOrigin);
-                                currentState.setWeights(pf.getCoef());
-                                return;
-                            }
-                        }
-                    }
-
-                    public infer(features: any[]): any {
-                        var currentState: org.kevoree.modeling.infer.states.PolynomialKInferState = <org.kevoree.modeling.infer.states.PolynomialKInferState>this.readOnlyState();
-                        var time: number = <number>features[0];
-                        return currentState.infer(time);
-                    }
-
-                    public accuracy(testSet: any[][], expectedResultSet: any[]): any {
-                        return null;
-                    }
-
-                    public clear(): void {
-                        var currentState: org.kevoree.modeling.infer.states.DoubleArrayKInferState = <org.kevoree.modeling.infer.states.DoubleArrayKInferState>this.modifyState();
-                        currentState.setWeights(null);
-                    }
-
-                    public createEmptyState(): org.kevoree.modeling.infer.KInferState {
-                        return new org.kevoree.modeling.infer.states.DoubleArrayKInferState();
-                    }
-
                 }
 
-                export class PolynomialOnlineKInfer extends org.kevoree.modeling.abs.AbstractKObjectInfer {
-
-                    public maxDegree: number = 20;
-                    public toleratedErr: number = 0.01;
-                    constructor(p_universe: number, p_time: number, p_uuid: number, p_metaClass: org.kevoree.modeling.meta.KMetaClass, p_manager: org.kevoree.modeling.memory.manager.KMemoryManager) {
-                        super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
-                    }
-
-                    public getToleratedErr(): number {
-                        return this.toleratedErr;
-                    }
-
-                    public setToleratedErr(toleratedErr: number): void {
-                        this.toleratedErr = toleratedErr;
-                    }
-
-                    public getMaxDegree(): number {
-                        return this.maxDegree;
-                    }
-
-                    public setMaxDegree(maxDegree: number): void {
-                        this.maxDegree = maxDegree;
-                    }
-
-                    private calculateLong(time: number, weights: number[], timeOrigin: number, unit: number): number {
-                        var t: number = (<number>(time - timeOrigin)) / unit;
-                        return this.calculate(weights, t);
-                    }
-
-                    private calculate(weights: number[], t: number): number {
-                        var result: number = 0;
-                        var power: number = 1;
-                        for (var j: number = 0; j < weights.length; j++) {
-                            result += weights[j] * power;
-                            power = power * t;
-                        }
-                        return result;
-                    }
-
-                    public train(trainingSet: any[][], expectedResultSet: any[], callback: (p : java.lang.Throwable) => void): void {
-                        var currentState: org.kevoree.modeling.infer.states.PolynomialKInferState = <org.kevoree.modeling.infer.states.PolynomialKInferState>this.modifyState();
-                        var weights: number[];
-                        var featuresize: number = trainingSet[0].length;
-                        var times: number[] = new Array();
-                        var results: number[] = new Array();
-                        for (var i: number = 0; i < trainingSet.length; i++) {
-                            times[i] = <number>trainingSet[i][0];
-                            results[i] = <number>expectedResultSet[i];
-                        }
-                        if (times.length == 0) {
-                            return;
-                        }
-                        if (times.length == 1) {
-                            weights = new Array();
-                            weights[0] = results[0];
-                            currentState.setWeights(weights);
-                            return;
-                        }
-                        var maxcurdeg: number = Math.min(times.length, this.maxDegree);
-                        var timeOrigin: number = times[0];
-                        var unit: number = times[1] - times[0];
-                        var normalizedTimes: number[] = new Array();
-                        for (var i: number = 0; i < times.length; i++) {
-                            normalizedTimes[i] = (<number>(times[i] - times[0])) / unit;
-                        }
-                        for (var deg: number = 0; deg < maxcurdeg; deg++) {
-                            var pf: org.kevoree.modeling.extrapolation.impl.maths.PolynomialFitEjml = new org.kevoree.modeling.extrapolation.impl.maths.PolynomialFitEjml(deg);
-                            pf.fit(normalizedTimes, results);
-                            if (org.kevoree.modeling.infer.states.PolynomialKInferState.maxError(pf.getCoef(), normalizedTimes, results) <= this.toleratedErr) {
-                                currentState.setUnit(unit);
-                                currentState.setTimeOrigin(timeOrigin);
-                                currentState.setWeights(pf.getCoef());
-                                return;
-                            }
-                        }
-                    }
-
-                    public infer(features: any[]): any {
-                        var currentState: org.kevoree.modeling.infer.states.PolynomialKInferState = <org.kevoree.modeling.infer.states.PolynomialKInferState>this.readOnlyState();
-                        var time: number = <number>features[0];
-                        return currentState.infer(time);
-                    }
-
-                    public accuracy(testSet: any[][], expectedResultSet: any[]): any {
-                        return null;
-                    }
-
-                    public clear(): void {
-                        var currentState: org.kevoree.modeling.infer.states.DoubleArrayKInferState = <org.kevoree.modeling.infer.states.DoubleArrayKInferState>this.modifyState();
-                        currentState.setWeights(null);
-                    }
-
-                    public createEmptyState(): org.kevoree.modeling.infer.KInferState {
-                        return new org.kevoree.modeling.infer.states.DoubleArrayKInferState();
-                    }
-
-                }
-
-                export class WinnowClassificationKInfer extends org.kevoree.modeling.abs.AbstractKObjectInfer {
+                export class WinnowClassificationKInfer {
 
                     private alpha: number = 2;
                     private beta: number = 2;
-                    constructor(p_universe: number, p_time: number, p_uuid: number, p_metaClass: org.kevoree.modeling.meta.KMetaClass, p_manager: org.kevoree.modeling.memory.manager.KMemoryManager) {
-                        super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
-                    }
-
                     public getAlpha(): number {
                         return this.alpha;
                     }
@@ -3916,69 +3555,6 @@ module org {
                         } else {
                             return 0.0;
                         }
-                    }
-
-                    public train(trainingSet: any[][], expectedResultSet: any[], callback: (p : java.lang.Throwable) => void): void {
-                        var currentState: org.kevoree.modeling.infer.states.DoubleArrayKInferState = <org.kevoree.modeling.infer.states.DoubleArrayKInferState>this.modifyState();
-                        var weights: number[] = currentState.getWeights();
-                        var featuresize: number = trainingSet[0].length;
-                        if (weights == null) {
-                            weights = new Array();
-                            for (var i: number = 0; i < weights.length; i++) {
-                                weights[i] = 2;
-                            }
-                        }
-                        var features: number[][] = new Array();
-                        var results: number[] = new Array();
-                        for (var i: number = 0; i < trainingSet.length; i++) {
-                            features[i] = new Array();
-                            for (var j: number = 0; j < featuresize; j++) {
-                                features[i][j] = <number>trainingSet[i][j];
-                            }
-                            results[i] = <number>expectedResultSet[i];
-                        }
-                        for (var i: number = 0; i < trainingSet.length; i++) {
-                            if (this.calculate(weights, features[i]) == results[i]) {
-                                continue;
-                            }
-                            if (results[i] == 0) {
-                                for (var j: number = 0; j < features[i].length; j++) {
-                                    if (features[i][j] != 0) {
-                                        weights[j] = weights[j] / this.beta;
-                                    }
-                                }
-                            } else {
-                                for (var j: number = 0; i < features[i].length; j++) {
-                                    if (features[i][j] != 0) {
-                                        weights[j] = weights[j] * this.alpha;
-                                    }
-                                }
-                            }
-                        }
-                        currentState.setWeights(weights);
-                    }
-
-                    public infer(features: any[]): any {
-                        var currentState: org.kevoree.modeling.infer.states.DoubleArrayKInferState = <org.kevoree.modeling.infer.states.DoubleArrayKInferState>this.readOnlyState();
-                        var weights: number[] = currentState.getWeights();
-                        var ft: number[] = new Array();
-                        for (var i: number = 0; i < features.length; i++) {
-                            ft[i] = <number>features[i];
-                        }
-                        return this.calculate(weights, ft);
-                    }
-
-                    public accuracy(testSet: any[][], expectedResultSet: any[]): any {
-                        return null;
-                    }
-
-                    public clear(): void {
-                        var currentState: org.kevoree.modeling.infer.states.DoubleArrayKInferState = <org.kevoree.modeling.infer.states.DoubleArrayKInferState>this.modifyState();
-                        currentState.setWeights(null);
-                    }
-
-                    public createEmptyState(): org.kevoree.modeling.infer.KInferState {
-                        return new org.kevoree.modeling.infer.states.DoubleArrayKInferState();
                     }
 
                 }
@@ -4772,13 +4348,13 @@ module org {
 
                     isDirty(): boolean;
 
-                    serialize(metaModel: org.kevoree.modeling.meta.KMetaModel): string;
-
                     setClean(metaModel: org.kevoree.modeling.meta.KMetaModel): void;
 
                     setDirty(): void;
 
-                    unserialize(key: org.kevoree.modeling.KContentKey, payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void;
+                    serialize(metaModel: org.kevoree.modeling.meta.KMetaModel): string;
+
+                    unserialize(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void;
 
                     counter(): number;
 
@@ -5056,7 +4632,7 @@ module org {
 
                         lookupAlltimes(universe: number, time: number[], uuid: number, callback: (p : org.kevoree.modeling.KObject[]) => void): void;
 
-                        segment(universe: number, time: number, uuid: number, accessMode: org.kevoree.modeling.memory.manager.AccessMode, metaClass: org.kevoree.modeling.meta.KMetaClass): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
+                        segment(universe: number, time: number, uuid: number, accessMode: org.kevoree.modeling.memory.manager.AccessMode, metaClass: org.kevoree.modeling.meta.KMetaClass, resolutionTrace: org.kevoree.modeling.memory.manager.KMemorySegmentResolutionTrace): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 
                         save(callback: (p : java.lang.Throwable) => void): void;
 
@@ -5099,6 +4675,30 @@ module org {
                         cleanCache(): void;
 
                         setFactory(factory: org.kevoree.modeling.memory.KMemoryFactory): void;
+
+                    }
+
+                    export interface KMemorySegmentResolutionTrace {
+
+                        getUniverse(): number;
+
+                        setUniverse(universe: number): void;
+
+                        getTime(): number;
+
+                        setTime(time: number): void;
+
+                        getUniverseTree(): org.kevoree.modeling.memory.struct.map.KLongLongHashMap;
+
+                        setUniverseTree(tree: org.kevoree.modeling.memory.struct.map.KLongLongHashMap): void;
+
+                        getTimeTree(): org.kevoree.modeling.memory.struct.tree.KLongTree;
+
+                        setTimeTree(tree: org.kevoree.modeling.memory.struct.tree.KLongTree): void;
+
+                        getSegment(): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
+
+                        setSegment(tree: org.kevoree.modeling.memory.struct.segment.KMemorySegment): void;
 
                     }
 
@@ -5307,7 +4907,7 @@ module org {
                                                             if (globalUniverseTreePayload != null) {
                                                                 globalUniverseTree = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(0, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                                                 try {
-                                                                    globalUniverseTree.unserialize(org.kevoree.modeling.KContentKey.createGlobalUniverseTree(), globalUniverseTreePayload, this.model().metaModel());
+                                                                    globalUniverseTree.unserialize(globalUniverseTreePayload, this.model().metaModel());
                                                                 } catch ($ex$) {
                                                                     if ($ex$ instanceof java.lang.Exception) {
                                                                         var e: java.lang.Exception = <java.lang.Exception>$ex$;
@@ -5348,9 +4948,16 @@ module org {
                                 }
                             }
 
-                            public segment(universe: number, time: number, uuid: number, accessMode: org.kevoree.modeling.memory.manager.AccessMode, metaClass: org.kevoree.modeling.meta.KMetaClass): org.kevoree.modeling.memory.struct.segment.KMemorySegment {
+                            public segment(universe: number, time: number, uuid: number, accessMode: org.kevoree.modeling.memory.manager.AccessMode, metaClass: org.kevoree.modeling.meta.KMetaClass, resolutionTrace: org.kevoree.modeling.memory.manager.KMemorySegmentResolutionTrace): org.kevoree.modeling.memory.struct.segment.KMemorySegment {
                                 var currentEntry: org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment = <org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment>this._cache.get(universe, time, uuid);
                                 if (currentEntry != null) {
+                                    if (resolutionTrace != null) {
+                                        resolutionTrace.setSegment(currentEntry);
+                                        resolutionTrace.setUniverse(universe);
+                                        resolutionTrace.setTime(time);
+                                        resolutionTrace.setUniverseTree(<org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap>this._cache.get(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, uuid));
+                                        resolutionTrace.setTimeTree(<org.kevoree.modeling.memory.struct.tree.KLongTree>this._cache.get(universe, org.kevoree.modeling.KConfig.NULL_LONG, uuid));
+                                    }
                                     return currentEntry;
                                 }
                                 var objectUniverseTree: org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap = <org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap>this._cache.get(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, uuid);
@@ -5360,6 +4967,12 @@ module org {
                                     throw new java.lang.RuntimeException(HeapMemoryManager.OUT_OF_CACHE_MESSAGE + " : TimeTree not found for " + org.kevoree.modeling.KContentKey.createTimeTree(resolvedUniverse, uuid) + " from " + universe + "/" + resolvedUniverse);
                                 }
                                 var resolvedTime: number = timeTree.previousOrEqual(time);
+                                if (resolutionTrace != null) {
+                                    resolutionTrace.setUniverse(resolvedUniverse);
+                                    resolutionTrace.setTime(resolvedTime);
+                                    resolutionTrace.setUniverseTree(objectUniverseTree);
+                                    resolutionTrace.setTimeTree(timeTree);
+                                }
                                 if (resolvedTime != org.kevoree.modeling.KConfig.NULL_LONG) {
                                     var needTimeCopy: boolean = accessMode.equals(org.kevoree.modeling.memory.manager.AccessMode.NEW) && (resolvedTime != time);
                                     var needUniverseCopy: boolean = accessMode.equals(org.kevoree.modeling.memory.manager.AccessMode.NEW) && (resolvedUniverse != universe);
@@ -5369,11 +4982,17 @@ module org {
                                     }
                                     if (accessMode.equals(org.kevoree.modeling.memory.manager.AccessMode.DELETE)) {
                                         timeTree.delete(time);
+                                        if (resolutionTrace != null) {
+                                            resolutionTrace.setSegment(entry);
+                                        }
                                         return entry;
                                     }
                                     if (!needTimeCopy && !needUniverseCopy) {
                                         if (accessMode.equals(org.kevoree.modeling.memory.manager.AccessMode.NEW)) {
                                             entry.setDirty();
+                                        }
+                                        if (resolutionTrace != null) {
+                                            resolutionTrace.setSegment(entry);
                                         }
                                         return entry;
                                     } else {
@@ -5391,6 +5010,9 @@ module org {
                                         }
                                         entry.dec();
                                         clonedEntry.inc();
+                                        if (resolutionTrace != null) {
+                                            resolutionTrace.setSegment(clonedEntry);
+                                        }
                                         return clonedEntry;
                                     }
                                 } else {
@@ -5640,7 +5262,7 @@ module org {
                                     }
                                 }
                                 try {
-                                    result.unserialize(key, payload, this.model().metaModel());
+                                    result.unserialize(payload, this.model().metaModel());
                                     return result;
                                 } catch ($ex$) {
                                     if ($ex$ instanceof java.lang.Exception) {
@@ -5649,82 +5271,6 @@ module org {
                                         return null;
                                     }
                                  }
-                            }
-
-                        }
-
-                        export class JsonRaw {
-
-                            public static decode(payload: string, now: number, metaModel: org.kevoree.modeling.meta.KMetaModel, entry: org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment): boolean {
-                                if (payload == null) {
-                                    return false;
-                                }
-                                var objectReader: org.kevoree.modeling.format.json.JsonObjectReader = new org.kevoree.modeling.format.json.JsonObjectReader();
-                                objectReader.parseObject(payload);
-                                if (objectReader.get(org.kevoree.modeling.format.json.JsonFormat.KEY_META) == null) {
-                                    return false;
-                                } else {
-                                    var metaClass: org.kevoree.modeling.meta.KMetaClass = metaModel.metaClassByName(objectReader.get(org.kevoree.modeling.format.json.JsonFormat.KEY_META).toString());
-                                    entry.init(metaClass);
-                                    var metaKeys: string[] = objectReader.keys();
-                                    for (var i: number = 0; i < metaKeys.length; i++) {
-                                        var metaElement: org.kevoree.modeling.meta.KMeta = metaClass.metaByName(metaKeys[i]);
-                                        var insideContent: any = objectReader.get(metaKeys[i]);
-                                        if (insideContent != null) {
-                                            if (metaElement != null && metaElement.metaType().equals(org.kevoree.modeling.meta.MetaType.ATTRIBUTE)) {
-                                                entry.set(metaElement.index(), (<org.kevoree.modeling.meta.impl.MetaAttribute>metaElement).strategy().load(insideContent.toString(), <org.kevoree.modeling.meta.impl.MetaAttribute>metaElement, now), metaClass);
-                                            } else {
-                                                if (metaElement != null && metaElement instanceof org.kevoree.modeling.meta.impl.MetaReference) {
-                                                    try {
-                                                        var plainRawSet: string[] = objectReader.getAsStringArray(metaKeys[i]);
-                                                        var convertedRaw: number[] = new Array();
-                                                        for (var l: number = 0; l < plainRawSet.length; l++) {
-                                                            try {
-                                                                convertedRaw[l] = java.lang.Long.parseLong(plainRawSet[l]);
-                                                            } catch ($ex$) {
-                                                                if ($ex$ instanceof java.lang.Exception) {
-                                                                    var e: java.lang.Exception = <java.lang.Exception>$ex$;
-                                                                    e.printStackTrace();
-                                                                }
-                                                             }
-                                                        }
-                                                        entry.set(metaElement.index(), convertedRaw, metaClass);
-                                                    } catch ($ex$) {
-                                                        if ($ex$ instanceof java.lang.Exception) {
-                                                            var e: java.lang.Exception = <java.lang.Exception>$ex$;
-                                                            e.printStackTrace();
-                                                        }
-                                                     }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    entry.setClean(metaModel);
-                                    return true;
-                                }
-                            }
-
-                            public static encode(raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment, uuid: number, p_metaClass: org.kevoree.modeling.meta.KMetaClass, isRoot: boolean): string {
-                                 var builder = {};
-                                 builder[org.kevoree.modeling.format.json.JsonFormat.KEY_META] = p_metaClass.metaName();
-                                 if(uuid != null){ builder[org.kevoree.modeling.format.json.JsonFormat.KEY_UUID] = uuid; }
-                                 if(isRoot){ builder[org.kevoree.modeling.format.json.JsonFormat.KEY_ROOT] = true; }
-                                 var metaElements = p_metaClass.metaElements();
-                                 var payload_res;
-                                 for (var i = 0; i < metaElements.length; i++) {
-                                 payload_res = raw.get(metaElements[i].index(),p_metaClass);
-                                 if(payload_res != null && payload_res !== undefined){
-                                 if (metaElements[i] != null && metaElements[i].metaType() === org.kevoree.modeling.meta.MetaType.ATTRIBUTE) {
-                                 if(metaElements[i]['attributeType']() != org.kevoree.modeling.meta.KPrimitiveTypes.TRANSIENT){
-                                 var attrsPayload = metaElements[i]['strategy']().save(payload_res, metaElements[i]);
-                                 builder[metaElements[i].metaName()] = attrsPayload;
-                                 }
-                                 } else {
-                                 builder[metaElements[i].metaName()] = payload_res;
-                                 }
-                                 }
-                                 }
-                                 return JSON.stringify(builder);
                             }
 
                         }
@@ -5826,27 +5372,75 @@ module org {
 
                         }
 
+                        export class MemorySegmentResolutionTrace implements org.kevoree.modeling.memory.manager.KMemorySegmentResolutionTrace {
+
+                            private _universe: number;
+                            private _time: number;
+                            private _universeTree: org.kevoree.modeling.memory.struct.map.KLongLongHashMap;
+                            private _timeTree: org.kevoree.modeling.memory.struct.tree.KLongTree;
+                            private _segment: org.kevoree.modeling.memory.struct.segment.KMemorySegment;
+                            public getUniverse(): number {
+                                return this._universe;
+                            }
+
+                            public setUniverse(p_universe: number): void {
+                                this._universe = p_universe;
+                            }
+
+                            public getTime(): number {
+                                return this._time;
+                            }
+
+                            public setTime(p_time: number): void {
+                                this._time = p_time;
+                            }
+
+                            public getUniverseTree(): org.kevoree.modeling.memory.struct.map.KLongLongHashMap {
+                                return this._universeTree;
+                            }
+
+                            public setUniverseTree(p_u_tree: org.kevoree.modeling.memory.struct.map.KLongLongHashMap): void {
+                                this._universeTree = p_u_tree;
+                            }
+
+                            public getTimeTree(): org.kevoree.modeling.memory.struct.tree.KLongTree {
+                                return this._timeTree;
+                            }
+
+                            public setTimeTree(p_t_tree: org.kevoree.modeling.memory.struct.tree.KLongTree): void {
+                                this._timeTree = p_t_tree;
+                            }
+
+                            public getSegment(): org.kevoree.modeling.memory.struct.segment.KMemorySegment {
+                                return this._segment;
+                            }
+
+                            public setSegment(p_segment: org.kevoree.modeling.memory.struct.segment.KMemorySegment): void {
+                                this._segment = p_segment;
+                            }
+
+                        }
+
                         export class ResolutionHelper {
 
-                            public static resolve_trees(universe: number, time: number, uuid: number, cache: org.kevoree.modeling.memory.cache.KCache): org.kevoree.modeling.memory.manager.impl.ResolutionResult {
-                                var result: org.kevoree.modeling.memory.manager.impl.ResolutionResult = new org.kevoree.modeling.memory.manager.impl.ResolutionResult();
+                            public static resolve_trees(universe: number, time: number, uuid: number, cache: org.kevoree.modeling.memory.cache.KCache): org.kevoree.modeling.memory.manager.impl.MemorySegmentResolutionTrace {
+                                var result: org.kevoree.modeling.memory.manager.impl.MemorySegmentResolutionTrace = new org.kevoree.modeling.memory.manager.impl.MemorySegmentResolutionTrace();
                                 var objectUniverseTree: org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap = <org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap>cache.get(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, uuid);
                                 var globalUniverseOrder: org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap = <org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap>cache.get(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG);
-                                result.universeTree = objectUniverseTree;
+                                result.setUniverseTree(objectUniverseTree);
                                 var resolvedUniverse: number = org.kevoree.modeling.memory.manager.impl.ResolutionHelper.resolve_universe(globalUniverseOrder, objectUniverseTree, time, universe);
-                                result.universe = resolvedUniverse;
+                                result.setUniverse(resolvedUniverse);
                                 var timeTree: org.kevoree.modeling.memory.struct.tree.KLongTree = <org.kevoree.modeling.memory.struct.tree.KLongTree>cache.get(resolvedUniverse, org.kevoree.modeling.KConfig.NULL_LONG, uuid);
                                 if (timeTree != null) {
-                                    result.timeTree = timeTree;
+                                    result.setTimeTree(timeTree);
                                     var resolvedTime: number = timeTree.previousOrEqual(time);
-                                    result.time = resolvedTime;
-                                    result.segment = <org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment>cache.get(resolvedUniverse, resolvedTime, uuid);
+                                    result.setTime(resolvedTime);
+                                    result.setSegment(<org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment>cache.get(resolvedUniverse, resolvedTime, uuid));
                                 }
-                                result.uuid = uuid;
                                 return result;
                             }
 
-                            public static resolve_universe(globalTree: org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap, objUniverseTree: org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap, timeToResolve: number, originUniverseId: number): number {
+                            public static resolve_universe(globalTree: org.kevoree.modeling.memory.struct.map.KLongLongHashMap, objUniverseTree: org.kevoree.modeling.memory.struct.map.KLongLongHashMap, timeToResolve: number, originUniverseId: number): number {
                                 if (globalTree == null || objUniverseTree == null) {
                                     return originUniverseId;
                                 }
@@ -5864,7 +5458,7 @@ module org {
                                 return originUniverseId;
                             }
 
-                            public static universeSelectByRange(globalTree: org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap, objUniverseTree: org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap, rangeMin: number, rangeMax: number, originUniverseId: number): number[] {
+                            public static universeSelectByRange(globalTree: org.kevoree.modeling.memory.struct.map.KLongLongHashMap, objUniverseTree: org.kevoree.modeling.memory.struct.map.KLongLongHashMap, rangeMin: number, rangeMax: number, originUniverseId: number): number[] {
                                 var collected: org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                 var currentUniverse: number = originUniverseId;
                                 var previousUniverse: number = org.kevoree.modeling.KConfig.NULL_LONG;
@@ -5893,23 +5487,13 @@ module org {
 
                         }
 
-                        export class ResolutionResult {
-
-                            public universeTree: org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap;
-                            public timeTree: org.kevoree.modeling.memory.struct.tree.KLongTree;
-                            public segment: org.kevoree.modeling.memory.struct.segment.KMemorySegment;
-                            public universe: number;
-                            public time: number;
-                            public uuid: number;
-                        }
-
                     }
                 }
                 export module struct {
                     export class HeapMemoryFactory implements org.kevoree.modeling.memory.KMemoryFactory {
 
                         public newCacheSegment(originTime: number): org.kevoree.modeling.memory.struct.segment.KMemorySegment {
-                            return new org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment(originTime);
+                            return new org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment();
                         }
 
                         public newLongTree(): org.kevoree.modeling.memory.struct.tree.KLongTree {
@@ -5947,6 +5531,10 @@ module org {
 
                             each(callback: (p : number, p1 : V) => void): void;
 
+                            size(): number;
+
+                            clear(): void;
+
                         }
 
                         export interface KLongHashMapCallBack<V> {
@@ -5955,13 +5543,17 @@ module org {
 
                         }
 
-                        export interface KLongLongHashMap {
+                        export interface KLongLongHashMap extends org.kevoree.modeling.memory.KMemoryElement {
 
                             get(key: number): number;
 
                             put(key: number, value: number): void;
 
                             each(callback: (p : number, p1 : number) => void): void;
+
+                            size(): number;
+
+                            clear(): void;
 
                         }
 
@@ -5978,6 +5570,12 @@ module org {
                             put(key: string, value: V): void;
 
                             each(callback: (p : string, p1 : V) => void): void;
+
+                            size(): number;
+
+                            clear(): void;
+
+                            containsKey(key: string): boolean;
 
                         }
 
@@ -6034,7 +5632,7 @@ module org {
                                  public setClean(mm):void { this._isDirty = false; }
                                  public setDirty():void { this._isDirty = true; }
                                  public serialize(m): string { var buffer = ""+this.size(); this.each( (key : number, value : number) => { buffer = buffer + ArrayLongLongHashMap.CHUNK_SEP + key + ArrayLongLongHashMap.ELEMENT_SEP + value; }); return buffer; }
-                                 public unserialize(key: org.kevoree.modeling.KContentKey, payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
+                                 public unserialize(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
                                  if (payload == null || payload.length == 0) { return; }
                                  var cursor: number = 0;
                                  while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongHashMap.CHUNK_SEP){ cursor++; }
@@ -6096,8 +5694,6 @@ module org {
 
                             metaClassIndex(): number;
 
-                            originTime(): number;
-
                         }
 
                         export module impl {
@@ -6108,11 +5704,6 @@ module org {
                                 private _metaClassIndex: number = -1;
                                 private _modifiedIndexes: boolean[] = null;
                                 private _dirty: boolean = false;
-                                private _timeOrigin: number;
-                                constructor(p_timeOrigin: number) {
-                                    this._timeOrigin = p_timeOrigin;
-                                }
-
                                 public init(p_metaClass: org.kevoree.modeling.meta.KMetaClass): void {
                                     this.raw = new Array();
                                     this._metaClassIndex = p_metaClass.index();
@@ -6122,16 +5713,19 @@ module org {
                                     return this._metaClassIndex;
                                 }
 
-                                public originTime(): number {
-                                    return this._timeOrigin;
-                                }
-
                                 public isDirty(): boolean {
                                     return this._dirty;
                                 }
 
                                 public serialize(metaModel: org.kevoree.modeling.meta.KMetaModel): string {
-                                    return org.kevoree.modeling.memory.manager.impl.JsonRaw.encode(this, org.kevoree.modeling.KConfig.NULL_LONG, metaModel.metaClass(this._metaClassIndex), false);
+                                     var builder = {};
+                                     var metaClass = metaModel.metaClass(this._metaClassIndex);
+                                     var metaElements = metaClass.metaElements();
+                                     builder["@class"] = metaClass.metaName();
+                                     for (var i = 0; i < this.raw.length; i++) {
+                                     if(this.raw[i] != undefined && this.raw[i] != null){ builder[metaElements[i].metaName()] = this.raw[i]; }
+                                     }
+                                     return JSON.stringify(builder);
                                 }
 
                                 public modifiedIndexes(p_metaClass: org.kevoree.modeling.meta.KMetaClass): number[] {
@@ -6165,8 +5759,17 @@ module org {
                                     this._dirty = true;
                                 }
 
-                                public unserialize(key: org.kevoree.modeling.KContentKey, payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
-                                    org.kevoree.modeling.memory.manager.impl.JsonRaw.decode(payload, key.time, metaModel, this);
+                                public unserialize(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
+                                     var rawElem = JSON.parse(payload);
+                                     var metaClass = metaModel.metaClass(rawElem["@class"]);
+                                     if(this.raw["@class"] != null && this.raw["@class"] != undefined){ this._metaClassIndex = metaModel.metaClassByName(rawElem["@class"]).index(); }
+                                     for (var key in rawElem) {
+                                     if("@class" != key){
+                                     var elem = metaClass.metaByName(key);
+                                     if(elem != null && elem != undefined){ this.raw[elem.index()] = rawElem[key]; }
+                                     }
+                                     }
+                                     this._dirty = false;
                                 }
 
                                 public counter(): number {
@@ -6182,6 +5785,7 @@ module org {
                                 }
 
                                 public free(metaModel: org.kevoree.modeling.meta.KMetaModel): void {
+                                    this.raw = null;
                                 }
 
                                 public get(index: number, p_metaClass: org.kevoree.modeling.meta.KMetaClass): any {
@@ -6242,22 +5846,26 @@ module org {
                                     return false;
                                 }
 
-                                public removeRef(index: number, newRef: number, metaClass: org.kevoree.modeling.meta.KMetaClass): boolean {
+                                public removeRef(index: number, refToRemove: number, metaClass: org.kevoree.modeling.meta.KMetaClass): boolean {
                                     if (this.raw != null) {
                                         var previous: number[] = <number[]>this.raw[index];
                                         if (previous != null) {
                                             var indexToRemove: number = -1;
                                             for (var i: number = 0; i < previous.length; i++) {
-                                                if (previous[i] == newRef) {
+                                                if (previous[i] == refToRemove) {
                                                     indexToRemove = i;
                                                     break;
                                                 }
                                             }
                                             if (indexToRemove != -1) {
-                                                var newArray: number[] = new Array();
-                                                System.arraycopy(previous, 0, newArray, 0, indexToRemove);
-                                                System.arraycopy(previous, indexToRemove + 1, newArray, indexToRemove, previous.length - indexToRemove - 1);
-                                                this.raw[index] = newArray;
+                                                if ((previous.length - 1) == 0) {
+                                                    this.raw[index] = null;
+                                                } else {
+                                                    var newArray: number[] = new Array();
+                                                    System.arraycopy(previous, 0, newArray, 0, indexToRemove);
+                                                    System.arraycopy(previous, indexToRemove + 1, newArray, indexToRemove, previous.length - indexToRemove - 1);
+                                                    this.raw[index] = newArray;
+                                                }
                                                 if (this._modifiedIndexes == null) {
                                                     this._modifiedIndexes = new Array();
                                                 }
@@ -6336,20 +5944,11 @@ module org {
 
                                 public clone(newTimeOrigin: number, p_metaClass: org.kevoree.modeling.meta.KMetaClass): org.kevoree.modeling.memory.struct.segment.KMemorySegment {
                                     if (this.raw == null) {
-                                        return new org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment(newTimeOrigin);
+                                        return new org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment();
                                     } else {
                                         var cloned: any[] = new Array();
-                                        for (var i: number = 0; i < this.raw.length; i++) {
-                                            var resolved: any = this.raw[i];
-                                            if (resolved != null) {
-                                                if (resolved instanceof org.kevoree.modeling.infer.KInferState) {
-                                                    cloned[i] = (<org.kevoree.modeling.infer.KInferState>resolved).cloneState();
-                                                } else {
-                                                    cloned[i] = resolved;
-                                                }
-                                            }
-                                        }
-                                        var clonedEntry: org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment = new org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment(newTimeOrigin);
+                                        System.arraycopy(this.raw, 0, cloned, 0, this.raw.length);
+                                        var clonedEntry: org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment = new org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment();
                                         clonedEntry._dirty = true;
                                         clonedEntry.raw = cloned;
                                         clonedEntry._metaClassIndex = this._metaClassIndex;
@@ -6503,7 +6102,7 @@ module org {
                                     this._dirty = false;
                                 }
 
-                                public unserialize(key: org.kevoree.modeling.KContentKey, payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
+                                public unserialize(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
                                     if (payload == null || payload.length == 0) {
                                         return;
                                     }
@@ -7036,7 +6635,7 @@ module org {
                                     return this.serialize(null);
                                 }
 
-                                public unserialize(key: org.kevoree.modeling.KContentKey, payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
+                                public unserialize(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
                                     if (payload == null || payload.length == 0) {
                                         return;
                                     }
@@ -8522,6 +8121,8 @@ module org {
 
                     setExtrapolation(extrapolation: org.kevoree.modeling.extrapolation.Extrapolation): void;
 
+                    setPrecision(precision: number): void;
+
                 }
 
                 export interface KMetaClass extends org.kevoree.modeling.meta.KMeta {
@@ -8538,103 +8139,11 @@ module org {
 
                     operation(name: string): org.kevoree.modeling.meta.KMetaOperation;
 
-                    addAttribute(attributeName: string, p_type: org.kevoree.modeling.KType, p_precision: number, extrapolation: org.kevoree.modeling.extrapolation.Extrapolation): org.kevoree.modeling.meta.KMetaAttribute;
+                    addAttribute(attributeName: string, p_type: org.kevoree.modeling.KType): org.kevoree.modeling.meta.KMetaAttribute;
 
                     addReference(referenceName: string, metaClass: org.kevoree.modeling.meta.KMetaClass, oppositeName: string, toMany: boolean): org.kevoree.modeling.meta.KMetaReference;
 
                     addOperation(operationName: string): org.kevoree.modeling.meta.KMetaOperation;
-
-                }
-
-                export class KMetaInferClass implements org.kevoree.modeling.meta.KMetaClass {
-
-                    private static _INSTANCE: org.kevoree.modeling.meta.KMetaInferClass = null;
-                    private _attributes: org.kevoree.modeling.meta.KMetaAttribute[] = null;
-                    private _metaReferences: org.kevoree.modeling.meta.KMetaReference[] = new Array();
-                    public static getInstance(): org.kevoree.modeling.meta.KMetaInferClass {
-                        if (KMetaInferClass._INSTANCE == null) {
-                            KMetaInferClass._INSTANCE = new org.kevoree.modeling.meta.KMetaInferClass();
-                        }
-                        return KMetaInferClass._INSTANCE;
-                    }
-
-                    public getRaw(): org.kevoree.modeling.meta.KMetaAttribute {
-                        return this._attributes[0];
-                    }
-
-                    public getCache(): org.kevoree.modeling.meta.KMetaAttribute {
-                        return this._attributes[1];
-                    }
-
-                    constructor() {
-                        this._attributes = new Array();
-                        this._attributes[0] = new org.kevoree.modeling.meta.impl.MetaAttribute("RAW", 0, -1, false, org.kevoree.modeling.meta.KPrimitiveTypes.STRING, new org.kevoree.modeling.extrapolation.impl.DiscreteExtrapolation());
-                        this._attributes[1] = new org.kevoree.modeling.meta.impl.MetaAttribute("CACHE", 1, -1, false, org.kevoree.modeling.meta.KPrimitiveTypes.TRANSIENT, new org.kevoree.modeling.extrapolation.impl.DiscreteExtrapolation());
-                    }
-
-                    public metaElements(): org.kevoree.modeling.meta.KMeta[] {
-                        return new Array();
-                    }
-
-                    public meta(index: number): org.kevoree.modeling.meta.KMeta {
-                        if (index == 0 || index == 1) {
-                            return this._attributes[index];
-                        } else {
-                            return null;
-                        }
-                    }
-
-                    public metaByName(name: string): org.kevoree.modeling.meta.KMeta {
-                        return this.attribute(name);
-                    }
-
-                    public attribute(name: string): org.kevoree.modeling.meta.KMetaAttribute {
-                        if (name == null) {
-                            return null;
-                        } else {
-                            if (name.equals(this._attributes[0].metaName())) {
-                                return this._attributes[0];
-                            } else {
-                                if (name.equals(this._attributes[1].metaName())) {
-                                    return this._attributes[1];
-                                } else {
-                                    return null;
-                                }
-                            }
-                        }
-                    }
-
-                    public reference(name: string): org.kevoree.modeling.meta.KMetaReference {
-                        return null;
-                    }
-
-                    public operation(name: string): org.kevoree.modeling.meta.KMetaOperation {
-                        return null;
-                    }
-
-                    public addAttribute(attributeName: string, p_type: org.kevoree.modeling.KType, p_precision: number, extrapolation: org.kevoree.modeling.extrapolation.Extrapolation): org.kevoree.modeling.meta.KMetaAttribute {
-                        return null;
-                    }
-
-                    public addReference(referenceName: string, metaClass: org.kevoree.modeling.meta.KMetaClass, oppositeName: string, toMany: boolean): org.kevoree.modeling.meta.KMetaReference {
-                        return null;
-                    }
-
-                    public addOperation(operationName: string): org.kevoree.modeling.meta.KMetaOperation {
-                        return null;
-                    }
-
-                    public metaName(): string {
-                        return "KInfer";
-                    }
-
-                    public metaType(): org.kevoree.modeling.meta.MetaType {
-                        return org.kevoree.modeling.meta.MetaType.CLASS;
-                    }
-
-                    public index(): number {
-                        return -1;
-                    }
 
                 }
 
@@ -8681,7 +8190,7 @@ module org {
                     public static SHORT: org.kevoree.modeling.KType = new org.kevoree.modeling.abs.AbstractDataType("SHORT", false);
                     public static DOUBLE: org.kevoree.modeling.KType = new org.kevoree.modeling.abs.AbstractDataType("DOUBLE", false);
                     public static FLOAT: org.kevoree.modeling.KType = new org.kevoree.modeling.abs.AbstractDataType("FLOAT", false);
-                    public static TRANSIENT: org.kevoree.modeling.KType = new org.kevoree.modeling.abs.AbstractDataType("TRANSIENT", false);
+                    public static CONTINUOUS: org.kevoree.modeling.KType = new org.kevoree.modeling.abs.AbstractDataType("CONTINUOUS", false);
                 }
 
                 export class MetaType {
@@ -8797,6 +8306,10 @@ module org {
                             this._extrapolation = extrapolation;
                         }
 
+                        public setPrecision(p_precision: number): void {
+                            this._precision = p_precision;
+                        }
+
                         constructor(p_name: string, p_index: number, p_precision: number, p_key: boolean, p_metaType: org.kevoree.modeling.KType, p_extrapolation: org.kevoree.modeling.extrapolation.Extrapolation) {
                             this._name = p_name;
                             this._index = p_index;
@@ -8804,6 +8317,9 @@ module org {
                             this._key = p_key;
                             this._metaType = p_metaType;
                             this._extrapolation = p_extrapolation;
+                            if (this._extrapolation == null) {
+                                this._extrapolation = org.kevoree.modeling.extrapolation.impl.DiscreteExtrapolation.instance();
+                            }
                         }
 
                     }
@@ -8887,10 +8403,14 @@ module org {
                             }
                         }
 
-                        public addAttribute(attributeName: string, p_type: org.kevoree.modeling.KType, p_precision: number, extrapolation: org.kevoree.modeling.extrapolation.Extrapolation): org.kevoree.modeling.meta.KMetaAttribute {
+                        public addAttribute(attributeName: string, p_type: org.kevoree.modeling.KType): org.kevoree.modeling.meta.KMetaAttribute {
                             var precisionCleaned: number = -1;
-                            if (p_precision != null) {
-                                precisionCleaned = p_precision;
+                            var extrapolation: org.kevoree.modeling.extrapolation.Extrapolation;
+                            if (p_type == org.kevoree.modeling.meta.KPrimitiveTypes.CONTINUOUS) {
+                                extrapolation = org.kevoree.modeling.extrapolation.impl.PolynomialExtrapolation.instance();
+                                precisionCleaned = 0.1;
+                            } else {
+                                extrapolation = org.kevoree.modeling.extrapolation.impl.DiscreteExtrapolation.instance();
                             }
                             var tempAttribute: org.kevoree.modeling.meta.KMetaAttribute = new org.kevoree.modeling.meta.impl.MetaAttribute(attributeName, this._meta.length, precisionCleaned, false, p_type, extrapolation);
                             this.internal_add_meta(tempAttribute);
@@ -9464,7 +8984,7 @@ module org {
                                         try {
                                             var loopObj: org.kevoree.modeling.abs.AbstractKObject = <org.kevoree.modeling.abs.AbstractKObject>p_inputStep[i];
                                             currentObject = loopObj;
-                                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = loopObj._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, loopObj.metaClass());
+                                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = loopObj._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, loopObj.metaClass(), null);
                                             if (raw != null) {
                                                 if (this._reference == null) {
                                                     var metaElements: org.kevoree.modeling.meta.KMeta[] = loopObj.metaClass().metaElements();
@@ -9576,7 +9096,7 @@ module org {
                                     for (var i: number = 0; i < p_inputs.length; i++) {
                                         try {
                                             var loopObj: org.kevoree.modeling.abs.AbstractKObject = <org.kevoree.modeling.abs.AbstractKObject>p_inputs[i];
-                                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = (loopObj)._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, loopObj.metaClass());
+                                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = (loopObj)._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, loopObj.metaClass(), null);
                                             if (raw != null) {
                                                 if (this._attribute == null) {
                                                     if (this._expectedValue == null) {
@@ -9813,7 +9333,7 @@ module org {
                                     for (var i: number = 0; i < p_inputs.length; i++) {
                                         try {
                                             var loopObj: org.kevoree.modeling.abs.AbstractKObject = <org.kevoree.modeling.abs.AbstractKObject>p_inputs[i];
-                                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = loopObj._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, loopObj.metaClass());
+                                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = loopObj._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, loopObj.metaClass(), null);
                                             if (raw != null) {
                                                 if (this._attribute == null) {
                                                     if (this._expectedValue == null) {
@@ -9996,7 +9516,7 @@ module org {
                                     for (var i: number = 0; i < p_inputs.length; i++) {
                                         try {
                                             var loopObj: org.kevoree.modeling.abs.AbstractKObject = <org.kevoree.modeling.abs.AbstractKObject>p_inputs[i];
-                                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = currentObject._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, loopObj.metaClass());
+                                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = currentObject._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, loopObj.metaClass(), null);
                                             if (raw != null) {
                                                 if (this._reference == null) {
                                                     var metaElements: org.kevoree.modeling.meta.KMeta[] = loopObj.metaClass().metaElements();
@@ -10067,7 +9587,7 @@ module org {
                                     for (var i: number = 0; i < p_inputs.length; i++) {
                                         try {
                                             var loopObj: org.kevoree.modeling.abs.AbstractKObject = <org.kevoree.modeling.abs.AbstractKObject>p_inputs[i];
-                                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = loopObj._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, loopObj.metaClass());
+                                            var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = loopObj._manager.segment(loopObj.universe(), loopObj.now(), loopObj.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, loopObj.metaClass(), null);
                                             var metaElements: org.kevoree.modeling.meta.KMeta[] = loopObj.metaClass().metaElements();
                                             if (raw != null) {
                                                 if (this._referenceQuery == null) {

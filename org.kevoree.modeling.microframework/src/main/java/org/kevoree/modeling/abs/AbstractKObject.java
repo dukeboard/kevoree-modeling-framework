@@ -15,7 +15,7 @@ import org.kevoree.modeling.traversal.visitor.KVisitResult;
 import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 import org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment;
 import org.kevoree.modeling.memory.manager.AccessMode;
-import org.kevoree.modeling.memory.manager.impl.JsonRaw;
+import org.kevoree.modeling.format.json.JsonRaw;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
 import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap;
 import org.kevoree.modeling.memory.struct.map.KLongLongHashMapCallBack;

@@ -103,7 +103,7 @@ public class MetaClass implements KMetaClass {
     public KMetaAttribute addAttribute(String attributeName, KType p_type) {
         double precisionCleaned = -1;
         Extrapolation extrapolation;
-        if (p_type.equals(KPrimitiveTypes.CONTINUOUS)) {
+        if (p_type == KPrimitiveTypes.CONTINUOUS) {
             extrapolation = PolynomialExtrapolation.instance();
             precisionCleaned = 0.1;
         } else {

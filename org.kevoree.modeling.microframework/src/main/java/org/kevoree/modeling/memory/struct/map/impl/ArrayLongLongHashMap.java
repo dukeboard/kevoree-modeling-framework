@@ -30,7 +30,7 @@ import org.kevoree.modeling.meta.KMetaModel;
  * public setClean(mm):void { this._isDirty = false; }
  * public setDirty():void { this._isDirty = true; }
  * public serialize(m): string { var buffer = ""+this.size(); this.each( (key : number, value : number) => { buffer = buffer + ArrayLongLongHashMap.CHUNK_SEP + key + ArrayLongLongHashMap.ELEMENT_SEP + value; }); return buffer; }
- * public unserialize(key: org.kevoree.modeling.KContentKey, payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
+ * public unserialize(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
  * if (payload == null || payload.length == 0) { return; }
  * var cursor: number = 0;
  * while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongHashMap.CHUNK_SEP){ cursor++; }

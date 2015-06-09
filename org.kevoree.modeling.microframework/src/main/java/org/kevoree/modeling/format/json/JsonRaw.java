@@ -1,4 +1,4 @@
-package org.kevoree.modeling.memory.manager.impl;
+package org.kevoree.modeling.format.json;
 
 import org.kevoree.modeling.KType;
 import org.kevoree.modeling.format.json.JsonString;
@@ -104,10 +104,8 @@ public class JsonRaw {
      * payload_res = raw.get(metaElements[i].index(),p_metaClass);
      * if(payload_res != null && payload_res !== undefined){
      * if (metaElements[i] != null && metaElements[i].metaType() === org.kevoree.modeling.meta.MetaType.ATTRIBUTE) {
-     * if(metaElements[i]['attributeType']() != org.kevoree.modeling.meta.KPrimitiveTypes.TRANSIENT){
      * var attrsPayload = metaElements[i]['strategy']().save(payload_res, metaElements[i]);
      * builder[metaElements[i].metaName()] = attrsPayload;
-     * }
      * } else {
      * builder[metaElements[i].metaName()] = payload_res;
      * }

@@ -38,12 +38,11 @@ public class HeapMemorySegment implements KMemorySegment {
     /**
      * @native ts
      * var builder = {};
-     * var metaClass = metaModel.metaClass(_metaClassIndex);
+     * var metaClass = metaModel.metaClass(this._metaClassIndex);
      * var metaElements = metaClass.metaElements();
      * builder["@class"] = metaClass.metaName();
-     * builder["@uuid"] = uuid;
-     * for (var i = 0; i < raw.length; i++) {
-     * if(raw[i] != undefined && raw[i] != null){ builder[metaElements[i].metaName()] = raw[i]; }
+     * for (var i = 0; i < this.raw.length; i++) {
+     * if(this.raw[i] != undefined && this.raw[i] != null){ builder[metaElements[i].metaName()] = this.raw[i]; }
      * }
      * return JSON.stringify(builder);
      */
@@ -134,14 +133,14 @@ public class HeapMemorySegment implements KMemorySegment {
      * @native ts
      * var rawElem = JSON.parse(payload);
      * var metaClass = metaModel.metaClass(rawElem["@class"]);
-     * if(raw["@class"] != null && raw["@class"] != undefined){ this._metaClassIndex = metaModel.metaClassByName(raw["@class"]); }
+     * if(this.raw["@class"] != null && this.raw["@class"] != undefined){ this._metaClassIndex = metaModel.metaClassByName(rawElem["@class"]).index(); }
      * for (var key in rawElem) {
      * if("@class" != key){
      * var elem = metaClass.metaByName(key);
-     * if(elem != null && elem != undefined){ raw[elem.index()] = rawElem[key]; }
+     * if(elem != null && elem != undefined){ this.raw[elem.index()] = rawElem[key]; }
      * }
      * }
-     * setClean(metaModel);
+     * this._dirty = false;
      */
     @Override
     public void unserialize(String payload, KMetaModel metaModel) throws Exception {

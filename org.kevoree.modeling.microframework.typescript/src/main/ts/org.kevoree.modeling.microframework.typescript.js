@@ -8948,3 +8948,4 @@ var org;
         })(modeling = kevoree.modeling || (kevoree.modeling = {}));
     })(kevoree = org.kevoree || (org.kevoree = {}));
 })(org || (org = {}));
+//# sourceMappingURL=org.kevoree.modeling.microframework.typescript.js.map
