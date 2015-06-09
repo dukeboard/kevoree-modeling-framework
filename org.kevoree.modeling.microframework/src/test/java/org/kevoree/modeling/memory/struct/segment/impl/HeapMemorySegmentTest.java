@@ -6,7 +6,7 @@ import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 public class HeapMemorySegmentTest extends BaseKMemorySegmentTest {
 
     @Override
-    public KMemorySegment createMemorySegment() {
+    public KMemorySegment createKMemorySegment() {
         return new HeapMemorySegment();
     }
 

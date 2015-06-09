@@ -152,28 +152,28 @@ public class HeapMemorySegment implements KMemorySegment {
                 String[] metaKeys = objectReader.keys();
                 for (int i = 0; i < metaKeys.length; i++) {
                     KMeta metaElement = metaClass.metaByName(metaKeys[i]);
-                    Object insideContent = objectReader.get(metaKeys[i]);
+                    String insideContent = (String) objectReader.get(metaKeys[i]);
                     if (insideContent != null) {
                         if (metaElement != null && metaElement.metaType().equals(MetaType.ATTRIBUTE)) {
                             KMetaAttribute metaAttribute = (KMetaAttribute) metaElement;
                             Object converted = null;
                             if (metaAttribute.attributeType() == KPrimitiveTypes.STRING) {
-                                converted = JsonString.unescape(payload);
+                                converted = JsonString.unescape(insideContent);
                             } else if (metaAttribute.attributeType() == KPrimitiveTypes.LONG) {
-                                converted = Long.parseLong(payload);
+                                converted = Long.parseLong(insideContent);
                             } else if (metaAttribute.attributeType() == KPrimitiveTypes.INT) {
-                                converted = Integer.parseInt(payload);
+                                converted = Integer.parseInt(insideContent);
                             } else if (metaAttribute.attributeType() == KPrimitiveTypes.BOOL) {
-                                converted = Boolean.parseBoolean(payload);
+                                converted = Boolean.parseBoolean(insideContent);
                             } else if (metaAttribute.attributeType() == KPrimitiveTypes.SHORT) {
-                                converted = Short.parseShort(payload);
+                                converted = Short.parseShort(insideContent);
                             } else if (metaAttribute.attributeType() == KPrimitiveTypes.DOUBLE) {
-                                converted = Double.parseDouble(payload);
+                                converted = Double.parseDouble(insideContent);
                             } else if (metaAttribute.attributeType() == KPrimitiveTypes.FLOAT) {
-                                converted = Float.parseFloat(payload);
+                                converted = Float.parseFloat(insideContent);
                             } else if (metaAttribute.attributeType() == KPrimitiveTypes.CONTINUOUS) {
                                 String[] plainRawSet = objectReader.getAsStringArray(metaKeys[i]);
-                                double[] convertedRaw = new double[plainRawSet.length];
+                                  double[] convertedRaw = new double[plainRawSet.length];
                                 for (int l = 0; l < plainRawSet.length; l++) {
                                     try {
                                         convertedRaw[l] = Double.parseDouble(plainRawSet[l]);

@@ -12,14 +12,12 @@ import org.kevoree.modeling.meta.KMetaReference;
 import org.kevoree.modeling.meta.KPrimitiveTypes;
 import org.kevoree.modeling.meta.impl.MetaModel;
 
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Set;
 
 
 public abstract class BaseKMemorySegmentTest {
 
-    public abstract KMemorySegment createMemorySegment();
+    public abstract KMemorySegment createKMemorySegment();
 
     @Test
     public void attributeTest() {
@@ -53,7 +51,7 @@ public abstract class BaseKMemorySegmentTest {
 
                 home.mutate(KActionType.ADD, (KMetaReference) home.metaClass().metaByName("sensors"), sensor);
 
-                KMemorySegment cacheEntry = createMemorySegment();
+                KMemorySegment cacheEntry = createKMemorySegment();
                 cacheEntry.init(homeMetaClass);
 
                 cacheEntry.set(homeMetaClass.attribute("attr_long").index(), 10l, homeMetaClass);
@@ -119,7 +117,7 @@ public abstract class BaseKMemorySegmentTest {
 
                 home.mutate(KActionType.ADD, (KMetaReference) home.metaClass().metaByName("sensors"), sensor);
 
-                KMemorySegment cacheEntry = createMemorySegment();
+                KMemorySegment cacheEntry = createKMemorySegment();
                 cacheEntry.init(homeMetaClass);
 
                 cacheEntry.set(homeMetaClass.attribute("attr_long").index(), 10l, homeMetaClass);
@@ -179,7 +177,7 @@ public abstract class BaseKMemorySegmentTest {
                 home.mutate(KActionType.ADD, (KMetaReference) home.metaClass().metaByName("sensors"), sensor);
 
                 // cache entry
-                KMemorySegment cacheEntry = createMemorySegment();
+                KMemorySegment cacheEntry = createKMemorySegment();
                 cacheEntry.init(homeMetaClass);
 
                 cacheEntry.set(homeMetaClass.attribute("attr_long").index(), 10l, homeMetaClass);
@@ -241,7 +239,7 @@ public abstract class BaseKMemorySegmentTest {
 
                 home.mutate(KActionType.ADD, (KMetaReference) home.metaClass().metaByName("sensors"), sensor);
 
-                KMemorySegment cacheEntry = createMemorySegment();
+                KMemorySegment cacheEntry = createKMemorySegment();
                 cacheEntry.init(homeMetaClass);
 
                 cacheEntry.set(homeMetaClass.attribute("attr_long").index(), 10l, homeMetaClass);
@@ -299,7 +297,7 @@ public abstract class BaseKMemorySegmentTest {
 
                 home.mutate(KActionType.ADD, (KMetaReference) home.metaClass().metaByName("sensors"), sensor);
 
-                KMemorySegment cacheEntry = createMemorySegment();
+                KMemorySegment cacheEntry = createKMemorySegment();
                 cacheEntry.init(homeMetaClass);
 
                 Assert.assertFalse(cacheEntry.isDirty());
@@ -339,7 +337,7 @@ public abstract class BaseKMemorySegmentTest {
                 KObject sensor = model.universe(0).time(0).create(sensorMetaClass);
                 sensor.set(sensorMetaClass.attribute("name"), "Sensor#1");
 
-                KMemorySegment cacheEntry = createMemorySegment();
+                KMemorySegment cacheEntry = createKMemorySegment();
                 cacheEntry.init(sensorMetaClass);
 
                 Assert.assertFalse(cacheEntry.isDirty());
@@ -375,6 +373,76 @@ public abstract class BaseKMemorySegmentTest {
 
                 // free cache entry
                 cacheEntry.free(dynamicMetaModel);
+            }
+        });
+    }
+
+    @Test
+    public void serializationTest() {
+        final KMetaModel dynamicMetaModel = new MetaModel("MyMetaModel");
+        final KMetaClass sensorMetaClass = dynamicMetaModel.addMetaClass("Sensor");
+
+        sensorMetaClass.addAttribute("name", KPrimitiveTypes.STRING);
+        sensorMetaClass.addAttribute("value", KPrimitiveTypes.FLOAT);
+        sensorMetaClass.addReference("siblings", sensorMetaClass, null, true);
+
+        KMetaClass homeMetaClass = dynamicMetaModel.addMetaClass("Home");
+        homeMetaClass.addAttribute("attr_long", KPrimitiveTypes.LONG);
+        homeMetaClass.addAttribute("name", KPrimitiveTypes.STRING);
+        homeMetaClass.addReference("sensors", sensorMetaClass, null, true);
+
+        final KModel model = dynamicMetaModel.model();
+
+        model.connect(new KCallback<Throwable>() {
+            @Override
+            public void on(Throwable throwable) {
+
+                // set and read attributes
+                KObject home = model.universe(0).time(0).create(model.metaModel().metaClassByName("Home"));
+                home.set(home.metaClass().attribute("name"), "MainHome");
+
+                KObject sensor = model.universe(0).time(0).create(sensorMetaClass);
+                sensor.set(sensor.metaClass().attribute("name"), "Sensor#1");
+
+                KObject sensor2 = model.universe(0).time(0).create(sensorMetaClass);
+                sensor2.set(sensor.metaClass().attribute("name"), "Sensor#2");
+
+                home.mutate(KActionType.ADD, (KMetaReference) home.metaClass().metaByName("sensors"), sensor);
+
+                KMemorySegment cacheEntry = createKMemorySegment();
+                cacheEntry.init(homeMetaClass);
+
+                Assert.assertFalse(cacheEntry.isDirty());
+
+                cacheEntry.set(homeMetaClass.attribute("attr_long").index(), 10l, homeMetaClass);
+                long attr = (long) cacheEntry.get(homeMetaClass.attribute("attr_long").index(), homeMetaClass);
+                Assert.assertEquals(10l, attr);
+
+                Assert.assertTrue(cacheEntry.isDirty());
+
+                KMemorySegment newCacheEntry = createKMemorySegment();
+                try {
+                    String serialized = cacheEntry.serialize(dynamicMetaModel);
+                    newCacheEntry.unserialize(serialized, dynamicMetaModel);
+
+                    Assert.assertEquals(cacheEntry.get(homeMetaClass.attribute("attr_long").index(), homeMetaClass),
+                            newCacheEntry.get(homeMetaClass.attribute("attr_long").index(), homeMetaClass));
+                    Assert.assertEquals(cacheEntry.get(homeMetaClass.attribute("name").index(), homeMetaClass),
+                            newCacheEntry.get(homeMetaClass.attribute("name").index(), homeMetaClass));
+                    Assert.assertArrayEquals(cacheEntry.getRef(homeMetaClass.reference("sensors").index(), homeMetaClass),
+                            newCacheEntry.getRef(homeMetaClass.reference("sensors").index(), homeMetaClass));
+
+                    Assert.assertFalse(newCacheEntry.isDirty());
+
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                // free cache entry
+                cacheEntry.free(dynamicMetaModel);
+                newCacheEntry.free(dynamicMetaModel);
+
             }
         });
     }
