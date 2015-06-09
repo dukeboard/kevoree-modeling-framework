@@ -133,11 +133,14 @@ public class HeapMemorySegment implements KMemorySegment {
      * @native ts
      * var rawElem = JSON.parse(payload);
      * var metaClass = metaModel.metaClass(rawElem["@class"]);
-     * if(this.raw["@class"] != null && this.raw["@class"] != undefined){ this._metaClassIndex = metaModel.metaClassByName(rawElem["@class"]).index(); }
+     * if(rawElem["@class"] != null && rawElem["@class"] != undefined){
+     * this._metaClassIndex = metaModel.metaClassByName(rawElem["@class"]).index();
+     * this.raw = [];
      * for (var key in rawElem) {
      * if("@class" != key){
      * var elem = metaClass.metaByName(key);
      * if(elem != null && elem != undefined){ this.raw[elem.index()] = rawElem[key]; }
+     * }
      * }
      * }
      */
@@ -152,25 +155,25 @@ public class HeapMemorySegment implements KMemorySegment {
                 String[] metaKeys = objectReader.keys();
                 for (int i = 0; i < metaKeys.length; i++) {
                     KMeta metaElement = metaClass.metaByName(metaKeys[i]);
-                    String insideContent = (String) objectReader.get(metaKeys[i]);
+                    Object insideContent = objectReader.get(metaKeys[i]);
                     if (insideContent != null) {
                         if (metaElement != null && metaElement.metaType().equals(MetaType.ATTRIBUTE)) {
                             KMetaAttribute metaAttribute = (KMetaAttribute) metaElement;
                             Object converted = null;
                             if (metaAttribute.attributeType() == KPrimitiveTypes.STRING) {
-                                converted = JsonString.unescape(insideContent);
+                                converted = JsonString.unescape((String)insideContent);
                             } else if (metaAttribute.attributeType() == KPrimitiveTypes.LONG) {
-                                converted = Long.parseLong(insideContent);
+                                converted = Long.parseLong((String)insideContent);
                             } else if (metaAttribute.attributeType() == KPrimitiveTypes.INT) {
-                                converted = Integer.parseInt(insideContent);
+                                converted = Integer.parseInt((String)insideContent);
                             } else if (metaAttribute.attributeType() == KPrimitiveTypes.BOOL) {
-                                converted = Boolean.parseBoolean(insideContent);
+                                converted = Boolean.parseBoolean((String)insideContent);
                             } else if (metaAttribute.attributeType() == KPrimitiveTypes.SHORT) {
-                                converted = Short.parseShort(insideContent);
+                                converted = Short.parseShort((String)insideContent);
                             } else if (metaAttribute.attributeType() == KPrimitiveTypes.DOUBLE) {
-                                converted = Double.parseDouble(insideContent);
+                                converted = Double.parseDouble((String)insideContent);
                             } else if (metaAttribute.attributeType() == KPrimitiveTypes.FLOAT) {
-                                converted = Float.parseFloat(insideContent);
+                                converted = Float.parseFloat((String)insideContent);
                             } else if (metaAttribute.attributeType() == KPrimitiveTypes.CONTINUOUS) {
                                 String[] plainRawSet = objectReader.getAsStringArray(metaKeys[i]);
                                   double[] convertedRaw = new double[plainRawSet.length];

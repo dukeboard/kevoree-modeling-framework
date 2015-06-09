@@ -5229,14 +5229,15 @@ var org;
                                 HeapMemorySegment.prototype.unserialize = function (payload, metaModel) {
                                     var rawElem = JSON.parse(payload);
                                     var metaClass = metaModel.metaClass(rawElem["@class"]);
-                                    if (this.raw["@class"] != null && this.raw["@class"] != undefined) {
+                                    if (rawElem["@class"] != null && rawElem["@class"] != undefined) {
                                         this._metaClassIndex = metaModel.metaClassByName(rawElem["@class"]).index();
-                                    }
-                                    for (var key in rawElem) {
-                                        if ("@class" != key) {
-                                            var elem = metaClass.metaByName(key);
-                                            if (elem != null && elem != undefined) {
-                                                this.raw[elem.index()] = rawElem[key];
+                                        this.raw = [];
+                                        for (var key in rawElem) {
+                                            if ("@class" != key) {
+                                                var elem = metaClass.metaByName(key);
+                                                if (elem != null && elem != undefined) {
+                                                    this.raw[elem.index()] = rawElem[key];
+                                                }
                                             }
                                         }
                                     }
