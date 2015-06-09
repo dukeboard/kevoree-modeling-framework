@@ -97,18 +97,18 @@ public class JsonRaw {
      * var builder = {};
      * builder["@class"] = p_metaClass.metaName();
      * builder["@uuid"] = uuid;
-     * if(isRoot){ builder[org.kevoree.modeling.format.json.JsonFormat.KEY_ROOT] = true; }
+     * if(isRoot){ builder["@root"] = true; }
      * var metaElements = p_metaClass.metaElements();
-     * var payload_res;
-     * for (var i = 0; i < metaElements.length; i++) {
-     * payload_res = raw.get(metaElements[i].index(),p_metaClass);
-     * if(payload_res != null && payload_res !== undefined){
+     * for(var i=0;i<metaElements.length;i++){
      * if (metaElements[i] != null && metaElements[i].metaType() === org.kevoree.modeling.meta.MetaType.ATTRIBUTE) {
-     * var attrsPayload = metaElements[i]['strategy']().save(payload_res, metaElements[i]);
-     * builder[metaElements[i].metaName()] = attrsPayload;
+     *      var metaAttribute = <org.kevoree.modeling.meta.KMetaAttribute>metaElements[i];
+     *      if(metaAttribute.attributeType() == org.kevoree.modeling.meta.KPrimitiveTypes.CONTINUOUS){
+     *            builder[metaAttribute.metaName()] = raw.getInfer(metaAttribute.index(),p_metaClass);
+     *      } else {
+     *            builder[metaAttribute.metaName()] = raw.get(metaAttribute.index(),p_metaClass);
+     *      }
      * } else {
-     * builder[metaElements[i].metaName()] = payload_res;
-     * }
+     *     builder[metaElements[i].metaName()] = raw.getRef(metaAttribute.index(),p_metaClass);
      * }
      * }
      * return JSON.stringify(builder);
