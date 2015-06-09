@@ -4715,6 +4715,7 @@ var org;
                                 }
                                 try {
                                     result.unserialize(payload, this.model().metaModel());
+                                    result.setClean(this.model().metaModel());
                                     return result;
                                 }
                                 catch ($ex$) {
@@ -5115,7 +5116,6 @@ var org;
                                         var loopVal = java.lang.Long.parseLong(payload.substring(middleChunk + 1, cursor));
                                         this.put(loopKey, loopVal);
                                     }
-                                    this._isDirty = false;
                                 };
                                 ArrayLongLongHashMap.ELEMENT_SEP = ',';
                                 ArrayLongLongHashMap.CHUNK_SEP = '/';
@@ -5239,7 +5239,6 @@ var org;
                                             }
                                         }
                                     }
-                                    this._dirty = false;
                                 };
                                 HeapMemorySegment.prototype.counter = function () {
                                     return this._counter;
@@ -5540,7 +5539,6 @@ var org;
                                     ctx.payload = payload;
                                     ctx.buffer = new Array();
                                     this.root = org.kevoree.modeling.memory.struct.tree.impl.LongTreeNode.unserialize(ctx);
-                                    this._dirty = false;
                                     this.resetCache();
                                 };
                                 LongLongTree.prototype.lookupValue = function (key) {

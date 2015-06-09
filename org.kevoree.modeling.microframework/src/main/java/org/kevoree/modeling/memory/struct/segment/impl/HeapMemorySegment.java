@@ -140,7 +140,6 @@ public class HeapMemorySegment implements KMemorySegment {
      * if(elem != null && elem != undefined){ this.raw[elem.index()] = rawElem[key]; }
      * }
      * }
-     * this._dirty = false;
      */
     @Override
     public void unserialize(String payload, KMetaModel metaModel) throws Exception {
@@ -203,7 +202,6 @@ public class HeapMemorySegment implements KMemorySegment {
                         }
                     }
                 }
-                setClean(metaModel);
             }
         }
     }

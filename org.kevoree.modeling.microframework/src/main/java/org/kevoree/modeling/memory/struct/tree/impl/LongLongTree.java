@@ -145,7 +145,6 @@ public class LongLongTree implements KMemoryElement, KLongLongTree {
         ctx.payload = payload;
         ctx.buffer = new char[20];
         root = LongTreeNode.unserialize(ctx);
-        _dirty = false;
         resetCache();
     }
 

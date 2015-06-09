@@ -5297,6 +5297,7 @@ module org {
                                 }
                                 try {
                                     result.unserialize(payload, this.model().metaModel());
+                                    result.setClean(this.model().metaModel());
                                     return result;
                                 } catch ($ex$) {
                                     if ($ex$ instanceof java.lang.Exception) {
@@ -5683,7 +5684,6 @@ module org {
                                  var loopVal: number = java.lang.Long.parseLong(payload.substring(middleChunk + 1, cursor));
                                  this.put(loopKey, loopVal);
                                  }
-                                 this._isDirty = false;
                                  }
                             }
 
@@ -5805,7 +5805,6 @@ module org {
                                      if(elem != null && elem != undefined){ this.raw[elem.index()] = rawElem[key]; }
                                      }
                                      }
-                                     this._dirty = false;
                                 }
 
                                 public counter(): number {
@@ -6160,7 +6159,6 @@ module org {
                                     ctx.payload = payload;
                                     ctx.buffer = new Array();
                                     this.root = org.kevoree.modeling.memory.struct.tree.impl.LongTreeNode.unserialize(ctx);
-                                    this._dirty = false;
                                     this.resetCache();
                                 }
 

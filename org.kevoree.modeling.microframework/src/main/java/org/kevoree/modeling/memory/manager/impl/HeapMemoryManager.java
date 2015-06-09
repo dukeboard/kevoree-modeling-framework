@@ -669,6 +669,7 @@ public class HeapMemoryManager implements KMemoryManager {
         }
         try {
             result.unserialize(payload, model().metaModel());
+            result.setClean(model().metaModel());
             return result;
         } catch (Exception e) {
             e.printStackTrace();

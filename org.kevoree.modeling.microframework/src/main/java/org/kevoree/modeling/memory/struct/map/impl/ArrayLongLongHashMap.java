@@ -45,7 +45,6 @@ import org.kevoree.modeling.meta.KMetaModel;
  * var loopVal: number = java.lang.Long.parseLong(payload.substring(middleChunk + 1, cursor));
  * this.put(loopKey, loopVal);
  * }
- * this._isDirty = false;
  * }
  */
 public class ArrayLongLongHashMap implements KMemoryElement, KLongLongHashMap {
@@ -130,7 +129,6 @@ public class ArrayLongLongHashMap implements KMemoryElement, KLongLongHashMap {
             long loopVal = Long.parseLong(payload.substring(middleChunk + 1, cursor));
             put(loopKey, loopVal);
         }
-        _isDirty = false;
     }
 
     @Override
