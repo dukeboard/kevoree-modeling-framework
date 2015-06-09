@@ -114,9 +114,10 @@ public class HashMemoryCache implements KCache {
             }
         }
         KCacheDirty[] collectedDirties = new KCacheDirty[nbDirties];
+        int dirtySize = nbDirties;
         nbDirties = 0;
-        for (int i = 0; i < elementDataSize; i++) {
-            if (nbDirties < collectedDirties.length) { //the rest will saved next round due to concurrent tagged values
+        for (int i = 0; i < elementData.length; i++) {
+            if (nbDirties < dirtySize) { //the rest will saved next round due to concurrent tagged values
                 if (elementData[i] != null) {
                     Entry current = elementData[i];
                     if (elementData[i].value.isDirty()) {
@@ -252,7 +253,7 @@ public class HashMemoryCache implements KCache {
     public void clear(KMetaModel metaModel) {
         for (int i = 0; i < elementData.length; i++) {
             Entry e = elementData[i];
-            while(e != null){
+            while (e != null) {
                 e.value.free(metaModel);
                 e = e.next;
             }

@@ -4040,9 +4040,10 @@ var org;
                                     }
                                 }
                                 var collectedDirties = new Array();
+                                var dirtySize = nbDirties;
                                 nbDirties = 0;
-                                for (var i = 0; i < this.elementDataSize; i++) {
-                                    if (nbDirties < collectedDirties.length) {
+                                for (var i = 0; i < this.elementData.length; i++) {
+                                    if (nbDirties < dirtySize) {
                                         if (this.elementData[i] != null) {
                                             var current = this.elementData[i];
                                             if (this.elementData[i].value.isDirty()) {

@@ -4513,9 +4513,10 @@ module org {
                                     }
                                 }
                                 var collectedDirties: org.kevoree.modeling.memory.cache.impl.KCacheDirty[] = new Array();
+                                var dirtySize: number = nbDirties;
                                 nbDirties = 0;
-                                for (var i: number = 0; i < this.elementDataSize; i++) {
-                                    if (nbDirties < collectedDirties.length) {
+                                for (var i: number = 0; i < this.elementData.length; i++) {
+                                    if (nbDirties < dirtySize) {
                                         if (this.elementData[i] != null) {
                                             var current: org.kevoree.modeling.memory.cache.impl.HashMemoryCache.Entry = this.elementData[i];
                                             if (this.elementData[i].value.isDirty()) {
