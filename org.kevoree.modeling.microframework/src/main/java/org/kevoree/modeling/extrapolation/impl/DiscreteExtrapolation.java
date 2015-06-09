@@ -37,23 +37,5 @@ public class DiscreteExtrapolation implements Extrapolation {
             internalPayload.set(attribute.index(), payload, current.metaClass());
         }
     }
-
-
-    @Override
-    public String save(Object cache, KMetaAttribute attribute) {
-        if (cache != null) {
-            return attribute.attributeType().save(cache);
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public Object load(String payload, KMetaAttribute attribute, long now) {
-        if (payload != null) {
-            return attribute.attributeType().load(payload);
-        }
-        return null;
-    }
     
 }

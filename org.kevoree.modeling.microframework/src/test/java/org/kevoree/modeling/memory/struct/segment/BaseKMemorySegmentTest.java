@@ -29,13 +29,13 @@ public abstract class BaseKMemorySegmentTest {
         final KMetaModel dynamicMetaModel = new MetaModel("MyMetaModel");
         final KMetaClass sensorMetaClass = dynamicMetaModel.addMetaClass("Sensor");
 
-        sensorMetaClass.addAttribute("name", KPrimitiveTypes.STRING, null, DiscreteExtrapolation.instance());
-        sensorMetaClass.addAttribute("value", KPrimitiveTypes.FLOAT, null, DiscreteExtrapolation.instance());
+        sensorMetaClass.addAttribute("name", KPrimitiveTypes.STRING);
+        sensorMetaClass.addAttribute("value", KPrimitiveTypes.FLOAT);
         sensorMetaClass.addReference("siblings", sensorMetaClass, null, true);
 
         KMetaClass homeMetaClass = dynamicMetaModel.addMetaClass("Home");
-        homeMetaClass.addAttribute("attr_long", KPrimitiveTypes.LONG, null, DiscreteExtrapolation.instance());
-        homeMetaClass.addAttribute("name", KPrimitiveTypes.STRING, null, DiscreteExtrapolation.instance());
+        homeMetaClass.addAttribute("attr_long", KPrimitiveTypes.LONG);
+        homeMetaClass.addAttribute("name", KPrimitiveTypes.STRING);
         homeMetaClass.addReference("sensors", sensorMetaClass, null, true);
 
         final KModel model = dynamicMetaModel.model();
@@ -93,13 +93,13 @@ public abstract class BaseKMemorySegmentTest {
         final KMetaModel dynamicMetaModel = new MetaModel("MyMetaModel");
         final KMetaClass sensorMetaClass = dynamicMetaModel.addMetaClass("Sensor");
 
-        sensorMetaClass.addAttribute("name", KPrimitiveTypes.STRING, null, DiscreteExtrapolation.instance());
-        sensorMetaClass.addAttribute("value", KPrimitiveTypes.FLOAT, null, DiscreteExtrapolation.instance());
+        sensorMetaClass.addAttribute("name", KPrimitiveTypes.STRING);
+        sensorMetaClass.addAttribute("value", KPrimitiveTypes.FLOAT);
         sensorMetaClass.addReference("siblings", sensorMetaClass, null, true);
 
         KMetaClass homeMetaClass = dynamicMetaModel.addMetaClass("Home");
-        homeMetaClass.addAttribute("attr_long", KPrimitiveTypes.LONG, null, DiscreteExtrapolation.instance());
-        homeMetaClass.addAttribute("name", KPrimitiveTypes.STRING, null, DiscreteExtrapolation.instance());
+        homeMetaClass.addAttribute("attr_long", KPrimitiveTypes.LONG);
+        homeMetaClass.addAttribute("name", KPrimitiveTypes.STRING);
         homeMetaClass.addReference("sensors", sensorMetaClass, null, true);
 
         final KModel model = dynamicMetaModel.model();
@@ -154,13 +154,13 @@ public abstract class BaseKMemorySegmentTest {
         final KMetaModel dynamicMetaModel = new MetaModel("MyMetaModel");
         final KMetaClass sensorMetaClass = dynamicMetaModel.addMetaClass("Sensor");
 
-        sensorMetaClass.addAttribute("name", KPrimitiveTypes.STRING, null, DiscreteExtrapolation.instance());
-        sensorMetaClass.addAttribute("value", KPrimitiveTypes.FLOAT, null, DiscreteExtrapolation.instance());
+        sensorMetaClass.addAttribute("name", KPrimitiveTypes.STRING);
+        sensorMetaClass.addAttribute("value", KPrimitiveTypes.FLOAT);
         sensorMetaClass.addReference("siblings", sensorMetaClass, null, true);
 
         KMetaClass homeMetaClass = dynamicMetaModel.addMetaClass("Home");
-        homeMetaClass.addAttribute("attr_long", KPrimitiveTypes.LONG, null, DiscreteExtrapolation.instance());
-        homeMetaClass.addAttribute("name", KPrimitiveTypes.STRING, null, DiscreteExtrapolation.instance());
+        homeMetaClass.addAttribute("attr_long", KPrimitiveTypes.LONG);
+        homeMetaClass.addAttribute("name", KPrimitiveTypes.STRING);
         homeMetaClass.addReference("sensors", sensorMetaClass, null, true);
 
         final KModel model = dynamicMetaModel.model();
@@ -217,13 +217,13 @@ public abstract class BaseKMemorySegmentTest {
         final KMetaModel dynamicMetaModel = new MetaModel("MyMetaModel");
         final KMetaClass sensorMetaClass = dynamicMetaModel.addMetaClass("Sensor");
 
-        sensorMetaClass.addAttribute("name", KPrimitiveTypes.STRING, null, DiscreteExtrapolation.instance());
-        sensorMetaClass.addAttribute("value", KPrimitiveTypes.FLOAT, null, DiscreteExtrapolation.instance());
+        sensorMetaClass.addAttribute("name", KPrimitiveTypes.STRING);
+        sensorMetaClass.addAttribute("value", KPrimitiveTypes.FLOAT);
         sensorMetaClass.addReference("siblings", sensorMetaClass, null, true);
 
         KMetaClass homeMetaClass = dynamicMetaModel.addMetaClass("Home");
-        homeMetaClass.addAttribute("attr_long", KPrimitiveTypes.LONG, null, DiscreteExtrapolation.instance());
-        homeMetaClass.addAttribute("name", KPrimitiveTypes.STRING, null, DiscreteExtrapolation.instance());
+        homeMetaClass.addAttribute("attr_long", KPrimitiveTypes.LONG);
+        homeMetaClass.addAttribute("name", KPrimitiveTypes.STRING);
         homeMetaClass.addReference("sensors", sensorMetaClass, null, true);
 
         final KModel model = dynamicMetaModel.model();
@@ -274,13 +274,13 @@ public abstract class BaseKMemorySegmentTest {
         final KMetaModel dynamicMetaModel = new MetaModel("MyMetaModel");
         final KMetaClass sensorMetaClass = dynamicMetaModel.addMetaClass("Sensor");
 
-        sensorMetaClass.addAttribute("name", KPrimitiveTypes.STRING, null, DiscreteExtrapolation.instance());
-        sensorMetaClass.addAttribute("value", KPrimitiveTypes.FLOAT, null, DiscreteExtrapolation.instance());
+        sensorMetaClass.addAttribute("name", KPrimitiveTypes.STRING);
+        sensorMetaClass.addAttribute("value", KPrimitiveTypes.FLOAT);
         sensorMetaClass.addReference("siblings", sensorMetaClass, null, true);
 
         KMetaClass homeMetaClass = dynamicMetaModel.addMetaClass("Home");
-        homeMetaClass.addAttribute("attr_long", KPrimitiveTypes.LONG, null, DiscreteExtrapolation.instance());
-        homeMetaClass.addAttribute("name", KPrimitiveTypes.STRING, null, DiscreteExtrapolation.instance());
+        homeMetaClass.addAttribute("attr_long", KPrimitiveTypes.LONG);
+        homeMetaClass.addAttribute("name", KPrimitiveTypes.STRING);
         homeMetaClass.addReference("sensors", sensorMetaClass, null, true);
 
         final KModel model = dynamicMetaModel.model();
@@ -328,8 +328,8 @@ public abstract class BaseKMemorySegmentTest {
         final KMetaModel dynamicMetaModel = new MetaModel("MyMetaModel");
         final KMetaClass sensorMetaClass = dynamicMetaModel.addMetaClass("Sensor");
 
-        sensorMetaClass.addAttribute("name", KPrimitiveTypes.STRING, null, DiscreteExtrapolation.instance());
-        sensorMetaClass.addAttribute("value", KPrimitiveTypes.DOUBLE, null, PolynomialExtrapolation.instance());
+        sensorMetaClass.addAttribute("name", KPrimitiveTypes.STRING);
+        sensorMetaClass.addAttribute("value", KPrimitiveTypes.CONTINUOUS);
         sensorMetaClass.addReference("siblings", sensorMetaClass, null, true);
 
         final KModel model = dynamicMetaModel.model();

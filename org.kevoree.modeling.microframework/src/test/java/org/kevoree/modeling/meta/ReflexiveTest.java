@@ -21,12 +21,12 @@ public class ReflexiveTest {
 
         MetaModel metaModel = new MetaModel("MyMetaModel");
         final KMetaClass sensorMetaClass = metaModel.addMetaClass("Sensor");
-        sensorMetaClass.addAttribute("name", KPrimitiveTypes.STRING, null, DiscreteExtrapolation.instance());
-        sensorMetaClass.addAttribute("value", KPrimitiveTypes.FLOAT, null, DiscreteExtrapolation.instance());
+        sensorMetaClass.addAttribute("name", KPrimitiveTypes.STRING);
+        sensorMetaClass.addAttribute("value", KPrimitiveTypes.FLOAT);
         sensorMetaClass.addReference("siblings", sensorMetaClass, null, true);
 
         KMetaClass homeMetaClass = metaModel.addMetaClass("Home");
-        homeMetaClass.addAttribute("name", KPrimitiveTypes.STRING, null, DiscreteExtrapolation.instance());
+        homeMetaClass.addAttribute("name", KPrimitiveTypes.STRING);
         homeMetaClass.addReference("sensors", sensorMetaClass, null, true);
 
         final KModel universe = metaModel.model();

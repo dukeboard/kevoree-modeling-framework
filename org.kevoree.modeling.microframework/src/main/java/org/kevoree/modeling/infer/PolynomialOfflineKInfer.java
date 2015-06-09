@@ -1,23 +1,12 @@
 package org.kevoree.modeling.infer;
 
-import org.kevoree.modeling.KCallback;
-import org.kevoree.modeling.abs.AbstractKObjectInfer;
-import org.kevoree.modeling.memory.manager.KMemoryManager;
-import org.kevoree.modeling.infer.states.DoubleArrayKInferState;
-import org.kevoree.modeling.infer.states.PolynomialKInferState;
-import org.kevoree.modeling.meta.KMetaClass;
-import org.kevoree.modeling.extrapolation.impl.maths.PolynomialFitEjml;
 
 /**
  * Created by assaad on 11/02/15.
  */
-public class PolynomialOfflineKInfer extends AbstractKObjectInfer {
+public class PolynomialOfflineKInfer {
 
     public int maxDegree =20;
-
-    public PolynomialOfflineKInfer(long p_universe, long p_time, long p_uuid, KMetaClass p_metaClass, KMemoryManager p_manager) {
-        super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
-    }
 
     public double getToleratedErr() {
         return toleratedErr;
@@ -36,11 +25,12 @@ public class PolynomialOfflineKInfer extends AbstractKObjectInfer {
     }
 
     public double toleratedErr=0.01;
-
+/*
     private double calculateLong (long time,  double[] weights, long timeOrigin, long unit) {
        double t= ((double)(time-timeOrigin))/unit;
        return calculate(weights,t);
     }
+
 
     private double calculate(double[] weights, double t) {
         double result=0;
@@ -133,4 +123,5 @@ public class PolynomialOfflineKInfer extends AbstractKObjectInfer {
     public KInferState createEmptyState() {
         return new DoubleArrayKInferState();
     }
+    */
 }

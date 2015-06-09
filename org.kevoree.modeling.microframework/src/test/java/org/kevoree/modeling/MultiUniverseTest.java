@@ -28,7 +28,7 @@ public class MultiUniverseTest {
 
         sensorMetaClass = dynamicMetaModel.addMetaClass("Sensor");
 
-        sensorMetaClass.addAttribute("value", KPrimitiveTypes.DOUBLE, null, DiscreteExtrapolation.instance());
+        sensorMetaClass.addAttribute("value", KPrimitiveTypes.DOUBLE);
         sensorMetaClass.addReference("siblings", sensorMetaClass, null, true);
 
         model = dynamicMetaModel.model();

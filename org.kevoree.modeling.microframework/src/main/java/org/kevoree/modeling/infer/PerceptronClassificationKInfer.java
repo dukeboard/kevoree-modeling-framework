@@ -1,11 +1,5 @@
 package org.kevoree.modeling.infer;
 
-import org.kevoree.modeling.KCallback;
-import org.kevoree.modeling.abs.AbstractKObjectInfer;
-import org.kevoree.modeling.memory.manager.KMemoryManager;
-import org.kevoree.modeling.infer.states.DoubleArrayKInferState;
-import org.kevoree.modeling.meta.KMetaClass;
-
 /**
  * This class create a live learner classifier of perceptron algorithm.
  * The learning hypothesis is that the result y is in a linear correlation with the features xi.
@@ -17,11 +11,7 @@ import org.kevoree.modeling.meta.KMetaClass;
  */
 
 
-public class PerceptronClassificationKInfer extends AbstractKObjectInfer {
-
-    public PerceptronClassificationKInfer(long p_universe, long p_time, long p_uuid, KMetaClass p_metaClass, KMemoryManager p_manager) {
-        super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
-    }
+public class PerceptronClassificationKInfer  {
 
     public double getAlpha() {
         return alpha;
@@ -64,6 +54,7 @@ public class PerceptronClassificationKInfer extends AbstractKObjectInfer {
         }
     }
 
+    /*
     @Override
     public void train(Object[][] trainingSet, Object[] expectedResultSet, KCallback<Throwable> callback) {
         DoubleArrayKInferState currentState = (DoubleArrayKInferState) modifyState();
@@ -138,4 +129,5 @@ public class PerceptronClassificationKInfer extends AbstractKObjectInfer {
     public KInferState createEmptyState() {
         return new DoubleArrayKInferState();
     }
+    */
 }

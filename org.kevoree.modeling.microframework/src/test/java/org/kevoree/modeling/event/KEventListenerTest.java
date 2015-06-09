@@ -28,7 +28,7 @@ public class KEventListenerTest {
     public KEventListenerTest() {
         MetaModel metaModel = new MetaModel("TestMM");
         KMetaClass metaClass = metaModel.addMetaClass("TestMC");
-        metaClass.addAttribute("name", KPrimitiveTypes.STRING, null, DiscreteExtrapolation.instance());
+        metaClass.addAttribute("name", KPrimitiveTypes.STRING);
         _model = metaModel.model();
         localEventListeners = new LocalEventListeners();
         localEventListeners.setManager(_model.manager());

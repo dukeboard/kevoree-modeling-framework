@@ -1,7 +1,7 @@
 package org.kevoree.modeling.memory.manager.impl;
 
+import org.kevoree.modeling.KType;
 import org.kevoree.modeling.format.json.JsonString;
-import org.kevoree.modeling.meta.impl.MetaAttribute;
 import org.kevoree.modeling.meta.impl.MetaReference;
 import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 import org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment;
@@ -15,6 +15,31 @@ import org.kevoree.modeling.meta.MetaType;
 import org.kevoree.modeling.meta.KPrimitiveTypes;
 
 public class JsonRaw {
+
+    public static Object convert(String payload, KType type) {
+        if (type == KPrimitiveTypes.STRING) {
+            return JsonString.unescape(payload);
+        }
+        if (type == KPrimitiveTypes.LONG) {
+            return Long.parseLong(payload);
+        }
+        if (type == KPrimitiveTypes.INT) {
+            return Integer.parseInt(payload);
+        }
+        if (type == KPrimitiveTypes.BOOL) {
+            return Boolean.parseBoolean(payload);
+        }
+        if (type == KPrimitiveTypes.SHORT) {
+            return Short.parseShort(payload);
+        }
+        if (type == KPrimitiveTypes.DOUBLE) {
+            return Double.parseDouble(payload);
+        }
+        if (type == KPrimitiveTypes.FLOAT) {
+            return Float.parseFloat(payload);
+        }
+        return null;
+    }
 
     public static boolean decode(String payload, long now, KMetaModel metaModel, final HeapMemorySegment entry) {
         if (payload == null) {
@@ -37,9 +62,13 @@ public class JsonRaw {
                 Object insideContent = objectReader.get(metaKeys[i]);
                 if (insideContent != null) {
                     if (metaElement != null && metaElement.metaType().equals(MetaType.ATTRIBUTE)) {
-                        entry.set(metaElement.index(), ((MetaAttribute) metaElement).strategy().load(insideContent.toString(), (MetaAttribute) metaElement, now), metaClass);
+                        //TODO INFER ATT
+                        KMetaAttribute metaAttribute = (KMetaAttribute) metaElement;
+                        Object saved = convert(insideContent.toString(), metaAttribute.attributeType());
+                        if (saved != null) {
+                            entry.set(metaElement.index(), saved, metaClass);
+                        }
                     } else if (metaElement != null && metaElement instanceof MetaReference) {
-
                         try {
                             String[] plainRawSet = objectReader.getAsStringArray(metaKeys[i]);
                             long[] convertedRaw = new long[plainRawSet.length];
@@ -56,7 +85,6 @@ public class JsonRaw {
                         }
                     }
                 }
-
             }
             entry.setClean(metaModel);
             return true;
@@ -117,17 +145,15 @@ public class JsonRaw {
                 } else {
                     Object payload_res = raw.get(loopMeta.index(), p_metaClass);
                     if (payload_res != null) {
-                        if (((KMetaAttribute) loopMeta).attributeType() != KPrimitiveTypes.TRANSIENT) {
-                            builder.append(",\"");
-                            builder.append(loopMeta.metaName());
-                            builder.append("\":\"");
-                            if (metaAttribute == KPrimitiveTypes.STRING) {
-                                builder.append(JsonString.encode(payload_res.toString()));
-                            } else {
-                                builder.append(payload_res.toString());
-                            }
-                            builder.append("\"");
+                        builder.append(",\"");
+                        builder.append(loopMeta.metaName());
+                        builder.append("\":\"");
+                        if (metaAttribute == KPrimitiveTypes.STRING) {
+                            builder.append(JsonString.encode(payload_res.toString()));
+                        } else {
+                            builder.append(payload_res.toString());
                         }
+                        builder.append("\"");
                     }
                 }
             } else if (loopMeta != null && loopMeta.metaType().equals(MetaType.REFERENCE)) {

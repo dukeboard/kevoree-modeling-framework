@@ -4,6 +4,7 @@ import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.abs.AbstractKModel;
+import org.kevoree.modeling.meta.*;
 import org.kevoree.modeling.meta.impl.MetaReference;
 import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 import org.kevoree.modeling.memory.manager.AccessMode;
@@ -11,10 +12,6 @@ import org.kevoree.modeling.memory.manager.KMemoryManager;
 import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap;
 import org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap;
 import org.kevoree.modeling.memory.struct.map.KStringHashMapCallBack;
-import org.kevoree.modeling.meta.KMeta;
-import org.kevoree.modeling.meta.KMetaAttribute;
-import org.kevoree.modeling.meta.KMetaClass;
-import org.kevoree.modeling.meta.MetaType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,7 +102,7 @@ public class JsonModelLoader {
                     }
                 }
                 if (rootElem[0] != null) {
-                    manager.setRoot(rootElem[0],new KCallback<Throwable>() {
+                    manager.setRoot(rootElem[0], new KCallback<Throwable>() {
                         @Override
                         public void on(Throwable throwable) {
                             if (callback != null) {
@@ -126,24 +123,53 @@ public class JsonModelLoader {
         long kid = Long.parseLong(p_param.get(JsonFormat.KEY_UUID).toString());
         String meta = p_param.get(JsonFormat.KEY_META).toString();
         KMetaClass metaClass = manager.model().metaModel().metaClassByName(meta);
-        KObject current = ((AbstractKModel)manager.model()).createProxy(universe,time,p_mappedKeys.get(kid),metaClass);
+        KObject current = ((AbstractKModel) manager.model()).createProxy(universe, time, p_mappedKeys.get(kid), metaClass);
         manager.initKObject(current);
-        KMemorySegment raw = manager.segment(current.universe(),current.now(),current.uuid(), AccessMode.NEW,current.metaClass(), null);
+        KMemorySegment raw = manager.segment(current.universe(), current.now(), current.uuid(), AccessMode.NEW, current.metaClass(), null);
         p_param.each(new KStringHashMapCallBack<Object>() {
             @Override
             public void on(String metaKey, Object payload_content) {
                 if (metaKey.equals(JsonFormat.KEY_ROOT)) {
-                    //if ("true".equals(payload_content) || true == payload_content) {
-                        p_rootElem[0] = current;
-                    //}
+                    p_rootElem[0] = current;
                 } else {
                     KMeta metaElement = metaClass.metaByName(metaKey);
                     if (payload_content != null) {
                         if (metaElement != null && metaElement.metaType().equals(MetaType.ATTRIBUTE)) {
-                            raw.set(metaElement.index(), ((KMetaAttribute) metaElement).strategy().load(payload_content.toString(), (KMetaAttribute) metaElement, time),current.metaClass());
+                            KMetaAttribute metaAttribute = (KMetaAttribute) metaElement;
+                            if (metaAttribute.attributeType() == KPrimitiveTypes.CONTINUOUS) {
+                                String[] plainRawSet = (String[]) p_param.get(metaAttribute.metaName());
+                                double[] convertedRaw = new double[plainRawSet.length];
+                                for (int l = 0; l < plainRawSet.length; l++) {
+                                    try {
+                                        convertedRaw[l] = Double.parseDouble(plainRawSet[l]);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                raw.set(metaElement.index(), convertedRaw, current.metaClass());
+                            } else {
+                                Object converted = null;
+                                String rawPayload = p_param.get(metaElement.metaName()).toString();
+                                if (metaAttribute.attributeType() == KPrimitiveTypes.STRING) {
+                                    converted = JsonString.unescape(rawPayload);
+                                } else if (metaAttribute.attributeType() == KPrimitiveTypes.LONG) {
+                                    converted = Long.parseLong(rawPayload);
+                                } else if (metaAttribute.attributeType() == KPrimitiveTypes.INT) {
+                                    converted = Integer.parseInt(rawPayload);
+                                } else if (metaAttribute.attributeType() == KPrimitiveTypes.BOOL) {
+                                    converted = Boolean.parseBoolean(rawPayload);
+                                } else if (metaAttribute.attributeType() == KPrimitiveTypes.SHORT) {
+                                    converted = Short.parseShort(rawPayload);
+                                } else if (metaAttribute.attributeType() == KPrimitiveTypes.DOUBLE) {
+                                    converted = Double.parseDouble(rawPayload);
+                                } else if (metaAttribute.attributeType() == KPrimitiveTypes.FLOAT) {
+                                    converted = Float.parseFloat(rawPayload);
+                                }
+                                raw.set(metaElement.index(), converted, current.metaClass());
+                            }
                         } else if (metaElement != null && metaElement instanceof MetaReference) {
                             try {
-                                raw.set(metaElement.index(), transposeArr((ArrayList<String>) payload_content, p_mappedKeys),current.metaClass());
+                                raw.set(metaElement.index(), transposeArr((ArrayList<String>) payload_content, p_mappedKeys), current.metaClass());
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

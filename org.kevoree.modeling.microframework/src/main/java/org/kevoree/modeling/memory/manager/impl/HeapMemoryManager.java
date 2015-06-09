@@ -269,7 +269,7 @@ public class HeapMemoryManager implements KMemoryManager {
                                                         if (globalUniverseTreePayload != null) {
                                                             globalUniverseTree = new ArrayLongLongHashMap(0, KConfig.CACHE_LOAD_FACTOR);
                                                             try {
-                                                                globalUniverseTree.unserialize(KContentKey.createGlobalUniverseTree(), globalUniverseTreePayload, model().metaModel());
+                                                                globalUniverseTree.unserialize(globalUniverseTreePayload, model().metaModel());
                                                             } catch (Exception e) {
                                                                 e.printStackTrace();
                                                             }
@@ -667,7 +667,7 @@ public class HeapMemoryManager implements KMemoryManager {
             }
         }
         try {
-            result.unserialize(key, payload, model().metaModel());
+            result.unserialize(payload, model().metaModel());
             return result;
         } catch (Exception e) {
             e.printStackTrace();

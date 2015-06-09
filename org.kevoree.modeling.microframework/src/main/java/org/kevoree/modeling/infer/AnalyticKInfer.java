@@ -1,7 +1,6 @@
 package org.kevoree.modeling.infer;
 
 import org.kevoree.modeling.KCallback;
-import org.kevoree.modeling.abs.AbstractKObjectInfer;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
 import org.kevoree.modeling.infer.states.AnalyticKInferState;
 import org.kevoree.modeling.meta.KMetaClass;
@@ -15,12 +14,9 @@ import org.kevoree.modeling.meta.KMetaClass;
  * It is calculated by dividing the accumulator by the counter;
  * Created by assaad on 10/02/15.
  */
-public class AnalyticKInfer extends AbstractKObjectInfer {
+public class AnalyticKInfer {
 
-    public AnalyticKInfer(long p_universe, long p_time, long p_uuid, KMetaClass p_metaClass, KMemoryManager p_manager) {
-        super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
-    }
-
+    /*
     @Override
     public void train(Object[][] trainingSet, Object[] expectedResultSet, KCallback<Throwable> callback) {
         AnalyticKInferState currentState = (AnalyticKInferState) modifyState();
@@ -51,6 +47,6 @@ public class AnalyticKInfer extends AbstractKObjectInfer {
     @Override
     public KInferState createEmptyState() {
         return new AnalyticKInferState();
-    }
+    }*/
 
 }

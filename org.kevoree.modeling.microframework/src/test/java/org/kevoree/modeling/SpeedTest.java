@@ -81,11 +81,11 @@ public class SpeedTest {
     public void test() {
         MetaModel dynamicMetaModel = new MetaModel("MyMetaModel");
         final KMetaClass sensorMetaClass = dynamicMetaModel.addMetaClass("Sensor");
-        sensorMetaClass.addAttribute("name", KPrimitiveTypes.STRING, null, DiscreteExtrapolation.instance());
-        sensorMetaClass.addAttribute("value", KPrimitiveTypes.DOUBLE, null, DiscreteExtrapolation.instance());
+        sensorMetaClass.addAttribute("name", KPrimitiveTypes.STRING);
+        sensorMetaClass.addAttribute("value", KPrimitiveTypes.DOUBLE);
         sensorMetaClass.addReference("siblings", sensorMetaClass, null, true);
         KMetaClass homeMetaClass = dynamicMetaModel.addMetaClass("Home");
-        homeMetaClass.addAttribute("name", KPrimitiveTypes.STRING, null, DiscreteExtrapolation.instance());
+        homeMetaClass.addAttribute("name", KPrimitiveTypes.STRING);
         homeMetaClass.addReference("sensors", sensorMetaClass, null, true);
         final KModel universe = dynamicMetaModel.model();
 

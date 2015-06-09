@@ -25,46 +25,4 @@ public class AbstractDataType implements KType {
         return _isEnum;
     }
 
-    /*
-    @Override
-    public String save(Object src) {
-        if (src != null && this != KPrimitiveTypes.TRANSIENT) {
-            if (this == KPrimitiveTypes.STRING) {
-                return JsonString.encode(src.toString());
-            } else {
-                return src.toString();
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public Object load(String payload) {
-        if (this == KPrimitiveTypes.TRANSIENT) {
-            return null;
-        }
-        if (this == KPrimitiveTypes.STRING) {
-            return JsonString.unescape(payload);
-        }
-        if (this == KPrimitiveTypes.LONG) {
-            return Long.parseLong(payload);
-        }
-        if (this == KPrimitiveTypes.INT) {
-            return Integer.parseInt(payload);
-        }
-        if (this == KPrimitiveTypes.BOOL) {
-            return Boolean.parseBoolean(payload);
-        }
-        if (this == KPrimitiveTypes.SHORT) {
-            return Short.parseShort(payload);
-        }
-        if (this == KPrimitiveTypes.DOUBLE) {
-            return Double.parseDouble(payload);
-        }
-        if (this == KPrimitiveTypes.FLOAT) {
-            return Float.parseFloat(payload);
-        }
-        return null;
-    }*/
-
 }

@@ -12,7 +12,6 @@ public class KPrimitiveTypes {
     public static final KType SHORT = new AbstractDataType("SHORT", false);
     public static final KType DOUBLE = new AbstractDataType("DOUBLE", false);
     public static final KType FLOAT = new AbstractDataType("FLOAT", false);
-    public static final KType TRANSIENT = new AbstractDataType("TRANSIENT", false);
     public static final KType CONTINUOUS = new AbstractDataType("CONTINUOUS", false);
 
 }

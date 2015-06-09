@@ -3,6 +3,7 @@ package org.kevoree.modeling.format.json;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap;
 import org.kevoree.modeling.memory.struct.map.KStringHashMapCallBack;
+import org.kevoree.modeling.meta.KMetaClass;
 
 import java.util.ArrayList;
 
@@ -28,7 +29,7 @@ import java.util.ArrayList;
  */
 public class JsonObjectReader {
 
-    private ArrayStringHashMap<Object> content = new ArrayStringHashMap<Object>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
+    private ArrayStringHashMap<Object> content = new ArrayStringHashMap<Object>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
 
     private String[] keys = null;
 

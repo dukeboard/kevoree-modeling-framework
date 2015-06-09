@@ -1,11 +1,5 @@
 package org.kevoree.modeling.infer;
 
-import org.kevoree.modeling.abs.AbstractKObjectInfer;
-import org.kevoree.modeling.KCallback;
-import org.kevoree.modeling.memory.manager.KMemoryManager;
-import org.kevoree.modeling.infer.states.DoubleArrayKInferState;
-import org.kevoree.modeling.meta.KMetaClass;
-
 /**
  * This class create a live learner classifier using the winnow algorithm.
  * The learning hypothesis is that the result y is according to majority of votes of experts xi.
@@ -17,7 +11,7 @@ import org.kevoree.modeling.meta.KMetaClass;
  * Beta is the penalty in term of voting power division for experts who guess wrong (usually /2).
  * Created by assaad on 11/02/15.
  */
-public class WinnowClassificationKInfer extends AbstractKObjectInfer {
+public class WinnowClassificationKInfer {
 
     /**
      * @param alpha is the reward multiplier when the expert is correct
@@ -28,10 +22,6 @@ public class WinnowClassificationKInfer extends AbstractKObjectInfer {
      * @param beta is the penalty divider when the expert is wrong
      */
     private double beta=2;
-
-    public WinnowClassificationKInfer(long p_universe, long p_time, long p_uuid, KMetaClass p_metaClass, KMemoryManager p_manager) {
-        super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
-    }
 
     public double getAlpha() {
         return alpha;
@@ -62,7 +52,7 @@ public class WinnowClassificationKInfer extends AbstractKObjectInfer {
         }
     }
 
-
+/*
     @Override
     public void train(Object[][] trainingSet, Object[] expectedResultSet, KCallback<Throwable> callback) {
         DoubleArrayKInferState currentState = (DoubleArrayKInferState) modifyState();
@@ -144,4 +134,6 @@ public class WinnowClassificationKInfer extends AbstractKObjectInfer {
     public KInferState createEmptyState() {
         return new DoubleArrayKInferState();
     }
+    */
+
 }

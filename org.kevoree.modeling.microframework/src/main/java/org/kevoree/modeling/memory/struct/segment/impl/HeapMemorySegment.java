@@ -1,10 +1,10 @@
 package org.kevoree.modeling.memory.struct.segment.impl;
 
+import org.kevoree.modeling.format.json.JsonFormat;
+import org.kevoree.modeling.format.json.JsonObjectReader;
 import org.kevoree.modeling.format.json.JsonString;
-import org.kevoree.modeling.infer.KInferState;
 import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 import org.kevoree.modeling.KContentKey;
-import org.kevoree.modeling.memory.manager.impl.JsonRaw;
 import org.kevoree.modeling.meta.*;
 
 public class HeapMemorySegment implements KMemorySegment {
@@ -35,6 +35,18 @@ public class HeapMemorySegment implements KMemorySegment {
         return _dirty;
     }
 
+    /**
+     * @native ts
+     * var builder = {};
+     * var metaClass = metaModel.metaClass(_metaClassIndex);
+     * var metaElements = metaClass.metaElements();
+     * builder["@class"] = metaClass.metaName();
+     * builder["@uuid"] = uuid;
+     * for (var i = 0; i < raw.length; i++) {
+     * if(raw[i] != undefined && raw[i] != null){ builder[metaElements[i].metaName()] = raw[i]; }
+     * }
+     * return JSON.stringify(builder);
+     */
     @Override
     public String serialize(KMetaModel metaModel) {
         KMetaClass metaClass = metaModel.metaClass(_metaClassIndex);
@@ -118,9 +130,83 @@ public class HeapMemorySegment implements KMemorySegment {
         _dirty = true;
     }
 
+    /**
+     * @native ts
+     * var rawElem = JSON.parse(payload);
+     * var metaClass = metaModel.metaClass(rawElem["@class"]);
+     * if(raw["@class"] != null && raw["@class"] != undefined){ this._metaClassIndex = metaModel.metaClassByName(raw["@class"]); }
+     * for (var key in rawElem) {
+     * if("@class" != key){
+     * var elem = metaClass.metaByName(key);
+     * if(elem != null && elem != undefined){ raw[elem.index()] = rawElem[key]; }
+     * }
+     * }
+     * setClean(metaModel);
+     */
     @Override
-    public void unserialize(KContentKey key, String payload, KMetaModel metaModel) throws Exception {
-        JsonRaw.decode(payload, key.time, metaModel, this);
+    public void unserialize(String payload, KMetaModel metaModel) throws Exception {
+        if (payload != null) {
+            JsonObjectReader objectReader = new JsonObjectReader();
+            objectReader.parseObject(payload);
+            if (objectReader.get(JsonFormat.KEY_META) != null) {
+                KMetaClass metaClass = metaModel.metaClassByName(objectReader.get(JsonFormat.KEY_META).toString());
+                init(metaClass);
+                String[] metaKeys = objectReader.keys();
+                for (int i = 0; i < metaKeys.length; i++) {
+                    KMeta metaElement = metaClass.metaByName(metaKeys[i]);
+                    Object insideContent = objectReader.get(metaKeys[i]);
+                    if (insideContent != null) {
+                        if (metaElement != null && metaElement.metaType().equals(MetaType.ATTRIBUTE)) {
+                            KMetaAttribute metaAttribute = (KMetaAttribute) metaElement;
+                            Object converted = null;
+                            if (metaAttribute.attributeType() == KPrimitiveTypes.STRING) {
+                                converted = JsonString.unescape(payload);
+                            } else if (metaAttribute.attributeType() == KPrimitiveTypes.LONG) {
+                                converted = Long.parseLong(payload);
+                            } else if (metaAttribute.attributeType() == KPrimitiveTypes.INT) {
+                                converted = Integer.parseInt(payload);
+                            } else if (metaAttribute.attributeType() == KPrimitiveTypes.BOOL) {
+                                converted = Boolean.parseBoolean(payload);
+                            } else if (metaAttribute.attributeType() == KPrimitiveTypes.SHORT) {
+                                converted = Short.parseShort(payload);
+                            } else if (metaAttribute.attributeType() == KPrimitiveTypes.DOUBLE) {
+                                converted = Double.parseDouble(payload);
+                            } else if (metaAttribute.attributeType() == KPrimitiveTypes.FLOAT) {
+                                converted = Float.parseFloat(payload);
+                            } else if (metaAttribute.attributeType() == KPrimitiveTypes.CONTINUOUS) {
+                                String[] plainRawSet = objectReader.getAsStringArray(metaKeys[i]);
+                                double[] convertedRaw = new double[plainRawSet.length];
+                                for (int l = 0; l < plainRawSet.length; l++) {
+                                    try {
+                                        convertedRaw[l] = Double.parseDouble(plainRawSet[l]);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                converted = convertedRaw;
+                            }
+                            raw[metaAttribute.index()] = converted;
+                        } else if (metaElement != null && metaElement instanceof KMetaReference) {
+                            try {
+                                String[] plainRawSet = objectReader.getAsStringArray(metaKeys[i]);
+                                long[] convertedRaw = new long[plainRawSet.length];
+                                for (int l = 0; l < plainRawSet.length; l++) {
+                                    try {
+                                        convertedRaw[l] = Long.parseLong(plainRawSet[l]);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                raw[metaElement.index()] = convertedRaw;
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
+                setClean(metaModel);
+            }
+        }
     }
 
     @Override
@@ -140,7 +226,7 @@ public class HeapMemorySegment implements KMemorySegment {
 
     @Override
     public void free(KMetaModel metaModel) {
-        //NOOP
+        raw = null;
     }
 
     @Override
@@ -306,18 +392,7 @@ public class HeapMemorySegment implements KMemorySegment {
             return new HeapMemorySegment();
         } else {
             Object[] cloned = new Object[raw.length];
-            //TODO
-            //System.arraycopy(raw,0,cloned,0, raw.length);
-            for (int i = 0; i < raw.length; i++) {
-                Object resolved = raw[i];
-                if (resolved != null) {
-                    if (resolved instanceof KInferState) {
-                        cloned[i] = ((KInferState) resolved).cloneState();
-                    } else {
-                        cloned[i] = resolved;
-                    }
-                }
-            }
+            System.arraycopy(raw, 0, cloned, 0, raw.length);
             HeapMemorySegment clonedEntry = new HeapMemorySegment();
             clonedEntry._dirty = true;
             clonedEntry.raw = cloned;

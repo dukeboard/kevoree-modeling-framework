@@ -1,11 +1,5 @@
 package org.kevoree.modeling.infer;
 
-import org.kevoree.modeling.KCallback;
-import org.kevoree.modeling.abs.AbstractKObjectInfer;
-import org.kevoree.modeling.memory.manager.KMemoryManager;
-import org.kevoree.modeling.infer.states.DoubleArrayKInferState;
-import org.kevoree.modeling.meta.KMetaClass;
-
 /**
  * This class create a live learner of a linear regression.
  * The learning hypothesis is that the result y is in a linear correlation with the features xi.
@@ -14,11 +8,8 @@ import org.kevoree.modeling.meta.KMetaClass;
  * There are two parameters to defined for this class: the learning rate alpha, and the number of iterations.
  * Created by assaad on 10/02/15.
  */
-public class LinearRegressionKInfer extends AbstractKObjectInfer {
+public class LinearRegressionKInfer {
 
-    public LinearRegressionKInfer(long p_universe, long p_time, long p_uuid, KMetaClass p_metaClass, KMemoryManager p_manager) {
-        super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
-    }
 
     public double getAlpha() {
         return alpha;
@@ -55,6 +46,8 @@ public class LinearRegressionKInfer extends AbstractKObjectInfer {
         return result;
     }
 
+    /*
+
     @Override
     public void train(Object[][] trainingSet, Object[] expectedResultSet, KCallback<Throwable> callback) {
         DoubleArrayKInferState currentState = (DoubleArrayKInferState) modifyState();
@@ -62,10 +55,10 @@ public class LinearRegressionKInfer extends AbstractKObjectInfer {
         int featuresize = trainingSet[0].length;
         if (weights == null) {
             weights = new double[featuresize + 1];
-          /*  Random random = new Random();
+            Random random = new Random();
             for(int i=0; i<size+1;i++){
                 weights[i]=random.nextDouble();
-            }*/
+            }
         }
         double[][] features = new double[trainingSet.length][];
         double[] results = new double[expectedResultSet.length];
@@ -115,5 +108,5 @@ public class LinearRegressionKInfer extends AbstractKObjectInfer {
     @Override
     public KInferState createEmptyState() {
         return new DoubleArrayKInferState();
-    }
+    }*/
 }

@@ -101,7 +101,7 @@ public class LongTree implements KMemoryElement, KLongTree {
     }
 
     @Override
-    public void unserialize(KContentKey key, String payload, KMetaModel metaModel) throws Exception {
+    public void unserialize(String payload, KMetaModel metaModel) throws Exception {
         if (payload == null || payload.length() == 0) {
             return;
         }

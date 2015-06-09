@@ -1,25 +1,13 @@
 package org.kevoree.modeling.infer;
 
-import org.kevoree.modeling.KCallback;
-import org.kevoree.modeling.abs.AbstractKObjectInfer;
-import org.kevoree.modeling.memory.manager.KMemoryManager;
-import org.kevoree.modeling.infer.states.DoubleArrayKInferState;
-import org.kevoree.modeling.infer.states.PolynomialKInferState;
-import org.kevoree.modeling.meta.KMetaClass;
-import org.kevoree.modeling.extrapolation.impl.maths.PolynomialFitEjml;
-
 /**
  * Created by assaad on 11/02/15.
  */
 
 //TODO needs update to live adapt - this is currently a copy paste of offline
-public class PolynomialOnlineKInfer extends AbstractKObjectInfer {
+public class PolynomialOnlineKInfer {
 
     public int maxDegree = 20;
-
-    public PolynomialOnlineKInfer(long p_universe, long p_time, long p_uuid, KMetaClass p_metaClass, KMemoryManager p_manager) {
-        super(p_universe, p_time, p_uuid, p_metaClass, p_manager);
-    }
 
     public double getToleratedErr() {
         return toleratedErr;
@@ -54,7 +42,7 @@ public class PolynomialOnlineKInfer extends AbstractKObjectInfer {
         return result;
     }
 
-
+/*
     @Override
     public void train(Object[][] trainingSet, Object[] expectedResultSet, KCallback<Throwable> callback) {
         PolynomialKInferState currentState = (PolynomialKInferState) modifyState();
@@ -132,4 +120,5 @@ public class PolynomialOnlineKInfer extends AbstractKObjectInfer {
     public KInferState createEmptyState() {
         return new DoubleArrayKInferState();
     }
+    */
 }

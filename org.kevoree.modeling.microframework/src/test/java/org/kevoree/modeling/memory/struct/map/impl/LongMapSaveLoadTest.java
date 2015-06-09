@@ -19,7 +19,7 @@ public class LongMapSaveLoadTest {
         Assert.assertEquals(map.size(), 10);
         String saved = map.serialize(null);
         ArrayLongLongHashMap map2 = new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
-        map2.unserialize(null, saved, null);
+        map2.unserialize(saved, null);
         Assert.assertEquals(map2.size(), 10);
         for (long i = 0; i < 10; i++) {
             Assert.assertEquals(map.get(i), i);
