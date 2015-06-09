@@ -17,7 +17,7 @@ public abstract class BaseKLongLongTreeTest {
             tree.insert(i);
         }
         KLongTree treeBis = createKLongTree();
-        treeBis.unserialize(null, tree.serialize(null), null);
+        treeBis.unserialize(tree.serialize(null), null);
         Assert.assertEquals(tree.size(), treeBis.size());
     }
 
@@ -28,7 +28,7 @@ public abstract class BaseKLongLongTreeTest {
             tree.insert(i, i);
         }
         KLongLongTree treeBis = createKLongLongTree();
-        treeBis.unserialize(null, tree.serialize(null), null);
+        treeBis.unserialize(tree.serialize(null), null);
         Assert.assertEquals(tree.size(), treeBis.size());
         for (int i = 0; i < tree.size(); i++) {
             Long resolved = tree.lookupValue(i);

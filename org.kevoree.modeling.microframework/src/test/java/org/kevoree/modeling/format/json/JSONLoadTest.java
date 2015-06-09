@@ -8,9 +8,6 @@ import org.kevoree.modeling.cloudmodel.CloudUniverse;
 import org.kevoree.modeling.cloudmodel.CloudModel;
 import org.kevoree.modeling.cloudmodel.CloudView;
 
-/**
- * Created by duke on 10/16/14.
- */
 public class JSONLoadTest {
 
     @Test

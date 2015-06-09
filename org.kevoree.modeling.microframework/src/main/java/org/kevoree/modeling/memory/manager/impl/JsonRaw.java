@@ -41,6 +41,7 @@ public class JsonRaw {
         return null;
     }
 
+    /*
     public static boolean decode(String payload, long now, KMetaModel metaModel, final HeapMemorySegment entry) {
         if (payload == null) {
             return false;
@@ -89,7 +90,7 @@ public class JsonRaw {
             entry.setClean(metaModel);
             return true;
         }
-    }
+    }*/
 
     /**
      * @native ts
@@ -128,7 +129,7 @@ public class JsonRaw {
             KMeta loopMeta = metaElements[i];
             if (loopMeta != null && loopMeta.metaType().equals(MetaType.ATTRIBUTE)) {
                 KMetaAttribute metaAttribute = (KMetaAttribute) loopMeta;
-                if (metaAttribute == KPrimitiveTypes.CONTINUOUS) {
+                if (metaAttribute.attributeType() == KPrimitiveTypes.CONTINUOUS) {
                     double[] inferAtt = raw.getInfer(loopMeta.index(), p_metaClass);
                     if (inferAtt != null) {
                         builder.append(",\"");
@@ -148,7 +149,7 @@ public class JsonRaw {
                         builder.append(",\"");
                         builder.append(loopMeta.metaName());
                         builder.append("\":\"");
-                        if (metaAttribute == KPrimitiveTypes.STRING) {
+                        if (metaAttribute.attributeType() == KPrimitiveTypes.STRING) {
                             builder.append(JsonString.encode(payload_res.toString()));
                         } else {
                             builder.append(payload_res.toString());
