@@ -6,9 +6,6 @@ import org.kevoree.modeling.KActionType;
 import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KModel;
 import org.kevoree.modeling.KObject;
-import org.kevoree.modeling.extrapolation.impl.DiscreteExtrapolation;
-import org.kevoree.modeling.extrapolation.impl.PolynomialExtrapolation;
-import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 import org.kevoree.modeling.meta.KMetaClass;
 import org.kevoree.modeling.meta.KMetaModel;
 import org.kevoree.modeling.meta.KMetaReference;
@@ -198,8 +195,8 @@ public abstract class BaseKMemorySegmentTest {
                         clonedEntry.get(homeMetaClass.attribute("attr_long").index(), homeMetaClass));
                 Assert.assertEquals(cacheEntry.get(homeMetaClass.attribute("name").index(), homeMetaClass),
                         clonedEntry.get(homeMetaClass.attribute("name").index(), homeMetaClass));
-                Assert.assertEquals(Arrays.toString(cacheEntry.getRef(homeMetaClass.reference("sensors").index(), homeMetaClass)),
-                        Arrays.toString(clonedEntry.getRef(homeMetaClass.reference("sensors").index(), homeMetaClass)));
+                Assert.assertArrayEquals(cacheEntry.getRef(homeMetaClass.reference("sensors").index(), homeMetaClass),
+                        clonedEntry.getRef(homeMetaClass.reference("sensors").index(), homeMetaClass));
 
                 Assert.assertTrue(clonedEntry.isDirty());
 
@@ -253,14 +250,15 @@ public abstract class BaseKMemorySegmentTest {
                 cacheEntry.addRef(homeMetaClass.reference("sensors").index(), sensor.uuid(), homeMetaClass);
                 cacheEntry.addRef(homeMetaClass.reference("sensors").index(), sensor2.uuid(), homeMetaClass);
 
-                Set<KMemorySegment> segments = new HashSet<>();
+                HashSet<KMemorySegment> segments = new HashSet<KMemorySegment>();
                 for (int i = 0; i < 50; i++) {
                     segments.add(cacheEntry.clone(i, homeMetaClass));
                 }
 
                 // free everything
-                for (KMemorySegment segment : segments) {
-                    segment.free(dynamicMetaModel);
+                KMemorySegment[] loopSegment = segments.toArray(new KMemorySegment[segments.size()]);
+                for (int i=0;i<loopSegment.length;i++) {
+                    loopSegment[i].free(dynamicMetaModel);
                 }
 
                 // free cache entry
