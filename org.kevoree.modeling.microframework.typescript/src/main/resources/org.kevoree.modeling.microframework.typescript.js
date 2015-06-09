@@ -110,6 +110,9 @@ var org;
                                             var e = $ex$;
                                             e.printStackTrace();
                                         }
+                                        else {
+                                            throw $ex$;
+                                        }
                                     }
                                 }
                                 indexStartElem = -1;
@@ -129,6 +132,9 @@ var org;
                                 if ($ex$ instanceof java.lang.Exception) {
                                     var e = $ex$;
                                     e.printStackTrace();
+                                }
+                                else {
+                                    throw $ex$;
                                 }
                             }
                         }
@@ -505,6 +511,9 @@ var org;
                                             e.printStackTrace();
                                             return 0;
                                         }
+                                        else {
+                                            throw $ex$;
+                                        }
                                     }
                                 }
                             }
@@ -576,6 +585,9 @@ var org;
                                             if ($ex$ instanceof java.lang.Exception) {
                                                 var e = $ex$;
                                                 e.printStackTrace();
+                                            }
+                                            else {
+                                                throw $ex$;
                                             }
                                         }
                                     }
@@ -1039,6 +1051,9 @@ var org;
                                         var e = $ex$;
                                         e.printStackTrace();
                                         previousV = java.lang.Short.MIN_VALUE;
+                                    }
+                                    else {
+                                        throw $ex$;
                                     }
                                 }
                             }
@@ -2153,6 +2168,9 @@ var org;
                                                             var e = $ex$;
                                                             e.printStackTrace();
                                                         }
+                                                        else {
+                                                            throw $ex$;
+                                                        }
                                                     }
                                                 }
                                                 raw.set(metaElement.index(), convertedRaw, current.metaClass());
@@ -2205,6 +2223,9 @@ var org;
                                                     if ($ex$ instanceof java.lang.Exception) {
                                                         var e = $ex$;
                                                         e.printStackTrace();
+                                                    }
+                                                    else {
+                                                        throw $ex$;
                                                     }
                                                 }
                                             }
@@ -2264,6 +2285,9 @@ var org;
                                             var e = $ex$;
                                             e.printStackTrace();
                                             builder.append("{}");
+                                        }
+                                        else {
+                                            throw $ex$;
                                         }
                                     }
                                     return org.kevoree.modeling.traversal.visitor.KVisitResult.CONTINUE;
@@ -2636,6 +2660,9 @@ var org;
                                 if ($ex$ instanceof java.lang.Exception) {
                                     var e = $ex$;
                                     context.successCallback(e);
+                                }
+                                else {
+                                    throw $ex$;
                                 }
                             }
                         };
@@ -3284,6 +3311,9 @@ var org;
                                     this.sum = 0;
                                     this.nb = 0;
                                 }
+                                else {
+                                    throw $ex$;
+                                }
                             }
                             this._isDirty = false;
                         };
@@ -3420,6 +3450,9 @@ var org;
                             catch ($ex$) {
                                 if ($ex$ instanceof java.lang.Exception) {
                                     var e = $ex$;
+                                }
+                                else {
+                                    throw $ex$;
                                 }
                             }
                             this._isDirty = false;
@@ -3581,6 +3614,9 @@ var org;
                                     this.sumSquares = null;
                                     this.nb = 0;
                                 }
+                                else {
+                                    throw $ex$;
+                                }
                             }
                             this._isDirty = false;
                         };
@@ -3679,6 +3715,9 @@ var org;
                             catch ($ex$) {
                                 if ($ex$ instanceof java.lang.Exception) {
                                     var e = $ex$;
+                                }
+                                else {
+                                    throw $ex$;
                                 }
                             }
                             this._isDirty = false;
@@ -3890,6 +3929,9 @@ var org;
                                         this.sumSquares = 0;
                                         this.nb = 0;
                                     }
+                                    else {
+                                        throw $ex$;
+                                    }
                                 }
                             };
                             GaussianSubState.prototype.cloneState = function () {
@@ -4044,6 +4086,9 @@ var org;
                                                 if ($ex$ instanceof java.lang.Exception) {
                                                     var e = $ex$;
                                                     e.printStackTrace();
+                                                }
+                                                else {
+                                                    throw $ex$;
                                                 }
                                             }
                                             if (previous == null) {
@@ -4311,6 +4356,9 @@ var org;
                                                                         var e = $ex$;
                                                                         e.printStackTrace();
                                                                     }
+                                                                    else {
+                                                                        throw $ex$;
+                                                                    }
                                                                 }
                                                             }
                                                             else {
@@ -4327,6 +4375,9 @@ var org;
                                                             if ($ex$ instanceof java.lang.Exception) {
                                                                 var e = $ex$;
                                                                 detected = e;
+                                                            }
+                                                            else {
+                                                                throw $ex$;
                                                             }
                                                         }
                                                         if (connectCallback != null) {
@@ -4674,6 +4725,9 @@ var org;
                                         var e = $ex$;
                                         e.printStackTrace();
                                         return null;
+                                    }
+                                    else {
+                                        throw $ex$;
                                     }
                                 }
                             };
@@ -5220,6 +5274,9 @@ var org;
                                                     this.raw[index] = null;
                                                     return null;
                                                 }
+                                                else {
+                                                    throw $ex$;
+                                                }
                                             }
                                         }
                                         else {
@@ -5302,6 +5359,9 @@ var org;
                                                     e.printStackTrace();
                                                     this.raw[index] = null;
                                                     return null;
+                                                }
+                                                else {
+                                                    throw $ex$;
                                                 }
                                             }
                                         }
@@ -6922,6 +6982,9 @@ var org;
                                                 var e = $ex$;
                                                 e.printStackTrace();
                                             }
+                                            else {
+                                                throw $ex$;
+                                            }
                                         }
                                     }
                                     eventsMessage._objIds = keys;
@@ -6945,6 +7008,9 @@ var org;
                                                 if ($ex$ instanceof java.lang.Exception) {
                                                     var e = $ex$;
                                                     e.printStackTrace();
+                                                }
+                                                else {
+                                                    throw $ex$;
                                                 }
                                             }
                                         }
@@ -7082,6 +7148,9 @@ var org;
                                                                             var e = $ex$;
                                                                             e.printStackTrace();
                                                                         }
+                                                                        else {
+                                                                            throw $ex$;
+                                                                        }
                                                                     }
                                                                 }
                                                                 return atomicGetResultMessage;
@@ -7101,6 +7170,9 @@ var org;
                                 var e = $ex$;
                                 e.printStackTrace();
                                 return null;
+                            }
+                            else {
+                                throw $ex$;
                             }
                         }
                     };
@@ -8132,6 +8204,9 @@ var org;
                                                 var e = $ex$;
                                                 e.printStackTrace();
                                             }
+                                            else {
+                                                throw $ex$;
+                                            }
                                         }
                                     }
                                 }
@@ -8169,6 +8244,9 @@ var org;
                                         if ($ex$ instanceof java.lang.Exception) {
                                             var e = $ex$;
                                             e.printStackTrace();
+                                        }
+                                        else {
+                                            throw $ex$;
                                         }
                                     }
                                 }
@@ -8282,6 +8360,9 @@ var org;
                                                 var e = $ex$;
                                                 e.printStackTrace();
                                             }
+                                            else {
+                                                throw $ex$;
+                                            }
                                         }
                                     }
                                     var nextStepElement = new Array();
@@ -8370,6 +8451,9 @@ var org;
                                             if ($ex$ instanceof java.lang.Exception) {
                                                 var e = $ex$;
                                                 e.printStackTrace();
+                                            }
+                                            else {
+                                                throw $ex$;
                                             }
                                         }
                                     }
@@ -8524,6 +8608,9 @@ var org;
                                                 var e = $ex$;
                                                 e.printStackTrace();
                                             }
+                                            else {
+                                                throw $ex$;
+                                            }
                                         }
                                     }
                                     var nextStepElement = new Array();
@@ -8659,6 +8746,9 @@ var org;
                                                 var e = $ex$;
                                                 e.printStackTrace();
                                             }
+                                            else {
+                                                throw $ex$;
+                                            }
                                         }
                                     }
                                     var trimmed = new Array();
@@ -8751,6 +8841,9 @@ var org;
                                             if ($ex$ instanceof java.lang.Exception) {
                                                 var e = $ex$;
                                                 e.printStackTrace();
+                                            }
+                                            else {
+                                                throw $ex$;
                                             }
                                         }
                                     }

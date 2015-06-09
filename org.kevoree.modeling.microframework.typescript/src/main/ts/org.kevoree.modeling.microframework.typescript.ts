@@ -114,8 +114,10 @@ module org {
                                         if ($ex$ instanceof java.lang.Exception) {
                                             var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                             e.printStackTrace();
+                                        } else {
+                                            throw $ex$;
                                         }
-                                     }
+                                    }
                                 }
                                 indexStartElem = -1;
                                 indexElem = indexElem + 1;
@@ -132,8 +134,10 @@ module org {
                                 if ($ex$ instanceof java.lang.Exception) {
                                     var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                     e.printStackTrace();
+                                } else {
+                                    throw $ex$;
                                 }
-                             }
+                            }
                         }
                         return new org.kevoree.modeling.KContentKey(temp[0], temp[1], temp[2]);
                     }
@@ -702,8 +706,10 @@ module org {
                                             var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                             e.printStackTrace();
                                             return 0;
+                                        } else {
+                                            throw $ex$;
                                         }
-                                     }
+                                    }
                                 }
                             } else {
                                 return 0;
@@ -773,8 +779,10 @@ module org {
                                             if ($ex$ instanceof java.lang.Exception) {
                                                 var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                                 e.printStackTrace();
+                                            } else {
+                                                throw $ex$;
                                             }
-                                         }
+                                        }
                                     }
                                 }
                             }
@@ -1305,8 +1313,10 @@ module org {
                                         var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                         e.printStackTrace();
                                         previousV = java.lang.Short.MIN_VALUE;
+                                    } else {
+                                        throw $ex$;
                                     }
-                                 }
+                                }
                             } else {
                                 previousV = 0;
                             }
@@ -2517,8 +2527,10 @@ module org {
                                                         if ($ex$ instanceof java.lang.Exception) {
                                                             var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                                             e.printStackTrace();
+                                                        } else {
+                                                            throw $ex$;
                                                         }
-                                                     }
+                                                    }
                                                 }
                                                 raw.set(metaElement.index(), convertedRaw, current.metaClass());
                                             } else {
@@ -2561,8 +2573,10 @@ module org {
                                                     if ($ex$ instanceof java.lang.Exception) {
                                                         var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                                         e.printStackTrace();
+                                                    } else {
+                                                        throw $ex$;
                                                     }
-                                                 }
+                                                }
                                             }
                                         }
                                     }
@@ -2614,8 +2628,10 @@ module org {
                                             var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                             e.printStackTrace();
                                             builder.append("{}");
+                                        } else {
+                                            throw $ex$;
                                         }
-                                     }
+                                    }
                                     return org.kevoree.modeling.traversal.visitor.KVisitResult.CONTINUE;
                                 },  (throwable : java.lang.Throwable) => {
                                     builder.append("\n]\n");
@@ -2972,8 +2988,10 @@ module org {
                                 if ($ex$ instanceof java.lang.Exception) {
                                     var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                     context.successCallback(e);
+                                } else {
+                                    throw $ex$;
                                 }
-                             }
+                            }
                         }
 
                         private static callFactory(manager: org.kevoree.modeling.memory.manager.KMemoryManager, universe: number, time: number, ctx: org.kevoree.modeling.format.xmi.XMILoadingContext, objectType: string): org.kevoree.modeling.KObject {
@@ -3672,8 +3690,10 @@ module org {
                                     var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                     this.sum = 0;
                                     this.nb = 0;
+                                } else {
+                                    throw $ex$;
                                 }
-                             }
+                            }
                             this._isDirty = false;
                         }
 
@@ -3815,8 +3835,10 @@ module org {
                             } catch ($ex$) {
                                 if ($ex$ instanceof java.lang.Exception) {
                                     var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                } else {
+                                    throw $ex$;
                                 }
-                             }
+                            }
                             this._isDirty = false;
                         }
 
@@ -3987,8 +4009,10 @@ module org {
                                     this.sum = null;
                                     this.sumSquares = null;
                                     this.nb = 0;
+                                } else {
+                                    throw $ex$;
                                 }
-                             }
+                            }
                             this._isDirty = false;
                         }
 
@@ -4096,8 +4120,10 @@ module org {
                             } catch ($ex$) {
                                 if ($ex$ instanceof java.lang.Exception) {
                                     var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                } else {
+                                    throw $ex$;
                                 }
-                             }
+                            }
                             this._isDirty = false;
                         }
 
@@ -4326,8 +4352,10 @@ module org {
                                         this.sum = 0;
                                         this.sumSquares = 0;
                                         this.nb = 0;
+                                    } else {
+                                        throw $ex$;
                                     }
-                                 }
+                                }
                             }
 
                             public cloneState(): org.kevoree.modeling.infer.states.Bayesian.BayesianSubstate {
@@ -4534,8 +4562,10 @@ module org {
                                                 if ($ex$ instanceof java.lang.Exception) {
                                                     var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                                     e.printStackTrace();
+                                                } else {
+                                                    throw $ex$;
                                                 }
-                                             }
+                                            }
                                             if (previous == null) {
                                                 this.elementData[index] = m.next;
                                             } else {
@@ -4912,8 +4942,10 @@ module org {
                                                                     if ($ex$ instanceof java.lang.Exception) {
                                                                         var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                                                         e.printStackTrace();
+                                                                    } else {
+                                                                        throw $ex$;
                                                                     }
-                                                                 }
+                                                                }
                                                             } else {
                                                                 globalUniverseTree = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                                             }
@@ -4927,8 +4959,10 @@ module org {
                                                             if ($ex$ instanceof java.lang.Exception) {
                                                                 var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                                                 detected = e;
+                                                            } else {
+                                                                throw $ex$;
                                                             }
-                                                         }
+                                                        }
                                                         if (connectCallback != null) {
                                                             connectCallback(detected);
                                                         }
@@ -5269,8 +5303,10 @@ module org {
                                         var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                         e.printStackTrace();
                                         return null;
+                                    } else {
+                                        throw $ex$;
                                     }
-                                 }
+                                }
                             }
 
                         }
@@ -5808,8 +5844,10 @@ module org {
                                                     e.printStackTrace();
                                                     this.raw[index] = null;
                                                     return null;
+                                                } else {
+                                                    throw $ex$;
                                                 }
-                                             }
+                                            }
                                         } else {
                                             return null;
                                         }
@@ -5889,8 +5927,10 @@ module org {
                                                     e.printStackTrace();
                                                     this.raw[index] = null;
                                                     return null;
+                                                } else {
+                                                    throw $ex$;
                                                 }
-                                             }
+                                            }
                                         } else {
                                             return null;
                                         }
@@ -7582,8 +7622,10 @@ module org {
                                             if ($ex$ instanceof java.lang.Exception) {
                                                 var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                                 e.printStackTrace();
+                                            } else {
+                                                throw $ex$;
                                             }
-                                         }
+                                        }
                                     }
                                     eventsMessage._objIds = keys;
                                     if (objectReader.get(KMessageLoader.VALUES_NAME) != null) {
@@ -7605,8 +7647,10 @@ module org {
                                                 if ($ex$ instanceof java.lang.Exception) {
                                                     var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                                     e.printStackTrace();
+                                                } else {
+                                                    throw $ex$;
                                                 }
-                                             }
+                                            }
                                         }
                                         eventsMessage._metaindexes = metaIndexes;
                                     }
@@ -7732,8 +7776,10 @@ module org {
                                                                         if ($ex$ instanceof java.lang.Exception) {
                                                                             var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                                                             e.printStackTrace();
+                                                                        } else {
+                                                                            throw $ex$;
                                                                         }
-                                                                     }
+                                                                    }
                                                                 }
                                                                 return atomicGetResultMessage;
                                                             }
@@ -7751,8 +7797,10 @@ module org {
                                 var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                 e.printStackTrace();
                                 return null;
+                            } else {
+                                throw $ex$;
                             }
-                         }
+                        }
                     }
 
                 }
@@ -9014,8 +9062,10 @@ module org {
                                             if ($ex$ instanceof java.lang.Exception) {
                                                 var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                                 e.printStackTrace();
+                                            } else {
+                                                throw $ex$;
                                             }
-                                         }
+                                        }
                                     }
                                 }
                                 var trimmed: number[] = new Array();
@@ -9056,8 +9106,10 @@ module org {
                                         if ($ex$ instanceof java.lang.Exception) {
                                             var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                             e.printStackTrace();
+                                        } else {
+                                            throw $ex$;
                                         }
-                                     }
+                                    }
                                 }
                                 var nextStepElement: org.kevoree.modeling.KObject[] = new Array();
                                 var inserted: number = 0;
@@ -9164,8 +9216,10 @@ module org {
                                             if ($ex$ instanceof java.lang.Exception) {
                                                 var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                                 e.printStackTrace();
+                                            } else {
+                                                throw $ex$;
                                             }
-                                         }
+                                        }
                                     }
                                     var nextStepElement: org.kevoree.modeling.KObject[] = new Array();
                                     var inserted: number = 0;
@@ -9252,8 +9306,10 @@ module org {
                                             if ($ex$ instanceof java.lang.Exception) {
                                                 var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                                 e.printStackTrace();
+                                            } else {
+                                                throw $ex$;
                                             }
-                                         }
+                                        }
                                     }
                                     var nextStepElement: org.kevoree.modeling.KObject[] = new Array();
                                     var inserted: number = 0;
@@ -9401,8 +9457,10 @@ module org {
                                             if ($ex$ instanceof java.lang.Exception) {
                                                 var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                                 e.printStackTrace();
+                                            } else {
+                                                throw $ex$;
                                             }
-                                         }
+                                        }
                                     }
                                     var nextStepElement: org.kevoree.modeling.KObject[] = new Array();
                                     var inserted: number = 0;
@@ -9547,8 +9605,10 @@ module org {
                                             if ($ex$ instanceof java.lang.Exception) {
                                                 var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                                 e.printStackTrace();
+                                            } else {
+                                                throw $ex$;
                                             }
-                                         }
+                                        }
                                     }
                                     var trimmed: number[] = new Array();
                                     var inserted: number[] = [0];
@@ -9640,8 +9700,10 @@ module org {
                                             if ($ex$ instanceof java.lang.Exception) {
                                                 var e: java.lang.Exception = <java.lang.Exception>$ex$;
                                                 e.printStackTrace();
+                                            } else {
+                                                throw $ex$;
                                             }
-                                         }
+                                        }
                                     }
                                     var trimmed: number[] = new Array();
                                     var inserted: number[] = [0];

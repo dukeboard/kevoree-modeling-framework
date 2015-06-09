@@ -24,10 +24,10 @@ var System = (function () {
     };
     System.err = {
         println: function (obj) {
-            console.log(obj);
+            console.error(obj);
         },
         print: function (obj) {
-            console.log(obj);
+            console.error(obj);
         }
     };
     return System;
@@ -148,7 +148,8 @@ var java;
                 this.error = new Error(message);
             }
             Throwable.prototype.printStackTrace = function () {
-                console.error(this.error['stack']);
+                //console.error(this.error['stack']);
+                console.error(this.error);
             };
             return Throwable;
         })();
@@ -444,6 +445,16 @@ var org;
         var Assert = (function () {
             function Assert() {
             }
+            Assert.assertArrayEquals = function (p, p2) {
+                if (p.length != p2.length) {
+                    throw "Assert Error " + p + " and " + p2 + " must be equals";
+                }
+                for (var i = 0; i < p.length; i++) {
+                    if (p[i] != p2[i]) {
+                        throw "Assert Error " + p + " and " + p2 + " must be equals";
+                    }
+                }
+            };
             Assert.assertNotNull = function (p) {
                 if (p == null) {
                     throw "Assert Error " + p + " must not be null";

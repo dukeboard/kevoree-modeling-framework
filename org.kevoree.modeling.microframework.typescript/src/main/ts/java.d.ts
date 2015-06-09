@@ -156,6 +156,7 @@ declare module java {
 declare module org {
     module junit {
         class Assert {
+            static assertArrayEquals(p: Array<any>, p2: Array<any>): void;
             static assertNotNull(p: any): void;
             static assertNull(p: any): void;
             static assertEquals(p: any, p2: any): void;
