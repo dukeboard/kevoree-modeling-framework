@@ -5032,6 +5032,7 @@ var org;
                                 }
                                 ArrayLongLongHashMap.prototype.clear = function () {
                                     for (var p in this) {
+                                        this._isDirty = true;
                                         if (this.hasOwnProperty(p) && p.indexOf('_') != 0) {
                                             delete this[p];
                                         }
@@ -5041,7 +5042,7 @@ var org;
                                     return this[key];
                                 };
                                 ArrayLongLongHashMap.prototype.put = function (key, pval) {
-                                    this._isDirty = false;
+                                    this._isDirty = true;
                                     var previousVal = this[key];
                                     this[key] = pval;
                                     return previousVal;

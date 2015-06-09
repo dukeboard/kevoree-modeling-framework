@@ -5653,9 +5653,9 @@ module org {
                                  static ELEMENT_SEP = ',';
                                  static CHUNK_SEP = '/';
                                  constructor(initalCapacity: number, loadFactor : number) { }
-                                 public clear():void { for(var p in this){ if(this.hasOwnProperty(p) && p.indexOf('_') != 0){ delete this[p];}} }
+                                 public clear():void { for(var p in this){ this._isDirty=true;if(this.hasOwnProperty(p) && p.indexOf('_') != 0){ delete this[p];}} }
                                  public get(key:number):number { return this[key]; }
-                                 public put(key:number, pval : number):number { this._isDirty=false; var previousVal = this[key];this[key] = pval;return previousVal;}
+                                 public put(key:number, pval : number):number { this._isDirty=true; var previousVal = this[key];this[key] = pval;return previousVal;}
                                  public containsKey(key:number):boolean { return this.hasOwnProperty(<any>key);}
                                  public remove(key:number):number { var tmp = this[key]; delete this[key]; return tmp; }
                                  public size():number { return Object.keys(this).length -2; }
