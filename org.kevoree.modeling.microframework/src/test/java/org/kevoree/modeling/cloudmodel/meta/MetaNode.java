@@ -1,4 +1,4 @@
-package org.kevoree.modeling.microframework.test.cloud.meta;
+package org.kevoree.modeling.cloudmodel.meta;
 
 import org.kevoree.modeling.abs.*;
 import org.kevoree.modeling.extrapolation.impl.DiscreteExtrapolation;

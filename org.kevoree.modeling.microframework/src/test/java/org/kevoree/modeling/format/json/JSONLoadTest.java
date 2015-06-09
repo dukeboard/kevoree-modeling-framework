@@ -4,9 +4,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KObject;
-import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
-import org.kevoree.modeling.microframework.test.cloud.CloudModel;
-import org.kevoree.modeling.microframework.test.cloud.CloudView;
+import org.kevoree.modeling.cloudmodel.CloudUniverse;
+import org.kevoree.modeling.cloudmodel.CloudModel;
+import org.kevoree.modeling.cloudmodel.CloudView;
 
 /**
  * Created by duke on 10/16/14.

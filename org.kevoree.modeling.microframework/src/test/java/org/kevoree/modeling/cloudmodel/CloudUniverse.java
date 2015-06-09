@@ -1,8 +1,8 @@
-package org.kevoree.modeling.microframework.test.cloud;
+package org.kevoree.modeling.cloudmodel;
 
 import org.kevoree.modeling.abs.AbstractKUniverse;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
-import org.kevoree.modeling.microframework.test.cloud.impl.CloudViewImpl;
+import org.kevoree.modeling.cloudmodel.impl.CloudViewImpl;
 
 /**
  * Created by duke on 10/13/14.

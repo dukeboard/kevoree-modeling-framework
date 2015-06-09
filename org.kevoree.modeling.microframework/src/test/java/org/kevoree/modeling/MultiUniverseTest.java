@@ -1,4 +1,4 @@
-package org.kevoree.modeling.microframework.test.universe;
+package org.kevoree.modeling;
 
 import org.junit.Test;
 import org.kevoree.modeling.KCallback;

@@ -1,4 +1,4 @@
-package org.kevoree.modeling.microframework.test.gc;
+package org.kevoree.modeling.memory.cache.impl;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -6,6 +6,7 @@ import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KModel;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.meta.KMetaClass;
+import org.kevoree.modeling.meta.KMetaModel;
 import org.kevoree.modeling.meta.impl.MetaModel;
 
 /**
@@ -18,7 +19,7 @@ public class KCacheCleanerTest {
      */
     @Test
     public void test() {
-        MetaModel dynamicMetaModel = new MetaModel("MyMetaModel");
+        KMetaModel dynamicMetaModel = new MetaModel("MyMetaModel");
         final KMetaClass sensorMetaClass = dynamicMetaModel.addMetaClass("Sensor");
         final KModel universe = dynamicMetaModel.model();
         universe.connect(new KCallback<Throwable>() {

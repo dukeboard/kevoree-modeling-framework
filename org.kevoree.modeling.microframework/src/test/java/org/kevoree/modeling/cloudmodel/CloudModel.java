@@ -1,14 +1,14 @@
-package org.kevoree.modeling.microframework.test.cloud;
+package org.kevoree.modeling.cloudmodel;
 
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.abs.AbstractKModel;
 import org.kevoree.modeling.meta.impl.MetaModel;
 import org.kevoree.modeling.meta.KMetaClass;
 import org.kevoree.modeling.meta.KMetaModel;
-import org.kevoree.modeling.microframework.test.cloud.impl.ElementImpl;
-import org.kevoree.modeling.microframework.test.cloud.impl.NodeImpl;
-import org.kevoree.modeling.microframework.test.cloud.meta.MetaElement;
-import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
+import org.kevoree.modeling.cloudmodel.impl.ElementImpl;
+import org.kevoree.modeling.cloudmodel.impl.NodeImpl;
+import org.kevoree.modeling.cloudmodel.meta.MetaElement;
+import org.kevoree.modeling.cloudmodel.meta.MetaNode;
 
 /**
  * Created by duke on 10/10/14.

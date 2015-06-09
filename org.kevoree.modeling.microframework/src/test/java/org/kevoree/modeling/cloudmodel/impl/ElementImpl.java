@@ -1,10 +1,10 @@
-package org.kevoree.modeling.microframework.test.cloud.impl;
+package org.kevoree.modeling.cloudmodel.impl;
 
 import org.kevoree.modeling.abs.AbstractKObject;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
 import org.kevoree.modeling.meta.KMetaClass;
-import org.kevoree.modeling.microframework.test.cloud.Element;
-import org.kevoree.modeling.microframework.test.cloud.meta.MetaElement;
+import org.kevoree.modeling.cloudmodel.Element;
+import org.kevoree.modeling.cloudmodel.meta.MetaElement;
 
 /**
  * Created by duke on 10/13/14.

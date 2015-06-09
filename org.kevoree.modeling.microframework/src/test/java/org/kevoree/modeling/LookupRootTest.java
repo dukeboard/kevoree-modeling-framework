@@ -1,11 +1,9 @@
-package org.kevoree.modeling.microframework.test;
+package org.kevoree.modeling;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.KCallback;
-import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.cdn.impl.MemoryContentDeliveryDriver;
-import org.kevoree.modeling.microframework.test.cloud.*;
+import org.kevoree.modeling.cloudmodel.*;
 
 public class LookupRootTest {
 

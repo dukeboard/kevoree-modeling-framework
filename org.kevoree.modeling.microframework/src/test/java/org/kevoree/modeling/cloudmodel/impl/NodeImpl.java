@@ -1,4 +1,4 @@
-package org.kevoree.modeling.microframework.test.cloud.impl;
+package org.kevoree.modeling.cloudmodel.impl;
 
 import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KActionType;
@@ -6,9 +6,9 @@ import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.abs.AbstractKObject;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
 import org.kevoree.modeling.meta.KMetaClass;
-import org.kevoree.modeling.microframework.test.cloud.Element;
-import org.kevoree.modeling.microframework.test.cloud.Node;
-import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
+import org.kevoree.modeling.cloudmodel.Element;
+import org.kevoree.modeling.cloudmodel.Node;
+import org.kevoree.modeling.cloudmodel.meta.MetaNode;
 
 /**
  * Created by duke on 10/10/14.

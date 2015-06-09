@@ -1,12 +1,12 @@
-package org.kevoree.modeling.microframework.test.cloud.impl;
+package org.kevoree.modeling.cloudmodel.impl;
 
 import org.kevoree.modeling.abs.AbstractKView;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
-import org.kevoree.modeling.microframework.test.cloud.CloudView;
-import org.kevoree.modeling.microframework.test.cloud.Element;
-import org.kevoree.modeling.microframework.test.cloud.Node;
-import org.kevoree.modeling.microframework.test.cloud.meta.MetaElement;
-import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
+import org.kevoree.modeling.cloudmodel.CloudView;
+import org.kevoree.modeling.cloudmodel.Element;
+import org.kevoree.modeling.cloudmodel.Node;
+import org.kevoree.modeling.cloudmodel.meta.MetaElement;
+import org.kevoree.modeling.cloudmodel.meta.MetaNode;
 
 /**
  * Created by duke on 10/9/14.

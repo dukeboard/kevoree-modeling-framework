@@ -1,21 +1,22 @@
-package org.kevoree.modeling.microframework.test.universe;
+package org.kevoree.modeling;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.memory.manager.impl.ResolutionHelper;
+import org.kevoree.modeling.memory.struct.map.KLongLongHashMap;
 import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap;
 
 /**
  * Created by duke on 03/03/15.
  */
-public class ResolutionTest {
+public class UniverseResolutionTest {
 
     @Test
     public void test() {
 
         //create a universeTree
-        ArrayLongLongHashMap globalUniverse = new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+        KLongLongHashMap globalUniverse = new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         //root
         globalUniverse.put(0, 0);
         //branch 0 -> 1 -> 3
@@ -25,7 +26,7 @@ public class ResolutionTest {
         globalUniverse.put(2, 0);
         globalUniverse.put(4, 2);
 
-        ArrayLongLongHashMap objectUniverse = new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+        KLongLongHashMap objectUniverse = new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         objectUniverse.put(0, 0);
         objectUniverse.put(3, 10);
         objectUniverse.put(2, 8);
@@ -51,7 +52,7 @@ public class ResolutionTest {
     public void testRange() {
 
         //create a universeTree
-        ArrayLongLongHashMap globalUniverse = new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+        KLongLongHashMap globalUniverse = new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         //root
         globalUniverse.put(0, 0);
         //branch 0 -> 1 -> 3
@@ -61,7 +62,7 @@ public class ResolutionTest {
         globalUniverse.put(2, 0);
         globalUniverse.put(4, 2);
 
-        ArrayLongLongHashMap objectUniverse = new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+        KLongLongHashMap objectUniverse = new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         objectUniverse.put(0, 0);
         objectUniverse.put(3, 10);
         objectUniverse.put(2, 8);

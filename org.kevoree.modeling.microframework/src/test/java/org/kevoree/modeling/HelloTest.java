@@ -1,16 +1,10 @@
-package org.kevoree.modeling.microframework.test;
+package org.kevoree.modeling;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.KCallback;
-import org.kevoree.modeling.KObject;
+import org.kevoree.modeling.cloudmodel.*;
 import org.kevoree.modeling.traversal.visitor.KModelVisitor;
 import org.kevoree.modeling.traversal.visitor.KVisitResult;
-import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
-import org.kevoree.modeling.microframework.test.cloud.CloudModel;
-import org.kevoree.modeling.microframework.test.cloud.CloudView;
-import org.kevoree.modeling.microframework.test.cloud.Node;
-import org.kevoree.modeling.microframework.test.cloud.Element;
 
 /**
  * Created by duke on 10/13/14.

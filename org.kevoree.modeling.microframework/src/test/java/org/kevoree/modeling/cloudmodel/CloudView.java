@@ -1,4 +1,4 @@
-package org.kevoree.modeling.microframework.test.cloud;
+package org.kevoree.modeling.cloudmodel;
 
 import org.kevoree.modeling.KView;
 

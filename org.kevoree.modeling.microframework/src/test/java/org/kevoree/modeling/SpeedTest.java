@@ -1,4 +1,4 @@
-package org.kevoree.modeling.microframework.test.util;
+package org.kevoree.modeling;
 
 //import net.openhft.chronicle.map.ChronicleMapBuilder;
 
