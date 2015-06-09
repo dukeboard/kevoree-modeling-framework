@@ -4168,9 +4168,6 @@ var org;
                                 this._objectKeyCalculator = null;
                                 this._universeKeyCalculator = null;
                                 this.isConnected = false;
-                                this.UNIVERSE_INDEX = 0;
-                                this.OBJ_INDEX = 1;
-                                this.GLO_TREE_INDEX = 2;
                                 this._cache = new org.kevoree.modeling.memory.cache.impl.HashMemoryCache();
                                 this._modelKeyCalculator = new org.kevoree.modeling.memory.manager.impl.KeyCalculator(HeapMemoryManager.zeroPrefix, 0);
                                 this._groupKeyCalculator = new org.kevoree.modeling.memory.manager.impl.KeyCalculator(HeapMemoryManager.zeroPrefix, 0);
@@ -4328,23 +4325,23 @@ var org;
                                         if (throwable == null) {
                                             _this._db.atomicGetIncrement(org.kevoree.modeling.KContentKey.createLastPrefix(), function (newPrefix) {
                                                 var connectionElemKeys = new Array();
-                                                connectionElemKeys[_this.UNIVERSE_INDEX] = org.kevoree.modeling.KContentKey.createLastUniverseIndexFromPrefix(newPrefix);
-                                                connectionElemKeys[_this.OBJ_INDEX] = org.kevoree.modeling.KContentKey.createLastObjectIndexFromPrefix(newPrefix);
-                                                connectionElemKeys[_this.GLO_TREE_INDEX] = org.kevoree.modeling.KContentKey.createGlobalUniverseTree();
+                                                connectionElemKeys[HeapMemoryManager.UNIVERSE_INDEX] = org.kevoree.modeling.KContentKey.createLastUniverseIndexFromPrefix(newPrefix);
+                                                connectionElemKeys[HeapMemoryManager.OBJ_INDEX] = org.kevoree.modeling.KContentKey.createLastObjectIndexFromPrefix(newPrefix);
+                                                connectionElemKeys[HeapMemoryManager.GLO_TREE_INDEX] = org.kevoree.modeling.KContentKey.createGlobalUniverseTree();
                                                 var finalNewPrefix = newPrefix;
                                                 _this._db.get(connectionElemKeys, function (strings) {
                                                     if (strings.length == 3) {
                                                         var detected = null;
                                                         try {
-                                                            var uniIndexPayload = strings[_this.UNIVERSE_INDEX];
+                                                            var uniIndexPayload = strings[HeapMemoryManager.UNIVERSE_INDEX];
                                                             if (uniIndexPayload == null || uniIndexPayload.equals("")) {
                                                                 uniIndexPayload = "0";
                                                             }
-                                                            var objIndexPayload = strings[_this.OBJ_INDEX];
+                                                            var objIndexPayload = strings[HeapMemoryManager.OBJ_INDEX];
                                                             if (objIndexPayload == null || objIndexPayload.equals("")) {
                                                                 objIndexPayload = "0";
                                                             }
-                                                            var globalUniverseTreePayload = strings[_this.GLO_TREE_INDEX];
+                                                            var globalUniverseTreePayload = strings[HeapMemoryManager.GLO_TREE_INDEX];
                                                             var globalUniverseTree;
                                                             if (globalUniverseTreePayload != null) {
                                                                 globalUniverseTree = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(0, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
@@ -4733,6 +4730,9 @@ var org;
                             };
                             HeapMemoryManager.OUT_OF_CACHE_MESSAGE = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
                             HeapMemoryManager.UNIVERSE_NOT_CONNECTED_ERROR = "Please connect your model prior to create a universe or an object";
+                            HeapMemoryManager.UNIVERSE_INDEX = 0;
+                            HeapMemoryManager.OBJ_INDEX = 1;
+                            HeapMemoryManager.GLO_TREE_INDEX = 2;
                             HeapMemoryManager.zeroPrefix = 0;
                             return HeapMemoryManager;
                         })();

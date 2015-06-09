@@ -4747,10 +4747,10 @@ module org {
                             private _modelKeyCalculator: org.kevoree.modeling.memory.manager.impl.KeyCalculator;
                             private _groupKeyCalculator: org.kevoree.modeling.memory.manager.impl.KeyCalculator;
                             private isConnected: boolean = false;
-                            private UNIVERSE_INDEX: number = 0;
-                            private OBJ_INDEX: number = 1;
-                            private GLO_TREE_INDEX: number = 2;
                             private _cache: org.kevoree.modeling.memory.cache.KCache;
+                            private static UNIVERSE_INDEX: number = 0;
+                            private static OBJ_INDEX: number = 1;
+                            private static GLO_TREE_INDEX: number = 2;
                             private static zeroPrefix: number = 0;
                             constructor(model: org.kevoree.modeling.KModel<any>) {
                                 this._cache = new org.kevoree.modeling.memory.cache.impl.HashMemoryCache();
@@ -4916,23 +4916,23 @@ module org {
                                         if (throwable == null) {
                                             this._db.atomicGetIncrement(org.kevoree.modeling.KContentKey.createLastPrefix(),  (newPrefix : number) => {
                                                 var connectionElemKeys: org.kevoree.modeling.KContentKey[] = new Array();
-                                                connectionElemKeys[this.UNIVERSE_INDEX] = org.kevoree.modeling.KContentKey.createLastUniverseIndexFromPrefix(newPrefix);
-                                                connectionElemKeys[this.OBJ_INDEX] = org.kevoree.modeling.KContentKey.createLastObjectIndexFromPrefix(newPrefix);
-                                                connectionElemKeys[this.GLO_TREE_INDEX] = org.kevoree.modeling.KContentKey.createGlobalUniverseTree();
+                                                connectionElemKeys[HeapMemoryManager.UNIVERSE_INDEX] = org.kevoree.modeling.KContentKey.createLastUniverseIndexFromPrefix(newPrefix);
+                                                connectionElemKeys[HeapMemoryManager.OBJ_INDEX] = org.kevoree.modeling.KContentKey.createLastObjectIndexFromPrefix(newPrefix);
+                                                connectionElemKeys[HeapMemoryManager.GLO_TREE_INDEX] = org.kevoree.modeling.KContentKey.createGlobalUniverseTree();
                                                 var finalNewPrefix: number = newPrefix;
                                                 this._db.get(connectionElemKeys,  (strings : string[]) => {
                                                     if (strings.length == 3) {
                                                         var detected: java.lang.Exception = null;
                                                         try {
-                                                            var uniIndexPayload: string = strings[this.UNIVERSE_INDEX];
+                                                            var uniIndexPayload: string = strings[HeapMemoryManager.UNIVERSE_INDEX];
                                                             if (uniIndexPayload == null || uniIndexPayload.equals("")) {
                                                                 uniIndexPayload = "0";
                                                             }
-                                                            var objIndexPayload: string = strings[this.OBJ_INDEX];
+                                                            var objIndexPayload: string = strings[HeapMemoryManager.OBJ_INDEX];
                                                             if (objIndexPayload == null || objIndexPayload.equals("")) {
                                                                 objIndexPayload = "0";
                                                             }
-                                                            var globalUniverseTreePayload: string = strings[this.GLO_TREE_INDEX];
+                                                            var globalUniverseTreePayload: string = strings[HeapMemoryManager.GLO_TREE_INDEX];
                                                             var globalUniverseTree: org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap;
                                                             if (globalUniverseTreePayload != null) {
                                                                 globalUniverseTree = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(0, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);

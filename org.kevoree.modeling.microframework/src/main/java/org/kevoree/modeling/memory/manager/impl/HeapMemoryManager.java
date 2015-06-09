@@ -44,16 +44,17 @@ public class HeapMemoryManager implements KMemoryManager {
     private KeyCalculator _modelKeyCalculator;
     private KeyCalculator _groupKeyCalculator;
     private boolean isConnected = false;
-    private final int UNIVERSE_INDEX = 0;
-    private final int OBJ_INDEX = 1;
-    private final int GLO_TREE_INDEX = 2;
     private KCache _cache;
+
+    private static final int UNIVERSE_INDEX = 0;
+    private static final int OBJ_INDEX = 1;
+    private static final int GLO_TREE_INDEX = 2;
     private static final short zeroPrefix = 0;
 
     public HeapMemoryManager(KModel model) {
-        _cache = new HashMemoryCache();
-        _modelKeyCalculator = new KeyCalculator(zeroPrefix, 0);
-        _groupKeyCalculator = new KeyCalculator(zeroPrefix, 0);
+        this._cache = new HashMemoryCache();
+        this._modelKeyCalculator = new KeyCalculator(zeroPrefix, 0);
+        this._groupKeyCalculator = new KeyCalculator(zeroPrefix, 0);
         this._db = new MemoryContentDeliveryDriver();
         this._db.setManager(this);
         this._operationManager = new HashOperationManager(this);

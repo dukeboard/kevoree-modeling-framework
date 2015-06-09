@@ -27,7 +27,7 @@ public class DeleteTest {
                     final CloudUniverse universe = model.newUniverse();
                     CloudView factory = universe.time(0l);
                     Node n = factory.createNode();
-                    factory.setRoot(n,new KCallback<Throwable>() {
+                    factory.setRoot(n, new KCallback<Throwable>() {
                         @Override
                         public void on(Throwable throwable) {
                             model.save(new KCallback<Throwable>() {
@@ -38,23 +38,22 @@ public class DeleteTest {
                                         public void on(Throwable aBoolean) {
                                             CloudView factory1 = universe.time(1l);
                                             final Element e = factory1.createElement();
-                                            factory1.select("/",new KCallback<KObject[]>() {
+                                            factory1.select("/", new KCallback<KObject[]>() {
                                                 @Override
                                                 public void on(KObject[] results) {
                                                     Node n2 = (Node) results[0];
                                                     n2.setElement(e);
-
-                                                    n2.jump(2,new KCallback<KObject>() {
+                                                    n2.jump(2, new KCallback<KObject>() {
                                                         @Override
                                                         public void on(KObject kObject) {
-                                                            Node n2_2 = (Node)kObject;
+                                                            Node n2_2 = (Node) kObject;
                                                             n2_2.getElement(new KCallback<Element>() {
                                                                 @Override
                                                                 public void on(Element element) {
                                                                     element.delete(new KCallback<Throwable>() {
                                                                         @Override
                                                                         public void on(Throwable throwable) {
-                                                                            n2_2.jump(3,new KCallback<KObject>() {
+                                                                            n2_2.jump(3, new KCallback<KObject>() {
                                                                                 @Override
                                                                                 public void on(KObject kObject) {
                                                                                     Node n2_3 = (Node) kObject;
@@ -70,7 +69,7 @@ public class DeleteTest {
                                                                                             n42.delete(null);
 
                                                                                             CloudView factory2_2 = universe.time(1l);
-                                                                                            factory2_2.select("/",new KCallback<KObject[]>() {
+                                                                                            factory2_2.select("/", new KCallback<KObject[]>() {
                                                                                                 @Override
                                                                                                 public void on(KObject[] results) {
                                                                                                     if (results != null && results.length > 0) {
@@ -119,12 +118,12 @@ public class DeleteTest {
                 CloudView factory = universe.time(0l);
                 Node n = factory.createNode();
                 n.setName("n");
-                factory.setRoot(n,null);
+                factory.setRoot(n, null);
                 Node n2 = factory.createNode();
                 n2.setName("n2");
                 n.addChildren(n2);
                 //  n2.delete(null);
-                factory.json().save(n,new KCallback<String>() {
+                factory.json().save(n, new KCallback<String>() {
                     @Override
                     public void on(String s) {
                         // System.err.println(s);

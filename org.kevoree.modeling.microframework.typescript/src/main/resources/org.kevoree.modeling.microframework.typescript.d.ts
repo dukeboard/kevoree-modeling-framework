@@ -939,10 +939,10 @@ declare module org {
                             private _modelKeyCalculator;
                             private _groupKeyCalculator;
                             private isConnected;
-                            private UNIVERSE_INDEX;
-                            private OBJ_INDEX;
-                            private GLO_TREE_INDEX;
                             private _cache;
+                            private static UNIVERSE_INDEX;
+                            private static OBJ_INDEX;
+                            private static GLO_TREE_INDEX;
                             private static zeroPrefix;
                             constructor(model: org.kevoree.modeling.KModel<any>);
                             cache(): org.kevoree.modeling.memory.cache.KCache;
