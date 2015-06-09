@@ -161,22 +161,22 @@ public class HeapMemorySegment implements KMemorySegment {
                             KMetaAttribute metaAttribute = (KMetaAttribute) metaElement;
                             Object converted = null;
                             if (metaAttribute.attributeType() == KPrimitiveTypes.STRING) {
-                                converted = JsonString.unescape((String)insideContent);
+                                converted = JsonString.unescape((String) insideContent);
                             } else if (metaAttribute.attributeType() == KPrimitiveTypes.LONG) {
-                                converted = Long.parseLong((String)insideContent);
+                                converted = Long.parseLong((String) insideContent);
                             } else if (metaAttribute.attributeType() == KPrimitiveTypes.INT) {
-                                converted = Integer.parseInt((String)insideContent);
+                                converted = Integer.parseInt((String) insideContent);
                             } else if (metaAttribute.attributeType() == KPrimitiveTypes.BOOL) {
-                                converted = Boolean.parseBoolean((String)insideContent);
+                                converted = Boolean.parseBoolean((String) insideContent);
                             } else if (metaAttribute.attributeType() == KPrimitiveTypes.SHORT) {
-                                converted = Short.parseShort((String)insideContent);
+                                converted = Short.parseShort((String) insideContent);
                             } else if (metaAttribute.attributeType() == KPrimitiveTypes.DOUBLE) {
-                                converted = Double.parseDouble((String)insideContent);
+                                converted = Double.parseDouble((String) insideContent);
                             } else if (metaAttribute.attributeType() == KPrimitiveTypes.FLOAT) {
-                                converted = Float.parseFloat((String)insideContent);
+                                converted = Float.parseFloat((String) insideContent);
                             } else if (metaAttribute.attributeType() == KPrimitiveTypes.CONTINUOUS) {
                                 String[] plainRawSet = objectReader.getAsStringArray(metaKeys[i]);
-                                  double[] convertedRaw = new double[plainRawSet.length];
+                                double[] convertedRaw = new double[plainRawSet.length];
                                 for (int l = 0; l < plainRawSet.length; l++) {
                                     try {
                                         convertedRaw[l] = Double.parseDouble(plainRawSet[l]);
@@ -337,6 +337,15 @@ public class HeapMemorySegment implements KMemorySegment {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public int getInferSize(int index, KMetaClass metaClass) {
+        Object previousObj = raw[index];
+        if (previousObj != null && previousObj instanceof double[]) {
+            return ((double[]) previousObj).length;
+        }
+        return 0;
     }
 
     @Override

@@ -23,6 +23,8 @@ public interface KMemorySegment extends KMemoryElement {
     /* Extrapolated attributes management */
     double[] getInfer(int index, KMetaClass metaClass);
 
+    int getInferSize(int index, KMetaClass metaClass);
+
     double getInferElem(int index, int arrayIndex, KMetaClass metaClass);
 
     void setInferElem(int index, int arrayIndex, double valueToInsert, KMetaClass metaClass);
