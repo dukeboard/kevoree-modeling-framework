@@ -255,7 +255,7 @@ public abstract class BaseKMemorySegmentTest {
 
                 // free everything
                 KMemorySegment[] loopSegment = segments.toArray(new KMemorySegment[segments.size()]);
-                for (int i=0;i<loopSegment.length;i++) {
+                for (int i = 0; i < loopSegment.length; i++) {
                     loopSegment[i].free(dynamicMetaModel);
                 }
 
@@ -383,13 +383,15 @@ public abstract class BaseKMemorySegmentTest {
         final KMetaClass sensorMetaClass = dynamicMetaModel.addMetaClass("Sensor");
 
         sensorMetaClass.addAttribute("name", KPrimitiveTypes.STRING);
-        sensorMetaClass.addAttribute("value", KPrimitiveTypes.FLOAT);
+        sensorMetaClass.addAttribute("value", KPrimitiveTypes.CONTINUOUS);
         sensorMetaClass.addReference("siblings", sensorMetaClass, null, true);
 
         KMetaClass homeMetaClass = dynamicMetaModel.addMetaClass("Home");
         homeMetaClass.addAttribute("attr_long", KPrimitiveTypes.LONG);
         homeMetaClass.addAttribute("name", KPrimitiveTypes.STRING);
         homeMetaClass.addReference("sensors", sensorMetaClass, null, true);
+        homeMetaClass.addAttribute("value", KPrimitiveTypes.CONTINUOUS);
+
 
         final KModel model = dynamicMetaModel.model();
 
@@ -414,26 +416,45 @@ public abstract class BaseKMemorySegmentTest {
 
                 Assert.assertFalse(cacheEntry.isDirty());
 
+                cacheEntry.addRef(homeMetaClass.reference("sensors").index(), sensor.uuid(), homeMetaClass);
+                cacheEntry.addRef(homeMetaClass.reference("sensors").index(), sensor2.uuid(), homeMetaClass);
+
                 cacheEntry.set(homeMetaClass.attribute("attr_long").index(), 10l, homeMetaClass);
                 long attr = (long) cacheEntry.get(homeMetaClass.attribute("attr_long").index(), homeMetaClass);
                 Assert.assertEquals(10l, attr);
 
+                Assert.assertEquals(cacheEntry.getInferSize(homeMetaClass.attribute("value").index(), homeMetaClass), 0);
+                cacheEntry.extendInfer(homeMetaClass.attribute("value").index(), 3, homeMetaClass);
+                Assert.assertEquals(cacheEntry.getInferSize(homeMetaClass.attribute("value").index(), homeMetaClass), 3);
                 Assert.assertTrue(cacheEntry.isDirty());
+
+                cacheEntry.setInferElem(homeMetaClass.attribute("value").index(), 0, 0.0, homeMetaClass);
+                cacheEntry.setInferElem(homeMetaClass.attribute("value").index(), 1, 1.0, homeMetaClass);
+                cacheEntry.setInferElem(homeMetaClass.attribute("value").index(), 2, 2.0, homeMetaClass);
+
+                Assert.assertEquals("{\"@class\":\"Home\",\"attr_long\":10,\"sensors\":[2,3],\"value\":[0.0,1.0,2.0]}", cacheEntry.serialize(dynamicMetaModel));
 
                 KMemorySegment newCacheEntry = createKMemorySegment();
                 try {
                     String serialized = cacheEntry.serialize(dynamicMetaModel);
                     newCacheEntry.unserialize(serialized, dynamicMetaModel);
 
+                    String newSeriliazed = newCacheEntry.serialize(dynamicMetaModel);
+                    Assert.assertEquals(serialized, newSeriliazed);
+
                     Assert.assertEquals(cacheEntry.get(homeMetaClass.attribute("attr_long").index(), homeMetaClass),
                             newCacheEntry.get(homeMetaClass.attribute("attr_long").index(), homeMetaClass));
                     Assert.assertEquals(cacheEntry.get(homeMetaClass.attribute("name").index(), homeMetaClass),
                             newCacheEntry.get(homeMetaClass.attribute("name").index(), homeMetaClass));
+
                     Assert.assertArrayEquals(cacheEntry.getRef(homeMetaClass.reference("sensors").index(), homeMetaClass),
                             newCacheEntry.getRef(homeMetaClass.reference("sensors").index(), homeMetaClass));
 
-                    Assert.assertFalse(newCacheEntry.isDirty());
+                    double[] originInfer = cacheEntry.getInfer(homeMetaClass.attribute("value").index(), homeMetaClass);
+                    double[] newInfer = newCacheEntry.getInfer(homeMetaClass.attribute("value").index(), homeMetaClass);
 
+                    Assert.assertEquals(originInfer.length, newInfer.length);
+                    Assert.assertFalse(newCacheEntry.isDirty());
 
                 } catch (Exception e) {
                     e.printStackTrace();

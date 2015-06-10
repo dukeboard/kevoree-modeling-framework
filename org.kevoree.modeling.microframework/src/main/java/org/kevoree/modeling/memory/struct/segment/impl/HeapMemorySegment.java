@@ -66,7 +66,7 @@ public class HeapMemorySegment implements KMemorySegment {
                         builder.append(JsonString.encode((String) o));
                         builder.append("\"");
                     } else if (o instanceof double[]) {
-                        builder.append(":[");
+                        builder.append("[");
                         double[] castedArr = (double[]) o;
                         for (int j = 0; j < castedArr.length; j++) {
                             if (j != 0) {
@@ -76,7 +76,7 @@ public class HeapMemorySegment implements KMemorySegment {
                         }
                         builder.append("]");
                     } else if (o instanceof long[]) {
-                        builder.append(":[");
+                        builder.append("[");
                         long[] castedArr = (long[]) o;
                         for (int j = 0; j < castedArr.length; j++) {
                             if (j != 0) {
@@ -362,6 +362,7 @@ public class HeapMemorySegment implements KMemorySegment {
         double[] res = getInfer(index, metaClass);
         if (res != null && arrayIndex >= 0 && arrayIndex < res.length) {
             res[arrayIndex] = valueToInsert;
+            _dirty = true;
         }
     }
 
