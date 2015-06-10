@@ -60,7 +60,7 @@ public class NodeImpl extends AbstractKObject implements Node {
             public void on(KObject[] kObjects) {
                 if (p_callback != null) {
                     Node[] casted = new Node[kObjects.length];
-                    for (int i = 0; i < casted.length; i++) {
+                    for (int i = 0; i < kObjects.length; i++) {
                         casted[i] = (Node) kObjects[i];
                     }
                     p_callback.on(casted);

@@ -2674,48 +2674,23 @@ module org {
 
                     export class JsonRaw {
 
-                        public static convert(payload: string, type: org.kevoree.modeling.KType): any {
-                            if (type == org.kevoree.modeling.meta.KPrimitiveTypes.STRING) {
-                                return org.kevoree.modeling.format.json.JsonString.unescape(payload);
-                            }
-                            if (type == org.kevoree.modeling.meta.KPrimitiveTypes.LONG) {
-                                return java.lang.Long.parseLong(payload);
-                            }
-                            if (type == org.kevoree.modeling.meta.KPrimitiveTypes.INT) {
-                                return java.lang.Integer.parseInt(payload);
-                            }
-                            if (type == org.kevoree.modeling.meta.KPrimitiveTypes.BOOL) {
-                                return java.lang.Boolean.parseBoolean(payload);
-                            }
-                            if (type == org.kevoree.modeling.meta.KPrimitiveTypes.SHORT) {
-                                return java.lang.Short.parseShort(payload);
-                            }
-                            if (type == org.kevoree.modeling.meta.KPrimitiveTypes.DOUBLE) {
-                                return java.lang.Double.parseDouble(payload);
-                            }
-                            if (type == org.kevoree.modeling.meta.KPrimitiveTypes.FLOAT) {
-                                return java.lang.Float.parseFloat(payload);
-                            }
-                            return null;
-                        }
-
                         public static encode(raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment, uuid: number, p_metaClass: org.kevoree.modeling.meta.KMetaClass, isRoot: boolean): string {
                              var builder = {};
                              builder["@class"] = p_metaClass.metaName();
-                             builder["@uuid"] = uuid;
+                             builder["@uuid"] = +uuid;
                              if(isRoot){ builder["@root"] = true; }
                              var metaElements = p_metaClass.metaElements();
                              for(var i=0;i<metaElements.length;i++){
                              var subElem;
                              if (metaElements[i] != null && metaElements[i].metaType() === org.kevoree.modeling.meta.MetaType.ATTRIBUTE) {
-                                  var metaAttribute = <org.kevoree.modeling.meta.KMetaAttribute>metaElements[i];
-                                  if(metaAttribute.attributeType() == org.kevoree.modeling.meta.KPrimitiveTypes.CONTINUOUS){
-                                        subElem = raw.getInfer(metaAttribute.index(),p_metaClass);
-                                  } else {
-                                        subElem = raw.get(metaAttribute.index(),p_metaClass);
-                                  }
+                             var metaAttribute = <org.kevoree.modeling.meta.KMetaAttribute>metaElements[i];
+                             if(metaAttribute.attributeType() == org.kevoree.modeling.meta.KPrimitiveTypes.CONTINUOUS){
+                             subElem = raw.getInfer(metaAttribute.index(),p_metaClass);
                              } else {
-                                 subElem = raw.getRef(metaElements[i].index(),p_metaClass);
+                             subElem = raw.get(metaAttribute.index(),p_metaClass);
+                             }
+                             } else {
+                             subElem = raw.getRef(metaElements[i].index(),p_metaClass);
                              }
                              if(subElem != null && subElem != undefined){ builder[metaElements[i].metaName()] = subElem; }
                              }

@@ -2333,34 +2333,10 @@ var org;
                     var JsonRaw = (function () {
                         function JsonRaw() {
                         }
-                        JsonRaw.convert = function (payload, type) {
-                            if (type == org.kevoree.modeling.meta.KPrimitiveTypes.STRING) {
-                                return org.kevoree.modeling.format.json.JsonString.unescape(payload);
-                            }
-                            if (type == org.kevoree.modeling.meta.KPrimitiveTypes.LONG) {
-                                return java.lang.Long.parseLong(payload);
-                            }
-                            if (type == org.kevoree.modeling.meta.KPrimitiveTypes.INT) {
-                                return java.lang.Integer.parseInt(payload);
-                            }
-                            if (type == org.kevoree.modeling.meta.KPrimitiveTypes.BOOL) {
-                                return java.lang.Boolean.parseBoolean(payload);
-                            }
-                            if (type == org.kevoree.modeling.meta.KPrimitiveTypes.SHORT) {
-                                return java.lang.Short.parseShort(payload);
-                            }
-                            if (type == org.kevoree.modeling.meta.KPrimitiveTypes.DOUBLE) {
-                                return java.lang.Double.parseDouble(payload);
-                            }
-                            if (type == org.kevoree.modeling.meta.KPrimitiveTypes.FLOAT) {
-                                return java.lang.Float.parseFloat(payload);
-                            }
-                            return null;
-                        };
                         JsonRaw.encode = function (raw, uuid, p_metaClass, isRoot) {
                             var builder = {};
                             builder["@class"] = p_metaClass.metaName();
-                            builder["@uuid"] = uuid;
+                            builder["@uuid"] = +uuid;
                             if (isRoot) {
                                 builder["@root"] = true;
                             }

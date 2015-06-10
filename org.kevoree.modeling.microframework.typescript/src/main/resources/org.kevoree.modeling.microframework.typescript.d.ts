@@ -501,7 +501,6 @@ declare module org {
                         keys(): string[];
                     }
                     class JsonRaw {
-                        static convert(payload: string, type: org.kevoree.modeling.KType): any;
                         static encode(raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment, uuid: number, p_metaClass: org.kevoree.modeling.meta.KMetaClass, isRoot: boolean): string;
                     }
                     class JsonString {
