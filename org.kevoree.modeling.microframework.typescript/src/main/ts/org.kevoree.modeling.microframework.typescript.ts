@@ -5008,7 +5008,7 @@ module org {
                                         }
                                         return entry;
                                     } else {
-                                        var clonedEntry: org.kevoree.modeling.memory.struct.segment.KMemorySegment = entry.clone(time, metaClass);
+                                        var clonedEntry: org.kevoree.modeling.memory.struct.segment.KMemorySegment = entry.clone(metaClass);
                                         this._cache.put(universe, time, uuid, clonedEntry);
                                         if (!needUniverseCopy) {
                                             timeTree.insert(time);
@@ -5682,7 +5682,7 @@ module org {
                     export module segment {
                         export interface KMemorySegment extends org.kevoree.modeling.memory.KMemoryElement {
 
-                            clone(newtimeOrigin: number, metaClass: org.kevoree.modeling.meta.KMetaClass): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
+                            clone(metaClass: org.kevoree.modeling.meta.KMetaClass): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 
                             set(index: number, content: any, metaClass: org.kevoree.modeling.meta.KMetaClass): void;
 
@@ -5781,9 +5781,9 @@ module org {
 
                                 public unserialize(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
                                      var rawElem = JSON.parse(payload);
-                                     var metaClass = metaModel.metaClass(rawElem["@class"]);
                                      if(rawElem["@class"] != null && rawElem["@class"] != undefined){
-                                     this._metaClassIndex = metaModel.metaClassByName(rawElem["@class"]).index();
+                                     var metaClass = metaModel.metaClassByName(rawElem["@class"]);
+                                     this._metaClassIndex = metaClass.index();
                                      this.raw = [];
                                      for (var key in rawElem) {
                                      if("@class" != key){
@@ -5992,7 +5992,7 @@ module org {
                                     this._modifiedIndexes[index] = true;
                                 }
 
-                                public clone(newTimeOrigin: number, p_metaClass: org.kevoree.modeling.meta.KMetaClass): org.kevoree.modeling.memory.struct.segment.KMemorySegment {
+                                public clone(p_metaClass: org.kevoree.modeling.meta.KMetaClass): org.kevoree.modeling.memory.struct.segment.KMemorySegment {
                                     if (this.raw == null) {
                                         return new org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment();
                                     } else {

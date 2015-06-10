@@ -446,6 +446,22 @@ var org;
             function Assert() {
             }
             Assert.assertArrayEquals = function (p, p2) {
+                if (p == null || p == undefined) {
+                    if (p2 == null || p2 == undefined) {
+                        return;
+                    }
+                    else {
+                        throw "Assert Error " + p + " and " + p2 + " must be equals";
+                    }
+                }
+                if (p2 == null || p2 == undefined) {
+                    if (p == null || p == undefined) {
+                        return;
+                    }
+                    else {
+                        throw "Assert Error " + p + " and " + p2 + " must be equals";
+                    }
+                }
                 if (p.length != p2.length) {
                     throw "Assert Error " + p + " and " + p2 + " must be equals";
                 }
@@ -504,3 +520,4 @@ var org;
         junit.Assert = Assert;
     })(junit = org.junit || (org.junit = {}));
 })(org || (org = {}));
+//# sourceMappingURL=java.js.map

@@ -4428,7 +4428,7 @@ var org;
                                         return entry;
                                     }
                                     else {
-                                        var clonedEntry = entry.clone(time, metaClass);
+                                        var clonedEntry = entry.clone(metaClass);
                                         this._cache.put(universe, time, uuid, clonedEntry);
                                         if (!needUniverseCopy) {
                                             timeTree.insert(time);
@@ -5209,9 +5209,9 @@ var org;
                                 };
                                 HeapMemorySegment.prototype.unserialize = function (payload, metaModel) {
                                     var rawElem = JSON.parse(payload);
-                                    var metaClass = metaModel.metaClass(rawElem["@class"]);
                                     if (rawElem["@class"] != null && rawElem["@class"] != undefined) {
-                                        this._metaClassIndex = metaModel.metaClassByName(rawElem["@class"]).index();
+                                        var metaClass = metaModel.metaClassByName(rawElem["@class"]);
+                                        this._metaClassIndex = metaClass.index();
                                         this.raw = [];
                                         for (var key in rawElem) {
                                             if ("@class" != key) {
@@ -5420,7 +5420,7 @@ var org;
                                     }
                                     this._modifiedIndexes[index] = true;
                                 };
-                                HeapMemorySegment.prototype.clone = function (newTimeOrigin, p_metaClass) {
+                                HeapMemorySegment.prototype.clone = function (p_metaClass) {
                                     if (this.raw == null) {
                                         return new org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment();
                                     }

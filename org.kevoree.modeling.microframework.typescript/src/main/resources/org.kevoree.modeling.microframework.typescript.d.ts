@@ -1122,7 +1122,7 @@ declare module org {
                     }
                     module segment {
                         interface KMemorySegment extends org.kevoree.modeling.memory.KMemoryElement {
-                            clone(newtimeOrigin: number, metaClass: org.kevoree.modeling.meta.KMetaClass): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
+                            clone(metaClass: org.kevoree.modeling.meta.KMetaClass): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
                             set(index: number, content: any, metaClass: org.kevoree.modeling.meta.KMetaClass): void;
                             get(index: number, metaClass: org.kevoree.modeling.meta.KMetaClass): any;
                             getRefSize(index: number, metaClass: org.kevoree.modeling.meta.KMetaClass): number;
@@ -1170,7 +1170,7 @@ declare module org {
                                 setInferElem(index: number, arrayIndex: number, valueToInsert: number, metaClass: org.kevoree.modeling.meta.KMetaClass): void;
                                 extendInfer(index: number, newSize: number, metaClass: org.kevoree.modeling.meta.KMetaClass): void;
                                 set(index: number, content: any, p_metaClass: org.kevoree.modeling.meta.KMetaClass): void;
-                                clone(newTimeOrigin: number, p_metaClass: org.kevoree.modeling.meta.KMetaClass): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
+                                clone(p_metaClass: org.kevoree.modeling.meta.KMetaClass): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
                             }
                         }
                     }
