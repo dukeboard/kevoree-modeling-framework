@@ -378,8 +378,17 @@ public abstract class BaseKMemorySegmentTest {
                 Assert.assertTrue(inferPayload4[9] == 52);
                 Assert.assertTrue(inferPayload3[0] == 42);
 
+
+                // clone cache entry
+                KMemorySegment clone = cacheEntry.clone(1, sensorMetaClass);
+                double[] inferPayload5 = clone.getInfer(sensorMetaClass.attribute("value").index(), sensorMetaClass);
+                double[] inferPayload6 = clone.getInfer(sensorMetaClass.attribute("value").index(), sensorMetaClass);
+                Assert.assertTrue(inferPayload5[9] == 52);
+                Assert.assertTrue(inferPayload6[0] == 42);
+
                 // free cache entry
                 cacheEntry.free(dynamicMetaModel);
+                clone.free(dynamicMetaModel);
             }
         });
     }
