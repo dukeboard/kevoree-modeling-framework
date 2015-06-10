@@ -31,14 +31,10 @@ public class NoJs_MainTest {
 
         IRuntimeConfig runtimeConfig = (new NodejsRuntimeConfigBuilder()).defaults().build();
         NodejsProcess node = null;
-
         try {
-            
-            String basePath = NoJs_MainTest.class.getClassLoader().getResource(file).getFile().replaceAll("%20"," ");
-
+            String basePath = NoJs_MainTest.class.getClassLoader().getResource(file).getFile().replaceAll("%20", " ");
             NodejsConfig nodejsConfig = new NodejsConfig(NodejsVersion.Main.V0_10, basePath, new ArrayList<String>(), basePath.toString().substring(0, basePath.toString().lastIndexOf("/")));
             NodejsStarter runtime = new NodejsStarter(runtimeConfig);
-
             NodejsExecutable e = (NodejsExecutable) runtime.prepare(nodejsConfig);
             node = (NodejsProcess) e.start();
             return node.waitFor();
@@ -57,11 +53,8 @@ public class NoJs_MainTest {
 
     @Test
     public void baseTest() {
-        Assert.assertEquals(0,launchRunner("MyTestRunner.js"));
+        Assert.assertEquals(0, launchRunner("MyTestRunner.js"));
     }
-
-
-
 
 
 }
