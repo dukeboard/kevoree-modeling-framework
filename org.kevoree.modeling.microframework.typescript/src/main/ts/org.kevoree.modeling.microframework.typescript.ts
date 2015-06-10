@@ -2706,16 +2706,18 @@ module org {
                              if(isRoot){ builder["@root"] = true; }
                              var metaElements = p_metaClass.metaElements();
                              for(var i=0;i<metaElements.length;i++){
+                             var subElem;
                              if (metaElements[i] != null && metaElements[i].metaType() === org.kevoree.modeling.meta.MetaType.ATTRIBUTE) {
                                   var metaAttribute = <org.kevoree.modeling.meta.KMetaAttribute>metaElements[i];
                                   if(metaAttribute.attributeType() == org.kevoree.modeling.meta.KPrimitiveTypes.CONTINUOUS){
-                                        builder[metaAttribute.metaName()] = raw.getInfer(metaAttribute.index(),p_metaClass);
+                                        subElem = raw.getInfer(metaAttribute.index(),p_metaClass);
                                   } else {
-                                        builder[metaAttribute.metaName()] = raw.get(metaAttribute.index(),p_metaClass);
+                                        subElem = raw.get(metaAttribute.index(),p_metaClass);
                                   }
                              } else {
-                                 builder[metaElements[i].metaName()] = raw.getRef(metaAttribute.index(),p_metaClass);
+                                 subElem = raw.getRef(metaElements[i].index(),p_metaClass);
                              }
+                             if(subElem != null && subElem != undefined){ builder[metaElements[i].metaName()] = subElem; }
                              }
                              return JSON.stringify(builder);
                         }
@@ -5974,19 +5976,17 @@ module org {
                                 }
 
                                 public getInferElem(index: number, arrayIndex: number, metaClass: org.kevoree.modeling.meta.KMetaClass): number {
-                                    var res: number[] = this.getInfer(index, metaClass);
-                                    if (res != null && arrayIndex >= 0 && arrayIndex < res.length) {
-                                        return res[arrayIndex];
-                                    }
-                                    return 0;
+                                     var res = this.raw[index];
+                                     if(res != null && res != undefined){ return res[arrayIndex]; }
+                                     return 0;
+                                    
                                 }
 
                                 public setInferElem(index: number, arrayIndex: number, valueToInsert: number, metaClass: org.kevoree.modeling.meta.KMetaClass): void {
-                                    var res: number[] = this.getInfer(index, metaClass);
-                                    if (res != null && arrayIndex >= 0 && arrayIndex < res.length) {
-                                        res[arrayIndex] = valueToInsert;
-                                        this._dirty = true;
-                                    }
+                                     var res = this.raw[index];
+                                     if(res != null && res != undefined){ res[arrayIndex] = valueToInsert; }
+                                     this._dirty = true;
+                                    
                                 }
 
                                 public extendInfer(index: number, newSize: number, metaClass: org.kevoree.modeling.meta.KMetaClass): void {

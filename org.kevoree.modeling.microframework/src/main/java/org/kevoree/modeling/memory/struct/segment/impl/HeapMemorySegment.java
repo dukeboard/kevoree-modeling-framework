@@ -368,6 +368,11 @@ public class HeapMemorySegment implements KMemorySegment {
         return 0;
     }
 
+    /** @native ts
+     * var res = this.raw[index];
+     * if(res != null && res != undefined){ return res[arrayIndex]; }
+     * return 0;
+     * */
     @Override
     public double getInferElem(int index, int arrayIndex, KMetaClass metaClass) {
         double[] res = getInfer(index, metaClass);
@@ -377,6 +382,11 @@ public class HeapMemorySegment implements KMemorySegment {
         return 0;
     }
 
+    /** @native ts
+     * var res = this.raw[index];
+     * if(res != null && res != undefined){ res[arrayIndex] = valueToInsert; }
+     * this._dirty = true;
+     * */
     @Override
     public void setInferElem(int index, int arrayIndex, double valueToInsert, KMetaClass metaClass) {
         double[] res = getInfer(index, metaClass);

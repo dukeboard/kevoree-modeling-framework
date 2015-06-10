@@ -2366,17 +2366,21 @@ var org;
                             }
                             var metaElements = p_metaClass.metaElements();
                             for (var i = 0; i < metaElements.length; i++) {
+                                var subElem;
                                 if (metaElements[i] != null && metaElements[i].metaType() === org.kevoree.modeling.meta.MetaType.ATTRIBUTE) {
                                     var metaAttribute = metaElements[i];
                                     if (metaAttribute.attributeType() == org.kevoree.modeling.meta.KPrimitiveTypes.CONTINUOUS) {
-                                        builder[metaAttribute.metaName()] = raw.getInfer(metaAttribute.index(), p_metaClass);
+                                        subElem = raw.getInfer(metaAttribute.index(), p_metaClass);
                                     }
                                     else {
-                                        builder[metaAttribute.metaName()] = raw.get(metaAttribute.index(), p_metaClass);
+                                        subElem = raw.get(metaAttribute.index(), p_metaClass);
                                     }
                                 }
                                 else {
-                                    builder[metaElements[i].metaName()] = raw.getRef(metaAttribute.index(), p_metaClass);
+                                    subElem = raw.getRef(metaElements[i].index(), p_metaClass);
+                                }
+                                if (subElem != null && subElem != undefined) {
+                                    builder[metaElements[i].metaName()] = subElem;
                                 }
                             }
                             return JSON.stringify(builder);
@@ -5400,18 +5404,18 @@ var org;
                                     return 0;
                                 };
                                 HeapMemorySegment.prototype.getInferElem = function (index, arrayIndex, metaClass) {
-                                    var res = this.getInfer(index, metaClass);
-                                    if (res != null && arrayIndex >= 0 && arrayIndex < res.length) {
+                                    var res = this.raw[index];
+                                    if (res != null && res != undefined) {
                                         return res[arrayIndex];
                                     }
                                     return 0;
                                 };
                                 HeapMemorySegment.prototype.setInferElem = function (index, arrayIndex, valueToInsert, metaClass) {
-                                    var res = this.getInfer(index, metaClass);
-                                    if (res != null && arrayIndex >= 0 && arrayIndex < res.length) {
+                                    var res = this.raw[index];
+                                    if (res != null && res != undefined) {
                                         res[arrayIndex] = valueToInsert;
-                                        this._dirty = true;
                                     }
+                                    this._dirty = true;
                                 };
                                 HeapMemorySegment.prototype.extendInfer = function (index, newSize, metaClass) {
                                     if (this.raw != null) {
