@@ -371,7 +371,7 @@ public class HeapMemorySegment implements KMemorySegment {
     @Override
     public double getInferElem(int index, int arrayIndex, KMetaClass metaClass) {
         double[] res = getInfer(index, metaClass);
-        if (res != null && arrayIndex > 0 && arrayIndex < res.length) {
+        if (res != null && arrayIndex >= 0 && arrayIndex < res.length) {
             return res[arrayIndex];
         }
         return 0;

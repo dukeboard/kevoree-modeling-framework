@@ -87,7 +87,7 @@ public class PolynomialExtrapolation implements Extrapolation {
         if (raw.getInferElem(index, NUMSAMPLES, metaClass) == 1) {
             raw.setInferElem(index, STEP, (time - timeOrigin), metaClass);
         }
-        int deg = raw.getInferSize(index, metaClass) - WEIGHTS - 1;
+        int deg = (int) raw.getInferElem(index,DEGREE,metaClass);
         int num = (int) raw.getInferElem(index, NUMSAMPLES, metaClass);
         double maxError = maxErr(precision, deg);
         //If the current model fits well the new value, return

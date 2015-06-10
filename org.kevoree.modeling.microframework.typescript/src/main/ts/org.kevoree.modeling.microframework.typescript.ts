@@ -1778,7 +1778,7 @@ module org {
                             var trace: org.kevoree.modeling.memory.manager.KMemorySegmentResolutionTrace = new org.kevoree.modeling.memory.manager.impl.MemorySegmentResolutionTrace();
                             var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = (<org.kevoree.modeling.abs.AbstractKObject>current)._manager.segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, current.metaClass(), trace);
                             if (raw != null) {
-                                var extrapolatedValue: number = this.extrapolateValue(raw.getInfer(attribute.index(), current.metaClass()), current.now(), trace.getTime());
+                                var extrapolatedValue: number = this.extrapolateValue(raw, current.metaClass(), attribute.index(), current.now(), trace.getTime());
                                 if (attribute.attributeType() == org.kevoree.modeling.meta.KPrimitiveTypes.DOUBLE) {
                                     return extrapolatedValue;
                                 } else {
@@ -1805,18 +1805,19 @@ module org {
                             }
                         }
 
-                        private extrapolateValue(encodedPolynomial: number[], time: number, timeOrigin: number): number {
-                            if (encodedPolynomial == null) {
+                        private extrapolateValue(segment: org.kevoree.modeling.memory.struct.segment.KMemorySegment, meta: org.kevoree.modeling.meta.KMetaClass, index: number, time: number, timeOrigin: number): number {
+                            if (segment.getInferSize(index, meta) == 0) {
                                 return 0.0;
                             }
                             var result: number = 0;
                             var power: number = 1;
-                            if (encodedPolynomial[PolynomialExtrapolation.STEP] == 0) {
-                                return encodedPolynomial[PolynomialExtrapolation.WEIGHTS];
+                            var inferSTEP: number = segment.getInferElem(index, PolynomialExtrapolation.STEP, meta);
+                            if (inferSTEP == 0) {
+                                return segment.getInferElem(index, PolynomialExtrapolation.WEIGHTS, meta);
                             }
-                            var t: number = (time - timeOrigin) / encodedPolynomial[PolynomialExtrapolation.STEP];
-                            for (var j: number = 0; j <= encodedPolynomial[PolynomialExtrapolation.DEGREE]; j++) {
-                                result += encodedPolynomial[j + PolynomialExtrapolation.WEIGHTS] * power;
+                            var t: number = (time - timeOrigin) / inferSTEP;
+                            for (var j: number = 0; j <= segment.getInferElem(index, PolynomialExtrapolation.DEGREE, meta); j++) {
+                                result += segment.getInferElem(index, (j + PolynomialExtrapolation.WEIGHTS), meta) * power;
                                 power = power * t;
                             }
                             return result;
@@ -1829,20 +1830,19 @@ module org {
                         }
 
                         public insert(time: number, value: number, timeOrigin: number, raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment, index: number, precision: number, metaClass: org.kevoree.modeling.meta.KMetaClass): boolean {
-                            var encodedPolynomial: number[] = raw.getInfer(index, metaClass);
-                            if (encodedPolynomial == null) {
+                            if (raw.getInferSize(index, metaClass) == 0) {
                                 this.initial_feed(time, value, raw, index, metaClass);
                                 return true;
                             }
-                            if (encodedPolynomial[PolynomialExtrapolation.NUMSAMPLES] == 1) {
-                                encodedPolynomial[PolynomialExtrapolation.STEP] = time - timeOrigin;
-                                raw.setInferElem(index, PolynomialExtrapolation.STEP, encodedPolynomial[PolynomialExtrapolation.STEP], metaClass);
+                            if (raw.getInferElem(index, PolynomialExtrapolation.NUMSAMPLES, metaClass) == 1) {
+                                raw.setInferElem(index, PolynomialExtrapolation.STEP, (time - timeOrigin), metaClass);
                             }
-                            var deg: number = encodedPolynomial.length - PolynomialExtrapolation.WEIGHTS - 1;
-                            var num: number = <number>encodedPolynomial[PolynomialExtrapolation.NUMSAMPLES];
+                            var deg: number = <number>raw.getInferElem(index, PolynomialExtrapolation.DEGREE, metaClass);
+                            var num: number = <number>raw.getInferElem(index, PolynomialExtrapolation.NUMSAMPLES, metaClass);
                             var maxError: number = this.maxErr(precision, deg);
-                            if (Math.abs(this.extrapolateValue(encodedPolynomial, time, timeOrigin) - value) <= maxError) {
-                                raw.setInferElem(index, PolynomialExtrapolation.NUMSAMPLES, encodedPolynomial[PolynomialExtrapolation.NUMSAMPLES] + 1, metaClass);
+                            if (Math.abs(this.extrapolateValue(raw, metaClass, index, time, timeOrigin) - value) <= maxError) {
+                                var nexNumSamples: number = raw.getInferElem(index, PolynomialExtrapolation.NUMSAMPLES, metaClass) + 1;
+                                raw.setInferElem(index, PolynomialExtrapolation.NUMSAMPLES, nexNumSamples, metaClass);
                                 raw.setInferElem(index, PolynomialExtrapolation.LASTTIME, time - timeOrigin, metaClass);
                                 return true;
                             }
@@ -1853,15 +1853,15 @@ module org {
                                 var times: number[] = new Array();
                                 var values: number[] = new Array();
                                 for (var i: number = 0; i < ss; i++) {
-                                    times[i] = (<number>i * num * (encodedPolynomial[PolynomialExtrapolation.LASTTIME]) / (ss * encodedPolynomial[PolynomialExtrapolation.STEP]));
-                                    values[i] = this.internal_extrapolate(times[i], encodedPolynomial);
+                                    times[i] = (<number>i * num * (raw.getInferElem(index, PolynomialExtrapolation.LASTTIME, metaClass)) / (ss * raw.getInferElem(index, PolynomialExtrapolation.STEP, metaClass)));
+                                    values[i] = this.internal_extrapolate(times[i], raw, index, metaClass);
                                 }
-                                times[ss] = (time - timeOrigin) / encodedPolynomial[PolynomialExtrapolation.STEP];
+                                times[ss] = (time - timeOrigin) / raw.getInferElem(index, PolynomialExtrapolation.STEP, metaClass);
                                 values[ss] = value;
                                 var pf: org.kevoree.modeling.extrapolation.impl.maths.PolynomialFitEjml = new org.kevoree.modeling.extrapolation.impl.maths.PolynomialFitEjml(deg);
                                 pf.fit(times, values);
                                 if (this.tempError(pf.getCoef(), times, values) <= maxError) {
-                                    raw.extendInfer(index, encodedPolynomial.length + 1, metaClass);
+                                    raw.extendInfer(index, (raw.getInferSize(index, metaClass) + 1), metaClass);
                                     for (var i: number = 0; i < pf.getCoef().length; i++) {
                                         raw.setInferElem(index, i + PolynomialExtrapolation.WEIGHTS, pf.getCoef()[i], metaClass);
                                     }
@@ -1897,14 +1897,14 @@ module org {
                             return result;
                         }
 
-                        private internal_extrapolate(t: number, encodedPolynomial: number[]): number {
+                        private internal_extrapolate(t: number, raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment, index: number, metaClass: org.kevoree.modeling.meta.KMetaClass): number {
                             var result: number = 0;
                             var power: number = 1;
-                            if (encodedPolynomial[PolynomialExtrapolation.STEP] == 0) {
-                                return encodedPolynomial[PolynomialExtrapolation.WEIGHTS];
+                            if (raw.getInferElem(index, PolynomialExtrapolation.STEP, metaClass) == 0) {
+                                return raw.getInferElem(index, PolynomialExtrapolation.WEIGHTS, metaClass);
                             }
-                            for (var j: number = 0; j <= encodedPolynomial[PolynomialExtrapolation.DEGREE]; j++) {
-                                result += encodedPolynomial[j + PolynomialExtrapolation.WEIGHTS] * power;
+                            for (var j: number = 0; j <= raw.getInferElem(index, PolynomialExtrapolation.DEGREE, metaClass); j++) {
+                                result += raw.getInferElem(index, (j + PolynomialExtrapolation.WEIGHTS), metaClass) * power;
                                 power = power * t;
                             }
                             return result;
@@ -1922,12 +1922,12 @@ module org {
                         public mutate(current: org.kevoree.modeling.KObject, attribute: org.kevoree.modeling.meta.KMetaAttribute, payload: any): void {
                             var trace: org.kevoree.modeling.memory.manager.KMemorySegmentResolutionTrace = new org.kevoree.modeling.memory.manager.impl.MemorySegmentResolutionTrace();
                             var raw: org.kevoree.modeling.memory.struct.segment.KMemorySegment = current.manager().segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.RESOLVE, current.metaClass(), trace);
-                            if (raw.getInfer(attribute.index(), current.metaClass()) == null) {
+                            if (raw.getInferSize(attribute.index(), current.metaClass()) == 0) {
                                 raw = current.manager().segment(current.universe(), current.now(), current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.NEW, current.metaClass(), null);
                             }
                             if (!this.insert(current.now(), this.castNumber(payload), trace.getTime(), raw, attribute.index(), attribute.precision(), current.metaClass())) {
                                 var prevTime: number = <number>raw.getInferElem(attribute.index(), PolynomialExtrapolation.LASTTIME, current.metaClass()) + trace.getTime();
-                                var val: number = this.extrapolateValue(raw.getInfer(attribute.index(), current.metaClass()), prevTime, trace.getTime());
+                                var val: number = this.extrapolateValue(raw, current.metaClass(), attribute.index(), prevTime, trace.getTime());
                                 var newSegment: org.kevoree.modeling.memory.struct.segment.KMemorySegment = current.manager().segment(current.universe(), prevTime, current.uuid(), org.kevoree.modeling.memory.manager.AccessMode.NEW, current.metaClass(), null);
                                 this.insert(prevTime, val, prevTime, newSegment, attribute.index(), attribute.precision(), current.metaClass());
                                 this.insert(current.now(), this.castNumber(payload), prevTime, newSegment, attribute.index(), attribute.precision(), current.metaClass());
@@ -5711,6 +5711,10 @@ module org {
 
                             get(index: number, metaClass: org.kevoree.modeling.meta.KMetaClass): any;
 
+                            getRefSize(index: number, metaClass: org.kevoree.modeling.meta.KMetaClass): number;
+
+                            getRefElem(index: number, refIndex: number, metaClass: org.kevoree.modeling.meta.KMetaClass): number;
+
                             getRef(index: number, metaClass: org.kevoree.modeling.meta.KMetaClass): number[];
 
                             addRef(index: number, newRef: number, metaClass: org.kevoree.modeling.meta.KMetaClass): boolean;
@@ -5718,6 +5722,8 @@ module org {
                             removeRef(index: number, previousRef: number, metaClass: org.kevoree.modeling.meta.KMetaClass): boolean;
 
                             getInfer(index: number, metaClass: org.kevoree.modeling.meta.KMetaClass): number[];
+
+                            getInferSize(index: number, metaClass: org.kevoree.modeling.meta.KMetaClass): number;
 
                             getInferElem(index: number, arrayIndex: number, metaClass: org.kevoree.modeling.meta.KMetaClass): number;
 
@@ -5835,6 +5841,23 @@ module org {
                                     }
                                 }
 
+                                public getRefSize(index: number, metaClass: org.kevoree.modeling.meta.KMetaClass): number {
+                                    var existing: number[] = <number[]>this.raw[index];
+                                    if (existing != null) {
+                                        return existing.length;
+                                    }
+                                    return 0;
+                                }
+
+                                public getRefElem(index: number, refIndex: number, metaClass: org.kevoree.modeling.meta.KMetaClass): number {
+                                    var existing: number[] = <number[]>this.raw[index];
+                                    if (existing != null) {
+                                        return existing[refIndex];
+                                    } else {
+                                        return org.kevoree.modeling.KConfig.NULL_LONG;
+                                    }
+                                }
+
                                 public getRef(index: number, p_metaClass: org.kevoree.modeling.meta.KMetaClass): number[] {
                                     if (this.raw != null) {
                                         var previousObj: any = this.raw[index];
@@ -5942,9 +5965,17 @@ module org {
                                     }
                                 }
 
+                                public getInferSize(index: number, metaClass: org.kevoree.modeling.meta.KMetaClass): number {
+                                    var previousObj: any = this.raw[index];
+                                    if (previousObj != null && previousObj instanceof number[]) {
+                                        return (<number[]>previousObj).length;
+                                    }
+                                    return 0;
+                                }
+
                                 public getInferElem(index: number, arrayIndex: number, metaClass: org.kevoree.modeling.meta.KMetaClass): number {
                                     var res: number[] = this.getInfer(index, metaClass);
-                                    if (res != null && arrayIndex > 0 && arrayIndex < res.length) {
+                                    if (res != null && arrayIndex >= 0 && arrayIndex < res.length) {
                                         return res[arrayIndex];
                                     }
                                     return 0;
@@ -5954,6 +5985,7 @@ module org {
                                     var res: number[] = this.getInfer(index, metaClass);
                                     if (res != null && arrayIndex >= 0 && arrayIndex < res.length) {
                                         res[arrayIndex] = valueToInsert;
+                                        this._dirty = true;
                                     }
                                 }
 
