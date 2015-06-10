@@ -5,7 +5,7 @@ import org.kevoree.modeling.meta.KMetaClass;
 
 public interface KMemorySegment extends KMemoryElement {
 
-    KMemorySegment clone(long newtimeOrigin, KMetaClass metaClass);
+    KMemorySegment clone(KMetaClass metaClass);
 
     void set(int index, Object content, KMetaClass metaClass);
 

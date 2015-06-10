@@ -427,7 +427,7 @@ public class HeapMemorySegment implements KMemorySegment {
     }
 
     @Override
-    public KMemorySegment clone(long newTimeOrigin, KMetaClass p_metaClass) {
+    public KMemorySegment clone(KMetaClass p_metaClass) {
         if (raw == null) {
             return new HeapMemorySegment();
         } else {

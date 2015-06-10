@@ -194,7 +194,7 @@ public abstract class BaseKMemorySegmentTest {
                 cacheEntry.addRef(homeMetaClass.reference("sensors").index(), sensor2.uuid(), homeMetaClass);
 
                 // clone
-                KMemorySegment clonedEntry = cacheEntry.clone(1, homeMetaClass);
+                KMemorySegment clonedEntry = cacheEntry.clone(homeMetaClass);
 
                 Assert.assertEquals(cacheEntry.get(homeMetaClass.attribute("attr_long").index(), homeMetaClass),
                         clonedEntry.get(homeMetaClass.attribute("attr_long").index(), homeMetaClass));
@@ -257,7 +257,7 @@ public abstract class BaseKMemorySegmentTest {
 
                 HashSet<KMemorySegment> segments = new HashSet<KMemorySegment>();
                 for (int i = 0; i < 50; i++) {
-                    segments.add(cacheEntry.clone(i, homeMetaClass));
+                    segments.add(cacheEntry.clone(homeMetaClass));
                 }
 
                 // free everything
@@ -380,7 +380,7 @@ public abstract class BaseKMemorySegmentTest {
 
 
                 // clone cache entry
-                KMemorySegment clone = cacheEntry.clone(1, sensorMetaClass);
+                KMemorySegment clone = cacheEntry.clone(sensorMetaClass);
                 double[] inferPayload5 = clone.getInfer(sensorMetaClass.attribute("value").index(), sensorMetaClass);
                 double[] inferPayload6 = clone.getInfer(sensorMetaClass.attribute("value").index(), sensorMetaClass);
                 Assert.assertTrue(inferPayload5[9] == 52);

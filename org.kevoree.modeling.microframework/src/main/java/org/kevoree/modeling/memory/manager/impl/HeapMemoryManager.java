@@ -359,7 +359,7 @@ public class HeapMemoryManager implements KMemoryManager {
                 }
                 return entry;
             } else {
-                KMemorySegment clonedEntry = entry.clone(time, metaClass);
+                KMemorySegment clonedEntry = entry.clone(metaClass);
                 _cache.put(universe, time, uuid, clonedEntry);
                 if (!needUniverseCopy) {
                     timeTree.insert(time);
