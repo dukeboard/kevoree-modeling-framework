@@ -21,7 +21,7 @@ public class PolynomialExtrapolation implements Extrapolation {
         KMemorySegmentResolutionTrace trace = new MemorySegmentResolutionTrace();
         KMemorySegment raw = ((AbstractKObject) current)._manager.segment(current.universe(), current.now(), current.uuid(), AccessMode.RESOLVE, current.metaClass(), trace);
         if (raw != null) {
-            Double extrapolatedValue = extrapolateValue(raw.getInfer(attribute.index(), current.metaClass()), current.now(), trace.getTime());
+            Double extrapolatedValue = extrapolateValue(raw, current.metaClass(), attribute.index(), current.now(), trace.getTime());
             if (attribute.attributeType() == KPrimitiveTypes.DOUBLE) {
                 return extrapolatedValue;
             } else if (attribute.attributeType() == KPrimitiveTypes.LONG) {
@@ -47,19 +47,19 @@ public class PolynomialExtrapolation implements Extrapolation {
     private final static int LASTTIME = 3;
     private final static int WEIGHTS = 4;
 
-    private Double extrapolateValue(double[] encodedPolynomial, long time, long timeOrigin) {
-        if (encodedPolynomial == null) {
+    private Double extrapolateValue(KMemorySegment segment, KMetaClass meta, int index, long time, long timeOrigin) {
+        if (segment.getInferSize(index, meta) == 0) {
             return 0.0;
         }
-
         double result = 0;
         double power = 1;
-        if (encodedPolynomial[STEP] == 0) {
-            return encodedPolynomial[WEIGHTS];
+        double inferSTEP = segment.getInferElem(index, STEP, meta);
+        if (inferSTEP == 0) {
+            return segment.getInferElem(index, WEIGHTS, meta);
         }
-        double t = (time - timeOrigin) / encodedPolynomial[STEP];
-        for (int j = 0; j <= encodedPolynomial[DEGREE]; j++) {
-            result += encodedPolynomial[j + WEIGHTS] * power;
+        double t = (time - timeOrigin) / inferSTEP;
+        for (int j = 0; j <= segment.getInferElem(index, DEGREE, meta); j++) {
+            result += segment.getInferElem(index, (j + WEIGHTS), meta) * power;
             power = power * t;
         }
         return result;
@@ -79,26 +79,21 @@ public class PolynomialExtrapolation implements Extrapolation {
 
 
     public boolean insert(long time, double value, long timeOrigin, KMemorySegment raw, int index, double precision, KMetaClass metaClass) {
-        double[] encodedPolynomial = raw.getInfer(index, metaClass);
-        if (encodedPolynomial == null) {
+        if (raw.getInferSize(index, metaClass) == 0) {
             initial_feed(time, value, raw, index, metaClass);
             return true;
         }
-
         //Set the step
-        if (encodedPolynomial[NUMSAMPLES] == 1) {
-            encodedPolynomial[STEP] = time - timeOrigin;
-            raw.setInferElem(index, STEP, encodedPolynomial[STEP], metaClass);
+        if (raw.getInferElem(index, NUMSAMPLES, metaClass) == 1) {
+            raw.setInferElem(index, STEP, (time - timeOrigin), metaClass);
         }
-
-
-        int deg = encodedPolynomial.length - WEIGHTS - 1;
-        int num = (int) encodedPolynomial[NUMSAMPLES];
-
+        int deg = raw.getInferSize(index, metaClass) - WEIGHTS - 1;
+        int num = (int) raw.getInferElem(index, NUMSAMPLES, metaClass);
         double maxError = maxErr(precision, deg);
         //If the current model fits well the new value, return
-        if (Math.abs(extrapolateValue(encodedPolynomial, time, timeOrigin) - value) <= maxError) {
-            raw.setInferElem(index, NUMSAMPLES, encodedPolynomial[NUMSAMPLES] + 1, metaClass);
+        if (Math.abs(extrapolateValue(raw, metaClass, index, time, timeOrigin) - value) <= maxError) {
+            double nexNumSamples = raw.getInferElem(index, NUMSAMPLES, metaClass) + 1;
+            raw.setInferElem(index, NUMSAMPLES, nexNumSamples, metaClass);
             raw.setInferElem(index, LASTTIME, time - timeOrigin, metaClass);
             return true;
         }
@@ -110,15 +105,15 @@ public class PolynomialExtrapolation implements Extrapolation {
             double[] times = new double[ss + 1];
             double[] values = new double[ss + 1];
             for (int i = 0; i < ss; i++) {
-                times[i] = ((double) i * num * (encodedPolynomial[LASTTIME]) / (ss * encodedPolynomial[STEP]));
-                values[i] = internal_extrapolate(times[i], encodedPolynomial);
+                times[i] = ((double) i * num * (raw.getInferElem(index, LASTTIME, metaClass)) / (ss * raw.getInferElem(index, STEP, metaClass)));
+                values[i] = internal_extrapolate(times[i], raw, index, metaClass);
             }
-            times[ss] = (time - timeOrigin) / encodedPolynomial[STEP];
+            times[ss] = (time - timeOrigin) / raw.getInferElem(index, STEP, metaClass);
             values[ss] = value;
             PolynomialFitEjml pf = new PolynomialFitEjml(deg);
             pf.fit(times, values);
             if (tempError(pf.getCoef(), times, values) <= maxError) {
-                raw.extendInfer(index, encodedPolynomial.length + 1, metaClass);
+                raw.extendInfer(index, (raw.getInferSize(index, metaClass) + 1), metaClass);
                 for (int i = 0; i < pf.getCoef().length; i++) {
                     raw.setInferElem(index, i + WEIGHTS, pf.getCoef()[i], metaClass);
                 }
@@ -155,14 +150,14 @@ public class PolynomialExtrapolation implements Extrapolation {
         return result;
     }
 
-    private double internal_extrapolate(double t, double[] encodedPolynomial) {
+    private double internal_extrapolate(double t, KMemorySegment raw, int index, KMetaClass metaClass) {
         double result = 0;
         double power = 1;
-        if (encodedPolynomial[STEP] == 0) {
-            return encodedPolynomial[WEIGHTS];
+        if (raw.getInferElem(index, STEP, metaClass) == 0) {
+            return raw.getInferElem(index, WEIGHTS, metaClass);
         }
-        for (int j = 0; j <= encodedPolynomial[DEGREE]; j++) {
-            result += encodedPolynomial[j + WEIGHTS] * power;
+        for (int j = 0; j <= raw.getInferElem(index, DEGREE, metaClass); j++) {
+            result += raw.getInferElem(index, (j + WEIGHTS), metaClass) * power;
             power = power * t;
         }
         return result;
@@ -184,12 +179,12 @@ public class PolynomialExtrapolation implements Extrapolation {
     public void mutate(KObject current, KMetaAttribute attribute, Object payload) {
         KMemorySegmentResolutionTrace trace = new MemorySegmentResolutionTrace();
         KMemorySegment raw = current.manager().segment(current.universe(), current.now(), current.uuid(), AccessMode.RESOLVE, current.metaClass(), trace);
-        if (raw.getInfer(attribute.index(), current.metaClass()) == null) {
+        if (raw.getInferSize(attribute.index(), current.metaClass()) == 0) {
             raw = current.manager().segment(current.universe(), current.now(), current.uuid(), AccessMode.NEW, current.metaClass(), null);
         }
         if (!insert(current.now(), castNumber(payload), trace.getTime(), raw, attribute.index(), attribute.precision(), current.metaClass())) {
             long prevTime = (long) raw.getInferElem(attribute.index(), LASTTIME, current.metaClass()) + trace.getTime();
-            double val = extrapolateValue(raw.getInfer(attribute.index(), current.metaClass()), prevTime, trace.getTime());
+            double val = extrapolateValue(raw, current.metaClass(), attribute.index(), prevTime, trace.getTime());
             KMemorySegment newSegment = current.manager().segment(current.universe(), prevTime, current.uuid(), AccessMode.NEW, current.metaClass(), null);
             insert(prevTime, val, prevTime, newSegment, attribute.index(), attribute.precision(), current.metaClass());
             insert(current.now(), castNumber(payload), prevTime, newSegment, attribute.index(), attribute.precision(), current.metaClass());
