@@ -386,7 +386,7 @@ public abstract class AbstractKObject implements KObject {
             toResolveIds.each(new KLongLongMapCallBack() {
                 @Override
                 public void on(long key, long value) {
-                    trimmed[inserted[0]] = key;
+                    trimmed[inserted[0]] = value;
                     inserted[0]++;
                 }
             });
