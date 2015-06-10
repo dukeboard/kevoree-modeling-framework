@@ -362,7 +362,7 @@ public class HeapMemorySegment implements KMemorySegment {
     @Override
     public int getInferSize(int index, KMetaClass metaClass) {
         Object previousObj = raw[index];
-        if (previousObj != null && previousObj instanceof double[]) {
+        if (previousObj != null) {
             return ((double[]) previousObj).length;
         }
         return 0;

@@ -5967,7 +5967,7 @@ module org {
 
                                 public getInferSize(index: number, metaClass: org.kevoree.modeling.meta.KMetaClass): number {
                                     var previousObj: any = this.raw[index];
-                                    if (previousObj != null && previousObj instanceof number[]) {
+                                    if (previousObj != null) {
                                         return (<number[]>previousObj).length;
                                     }
                                     return 0;
