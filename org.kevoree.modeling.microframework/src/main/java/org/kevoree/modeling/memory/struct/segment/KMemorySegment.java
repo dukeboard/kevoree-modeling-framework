@@ -14,6 +14,10 @@ public interface KMemorySegment extends KMemoryElement {
     //TODO add for primitive
 
     /* References management */
+    int getRefSize(int index, KMetaClass metaClass);
+
+    long getRefElem(int index, int refIndex, KMetaClass metaClass);
+
     long[] getRef(int index, KMetaClass metaClass);
 
     boolean addRef(int index, long newRef, KMetaClass metaClass);

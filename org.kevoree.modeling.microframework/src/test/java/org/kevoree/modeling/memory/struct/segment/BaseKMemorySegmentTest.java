@@ -129,9 +129,16 @@ public abstract class BaseKMemorySegmentTest {
                 long[] ref = cacheEntry.getRef(homeMetaClass.reference("sensors").index(), homeMetaClass);
                 Assert.assertArrayEquals(ref, new long[]{sensor.uuid(), sensor2.uuid()});
 
+                Assert.assertEquals(2, cacheEntry.getRefSize(homeMetaClass.reference("sensors").index(), homeMetaClass));
+
+                Assert.assertEquals(sensor.uuid(), cacheEntry.getRefElem(homeMetaClass.reference("sensors").index(),0, homeMetaClass));
+                Assert.assertEquals(sensor2.uuid(), cacheEntry.getRefElem(homeMetaClass.reference("sensors").index(),1, homeMetaClass));
+
                 cacheEntry.removeRef(homeMetaClass.reference("sensors").index(), sensor.uuid(), homeMetaClass);
                 long[] ref2 = cacheEntry.getRef(homeMetaClass.reference("sensors").index(), homeMetaClass);
                 Assert.assertArrayEquals(ref2, new long[]{sensor2.uuid()});
+
+                Assert.assertEquals(1, cacheEntry.getRefSize(homeMetaClass.reference("sensors").index(), homeMetaClass));
 
                 cacheEntry.removeRef(homeMetaClass.reference("sensors").index(), sensor2.uuid(), homeMetaClass);
                 long[] ref3 = cacheEntry.getRef(homeMetaClass.reference("sensors").index(), homeMetaClass);

@@ -1,5 +1,6 @@
 package org.kevoree.modeling.memory.struct.segment.impl;
 
+import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.format.json.JsonFormat;
 import org.kevoree.modeling.format.json.JsonObjectReader;
 import org.kevoree.modeling.format.json.JsonString;
@@ -235,6 +236,25 @@ public class HeapMemorySegment implements KMemorySegment {
             return raw[index];
         } else {
             return null;
+        }
+    }
+
+    @Override
+    public int getRefSize(int index, KMetaClass metaClass) {
+        long[] existing = (long[]) raw[index];
+        if (existing != null) {
+            return existing.length;
+        }
+        return 0;
+    }
+
+    @Override
+    public long getRefElem(int index, int refIndex, KMetaClass metaClass) {
+        long[] existing = (long[]) raw[index];
+        if (existing != null) {
+            return existing[refIndex];
+        } else {
+            return KConfig.NULL_LONG;
         }
     }
 
