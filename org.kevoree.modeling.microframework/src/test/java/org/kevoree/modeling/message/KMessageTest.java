@@ -57,6 +57,8 @@ public class KMessageTest {
         OperationCallMessage msgCall = new OperationCallMessage();
         msgCall.id = 1l;
         msgCall.key = KContentKey.createObject(0l, 1l, 2l);
+        msgCall.opIndex = 0;
+        msgCall.classIndex = 0;
         msgCall.params = new String[3];
         msgCall.params[0] = "param0";
         msgCall.params[1] = "param1";
