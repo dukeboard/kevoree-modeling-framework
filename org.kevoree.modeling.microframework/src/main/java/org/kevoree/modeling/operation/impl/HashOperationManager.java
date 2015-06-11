@@ -3,6 +3,8 @@ package org.kevoree.modeling.operation.impl;
 import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.KObject;
+import org.kevoree.modeling.memory.struct.map.KIntHashMap;
+import org.kevoree.modeling.memory.struct.map.KLongHashMap;
 import org.kevoree.modeling.operation.KOperation;
 import org.kevoree.modeling.KView;
 import org.kevoree.modeling.KContentKey;
@@ -18,35 +20,35 @@ import org.kevoree.modeling.operation.KOperationManager;
 
 public class HashOperationManager implements KOperationManager {
 
-    private ArrayIntHashMap<ArrayIntHashMap<KOperation>> staticOperations;
+    private KIntHashMap<KIntHashMap<KOperation>> staticOperations;
 
-    private ArrayLongHashMap<ArrayIntHashMap<KOperation>> instanceOperations;
+    private KLongHashMap<KIntHashMap<KOperation>> instanceOperations;
 
-    private ArrayLongHashMap<KCallback<Object>> remoteCallCallbacks = new ArrayLongHashMap<KCallback<Object>>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
+    private KLongHashMap<KCallback<Object>> remoteCallCallbacks = new ArrayLongHashMap<KCallback<Object>>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
 
     private KMemoryManager _manager;
 
     private int _callbackId = 0;
 
     public HashOperationManager(KMemoryManager p_manager) {
-        this.staticOperations = new ArrayIntHashMap<ArrayIntHashMap<KOperation>>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
-        this.instanceOperations = new ArrayLongHashMap<ArrayIntHashMap<KOperation>>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
+        this.staticOperations = new ArrayIntHashMap<KIntHashMap<KOperation>>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+        this.instanceOperations = new ArrayLongHashMap<KIntHashMap<KOperation>>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         this._manager = p_manager;
     }
 
     @Override
     public void registerOperation(KMetaOperation operation, KOperation callback, KObject target) {
         if (target == null) {
-            ArrayIntHashMap<KOperation> clazzOperations = staticOperations.get(operation.origin().index());
+            KIntHashMap<KOperation> clazzOperations = staticOperations.get(operation.origin().index());
             if (clazzOperations == null) {
-                clazzOperations = new ArrayIntHashMap<KOperation>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
+                clazzOperations = new ArrayIntHashMap<KOperation>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
                 staticOperations.put(operation.origin().index(), clazzOperations);
             }
             clazzOperations.put(operation.index(), callback);
         } else {
-            ArrayIntHashMap<KOperation> objectOperations = instanceOperations.get(target.uuid());
+            KIntHashMap<KOperation> objectOperations = instanceOperations.get(target.uuid());
             if (objectOperations == null) {
-                objectOperations = new ArrayIntHashMap<KOperation>(KConfig.CACHE_INIT_SIZE,KConfig.CACHE_LOAD_FACTOR);
+                objectOperations = new ArrayIntHashMap<KOperation>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
                 instanceOperations.put(target.uuid(), objectOperations);
             }
             objectOperations.put(operation.index(), callback);
@@ -54,11 +56,11 @@ public class HashOperationManager implements KOperationManager {
     }
 
     private KOperation searchOperation(Long source, int clazz, int operation) {
-        ArrayIntHashMap<KOperation> objectOperations = instanceOperations.get(source);
+        KIntHashMap<KOperation> objectOperations = instanceOperations.get(source);
         if (objectOperations != null) {
             return objectOperations.get(operation);
         }
-        ArrayIntHashMap<KOperation> clazzOperations = staticOperations.get(clazz);
+        KIntHashMap<KOperation> clazzOperations = staticOperations.get(clazz);
         if (clazzOperations != null) {
             return clazzOperations.get(operation);
         }
@@ -113,7 +115,7 @@ public class HashOperationManager implements KOperationManager {
             final KOperation operationCore = searchOperation(sourceKey.obj, operationCall.classIndex, operationCall.opIndex);
             if (operationCore != null) {
                 KView view = _manager.model().universe(sourceKey.universe).time(sourceKey.time);
-                view.lookup(sourceKey.obj,new KCallback<KObject>() {
+                view.lookup(sourceKey.obj, new KCallback<KObject>() {
                     public void on(KObject kObject) {
                         if (kObject != null) {
                             operationCore.on(kObject, operationCall.params, new KCallback<Object>() {

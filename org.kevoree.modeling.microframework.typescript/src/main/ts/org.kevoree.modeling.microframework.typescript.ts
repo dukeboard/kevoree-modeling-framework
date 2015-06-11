@@ -753,7 +753,7 @@ module org {
                         this.internal_visit(p_visitor, cb, new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR), new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR));
                     }
 
-                    private internal_visit(visitor: (p : org.kevoree.modeling.KObject) => org.kevoree.modeling.traversal.visitor.KVisitResult, end: (p : any) => void, visited: org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap, traversed: org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap): void {
+                    private internal_visit(visitor: (p : org.kevoree.modeling.KObject) => org.kevoree.modeling.traversal.visitor.KVisitResult, end: (p : any) => void, visited: org.kevoree.modeling.memory.struct.map.KLongLongHashMap, traversed: org.kevoree.modeling.memory.struct.map.KLongLongHashMap): void {
                         if (!org.kevoree.modeling.util.Checker.isDefined(visitor)) {
                             return;
                         }
@@ -1150,7 +1150,7 @@ module org {
                         keys[1] = org.kevoree.modeling.KContentKey.createUniverseTree(this._origin.uuid());
                         var manager: org.kevoree.modeling.memory.manager.impl.HeapMemoryManager = <org.kevoree.modeling.memory.manager.impl.HeapMemoryManager>this._origin._manager;
                         manager.bumpKeysToCache(keys,  (kMemoryElements : org.kevoree.modeling.memory.KMemoryElement[]) => {
-                            var objUniverse: org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap = <org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap>kMemoryElements[1];
+                            var objUniverse: org.kevoree.modeling.memory.struct.map.KLongLongHashMap = <org.kevoree.modeling.memory.struct.map.KLongLongHashMap>kMemoryElements[1];
                             if (kMemoryElements[0] == null || kMemoryElements[1] == null) {
                                 cb(null);
                             } else {
@@ -2502,7 +2502,7 @@ module org {
                              }
                         }
 
-                        private static loadObj(p_param: org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap<any>, manager: org.kevoree.modeling.memory.manager.KMemoryManager, universe: number, time: number, p_mappedKeys: org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap, p_rootElem: org.kevoree.modeling.KObject[]): void {
+                        private static loadObj(p_param: org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap<any>, manager: org.kevoree.modeling.memory.manager.KMemoryManager, universe: number, time: number, p_mappedKeys: org.kevoree.modeling.memory.struct.map.KLongLongHashMap, p_rootElem: org.kevoree.modeling.KObject[]): void {
                             var kid: number = java.lang.Long.parseLong(p_param.get(org.kevoree.modeling.format.json.JsonFormat.KEY_UUID).toString());
                             var meta: string = p_param.get(org.kevoree.modeling.format.json.JsonFormat.KEY_META).toString();
                             var metaClass: org.kevoree.modeling.meta.KMetaClass = manager.model().metaModel().metaClassByName(meta);
@@ -2584,7 +2584,7 @@ module org {
                             });
                         }
 
-                        private static transposeArr(plainRawSet: java.util.ArrayList<string>, p_mappedKeys: org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap): number[] {
+                        private static transposeArr(plainRawSet: java.util.ArrayList<string>, p_mappedKeys: org.kevoree.modeling.memory.struct.map.KLongLongHashMap): number[] {
                              if (plainRawSet == null) { return null; }
                              var convertedRaw: number[] = new Array();
                              for (var l in plainRawSet) {
@@ -8729,9 +8729,9 @@ module org {
                 export module impl {
                     export class HashOperationManager implements org.kevoree.modeling.operation.KOperationManager {
 
-                        private staticOperations: org.kevoree.modeling.memory.struct.map.impl.ArrayIntHashMap<any>;
-                        private instanceOperations: org.kevoree.modeling.memory.struct.map.impl.ArrayLongHashMap<any>;
-                        private remoteCallCallbacks: org.kevoree.modeling.memory.struct.map.impl.ArrayLongHashMap<any> = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongHashMap<any>(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                        private staticOperations: org.kevoree.modeling.memory.struct.map.KIntHashMap<any>;
+                        private instanceOperations: org.kevoree.modeling.memory.struct.map.KLongHashMap<any>;
+                        private remoteCallCallbacks: org.kevoree.modeling.memory.struct.map.KLongHashMap<any> = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongHashMap<any>(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                         private _manager: org.kevoree.modeling.memory.manager.KMemoryManager;
                         private _callbackId: number = 0;
                         constructor(p_manager: org.kevoree.modeling.memory.manager.KMemoryManager) {
@@ -8742,14 +8742,14 @@ module org {
 
                         public registerOperation(operation: org.kevoree.modeling.meta.KMetaOperation, callback: (p : org.kevoree.modeling.KObject, p1 : any[], p2 : (p : any) => void) => void, target: org.kevoree.modeling.KObject): void {
                             if (target == null) {
-                                var clazzOperations: org.kevoree.modeling.memory.struct.map.impl.ArrayIntHashMap<any> = this.staticOperations.get(operation.origin().index());
+                                var clazzOperations: org.kevoree.modeling.memory.struct.map.KIntHashMap<any> = this.staticOperations.get(operation.origin().index());
                                 if (clazzOperations == null) {
                                     clazzOperations = new org.kevoree.modeling.memory.struct.map.impl.ArrayIntHashMap<any>(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                     this.staticOperations.put(operation.origin().index(), clazzOperations);
                                 }
                                 clazzOperations.put(operation.index(), callback);
                             } else {
-                                var objectOperations: org.kevoree.modeling.memory.struct.map.impl.ArrayIntHashMap<any> = this.instanceOperations.get(target.uuid());
+                                var objectOperations: org.kevoree.modeling.memory.struct.map.KIntHashMap<any> = this.instanceOperations.get(target.uuid());
                                 if (objectOperations == null) {
                                     objectOperations = new org.kevoree.modeling.memory.struct.map.impl.ArrayIntHashMap<any>(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                     this.instanceOperations.put(target.uuid(), objectOperations);
@@ -8759,11 +8759,11 @@ module org {
                         }
 
                         private searchOperation(source: number, clazz: number, operation: number): (p : org.kevoree.modeling.KObject, p1 : any[], p2 : (p : any) => void) => void {
-                            var objectOperations: org.kevoree.modeling.memory.struct.map.impl.ArrayIntHashMap<any> = this.instanceOperations.get(source);
+                            var objectOperations: org.kevoree.modeling.memory.struct.map.KIntHashMap<any> = this.instanceOperations.get(source);
                             if (objectOperations != null) {
                                 return objectOperations.get(operation);
                             }
-                            var clazzOperations: org.kevoree.modeling.memory.struct.map.impl.ArrayIntHashMap<any> = this.staticOperations.get(clazz);
+                            var clazzOperations: org.kevoree.modeling.memory.struct.map.KIntHashMap<any> = this.staticOperations.get(clazz);
                             if (clazzOperations != null) {
                                 return clazzOperations.get(operation);
                             }

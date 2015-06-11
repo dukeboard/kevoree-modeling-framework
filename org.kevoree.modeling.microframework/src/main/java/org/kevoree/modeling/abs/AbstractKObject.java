@@ -4,6 +4,7 @@ import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KActionType;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.event.KEventListener;
+import org.kevoree.modeling.memory.struct.map.KLongLongHashMap;
 import org.kevoree.modeling.meta.*;
 import org.kevoree.modeling.meta.impl.MetaAttribute;
 import org.kevoree.modeling.meta.impl.MetaReference;
@@ -345,7 +346,7 @@ public abstract class AbstractKObject implements KObject {
         internal_visit(p_visitor, cb, new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR), new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR));
     }
 
-    private void internal_visit(final KModelVisitor visitor, final KCallback end, final ArrayLongLongHashMap visited, final ArrayLongLongHashMap traversed) {
+    private void internal_visit(final KModelVisitor visitor, final KCallback end, final KLongLongHashMap visited, final KLongLongHashMap traversed) {
         if (!Checker.isDefined(visitor)) {
             return;
         }

@@ -7,6 +7,7 @@ import org.kevoree.modeling.memory.KMemoryElement;
 import org.kevoree.modeling.KContentKey;
 import org.kevoree.modeling.memory.manager.impl.HeapMemoryManager;
 import org.kevoree.modeling.memory.manager.impl.ResolutionHelper;
+import org.kevoree.modeling.memory.struct.map.KLongLongHashMap;
 import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap;
 import org.kevoree.modeling.memory.struct.tree.KLongTree;
 import org.kevoree.modeling.memory.struct.tree.KTreeWalker;
@@ -28,7 +29,7 @@ public class AbstractTimeWalker implements KTimeWalker {
         manager.bumpKeysToCache(keys, new KCallback<KMemoryElement[]>() {
             @Override
             public void on(KMemoryElement[] kMemoryElements) {
-                final ArrayLongLongHashMap objUniverse = (ArrayLongLongHashMap) kMemoryElements[1];
+                final KLongLongHashMap objUniverse = (KLongLongHashMap) kMemoryElements[1];
                 if (kMemoryElements[0] == null || kMemoryElements[1] == null) {
                     cb.on(null);
                 } else {

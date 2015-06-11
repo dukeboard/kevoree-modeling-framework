@@ -4,6 +4,7 @@ import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.abs.AbstractKModel;
+import org.kevoree.modeling.memory.struct.map.KLongLongHashMap;
 import org.kevoree.modeling.meta.*;
 import org.kevoree.modeling.meta.impl.MetaReference;
 import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
@@ -119,7 +120,7 @@ public class JsonModelLoader {
         }
     }
 
-    private static void loadObj(ArrayStringHashMap<Object> p_param, KMemoryManager manager, long universe, long time, ArrayLongLongHashMap p_mappedKeys, KObject[] p_rootElem) {
+    private static void loadObj(ArrayStringHashMap<Object> p_param, KMemoryManager manager, long universe, long time, KLongLongHashMap p_mappedKeys, KObject[] p_rootElem) {
         long kid = Long.parseLong(p_param.get(JsonFormat.KEY_UUID).toString());
         String meta = p_param.get(JsonFormat.KEY_META).toString();
         KMetaClass metaClass = manager.model().metaModel().metaClassByName(meta);
@@ -198,7 +199,7 @@ public class JsonModelLoader {
      * }
      * return convertedRaw;
      */
-    private static long[] transposeArr(ArrayList<String> plainRawSet, ArrayLongLongHashMap p_mappedKeys) {
+    private static long[] transposeArr(ArrayList<String> plainRawSet, KLongLongHashMap p_mappedKeys) {
         if (plainRawSet == null) {
             return null;
         }
