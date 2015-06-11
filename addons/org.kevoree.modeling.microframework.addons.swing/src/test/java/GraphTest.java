@@ -25,7 +25,7 @@ public class GraphTest {
     public void test() throws InterruptedException {
         KMetaModel metaModel = new MetaModel("TestModel");
         KMetaClass nodeClazz = metaModel.addMetaClass("Node");
-        nodeClazz.addAttribute("name", KPrimitiveTypes.STRING, 0d, DiscreteExtrapolation.instance());
+        nodeClazz.addAttribute("name", KPrimitiveTypes.STRING);
         nodeClazz.addReference("children", nodeClazz, "op_children", true);
         nodeClazz.addReference("neighbor", nodeClazz, "op_neighbor", true);
         KModel model = metaModel.model();

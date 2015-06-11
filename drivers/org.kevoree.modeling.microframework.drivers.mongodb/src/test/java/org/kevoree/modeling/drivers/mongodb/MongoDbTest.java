@@ -37,7 +37,7 @@ public class MongoDbTest {
             MongoDbContentDeliveryDriver driver = new MongoDbContentDeliveryDriver("localhost", 27017, "kmf");
             KMetaModel metaModel = new MetaModel("IoT");
             KMetaClass metaClass = metaModel.addMetaClass("Sensor");
-            metaClass.addAttribute("name", KPrimitiveTypes.STRING, 0d, DiscreteExtrapolation.instance());
+            metaClass.addAttribute("name", KPrimitiveTypes.STRING);
             KModel model = metaModel.model();
             model.setContentDeliveryDriver(driver);
             model.connect(new KCallback() {
