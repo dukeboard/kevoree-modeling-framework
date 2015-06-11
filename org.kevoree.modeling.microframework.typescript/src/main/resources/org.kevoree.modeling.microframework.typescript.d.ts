@@ -1026,6 +1026,7 @@ declare module org {
                     }
                     module map {
                         interface KIntHashMap<V> {
+                            contains(key: number): boolean;
                             get(key: number): V;
                             put(key: number, value: V): void;
                             each(callback: (p: number, p1: V) => void): void;
@@ -1034,6 +1035,7 @@ declare module org {
                             on(key: number, value: V): void;
                         }
                         interface KLongHashMap<V> {
+                            contains(key: number): boolean;
                             get(key: number): V;
                             put(key: number, value: V): void;
                             each(callback: (p: number, p1: V) => void): void;
@@ -1044,6 +1046,7 @@ declare module org {
                             on(key: number, value: V): void;
                         }
                         interface KLongLongHashMap extends org.kevoree.modeling.memory.KMemoryElement {
+                            contains(key: number): boolean;
                             get(key: number): number;
                             put(key: number, value: number): void;
                             each(callback: (p: number, p1: number) => void): void;
@@ -1054,12 +1057,12 @@ declare module org {
                             on(key: number, value: number): void;
                         }
                         interface KStringHashMap<V> {
+                            contains(key: string): boolean;
                             get(key: string): V;
                             put(key: string, value: V): void;
                             each(callback: (p: string, p1: V) => void): void;
                             size(): number;
                             clear(): void;
-                            containsKey(key: string): boolean;
                         }
                         interface KStringHashMapCallBack<V> {
                             on(key: string, value: V): void;
@@ -1070,7 +1073,7 @@ declare module org {
                                 clear(): void;
                                 get(key: number): V;
                                 put(key: number, pval: V): V;
-                                containsKey(key: number): boolean;
+                                contains(key: number): boolean;
                                 remove(key: number): V;
                                 size(): number;
                                 each(callback: (p: number, p1: V) => void): void;
@@ -1080,7 +1083,7 @@ declare module org {
                                 clear(): void;
                                 get(key: number): V;
                                 put(key: number, pval: V): V;
-                                containsKey(key: number): boolean;
+                                contains(key: number): boolean;
                                 remove(key: number): V;
                                 size(): number;
                                 each(callback: (p: number, p1: V) => void): void;
@@ -1094,7 +1097,7 @@ declare module org {
                                 clear(): void;
                                 get(key: number): number;
                                 put(key: number, pval: number): number;
-                                containsKey(key: number): boolean;
+                                contains(key: number): boolean;
                                 remove(key: number): number;
                                 size(): number;
                                 each(callback: (p: number, p1: number) => void): void;
@@ -1113,7 +1116,7 @@ declare module org {
                                 clear(): void;
                                 get(key: string): V;
                                 put(key: string, pval: V): V;
-                                containsKey(key: string): boolean;
+                                contains(key: string): boolean;
                                 remove(key: string): V;
                                 size(): number;
                                 each(callback: (p: string, p1: V) => void): void;

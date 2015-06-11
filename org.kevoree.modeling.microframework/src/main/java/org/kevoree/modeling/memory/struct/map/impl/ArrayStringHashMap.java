@@ -12,7 +12,7 @@ import org.kevoree.modeling.memory.struct.map.KStringHashMapCallBack;
  * public clear():void { for(var p in this){ if(this.hasOwnProperty(p)){ delete this[p];} } }
  * public get(key:string):V { return this[key]; }
  * public put(key:string, pval : V):V { var previousVal = this[key];this[key] = pval;return previousVal;}
- * public containsKey(key:string):boolean { return this.hasOwnProperty(key);}
+ * public contains(key:string):boolean { return this.hasOwnProperty(key);}
  * public remove(key:string):V { var tmp = this[key]; delete this[key]; return tmp; }
  * public size():number { return Object.keys(this).length; }
  * public each(callback: (p : string, p1 : V) => void): void { for(var p in this){ if(this.hasOwnProperty(p)){ callback(<string>p,this[p]); } } }
@@ -71,7 +71,8 @@ public class ArrayStringHashMap<V> implements KStringHashMap<V> {
         threshold = (int) (elementDataSize * loadFactor);
     }
 
-    public boolean containsKey(String key) {
+    @Override
+    public boolean contains(String key) {
         if (elementDataSize == 0) {
             return false;
         }

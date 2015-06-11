@@ -77,7 +77,7 @@ public class MetaModel implements KMetaModel {
 
     @Override
     public synchronized KMetaClass addMetaClass(String metaClassName) {
-        if (_metaClasses_indexes.containsKey(metaClassName)) {
+        if (_metaClasses_indexes.contains(metaClassName)) {
             return metaClassByName(metaClassName);
         } else {
             if (_metaClasses == null) {

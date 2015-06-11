@@ -2,6 +2,8 @@ package org.kevoree.modeling.memory.struct.map;
 
 public interface KLongHashMap<V> {
 
+    boolean contains(long key);
+
     V get(long key);
 
     void put(long key, V value);

@@ -151,12 +151,12 @@ public class LocalEventListeners {
                             public void on(long listenerKey, long universeKey) {
                                 if (universeKey == loopKey.universe) {
                                     isSelect[0] = true;
-                                    if (_multiListener.containsKey(listenerKey)) {
+                                    if (_multiListener.contains(listenerKey)) {
                                         if (multiCounters[0] == null) {
                                             multiCounters[0] = new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
                                         }
                                         long previous = 0;
-                                        if (multiCounters[0].containsKey(listenerKey)) {
+                                        if (multiCounters[0].contains(listenerKey)) {
                                             previous = multiCounters[0].get(listenerKey);
                                         }
                                         previous++;

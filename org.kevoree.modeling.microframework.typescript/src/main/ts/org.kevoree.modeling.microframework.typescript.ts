@@ -771,7 +771,7 @@ module org {
                                     if (idArr != null) {
                                         try {
                                             for (var k: number = 0; k < idArr.length; k++) {
-                                                if (traversed == null || !traversed.containsKey(idArr[k])) {
+                                                if (traversed == null || !traversed.contains(idArr[k])) {
                                                     toResolveIds.put(idArr[k], idArr[k]);
                                                 }
                                             }
@@ -804,7 +804,7 @@ module org {
                                     var resolved: org.kevoree.modeling.KObject = resolvedArr[i];
                                     var result: org.kevoree.modeling.traversal.visitor.KVisitResult = org.kevoree.modeling.traversal.visitor.KVisitResult.CONTINUE;
                                     if (resolved != null) {
-                                        if (visitor != null && (visited == null || !visited.containsKey(resolved.uuid()))) {
+                                        if (visitor != null && (visited == null || !visited.contains(resolved.uuid()))) {
                                             result = visitor(resolved);
                                         }
                                         if (visited != null) {
@@ -817,7 +817,7 @@ module org {
                                         }
                                     } else {
                                         if (result.equals(org.kevoree.modeling.traversal.visitor.KVisitResult.CONTINUE)) {
-                                            if (traversed == null || !traversed.containsKey(resolved.uuid())) {
+                                            if (traversed == null || !traversed.contains(resolved.uuid())) {
                                                 nextDeep.add(resolved);
                                             }
                                         }
@@ -1642,12 +1642,12 @@ module org {
                                             listeners.each( (listenerKey : number, universeKey : number) => {
                                                 if (universeKey == loopKey.universe) {
                                                     isSelect[0] = true;
-                                                    if (this._multiListener.containsKey(listenerKey)) {
+                                                    if (this._multiListener.contains(listenerKey)) {
                                                         if (multiCounters[0] == null) {
                                                             multiCounters[0] = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                                         }
                                                         var previous: number = 0;
-                                                        if (multiCounters[0].containsKey(listenerKey)) {
+                                                        if (multiCounters[0].contains(listenerKey)) {
                                                             previous = multiCounters[0].get(listenerKey);
                                                         }
                                                         previous++;
@@ -2590,7 +2590,7 @@ module org {
                              for (var l in plainRawSet) {
                              try {
                              var converted: number = java.lang.Long.parseLong(plainRawSet[l]);
-                             if (p_mappedKeys.containsKey(converted)) { converted = p_mappedKeys.get(converted); }
+                             if (p_mappedKeys.contains(converted)) { converted = p_mappedKeys.get(converted); }
                              convertedRaw[l] = converted;
                              } catch ($ex$) {
                              if ($ex$ instanceof java.lang.Exception) {
@@ -4795,7 +4795,7 @@ module org {
 
                             public initUniverse(p_universe: org.kevoree.modeling.KUniverse<any, any, any>, p_parent: org.kevoree.modeling.KUniverse<any, any, any>): void {
                                 var cached: org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap = this.globalUniverseOrder();
-                                if (cached != null && cached.get(p_universe.key()) == org.kevoree.modeling.KConfig.NULL_LONG) {
+                                if (cached != null && !cached.contains(p_universe.key())) {
                                     if (p_parent == null) {
                                         cached.put(p_universe.key(), p_universe.key());
                                     } else {
@@ -5524,6 +5524,8 @@ module org {
                     export module map {
                         export interface KIntHashMap<V> {
 
+                            contains(key: number): boolean;
+
                             get(key: number): V;
 
                             put(key: number, value: V): void;
@@ -5539,6 +5541,8 @@ module org {
                         }
 
                         export interface KLongHashMap<V> {
+
+                            contains(key: number): boolean;
 
                             get(key: number): V;
 
@@ -5560,6 +5564,8 @@ module org {
 
                         export interface KLongLongHashMap extends org.kevoree.modeling.memory.KMemoryElement {
 
+                            contains(key: number): boolean;
+
                             get(key: number): number;
 
                             put(key: number, value: number): void;
@@ -5580,6 +5586,8 @@ module org {
 
                         export interface KStringHashMap<V> {
 
+                            contains(key: string): boolean;
+
                             get(key: string): V;
 
                             put(key: string, value: V): void;
@@ -5589,8 +5597,6 @@ module org {
                             size(): number;
 
                             clear(): void;
-
-                            containsKey(key: string): boolean;
 
                         }
 
@@ -5607,7 +5613,7 @@ module org {
                                  public clear():void { for(var p in this){if(this.hasOwnProperty(p)){delete this[p];}} }
                                  public get(key:number):V { return this[key]; }
                                  public put(key:number, pval : V):V { var previousVal = this[key];this[key] = pval;return previousVal;}
-                                 public containsKey(key:number):boolean { return this.hasOwnProperty(<any>key);}
+                                 public contains(key:number):boolean { return this.hasOwnProperty(<any>key);}
                                  public remove(key:number):V { var tmp = this[key]; delete this[key]; return tmp; }
                                  public size():number { return Object.keys(this).length; }
                                  public each(callback: (p : number, p1 : V) => void): void { for(var p in this){ if(this.hasOwnProperty(p)){ callback(<number>p,this[p]); } } }
@@ -5619,7 +5625,7 @@ module org {
                                  public clear():void { for(var p in this){if(this.hasOwnProperty(p)){delete this[p];} } }
                                  public get(key:number):V { return this[key]; }
                                  public put(key:number, pval : V):V { var previousVal = this[key];this[key] = pval;return previousVal;}
-                                 public containsKey(key:number):boolean { return this.hasOwnProperty(<any>key);}
+                                 public contains(key:number):boolean { return this.hasOwnProperty(<any>key);}
                                  public remove(key:number):V { var tmp = this[key]; delete this[key]; return tmp; }
                                  public size():number { return Object.keys(this).length; }
                                  public each(callback: (p : number, p1 : V) => void): void { for(var p in this){ if(this.hasOwnProperty(p)){ callback(<number>p,this[p]); } } }
@@ -5635,7 +5641,7 @@ module org {
                                  public clear():void { for(var p in this){ this._isDirty=true;if(this.hasOwnProperty(p) && p.indexOf('_') != 0){ delete this[p];}} }
                                  public get(key:number):number { return this[key]; }
                                  public put(key:number, pval : number):number { this._isDirty=true; var previousVal = this[key];this[key] = pval;return previousVal;}
-                                 public containsKey(key:number):boolean { return this.hasOwnProperty(<any>key);}
+                                 public contains(key:number):boolean { return this.hasOwnProperty(<any>key);}
                                  public remove(key:number):number { var tmp = this[key]; delete this[key]; return tmp; }
                                  public size():number { return Object.keys(this).length -2; }
                                  public each(callback: (p : number, p1 : number) => void): void { for(var p in this){ if(this.hasOwnProperty(p) && p.indexOf('_') != 0){ callback(<number>p,this[p]); } } }
@@ -5671,7 +5677,7 @@ module org {
                                  public clear():void { for(var p in this){ if(this.hasOwnProperty(p)){ delete this[p];} } }
                                  public get(key:string):V { return this[key]; }
                                  public put(key:string, pval : V):V { var previousVal = this[key];this[key] = pval;return previousVal;}
-                                 public containsKey(key:string):boolean { return this.hasOwnProperty(key);}
+                                 public contains(key:string):boolean { return this.hasOwnProperty(key);}
                                  public remove(key:string):V { var tmp = this[key]; delete this[key]; return tmp; }
                                  public size():number { return Object.keys(this).length; }
                                  public each(callback: (p : string, p1 : V) => void): void { for(var p in this){ if(this.hasOwnProperty(p)){ callback(<string>p,this[p]); } } }
@@ -8579,7 +8585,7 @@ module org {
                         }
 
                         public addMetaClass(metaClassName: string): org.kevoree.modeling.meta.KMetaClass {
-                            if (this._metaClasses_indexes.containsKey(metaClassName)) {
+                            if (this._metaClasses_indexes.contains(metaClassName)) {
                                 return this.metaClassByName(metaClassName);
                             } else {
                                 if (this._metaClasses == null) {
@@ -9010,7 +9016,7 @@ module org {
                                         var filtered_inputs2: org.kevoree.modeling.KObject[] = new Array();
                                         var nbSize: number = 0;
                                         for (var i: number = 0; i < traversed.length; i++) {
-                                            if ((this._continueCondition == null || this._continueCondition(traversed[i])) && !this._alreadyPassed.containsKey(traversed[i].uuid())) {
+                                            if ((this._continueCondition == null || this._continueCondition(traversed[i])) && !this._alreadyPassed.contains(traversed[i].uuid())) {
                                                 filtered_inputs2[i] = traversed[i];
                                                 this._alreadyPassed.put(traversed[i].uuid(), traversed[i]);
                                                 this._finalElements.put(traversed[i].uuid(), traversed[i]);

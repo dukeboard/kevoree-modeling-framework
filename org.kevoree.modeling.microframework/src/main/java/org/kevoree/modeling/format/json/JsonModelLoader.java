@@ -187,7 +187,7 @@ public class JsonModelLoader {
      * for (var l in plainRawSet) {
      * try {
      * var converted: number = java.lang.Long.parseLong(plainRawSet[l]);
-     * if (p_mappedKeys.containsKey(converted)) { converted = p_mappedKeys.get(converted); }
+     * if (p_mappedKeys.contains(converted)) { converted = p_mappedKeys.get(converted); }
      * convertedRaw[l] = converted;
      * } catch ($ex$) {
      * if ($ex$ instanceof java.lang.Exception) {
@@ -206,7 +206,7 @@ public class JsonModelLoader {
         for (int l = 0; l < plainRawSet.size(); l++) {
             try {
                 long converted = Long.parseLong(plainRawSet.get(l));
-                if (p_mappedKeys.containsKey(converted)) {
+                if (p_mappedKeys.contains(converted)) {
                     converted = p_mappedKeys.get(converted);
                 }
                 convertedRaw[l] = converted;

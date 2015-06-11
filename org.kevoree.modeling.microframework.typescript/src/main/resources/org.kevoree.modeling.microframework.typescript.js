@@ -576,7 +576,7 @@ var org;
                                     if (idArr != null) {
                                         try {
                                             for (var k = 0; k < idArr.length; k++) {
-                                                if (traversed == null || !traversed.containsKey(idArr[k])) {
+                                                if (traversed == null || !traversed.contains(idArr[k])) {
                                                     toResolveIds.put(idArr[k], idArr[k]);
                                                 }
                                             }
@@ -612,7 +612,7 @@ var org;
                                     var resolved = resolvedArr[i];
                                     var result = org.kevoree.modeling.traversal.visitor.KVisitResult.CONTINUE;
                                     if (resolved != null) {
-                                        if (visitor != null && (visited == null || !visited.containsKey(resolved.uuid()))) {
+                                        if (visitor != null && (visited == null || !visited.contains(resolved.uuid()))) {
                                             result = visitor(resolved);
                                         }
                                         if (visited != null) {
@@ -626,7 +626,7 @@ var org;
                                     }
                                     else {
                                         if (result.equals(org.kevoree.modeling.traversal.visitor.KVisitResult.CONTINUE)) {
-                                            if (traversed == null || !traversed.containsKey(resolved.uuid())) {
+                                            if (traversed == null || !traversed.contains(resolved.uuid())) {
                                                 nextDeep.add(resolved);
                                             }
                                         }
@@ -1332,12 +1332,12 @@ var org;
                                             listeners.each(function (listenerKey, universeKey) {
                                                 if (universeKey == loopKey.universe) {
                                                     isSelect[0] = true;
-                                                    if (_this._multiListener.containsKey(listenerKey)) {
+                                                    if (_this._multiListener.contains(listenerKey)) {
                                                         if (multiCounters[0] == null) {
                                                             multiCounters[0] = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                                         }
                                                         var previous = 0;
-                                                        if (multiCounters[0].containsKey(listenerKey)) {
+                                                        if (multiCounters[0].contains(listenerKey)) {
                                                             previous = multiCounters[0].get(listenerKey);
                                                         }
                                                         previous++;
@@ -2242,7 +2242,7 @@ var org;
                             for (var l in plainRawSet) {
                                 try {
                                     var converted = java.lang.Long.parseLong(plainRawSet[l]);
-                                    if (p_mappedKeys.containsKey(converted)) {
+                                    if (p_mappedKeys.contains(converted)) {
                                         converted = p_mappedKeys.get(converted);
                                     }
                                     convertedRaw[l] = converted;
@@ -4206,7 +4206,7 @@ var org;
                             };
                             HeapMemoryManager.prototype.initUniverse = function (p_universe, p_parent) {
                                 var cached = this.globalUniverseOrder();
-                                if (cached != null && cached.get(p_universe.key()) == org.kevoree.modeling.KConfig.NULL_LONG) {
+                                if (cached != null && !cached.contains(p_universe.key())) {
                                     if (p_parent == null) {
                                         cached.put(p_universe.key(), p_universe.key());
                                     }
@@ -4948,7 +4948,7 @@ var org;
                                     this[key] = pval;
                                     return previousVal;
                                 };
-                                ArrayIntHashMap.prototype.containsKey = function (key) {
+                                ArrayIntHashMap.prototype.contains = function (key) {
                                     return this.hasOwnProperty(key);
                                 };
                                 ArrayIntHashMap.prototype.remove = function (key) {
@@ -4987,7 +4987,7 @@ var org;
                                     this[key] = pval;
                                     return previousVal;
                                 };
-                                ArrayLongHashMap.prototype.containsKey = function (key) {
+                                ArrayLongHashMap.prototype.contains = function (key) {
                                     return this.hasOwnProperty(key);
                                 };
                                 ArrayLongHashMap.prototype.remove = function (key) {
@@ -5030,7 +5030,7 @@ var org;
                                     this[key] = pval;
                                     return previousVal;
                                 };
-                                ArrayLongLongHashMap.prototype.containsKey = function (key) {
+                                ArrayLongLongHashMap.prototype.contains = function (key) {
                                     return this.hasOwnProperty(key);
                                 };
                                 ArrayLongLongHashMap.prototype.remove = function (key) {
@@ -5122,7 +5122,7 @@ var org;
                                     this[key] = pval;
                                     return previousVal;
                                 };
-                                ArrayStringHashMap.prototype.containsKey = function (key) {
+                                ArrayStringHashMap.prototype.contains = function (key) {
                                     return this.hasOwnProperty(key);
                                 };
                                 ArrayStringHashMap.prototype.remove = function (key) {
@@ -7813,7 +7813,7 @@ var org;
                             return null;
                         };
                         MetaModel.prototype.addMetaClass = function (metaClassName) {
-                            if (this._metaClasses_indexes.containsKey(metaClassName)) {
+                            if (this._metaClasses_indexes.contains(metaClassName)) {
                                 return this.metaClassByName(metaClassName);
                             }
                             else {
@@ -8146,7 +8146,7 @@ var org;
                                         var filtered_inputs2 = new Array();
                                         var nbSize = 0;
                                         for (var i = 0; i < traversed.length; i++) {
-                                            if ((_this._continueCondition == null || _this._continueCondition(traversed[i])) && !_this._alreadyPassed.containsKey(traversed[i].uuid())) {
+                                            if ((_this._continueCondition == null || _this._continueCondition(traversed[i])) && !_this._alreadyPassed.contains(traversed[i].uuid())) {
                                                 filtered_inputs2[i] = traversed[i];
                                                 _this._alreadyPassed.put(traversed[i].uuid(), traversed[i]);
                                                 _this._finalElements.put(traversed[i].uuid(), traversed[i]);

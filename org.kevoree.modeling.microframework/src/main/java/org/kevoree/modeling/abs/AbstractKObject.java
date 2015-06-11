@@ -363,7 +363,7 @@ public abstract class AbstractKObject implements KObject {
                     if (idArr != null) {
                         try {
                             for (int k = 0; k < idArr.length; k++) {
-                                if (traversed == null || !traversed.containsKey(idArr[k])) { // this is for optimization
+                                if (traversed == null || !traversed.contains(idArr[k])) { // this is for optimization
                                     toResolveIds.put(idArr[k], idArr[k]);
                                 }
                             }
@@ -397,7 +397,7 @@ public abstract class AbstractKObject implements KObject {
                         final KObject resolved = resolvedArr[i];
                         KVisitResult result = KVisitResult.CONTINUE;
                         if (resolved != null) {
-                            if (visitor != null && (visited == null || !visited.containsKey(resolved.uuid()))) {
+                            if (visitor != null && (visited == null || !visited.contains(resolved.uuid()))) {
                                 result = visitor.visit(resolved);
                             }
                             if (visited != null) {
@@ -410,7 +410,7 @@ public abstract class AbstractKObject implements KObject {
                             }
                         } else {
                             if (result.equals(KVisitResult.CONTINUE)) {
-                                if (traversed == null || !traversed.containsKey(resolved.uuid())) {
+                                if (traversed == null || !traversed.contains(resolved.uuid())) {
                                     nextDeep.add(resolved);
                                 }
                             }

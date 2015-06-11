@@ -17,7 +17,7 @@ import org.kevoree.modeling.meta.KMetaModel;
  * public clear():void { for(var p in this){ this._isDirty=true;if(this.hasOwnProperty(p) && p.indexOf('_') != 0){ delete this[p];}} }
  * public get(key:number):number { return this[key]; }
  * public put(key:number, pval : number):number { this._isDirty=true; var previousVal = this[key];this[key] = pval;return previousVal;}
- * public containsKey(key:number):boolean { return this.hasOwnProperty(<any>key);}
+ * public contains(key:number):boolean { return this.hasOwnProperty(<any>key);}
  * public remove(key:number):number { var tmp = this[key]; delete this[key]; return tmp; }
  * public size():number { return Object.keys(this).length -2; }
  * public each(callback: (p : number, p1 : number) => void): void { for(var p in this){ if(this.hasOwnProperty(p) && p.indexOf('_') != 0){ callback(<number>p,this[p]); } } }
@@ -181,7 +181,8 @@ public class ArrayLongLongHashMap implements KMemoryElement, KLongLongHashMap {
         threshold = (int) (elementDataSize * loadFactor);
     }
 
-    public boolean containsKey(long key) {
+    @Override
+    public boolean contains(long key) {
         if (elementDataSize == 0) {
             return false;
         }

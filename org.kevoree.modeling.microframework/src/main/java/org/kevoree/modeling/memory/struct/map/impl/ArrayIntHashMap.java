@@ -10,7 +10,7 @@ import org.kevoree.modeling.memory.struct.map.KLongHashMapCallBack;
  * public clear():void { for(var p in this){if(this.hasOwnProperty(p)){delete this[p];}} }
  * public get(key:number):V { return this[key]; }
  * public put(key:number, pval : V):V { var previousVal = this[key];this[key] = pval;return previousVal;}
- * public containsKey(key:number):boolean { return this.hasOwnProperty(<any>key);}
+ * public contains(key:number):boolean { return this.hasOwnProperty(<any>key);}
  * public remove(key:number):V { var tmp = this[key]; delete this[key]; return tmp; }
  * public size():number { return Object.keys(this).length; }
  * public each(callback: (p : number, p1 : V) => void): void { for(var p in this){ if(this.hasOwnProperty(p)){ callback(<number>p,this[p]); } } }
@@ -69,9 +69,9 @@ public class ArrayIntHashMap<V> implements KIntHashMap<V> {
         threshold = (int) (elementDataSize * loadFactor);
     }
 
-    public boolean containsKey(long key) {
-        int hash = (int) (key);
-        int index = (hash & 0x7FFFFFFF) % elementDataSize;
+    @Override
+    public boolean contains(int key) {
+        int index = (key & 0x7FFFFFFF) % elementDataSize;
         Entry<V> m = findNonNullKeyEntry(key, index);
         return m != null;
     }

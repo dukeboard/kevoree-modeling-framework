@@ -60,7 +60,7 @@ public class DeepCollectAction implements KTraversalAction {
                     KObject[] filtered_inputs2 = new KObject[traversed.length];
                     int nbSize = 0;
                     for (int i = 0; i < traversed.length; i++) {
-                        if ((_continueCondition == null || _continueCondition.filter(traversed[i])) && !_alreadyPassed.containsKey(traversed[i].uuid())) {
+                        if ((_continueCondition == null || _continueCondition.filter(traversed[i])) && !_alreadyPassed.contains(traversed[i].uuid())) {
                             filtered_inputs2[i] = traversed[i];
                             _alreadyPassed.put(traversed[i].uuid(), traversed[i]);
                             _finalElements.put(traversed[i].uuid(), traversed[i]);

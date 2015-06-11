@@ -41,10 +41,10 @@ public abstract class BaseKStringHashMapTest {
     public void emptyTest() {
         KStringHashMap<String> optimized = createKStringHashMap(0, KConfig.CACHE_LOAD_FACTOR);
         Assert.assertEquals(optimized.size(), 0);
-        Assert.assertTrue(!optimized.containsKey("randomKey"));
+        Assert.assertTrue(!optimized.contains("randomKey"));
         Assert.assertNull(optimized.get("randomKey"));
         optimized.put("randomKey", "randomVal");
-        Assert.assertTrue(optimized.containsKey("randomKey"));
+        Assert.assertTrue(optimized.contains("randomKey"));
         Assert.assertNotNull(optimized.get("randomKey"));
     }
 }

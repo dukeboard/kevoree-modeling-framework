@@ -126,7 +126,7 @@ public class HeapMemoryManager implements KMemoryManager {
     @Override
     public void initUniverse(KUniverse p_universe, KUniverse p_parent) {
         ArrayLongLongHashMap cached = globalUniverseOrder();
-        if (cached != null && cached.get(p_universe.key()) == KConfig.NULL_LONG) {
+        if (cached != null && !cached.contains(p_universe.key())) {
             if (p_parent == null) {
                 cached.put(p_universe.key(), p_universe.key());
             } else {
