@@ -2,7 +2,6 @@ package org.kevoree.modeling;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.memory.manager.impl.ResolutionHelper;
 import org.kevoree.modeling.memory.struct.map.KLongLongHashMap;
 import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap;

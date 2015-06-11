@@ -11,6 +11,7 @@ import org.kevoree.modeling.memory.manager.AccessMode;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
 import org.kevoree.modeling.memory.manager.KMemorySegmentResolutionTrace;
 import org.kevoree.modeling.memory.struct.HeapMemoryFactory;
+import org.kevoree.modeling.memory.struct.map.KLongLongHashMap;
 import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap;
 import org.kevoree.modeling.memory.struct.map.KLongLongHashMapCallBack;
 import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
@@ -119,13 +120,13 @@ public class HeapMemoryManager implements KMemoryManager {
     }
 
     /* End Key Management Section */
-    public ArrayLongLongHashMap globalUniverseOrder() {
-        return (ArrayLongLongHashMap) _cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, KConfig.NULL_LONG);
+    public KLongLongHashMap globalUniverseOrder() {
+        return (KLongLongHashMap) _cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, KConfig.NULL_LONG);
     }
 
     @Override
     public void initUniverse(KUniverse p_universe, KUniverse p_parent) {
-        ArrayLongLongHashMap cached = globalUniverseOrder();
+        KLongLongHashMap cached = globalUniverseOrder();
         if (cached != null && !cached.contains(p_universe.key())) {
             if (p_parent == null) {
                 cached.put(p_universe.key(), p_universe.key());
@@ -137,7 +138,7 @@ public class HeapMemoryManager implements KMemoryManager {
 
     @Override
     public long parentUniverseKey(long currentUniverseKey) {
-        ArrayLongLongHashMap cached = globalUniverseOrder();
+        KLongLongHashMap cached = globalUniverseOrder();
         if (cached != null) {
             return cached.get(currentUniverseKey);
         } else {
@@ -147,7 +148,7 @@ public class HeapMemoryManager implements KMemoryManager {
 
     @Override
     public long[] descendantsUniverseKeys(final long currentUniverseKey) {
-        ArrayLongLongHashMap cached = globalUniverseOrder();
+        KLongLongHashMap cached = globalUniverseOrder();
         if (cached != null) {
             final ArrayLongLongHashMap temp = new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
             cached.each(new KLongLongHashMapCallBack() {
@@ -318,12 +319,12 @@ public class HeapMemoryManager implements KMemoryManager {
                 resolutionTrace.setSegment(currentEntry);
                 resolutionTrace.setUniverse(universe);
                 resolutionTrace.setTime(time);
-                resolutionTrace.setUniverseTree((ArrayLongLongHashMap) _cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, uuid));
+                resolutionTrace.setUniverseTree((KLongLongHashMap) _cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, uuid));
                 resolutionTrace.setTimeTree((KLongTree) _cache.get(universe, KConfig.NULL_LONG, uuid));
             }
             return currentEntry;
         }
-        ArrayLongLongHashMap objectUniverseTree = (ArrayLongLongHashMap) _cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, uuid);
+        KLongLongHashMap objectUniverseTree = (KLongLongHashMap) _cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, uuid);
         long resolvedUniverse = ResolutionHelper.resolve_universe(globalUniverseOrder(), objectUniverseTree, time, universe);
         KLongTree timeTree = (KLongTree) _cache.get(resolvedUniverse, KConfig.NULL_LONG, uuid);
         if (timeTree == null) {
@@ -464,7 +465,7 @@ public class HeapMemoryManager implements KMemoryManager {
                 if (rootGlobalUniverseIndex == null) {
                     callback.on(null);
                 } else {
-                    long closestUniverse = ResolutionHelper.resolve_universe(globalUniverseOrder(), (ArrayLongLongHashMap) rootGlobalUniverseIndex, time, universe);
+                    long closestUniverse = ResolutionHelper.resolve_universe(globalUniverseOrder(), (KLongLongHashMap) rootGlobalUniverseIndex, time, universe);
                     KContentKey universeTreeRootKey = KContentKey.createRootTimeTree(closestUniverse);
                     bumpKeyToCache(universeTreeRootKey, new KCallback<KMemoryElement>() {
                         @Override
@@ -491,7 +492,7 @@ public class HeapMemoryManager implements KMemoryManager {
         bumpKeyToCache(KContentKey.createRootUniverseTree(), new KCallback<KMemoryElement>() {
             @Override
             public void on(KMemoryElement globalRootTree) {
-                ArrayLongLongHashMap cleanedTree = (ArrayLongLongHashMap) globalRootTree;
+                KLongLongHashMap cleanedTree = (KLongLongHashMap) globalRootTree;
                 if (cleanedTree == null) {
                     cleanedTree = new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
                     _cache.put(KConfig.NULL_LONG, KConfig.NULL_LONG, KConfig.END_OF_TIME, cleanedTree);

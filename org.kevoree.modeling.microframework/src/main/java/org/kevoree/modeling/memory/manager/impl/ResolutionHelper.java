@@ -11,8 +11,8 @@ public class ResolutionHelper {
 
     public static MemorySegmentResolutionTrace resolve_trees(long universe, long time, long uuid, KCache cache) {
         MemorySegmentResolutionTrace result = new MemorySegmentResolutionTrace();
-        ArrayLongLongHashMap objectUniverseTree = (ArrayLongLongHashMap) cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, uuid);
-        ArrayLongLongHashMap globalUniverseOrder = (ArrayLongLongHashMap) cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, KConfig.NULL_LONG);
+        KLongLongHashMap objectUniverseTree = (KLongLongHashMap) cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, uuid);
+        KLongLongHashMap globalUniverseOrder = (KLongLongHashMap) cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, KConfig.NULL_LONG);
         result.setUniverseTree(objectUniverseTree);
         long resolvedUniverse = resolve_universe(globalUniverseOrder, objectUniverseTree, time, universe);
         result.setUniverse(resolvedUniverse);

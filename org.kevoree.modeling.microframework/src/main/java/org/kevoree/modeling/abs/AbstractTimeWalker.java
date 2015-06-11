@@ -33,7 +33,7 @@ public class AbstractTimeWalker implements KTimeWalker {
                 if (kMemoryElements[0] == null || kMemoryElements[1] == null) {
                     cb.on(null);
                 } else {
-                    final long[] collectedUniverse = ResolutionHelper.universeSelectByRange((ArrayLongLongHashMap) kMemoryElements[0], (ArrayLongLongHashMap) kMemoryElements[1], start, end, _origin.universe());
+                    final long[] collectedUniverse = ResolutionHelper.universeSelectByRange((KLongLongHashMap) kMemoryElements[0], (KLongLongHashMap) kMemoryElements[1], start, end, _origin.universe());
                     KContentKey[] timeTreeToLoad = new KContentKey[collectedUniverse.length];
                     for (int i = 0; i < collectedUniverse.length; i++) {
                         timeTreeToLoad[i] = KContentKey.createTimeTree(collectedUniverse[i], _origin.uuid());

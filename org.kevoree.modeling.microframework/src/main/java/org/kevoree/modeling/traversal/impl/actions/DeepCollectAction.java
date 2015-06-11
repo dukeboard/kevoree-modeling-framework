@@ -4,6 +4,7 @@ import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.abs.AbstractKObject;
+import org.kevoree.modeling.memory.struct.map.KLongLongHashMap;
 import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 import org.kevoree.modeling.memory.manager.AccessMode;
 import org.kevoree.modeling.memory.struct.map.impl.ArrayLongHashMap;
@@ -89,7 +90,7 @@ public class DeepCollectAction implements KTraversalAction {
 
     private void executeStep(KObject[] p_inputStep, KCallback<KObject[]> private_callback) {
         AbstractKObject currentObject = null;
-        ArrayLongLongHashMap nextIds = new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+        KLongLongHashMap nextIds = new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         for (int i = 0; i < p_inputStep.length; i++) {
             if (p_inputStep[i] != null) {
                 try {

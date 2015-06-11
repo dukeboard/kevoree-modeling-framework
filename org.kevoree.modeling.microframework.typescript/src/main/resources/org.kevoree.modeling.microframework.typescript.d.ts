@@ -951,7 +951,7 @@ declare module org {
                             nextObjectKey(): number;
                             nextModelKey(): number;
                             nextGroupKey(): number;
-                            globalUniverseOrder(): org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap;
+                            globalUniverseOrder(): org.kevoree.modeling.memory.struct.map.KLongLongHashMap;
                             initUniverse(p_universe: org.kevoree.modeling.KUniverse<any, any, any>, p_parent: org.kevoree.modeling.KUniverse<any, any, any>): void;
                             parentUniverseKey(currentUniverseKey: number): number;
                             descendantsUniverseKeys(currentUniverseKey: number): number[];

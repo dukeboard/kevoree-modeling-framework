@@ -4,6 +4,7 @@ import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.abs.AbstractKObject;
+import org.kevoree.modeling.memory.struct.map.KLongLongHashMap;
 import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 import org.kevoree.modeling.memory.manager.AccessMode;
 import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap;
@@ -35,7 +36,7 @@ public class TraverseAction implements KTraversalAction {
             return;
         } else {
             final AbstractKObject currentObject = (AbstractKObject) p_inputs[0];
-            ArrayLongLongHashMap nextIds = new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+            KLongLongHashMap nextIds = new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
