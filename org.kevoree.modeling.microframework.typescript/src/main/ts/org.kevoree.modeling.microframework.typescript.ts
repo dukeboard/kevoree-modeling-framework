@@ -9277,7 +9277,7 @@ module org {
                                                     for (var j: number = 0; j < metaElements.length; j++) {
                                                         if (metaElements[j] instanceof org.kevoree.modeling.meta.impl.MetaAttribute) {
                                                             var metaAttribute: org.kevoree.modeling.meta.KMetaAttribute = <org.kevoree.modeling.meta.KMetaAttribute>metaElements[j];
-                                                            if (metaAttribute.metaName().matches(param.name())) {
+                                                            if (metaAttribute.metaName().matches("^" + param.name() + "$")) {
                                                                 var o_raw: any = loopObj.get(metaAttribute);
                                                                 if (o_raw != null) {
                                                                     if (param.value().equals("null")) {
@@ -9285,7 +9285,7 @@ module org {
                                                                             selectedForNext[0] = false;
                                                                         }
                                                                     } else {
-                                                                        if (o_raw.toString().matches(param.value())) {
+                                                                        if (o_raw.toString().matches("^" + param.value() + "$")) {
                                                                             if (param.isNegative()) {
                                                                                 selectedForNext[0] = false;
                                                                             }
@@ -9687,7 +9687,7 @@ module org {
                                                                         break;
                                                                     }
                                                                 } else {
-                                                                    if (metaReference.metaName().matches(queries[k])) {
+                                                                    if (metaReference.metaName().matches("^" + queries[k] + "$")) {
                                                                         selected = true;
                                                                         break;
                                                                     }

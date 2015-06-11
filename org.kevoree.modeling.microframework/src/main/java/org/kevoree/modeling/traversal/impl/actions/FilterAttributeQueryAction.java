@@ -50,14 +50,14 @@ public class FilterAttributeQueryAction implements KTraversalAction {
                                 for (int j = 0; j < metaElements.length; j++) {
                                     if(metaElements[j] instanceof MetaAttribute){
                                         KMetaAttribute metaAttribute = (KMetaAttribute) metaElements[j];
-                                        if (metaAttribute.metaName().matches(param.name())) {
+                                        if (metaAttribute.metaName().matches("^"+param.name()+"$")) {
                                             Object o_raw = loopObj.get(metaAttribute);
                                             if (o_raw != null) {
                                                 if (param.value().equals("null")) {
                                                     if (!param.isNegative()) {
                                                         selectedForNext[0] = false;
                                                     }
-                                                } else if (o_raw.toString().matches(param.value())) {
+                                                } else if (o_raw.toString().matches("^"+param.value()+"$")) {
                                                     if (param.isNegative()) {
                                                         selectedForNext[0] = false;
                                                     }

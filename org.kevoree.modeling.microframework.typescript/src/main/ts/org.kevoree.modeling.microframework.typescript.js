@@ -8415,7 +8415,7 @@ var org;
                                                     for (var j = 0; j < metaElements.length; j++) {
                                                         if (metaElements[j] instanceof org.kevoree.modeling.meta.impl.MetaAttribute) {
                                                             var metaAttribute = metaElements[j];
-                                                            if (metaAttribute.metaName().matches(param.name())) {
+                                                            if (metaAttribute.metaName().matches("^" + param.name() + "$")) {
                                                                 var o_raw = loopObj.get(metaAttribute);
                                                                 if (o_raw != null) {
                                                                     if (param.value().equals("null")) {
@@ -8424,7 +8424,7 @@ var org;
                                                                         }
                                                                     }
                                                                     else {
-                                                                        if (o_raw.toString().matches(param.value())) {
+                                                                        if (o_raw.toString().matches("^" + param.value() + "$")) {
                                                                             if (param.isNegative()) {
                                                                                 selectedForNext[0] = false;
                                                                             }
@@ -8824,7 +8824,7 @@ var org;
                                                                     }
                                                                 }
                                                                 else {
-                                                                    if (metaReference.metaName().matches(queries[k])) {
+                                                                    if (metaReference.metaName().matches("^" + queries[k] + "$")) {
                                                                         selected = true;
                                                                         break;
                                                                     }

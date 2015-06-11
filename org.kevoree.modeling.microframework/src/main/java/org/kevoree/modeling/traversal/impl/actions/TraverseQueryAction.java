@@ -72,7 +72,7 @@ public class TraverseQueryAction implements KTraversalAction {
                                                 break;
                                             }
                                         } else {
-                                            if (metaReference.metaName().matches(queries[k])) {
+                                            if (metaReference.metaName().matches("^"+queries[k]+"$")) {
                                                 selected = true;
                                                 break;
                                             }
