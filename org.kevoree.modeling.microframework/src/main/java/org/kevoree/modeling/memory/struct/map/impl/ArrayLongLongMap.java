@@ -3,8 +3,8 @@ package org.kevoree.modeling.memory.struct.map.impl;
 
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.memory.KMemoryElement;
-import org.kevoree.modeling.memory.struct.map.KLongLongHashMap;
-import org.kevoree.modeling.memory.struct.map.KLongLongHashMapCallBack;
+import org.kevoree.modeling.memory.struct.map.KLongLongMap;
+import org.kevoree.modeling.memory.struct.map.KLongLongMapCallBack;
 import org.kevoree.modeling.meta.KMetaModel;
 
 /**
@@ -28,25 +28,25 @@ import org.kevoree.modeling.meta.KMetaModel;
  * public isDirty():boolean { return this._isDirty; }
  * public setClean(mm):void { this._isDirty = false; }
  * public setDirty():void { this._isDirty = true; }
- * public serialize(m): string { var buffer = ""+this.size(); this.each( (key : number, value : number) => { buffer = buffer + ArrayLongLongHashMap.CHUNK_SEP + key + ArrayLongLongHashMap.ELEMENT_SEP + value; }); return buffer; }
+ * public serialize(m): string { var buffer = ""+this.size(); this.each( (key : number, value : number) => { buffer = buffer + ArrayLongLongMap.CHUNK_SEP + key + ArrayLongLongMap.ELEMENT_SEP + value; }); return buffer; }
  * public unserialize(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
  * if (payload == null || payload.length == 0) { return; }
  * var cursor: number = 0;
- * while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongHashMap.CHUNK_SEP){ cursor++; }
+ * while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongMap.CHUNK_SEP){ cursor++; }
  * var nbElement: number = java.lang.Integer.parseInt(payload.substring(0, cursor));
  * while (cursor < payload.length){
  * cursor++;
  * var beginChunk: number = cursor;
- * while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongHashMap.ELEMENT_SEP){ cursor++; }
+ * while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongMap.ELEMENT_SEP){ cursor++; }
  * var middleChunk: number = cursor;
- * while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongHashMap.CHUNK_SEP){ cursor++; }
+ * while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongMap.CHUNK_SEP){ cursor++; }
  * var loopKey: number = java.lang.Long.parseLong(payload.substring(beginChunk, middleChunk));
  * var loopVal: number = java.lang.Long.parseLong(payload.substring(middleChunk + 1, cursor));
  * this.put(loopKey, loopVal);
  * }
  * }
  */
-public class ArrayLongLongHashMap implements KMemoryElement, KLongLongHashMap {
+public class ArrayLongLongMap implements KMemoryElement, KLongLongMap {
 
     protected int elementCount;
 
@@ -134,7 +134,7 @@ public class ArrayLongLongHashMap implements KMemoryElement, KLongLongHashMap {
     public String serialize(KMetaModel metaModel) {
         final StringBuilder buffer = new StringBuilder();
         buffer.append(elementCount);
-        each(new KLongLongHashMapCallBack() {
+        each(new KLongLongMapCallBack() {
             @Override
             public void on(long key, long value) {
                 buffer.append(CHUNK_SEP);
@@ -160,7 +160,7 @@ public class ArrayLongLongHashMap implements KMemoryElement, KLongLongHashMap {
         }
     }
 
-    public ArrayLongLongHashMap(int p_initalCapacity, float p_loadFactor) {
+    public ArrayLongLongMap(int p_initalCapacity, float p_loadFactor) {
         this.initalCapacity = p_initalCapacity;
         this.loadFactor = p_loadFactor;
         elementCount = 0;
@@ -219,7 +219,7 @@ public class ArrayLongLongHashMap implements KMemoryElement, KLongLongHashMap {
     }
 
     @Override
-    public void each(KLongLongHashMapCallBack callback) {
+    public void each(KLongLongMapCallBack callback) {
         for (int i = 0; i < elementDataSize; i++) {
             if (elementData[i] != null) {
                 Entry current = elementData[i];

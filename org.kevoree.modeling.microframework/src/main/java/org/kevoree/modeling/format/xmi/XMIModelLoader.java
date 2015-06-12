@@ -6,7 +6,7 @@ import org.kevoree.modeling.KActionType;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.meta.impl.MetaReference;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
-import org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayStringMap;
 import org.kevoree.modeling.meta.KMeta;
 import org.kevoree.modeling.meta.KMetaAttribute;
 import org.kevoree.modeling.meta.KMetaReference;
@@ -82,7 +82,7 @@ public class XMIModelLoader {
                 if (nextTag.equals(XmlToken.START_TAG)) {
                     String localName = reader.getLocalName();
                     if (localName != null) {
-                        ArrayStringHashMap<String> ns = new ArrayStringHashMap<String>(reader.getAttributeCount(), KConfig.CACHE_LOAD_FACTOR);
+                        ArrayStringMap<String> ns = new ArrayStringMap<String>(reader.getAttributeCount(), KConfig.CACHE_LOAD_FACTOR);
                         for (int i = 0; i < reader.getAttributeCount() - 1; i++) {
                             String attrLocalName = reader.getAttributeLocalName(i);
                             String attrLocalValue = reader.getAttributeValue(i);

@@ -3,14 +3,14 @@ package org.kevoree.modeling.operation.impl;
 import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.KObject;
-import org.kevoree.modeling.memory.struct.map.KIntHashMap;
-import org.kevoree.modeling.memory.struct.map.KLongHashMap;
+import org.kevoree.modeling.memory.struct.map.KIntMap;
+import org.kevoree.modeling.memory.struct.map.KLongMap;
 import org.kevoree.modeling.operation.KOperation;
 import org.kevoree.modeling.KView;
 import org.kevoree.modeling.KContentKey;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
-import org.kevoree.modeling.memory.struct.map.impl.ArrayIntHashMap;
-import org.kevoree.modeling.memory.struct.map.impl.ArrayLongHashMap;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayIntMap;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayLongMap;
 import org.kevoree.modeling.meta.KMetaOperation;
 import org.kevoree.modeling.message.KMessage;
 import org.kevoree.modeling.message.KMessageLoader;
@@ -20,35 +20,35 @@ import org.kevoree.modeling.operation.KOperationManager;
 
 public class HashOperationManager implements KOperationManager {
 
-    private KIntHashMap<KIntHashMap<KOperation>> staticOperations;
+    private KIntMap<KIntMap<KOperation>> staticOperations;
 
-    private KLongHashMap<KIntHashMap<KOperation>> instanceOperations;
+    private KLongMap<KIntMap<KOperation>> instanceOperations;
 
-    private KLongHashMap<KCallback<Object>> remoteCallCallbacks = new ArrayLongHashMap<KCallback<Object>>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+    private KLongMap<KCallback<Object>> remoteCallCallbacks = new ArrayLongMap<KCallback<Object>>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
 
     private KMemoryManager _manager;
 
     private int _callbackId = 0;
 
     public HashOperationManager(KMemoryManager p_manager) {
-        this.staticOperations = new ArrayIntHashMap<KIntHashMap<KOperation>>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
-        this.instanceOperations = new ArrayLongHashMap<KIntHashMap<KOperation>>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+        this.staticOperations = new ArrayIntMap<KIntMap<KOperation>>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+        this.instanceOperations = new ArrayLongMap<KIntMap<KOperation>>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         this._manager = p_manager;
     }
 
     @Override
     public void registerOperation(KMetaOperation operation, KOperation callback, KObject target) {
         if (target == null) {
-            KIntHashMap<KOperation> clazzOperations = staticOperations.get(operation.origin().index());
+            KIntMap<KOperation> clazzOperations = staticOperations.get(operation.origin().index());
             if (clazzOperations == null) {
-                clazzOperations = new ArrayIntHashMap<KOperation>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+                clazzOperations = new ArrayIntMap<KOperation>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
                 staticOperations.put(operation.origin().index(), clazzOperations);
             }
             clazzOperations.put(operation.index(), callback);
         } else {
-            KIntHashMap<KOperation> objectOperations = instanceOperations.get(target.uuid());
+            KIntMap<KOperation> objectOperations = instanceOperations.get(target.uuid());
             if (objectOperations == null) {
-                objectOperations = new ArrayIntHashMap<KOperation>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+                objectOperations = new ArrayIntMap<KOperation>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
                 instanceOperations.put(target.uuid(), objectOperations);
             }
             objectOperations.put(operation.index(), callback);
@@ -56,11 +56,11 @@ public class HashOperationManager implements KOperationManager {
     }
 
     private KOperation searchOperation(Long source, int clazz, int operation) {
-        KIntHashMap<KOperation> objectOperations = instanceOperations.get(source);
+        KIntMap<KOperation> objectOperations = instanceOperations.get(source);
         if (objectOperations != null) {
             return objectOperations.get(operation);
         }
-        KIntHashMap<KOperation> clazzOperations = staticOperations.get(clazz);
+        KIntMap<KOperation> clazzOperations = staticOperations.get(clazz);
         if (clazzOperations != null) {
             return clazzOperations.get(operation);
         }

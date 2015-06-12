@@ -11,12 +11,13 @@ import org.kevoree.modeling.KContentKey;
 import org.kevoree.modeling.cdn.KContentDeliveryDriver;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
 import org.kevoree.modeling.event.impl.LocalEventListeners;
-import org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap;
+import org.kevoree.modeling.memory.struct.map.KStringMap;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayStringMap;
 import org.kevoree.modeling.message.KMessage;
 
 public class MemoryContentDeliveryDriver implements KContentDeliveryDriver {
 
-    private final ArrayStringHashMap<String> backend = new ArrayStringHashMap<String>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+    private final KStringMap<String> backend = new ArrayStringMap<String>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
     private LocalEventListeners _localEventListeners = new LocalEventListeners();
 
     public static boolean DEBUG = false;

@@ -300,7 +300,7 @@ var org;
                             cb(new java.lang.Exception(AbstractKObject.OUT_OF_CACHE_MSG));
                         }
                         else {
-                            var collector = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                            var collector = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                             var metaElements = this._metaClass.metaElements();
                             for (var i = 0; i < metaElements.length; i++) {
                                 if (metaElements[i] instanceof org.kevoree.modeling.meta.impl.MetaReference) {
@@ -556,7 +556,7 @@ var org;
                         }
                     };
                     AbstractKObject.prototype.visit = function (p_visitor, cb) {
-                        this.internal_visit(p_visitor, cb, new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR), new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR));
+                        this.internal_visit(p_visitor, cb, new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR), new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR));
                     };
                     AbstractKObject.prototype.internal_visit = function (visitor, end, visited, traversed) {
                         if (!org.kevoree.modeling.util.Checker.isDefined(visitor)) {
@@ -565,7 +565,7 @@ var org;
                         if (traversed != null) {
                             traversed.put(this._uuid, this._uuid);
                         }
-                        var toResolveIds = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                        var toResolveIds = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                         var metaElements = this.metaClass().metaElements();
                         for (var i = 0; i < metaElements.length; i++) {
                             if (metaElements[i] instanceof org.kevoree.modeling.meta.impl.MetaReference) {
@@ -946,7 +946,7 @@ var org;
                                     timeTreeToLoad[i] = org.kevoree.modeling.KContentKey.createTimeTree(collectedUniverse[i], _this._origin.uuid());
                                 }
                                 manager.bumpKeysToCache(timeTreeToLoad, function (timeTrees) {
-                                    var collector = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                    var collector = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                     var previousDivergenceTime = end;
                                     for (var i = 0; i < collectedUniverse.length; i++) {
                                         var timeTree = timeTrees[i];
@@ -1035,7 +1035,7 @@ var org;
                     impl.ContentPutRequest = ContentPutRequest;
                     var MemoryContentDeliveryDriver = (function () {
                         function MemoryContentDeliveryDriver() {
-                            this.backend = new org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                            this.backend = new org.kevoree.modeling.memory.struct.map.impl.ArrayStringMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                             this._localEventListeners = new org.kevoree.modeling.event.impl.LocalEventListeners();
                         }
                         MemoryContentDeliveryDriver.prototype.atomicGetIncrement = function (key, cb) {
@@ -1146,7 +1146,7 @@ var org;
                             this._nextTasks = null;
                             this._results = null;
                             this._thenCB = null;
-                            this._results = new org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                            this._results = new org.kevoree.modeling.memory.struct.map.impl.ArrayStringMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                         }
                         Defer.prototype.setDoneOrRegister = function (next) {
                             if (next != null) {
@@ -1232,12 +1232,12 @@ var org;
                     var LocalEventListeners = (function () {
                         function LocalEventListeners() {
                             this._internalListenerKeyGen = new org.kevoree.modeling.memory.manager.impl.KeyCalculator(0, 0);
-                            this._simpleListener = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
-                            this._multiListener = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
-                            this._obj2Listener = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
-                            this._listener2Object = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
-                            this._listener2Objects = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
-                            this._group2Listener = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                            this._simpleListener = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                            this._multiListener = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                            this._obj2Listener = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                            this._listener2Object = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                            this._listener2Objects = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                            this._group2Listener = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                         }
                         LocalEventListeners.prototype.registerListener = function (groupId, origin, listener) {
                             var generateNewID = this._internalListenerKeyGen.nextKey();
@@ -1245,13 +1245,13 @@ var org;
                             this._listener2Object.put(generateNewID, origin.universe());
                             var subLayer = this._obj2Listener.get(origin.uuid());
                             if (subLayer == null) {
-                                subLayer = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                subLayer = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                 this._obj2Listener.put(origin.uuid(), subLayer);
                             }
                             subLayer.put(generateNewID, origin.universe());
                             subLayer = this._group2Listener.get(groupId);
                             if (subLayer == null) {
-                                subLayer = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                subLayer = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                 this._group2Listener.put(groupId, subLayer);
                             }
                             subLayer.put(generateNewID, 1);
@@ -1264,14 +1264,14 @@ var org;
                             for (var i = 0; i < objects.length; i++) {
                                 subLayer = this._obj2Listener.get(objects[i]);
                                 if (subLayer == null) {
-                                    subLayer = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                    subLayer = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                     this._obj2Listener.put(objects[i], subLayer);
                                 }
                                 subLayer.put(generateNewID, universe);
                             }
                             subLayer = this._group2Listener.get(groupId);
                             if (subLayer == null) {
-                                subLayer = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                subLayer = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                 this._group2Listener.put(groupId, subLayer);
                             }
                             subLayer.put(generateNewID, 2);
@@ -1319,7 +1319,7 @@ var org;
                         LocalEventListeners.prototype.dispatch = function (param) {
                             var _this = this;
                             if (this._manager != null) {
-                                var _cacheUniverse = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                var _cacheUniverse = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                 if (param instanceof org.kevoree.modeling.message.impl.Events) {
                                     var messages = param;
                                     var toLoad = new Array();
@@ -1334,7 +1334,7 @@ var org;
                                                     isSelect[0] = true;
                                                     if (_this._multiListener.contains(listenerKey)) {
                                                         if (multiCounters[0] == null) {
-                                                            multiCounters[0] = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                                            multiCounters[0] = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                                         }
                                                         var previous = 0;
                                                         if (multiCounters[0].contains(listenerKey)) {
@@ -1354,8 +1354,8 @@ var org;
                                         var multiObjectSets = new Array();
                                         var multiObjectIndexes = new Array();
                                         if (multiCounters[0] != null) {
-                                            multiObjectSets[0] = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
-                                            multiObjectIndexes[0] = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                            multiObjectSets[0] = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                            multiObjectIndexes[0] = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                             multiCounters[0].each(function (listenerKey, value) {
                                                 multiObjectSets[0].put(listenerKey, new Array());
                                                 multiObjectIndexes[0].put(listenerKey, 0);
@@ -2107,7 +2107,7 @@ var org;
                             else {
                                 var toLoadObj = JSON.parse(payload);
                                 var rootElem = [];
-                                var mappedKeys = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(toLoadObj.length, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                var mappedKeys = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(toLoadObj.length, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                 for (var i = 0; i < toLoadObj.length; i++) {
                                     var elem = toLoadObj[i];
                                     var kid = elem[org.kevoree.modeling.format.json.JsonFormat.KEY_UUID];
@@ -2115,7 +2115,7 @@ var org;
                                 }
                                 for (var i = 0; i < toLoadObj.length; i++) {
                                     var elemRaw = toLoadObj[i];
-                                    var elem2 = new org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap(Object.keys(elemRaw).length, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                    var elem2 = new org.kevoree.modeling.memory.struct.map.impl.ArrayStringMap(Object.keys(elemRaw).length, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                     for (var ik in elemRaw) {
                                         elem2[ik] = elemRaw[ik];
                                     }
@@ -2517,8 +2517,8 @@ var org;
                     var SerializationContext = (function () {
                         function SerializationContext() {
                             this.ignoreGeneratedID = false;
-                            this.addressTable = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
-                            this.elementsCount = new org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                            this.addressTable = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                            this.elementsCount = new org.kevoree.modeling.memory.struct.map.impl.ArrayStringMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                             this.packageList = new java.util.ArrayList();
                         }
                         return SerializationContext;
@@ -2528,8 +2528,8 @@ var org;
                         function XMILoadingContext() {
                             this.loadedRoots = null;
                             this.resolvers = new java.util.ArrayList();
-                            this.map = new org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
-                            this.elementsCount = new org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                            this.map = new org.kevoree.modeling.memory.struct.map.impl.ArrayStringMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                            this.elementsCount = new org.kevoree.modeling.memory.struct.map.impl.ArrayStringMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                         }
                         return XMILoadingContext;
                     })();
@@ -2613,7 +2613,7 @@ var org;
                                     if (nextTag.equals(org.kevoree.modeling.format.xmi.XmlToken.START_TAG)) {
                                         var localName = reader.getLocalName();
                                         if (localName != null) {
-                                            var ns = new org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap(reader.getAttributeCount(), org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                            var ns = new org.kevoree.modeling.memory.struct.map.impl.ArrayStringMap(reader.getAttributeCount(), org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                             for (var i = 0; i < reader.getAttributeCount() - 1; i++) {
                                                 var attrLocalName = reader.getAttributeLocalName(i);
                                                 var attrLocalValue = reader.getAttributeValue(i);
@@ -4227,7 +4227,7 @@ var org;
                             HeapMemoryManager.prototype.descendantsUniverseKeys = function (currentUniverseKey) {
                                 var cached = this.globalUniverseOrder();
                                 if (cached != null) {
-                                    var temp = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                    var temp = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                     cached.each(function (key, value) {
                                         if (value == currentUniverseKey && key != currentUniverseKey) {
                                             temp.put(key, value);
@@ -4283,7 +4283,7 @@ var org;
                                 var timeTree = this._factory.newLongTree();
                                 timeTree.inc();
                                 timeTree.insert(obj.now());
-                                var universeTree = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                var universeTree = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                 universeTree.inc();
                                 universeTree.put(obj.universe(), obj.now());
                                 this._cache.put(obj.universe(), org.kevoree.modeling.KConfig.NULL_LONG, obj.uuid(), timeTree);
@@ -4326,7 +4326,7 @@ var org;
                                                             var globalUniverseTreePayload = strings[HeapMemoryManager.GLO_TREE_INDEX];
                                                             var globalUniverseTree;
                                                             if (globalUniverseTreePayload != null) {
-                                                                globalUniverseTree = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(0, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                                                globalUniverseTree = _this._factory.newLongLongMap(0);
                                                                 try {
                                                                     globalUniverseTree.unserialize(globalUniverseTreePayload, _this.model().metaModel());
                                                                 }
@@ -4341,7 +4341,7 @@ var org;
                                                                 }
                                                             }
                                                             else {
-                                                                globalUniverseTree = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                                                globalUniverseTree = _this._factory.newLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE);
                                                             }
                                                             _this._cache.put(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, globalUniverseTree);
                                                             var newUniIndex = java.lang.Long.parseLong(uniIndexPayload);
@@ -4533,7 +4533,7 @@ var org;
                                 this.bumpKeyToCache(org.kevoree.modeling.KContentKey.createRootUniverseTree(), function (globalRootTree) {
                                     var cleanedTree = globalRootTree;
                                     if (cleanedTree == null) {
-                                        cleanedTree = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                        cleanedTree = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                         _this._cache.put(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.END_OF_TIME, cleanedTree);
                                     }
                                     var closestUniverse = org.kevoree.modeling.memory.manager.impl.ResolutionHelper.resolve_universe(_this.globalUniverseOrder(), cleanedTree, newRoot.now(), newRoot.universe());
@@ -4677,7 +4677,7 @@ var org;
                                         result = this._factory.newLongLongTree();
                                     }
                                     else {
-                                        result = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(0, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                        result = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(0, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                     }
                                 }
                                 else {
@@ -4691,7 +4691,7 @@ var org;
                                             result = this._factory.newLongTree();
                                         }
                                         else {
-                                            result = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(0, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                            result = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(0, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                         }
                                     }
                                 }
@@ -4878,7 +4878,7 @@ var org;
                                 return originUniverseId;
                             };
                             ResolutionHelper.universeSelectByRange = function (globalTree, objUniverseTree, rangeMin, rangeMax, originUniverseId) {
-                                var collected = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                var collected = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                 var currentUniverse = originUniverseId;
                                 var previousUniverse = org.kevoree.modeling.KConfig.NULL_LONG;
                                 var divergenceTime = objUniverseTree.get(currentUniverse);
@@ -4923,6 +4923,9 @@ var org;
                         HeapMemoryFactory.prototype.newLongLongTree = function () {
                             return new org.kevoree.modeling.memory.struct.tree.impl.LongLongTree();
                         };
+                        HeapMemoryFactory.prototype.newLongLongMap = function (initSize) {
+                            return new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(initSize, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                        };
                         return HeapMemoryFactory;
                     })();
                     struct.HeapMemoryFactory = HeapMemoryFactory;
@@ -4930,90 +4933,51 @@ var org;
                     (function (map) {
                         var impl;
                         (function (impl) {
-                            var ArrayIntHashMap = (function () {
-                                function ArrayIntHashMap(initalCapacity, loadFactor) {
+                            var ArrayIntMap = (function () {
+                                function ArrayIntMap(initalCapacity, loadFactor) {
                                 }
-                                ArrayIntHashMap.prototype.clear = function () {
+                                ArrayIntMap.prototype.clear = function () {
                                     for (var p in this) {
                                         if (this.hasOwnProperty(p)) {
                                             delete this[p];
                                         }
                                     }
                                 };
-                                ArrayIntHashMap.prototype.get = function (key) {
+                                ArrayIntMap.prototype.get = function (key) {
                                     return this[key];
                                 };
-                                ArrayIntHashMap.prototype.put = function (key, pval) {
+                                ArrayIntMap.prototype.put = function (key, pval) {
                                     var previousVal = this[key];
                                     this[key] = pval;
                                     return previousVal;
                                 };
-                                ArrayIntHashMap.prototype.contains = function (key) {
+                                ArrayIntMap.prototype.contains = function (key) {
                                     return this.hasOwnProperty(key);
                                 };
-                                ArrayIntHashMap.prototype.remove = function (key) {
+                                ArrayIntMap.prototype.remove = function (key) {
                                     var tmp = this[key];
                                     delete this[key];
                                     return tmp;
                                 };
-                                ArrayIntHashMap.prototype.size = function () {
+                                ArrayIntMap.prototype.size = function () {
                                     return Object.keys(this).length;
                                 };
-                                ArrayIntHashMap.prototype.each = function (callback) {
+                                ArrayIntMap.prototype.each = function (callback) {
                                     for (var p in this) {
                                         if (this.hasOwnProperty(p)) {
                                             callback(p, this[p]);
                                         }
                                     }
                                 };
-                                return ArrayIntHashMap;
+                                return ArrayIntMap;
                             })();
-                            impl.ArrayIntHashMap = ArrayIntHashMap;
-                            var ArrayLongHashMap = (function () {
-                                function ArrayLongHashMap(initalCapacity, loadFactor) {
-                                }
-                                ArrayLongHashMap.prototype.clear = function () {
-                                    for (var p in this) {
-                                        if (this.hasOwnProperty(p)) {
-                                            delete this[p];
-                                        }
-                                    }
-                                };
-                                ArrayLongHashMap.prototype.get = function (key) {
-                                    return this[key];
-                                };
-                                ArrayLongHashMap.prototype.put = function (key, pval) {
-                                    var previousVal = this[key];
-                                    this[key] = pval;
-                                    return previousVal;
-                                };
-                                ArrayLongHashMap.prototype.contains = function (key) {
-                                    return this.hasOwnProperty(key);
-                                };
-                                ArrayLongHashMap.prototype.remove = function (key) {
-                                    var tmp = this[key];
-                                    delete this[key];
-                                    return tmp;
-                                };
-                                ArrayLongHashMap.prototype.size = function () {
-                                    return Object.keys(this).length;
-                                };
-                                ArrayLongHashMap.prototype.each = function (callback) {
-                                    for (var p in this) {
-                                        if (this.hasOwnProperty(p)) {
-                                            callback(p, this[p]);
-                                        }
-                                    }
-                                };
-                                return ArrayLongHashMap;
-                            })();
-                            impl.ArrayLongHashMap = ArrayLongHashMap;
-                            var ArrayLongLongHashMap = (function () {
-                                function ArrayLongLongHashMap(initalCapacity, loadFactor) {
+                            impl.ArrayIntMap = ArrayIntMap;
+                            var ArrayLongLongMap = (function () {
+                                function ArrayLongLongMap(initalCapacity, loadFactor) {
                                     this._counter = 0;
                                     this._isDirty = false;
                                 }
-                                ArrayLongLongHashMap.prototype.clear = function () {
+                                ArrayLongLongMap.prototype.clear = function () {
                                     for (var p in this) {
                                         this._isDirty = true;
                                         if (this.hasOwnProperty(p) && p.indexOf('_') != 0) {
@@ -5021,77 +4985,77 @@ var org;
                                         }
                                     }
                                 };
-                                ArrayLongLongHashMap.prototype.get = function (key) {
+                                ArrayLongLongMap.prototype.get = function (key) {
                                     return this[key];
                                 };
-                                ArrayLongLongHashMap.prototype.put = function (key, pval) {
+                                ArrayLongLongMap.prototype.put = function (key, pval) {
                                     this._isDirty = true;
                                     var previousVal = this[key];
                                     this[key] = pval;
                                     return previousVal;
                                 };
-                                ArrayLongLongHashMap.prototype.contains = function (key) {
+                                ArrayLongLongMap.prototype.contains = function (key) {
                                     return this.hasOwnProperty(key);
                                 };
-                                ArrayLongLongHashMap.prototype.remove = function (key) {
+                                ArrayLongLongMap.prototype.remove = function (key) {
                                     var tmp = this[key];
                                     delete this[key];
                                     return tmp;
                                 };
-                                ArrayLongLongHashMap.prototype.size = function () {
+                                ArrayLongLongMap.prototype.size = function () {
                                     return Object.keys(this).length - 2;
                                 };
-                                ArrayLongLongHashMap.prototype.each = function (callback) {
+                                ArrayLongLongMap.prototype.each = function (callback) {
                                     for (var p in this) {
                                         if (this.hasOwnProperty(p) && p.indexOf('_') != 0) {
                                             callback(p, this[p]);
                                         }
                                     }
                                 };
-                                ArrayLongLongHashMap.prototype.counter = function () {
+                                ArrayLongLongMap.prototype.counter = function () {
                                     return this._counter;
                                 };
-                                ArrayLongLongHashMap.prototype.inc = function () {
+                                ArrayLongLongMap.prototype.inc = function () {
                                     this._counter++;
                                 };
-                                ArrayLongLongHashMap.prototype.dec = function () {
+                                ArrayLongLongMap.prototype.dec = function () {
                                     this._counter--;
                                 };
-                                ArrayLongLongHashMap.prototype.free = function () {
+                                ArrayLongLongMap.prototype.free = function () {
                                 };
-                                ArrayLongLongHashMap.prototype.isDirty = function () {
+                                ArrayLongLongMap.prototype.isDirty = function () {
                                     return this._isDirty;
                                 };
-                                ArrayLongLongHashMap.prototype.setClean = function (mm) {
+                                ArrayLongLongMap.prototype.setClean = function (mm) {
                                     this._isDirty = false;
                                 };
-                                ArrayLongLongHashMap.prototype.setDirty = function () {
+                                ArrayLongLongMap.prototype.setDirty = function () {
                                     this._isDirty = true;
                                 };
-                                ArrayLongLongHashMap.prototype.serialize = function (m) {
+                                ArrayLongLongMap.prototype.serialize = function (m) {
                                     var buffer = "" + this.size();
                                     this.each(function (key, value) {
-                                        buffer = buffer + ArrayLongLongHashMap.CHUNK_SEP + key + ArrayLongLongHashMap.ELEMENT_SEP + value;
+                                        buffer = buffer + ArrayLongLongMap.CHUNK_SEP + key + ArrayLongLongMap.ELEMENT_SEP + value;
                                     });
                                     return buffer;
                                 };
-                                ArrayLongLongHashMap.prototype.unserialize = function (payload, metaModel) {
+                                ArrayLongLongMap.prototype.unserialize = function (payload, metaModel) {
                                     if (payload == null || payload.length == 0) {
                                         return;
                                     }
                                     var cursor = 0;
-                                    while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongHashMap.CHUNK_SEP) {
+                                    while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongMap.CHUNK_SEP) {
                                         cursor++;
                                     }
                                     var nbElement = java.lang.Integer.parseInt(payload.substring(0, cursor));
                                     while (cursor < payload.length) {
                                         cursor++;
                                         var beginChunk = cursor;
-                                        while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongHashMap.ELEMENT_SEP) {
+                                        while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongMap.ELEMENT_SEP) {
                                             cursor++;
                                         }
                                         var middleChunk = cursor;
-                                        while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongHashMap.CHUNK_SEP) {
+                                        while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongMap.CHUNK_SEP) {
                                             cursor++;
                                         }
                                         var loopKey = java.lang.Long.parseLong(payload.substring(beginChunk, middleChunk));
@@ -5099,50 +5063,89 @@ var org;
                                         this.put(loopKey, loopVal);
                                     }
                                 };
-                                ArrayLongLongHashMap.ELEMENT_SEP = ',';
-                                ArrayLongLongHashMap.CHUNK_SEP = '/';
-                                return ArrayLongLongHashMap;
+                                ArrayLongLongMap.ELEMENT_SEP = ',';
+                                ArrayLongLongMap.CHUNK_SEP = '/';
+                                return ArrayLongLongMap;
                             })();
-                            impl.ArrayLongLongHashMap = ArrayLongLongHashMap;
-                            var ArrayStringHashMap = (function () {
-                                function ArrayStringHashMap(initalCapacity, loadFactor) {
+                            impl.ArrayLongLongMap = ArrayLongLongMap;
+                            var ArrayLongMap = (function () {
+                                function ArrayLongMap(initalCapacity, loadFactor) {
                                 }
-                                ArrayStringHashMap.prototype.clear = function () {
+                                ArrayLongMap.prototype.clear = function () {
                                     for (var p in this) {
                                         if (this.hasOwnProperty(p)) {
                                             delete this[p];
                                         }
                                     }
                                 };
-                                ArrayStringHashMap.prototype.get = function (key) {
+                                ArrayLongMap.prototype.get = function (key) {
                                     return this[key];
                                 };
-                                ArrayStringHashMap.prototype.put = function (key, pval) {
+                                ArrayLongMap.prototype.put = function (key, pval) {
                                     var previousVal = this[key];
                                     this[key] = pval;
                                     return previousVal;
                                 };
-                                ArrayStringHashMap.prototype.contains = function (key) {
+                                ArrayLongMap.prototype.contains = function (key) {
                                     return this.hasOwnProperty(key);
                                 };
-                                ArrayStringHashMap.prototype.remove = function (key) {
+                                ArrayLongMap.prototype.remove = function (key) {
                                     var tmp = this[key];
                                     delete this[key];
                                     return tmp;
                                 };
-                                ArrayStringHashMap.prototype.size = function () {
+                                ArrayLongMap.prototype.size = function () {
                                     return Object.keys(this).length;
                                 };
-                                ArrayStringHashMap.prototype.each = function (callback) {
+                                ArrayLongMap.prototype.each = function (callback) {
                                     for (var p in this) {
                                         if (this.hasOwnProperty(p)) {
                                             callback(p, this[p]);
                                         }
                                     }
                                 };
-                                return ArrayStringHashMap;
+                                return ArrayLongMap;
                             })();
-                            impl.ArrayStringHashMap = ArrayStringHashMap;
+                            impl.ArrayLongMap = ArrayLongMap;
+                            var ArrayStringMap = (function () {
+                                function ArrayStringMap(initalCapacity, loadFactor) {
+                                }
+                                ArrayStringMap.prototype.clear = function () {
+                                    for (var p in this) {
+                                        if (this.hasOwnProperty(p)) {
+                                            delete this[p];
+                                        }
+                                    }
+                                };
+                                ArrayStringMap.prototype.get = function (key) {
+                                    return this[key];
+                                };
+                                ArrayStringMap.prototype.put = function (key, pval) {
+                                    var previousVal = this[key];
+                                    this[key] = pval;
+                                    return previousVal;
+                                };
+                                ArrayStringMap.prototype.contains = function (key) {
+                                    return this.hasOwnProperty(key);
+                                };
+                                ArrayStringMap.prototype.remove = function (key) {
+                                    var tmp = this[key];
+                                    delete this[key];
+                                    return tmp;
+                                };
+                                ArrayStringMap.prototype.size = function () {
+                                    return Object.keys(this).length;
+                                };
+                                ArrayStringMap.prototype.each = function (callback) {
+                                    for (var p in this) {
+                                        if (this.hasOwnProperty(p)) {
+                                            callback(p, this[p]);
+                                        }
+                                    }
+                                };
+                                return ArrayStringMap;
+                            })();
+                            impl.ArrayStringMap = ArrayStringMap;
                         })(impl = map.impl || (map.impl = {}));
                     })(map = struct.map || (struct.map = {}));
                     var segment;
@@ -7648,7 +7651,7 @@ var org;
                             this._name = p_name;
                             this._index = p_index;
                             this._meta = new Array();
-                            this._indexes = new org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                            this._indexes = new org.kevoree.modeling.memory.struct.map.impl.ArrayStringMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                         }
                         MetaClass.prototype.init = function (p_metaElements) {
                             this._indexes.clear();
@@ -7773,7 +7776,7 @@ var org;
                             this._metaClasses_indexes = null;
                             this._name = p_name;
                             this._index = 0;
-                            this._metaClasses_indexes = new org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                            this._metaClasses_indexes = new org.kevoree.modeling.memory.struct.map.impl.ArrayStringMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                         }
                         MetaModel.prototype.index = function () {
                             return this._index;
@@ -7920,17 +7923,17 @@ var org;
                 (function (impl) {
                     var HashOperationManager = (function () {
                         function HashOperationManager(p_manager) {
-                            this.remoteCallCallbacks = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                            this.remoteCallCallbacks = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                             this._callbackId = 0;
-                            this.staticOperations = new org.kevoree.modeling.memory.struct.map.impl.ArrayIntHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
-                            this.instanceOperations = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                            this.staticOperations = new org.kevoree.modeling.memory.struct.map.impl.ArrayIntMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                            this.instanceOperations = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                             this._manager = p_manager;
                         }
                         HashOperationManager.prototype.registerOperation = function (operation, callback, target) {
                             if (target == null) {
                                 var clazzOperations = this.staticOperations.get(operation.origin().index());
                                 if (clazzOperations == null) {
-                                    clazzOperations = new org.kevoree.modeling.memory.struct.map.impl.ArrayIntHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                    clazzOperations = new org.kevoree.modeling.memory.struct.map.impl.ArrayIntMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                     this.staticOperations.put(operation.origin().index(), clazzOperations);
                                 }
                                 clazzOperations.put(operation.index(), callback);
@@ -7938,7 +7941,7 @@ var org;
                             else {
                                 var objectOperations = this.instanceOperations.get(target.uuid());
                                 if (objectOperations == null) {
-                                    objectOperations = new org.kevoree.modeling.memory.struct.map.impl.ArrayIntHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                    objectOperations = new org.kevoree.modeling.memory.struct.map.impl.ArrayIntMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                     this.instanceOperations.put(target.uuid(), objectOperations);
                                 }
                                 objectOperations.put(operation.index(), callback);
@@ -8132,8 +8135,8 @@ var org;
                                     return;
                                 }
                                 else {
-                                    this._alreadyPassed = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
-                                    this._finalElements = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                    this._alreadyPassed = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                    this._finalElements = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                     var filtered_inputs = new Array();
                                     for (var i = 0; i < p_inputs.length; i++) {
                                         if (this._continueCondition == null || this._continueCondition(p_inputs[i])) {
@@ -8171,7 +8174,7 @@ var org;
                             };
                             DeepCollectAction.prototype.executeStep = function (p_inputStep, private_callback) {
                                 var currentObject = null;
-                                var nextIds = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                var nextIds = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                 for (var i = 0; i < p_inputStep.length; i++) {
                                     if (p_inputStep[i] != null) {
                                         try {
@@ -8475,7 +8478,7 @@ var org;
                                 }
                             };
                             FilterAttributeQueryAction.prototype.buildParams = function (p_paramString) {
-                                var params = new org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                var params = new org.kevoree.modeling.memory.struct.map.impl.ArrayStringMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                 var iParam = 0;
                                 var lastStart = iParam;
                                 while (iParam < p_paramString.length) {
@@ -8684,7 +8687,7 @@ var org;
                                 this._next = p_next;
                             };
                             RemoveDuplicateAction.prototype.execute = function (p_inputs) {
-                                var elems = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongHashMap(p_inputs.length, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                var elems = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongMap(p_inputs.length, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                 for (var i = 0; i < p_inputs.length; i++) {
                                     elems.put(p_inputs[i].uuid(), p_inputs[i]);
                                 }
@@ -8714,7 +8717,7 @@ var org;
                                 }
                                 else {
                                     var currentObject = p_inputs[0];
-                                    var nextIds = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                    var nextIds = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                     for (var i = 0; i < p_inputs.length; i++) {
                                         try {
                                             var loopObj = p_inputs[i];
@@ -8787,7 +8790,7 @@ var org;
                                 }
                                 else {
                                     var currentFirstObject = p_inputs[0];
-                                    var nextIds = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                    var nextIds = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
                                     for (var i = 0; i < p_inputs.length; i++) {
                                         try {
                                             var loopObj = p_inputs[i];

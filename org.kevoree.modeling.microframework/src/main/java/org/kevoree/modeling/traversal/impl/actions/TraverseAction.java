@@ -4,11 +4,11 @@ import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.abs.AbstractKObject;
-import org.kevoree.modeling.memory.struct.map.KLongLongHashMap;
+import org.kevoree.modeling.memory.struct.map.KLongLongMap;
 import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 import org.kevoree.modeling.memory.manager.AccessMode;
-import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap;
-import org.kevoree.modeling.memory.struct.map.KLongLongHashMapCallBack;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap;
+import org.kevoree.modeling.memory.struct.map.KLongLongMapCallBack;
 import org.kevoree.modeling.meta.KMeta;
 import org.kevoree.modeling.meta.KMetaReference;
 import org.kevoree.modeling.meta.impl.MetaReference;
@@ -36,7 +36,7 @@ public class TraverseAction implements KTraversalAction {
             return;
         } else {
             final AbstractKObject currentObject = (AbstractKObject) p_inputs[0];
-            KLongLongHashMap nextIds = new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+            KLongLongMap nextIds = new ArrayLongLongMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
             for (int i = 0; i < p_inputs.length; i++) {
                 try {
                     AbstractKObject loopObj = (AbstractKObject) p_inputs[i];
@@ -73,7 +73,7 @@ public class TraverseAction implements KTraversalAction {
             }
             final long[] trimmed = new long[nextIds.size()];
             final int[] inserted = {0};
-            nextIds.each(new KLongLongHashMapCallBack() {
+            nextIds.each(new KLongLongMapCallBack() {
                 @Override
                 public void on(long key, long value) {
                     trimmed[inserted[0]] = key;

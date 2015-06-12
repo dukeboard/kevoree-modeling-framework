@@ -1,6 +1,6 @@
 package org.kevoree.modeling.memory.struct.map;
 
-public interface KLongHashMap<V> {
+public interface KLongMap<V> {
 
     boolean contains(long key);
 
@@ -8,7 +8,7 @@ public interface KLongHashMap<V> {
 
     void put(long key, V value);
 
-    void each(KLongHashMapCallBack<V> callback);
+    void each(KLongMapCallBack<V> callback);
 
     int size();
 

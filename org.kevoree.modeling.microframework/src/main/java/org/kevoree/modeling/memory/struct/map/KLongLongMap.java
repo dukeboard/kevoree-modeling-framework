@@ -2,7 +2,7 @@ package org.kevoree.modeling.memory.struct.map;
 
 import org.kevoree.modeling.memory.KMemoryElement;
 
-public interface KLongLongHashMap extends KMemoryElement {
+public interface KLongLongMap extends KMemoryElement {
 
     boolean contains(long key);
 
@@ -10,7 +10,7 @@ public interface KLongLongHashMap extends KMemoryElement {
 
     void put(long key, long value);
 
-    void each(KLongLongHashMapCallBack callback);
+    void each(KLongLongMapCallBack callback);
 
     int size();
 

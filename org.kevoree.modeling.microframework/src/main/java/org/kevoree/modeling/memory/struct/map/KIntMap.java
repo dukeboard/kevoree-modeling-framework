@@ -1,6 +1,6 @@
 package org.kevoree.modeling.memory.struct.map;
 
-public interface KIntHashMap<V> {
+public interface KIntMap<V> {
 
     boolean contains(int key);
 
@@ -8,6 +8,6 @@ public interface KIntHashMap<V> {
 
     void put(int key, V value);
 
-    void each(KLongHashMapCallBack<V> callback);
+    void each(KLongMapCallBack<V> callback);
 
 }

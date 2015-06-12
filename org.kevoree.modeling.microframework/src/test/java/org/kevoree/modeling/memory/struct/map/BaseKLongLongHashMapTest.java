@@ -7,12 +7,12 @@ import org.kevoree.modeling.KConfig;
 public abstract class BaseKLongLongHashMapTest {
     private static final int SIZE = 100;
 
-    public abstract KLongLongHashMap createKLongLongHashMap(int p_initalCapacity, float p_loadFactor);
+    public abstract KLongLongMap createKLongLongHashMap(int p_initalCapacity, float p_loadFactor);
 
     @Test
     public void test() {
 
-        KLongLongHashMap map = createKLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+        KLongLongMap map = createKLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         for (long i = 0; i < SIZE; i++) {
             map.put(i, i);
         }
@@ -21,7 +21,7 @@ public abstract class BaseKLongLongHashMapTest {
             Assert.assertEquals(i, map.get(i));
         }
         final int[] nbCall = {0};
-        map.each(new KLongLongHashMapCallBack() {
+        map.each(new KLongLongMapCallBack() {
             @Override
             public void on(long key, long s) {
                 nbCall[0]++;

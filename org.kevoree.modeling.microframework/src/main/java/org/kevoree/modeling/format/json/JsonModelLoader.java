@@ -4,15 +4,15 @@ import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.abs.AbstractKModel;
-import org.kevoree.modeling.memory.struct.map.KLongLongHashMap;
+import org.kevoree.modeling.memory.struct.map.KLongLongMap;
 import org.kevoree.modeling.meta.*;
 import org.kevoree.modeling.meta.impl.MetaReference;
 import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 import org.kevoree.modeling.memory.manager.AccessMode;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
-import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap;
-import org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap;
-import org.kevoree.modeling.memory.struct.map.KStringHashMapCallBack;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayStringMap;
+import org.kevoree.modeling.memory.struct.map.KStringMapCallBack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ public class JsonModelLoader {
      * } else {
      * var toLoadObj = JSON.parse(payload);
      * var rootElem = [];
-     * var mappedKeys: org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap(toLoadObj.length, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+     * var mappedKeys: org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(toLoadObj.length, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
      * for(var i = 0; i < toLoadObj.length; i++) {
      * var elem = toLoadObj[i];
      * var kid = elem[org.kevoree.modeling.format.json.JsonFormat.KEY_UUID];
@@ -34,7 +34,7 @@ public class JsonModelLoader {
      * }
      * for(var i = 0; i < toLoadObj.length; i++) {
      * var elemRaw = toLoadObj[i];
-     * var elem2 = new org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap<any>(Object.keys(elemRaw).length, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+     * var elem2 = new org.kevoree.modeling.memory.struct.map.impl.ArrayStringMap<any>(Object.keys(elemRaw).length, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
      * for(var ik in elemRaw){ elem2[ik] = elemRaw[ik]; }
      * try {
      * org.kevoree.modeling.format.json.JsonModelLoader.loadObj(elem2, manager, universe, time, mappedKeys, rootElem);
@@ -52,8 +52,8 @@ public class JsonModelLoader {
             if (currentToken != JsonType.LEFT_BRACKET) {
                 callback.on(null);
             } else {
-                final List<ArrayStringHashMap<Object>> alls = new ArrayList<ArrayStringHashMap<Object>>();
-                ArrayStringHashMap<Object> content = new ArrayStringHashMap<Object>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+                final List<ArrayStringMap<Object>> alls = new ArrayList<ArrayStringMap<Object>>();
+                ArrayStringMap<Object> content = new ArrayStringMap<Object>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
                 String currentAttributeName = null;
                 ArrayList<String> arrayPayload = null;
                 currentToken = lexer.nextToken();
@@ -65,10 +65,10 @@ public class JsonModelLoader {
                         arrayPayload = null;
                         currentAttributeName = null;
                     } else if (currentToken.equals(JsonType.LEFT_BRACE)) {
-                        content = new ArrayStringHashMap<Object>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+                        content = new ArrayStringMap<Object>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
                     } else if (currentToken.equals(JsonType.RIGHT_BRACE)) {
                         alls.add(content);
-                        content = new ArrayStringHashMap<Object>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+                        content = new ArrayStringMap<Object>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
                     } else if (currentToken.equals(JsonType.VALUE)) {
                         if (currentAttributeName == null) {
                             currentAttributeName = lexer.lastValue();
@@ -84,10 +84,10 @@ public class JsonModelLoader {
                     currentToken = lexer.nextToken();
                 }
                 final KObject[] rootElem = {null};
-                ArrayLongLongHashMap mappedKeys = new ArrayLongLongHashMap(alls.size(), KConfig.CACHE_LOAD_FACTOR);
+                ArrayLongLongMap mappedKeys = new ArrayLongLongMap(alls.size(), KConfig.CACHE_LOAD_FACTOR);
                 for (int i = 0; i < alls.size(); i++) {
                     try {
-                        ArrayStringHashMap<Object> elem = alls.get(i);
+                        ArrayStringMap<Object> elem = alls.get(i);
                         long kid = Long.parseLong(elem.get(JsonFormat.KEY_UUID).toString());
                         mappedKeys.put(kid, manager.nextObjectKey());
                     } catch (Exception e) {
@@ -96,7 +96,7 @@ public class JsonModelLoader {
                 }
                 for (int i = 0; i < alls.size(); i++) {
                     try {
-                        ArrayStringHashMap<Object> elem = alls.get(i);
+                        ArrayStringMap<Object> elem = alls.get(i);
                         loadObj(elem, manager, universe, time, mappedKeys, rootElem);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -120,14 +120,14 @@ public class JsonModelLoader {
         }
     }
 
-    private static void loadObj(ArrayStringHashMap<Object> p_param, KMemoryManager manager, long universe, long time, KLongLongHashMap p_mappedKeys, KObject[] p_rootElem) {
+    private static void loadObj(ArrayStringMap<Object> p_param, KMemoryManager manager, long universe, long time, KLongLongMap p_mappedKeys, KObject[] p_rootElem) {
         long kid = Long.parseLong(p_param.get(JsonFormat.KEY_UUID).toString());
         String meta = p_param.get(JsonFormat.KEY_META).toString();
         KMetaClass metaClass = manager.model().metaModel().metaClassByName(meta);
         KObject current = ((AbstractKModel) manager.model()).createProxy(universe, time, p_mappedKeys.get(kid), metaClass);
         manager.initKObject(current);
         KMemorySegment raw = manager.segment(current.universe(), current.now(), current.uuid(), AccessMode.NEW, current.metaClass(), null);
-        p_param.each(new KStringHashMapCallBack<Object>() {
+        p_param.each(new KStringMapCallBack<Object>() {
             @Override
             public void on(String metaKey, Object payload_content) {
                 if (metaKey.equals(JsonFormat.KEY_ROOT)) {
@@ -199,7 +199,7 @@ public class JsonModelLoader {
      * }
      * return convertedRaw;
      */
-    private static long[] transposeArr(ArrayList<String> plainRawSet, KLongLongHashMap p_mappedKeys) {
+    private static long[] transposeArr(ArrayList<String> plainRawSet, KLongLongMap p_mappedKeys) {
         if (plainRawSet == null) {
             return null;
         }

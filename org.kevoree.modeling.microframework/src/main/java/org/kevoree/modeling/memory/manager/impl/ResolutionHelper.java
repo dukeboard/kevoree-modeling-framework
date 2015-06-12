@@ -2,17 +2,17 @@ package org.kevoree.modeling.memory.manager.impl;
 
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.memory.cache.KCache;
-import org.kevoree.modeling.memory.struct.map.KLongLongHashMap;
+import org.kevoree.modeling.memory.struct.map.KLongLongMap;
 import org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment;
-import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap;
 import org.kevoree.modeling.memory.struct.tree.KLongTree;
 
 public class ResolutionHelper {
 
     public static MemorySegmentResolutionTrace resolve_trees(long universe, long time, long uuid, KCache cache) {
         MemorySegmentResolutionTrace result = new MemorySegmentResolutionTrace();
-        KLongLongHashMap objectUniverseTree = (KLongLongHashMap) cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, uuid);
-        KLongLongHashMap globalUniverseOrder = (KLongLongHashMap) cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, KConfig.NULL_LONG);
+        KLongLongMap objectUniverseTree = (KLongLongMap) cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, uuid);
+        KLongLongMap globalUniverseOrder = (KLongLongMap) cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, KConfig.NULL_LONG);
         result.setUniverseTree(objectUniverseTree);
         long resolvedUniverse = resolve_universe(globalUniverseOrder, objectUniverseTree, time, universe);
         result.setUniverse(resolvedUniverse);
@@ -26,7 +26,7 @@ public class ResolutionHelper {
         return result;
     }
 
-    public static long resolve_universe(KLongLongHashMap globalTree, KLongLongHashMap objUniverseTree, long timeToResolve, long originUniverseId) {
+    public static long resolve_universe(KLongLongMap globalTree, KLongLongMap objUniverseTree, long timeToResolve, long originUniverseId) {
         if (globalTree == null || objUniverseTree == null) {
             return originUniverseId;
         }
@@ -46,8 +46,8 @@ public class ResolutionHelper {
         return originUniverseId;
     }
 
-    public static long[] universeSelectByRange(KLongLongHashMap globalTree, KLongLongHashMap objUniverseTree, long rangeMin, long rangeMax, long originUniverseId) {
-        ArrayLongLongHashMap collected = new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+    public static long[] universeSelectByRange(KLongLongMap globalTree, KLongLongMap objUniverseTree, long rangeMin, long rangeMax, long originUniverseId) {
+        KLongLongMap collected = new ArrayLongLongMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         long currentUniverse = originUniverseId;
         long previousUniverse = KConfig.NULL_LONG;
         long divergenceTime = objUniverseTree.get(currentUniverse);

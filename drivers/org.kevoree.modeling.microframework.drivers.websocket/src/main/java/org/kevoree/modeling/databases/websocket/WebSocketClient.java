@@ -11,7 +11,7 @@ import org.kevoree.modeling.cdn.KContentPutRequest;
 import org.kevoree.modeling.event.KEventListener;
 import org.kevoree.modeling.event.KEventMultiListener;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
-import org.kevoree.modeling.memory.struct.map.impl.ArrayLongHashMap;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayLongMap;
 import org.kevoree.modeling.message.*;
 import org.kevoree.modeling.message.impl.*;
 import org.kevoree.modeling.event.impl.LocalEventListeners;
@@ -33,7 +33,7 @@ public class WebSocketClient extends AbstractReceiveListener implements KContent
     private KMemoryManager _manager;
     private AtomicInteger _atomicInteger = null;
 
-    private final ArrayLongHashMap<Object> _callbacks = new ArrayLongHashMap<Object>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+    private final ArrayLongMap<Object> _callbacks = new ArrayLongMap<Object>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
 
     public WebSocketClient(String url) {
         _client = new UndertowWSClient(url);

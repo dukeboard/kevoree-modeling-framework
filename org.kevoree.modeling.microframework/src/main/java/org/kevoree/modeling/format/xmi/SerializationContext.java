@@ -4,8 +4,8 @@ import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.traversal.visitor.KModelAttributeVisitor;
 import org.kevoree.modeling.KObject;
-import org.kevoree.modeling.memory.struct.map.impl.ArrayLongHashMap;
-import org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayLongMap;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayStringMap;
 
 import java.util.ArrayList;
 
@@ -17,9 +17,9 @@ public class SerializationContext {
     public KModelAttributeVisitor attributesVisitor;
 
     // KPath -> XMIPath
-    ArrayLongHashMap<String> addressTable = new ArrayLongHashMap<String>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+    ArrayLongMap<String> addressTable = new ArrayLongMap<String>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
     // KPath -> Count
-    ArrayStringHashMap<Integer> elementsCount = new ArrayStringHashMap<Integer>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+    ArrayStringMap<Integer> elementsCount = new ArrayStringMap<Integer>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
 
     ArrayList<String> packageList = new ArrayList<String>();
 

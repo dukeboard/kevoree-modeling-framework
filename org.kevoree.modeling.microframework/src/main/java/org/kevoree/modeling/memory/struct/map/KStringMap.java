@@ -1,6 +1,6 @@
 package org.kevoree.modeling.memory.struct.map;
 
-public interface KStringHashMap<V> {
+public interface KStringMap<V> {
 
     boolean contains(String key);
 
@@ -8,10 +8,12 @@ public interface KStringHashMap<V> {
 
     void put(String key, V value);
 
-    void each(KStringHashMapCallBack<V> callback);
+    void each(KStringMapCallBack<V> callback);
 
     int size();
 
     void clear();
+
+    void remove(String key);
 
 }

@@ -4,7 +4,7 @@ import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KActionType;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.event.KEventListener;
-import org.kevoree.modeling.memory.struct.map.KLongLongHashMap;
+import org.kevoree.modeling.memory.struct.map.KLongLongMap;
 import org.kevoree.modeling.meta.*;
 import org.kevoree.modeling.meta.impl.MetaAttribute;
 import org.kevoree.modeling.meta.impl.MetaReference;
@@ -18,8 +18,8 @@ import org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment;
 import org.kevoree.modeling.memory.manager.AccessMode;
 import org.kevoree.modeling.format.json.JsonRaw;
 import org.kevoree.modeling.memory.manager.KMemoryManager;
-import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap;
-import org.kevoree.modeling.memory.struct.map.KLongLongHashMapCallBack;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap;
+import org.kevoree.modeling.memory.struct.map.KLongLongMapCallBack;
 import org.kevoree.modeling.memory.struct.tree.KLongTree;
 import org.kevoree.modeling.traversal.impl.Traversal;
 import org.kevoree.modeling.traversal.KTraversal;
@@ -79,7 +79,7 @@ public abstract class AbstractKObject implements KObject {
         if (rawPayload == null) {
             cb.on(new Exception(OUT_OF_CACHE_MSG));
         } else {
-            ArrayLongLongHashMap collector = new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+            ArrayLongLongMap collector = new ArrayLongLongMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
             KMeta[] metaElements = _metaClass.metaElements();
             for (int i = 0; i < metaElements.length; i++) {
                 if (metaElements[i] instanceof MetaReference) {
@@ -92,7 +92,7 @@ public abstract class AbstractKObject implements KObject {
             long[] flatCollected = new long[collector.size()];
             int[] indexI = new int[1];
             indexI[0] = 0;
-            collector.each(new KLongLongHashMapCallBack() {
+            collector.each(new KLongLongMapCallBack() {
                 @Override
                 public void on(long key, long value) {
                     flatCollected[indexI[0]] = key;
@@ -343,17 +343,17 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public void visit(KModelVisitor p_visitor, KCallback cb) {
-        internal_visit(p_visitor, cb, new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR), new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR));
+        internal_visit(p_visitor, cb, new ArrayLongLongMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR), new ArrayLongLongMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR));
     }
 
-    private void internal_visit(final KModelVisitor visitor, final KCallback end, final KLongLongHashMap visited, final KLongLongHashMap traversed) {
+    private void internal_visit(final KModelVisitor visitor, final KCallback end, final KLongLongMap visited, final KLongLongMap traversed) {
         if (!Checker.isDefined(visitor)) {
             return;
         }
         if (traversed != null) {
             traversed.put(_uuid, _uuid);
         }
-        final ArrayLongLongHashMap toResolveIds = new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+        final ArrayLongLongMap toResolveIds = new ArrayLongLongMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         KMeta[] metaElements = metaClass().metaElements();
         for (int i = 0; i < metaElements.length; i++) {
             if (metaElements[i] instanceof MetaReference) {
@@ -382,7 +382,7 @@ public abstract class AbstractKObject implements KObject {
         } else {
             final long[] trimmed = new long[toResolveIds.size()];
             final int[] inserted = {0};
-            toResolveIds.each(new KLongLongHashMapCallBack() {
+            toResolveIds.each(new KLongLongMapCallBack() {
                 @Override
                 public void on(long key, long value) {
                     trimmed[inserted[0]] = key;
@@ -482,7 +482,7 @@ public abstract class AbstractKObject implements KObject {
         if (resolve_entry != null) {
             KLongTree timeTree = (KLongTree) _manager.cache().get(_universe, KConfig.NULL_LONG, _uuid);
             timeTree.inc();
-            KLongLongHashMap universeTree = (KLongLongHashMap) _manager.cache().get(KConfig.NULL_LONG, KConfig.NULL_LONG, _uuid);
+            KLongLongMap universeTree = (KLongLongMap) _manager.cache().get(KConfig.NULL_LONG, KConfig.NULL_LONG, _uuid);
             universeTree.inc();
             resolve_entry.inc();
             p_callback.on(((AbstractKModel) _manager.model()).createProxy(_universe, p_time, _uuid, _metaClass));
@@ -493,7 +493,7 @@ public abstract class AbstractKObject implements KObject {
                 if (resolvedTime != KConfig.NULL_LONG) {
                     HeapMemorySegment entry = (HeapMemorySegment) _manager.cache().get(_universe, resolvedTime, _uuid);
                     if (entry != null) {
-                        KLongLongHashMap universeTree = (KLongLongHashMap) _manager.cache().get(KConfig.NULL_LONG, KConfig.NULL_LONG, _uuid);
+                        KLongLongMap universeTree = (KLongLongMap) _manager.cache().get(KConfig.NULL_LONG, KConfig.NULL_LONG, _uuid);
                         universeTree.inc();
                         timeTree.inc();
                         entry.inc();

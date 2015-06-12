@@ -517,16 +517,16 @@ declare module org {
                         finishCallback: (p: string) => void;
                         printer: java.lang.StringBuilder;
                         attributesVisitor: (p: org.kevoree.modeling.meta.KMetaAttribute, p1: any) => void;
-                        addressTable: org.kevoree.modeling.memory.struct.map.impl.ArrayLongHashMap<any>;
-                        elementsCount: org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap<any>;
+                        addressTable: org.kevoree.modeling.memory.struct.map.impl.ArrayLongMap<any>;
+                        elementsCount: org.kevoree.modeling.memory.struct.map.impl.ArrayStringMap<any>;
                         packageList: java.util.ArrayList<string>;
                     }
                     class XMILoadingContext {
                         xmiReader: org.kevoree.modeling.format.xmi.XmlParser;
                         loadedRoots: org.kevoree.modeling.KObject;
                         resolvers: java.util.ArrayList<org.kevoree.modeling.format.xmi.XMIResolveCommand>;
-                        map: org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap<any>;
-                        elementsCount: org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap<any>;
+                        map: org.kevoree.modeling.memory.struct.map.impl.ArrayStringMap<any>;
+                        elementsCount: org.kevoree.modeling.memory.struct.map.impl.ArrayStringMap<any>;
                         successCallback: (p: java.lang.Throwable) => void;
                     }
                     class XMIModelLoader {
@@ -827,6 +827,7 @@ declare module org {
                     newCacheSegment(originTime: number): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
                     newLongTree(): org.kevoree.modeling.memory.struct.tree.KLongTree;
                     newLongLongTree(): org.kevoree.modeling.memory.struct.tree.KLongLongTree;
+                    newLongLongMap(initSize: number): org.kevoree.modeling.memory.struct.map.KLongLongMap;
                 }
                 module cache {
                     interface KCache {
@@ -917,8 +918,8 @@ declare module org {
                         setUniverse(universe: number): void;
                         getTime(): number;
                         setTime(time: number): void;
-                        getUniverseTree(): org.kevoree.modeling.memory.struct.map.KLongLongHashMap;
-                        setUniverseTree(tree: org.kevoree.modeling.memory.struct.map.KLongLongHashMap): void;
+                        getUniverseTree(): org.kevoree.modeling.memory.struct.map.KLongLongMap;
+                        setUniverseTree(tree: org.kevoree.modeling.memory.struct.map.KLongLongMap): void;
                         getTimeTree(): org.kevoree.modeling.memory.struct.tree.KLongTree;
                         setTimeTree(tree: org.kevoree.modeling.memory.struct.tree.KLongTree): void;
                         getSegment(): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
@@ -951,7 +952,7 @@ declare module org {
                             nextObjectKey(): number;
                             nextModelKey(): number;
                             nextGroupKey(): number;
-                            globalUniverseOrder(): org.kevoree.modeling.memory.struct.map.KLongLongHashMap;
+                            globalUniverseOrder(): org.kevoree.modeling.memory.struct.map.KLongLongMap;
                             initUniverse(p_universe: org.kevoree.modeling.KUniverse<any, any, any>, p_parent: org.kevoree.modeling.KUniverse<any, any, any>): void;
                             parentUniverseKey(currentUniverseKey: number): number;
                             descendantsUniverseKeys(currentUniverseKey: number): number[];
@@ -1004,8 +1005,8 @@ declare module org {
                             setUniverse(p_universe: number): void;
                             getTime(): number;
                             setTime(p_time: number): void;
-                            getUniverseTree(): org.kevoree.modeling.memory.struct.map.KLongLongHashMap;
-                            setUniverseTree(p_u_tree: org.kevoree.modeling.memory.struct.map.KLongLongHashMap): void;
+                            getUniverseTree(): org.kevoree.modeling.memory.struct.map.KLongLongMap;
+                            setUniverseTree(p_u_tree: org.kevoree.modeling.memory.struct.map.KLongLongMap): void;
                             getTimeTree(): org.kevoree.modeling.memory.struct.tree.KLongTree;
                             setTimeTree(p_t_tree: org.kevoree.modeling.memory.struct.tree.KLongTree): void;
                             getSegment(): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
@@ -1013,8 +1014,8 @@ declare module org {
                         }
                         class ResolutionHelper {
                             static resolve_trees(universe: number, time: number, uuid: number, cache: org.kevoree.modeling.memory.cache.KCache): org.kevoree.modeling.memory.manager.impl.MemorySegmentResolutionTrace;
-                            static resolve_universe(globalTree: org.kevoree.modeling.memory.struct.map.KLongLongHashMap, objUniverseTree: org.kevoree.modeling.memory.struct.map.KLongLongHashMap, timeToResolve: number, originUniverseId: number): number;
-                            static universeSelectByRange(globalTree: org.kevoree.modeling.memory.struct.map.KLongLongHashMap, objUniverseTree: org.kevoree.modeling.memory.struct.map.KLongLongHashMap, rangeMin: number, rangeMax: number, originUniverseId: number): number[];
+                            static resolve_universe(globalTree: org.kevoree.modeling.memory.struct.map.KLongLongMap, objUniverseTree: org.kevoree.modeling.memory.struct.map.KLongLongMap, timeToResolve: number, originUniverseId: number): number;
+                            static universeSelectByRange(globalTree: org.kevoree.modeling.memory.struct.map.KLongLongMap, objUniverseTree: org.kevoree.modeling.memory.struct.map.KLongLongMap, rangeMin: number, rangeMax: number, originUniverseId: number): number[];
                         }
                     }
                 }
@@ -1023,29 +1024,19 @@ declare module org {
                         newCacheSegment(originTime: number): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
                         newLongTree(): org.kevoree.modeling.memory.struct.tree.KLongTree;
                         newLongLongTree(): org.kevoree.modeling.memory.struct.tree.KLongLongTree;
+                        newLongLongMap(initSize: number): org.kevoree.modeling.memory.struct.map.KLongLongMap;
                     }
                     module map {
-                        interface KIntHashMap<V> {
+                        interface KIntMap<V> {
                             contains(key: number): boolean;
                             get(key: number): V;
                             put(key: number, value: V): void;
                             each(callback: (p: number, p1: V) => void): void;
                         }
-                        interface KIntHashMapCallBack<V> {
+                        interface KIntMapCallBack<V> {
                             on(key: number, value: V): void;
                         }
-                        interface KLongHashMap<V> {
-                            contains(key: number): boolean;
-                            get(key: number): V;
-                            put(key: number, value: V): void;
-                            each(callback: (p: number, p1: V) => void): void;
-                            size(): number;
-                            clear(): void;
-                        }
-                        interface KLongHashMapCallBack<V> {
-                            on(key: number, value: V): void;
-                        }
-                        interface KLongLongHashMap extends org.kevoree.modeling.memory.KMemoryElement {
+                        interface KLongLongMap extends org.kevoree.modeling.memory.KMemoryElement {
                             contains(key: number): boolean;
                             get(key: number): number;
                             put(key: number, value: number): void;
@@ -1053,22 +1044,34 @@ declare module org {
                             size(): number;
                             clear(): void;
                         }
-                        interface KLongLongHashMapCallBack<V> {
+                        interface KLongLongMapCallBack<V> {
                             on(key: number, value: number): void;
                         }
-                        interface KStringHashMap<V> {
+                        interface KLongMap<V> {
+                            contains(key: number): boolean;
+                            get(key: number): V;
+                            put(key: number, value: V): void;
+                            each(callback: (p: number, p1: V) => void): void;
+                            size(): number;
+                            clear(): void;
+                        }
+                        interface KLongMapCallBack<V> {
+                            on(key: number, value: V): void;
+                        }
+                        interface KStringMap<V> {
                             contains(key: string): boolean;
                             get(key: string): V;
                             put(key: string, value: V): void;
                             each(callback: (p: string, p1: V) => void): void;
                             size(): number;
                             clear(): void;
+                            remove(key: string): void;
                         }
-                        interface KStringHashMapCallBack<V> {
+                        interface KStringMapCallBack<V> {
                             on(key: string, value: V): void;
                         }
                         module impl {
-                            class ArrayIntHashMap<V> implements org.kevoree.modeling.memory.struct.map.KIntHashMap<any> {
+                            class ArrayIntMap<V> implements org.kevoree.modeling.memory.struct.map.KIntMap<any> {
                                 constructor(initalCapacity: number, loadFactor: number);
                                 clear(): void;
                                 get(key: number): V;
@@ -1078,17 +1081,7 @@ declare module org {
                                 size(): number;
                                 each(callback: (p: number, p1: V) => void): void;
                             }
-                            class ArrayLongHashMap<V> implements org.kevoree.modeling.memory.struct.map.KLongHashMap<any> {
-                                constructor(initalCapacity: number, loadFactor: number);
-                                clear(): void;
-                                get(key: number): V;
-                                put(key: number, pval: V): V;
-                                contains(key: number): boolean;
-                                remove(key: number): V;
-                                size(): number;
-                                each(callback: (p: number, p1: V) => void): void;
-                            }
-                            class ArrayLongLongHashMap implements org.kevoree.modeling.memory.KMemoryElement, org.kevoree.modeling.memory.struct.map.KLongLongHashMap {
+                            class ArrayLongLongMap implements org.kevoree.modeling.memory.KMemoryElement, org.kevoree.modeling.memory.struct.map.KLongLongMap {
                                 private _counter;
                                 private _isDirty;
                                 static ELEMENT_SEP: string;
@@ -1111,7 +1104,17 @@ declare module org {
                                 serialize(m: any): string;
                                 unserialize(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void;
                             }
-                            class ArrayStringHashMap<V> implements org.kevoree.modeling.memory.struct.map.KStringHashMap<any> {
+                            class ArrayLongMap<V> implements org.kevoree.modeling.memory.struct.map.KLongMap<any> {
+                                constructor(initalCapacity: number, loadFactor: number);
+                                clear(): void;
+                                get(key: number): V;
+                                put(key: number, pval: V): V;
+                                contains(key: number): boolean;
+                                remove(key: number): V;
+                                size(): number;
+                                each(callback: (p: number, p1: V) => void): void;
+                            }
+                            class ArrayStringMap<V> implements org.kevoree.modeling.memory.struct.map.KStringMap<any> {
                                 constructor(initalCapacity: number, loadFactor: number);
                                 clear(): void;
                                 get(key: string): V;

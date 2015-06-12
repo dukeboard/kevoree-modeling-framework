@@ -3,7 +3,7 @@ package org.kevoree.modeling.defer.impl;
 import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.defer.KDefer;
-import org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayStringMap;
 
 import java.util.ArrayList;
 
@@ -14,11 +14,11 @@ public class Defer implements KDefer {
     private int _nbRecResult = 0;
     private int _nbExpectedResult = 0;
     private ArrayList<KDefer> _nextTasks = null;
-    private ArrayStringHashMap<Object> _results = null;
+    private ArrayStringMap<Object> _results = null;
     private KCallback _thenCB = null;
 
     public Defer() {
-        _results = new ArrayStringHashMap<Object>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+        _results = new ArrayStringMap<Object>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
     }
 
     protected synchronized boolean setDoneOrRegister(KDefer next) {

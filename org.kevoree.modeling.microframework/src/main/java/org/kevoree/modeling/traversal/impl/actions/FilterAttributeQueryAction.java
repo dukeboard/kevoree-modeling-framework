@@ -3,8 +3,8 @@ package org.kevoree.modeling.traversal.impl.actions;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.abs.AbstractKObject;
-import org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap;
-import org.kevoree.modeling.memory.struct.map.KStringHashMapCallBack;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayStringMap;
+import org.kevoree.modeling.memory.struct.map.KStringMapCallBack;
 import org.kevoree.modeling.meta.KMeta;
 import org.kevoree.modeling.meta.KMetaAttribute;
 import org.kevoree.modeling.meta.impl.MetaAttribute;
@@ -42,9 +42,9 @@ public class FilterAttributeQueryAction implements KTraversalAction {
                         nbSelected++;
                     } else {
                         KMeta[] metaElements = loopObj.metaClass().metaElements();
-                        ArrayStringHashMap<QueryParam> params = buildParams(_attributeQuery);
+                        ArrayStringMap<QueryParam> params = buildParams(_attributeQuery);
                         final boolean[] selectedForNext = {true};
-                        params.each(new KStringHashMapCallBack<QueryParam>() {
+                        params.each(new KStringMapCallBack<QueryParam>() {
                             @Override
                             public void on(String key, QueryParam param) {
                                 for (int j = 0; j < metaElements.length; j++) {
@@ -100,8 +100,8 @@ public class FilterAttributeQueryAction implements KTraversalAction {
         }
     }
 
-    private ArrayStringHashMap<QueryParam> buildParams(String p_paramString) {
-        ArrayStringHashMap<QueryParam> params = new ArrayStringHashMap<QueryParam>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+    private ArrayStringMap<QueryParam> buildParams(String p_paramString) {
+        ArrayStringMap<QueryParam> params = new ArrayStringMap<QueryParam>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         int iParam = 0;
         int lastStart = iParam;
         while (iParam < p_paramString.length()) {

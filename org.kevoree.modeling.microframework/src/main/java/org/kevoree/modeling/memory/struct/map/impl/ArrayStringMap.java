@@ -3,8 +3,8 @@ package org.kevoree.modeling.memory.struct.map.impl;
 
 /* From an original idea https://code.google.com/p/jdbm2/ */
 
-import org.kevoree.modeling.memory.struct.map.KStringHashMap;
-import org.kevoree.modeling.memory.struct.map.KStringHashMapCallBack;
+import org.kevoree.modeling.memory.struct.map.KStringMap;
+import org.kevoree.modeling.memory.struct.map.KStringMapCallBack;
 
 /**
  * @native ts
@@ -17,7 +17,7 @@ import org.kevoree.modeling.memory.struct.map.KStringHashMapCallBack;
  * public size():number { return Object.keys(this).length; }
  * public each(callback: (p : string, p1 : V) => void): void { for(var p in this){ if(this.hasOwnProperty(p)){ callback(<string>p,this[p]); } } }
  */
-public class ArrayStringHashMap<V> implements KStringHashMap<V> {
+public class ArrayStringMap<V> implements KStringMap<V> {
 
     protected int elementCount;
 
@@ -50,7 +50,7 @@ public class ArrayStringHashMap<V> implements KStringHashMap<V> {
         return new Entry[s];
     }
 
-    public ArrayStringHashMap(int p_initalCapacity, float p_loadFactor) {
+    public ArrayStringMap(int p_initalCapacity, float p_loadFactor) {
         this.initalCapacity = p_initalCapacity;
         this.loadFactor = p_loadFactor;
         elementCount = 0;
@@ -109,7 +109,7 @@ public class ArrayStringHashMap<V> implements KStringHashMap<V> {
     }
 
     @Override
-    public void each(KStringHashMapCallBack<V> callback) {
+    public void each(KStringMapCallBack<V> callback) {
         for (int i = 0; i < elementDataSize; i++) {
             if (elementData[i] != null) {
                 Entry<V> current = elementData[i];
@@ -174,18 +174,10 @@ public class ArrayStringHashMap<V> implements KStringHashMap<V> {
         rehashCapacity(elementDataSize);
     }
 
-    public V remove(String key) {
-        Entry<V> entry = removeEntry(key);
-        if (entry == null) {
-            return null;
-        } else {
-            return entry.value;
-        }
-    }
-
-    Entry<V> removeEntry(String key) {
+    @Override
+    public void remove(String key) {
         if (elementDataSize == 0) {
-            return null;
+            return;
         }
         Entry<V> entry;
         Entry<V> last = null;
@@ -197,7 +189,7 @@ public class ArrayStringHashMap<V> implements KStringHashMap<V> {
             entry = entry.next;
         }
         if (entry == null) {
-            return null;
+            return;
         }
         if (last == null) {
             elementData[index] = entry.next;
@@ -205,7 +197,6 @@ public class ArrayStringHashMap<V> implements KStringHashMap<V> {
             last.next = entry.next;
         }
         elementCount--;
-        return entry;
     }
 
     public int size() {

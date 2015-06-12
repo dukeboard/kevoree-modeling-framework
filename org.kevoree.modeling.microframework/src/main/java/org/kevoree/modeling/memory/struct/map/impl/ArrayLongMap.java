@@ -1,8 +1,8 @@
 
 package org.kevoree.modeling.memory.struct.map.impl;
 
-import org.kevoree.modeling.memory.struct.map.KLongHashMap;
-import org.kevoree.modeling.memory.struct.map.KLongHashMapCallBack;
+import org.kevoree.modeling.memory.struct.map.KLongMap;
+import org.kevoree.modeling.memory.struct.map.KLongMapCallBack;
 
 /**
  * @native ts
@@ -15,7 +15,7 @@ import org.kevoree.modeling.memory.struct.map.KLongHashMapCallBack;
  * public size():number { return Object.keys(this).length; }
  * public each(callback: (p : number, p1 : V) => void): void { for(var p in this){ if(this.hasOwnProperty(p)){ callback(<number>p,this[p]); } } }
  */
-public class ArrayLongHashMap<V> implements KLongHashMap<V> {
+public class ArrayLongMap<V> implements KLongMap<V> {
 
     protected int elementCount;
 
@@ -48,7 +48,7 @@ public class ArrayLongHashMap<V> implements KLongHashMap<V> {
         return new Entry[s];
     }
 
-    public ArrayLongHashMap(int p_initalCapacity, float p_loadFactor) {
+    public ArrayLongMap(int p_initalCapacity, float p_loadFactor) {
         this.initalCapacity = p_initalCapacity;
         this.loadFactor = p_loadFactor;
         elementCount = 0;
@@ -107,7 +107,7 @@ public class ArrayLongHashMap<V> implements KLongHashMap<V> {
     }
 
     @Override
-    public void each(KLongHashMapCallBack<V> callback) {
+    public void each(KLongMapCallBack<V> callback) {
         for (int i = 0; i < elementDataSize; i++) {
             if (elementData[i] != null) {
                 Entry<V> current = elementData[i];

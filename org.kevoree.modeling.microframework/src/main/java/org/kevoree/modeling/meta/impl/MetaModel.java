@@ -1,11 +1,8 @@
 package org.kevoree.modeling.meta.impl;
 
 import org.kevoree.modeling.*;
-import org.kevoree.modeling.abs.AbstractKModel;
-import org.kevoree.modeling.abs.AbstractKObject;
-import org.kevoree.modeling.abs.AbstractKUniverse;
-import org.kevoree.modeling.abs.AbstractKView;
-import org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap;
+import org.kevoree.modeling.memory.struct.map.KStringMap;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayStringMap;
 import org.kevoree.modeling.meta.KMetaClass;
 import org.kevoree.modeling.meta.KMetaModel;
 import org.kevoree.modeling.meta.MetaType;
@@ -18,7 +15,7 @@ public class MetaModel implements KMetaModel {
 
     private KMetaClass[] _metaClasses;
 
-    private ArrayStringHashMap<Integer> _metaClasses_indexes = null;
+    private KStringMap<Integer> _metaClasses_indexes = null;
 
     @Override
     public int index() {
@@ -38,7 +35,7 @@ public class MetaModel implements KMetaModel {
     public MetaModel(String p_name) {
         this._name = p_name;
         this._index = 0;
-        this._metaClasses_indexes = new ArrayStringHashMap<Integer>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+        this._metaClasses_indexes = new ArrayStringMap<Integer>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
     }
 
     public void init(KMetaClass[] p_metaClasses) {

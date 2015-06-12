@@ -4,13 +4,13 @@ import org.kevoree.modeling.KCallback;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.KObject;
 import org.kevoree.modeling.abs.AbstractKObject;
-import org.kevoree.modeling.memory.struct.map.KLongLongHashMap;
+import org.kevoree.modeling.memory.struct.map.KLongLongMap;
 import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 import org.kevoree.modeling.memory.manager.AccessMode;
-import org.kevoree.modeling.memory.struct.map.impl.ArrayLongHashMap;
-import org.kevoree.modeling.memory.struct.map.KLongHashMapCallBack;
-import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap;
-import org.kevoree.modeling.memory.struct.map.KLongLongHashMapCallBack;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayLongMap;
+import org.kevoree.modeling.memory.struct.map.KLongMapCallBack;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap;
+import org.kevoree.modeling.memory.struct.map.KLongLongMapCallBack;
 import org.kevoree.modeling.meta.KMeta;
 import org.kevoree.modeling.meta.KMetaReference;
 import org.kevoree.modeling.meta.impl.MetaReference;
@@ -35,9 +35,9 @@ public class DeepCollectAction implements KTraversalAction {
         _next = p_next;
     }
 
-    private ArrayLongHashMap<KObject> _alreadyPassed = null;
+    private ArrayLongMap<KObject> _alreadyPassed = null;
 
-    private ArrayLongHashMap<KObject> _finalElements = null;
+    private ArrayLongMap<KObject> _finalElements = null;
 
     @Override
     public void execute(KObject[] p_inputs) {
@@ -45,8 +45,8 @@ public class DeepCollectAction implements KTraversalAction {
             _next.execute(p_inputs);
             return;
         } else {
-            _alreadyPassed = new ArrayLongHashMap<KObject>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
-            _finalElements = new ArrayLongHashMap<KObject>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+            _alreadyPassed = new ArrayLongMap<KObject>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+            _finalElements = new ArrayLongMap<KObject>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
             KObject[] filtered_inputs = new KObject[p_inputs.length];
             for (int i = 0; i < p_inputs.length; i++) {
                 if (_continueCondition == null || _continueCondition.filter(p_inputs[i])) {
@@ -73,7 +73,7 @@ public class DeepCollectAction implements KTraversalAction {
                     } else {
                         KObject[] trimmed = new KObject[_finalElements.size()];
                         final int[] nbInserted = {0};
-                        _finalElements.each(new KLongHashMapCallBack<KObject>() {
+                        _finalElements.each(new KLongMapCallBack<KObject>() {
                             @Override
                             public void on(long key, KObject value) {
                                 trimmed[nbInserted[0]] = value;
@@ -90,7 +90,7 @@ public class DeepCollectAction implements KTraversalAction {
 
     private void executeStep(KObject[] p_inputStep, KCallback<KObject[]> private_callback) {
         AbstractKObject currentObject = null;
-        KLongLongHashMap nextIds = new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+        KLongLongMap nextIds = new ArrayLongLongMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
         for (int i = 0; i < p_inputStep.length; i++) {
             if (p_inputStep[i] != null) {
                 try {
@@ -129,7 +129,7 @@ public class DeepCollectAction implements KTraversalAction {
         }
         final long[] trimmed = new long[nextIds.size()];
         final int[] inserted = {0};
-        nextIds.each(new KLongLongHashMapCallBack() {
+        nextIds.each(new KLongLongMapCallBack() {
             @Override
             public void on(long key, long value) {
                 trimmed[inserted[0]] = key;

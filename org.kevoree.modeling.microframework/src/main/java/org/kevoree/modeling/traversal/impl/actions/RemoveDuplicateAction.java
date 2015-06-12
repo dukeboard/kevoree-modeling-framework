@@ -2,8 +2,8 @@ package org.kevoree.modeling.traversal.impl.actions;
 
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.KObject;
-import org.kevoree.modeling.memory.struct.map.impl.ArrayLongHashMap;
-import org.kevoree.modeling.memory.struct.map.KLongHashMapCallBack;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayLongMap;
+import org.kevoree.modeling.memory.struct.map.KLongMapCallBack;
 import org.kevoree.modeling.traversal.KTraversalAction;
 
 public class RemoveDuplicateAction implements KTraversalAction {
@@ -17,13 +17,13 @@ public class RemoveDuplicateAction implements KTraversalAction {
 
     @Override
     public void execute(KObject[] p_inputs) {
-        ArrayLongHashMap elems = new ArrayLongHashMap(p_inputs.length, KConfig.CACHE_LOAD_FACTOR);
+        ArrayLongMap elems = new ArrayLongMap(p_inputs.length, KConfig.CACHE_LOAD_FACTOR);
         for (int i = 0; i < p_inputs.length; i++) {
             elems.put(p_inputs[i].uuid(), p_inputs[i]);
         }
         final KObject[] trimmed = new KObject[elems.size()];
         final int[] nbInserted = {0};
-        elems.each(new KLongHashMapCallBack<KObject>() {
+        elems.each(new KLongMapCallBack<KObject>() {
             @Override
             public void on(long key, KObject value) {
                 trimmed[nbInserted[0]] = value;

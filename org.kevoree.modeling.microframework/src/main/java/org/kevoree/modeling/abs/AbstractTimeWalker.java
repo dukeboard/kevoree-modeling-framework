@@ -7,8 +7,8 @@ import org.kevoree.modeling.memory.KMemoryElement;
 import org.kevoree.modeling.KContentKey;
 import org.kevoree.modeling.memory.manager.impl.HeapMemoryManager;
 import org.kevoree.modeling.memory.manager.impl.ResolutionHelper;
-import org.kevoree.modeling.memory.struct.map.KLongLongHashMap;
-import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongHashMap;
+import org.kevoree.modeling.memory.struct.map.KLongLongMap;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap;
 import org.kevoree.modeling.memory.struct.tree.KLongTree;
 import org.kevoree.modeling.memory.struct.tree.KTreeWalker;
 
@@ -29,11 +29,11 @@ public class AbstractTimeWalker implements KTimeWalker {
         manager.bumpKeysToCache(keys, new KCallback<KMemoryElement[]>() {
             @Override
             public void on(KMemoryElement[] kMemoryElements) {
-                final KLongLongHashMap objUniverse = (KLongLongHashMap) kMemoryElements[1];
+                final KLongLongMap objUniverse = (KLongLongMap) kMemoryElements[1];
                 if (kMemoryElements[0] == null || kMemoryElements[1] == null) {
                     cb.on(null);
                 } else {
-                    final long[] collectedUniverse = ResolutionHelper.universeSelectByRange((KLongLongHashMap) kMemoryElements[0], (KLongLongHashMap) kMemoryElements[1], start, end, _origin.universe());
+                    final long[] collectedUniverse = ResolutionHelper.universeSelectByRange((KLongLongMap) kMemoryElements[0], (KLongLongMap) kMemoryElements[1], start, end, _origin.universe());
                     KContentKey[] timeTreeToLoad = new KContentKey[collectedUniverse.length];
                     for (int i = 0; i < collectedUniverse.length; i++) {
                         timeTreeToLoad[i] = KContentKey.createTimeTree(collectedUniverse[i], _origin.uuid());
@@ -41,7 +41,7 @@ public class AbstractTimeWalker implements KTimeWalker {
                     manager.bumpKeysToCache(timeTreeToLoad, new KCallback<KMemoryElement[]>() {
                         @Override
                         public void on(KMemoryElement[] timeTrees) {
-                            ArrayLongLongHashMap collector = new ArrayLongLongHashMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+                            ArrayLongLongMap collector = new ArrayLongLongMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
                             long previousDivergenceTime = end;
                             for (int i = 0; i < collectedUniverse.length; i++) {
                                 KLongTree timeTree = (KLongTree) timeTrees[i];

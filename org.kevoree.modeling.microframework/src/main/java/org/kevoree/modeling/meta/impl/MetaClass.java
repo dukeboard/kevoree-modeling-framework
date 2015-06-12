@@ -6,7 +6,8 @@ import org.kevoree.modeling.abs.KLazyResolver;
 import org.kevoree.modeling.extrapolation.Extrapolation;
 import org.kevoree.modeling.extrapolation.impl.DiscreteExtrapolation;
 import org.kevoree.modeling.extrapolation.impl.PolynomialExtrapolation;
-import org.kevoree.modeling.memory.struct.map.impl.ArrayStringHashMap;
+import org.kevoree.modeling.memory.struct.map.KStringMap;
+import org.kevoree.modeling.memory.struct.map.impl.ArrayStringMap;
 import org.kevoree.modeling.meta.*;
 
 public class MetaClass implements KMetaClass {
@@ -17,13 +18,13 @@ public class MetaClass implements KMetaClass {
 
     private KMeta[] _meta;
 
-    private ArrayStringHashMap<Integer> _indexes = null;
+    private KStringMap<Integer> _indexes = null;
 
     protected MetaClass(String p_name, int p_index) {
         this._name = p_name;
         this._index = p_index;
         this._meta = new KMeta[0];
-        _indexes = new ArrayStringHashMap<Integer>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+        _indexes = new ArrayStringMap<Integer>(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
     }
 
     public void init(KMeta[] p_metaElements) {
