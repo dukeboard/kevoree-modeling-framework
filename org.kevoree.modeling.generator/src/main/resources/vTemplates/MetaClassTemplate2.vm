@@ -19,7 +19,7 @@ public static Meta${classDeclaration.name} getInstance() {
     #set($substringIndex = ${attribute.getType().lastIndexOf('.')} + 1)
     #set($attTypeValue = "${classDeclaration.pack}.meta.Meta${attribute.getType().substring($substringIndex)}.getInstance()")
 #end
-#if($context.generationContext.helper.isNull($attribute.precision))
+#if($attribute.type == "Continuous")
 public static final org.kevoree.modeling.meta.KMetaAttribute ATT_${attribute.name.toUpperCase()} = new org.kevoree.modeling.meta.impl.MetaAttribute("${attribute.name}", ${attribute.index}, 0, #if($attribute.id)true#{else}false#end, $attTypeValue, org.kevoree.modeling.extrapolation.impl.DiscreteExtrapolation.instance());
 #else
 public static final org.kevoree.modeling.meta.KMetaAttribute ATT_${attribute.name.toUpperCase()} = new org.kevoree.modeling.meta.impl.MetaAttribute("${attribute.name}", ${attribute.index}, #if($context.generationContext.helper.isNull(${attribute.precision}))0#{else}$attribute.precision#end, #if($attribute.id)true#{else}false#end, $attTypeValue, org.kevoree.modeling.extrapolation.impl.PolynomialExtrapolation.instance());

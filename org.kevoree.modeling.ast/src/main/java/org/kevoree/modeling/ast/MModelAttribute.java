@@ -8,7 +8,7 @@ public class MModelAttribute {
     private String name;
     private String type;
     private boolean id = false;
-    private Double precision = null;
+    private double precision = -1;
     private boolean single = true;
     private Integer index = -1;
 
