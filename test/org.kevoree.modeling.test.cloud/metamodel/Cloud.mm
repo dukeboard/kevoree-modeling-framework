@@ -13,7 +13,7 @@ class cloud.Element {
     value : String
 
     @precision(2.2)
-    load : Double
+    load : Continuous
 
     func trigger(param : String, loop : Int) : String
 }
