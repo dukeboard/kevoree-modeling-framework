@@ -880,7 +880,7 @@ module org {
                         if (resolve_entry != null) {
                             var timeTree: org.kevoree.modeling.memory.struct.tree.KLongTree = <org.kevoree.modeling.memory.struct.tree.KLongTree>this._manager.cache().get(this._universe, org.kevoree.modeling.KConfig.NULL_LONG, this._uuid);
                             timeTree.inc();
-                            var universeTree: org.kevoree.modeling.memory.struct.map.KLongLongMap = <org.kevoree.modeling.memory.struct.map.KLongLongMap>this._manager.cache().get(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, this._uuid);
+                            var universeTree: org.kevoree.modeling.memory.struct.map.KUniverseOrderMap = <org.kevoree.modeling.memory.struct.map.KUniverseOrderMap>this._manager.cache().get(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, this._uuid);
                             universeTree.inc();
                             resolve_entry.inc();
                             p_callback((<org.kevoree.modeling.abs.AbstractKModel<any>>this._manager.model()).createProxy(this._universe, p_time, this._uuid, this._metaClass));
@@ -891,7 +891,7 @@ module org {
                                 if (resolvedTime != org.kevoree.modeling.KConfig.NULL_LONG) {
                                     var entry: org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment = <org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment>this._manager.cache().get(this._universe, resolvedTime, this._uuid);
                                     if (entry != null) {
-                                        var universeTree: org.kevoree.modeling.memory.struct.map.KLongLongMap = <org.kevoree.modeling.memory.struct.map.KLongLongMap>this._manager.cache().get(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, this._uuid);
+                                        var universeTree: org.kevoree.modeling.memory.struct.map.KUniverseOrderMap = <org.kevoree.modeling.memory.struct.map.KUniverseOrderMap>this._manager.cache().get(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, this._uuid);
                                         universeTree.inc();
                                         timeTree.inc();
                                         entry.inc();
@@ -1150,11 +1150,11 @@ module org {
                         keys[1] = org.kevoree.modeling.KContentKey.createUniverseTree(this._origin.uuid());
                         var manager: org.kevoree.modeling.memory.manager.impl.HeapMemoryManager = <org.kevoree.modeling.memory.manager.impl.HeapMemoryManager>this._origin._manager;
                         manager.bumpKeysToCache(keys,  (kMemoryElements : org.kevoree.modeling.memory.KMemoryElement[]) => {
-                            var objUniverse: org.kevoree.modeling.memory.struct.map.KLongLongMap = <org.kevoree.modeling.memory.struct.map.KLongLongMap>kMemoryElements[1];
+                            var objUniverse: org.kevoree.modeling.memory.struct.map.KUniverseOrderMap = <org.kevoree.modeling.memory.struct.map.KUniverseOrderMap>kMemoryElements[1];
                             if (kMemoryElements[0] == null || kMemoryElements[1] == null) {
                                 cb(null);
                             } else {
-                                var collectedUniverse: number[] = org.kevoree.modeling.memory.manager.impl.ResolutionHelper.universeSelectByRange(<org.kevoree.modeling.memory.struct.map.KLongLongMap>kMemoryElements[0], <org.kevoree.modeling.memory.struct.map.KLongLongMap>kMemoryElements[1], start, end, this._origin.universe());
+                                var collectedUniverse: number[] = org.kevoree.modeling.memory.manager.impl.ResolutionHelper.universeSelectByRange(<org.kevoree.modeling.memory.struct.map.KUniverseOrderMap>kMemoryElements[0], <org.kevoree.modeling.memory.struct.map.KUniverseOrderMap>kMemoryElements[1], start, end, this._origin.universe());
                                 var timeTreeToLoad: org.kevoree.modeling.KContentKey[] = new Array();
                                 for (var i: number = 0; i < collectedUniverse.length; i++) {
                                     timeTreeToLoad[i] = org.kevoree.modeling.KContentKey.createTimeTree(collectedUniverse[i], this._origin.uuid());
@@ -4379,7 +4379,7 @@ module org {
 
                     newLongLongTree(): org.kevoree.modeling.memory.struct.tree.KLongLongTree;
 
-                    newLongLongMap(initSize: number): org.kevoree.modeling.memory.struct.map.KLongLongMap;
+                    newUniverseMap(initSize: number, className: string): org.kevoree.modeling.memory.struct.map.KUniverseOrderMap;
 
                 }
 
@@ -4698,9 +4698,9 @@ module org {
 
                         setTime(time: number): void;
 
-                        getUniverseTree(): org.kevoree.modeling.memory.struct.map.KLongLongMap;
+                        getUniverseTree(): org.kevoree.modeling.memory.struct.map.KUniverseOrderMap;
 
-                        setUniverseTree(tree: org.kevoree.modeling.memory.struct.map.KLongLongMap): void;
+                        setUniverseOrder(orderMap: org.kevoree.modeling.memory.struct.map.KUniverseOrderMap): void;
 
                         getTimeTree(): org.kevoree.modeling.memory.struct.tree.KLongTree;
 
@@ -4791,8 +4791,8 @@ module org {
                                 return this._groupKeyCalculator.nextKey();
                             }
 
-                            public globalUniverseOrder(): org.kevoree.modeling.memory.struct.map.KLongLongMap {
-                                return <org.kevoree.modeling.memory.struct.map.KLongLongMap>this._cache.get(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG);
+                            public globalUniverseOrder(): org.kevoree.modeling.memory.struct.map.KUniverseOrderMap {
+                                return <org.kevoree.modeling.memory.struct.map.KUniverseOrderMap>this._cache.get(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG);
                             }
 
                             public initUniverse(p_universe: org.kevoree.modeling.KUniverse<any, any, any>, p_parent: org.kevoree.modeling.KUniverse<any, any, any>): void {
@@ -4873,7 +4873,7 @@ module org {
                                 var timeTree: org.kevoree.modeling.memory.struct.tree.KLongTree = this._factory.newLongTree();
                                 timeTree.inc();
                                 timeTree.insert(obj.now());
-                                var universeTree: org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                var universeTree: org.kevoree.modeling.memory.struct.map.KUniverseOrderMap = this._factory.newUniverseMap(0, obj.metaClass().metaName());
                                 universeTree.inc();
                                 universeTree.put(obj.universe(), obj.now());
                                 this._cache.put(obj.universe(), org.kevoree.modeling.KConfig.NULL_LONG, obj.uuid(), timeTree);
@@ -4913,9 +4913,9 @@ module org {
                                                                 objIndexPayload = "0";
                                                             }
                                                             var globalUniverseTreePayload: string = strings[HeapMemoryManager.GLO_TREE_INDEX];
-                                                            var globalUniverseTree: org.kevoree.modeling.memory.struct.map.KLongLongMap;
+                                                            var globalUniverseTree: org.kevoree.modeling.memory.struct.map.KUniverseOrderMap;
                                                             if (globalUniverseTreePayload != null) {
-                                                                globalUniverseTree = this._factory.newLongLongMap(0);
+                                                                globalUniverseTree = this._factory.newUniverseMap(0, null);
                                                                 try {
                                                                     globalUniverseTree.unserialize(globalUniverseTreePayload, this.model().metaModel());
                                                                 } catch ($ex$) {
@@ -4927,7 +4927,7 @@ module org {
                                                                     }
                                                                 }
                                                             } else {
-                                                                globalUniverseTree = this._factory.newLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE);
+                                                                globalUniverseTree = this._factory.newUniverseMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, null);
                                                             }
                                                             this._cache.put(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, globalUniverseTree);
                                                             var newUniIndex: number = java.lang.Long.parseLong(uniIndexPayload);
@@ -4969,12 +4969,12 @@ module org {
                                         resolutionTrace.setSegment(currentEntry);
                                         resolutionTrace.setUniverse(universe);
                                         resolutionTrace.setTime(time);
-                                        resolutionTrace.setUniverseTree(<org.kevoree.modeling.memory.struct.map.KLongLongMap>this._cache.get(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, uuid));
+                                        resolutionTrace.setUniverseOrder(<org.kevoree.modeling.memory.struct.map.KUniverseOrderMap>this._cache.get(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, uuid));
                                         resolutionTrace.setTimeTree(<org.kevoree.modeling.memory.struct.tree.KLongTree>this._cache.get(universe, org.kevoree.modeling.KConfig.NULL_LONG, uuid));
                                     }
                                     return currentEntry;
                                 }
-                                var objectUniverseTree: org.kevoree.modeling.memory.struct.map.KLongLongMap = <org.kevoree.modeling.memory.struct.map.KLongLongMap>this._cache.get(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, uuid);
+                                var objectUniverseTree: org.kevoree.modeling.memory.struct.map.KUniverseOrderMap = <org.kevoree.modeling.memory.struct.map.KUniverseOrderMap>this._cache.get(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, uuid);
                                 var resolvedUniverse: number = org.kevoree.modeling.memory.manager.impl.ResolutionHelper.resolve_universe(this.globalUniverseOrder(), objectUniverseTree, time, universe);
                                 var timeTree: org.kevoree.modeling.memory.struct.tree.KLongTree = <org.kevoree.modeling.memory.struct.tree.KLongTree>this._cache.get(resolvedUniverse, org.kevoree.modeling.KConfig.NULL_LONG, uuid);
                                 if (timeTree == null) {
@@ -4984,7 +4984,7 @@ module org {
                                 if (resolutionTrace != null) {
                                     resolutionTrace.setUniverse(resolvedUniverse);
                                     resolutionTrace.setTime(resolvedTime);
-                                    resolutionTrace.setUniverseTree(objectUniverseTree);
+                                    resolutionTrace.setUniverseOrder(objectUniverseTree);
                                     resolutionTrace.setTimeTree(timeTree);
                                 }
                                 if (resolvedTime != org.kevoree.modeling.KConfig.NULL_LONG) {
@@ -5096,7 +5096,7 @@ module org {
                                     if (rootGlobalUniverseIndex == null) {
                                         callback(null);
                                     } else {
-                                        var closestUniverse: number = org.kevoree.modeling.memory.manager.impl.ResolutionHelper.resolve_universe(this.globalUniverseOrder(), <org.kevoree.modeling.memory.struct.map.KLongLongMap>rootGlobalUniverseIndex, time, universe);
+                                        var closestUniverse: number = org.kevoree.modeling.memory.manager.impl.ResolutionHelper.resolve_universe(this.globalUniverseOrder(), <org.kevoree.modeling.memory.struct.map.KUniverseOrderMap>rootGlobalUniverseIndex, time, universe);
                                         var universeTreeRootKey: org.kevoree.modeling.KContentKey = org.kevoree.modeling.KContentKey.createRootTimeTree(closestUniverse);
                                         this.bumpKeyToCache(universeTreeRootKey,  (universeTree : org.kevoree.modeling.memory.KMemoryElement) => {
                                             if (universeTree == null) {
@@ -5116,9 +5116,9 @@ module org {
 
                             public setRoot(newRoot: org.kevoree.modeling.KObject, callback: (p : java.lang.Throwable) => void): void {
                                 this.bumpKeyToCache(org.kevoree.modeling.KContentKey.createRootUniverseTree(),  (globalRootTree : org.kevoree.modeling.memory.KMemoryElement) => {
-                                    var cleanedTree: org.kevoree.modeling.memory.struct.map.KLongLongMap = <org.kevoree.modeling.memory.struct.map.KLongLongMap>globalRootTree;
+                                    var cleanedTree: org.kevoree.modeling.memory.struct.map.KUniverseOrderMap = <org.kevoree.modeling.memory.struct.map.KUniverseOrderMap>globalRootTree;
                                     if (cleanedTree == null) {
-                                        cleanedTree = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                        cleanedTree = this._factory.newUniverseMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, null);
                                         this._cache.put(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.END_OF_TIME, cleanedTree);
                                     }
                                     var closestUniverse: number = org.kevoree.modeling.memory.manager.impl.ResolutionHelper.resolve_universe(this.globalUniverseOrder(), cleanedTree, newRoot.now(), newRoot.universe());
@@ -5260,7 +5260,7 @@ module org {
                                     if (isUniverseNotNull) {
                                         result = this._factory.newLongLongTree();
                                     } else {
-                                        result = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(0, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                        result = this._factory.newUniverseMap(0, null);
                                     }
                                 } else {
                                     var isTimeNotNull: boolean = key.time != org.kevoree.modeling.KConfig.NULL_LONG;
@@ -5271,7 +5271,7 @@ module org {
                                         if (isUniverseNotNull && !isTimeNotNull && isObjNotNull) {
                                             result = this._factory.newLongTree();
                                         } else {
-                                            result = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(0, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                            result = this._factory.newUniverseMap(0, null);
                                         }
                                     }
                                 }
@@ -5350,7 +5350,7 @@ module org {
                                     for (var i: number = 0; i < this._keys.length; i++) {
                                         var toLoadKey: org.kevoree.modeling.KContentKey = null;
                                         if (universeIndexes[i] != null) {
-                                            var closestUniverse: number = org.kevoree.modeling.memory.manager.impl.ResolutionHelper.resolve_universe(this._store.globalUniverseOrder(), <org.kevoree.modeling.memory.struct.map.KLongLongMap>universeIndexes[i], this._time, this._universe);
+                                            var closestUniverse: number = org.kevoree.modeling.memory.manager.impl.ResolutionHelper.resolve_universe(this._store.globalUniverseOrder(), <org.kevoree.modeling.memory.struct.map.KUniverseOrderMap>universeIndexes[i], this._time, this._universe);
                                             toLoadKey = org.kevoree.modeling.KContentKey.createTimeTree(closestUniverse, this._keys[i]);
                                         }
                                         tempKeys[i] = toLoadKey;
@@ -5375,7 +5375,7 @@ module org {
                                                     if (proxies[i] != null) {
                                                         var cachedIndexTree: org.kevoree.modeling.memory.struct.tree.KLongTree = <org.kevoree.modeling.memory.struct.tree.KLongTree>timeIndexes[i];
                                                         cachedIndexTree.inc();
-                                                        var universeTree: org.kevoree.modeling.memory.struct.map.KLongLongMap = <org.kevoree.modeling.memory.struct.map.KLongLongMap>universeIndexes[i];
+                                                        var universeTree: org.kevoree.modeling.memory.struct.map.KUniverseOrderMap = <org.kevoree.modeling.memory.struct.map.KUniverseOrderMap>universeIndexes[i];
                                                         universeTree.inc();
                                                         cachedObjects[i].inc();
                                                     }
@@ -5393,7 +5393,7 @@ module org {
 
                             private _universe: number;
                             private _time: number;
-                            private _universeTree: org.kevoree.modeling.memory.struct.map.KLongLongMap;
+                            private _universeOrder: org.kevoree.modeling.memory.struct.map.KUniverseOrderMap;
                             private _timeTree: org.kevoree.modeling.memory.struct.tree.KLongTree;
                             private _segment: org.kevoree.modeling.memory.struct.segment.KMemorySegment;
                             public getUniverse(): number {
@@ -5412,12 +5412,12 @@ module org {
                                 this._time = p_time;
                             }
 
-                            public getUniverseTree(): org.kevoree.modeling.memory.struct.map.KLongLongMap {
-                                return this._universeTree;
+                            public getUniverseTree(): org.kevoree.modeling.memory.struct.map.KUniverseOrderMap {
+                                return this._universeOrder;
                             }
 
-                            public setUniverseTree(p_u_tree: org.kevoree.modeling.memory.struct.map.KLongLongMap): void {
-                                this._universeTree = p_u_tree;
+                            public setUniverseOrder(p_u_tree: org.kevoree.modeling.memory.struct.map.KUniverseOrderMap): void {
+                                this._universeOrder = p_u_tree;
                             }
 
                             public getTimeTree(): org.kevoree.modeling.memory.struct.tree.KLongTree {
@@ -5442,9 +5442,9 @@ module org {
 
                             public static resolve_trees(universe: number, time: number, uuid: number, cache: org.kevoree.modeling.memory.cache.KCache): org.kevoree.modeling.memory.manager.impl.MemorySegmentResolutionTrace {
                                 var result: org.kevoree.modeling.memory.manager.impl.MemorySegmentResolutionTrace = new org.kevoree.modeling.memory.manager.impl.MemorySegmentResolutionTrace();
-                                var objectUniverseTree: org.kevoree.modeling.memory.struct.map.KLongLongMap = <org.kevoree.modeling.memory.struct.map.KLongLongMap>cache.get(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, uuid);
-                                var globalUniverseOrder: org.kevoree.modeling.memory.struct.map.KLongLongMap = <org.kevoree.modeling.memory.struct.map.KLongLongMap>cache.get(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG);
-                                result.setUniverseTree(objectUniverseTree);
+                                var objectUniverseTree: org.kevoree.modeling.memory.struct.map.KUniverseOrderMap = <org.kevoree.modeling.memory.struct.map.KUniverseOrderMap>cache.get(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, uuid);
+                                var globalUniverseOrder: org.kevoree.modeling.memory.struct.map.KUniverseOrderMap = <org.kevoree.modeling.memory.struct.map.KUniverseOrderMap>cache.get(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG);
+                                result.setUniverseOrder(objectUniverseTree);
                                 var resolvedUniverse: number = org.kevoree.modeling.memory.manager.impl.ResolutionHelper.resolve_universe(globalUniverseOrder, objectUniverseTree, time, universe);
                                 result.setUniverse(resolvedUniverse);
                                 var timeTree: org.kevoree.modeling.memory.struct.tree.KLongTree = <org.kevoree.modeling.memory.struct.tree.KLongTree>cache.get(resolvedUniverse, org.kevoree.modeling.KConfig.NULL_LONG, uuid);
@@ -5521,8 +5521,8 @@ module org {
                             return new org.kevoree.modeling.memory.struct.tree.impl.LongLongTree();
                         }
 
-                        public newLongLongMap(initSize: number): org.kevoree.modeling.memory.struct.map.KLongLongMap {
-                            return new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(initSize, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                        public newUniverseMap(initSize: number, p_className: string): org.kevoree.modeling.memory.struct.map.KUniverseOrderMap {
+                            return new org.kevoree.modeling.memory.struct.map.impl.ArrayUniverseOrderMap(initSize, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR, p_className);
                         }
 
                     }
@@ -5546,7 +5546,7 @@ module org {
 
                         }
 
-                        export interface KLongLongMap extends org.kevoree.modeling.memory.KMemoryElement {
+                        export interface KLongLongMap {
 
                             contains(key: number): boolean;
 
@@ -5614,6 +5614,12 @@ module org {
 
                         }
 
+                        export interface KUniverseOrderMap extends org.kevoree.modeling.memory.struct.map.KLongLongMap, org.kevoree.modeling.memory.KMemoryElement {
+
+                            metaClassName(): string;
+
+                        }
+
                         export module impl {
                             export class ArrayIntMap<V> implements org.kevoree.modeling.memory.struct.map.KIntMap<any> {
 
@@ -5627,44 +5633,20 @@ module org {
                                  public each(callback: (p : number, p1 : V) => void): void { for(var p in this){ if(this.hasOwnProperty(p)){ callback(<number>p,this[p]); } } }
                             }
 
-                            export class ArrayLongLongMap implements org.kevoree.modeling.memory.KMemoryElement, org.kevoree.modeling.memory.struct.map.KLongLongMap {
+                            export class ArrayLongLongMap implements org.kevoree.modeling.memory.struct.map.KLongLongMap {
 
-                                 private _counter = 0;
                                  private _isDirty = false;
-                                 static ELEMENT_SEP = ',';
-                                 static CHUNK_SEP = '/';
                                  constructor(initalCapacity: number, loadFactor : number) { }
                                  public clear():void { for(var p in this){ this._isDirty=true;if(this.hasOwnProperty(p) && p.indexOf('_') != 0){ delete this[p];}} }
                                  public get(key:number):number { return this[key]; }
-                                 public put(key:number, pval : number):number { this._isDirty=true; var previousVal = this[key];this[key] = pval;return previousVal;}
+                                 public put(key:number, pval : number):void { this._isDirty=true; this[key] = pval;}
                                  public contains(key:number):boolean { return this.hasOwnProperty(<any>key);}
                                  public remove(key:number):number { var tmp = this[key]; delete this[key]; return tmp; }
-                                 public size():number { return Object.keys(this).length -2; }
+                                 public size():number { return Object.keys(this).length-1; }
                                  public each(callback: (p : number, p1 : number) => void): void { for(var p in this){ if(this.hasOwnProperty(p) && p.indexOf('_') != 0){ callback(<number>p,this[p]); } } }
-                                 public counter():number { return this._counter; }
-                                 public inc():void { this._counter++; }
-                                 public dec():void { this._counter--; }
-                                 public free():void { }
                                  public isDirty():boolean { return this._isDirty; }
                                  public setClean(mm):void { this._isDirty = false; }
                                  public setDirty():void { this._isDirty = true; }
-                                 public serialize(m): string { var buffer = ""+this.size(); this.each( (key : number, value : number) => { buffer = buffer + ArrayLongLongMap.CHUNK_SEP + key + ArrayLongLongMap.ELEMENT_SEP + value; }); return buffer; }
-                                 public unserialize(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
-                                 if (payload == null || payload.length == 0) { return; }
-                                 var cursor: number = 0;
-                                 while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongMap.CHUNK_SEP){ cursor++; }
-                                 var nbElement: number = java.lang.Integer.parseInt(payload.substring(0, cursor));
-                                 while (cursor < payload.length){
-                                 cursor++;
-                                 var beginChunk: number = cursor;
-                                 while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongMap.ELEMENT_SEP){ cursor++; }
-                                 var middleChunk: number = cursor;
-                                 while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongMap.CHUNK_SEP){ cursor++; }
-                                 var loopKey: number = java.lang.Long.parseLong(payload.substring(beginChunk, middleChunk));
-                                 var loopVal: number = java.lang.Long.parseLong(payload.substring(middleChunk + 1, cursor));
-                                 this.put(loopKey, loopVal);
-                                 }
-                                 }
                             }
 
                             export class ArrayLongMap<V> implements org.kevoree.modeling.memory.struct.map.KLongMap<any> {
@@ -5689,6 +5671,27 @@ module org {
                                  public remove(key:string):V { var tmp = this[key]; delete this[key]; return tmp; }
                                  public size():number { return Object.keys(this).length; }
                                  public each(callback: (p : string, p1 : V) => void): void { for(var p in this){ if(this.hasOwnProperty(p)){ callback(<string>p,this[p]); } } }
+                            }
+
+                            export class ArrayUniverseOrderMap extends org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap implements org.kevoree.modeling.memory.struct.map.KUniverseOrderMap {
+
+                                 private _counter = 0;
+                                 private _className : string;
+                                 constructor(initalCapacity: number, loadFactor : number, p_className : string) { super(initalCapacity,loadFactor);this._className = p_className; }
+                                 public metaClassName(){ return this._className; }
+                                 public counter():number { return this._counter; }
+                                 public inc():void { this._counter++; }
+                                 public dec():void { this._counter--; }
+                                 public free():void {  }
+                                 public size():number { return Object.keys(this).length-3; }
+                                 public serialize(m): string {
+                                 var buffer = "";
+                                 if(this._className != null){ buffer = buffer + this._className + ','; }
+                                 buffer = buffer + this.size() + JSON.stringify(this, function (k, v) {if(k[0]!='_'){return v;}else{undefined}});
+                                 return buffer;
+                                 }
+                                 public unserialize(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
+                                 }
                             }
 
                         }

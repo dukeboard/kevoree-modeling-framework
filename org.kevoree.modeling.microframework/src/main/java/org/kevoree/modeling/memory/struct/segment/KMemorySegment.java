@@ -38,7 +38,7 @@ public interface KMemorySegment extends KMemoryElement {
 
     int[] modifiedIndexes(KMetaClass metaClass);
 
-    void init(KMetaClass metaClass);
+    void initMetaClass(KMetaClass metaClass);
 
     int metaClassIndex();
 

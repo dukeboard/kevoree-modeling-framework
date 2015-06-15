@@ -5,6 +5,7 @@ import org.kevoree.modeling.KActionType;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.event.KEventListener;
 import org.kevoree.modeling.memory.struct.map.KLongLongMap;
+import org.kevoree.modeling.memory.struct.map.KUniverseOrderMap;
 import org.kevoree.modeling.meta.*;
 import org.kevoree.modeling.meta.impl.MetaAttribute;
 import org.kevoree.modeling.meta.impl.MetaReference;
@@ -482,7 +483,7 @@ public abstract class AbstractKObject implements KObject {
         if (resolve_entry != null) {
             KLongTree timeTree = (KLongTree) _manager.cache().get(_universe, KConfig.NULL_LONG, _uuid);
             timeTree.inc();
-            KLongLongMap universeTree = (KLongLongMap) _manager.cache().get(KConfig.NULL_LONG, KConfig.NULL_LONG, _uuid);
+            KUniverseOrderMap universeTree = (KUniverseOrderMap) _manager.cache().get(KConfig.NULL_LONG, KConfig.NULL_LONG, _uuid);
             universeTree.inc();
             resolve_entry.inc();
             p_callback.on(((AbstractKModel) _manager.model()).createProxy(_universe, p_time, _uuid, _metaClass));
@@ -493,7 +494,7 @@ public abstract class AbstractKObject implements KObject {
                 if (resolvedTime != KConfig.NULL_LONG) {
                     HeapMemorySegment entry = (HeapMemorySegment) _manager.cache().get(_universe, resolvedTime, _uuid);
                     if (entry != null) {
-                        KLongLongMap universeTree = (KLongLongMap) _manager.cache().get(KConfig.NULL_LONG, KConfig.NULL_LONG, _uuid);
+                        KUniverseOrderMap universeTree = (KUniverseOrderMap) _manager.cache().get(KConfig.NULL_LONG, KConfig.NULL_LONG, _uuid);
                         universeTree.inc();
                         timeTree.inc();
                         entry.inc();

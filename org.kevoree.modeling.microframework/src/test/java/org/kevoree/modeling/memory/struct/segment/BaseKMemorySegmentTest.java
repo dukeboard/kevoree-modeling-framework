@@ -13,7 +13,6 @@ import org.kevoree.modeling.meta.KPrimitiveTypes;
 import org.kevoree.modeling.meta.impl.MetaModel;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 
 public abstract class BaseKMemorySegmentTest {
@@ -53,7 +52,7 @@ public abstract class BaseKMemorySegmentTest {
                 home.mutate(KActionType.ADD, (KMetaReference) home.metaClass().metaByName("sensors"), sensor);
 
                 KMemorySegment cacheEntry = createKMemorySegment();
-                cacheEntry.init(homeMetaClass);
+                cacheEntry.initMetaClass(homeMetaClass);
 
                 cacheEntry.set(homeMetaClass.attribute("attr_long").index(), 10l, homeMetaClass);
                 long attr = (long) cacheEntry.get(homeMetaClass.attribute("attr_long").index(), homeMetaClass);
@@ -119,7 +118,7 @@ public abstract class BaseKMemorySegmentTest {
                 home.mutate(KActionType.ADD, (KMetaReference) home.metaClass().metaByName("sensors"), sensor);
 
                 KMemorySegment cacheEntry = createKMemorySegment();
-                cacheEntry.init(homeMetaClass);
+                cacheEntry.initMetaClass(homeMetaClass);
 
                 cacheEntry.set(homeMetaClass.attribute("attr_long").index(), 10l, homeMetaClass);
                 cacheEntry.set(homeMetaClass.attribute("name").index(), "test", homeMetaClass);
@@ -132,8 +131,8 @@ public abstract class BaseKMemorySegmentTest {
 
                 Assert.assertEquals(2, cacheEntry.getRefSize(homeMetaClass.reference("sensors").index(), homeMetaClass));
 
-                Assert.assertEquals(sensor.uuid(), cacheEntry.getRefElem(homeMetaClass.reference("sensors").index(),0, homeMetaClass));
-                Assert.assertEquals(sensor2.uuid(), cacheEntry.getRefElem(homeMetaClass.reference("sensors").index(),1, homeMetaClass));
+                Assert.assertEquals(sensor.uuid(), cacheEntry.getRefElem(homeMetaClass.reference("sensors").index(), 0, homeMetaClass));
+                Assert.assertEquals(sensor2.uuid(), cacheEntry.getRefElem(homeMetaClass.reference("sensors").index(), 1, homeMetaClass));
 
                 cacheEntry.removeRef(homeMetaClass.reference("sensors").index(), sensor.uuid(), homeMetaClass);
                 long[] ref2 = cacheEntry.getRef(homeMetaClass.reference("sensors").index(), homeMetaClass);
@@ -186,7 +185,7 @@ public abstract class BaseKMemorySegmentTest {
 
                 // cache entry
                 KMemorySegment cacheEntry = createKMemorySegment();
-                cacheEntry.init(homeMetaClass);
+                cacheEntry.initMetaClass(homeMetaClass);
 
                 cacheEntry.set(homeMetaClass.attribute("attr_long").index(), 10l, homeMetaClass);
                 cacheEntry.set(homeMetaClass.attribute("name").index(), "test", homeMetaClass);
@@ -248,7 +247,7 @@ public abstract class BaseKMemorySegmentTest {
                 home.mutate(KActionType.ADD, (KMetaReference) home.metaClass().metaByName("sensors"), sensor);
 
                 KMemorySegment cacheEntry = createKMemorySegment();
-                cacheEntry.init(homeMetaClass);
+                cacheEntry.initMetaClass(homeMetaClass);
 
                 cacheEntry.set(homeMetaClass.attribute("attr_long").index(), 10l, homeMetaClass);
                 cacheEntry.set(homeMetaClass.attribute("name").index(), "test", homeMetaClass);
@@ -306,7 +305,7 @@ public abstract class BaseKMemorySegmentTest {
                 home.mutate(KActionType.ADD, (KMetaReference) home.metaClass().metaByName("sensors"), sensor);
 
                 KMemorySegment cacheEntry = createKMemorySegment();
-                cacheEntry.init(homeMetaClass);
+                cacheEntry.initMetaClass(homeMetaClass);
 
                 Assert.assertFalse(cacheEntry.isDirty());
 
@@ -346,7 +345,7 @@ public abstract class BaseKMemorySegmentTest {
                 sensor.set(sensorMetaClass.attribute("name"), "Sensor#1");
 
                 KMemorySegment cacheEntry = createKMemorySegment();
-                cacheEntry.init(sensorMetaClass);
+                cacheEntry.initMetaClass(sensorMetaClass);
 
                 Assert.assertFalse(cacheEntry.isDirty());
 
@@ -371,7 +370,7 @@ public abstract class BaseKMemorySegmentTest {
                 cacheEntry.extendInfer(sensorMetaClass.attribute("value").index(), 10, sensorMetaClass);
                 double[] inferPayload3 = cacheEntry.getInfer(sensorMetaClass.attribute("value").index(), sensorMetaClass);
                 Assert.assertNotNull(inferPayload3);
-               // Assert.assertTrue(inferPayload3.length == 10);
+                // Assert.assertTrue(inferPayload3.length == 10);
                 Assert.assertTrue(inferPayload3[0] == 42);
 
 
@@ -430,7 +429,7 @@ public abstract class BaseKMemorySegmentTest {
                 home.mutate(KActionType.ADD, (KMetaReference) home.metaClass().metaByName("sensors"), sensor);
 
                 KMemorySegment cacheEntry = createKMemorySegment();
-                cacheEntry.init(homeMetaClass);
+                cacheEntry.initMetaClass(homeMetaClass);
 
                 Assert.assertFalse(cacheEntry.isDirty());
 
@@ -453,9 +452,11 @@ public abstract class BaseKMemorySegmentTest {
                 Assert.assertEquals("{\"@class\":\"Home\",\"attr_long\":10,\"sensors\":[2,3],\"value\":[0.1,1.1,2.1]}", cacheEntry.serialize(dynamicMetaModel));
 
                 KMemorySegment newCacheEntry = createKMemorySegment();
+                newCacheEntry.initMetaClass(homeMetaClass);
+
                 try {
                     String serialized = cacheEntry.serialize(dynamicMetaModel);
-                    newCacheEntry.unserialize(serialized, dynamicMetaModel);
+                    newCacheEntry.init(serialized, dynamicMetaModel);
 
                     String newSeriliazed = newCacheEntry.serialize(dynamicMetaModel);
                     Assert.assertEquals(serialized, newSeriliazed);

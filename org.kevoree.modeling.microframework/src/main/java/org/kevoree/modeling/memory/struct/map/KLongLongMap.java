@@ -1,8 +1,6 @@
 package org.kevoree.modeling.memory.struct.map;
 
-import org.kevoree.modeling.memory.KMemoryElement;
-
-public interface KLongLongMap extends KMemoryElement {
+public interface KLongLongMap {
 
     boolean contains(long key);
 

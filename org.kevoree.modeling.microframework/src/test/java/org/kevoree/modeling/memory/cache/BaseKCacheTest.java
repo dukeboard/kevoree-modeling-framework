@@ -35,7 +35,7 @@ public abstract class BaseKCacheTest {
             }
 
             @Override
-            public void unserialize(String payload, KMetaModel metaModel) throws Exception {
+            public void init(String payload, KMetaModel metaModel) throws Exception {
             }
 
             @Override

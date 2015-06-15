@@ -2,57 +2,31 @@
 package org.kevoree.modeling.memory.struct.map.impl;
 
 import org.kevoree.modeling.KConfig;
-import org.kevoree.modeling.memory.KMemoryElement;
 import org.kevoree.modeling.memory.struct.map.KLongLongMap;
 import org.kevoree.modeling.memory.struct.map.KLongLongMapCallBack;
-import org.kevoree.modeling.meta.KMetaModel;
 
 /**
  * @native ts
- * private _counter = 0;
  * private _isDirty = false;
- * static ELEMENT_SEP = ',';
- * static CHUNK_SEP = '/';
  * constructor(initalCapacity: number, loadFactor : number) { }
  * public clear():void { for(var p in this){ this._isDirty=true;if(this.hasOwnProperty(p) && p.indexOf('_') != 0){ delete this[p];}} }
  * public get(key:number):number { return this[key]; }
- * public put(key:number, pval : number):number { this._isDirty=true; var previousVal = this[key];this[key] = pval;return previousVal;}
+ * public put(key:number, pval : number):void { this._isDirty=true; this[key] = pval;}
  * public contains(key:number):boolean { return this.hasOwnProperty(<any>key);}
  * public remove(key:number):number { var tmp = this[key]; delete this[key]; return tmp; }
- * public size():number { return Object.keys(this).length -2; }
+ * public size():number { return Object.keys(this).length-1; }
  * public each(callback: (p : number, p1 : number) => void): void { for(var p in this){ if(this.hasOwnProperty(p) && p.indexOf('_') != 0){ callback(<number>p,this[p]); } } }
- * public counter():number { return this._counter; }
- * public inc():void { this._counter++; }
- * public dec():void { this._counter--; }
- * public free():void { }
  * public isDirty():boolean { return this._isDirty; }
  * public setClean(mm):void { this._isDirty = false; }
  * public setDirty():void { this._isDirty = true; }
- * public serialize(m): string { var buffer = ""+this.size(); this.each( (key : number, value : number) => { buffer = buffer + ArrayLongLongMap.CHUNK_SEP + key + ArrayLongLongMap.ELEMENT_SEP + value; }); return buffer; }
- * public unserialize(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
- * if (payload == null || payload.length == 0) { return; }
- * var cursor: number = 0;
- * while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongMap.CHUNK_SEP){ cursor++; }
- * var nbElement: number = java.lang.Integer.parseInt(payload.substring(0, cursor));
- * while (cursor < payload.length){
- * cursor++;
- * var beginChunk: number = cursor;
- * while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongMap.ELEMENT_SEP){ cursor++; }
- * var middleChunk: number = cursor;
- * while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongMap.CHUNK_SEP){ cursor++; }
- * var loopKey: number = java.lang.Long.parseLong(payload.substring(beginChunk, middleChunk));
- * var loopVal: number = java.lang.Long.parseLong(payload.substring(middleChunk + 1, cursor));
- * this.put(loopKey, loopVal);
- * }
- * }
  */
-public class ArrayLongLongMap implements KMemoryElement, KLongLongMap {
+public class ArrayLongLongMap implements KLongLongMap {
 
     protected int elementCount;
 
     protected Entry[] elementData;
 
-    private int elementDataSize;
+    protected int elementDataSize;
 
     protected int threshold;
 
@@ -60,91 +34,7 @@ public class ArrayLongLongMap implements KMemoryElement, KLongLongMap {
 
     private final float loadFactor;
 
-    private boolean _isDirty = false;
-
-    private static final char ELEMENT_SEP = ',';
-
-    private static final char CHUNK_SEP = '/';
-
-    private int _counter = 0;
-
-    @Override
-    public int counter() {
-        return _counter;
-    }
-
-    @Override
-    public void inc() {
-        _counter++;
-    }
-
-    @Override
-    public void dec() {
-        _counter--;
-    }
-
-    @Override
-    public void free(KMetaModel metaModel) {
-        //NOOP
-    }
-
-    @Override
-    public boolean isDirty() {
-        return _isDirty;
-    }
-
-    @Override
-    public void setClean(KMetaModel metaModel) {
-        _isDirty = false;
-    }
-
-    @Override
-    public void setDirty() {
-        this._isDirty = true;
-    }
-
-    @Override
-    public void unserialize(String payload, KMetaModel metaModel) throws Exception {
-        if (payload == null || payload.length() == 0) {
-            return;
-        }
-        int cursor = 0;
-        while (cursor < payload.length() && payload.charAt(cursor) != CHUNK_SEP) {
-            cursor++;
-        }
-        int nbElement = Integer.parseInt(payload.substring(0, cursor));
-        rehashCapacity(nbElement);
-        while (cursor < payload.length()) {
-            cursor++;
-            int beginChunk = cursor;
-            while (cursor < payload.length() && payload.charAt(cursor) != ELEMENT_SEP) {
-                cursor++;
-            }
-            int middleChunk = cursor;
-            while (cursor < payload.length() && payload.charAt(cursor) != CHUNK_SEP) {
-                cursor++;
-            }
-            long loopKey = Long.parseLong(payload.substring(beginChunk, middleChunk));
-            long loopVal = Long.parseLong(payload.substring(middleChunk + 1, cursor));
-            put(loopKey, loopVal);
-        }
-    }
-
-    @Override
-    public String serialize(KMetaModel metaModel) {
-        final StringBuilder buffer = new StringBuilder();
-        buffer.append(elementCount);
-        each(new KLongLongMapCallBack() {
-            @Override
-            public void on(long key, long value) {
-                buffer.append(CHUNK_SEP);
-                buffer.append(key);
-                buffer.append(ELEMENT_SEP);
-                buffer.append(value);
-            }
-        });
-        return buffer.toString();
-    }
+    protected boolean _isDirty = false;
 
     /**
      * @ignore ts

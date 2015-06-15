@@ -827,7 +827,7 @@ declare module org {
                     newCacheSegment(originTime: number): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
                     newLongTree(): org.kevoree.modeling.memory.struct.tree.KLongTree;
                     newLongLongTree(): org.kevoree.modeling.memory.struct.tree.KLongLongTree;
-                    newLongLongMap(initSize: number): org.kevoree.modeling.memory.struct.map.KLongLongMap;
+                    newUniverseMap(initSize: number, className: string): org.kevoree.modeling.memory.struct.map.KUniverseOrderMap;
                 }
                 module cache {
                     interface KCache {
@@ -918,8 +918,8 @@ declare module org {
                         setUniverse(universe: number): void;
                         getTime(): number;
                         setTime(time: number): void;
-                        getUniverseTree(): org.kevoree.modeling.memory.struct.map.KLongLongMap;
-                        setUniverseTree(tree: org.kevoree.modeling.memory.struct.map.KLongLongMap): void;
+                        getUniverseTree(): org.kevoree.modeling.memory.struct.map.KUniverseOrderMap;
+                        setUniverseOrder(orderMap: org.kevoree.modeling.memory.struct.map.KUniverseOrderMap): void;
                         getTimeTree(): org.kevoree.modeling.memory.struct.tree.KLongTree;
                         setTimeTree(tree: org.kevoree.modeling.memory.struct.tree.KLongTree): void;
                         getSegment(): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
@@ -952,7 +952,7 @@ declare module org {
                             nextObjectKey(): number;
                             nextModelKey(): number;
                             nextGroupKey(): number;
-                            globalUniverseOrder(): org.kevoree.modeling.memory.struct.map.KLongLongMap;
+                            globalUniverseOrder(): org.kevoree.modeling.memory.struct.map.KUniverseOrderMap;
                             initUniverse(p_universe: org.kevoree.modeling.KUniverse<any, any, any>, p_parent: org.kevoree.modeling.KUniverse<any, any, any>): void;
                             parentUniverseKey(currentUniverseKey: number): number;
                             descendantsUniverseKeys(currentUniverseKey: number): number[];
@@ -998,15 +998,15 @@ declare module org {
                         class MemorySegmentResolutionTrace implements org.kevoree.modeling.memory.manager.KMemorySegmentResolutionTrace {
                             private _universe;
                             private _time;
-                            private _universeTree;
+                            private _universeOrder;
                             private _timeTree;
                             private _segment;
                             getUniverse(): number;
                             setUniverse(p_universe: number): void;
                             getTime(): number;
                             setTime(p_time: number): void;
-                            getUniverseTree(): org.kevoree.modeling.memory.struct.map.KLongLongMap;
-                            setUniverseTree(p_u_tree: org.kevoree.modeling.memory.struct.map.KLongLongMap): void;
+                            getUniverseTree(): org.kevoree.modeling.memory.struct.map.KUniverseOrderMap;
+                            setUniverseOrder(p_u_tree: org.kevoree.modeling.memory.struct.map.KUniverseOrderMap): void;
                             getTimeTree(): org.kevoree.modeling.memory.struct.tree.KLongTree;
                             setTimeTree(p_t_tree: org.kevoree.modeling.memory.struct.tree.KLongTree): void;
                             getSegment(): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
@@ -1024,7 +1024,7 @@ declare module org {
                         newCacheSegment(originTime: number): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
                         newLongTree(): org.kevoree.modeling.memory.struct.tree.KLongTree;
                         newLongLongTree(): org.kevoree.modeling.memory.struct.tree.KLongLongTree;
-                        newLongLongMap(initSize: number): org.kevoree.modeling.memory.struct.map.KLongLongMap;
+                        newUniverseMap(initSize: number, p_className: string): org.kevoree.modeling.memory.struct.map.KUniverseOrderMap;
                     }
                     module map {
                         interface KIntMap<V> {
@@ -1036,7 +1036,7 @@ declare module org {
                         interface KIntMapCallBack<V> {
                             on(key: number, value: V): void;
                         }
-                        interface KLongLongMap extends org.kevoree.modeling.memory.KMemoryElement {
+                        interface KLongLongMap {
                             contains(key: number): boolean;
                             get(key: number): number;
                             put(key: number, value: number): void;
@@ -1070,6 +1070,9 @@ declare module org {
                         interface KStringMapCallBack<V> {
                             on(key: string, value: V): void;
                         }
+                        interface KUniverseOrderMap extends org.kevoree.modeling.memory.struct.map.KLongLongMap, org.kevoree.modeling.memory.KMemoryElement {
+                            metaClassName(): string;
+                        }
                         module impl {
                             class ArrayIntMap<V> implements org.kevoree.modeling.memory.struct.map.KIntMap<any> {
                                 constructor(initalCapacity: number, loadFactor: number);
@@ -1081,28 +1084,19 @@ declare module org {
                                 size(): number;
                                 each(callback: (p: number, p1: V) => void): void;
                             }
-                            class ArrayLongLongMap implements org.kevoree.modeling.memory.KMemoryElement, org.kevoree.modeling.memory.struct.map.KLongLongMap {
-                                private _counter;
+                            class ArrayLongLongMap implements org.kevoree.modeling.memory.struct.map.KLongLongMap {
                                 private _isDirty;
-                                static ELEMENT_SEP: string;
-                                static CHUNK_SEP: string;
                                 constructor(initalCapacity: number, loadFactor: number);
                                 clear(): void;
                                 get(key: number): number;
-                                put(key: number, pval: number): number;
+                                put(key: number, pval: number): void;
                                 contains(key: number): boolean;
                                 remove(key: number): number;
                                 size(): number;
                                 each(callback: (p: number, p1: number) => void): void;
-                                counter(): number;
-                                inc(): void;
-                                dec(): void;
-                                free(): void;
                                 isDirty(): boolean;
                                 setClean(mm: any): void;
                                 setDirty(): void;
-                                serialize(m: any): string;
-                                unserialize(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void;
                             }
                             class ArrayLongMap<V> implements org.kevoree.modeling.memory.struct.map.KLongMap<any> {
                                 constructor(initalCapacity: number, loadFactor: number);
@@ -1123,6 +1117,19 @@ declare module org {
                                 remove(key: string): V;
                                 size(): number;
                                 each(callback: (p: string, p1: V) => void): void;
+                            }
+                            class ArrayUniverseOrderMap extends org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap implements org.kevoree.modeling.memory.struct.map.KUniverseOrderMap {
+                                private _counter;
+                                private _className;
+                                constructor(initalCapacity: number, loadFactor: number, p_className: string);
+                                metaClassName(): string;
+                                counter(): number;
+                                inc(): void;
+                                dec(): void;
+                                free(): void;
+                                size(): number;
+                                serialize(m: any): string;
+                                unserialize(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void;
                             }
                         }
                     }

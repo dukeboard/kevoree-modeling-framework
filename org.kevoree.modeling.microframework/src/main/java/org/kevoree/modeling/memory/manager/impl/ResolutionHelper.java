@@ -3,6 +3,7 @@ package org.kevoree.modeling.memory.manager.impl;
 import org.kevoree.modeling.KConfig;
 import org.kevoree.modeling.memory.cache.KCache;
 import org.kevoree.modeling.memory.struct.map.KLongLongMap;
+import org.kevoree.modeling.memory.struct.map.KUniverseOrderMap;
 import org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment;
 import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap;
 import org.kevoree.modeling.memory.struct.tree.KLongTree;
@@ -11,9 +12,9 @@ public class ResolutionHelper {
 
     public static MemorySegmentResolutionTrace resolve_trees(long universe, long time, long uuid, KCache cache) {
         MemorySegmentResolutionTrace result = new MemorySegmentResolutionTrace();
-        KLongLongMap objectUniverseTree = (KLongLongMap) cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, uuid);
-        KLongLongMap globalUniverseOrder = (KLongLongMap) cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, KConfig.NULL_LONG);
-        result.setUniverseTree(objectUniverseTree);
+        KUniverseOrderMap objectUniverseTree = (KUniverseOrderMap) cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, uuid);
+        KUniverseOrderMap globalUniverseOrder = (KUniverseOrderMap) cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, KConfig.NULL_LONG);
+        result.setUniverseOrder(objectUniverseTree);
         long resolvedUniverse = resolve_universe(globalUniverseOrder, objectUniverseTree, time, universe);
         result.setUniverse(resolvedUniverse);
         KLongTree timeTree = (KLongTree) cache.get(resolvedUniverse, KConfig.NULL_LONG, uuid);

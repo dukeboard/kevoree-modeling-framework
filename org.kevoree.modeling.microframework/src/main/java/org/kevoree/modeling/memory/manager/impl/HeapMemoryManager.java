@@ -12,6 +12,7 @@ import org.kevoree.modeling.memory.manager.KMemoryManager;
 import org.kevoree.modeling.memory.manager.KMemorySegmentResolutionTrace;
 import org.kevoree.modeling.memory.struct.HeapMemoryFactory;
 import org.kevoree.modeling.memory.struct.map.KLongLongMap;
+import org.kevoree.modeling.memory.struct.map.KUniverseOrderMap;
 import org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap;
 import org.kevoree.modeling.memory.struct.map.KLongLongMapCallBack;
 import org.kevoree.modeling.memory.struct.segment.KMemorySegment;
@@ -120,8 +121,8 @@ public class HeapMemoryManager implements KMemoryManager {
     }
 
     /* End Key Management Section */
-    public KLongLongMap globalUniverseOrder() {
-        return (KLongLongMap) _cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, KConfig.NULL_LONG);
+    public KUniverseOrderMap globalUniverseOrder() {
+        return (KUniverseOrderMap) _cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, KConfig.NULL_LONG);
     }
 
     @Override
@@ -209,8 +210,8 @@ public class HeapMemoryManager implements KMemoryManager {
 
     @Override
     public void initKObject(KObject obj) {
-        KMemorySegment cacheEntry = _factory.newCacheSegment(obj.now());
-        cacheEntry.init(obj.metaClass());
+        KMemorySegment cacheEntry = _factory.newCacheSegment();
+        cacheEntry.initMetaClass(obj.metaClass());
         cacheEntry.setDirty();
         cacheEntry.inc();
         //initiate time management
@@ -218,7 +219,7 @@ public class HeapMemoryManager implements KMemoryManager {
         timeTree.inc();
         timeTree.insert(obj.now());
         //initiate universe management
-        ArrayLongLongMap universeTree = new ArrayLongLongMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+        KUniverseOrderMap universeTree = _factory.newUniverseMap(0, obj.metaClass().metaName());
         universeTree.inc();
         universeTree.put(obj.universe(), obj.now());
         //save related objects to cache
@@ -267,16 +268,16 @@ public class HeapMemoryManager implements KMemoryManager {
                                                             objIndexPayload = "0";
                                                         }
                                                         String globalUniverseTreePayload = strings[GLO_TREE_INDEX];
-                                                        KLongLongMap globalUniverseTree;
+                                                        KUniverseOrderMap globalUniverseTree;
                                                         if (globalUniverseTreePayload != null) {
-                                                            globalUniverseTree = _factory.newLongLongMap(0);
+                                                            globalUniverseTree = _factory.newUniverseMap(0, null);
                                                             try {
-                                                                globalUniverseTree.unserialize(globalUniverseTreePayload, model().metaModel());
+                                                                globalUniverseTree.init(globalUniverseTreePayload, model().metaModel());
                                                             } catch (Exception e) {
                                                                 e.printStackTrace();
                                                             }
                                                         } else {
-                                                            globalUniverseTree = _factory.newLongLongMap(KConfig.CACHE_INIT_SIZE);
+                                                            globalUniverseTree = _factory.newUniverseMap(KConfig.CACHE_INIT_SIZE, null);
                                                         }
                                                         _cache.put(KConfig.NULL_LONG, KConfig.NULL_LONG, KConfig.NULL_LONG, globalUniverseTree);
                                                         long newUniIndex = Long.parseLong(uniIndexPayload);
@@ -319,12 +320,12 @@ public class HeapMemoryManager implements KMemoryManager {
                 resolutionTrace.setSegment(currentEntry);
                 resolutionTrace.setUniverse(universe);
                 resolutionTrace.setTime(time);
-                resolutionTrace.setUniverseTree((KLongLongMap) _cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, uuid));
+                resolutionTrace.setUniverseOrder((KUniverseOrderMap) _cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, uuid));
                 resolutionTrace.setTimeTree((KLongTree) _cache.get(universe, KConfig.NULL_LONG, uuid));
             }
             return currentEntry;
         }
-        KLongLongMap objectUniverseTree = (KLongLongMap) _cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, uuid);
+        KUniverseOrderMap objectUniverseTree = (KUniverseOrderMap) _cache.get(KConfig.NULL_LONG, KConfig.NULL_LONG, uuid);
         long resolvedUniverse = ResolutionHelper.resolve_universe(globalUniverseOrder(), objectUniverseTree, time, universe);
         KLongTree timeTree = (KLongTree) _cache.get(resolvedUniverse, KConfig.NULL_LONG, uuid);
         if (timeTree == null) {
@@ -334,7 +335,7 @@ public class HeapMemoryManager implements KMemoryManager {
         if (resolutionTrace != null) {
             resolutionTrace.setUniverse(resolvedUniverse);
             resolutionTrace.setTime(resolvedTime);
-            resolutionTrace.setUniverseTree(objectUniverseTree);
+            resolutionTrace.setUniverseOrder(objectUniverseTree);
             resolutionTrace.setTimeTree(timeTree);
         }
         if (resolvedTime != KConfig.NULL_LONG) {
@@ -465,7 +466,7 @@ public class HeapMemoryManager implements KMemoryManager {
                 if (rootGlobalUniverseIndex == null) {
                     callback.on(null);
                 } else {
-                    long closestUniverse = ResolutionHelper.resolve_universe(globalUniverseOrder(), (KLongLongMap) rootGlobalUniverseIndex, time, universe);
+                    long closestUniverse = ResolutionHelper.resolve_universe(globalUniverseOrder(), (KUniverseOrderMap) rootGlobalUniverseIndex, time, universe);
                     KContentKey universeTreeRootKey = KContentKey.createRootTimeTree(closestUniverse);
                     bumpKeyToCache(universeTreeRootKey, new KCallback<KMemoryElement>() {
                         @Override
@@ -492,9 +493,9 @@ public class HeapMemoryManager implements KMemoryManager {
         bumpKeyToCache(KContentKey.createRootUniverseTree(), new KCallback<KMemoryElement>() {
             @Override
             public void on(KMemoryElement globalRootTree) {
-                KLongLongMap cleanedTree = (KLongLongMap) globalRootTree;
+                KUniverseOrderMap cleanedTree = (KUniverseOrderMap) globalRootTree;
                 if (cleanedTree == null) {
-                    cleanedTree = new ArrayLongLongMap(KConfig.CACHE_INIT_SIZE, KConfig.CACHE_LOAD_FACTOR);
+                    cleanedTree = _factory.newUniverseMap(KConfig.CACHE_INIT_SIZE, null);
                     _cache.put(KConfig.NULL_LONG, KConfig.NULL_LONG, KConfig.END_OF_TIME, cleanedTree);
                 }
                 long closestUniverse = ResolutionHelper.resolve_universe(globalUniverseOrder(), cleanedTree, newRoot.now(), newRoot.universe());
@@ -647,31 +648,21 @@ public class HeapMemoryManager implements KMemoryManager {
         }
     }
 
-    /* This method unserialize objects according to KContentKey specification */
+    /* This method init objects according to KContentKey specification */
     private KMemoryElement internal_unserialize(KContentKey key, String payload) {
-        KMemoryElement result;
-        boolean isUniverseNotNull = key.universe != KConfig.NULL_LONG;
-        if (KConfig.END_OF_TIME == key.obj) {
-            if (isUniverseNotNull) {
-                result = _factory.newLongLongTree();
-            } else {
-                result = new ArrayLongLongMap(0, KConfig.CACHE_LOAD_FACTOR);
-            }
-        } else {
-            boolean isTimeNotNull = key.time != KConfig.NULL_LONG;
-            boolean isObjNotNull = key.obj != KConfig.NULL_LONG;
-            if (isUniverseNotNull && isTimeNotNull && isObjNotNull) {
-                result = _factory.newCacheSegment(key.time);
-            } else if (isUniverseNotNull && !isTimeNotNull && isObjNotNull) {
-                result = _factory.newLongTree();
-            } else {
-                result = new ArrayLongLongMap(0, KConfig.CACHE_LOAD_FACTOR);
-            }
-        }
+        KMemoryElement newElement = _factory.newFromKey(key.universe, key.time, key.obj);
         try {
-            result.unserialize(payload, model().metaModel());
-            result.setClean(model().metaModel());
-            return result;
+            if(key.universe != KConfig.NULL_LONG && key.time != KConfig.NULL_LONG && key.obj != KConfig.NULL_LONG){
+                KUniverseOrderMap alreadyLoadedOrder = (KUniverseOrderMap) _cache.get(KConfig.NULL_LONG,KConfig.NULL_LONG,key.obj);
+                if(alreadyLoadedOrder != null){
+                    ((KMemorySegment)newElement).initMetaClass(_model.metaModel().metaClassByName(alreadyLoadedOrder.metaClassName()));
+                }
+            }
+
+
+            newElement.init(payload, model().metaModel());
+            newElement.setClean(model().metaModel());
+            return newElement;
         } catch (Exception e) {
             e.printStackTrace();
             return null;

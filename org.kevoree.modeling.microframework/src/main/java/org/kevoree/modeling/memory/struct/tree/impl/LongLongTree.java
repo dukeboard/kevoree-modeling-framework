@@ -127,7 +127,7 @@ public class LongLongTree implements KMemoryElement, KLongLongTree {
     }
 
     @Override
-    public void unserialize(String payload, KMetaModel metaModel) throws Exception {
+    public void init(String payload, KMetaModel metaModel) throws Exception {
         if (payload == null || payload.length() == 0) {
             return;
         }

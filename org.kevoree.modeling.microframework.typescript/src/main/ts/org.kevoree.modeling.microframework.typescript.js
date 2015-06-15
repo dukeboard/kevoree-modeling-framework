@@ -4283,7 +4283,7 @@ var org;
                                 var timeTree = this._factory.newLongTree();
                                 timeTree.inc();
                                 timeTree.insert(obj.now());
-                                var universeTree = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                var universeTree = this._factory.newUniverseMap(0, obj.metaClass().metaName());
                                 universeTree.inc();
                                 universeTree.put(obj.universe(), obj.now());
                                 this._cache.put(obj.universe(), org.kevoree.modeling.KConfig.NULL_LONG, obj.uuid(), timeTree);
@@ -4326,7 +4326,7 @@ var org;
                                                             var globalUniverseTreePayload = strings[HeapMemoryManager.GLO_TREE_INDEX];
                                                             var globalUniverseTree;
                                                             if (globalUniverseTreePayload != null) {
-                                                                globalUniverseTree = _this._factory.newLongLongMap(0);
+                                                                globalUniverseTree = _this._factory.newUniverseMap(0, null);
                                                                 try {
                                                                     globalUniverseTree.unserialize(globalUniverseTreePayload, _this.model().metaModel());
                                                                 }
@@ -4341,7 +4341,7 @@ var org;
                                                                 }
                                                             }
                                                             else {
-                                                                globalUniverseTree = _this._factory.newLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE);
+                                                                globalUniverseTree = _this._factory.newUniverseMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, null);
                                                             }
                                                             _this._cache.put(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, globalUniverseTree);
                                                             var newUniIndex = java.lang.Long.parseLong(uniIndexPayload);
@@ -4386,7 +4386,7 @@ var org;
                                         resolutionTrace.setSegment(currentEntry);
                                         resolutionTrace.setUniverse(universe);
                                         resolutionTrace.setTime(time);
-                                        resolutionTrace.setUniverseTree(this._cache.get(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, uuid));
+                                        resolutionTrace.setUniverseOrder(this._cache.get(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, uuid));
                                         resolutionTrace.setTimeTree(this._cache.get(universe, org.kevoree.modeling.KConfig.NULL_LONG, uuid));
                                     }
                                     return currentEntry;
@@ -4401,7 +4401,7 @@ var org;
                                 if (resolutionTrace != null) {
                                     resolutionTrace.setUniverse(resolvedUniverse);
                                     resolutionTrace.setTime(resolvedTime);
-                                    resolutionTrace.setUniverseTree(objectUniverseTree);
+                                    resolutionTrace.setUniverseOrder(objectUniverseTree);
                                     resolutionTrace.setTimeTree(timeTree);
                                 }
                                 if (resolvedTime != org.kevoree.modeling.KConfig.NULL_LONG) {
@@ -4533,7 +4533,7 @@ var org;
                                 this.bumpKeyToCache(org.kevoree.modeling.KContentKey.createRootUniverseTree(), function (globalRootTree) {
                                     var cleanedTree = globalRootTree;
                                     if (cleanedTree == null) {
-                                        cleanedTree = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                        cleanedTree = _this._factory.newUniverseMap(org.kevoree.modeling.KConfig.CACHE_INIT_SIZE, null);
                                         _this._cache.put(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.END_OF_TIME, cleanedTree);
                                     }
                                     var closestUniverse = org.kevoree.modeling.memory.manager.impl.ResolutionHelper.resolve_universe(_this.globalUniverseOrder(), cleanedTree, newRoot.now(), newRoot.universe());
@@ -4677,7 +4677,7 @@ var org;
                                         result = this._factory.newLongLongTree();
                                     }
                                     else {
-                                        result = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(0, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                        result = this._factory.newUniverseMap(0, null);
                                     }
                                 }
                                 else {
@@ -4691,7 +4691,7 @@ var org;
                                             result = this._factory.newLongTree();
                                         }
                                         else {
-                                            result = new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(0, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                                            result = this._factory.newUniverseMap(0, null);
                                         }
                                     }
                                 }
@@ -4821,10 +4821,10 @@ var org;
                                 this._time = p_time;
                             };
                             MemorySegmentResolutionTrace.prototype.getUniverseTree = function () {
-                                return this._universeTree;
+                                return this._universeOrder;
                             };
-                            MemorySegmentResolutionTrace.prototype.setUniverseTree = function (p_u_tree) {
-                                this._universeTree = p_u_tree;
+                            MemorySegmentResolutionTrace.prototype.setUniverseOrder = function (p_u_tree) {
+                                this._universeOrder = p_u_tree;
                             };
                             MemorySegmentResolutionTrace.prototype.getTimeTree = function () {
                                 return this._timeTree;
@@ -4848,7 +4848,7 @@ var org;
                                 var result = new org.kevoree.modeling.memory.manager.impl.MemorySegmentResolutionTrace();
                                 var objectUniverseTree = cache.get(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, uuid);
                                 var globalUniverseOrder = cache.get(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG);
-                                result.setUniverseTree(objectUniverseTree);
+                                result.setUniverseOrder(objectUniverseTree);
                                 var resolvedUniverse = org.kevoree.modeling.memory.manager.impl.ResolutionHelper.resolve_universe(globalUniverseOrder, objectUniverseTree, time, universe);
                                 result.setUniverse(resolvedUniverse);
                                 var timeTree = cache.get(resolvedUniverse, org.kevoree.modeling.KConfig.NULL_LONG, uuid);
@@ -4923,8 +4923,8 @@ var org;
                         HeapMemoryFactory.prototype.newLongLongTree = function () {
                             return new org.kevoree.modeling.memory.struct.tree.impl.LongLongTree();
                         };
-                        HeapMemoryFactory.prototype.newLongLongMap = function (initSize) {
-                            return new org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap(initSize, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR);
+                        HeapMemoryFactory.prototype.newUniverseMap = function (initSize, p_className) {
+                            return new org.kevoree.modeling.memory.struct.map.impl.ArrayUniverseOrderMap(initSize, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR, p_className);
                         };
                         return HeapMemoryFactory;
                     })();
@@ -4974,7 +4974,6 @@ var org;
                             impl.ArrayIntMap = ArrayIntMap;
                             var ArrayLongLongMap = (function () {
                                 function ArrayLongLongMap(initalCapacity, loadFactor) {
-                                    this._counter = 0;
                                     this._isDirty = false;
                                 }
                                 ArrayLongLongMap.prototype.clear = function () {
@@ -4990,9 +4989,7 @@ var org;
                                 };
                                 ArrayLongLongMap.prototype.put = function (key, pval) {
                                     this._isDirty = true;
-                                    var previousVal = this[key];
                                     this[key] = pval;
-                                    return previousVal;
                                 };
                                 ArrayLongLongMap.prototype.contains = function (key) {
                                     return this.hasOwnProperty(key);
@@ -5003,7 +5000,7 @@ var org;
                                     return tmp;
                                 };
                                 ArrayLongLongMap.prototype.size = function () {
-                                    return Object.keys(this).length - 2;
+                                    return Object.keys(this).length - 1;
                                 };
                                 ArrayLongLongMap.prototype.each = function (callback) {
                                     for (var p in this) {
@@ -5011,17 +5008,6 @@ var org;
                                             callback(p, this[p]);
                                         }
                                     }
-                                };
-                                ArrayLongLongMap.prototype.counter = function () {
-                                    return this._counter;
-                                };
-                                ArrayLongLongMap.prototype.inc = function () {
-                                    this._counter++;
-                                };
-                                ArrayLongLongMap.prototype.dec = function () {
-                                    this._counter--;
-                                };
-                                ArrayLongLongMap.prototype.free = function () {
                                 };
                                 ArrayLongLongMap.prototype.isDirty = function () {
                                     return this._isDirty;
@@ -5032,39 +5018,6 @@ var org;
                                 ArrayLongLongMap.prototype.setDirty = function () {
                                     this._isDirty = true;
                                 };
-                                ArrayLongLongMap.prototype.serialize = function (m) {
-                                    var buffer = "" + this.size();
-                                    this.each(function (key, value) {
-                                        buffer = buffer + ArrayLongLongMap.CHUNK_SEP + key + ArrayLongLongMap.ELEMENT_SEP + value;
-                                    });
-                                    return buffer;
-                                };
-                                ArrayLongLongMap.prototype.unserialize = function (payload, metaModel) {
-                                    if (payload == null || payload.length == 0) {
-                                        return;
-                                    }
-                                    var cursor = 0;
-                                    while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongMap.CHUNK_SEP) {
-                                        cursor++;
-                                    }
-                                    var nbElement = java.lang.Integer.parseInt(payload.substring(0, cursor));
-                                    while (cursor < payload.length) {
-                                        cursor++;
-                                        var beginChunk = cursor;
-                                        while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongMap.ELEMENT_SEP) {
-                                            cursor++;
-                                        }
-                                        var middleChunk = cursor;
-                                        while (cursor < payload.length && payload.charAt(cursor) != ArrayLongLongMap.CHUNK_SEP) {
-                                            cursor++;
-                                        }
-                                        var loopKey = java.lang.Long.parseLong(payload.substring(beginChunk, middleChunk));
-                                        var loopVal = java.lang.Long.parseLong(payload.substring(middleChunk + 1, cursor));
-                                        this.put(loopKey, loopVal);
-                                    }
-                                };
-                                ArrayLongLongMap.ELEMENT_SEP = ',';
-                                ArrayLongLongMap.CHUNK_SEP = '/';
                                 return ArrayLongLongMap;
                             })();
                             impl.ArrayLongLongMap = ArrayLongLongMap;
@@ -5146,6 +5099,50 @@ var org;
                                 return ArrayStringMap;
                             })();
                             impl.ArrayStringMap = ArrayStringMap;
+                            var ArrayUniverseOrderMap = (function (_super) {
+                                __extends(ArrayUniverseOrderMap, _super);
+                                function ArrayUniverseOrderMap(initalCapacity, loadFactor, p_className) {
+                                    _super.call(this, initalCapacity, loadFactor);
+                                    this._counter = 0;
+                                    this._className = p_className;
+                                }
+                                ArrayUniverseOrderMap.prototype.metaClassName = function () {
+                                    return this._className;
+                                };
+                                ArrayUniverseOrderMap.prototype.counter = function () {
+                                    return this._counter;
+                                };
+                                ArrayUniverseOrderMap.prototype.inc = function () {
+                                    this._counter++;
+                                };
+                                ArrayUniverseOrderMap.prototype.dec = function () {
+                                    this._counter--;
+                                };
+                                ArrayUniverseOrderMap.prototype.free = function () {
+                                };
+                                ArrayUniverseOrderMap.prototype.size = function () {
+                                    return Object.keys(this).length - 3;
+                                };
+                                ArrayUniverseOrderMap.prototype.serialize = function (m) {
+                                    var buffer = "";
+                                    if (this._className != null) {
+                                        buffer = buffer + this._className + ',';
+                                    }
+                                    buffer = buffer + this.size() + JSON.stringify(this, function (k, v) {
+                                        if (k[0] != '_') {
+                                            return v;
+                                        }
+                                        else {
+                                            undefined;
+                                        }
+                                    });
+                                    return buffer;
+                                };
+                                ArrayUniverseOrderMap.prototype.unserialize = function (payload, metaModel) {
+                                };
+                                return ArrayUniverseOrderMap;
+                            })(org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap);
+                            impl.ArrayUniverseOrderMap = ArrayUniverseOrderMap;
                         })(impl = map.impl || (map.impl = {}));
                     })(map = struct.map || (struct.map = {}));
                     var segment;
