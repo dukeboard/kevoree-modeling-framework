@@ -4276,8 +4276,8 @@ var org;
                                 });
                             };
                             HeapMemoryManager.prototype.initKObject = function (obj) {
-                                var cacheEntry = this._factory.newCacheSegment(obj.now());
-                                cacheEntry.init(obj.metaClass());
+                                var cacheEntry = this._factory.newCacheSegment();
+                                cacheEntry.initMetaClass(obj.metaClass());
                                 cacheEntry.setDirty();
                                 cacheEntry.inc();
                                 var timeTree = this._factory.newLongTree();
@@ -4328,7 +4328,7 @@ var org;
                                                             if (globalUniverseTreePayload != null) {
                                                                 globalUniverseTree = _this._factory.newUniverseMap(0, null);
                                                                 try {
-                                                                    globalUniverseTree.unserialize(globalUniverseTreePayload, _this.model().metaModel());
+                                                                    globalUniverseTree.init(globalUniverseTreePayload, _this.model().metaModel());
                                                                 }
                                                                 catch ($ex$) {
                                                                     if ($ex$ instanceof java.lang.Exception) {
@@ -4670,35 +4670,17 @@ var org;
                                 }
                             };
                             HeapMemoryManager.prototype.internal_unserialize = function (key, payload) {
-                                var result;
-                                var isUniverseNotNull = key.universe != org.kevoree.modeling.KConfig.NULL_LONG;
-                                if (org.kevoree.modeling.KConfig.END_OF_TIME == key.obj) {
-                                    if (isUniverseNotNull) {
-                                        result = this._factory.newLongLongTree();
-                                    }
-                                    else {
-                                        result = this._factory.newUniverseMap(0, null);
-                                    }
-                                }
-                                else {
-                                    var isTimeNotNull = key.time != org.kevoree.modeling.KConfig.NULL_LONG;
-                                    var isObjNotNull = key.obj != org.kevoree.modeling.KConfig.NULL_LONG;
-                                    if (isUniverseNotNull && isTimeNotNull && isObjNotNull) {
-                                        result = this._factory.newCacheSegment(key.time);
-                                    }
-                                    else {
-                                        if (isUniverseNotNull && !isTimeNotNull && isObjNotNull) {
-                                            result = this._factory.newLongTree();
-                                        }
-                                        else {
-                                            result = this._factory.newUniverseMap(0, null);
-                                        }
-                                    }
-                                }
+                                var newElement = this._factory.newFromKey(key.universe, key.time, key.obj);
                                 try {
-                                    result.unserialize(payload, this.model().metaModel());
-                                    result.setClean(this.model().metaModel());
-                                    return result;
+                                    if (key.universe != org.kevoree.modeling.KConfig.NULL_LONG && key.time != org.kevoree.modeling.KConfig.NULL_LONG && key.obj != org.kevoree.modeling.KConfig.NULL_LONG) {
+                                        var alreadyLoadedOrder = this._cache.get(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, key.obj);
+                                        if (alreadyLoadedOrder != null) {
+                                            newElement.initMetaClass(this._model.metaModel().metaClassByName(alreadyLoadedOrder.metaClassName()));
+                                        }
+                                    }
+                                    newElement.init(payload, this.model().metaModel());
+                                    newElement.setClean(this.model().metaModel());
+                                    return newElement;
                                 }
                                 catch ($ex$) {
                                     if ($ex$ instanceof java.lang.Exception) {
@@ -4914,7 +4896,7 @@ var org;
                     var HeapMemoryFactory = (function () {
                         function HeapMemoryFactory() {
                         }
-                        HeapMemoryFactory.prototype.newCacheSegment = function (originTime) {
+                        HeapMemoryFactory.prototype.newCacheSegment = function () {
                             return new org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment();
                         };
                         HeapMemoryFactory.prototype.newLongTree = function () {
@@ -4925,6 +4907,34 @@ var org;
                         };
                         HeapMemoryFactory.prototype.newUniverseMap = function (initSize, p_className) {
                             return new org.kevoree.modeling.memory.struct.map.impl.ArrayUniverseOrderMap(initSize, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR, p_className);
+                        };
+                        HeapMemoryFactory.prototype.newFromKey = function (universe, time, uuid) {
+                            var result;
+                            var isUniverseNotNull = universe != org.kevoree.modeling.KConfig.NULL_LONG;
+                            if (org.kevoree.modeling.KConfig.END_OF_TIME == uuid) {
+                                if (isUniverseNotNull) {
+                                    result = this.newLongLongTree();
+                                }
+                                else {
+                                    result = this.newUniverseMap(0, null);
+                                }
+                            }
+                            else {
+                                var isTimeNotNull = time != org.kevoree.modeling.KConfig.NULL_LONG;
+                                var isObjNotNull = uuid != org.kevoree.modeling.KConfig.NULL_LONG;
+                                if (isUniverseNotNull && isTimeNotNull && isObjNotNull) {
+                                    result = this.newCacheSegment();
+                                }
+                                else {
+                                    if (isUniverseNotNull && !isTimeNotNull && isObjNotNull) {
+                                        result = this.newLongTree();
+                                    }
+                                    else {
+                                        result = this.newUniverseMap(0, null);
+                                    }
+                                }
+                            }
+                            return result;
                         };
                         return HeapMemoryFactory;
                     })();
@@ -5138,7 +5148,27 @@ var org;
                                     });
                                     return buffer;
                                 };
-                                ArrayUniverseOrderMap.prototype.unserialize = function (payload, metaModel) {
+                                ArrayUniverseOrderMap.prototype.init = function (payload, metaModel) {
+                                    if (payload == null || payload.length == 0) {
+                                        return;
+                                    }
+                                    var initPos = 0;
+                                    var cursor = 0;
+                                    while (cursor < payload.length && payload.charAt(cursor) != ',' && payload.charAt(cursor) != '{') {
+                                        cursor++;
+                                    }
+                                    if (payload.charAt(cursor) == ',') {
+                                        this._className = payload.substring(initPos, cursor);
+                                        cursor++;
+                                        initPos = cursor;
+                                    }
+                                    while (cursor < payload.length && payload.charAt(cursor) != '{') {
+                                        cursor++;
+                                    }
+                                    var newParsedElem = JSON.parse(payload.substring(cursor));
+                                    for (var el in newParsedElem) {
+                                        this[el] = newParsedElem[el];
+                                    }
                                 };
                                 return ArrayUniverseOrderMap;
                             })(org.kevoree.modeling.memory.struct.map.impl.ArrayLongLongMap);
@@ -5156,7 +5186,7 @@ var org;
                                     this._modifiedIndexes = null;
                                     this._dirty = false;
                                 }
-                                HeapMemorySegment.prototype.init = function (p_metaClass) {
+                                HeapMemorySegment.prototype.initMetaClass = function (p_metaClass) {
                                     this.raw = new Array();
                                     this._metaClassIndex = p_metaClass.index();
                                 };
@@ -5207,7 +5237,7 @@ var org;
                                 HeapMemorySegment.prototype.setDirty = function () {
                                     this._dirty = true;
                                 };
-                                HeapMemorySegment.prototype.unserialize = function (payload, metaModel) {
+                                HeapMemorySegment.prototype.init = function (payload, metaModel) {
                                     var rawElem = JSON.parse(payload);
                                     if (rawElem["@class"] != null && rawElem["@class"] != undefined) {
                                         var metaClass = metaModel.metaClassByName(rawElem["@class"]);
@@ -5528,7 +5558,7 @@ var org;
                                 LongLongTree.prototype.setClean = function (metaModel) {
                                     this._dirty = false;
                                 };
-                                LongLongTree.prototype.unserialize = function (payload, metaModel) {
+                                LongLongTree.prototype.init = function (payload, metaModel) {
                                     if (payload == null || payload.length == 0) {
                                         return;
                                     }
@@ -6060,7 +6090,7 @@ var org;
                                 LongTree.prototype.toString = function () {
                                     return this.serialize(null);
                                 };
-                                LongTree.prototype.unserialize = function (payload, metaModel) {
+                                LongTree.prototype.init = function (payload, metaModel) {
                                     if (payload == null || payload.length == 0) {
                                         return;
                                     }

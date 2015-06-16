@@ -4359,7 +4359,7 @@ module org {
 
                     serialize(metaModel: org.kevoree.modeling.meta.KMetaModel): string;
 
-                    unserialize(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void;
+                    init(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void;
 
                     counter(): number;
 
@@ -4373,13 +4373,15 @@ module org {
 
                 export interface KMemoryFactory {
 
-                    newCacheSegment(originTime: number): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
+                    newCacheSegment(): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
 
                     newLongTree(): org.kevoree.modeling.memory.struct.tree.KLongTree;
 
                     newLongLongTree(): org.kevoree.modeling.memory.struct.tree.KLongLongTree;
 
                     newUniverseMap(initSize: number, className: string): org.kevoree.modeling.memory.struct.map.KUniverseOrderMap;
+
+                    newFromKey(universe: number, time: number, uuid: number): org.kevoree.modeling.memory.KMemoryElement;
 
                 }
 
@@ -4866,8 +4868,8 @@ module org {
                             }
 
                             public initKObject(obj: org.kevoree.modeling.KObject): void {
-                                var cacheEntry: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._factory.newCacheSegment(obj.now());
-                                cacheEntry.init(obj.metaClass());
+                                var cacheEntry: org.kevoree.modeling.memory.struct.segment.KMemorySegment = this._factory.newCacheSegment();
+                                cacheEntry.initMetaClass(obj.metaClass());
                                 cacheEntry.setDirty();
                                 cacheEntry.inc();
                                 var timeTree: org.kevoree.modeling.memory.struct.tree.KLongTree = this._factory.newLongTree();
@@ -4917,7 +4919,7 @@ module org {
                                                             if (globalUniverseTreePayload != null) {
                                                                 globalUniverseTree = this._factory.newUniverseMap(0, null);
                                                                 try {
-                                                                    globalUniverseTree.unserialize(globalUniverseTreePayload, this.model().metaModel());
+                                                                    globalUniverseTree.init(globalUniverseTreePayload, this.model().metaModel());
                                                                 } catch ($ex$) {
                                                                     if ($ex$ instanceof java.lang.Exception) {
                                                                         var e: java.lang.Exception = <java.lang.Exception>$ex$;
@@ -5254,31 +5256,17 @@ module org {
                             }
 
                             private internal_unserialize(key: org.kevoree.modeling.KContentKey, payload: string): org.kevoree.modeling.memory.KMemoryElement {
-                                var result: org.kevoree.modeling.memory.KMemoryElement;
-                                var isUniverseNotNull: boolean = key.universe != org.kevoree.modeling.KConfig.NULL_LONG;
-                                if (org.kevoree.modeling.KConfig.END_OF_TIME == key.obj) {
-                                    if (isUniverseNotNull) {
-                                        result = this._factory.newLongLongTree();
-                                    } else {
-                                        result = this._factory.newUniverseMap(0, null);
-                                    }
-                                } else {
-                                    var isTimeNotNull: boolean = key.time != org.kevoree.modeling.KConfig.NULL_LONG;
-                                    var isObjNotNull: boolean = key.obj != org.kevoree.modeling.KConfig.NULL_LONG;
-                                    if (isUniverseNotNull && isTimeNotNull && isObjNotNull) {
-                                        result = this._factory.newCacheSegment(key.time);
-                                    } else {
-                                        if (isUniverseNotNull && !isTimeNotNull && isObjNotNull) {
-                                            result = this._factory.newLongTree();
-                                        } else {
-                                            result = this._factory.newUniverseMap(0, null);
+                                var newElement: org.kevoree.modeling.memory.KMemoryElement = this._factory.newFromKey(key.universe, key.time, key.obj);
+                                try {
+                                    if (key.universe != org.kevoree.modeling.KConfig.NULL_LONG && key.time != org.kevoree.modeling.KConfig.NULL_LONG && key.obj != org.kevoree.modeling.KConfig.NULL_LONG) {
+                                        var alreadyLoadedOrder: org.kevoree.modeling.memory.struct.map.KUniverseOrderMap = <org.kevoree.modeling.memory.struct.map.KUniverseOrderMap>this._cache.get(org.kevoree.modeling.KConfig.NULL_LONG, org.kevoree.modeling.KConfig.NULL_LONG, key.obj);
+                                        if (alreadyLoadedOrder != null) {
+                                            (<org.kevoree.modeling.memory.struct.segment.KMemorySegment>newElement).initMetaClass(this._model.metaModel().metaClassByName(alreadyLoadedOrder.metaClassName()));
                                         }
                                     }
-                                }
-                                try {
-                                    result.unserialize(payload, this.model().metaModel());
-                                    result.setClean(this.model().metaModel());
-                                    return result;
+                                    newElement.init(payload, this.model().metaModel());
+                                    newElement.setClean(this.model().metaModel());
+                                    return newElement;
                                 } catch ($ex$) {
                                     if ($ex$ instanceof java.lang.Exception) {
                                         var e: java.lang.Exception = <java.lang.Exception>$ex$;
@@ -5509,7 +5497,7 @@ module org {
                 export module struct {
                     export class HeapMemoryFactory implements org.kevoree.modeling.memory.KMemoryFactory {
 
-                        public newCacheSegment(originTime: number): org.kevoree.modeling.memory.struct.segment.KMemorySegment {
+                        public newCacheSegment(): org.kevoree.modeling.memory.struct.segment.KMemorySegment {
                             return new org.kevoree.modeling.memory.struct.segment.impl.HeapMemorySegment();
                         }
 
@@ -5523,6 +5511,31 @@ module org {
 
                         public newUniverseMap(initSize: number, p_className: string): org.kevoree.modeling.memory.struct.map.KUniverseOrderMap {
                             return new org.kevoree.modeling.memory.struct.map.impl.ArrayUniverseOrderMap(initSize, org.kevoree.modeling.KConfig.CACHE_LOAD_FACTOR, p_className);
+                        }
+
+                        public newFromKey(universe: number, time: number, uuid: number): org.kevoree.modeling.memory.KMemoryElement {
+                            var result: org.kevoree.modeling.memory.KMemoryElement;
+                            var isUniverseNotNull: boolean = universe != org.kevoree.modeling.KConfig.NULL_LONG;
+                            if (org.kevoree.modeling.KConfig.END_OF_TIME == uuid) {
+                                if (isUniverseNotNull) {
+                                    result = this.newLongLongTree();
+                                } else {
+                                    result = this.newUniverseMap(0, null);
+                                }
+                            } else {
+                                var isTimeNotNull: boolean = time != org.kevoree.modeling.KConfig.NULL_LONG;
+                                var isObjNotNull: boolean = uuid != org.kevoree.modeling.KConfig.NULL_LONG;
+                                if (isUniverseNotNull && isTimeNotNull && isObjNotNull) {
+                                    result = this.newCacheSegment();
+                                } else {
+                                    if (isUniverseNotNull && !isTimeNotNull && isObjNotNull) {
+                                        result = this.newLongTree();
+                                    } else {
+                                        result = this.newUniverseMap(0, null);
+                                    }
+                                }
+                            }
+                            return result;
                         }
 
                     }
@@ -5690,7 +5703,14 @@ module org {
                                  buffer = buffer + this.size() + JSON.stringify(this, function (k, v) {if(k[0]!='_'){return v;}else{undefined}});
                                  return buffer;
                                  }
-                                 public unserialize(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
+                                 public init(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
+                                 if (payload == null || payload.length == 0) { return; }
+                                 var initPos = 0; var cursor = 0;
+                                 while (cursor < payload.length && payload.charAt(cursor) != ',' && payload.charAt(cursor) != '{') { cursor++; }
+                                 if (payload.charAt(cursor) == ',') { this._className = payload.substring(initPos, cursor);cursor++;initPos = cursor;}
+                                 while (cursor < payload.length && payload.charAt(cursor) != '{') { cursor++; }
+                                 var newParsedElem = JSON.parse(payload.substring(cursor));
+                                 for(var el in newParsedElem){ this[el] = newParsedElem[el]; }
                                  }
                             }
 
@@ -5727,7 +5747,7 @@ module org {
 
                             modifiedIndexes(metaClass: org.kevoree.modeling.meta.KMetaClass): number[];
 
-                            init(metaClass: org.kevoree.modeling.meta.KMetaClass): void;
+                            initMetaClass(metaClass: org.kevoree.modeling.meta.KMetaClass): void;
 
                             metaClassIndex(): number;
 
@@ -5741,7 +5761,7 @@ module org {
                                 private _metaClassIndex: number = -1;
                                 private _modifiedIndexes: boolean[] = null;
                                 private _dirty: boolean = false;
-                                public init(p_metaClass: org.kevoree.modeling.meta.KMetaClass): void {
+                                public initMetaClass(p_metaClass: org.kevoree.modeling.meta.KMetaClass): void {
                                     this.raw = new Array();
                                     this._metaClassIndex = p_metaClass.index();
                                 }
@@ -5796,7 +5816,7 @@ module org {
                                     this._dirty = true;
                                 }
 
-                                public unserialize(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
+                                public init(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
                                      var rawElem = JSON.parse(payload);
                                      if(rawElem["@class"] != null && rawElem["@class"] != undefined){
                                      var metaClass = metaModel.metaClassByName(rawElem["@class"]);
@@ -5971,14 +5991,12 @@ module org {
                                      var res = this.raw[index];
                                      if(res != null && res != undefined){ return res[arrayIndex]; }
                                      return 0;
-                                    
                                 }
 
                                 public setInferElem(index: number, arrayIndex: number, valueToInsert: number, metaClass: org.kevoree.modeling.meta.KMetaClass): void {
                                      var res = this.raw[index];
                                      if(res != null && res != undefined){ res[arrayIndex] = valueToInsert; }
                                      this._dirty = true;
-                                    
                                 }
 
                                 public extendInfer(index: number, newSize: number, metaClass: org.kevoree.modeling.meta.KMetaClass): void {
@@ -6169,7 +6187,7 @@ module org {
                                     this._dirty = false;
                                 }
 
-                                public unserialize(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
+                                public init(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
                                     if (payload == null || payload.length == 0) {
                                         return;
                                     }
@@ -6701,7 +6719,7 @@ module org {
                                     return this.serialize(null);
                                 }
 
-                                public unserialize(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
+                                public init(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
                                     if (payload == null || payload.length == 0) {
                                         return;
                                     }

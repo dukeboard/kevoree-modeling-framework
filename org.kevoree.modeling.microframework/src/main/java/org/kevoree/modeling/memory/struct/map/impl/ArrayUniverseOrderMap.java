@@ -21,6 +21,13 @@ import org.kevoree.modeling.meta.KMetaModel;
  * return buffer;
  * }
  * public init(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
+ * if (payload == null || payload.length == 0) { return; }
+ * var initPos = 0; var cursor = 0;
+ * while (cursor < payload.length && payload.charAt(cursor) != ',' && payload.charAt(cursor) != '{') { cursor++; }
+ * if (payload.charAt(cursor) == ',') { this._className = payload.substring(initPos, cursor);cursor++;initPos = cursor;}
+ * while (cursor < payload.length && payload.charAt(cursor) != '{') { cursor++; }
+ * var newParsedElem = JSON.parse(payload.substring(cursor));
+ * for(var el in newParsedElem){ this[el] = newParsedElem[el]; }
  * }
  */
 public class ArrayUniverseOrderMap extends ArrayLongLongMap implements KUniverseOrderMap {

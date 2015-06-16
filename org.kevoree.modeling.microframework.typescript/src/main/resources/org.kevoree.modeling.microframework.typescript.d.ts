@@ -817,17 +817,18 @@ declare module org {
                     setClean(metaModel: org.kevoree.modeling.meta.KMetaModel): void;
                     setDirty(): void;
                     serialize(metaModel: org.kevoree.modeling.meta.KMetaModel): string;
-                    unserialize(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void;
+                    init(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void;
                     counter(): number;
                     inc(): void;
                     dec(): void;
                     free(metaModel: org.kevoree.modeling.meta.KMetaModel): void;
                 }
                 interface KMemoryFactory {
-                    newCacheSegment(originTime: number): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
+                    newCacheSegment(): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
                     newLongTree(): org.kevoree.modeling.memory.struct.tree.KLongTree;
                     newLongLongTree(): org.kevoree.modeling.memory.struct.tree.KLongLongTree;
                     newUniverseMap(initSize: number, className: string): org.kevoree.modeling.memory.struct.map.KUniverseOrderMap;
+                    newFromKey(universe: number, time: number, uuid: number): org.kevoree.modeling.memory.KMemoryElement;
                 }
                 module cache {
                     interface KCache {
@@ -1021,10 +1022,11 @@ declare module org {
                 }
                 module struct {
                     class HeapMemoryFactory implements org.kevoree.modeling.memory.KMemoryFactory {
-                        newCacheSegment(originTime: number): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
+                        newCacheSegment(): org.kevoree.modeling.memory.struct.segment.KMemorySegment;
                         newLongTree(): org.kevoree.modeling.memory.struct.tree.KLongTree;
                         newLongLongTree(): org.kevoree.modeling.memory.struct.tree.KLongLongTree;
                         newUniverseMap(initSize: number, p_className: string): org.kevoree.modeling.memory.struct.map.KUniverseOrderMap;
+                        newFromKey(universe: number, time: number, uuid: number): org.kevoree.modeling.memory.KMemoryElement;
                     }
                     module map {
                         interface KIntMap<V> {
@@ -1129,7 +1131,7 @@ declare module org {
                                 free(): void;
                                 size(): number;
                                 serialize(m: any): string;
-                                unserialize(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void;
+                                init(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void;
                             }
                         }
                     }
@@ -1149,7 +1151,7 @@ declare module org {
                             setInferElem(index: number, arrayIndex: number, valueToInsert: number, metaClass: org.kevoree.modeling.meta.KMetaClass): void;
                             extendInfer(index: number, newSize: number, metaClass: org.kevoree.modeling.meta.KMetaClass): void;
                             modifiedIndexes(metaClass: org.kevoree.modeling.meta.KMetaClass): number[];
-                            init(metaClass: org.kevoree.modeling.meta.KMetaClass): void;
+                            initMetaClass(metaClass: org.kevoree.modeling.meta.KMetaClass): void;
                             metaClassIndex(): number;
                         }
                         module impl {
@@ -1159,14 +1161,14 @@ declare module org {
                                 private _metaClassIndex;
                                 private _modifiedIndexes;
                                 private _dirty;
-                                init(p_metaClass: org.kevoree.modeling.meta.KMetaClass): void;
+                                initMetaClass(p_metaClass: org.kevoree.modeling.meta.KMetaClass): void;
                                 metaClassIndex(): number;
                                 isDirty(): boolean;
                                 serialize(metaModel: org.kevoree.modeling.meta.KMetaModel): string;
                                 modifiedIndexes(p_metaClass: org.kevoree.modeling.meta.KMetaClass): number[];
                                 setClean(metaModel: org.kevoree.modeling.meta.KMetaModel): void;
                                 setDirty(): void;
-                                unserialize(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void;
+                                init(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void;
                                 counter(): number;
                                 inc(): void;
                                 dec(): void;
@@ -1232,7 +1234,7 @@ declare module org {
                                 private putInPreviousOrEqualsCache(resolved);
                                 private putInLookupCache(resolved);
                                 setClean(metaModel: org.kevoree.modeling.meta.KMetaModel): void;
-                                unserialize(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void;
+                                init(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void;
                                 lookupValue(key: number): number;
                                 private internal_lookup(key);
                                 previousOrEqualValue(key: number): number;
@@ -1281,7 +1283,7 @@ declare module org {
                                 setDirty(): void;
                                 serialize(metaModel: org.kevoree.modeling.meta.KMetaModel): string;
                                 toString(): string;
-                                unserialize(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void;
+                                init(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void;
                                 previousOrEqual(key: number): number;
                                 internal_previousOrEqual(key: number): org.kevoree.modeling.memory.struct.tree.impl.TreeNode;
                                 nextOrEqual(key: number): org.kevoree.modeling.memory.struct.tree.impl.TreeNode;
