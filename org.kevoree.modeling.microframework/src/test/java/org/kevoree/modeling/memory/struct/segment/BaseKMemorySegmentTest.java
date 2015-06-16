@@ -449,7 +449,7 @@ public abstract class BaseKMemorySegmentTest {
                 cacheEntry.setInferElem(homeMetaClass.attribute("value").index(), 1, 1.1, homeMetaClass);
                 cacheEntry.setInferElem(homeMetaClass.attribute("value").index(), 2, 2.1, homeMetaClass);
 
-                Assert.assertEquals("{\"@class\":\"Home\",\"attr_long\":10,\"sensors\":[2,3],\"value\":[0.1,1.1,2.1]}", cacheEntry.serialize(dynamicMetaModel));
+                Assert.assertEquals("{\"attr_long\":10,\"sensors\":[2,3],\"value\":[0.1,1.1,2.1]}", cacheEntry.serialize(dynamicMetaModel));
 
                 KMemorySegment newCacheEntry = createKMemorySegment();
                 newCacheEntry.initMetaClass(homeMetaClass);

@@ -41,7 +41,6 @@ public class HeapMemorySegment implements KMemorySegment {
      * var builder = {};
      * var metaClass = metaModel.metaClass(this._metaClassIndex);
      * var metaElements = metaClass.metaElements();
-     * builder["@class"] = metaClass.metaName();
      * for (var i = 0; i < this.raw.length; i++) {
      * if(this.raw[i] != undefined && this.raw[i] != null){ builder[metaElements[i].metaName()] = this.raw[i]; }
      * }
@@ -51,15 +50,19 @@ public class HeapMemorySegment implements KMemorySegment {
     public String serialize(KMetaModel metaModel) {
         KMetaClass metaClass = metaModel.metaClass(_metaClassIndex);
         StringBuilder builder = new StringBuilder();
-        builder.append("{\"@class\":\"");
-        builder.append(metaClass.metaName());
-        builder.append("\"");
+        builder.append("{");
+        boolean isFirst = true;
         KMeta[] metaElements = metaClass.metaElements();
         if (raw != null && metaElements != null) {
             for (int i = 0; i < raw.length && i < metaElements.length; i++) {
                 Object o = raw[i];
                 if (o != null) {
-                    builder.append(",\"");
+                    if (isFirst) {
+                        builder.append("\"");
+                        isFirst = false;
+                    } else {
+                        builder.append(",\"");
+                    }
                     builder.append(metaElements[i].metaName());
                     builder.append("\":");
                     if (o instanceof String) {
