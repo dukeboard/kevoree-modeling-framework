@@ -136,15 +136,12 @@ public class HeapMemorySegment implements KMemorySegment {
     /**
      * @native ts
      * var rawElem = JSON.parse(payload);
-     * if(rawElem["@class"] != null && rawElem["@class"] != undefined){
-     * var metaClass = metaModel.metaClassByName(rawElem["@class"]);
-     * this._metaClassIndex = metaClass.index();
+     * var metaClass = metaModel.metaClass(this._metaClassIndex);
      * this.raw = [];
      * for (var key in rawElem) {
      * if("@class" != key){
      * var elem = metaClass.metaByName(key);
      * if(elem != null && elem != undefined){ this.raw[elem.index()] = rawElem[key]; }
-     * }
      * }
      * }
      */

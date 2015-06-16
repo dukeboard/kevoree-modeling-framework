@@ -603,7 +603,7 @@ var org;
                             var trimmed = new Array();
                             var inserted = [0];
                             toResolveIds.each(function (key, value) {
-                                trimmed[inserted[0]] = key;
+                                trimmed[inserted[0]] = value;
                                 inserted[0]++;
                             });
                             this._manager.lookupAllobjects(this._universe, this._time, trimmed, function (resolvedArr) {
@@ -5200,7 +5200,6 @@ var org;
                                     var builder = {};
                                     var metaClass = metaModel.metaClass(this._metaClassIndex);
                                     var metaElements = metaClass.metaElements();
-                                    builder["@class"] = metaClass.metaName();
                                     for (var i = 0; i < this.raw.length; i++) {
                                         if (this.raw[i] != undefined && this.raw[i] != null) {
                                             builder[metaElements[i].metaName()] = this.raw[i];
@@ -5239,16 +5238,13 @@ var org;
                                 };
                                 HeapMemorySegment.prototype.init = function (payload, metaModel) {
                                     var rawElem = JSON.parse(payload);
-                                    if (rawElem["@class"] != null && rawElem["@class"] != undefined) {
-                                        var metaClass = metaModel.metaClassByName(rawElem["@class"]);
-                                        this._metaClassIndex = metaClass.index();
-                                        this.raw = [];
-                                        for (var key in rawElem) {
-                                            if ("@class" != key) {
-                                                var elem = metaClass.metaByName(key);
-                                                if (elem != null && elem != undefined) {
-                                                    this.raw[elem.index()] = rawElem[key];
-                                                }
+                                    var metaClass = metaModel.metaClass(this._metaClassIndex);
+                                    this.raw = [];
+                                    for (var key in rawElem) {
+                                        if ("@class" != key) {
+                                            var elem = metaClass.metaByName(key);
+                                            if (elem != null && elem != undefined) {
+                                                this.raw[elem.index()] = rawElem[key];
                                             }
                                         }
                                     }

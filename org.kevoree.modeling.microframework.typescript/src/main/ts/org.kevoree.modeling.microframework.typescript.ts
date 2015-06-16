@@ -795,7 +795,7 @@ module org {
                             var trimmed: number[] = new Array();
                             var inserted: number[] = [0];
                             toResolveIds.each( (key : number, value : number) => {
-                                trimmed[inserted[0]] = key;
+                                trimmed[inserted[0]] = value;
                                 inserted[0]++;
                             });
                             this._manager.lookupAllobjects(this._universe, this._time, trimmed,  (resolvedArr : org.kevoree.modeling.KObject[]) => {
@@ -5778,7 +5778,6 @@ module org {
                                      var builder = {};
                                      var metaClass = metaModel.metaClass(this._metaClassIndex);
                                      var metaElements = metaClass.metaElements();
-                                     builder["@class"] = metaClass.metaName();
                                      for (var i = 0; i < this.raw.length; i++) {
                                      if(this.raw[i] != undefined && this.raw[i] != null){ builder[metaElements[i].metaName()] = this.raw[i]; }
                                      }
@@ -5818,15 +5817,12 @@ module org {
 
                                 public init(payload: string, metaModel: org.kevoree.modeling.meta.KMetaModel): void {
                                      var rawElem = JSON.parse(payload);
-                                     if(rawElem["@class"] != null && rawElem["@class"] != undefined){
-                                     var metaClass = metaModel.metaClassByName(rawElem["@class"]);
-                                     this._metaClassIndex = metaClass.index();
+                                     var metaClass = metaModel.metaClass(this._metaClassIndex);
                                      this.raw = [];
                                      for (var key in rawElem) {
                                      if("@class" != key){
                                      var elem = metaClass.metaByName(key);
                                      if(elem != null && elem != undefined){ this.raw[elem.index()] = rawElem[key]; }
-                                     }
                                      }
                                      }
                                 }
