@@ -331,6 +331,7 @@ public class HeapMemorySegment implements KMemorySegment {
                     }
                     _modifiedIndexes[index] = true;
                     _dirty = true;
+                    return true;
                 }
             }
         }
