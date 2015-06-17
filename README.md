@@ -1,3 +1,6 @@
+#The Kevoree Modeling organization has moved to a new repository => https://github.com/kevoree-modeling see you there !
+
+
 #WARNING, THIS DOCUMENTATION IS NOT UPDATED WITH THE KMF version 4, new documentation aligned with the new asyncronous semantic coming soon... 
 
 Kevoree Modeling
