@@ -90,7 +90,7 @@ If you don't have an existing project you can download one by clicking on the bu
 
 ### Compile models
 
-When your Maven project is ready, just open a terminak, cd into the folder containing the pom file and type in the following command.
+When your Maven project is ready, just open a terminal, cd into the folder containing the pom file and type in the following command.
 
 ```
 mvn clean install
